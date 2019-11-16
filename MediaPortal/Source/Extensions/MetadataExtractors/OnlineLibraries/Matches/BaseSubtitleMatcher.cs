@@ -51,6 +51,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     /// </summary>
     protected object _syncObj = new object();
     protected string _id;
+    protected string _name;
     protected ApiSubtitleWrapper<TId> _wrapper;
     private bool _disposed;
     private bool _useHttps;
@@ -70,6 +71,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     public string Id
     {
       get { return _id; }
+    }
+
+    public string Name
+    {
+      get { return _name; }
     }
 
     protected bool UseSecureWebCommunication

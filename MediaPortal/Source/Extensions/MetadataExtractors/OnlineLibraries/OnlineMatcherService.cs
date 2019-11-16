@@ -135,6 +135,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
+        setting.Name = matcher.Name;
         setting.Enabled = matcher.Enabled;
         list.Add(setting);
       }
@@ -145,6 +146,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
+        setting.Name = matcher.Name;
         setting.Enabled = matcher.Enabled;
         list.Add(setting);
       }
@@ -155,6 +157,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
+        setting.Name = matcher.Name;
         setting.Enabled = matcher.Enabled;
         list.Add(setting);
       }
@@ -165,6 +168,7 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         MatcherSetting setting = new MatcherSetting();
         setting.Id = matcher.Id;
+        setting.Name = matcher.Name;
         setting.Enabled = matcher.Enabled;
         list.Add(setting);
       }

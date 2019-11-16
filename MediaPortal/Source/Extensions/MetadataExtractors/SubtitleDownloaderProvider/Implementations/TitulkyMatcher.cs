@@ -26,9 +26,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 {
   public class TitulkyMatcher : BaseSubtitleDownloaderMatcher
   {
+    public const string NAME = "Titulky.com";
+
     #region Init
 
-    public TitulkyMatcher() : base("TitulkyMatcher", "Titulky.Com", "titulky.com")
+    public TitulkyMatcher() : base("TitulkyMatcher", NAME, "Titulky.Com", "titulky.com")
     {
     }
 

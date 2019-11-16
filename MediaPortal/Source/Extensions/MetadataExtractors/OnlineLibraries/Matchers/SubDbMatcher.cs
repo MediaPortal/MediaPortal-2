@@ -32,11 +32,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class SubDbMatcher : SubtitleMatcher<string>
   {
+    public const string NAME = "Thesubdb.com";
+
     #region Init
 
-    public SubDbMatcher() : base(nameof(SubDbMatcher))
+    public SubDbMatcher() : base(NAME, nameof(SubDbMatcher))
     {
-      //Will be overridden if the user enables it in setttings
+      //Will be overridden if the user enables it in settings
       Enabled = true;
     }
 

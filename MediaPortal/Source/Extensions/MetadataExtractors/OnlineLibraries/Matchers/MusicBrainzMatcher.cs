@@ -40,6 +40,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
   {
     #region Constants
 
+    public const string NAME = "MusicBrainz.org";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\MusicBrainz\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -48,7 +49,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public MusicBrainzMatcher() :
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
       //TODO: Disabled for now. Very slow response times (up to 30 seconds, maybe more).
       Enabled = false;

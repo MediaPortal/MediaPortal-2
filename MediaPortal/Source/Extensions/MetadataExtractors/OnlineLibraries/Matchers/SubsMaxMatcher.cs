@@ -32,11 +32,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class SubsMaxMatcher : SubtitleMatcher<string>
   {
+    public const string NAME = "SubsMax.com";
+
     #region Init
 
-    public SubsMaxMatcher() : base(nameof(SubsMaxMatcher))
+    public SubsMaxMatcher() : base(NAME, nameof(SubsMaxMatcher))
     {
-      //Will be overridden if the user enables it in setttings
+      //Will be overridden if the user enables it in settings
       Enabled = true;
     }
 

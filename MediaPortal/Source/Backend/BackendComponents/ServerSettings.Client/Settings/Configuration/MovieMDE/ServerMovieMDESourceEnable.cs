@@ -52,30 +52,10 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
       foreach(MatcherSetting setting in settings.MovieMatchers)
       {
-        if (setting.Id.Equals("MovieOmDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("OMDBAPI.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("MovieFanArtTvMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("Fanart.tv"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("MovieTheMovieDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("TheMovieDB.org"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("MovieSimApiMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("MoviesApi.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
+        _items.Add(LocalizationHelper.CreateStaticString(setting.Name));
+        if (setting.Enabled)
+          _selected.Add(_items.Count - 1);
+
         _dictionary[setting.Id] = _items.Count - 1;
       }
     }

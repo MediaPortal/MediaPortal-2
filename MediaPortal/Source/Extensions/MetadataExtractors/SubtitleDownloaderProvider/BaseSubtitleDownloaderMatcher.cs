@@ -37,7 +37,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
 
     #region Init
 
-    public BaseSubtitleDownloaderMatcher(string id, string subtitleDownloaderProvider, string providerName) : base(id)
+    public BaseSubtitleDownloaderMatcher(string id, string name, string subtitleDownloaderProvider, string providerName) : base(id, name)
     {
       _subtitleDownloaderProviderId = subtitleDownloaderProvider;
       _providerName = providerName;

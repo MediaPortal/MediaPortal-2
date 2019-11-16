@@ -36,6 +36,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
   {
     #region Constants
 
+    public const string NAME = "OMDBAPI.com";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\OmDB\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -44,7 +45,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public SeriesOmDbMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
       //TODO: Disabled for now. Has gone private for the time being.
       Enabled = false;

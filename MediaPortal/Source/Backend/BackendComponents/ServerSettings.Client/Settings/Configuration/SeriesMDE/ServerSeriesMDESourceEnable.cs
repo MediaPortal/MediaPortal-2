@@ -52,36 +52,10 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
       foreach(MatcherSetting setting in settings.SeriesMatchers)
       {
-        if (setting.Id.Equals("SeriesOmDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("OMDBAPI.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("SeriesFanArtTvMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("Fanart.tv"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("SeriesTheMovieDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("TheMovieDB.org"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("SeriesTvDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("TheTVDB.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("SeriesTvMazeMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("TVmaze.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
+        _items.Add(LocalizationHelper.CreateStaticString(setting.Name));
+        if (setting.Enabled)
+          _selected.Add(_items.Count - 1);
+
         _dictionary[setting.Id] = _items.Count - 1;
       }
     }

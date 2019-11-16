@@ -37,6 +37,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
   {
     #region Constants
 
+    public const string NAME = "TVmaze.com";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvMaze\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -45,9 +46,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public SeriesTvMazeMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, true)
     {
-      //Will be overridden if the user enables it in setttings
+      //Will be overridden if the user enables it in settings
       Enabled = false;
     }
 

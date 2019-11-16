@@ -40,9 +40,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public SubtitleMatcher(string id)
+    public SubtitleMatcher(string id, string name)
     {
       _id = id;
+      _name = name;
     }
 
     public override async Task<bool> InitAsync()

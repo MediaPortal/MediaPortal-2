@@ -26,9 +26,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 {
   public class SublightMatcher : BaseSubtitleDownloaderMatcher
   {
+    public const string NAME = "Sublight.si";
+
     #region Init
 
-    public SublightMatcher() : base("SublightMatcher", "Sublight", "sublight.si")
+    public SublightMatcher() : base("SublightMatcher", NAME, "Sublight", "sublight.si")
     {
     }
 

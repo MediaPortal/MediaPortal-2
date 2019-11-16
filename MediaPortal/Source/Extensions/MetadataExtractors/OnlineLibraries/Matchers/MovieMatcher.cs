@@ -60,12 +60,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public MovieMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
+    public MovieMatcher(string name, string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
     {
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "MovieMatches.xml");
       _maxCacheDuration = maxCacheDuration;
       _id = GetType().Name;
+      _name = name;
       _cacheRefreshable = cacheRefreshable;
 
       _actorMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ActorMatches.xml"));

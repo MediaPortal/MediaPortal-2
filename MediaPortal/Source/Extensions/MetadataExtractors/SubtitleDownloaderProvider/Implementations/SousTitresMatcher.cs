@@ -26,9 +26,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 {
   public class SousTitresMatcher : BaseSubtitleDownloaderMatcher
   {
+    public const string NAME = "Sous-titres.eu";
+
     #region Init
 
-    public SousTitresMatcher() : base("SousTitresMatcher", "Sous-titres.eu", "Sous-titres.eu")
+    public SousTitresMatcher() : base("SousTitresMatcher", NAME, "Sous-titres.eu", "Sous-titres.eu")
     {
     }
 

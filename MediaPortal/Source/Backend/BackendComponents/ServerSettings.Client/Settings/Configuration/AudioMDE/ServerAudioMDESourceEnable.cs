@@ -52,30 +52,10 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
       foreach(MatcherSetting setting in settings.MusicMatchers)
       {
-        if (setting.Id.Equals("MusicBrainzMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("MusicBrainz.org"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("MusicFreeDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("FreeDB.org"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("MusicFanArtTvMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("Fanart.tv"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("MusicTheAudioDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("TheAudioDB.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
+        _items.Add(LocalizationHelper.CreateStaticString(setting.Name));
+        if (setting.Enabled)
+          _selected.Add(_items.Count - 1);
+
         _dictionary[setting.Id] = _items.Count - 1;
       }
     }

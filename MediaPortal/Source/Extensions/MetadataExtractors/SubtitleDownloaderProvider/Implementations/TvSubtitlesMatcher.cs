@@ -26,9 +26,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 {
   public class TvSubtitlesMatcher : BaseSubtitleDownloaderMatcher
   {
+    public const string NAME = "TvSubtitles.net";
+
     #region Init
 
-    public TvSubtitlesMatcher() : base("TvSubtitlesMatcher", "TvSubtitles", "tvsubtitles.net")
+    public TvSubtitlesMatcher() : base("TvSubtitlesMatcher", NAME, "TvSubtitles", "tvsubtitles.net")
     {
     }
 
