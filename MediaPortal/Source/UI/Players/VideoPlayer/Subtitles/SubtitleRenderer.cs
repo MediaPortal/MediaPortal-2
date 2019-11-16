@@ -642,14 +642,13 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
             if (!string.IsNullOrWhiteSpace(currentSubtitle.Text))
             {
-              // TODO: this calculation works at the moment only in fullscreen mode. When using windowed mode, the text is off screen on bottom and not visible.
               // Calculate font size by the available target height divided by the number of teletext lines (25).
-              float fontSize = (float)Math.Floor(SkinContext.SkinResources.SkinHeight / 25f);
+              float fontSize = (float)Math.Floor(SkinContext.WindowSize.Height / 25f);
               if (_textBuffer == null)
                 _textBuffer = new TextBuffer(FontManager.DefaultFontFamily, fontSize);
               _textBuffer.Text = currentSubtitle.Text;
-
-              RectangleF rectangleF = new RectangleF(0, 0, SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+              
+              RectangleF rectangleF = new RectangleF(0, 0, SkinContext.WindowSize.Width, SkinContext.WindowSize.Height);
 
               HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Center;
               VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
@@ -694,38 +693,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _onTextureInvalidated?.Invoke();
       }
     }
-
-    public static Bitmap RenderText(LineContent[] lc)
-    {
-      int w = SkinContext.SkinResources.SkinWidth;
-      int h = SkinContext.SkinResources.SkinHeight;
-
-      Bitmap bmp = new Bitmap(w, h);
-
-      using (Graphics gBmp = Graphics.FromImage(bmp))
-      using (SolidBrush brush = new SolidBrush(Color.FromArgb(255, 255, 255)))
-      using (SolidBrush blackBrush = new SolidBrush(Color.FromArgb(0, 0, 0)))
-      {
-        gBmp.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-        for (int i = 0; i < lc.Length; i++)
-        {
-          using (System.Drawing.Font fnt = new System.Drawing.Font("Consolas", (lc[i].doubleHeight ? 22 : 15), FontStyle.Bold)) // fixed width font!
-          {
-            int vertOffset = (h / lc.Length) * i;
-
-            SizeF size = gBmp.MeasureString(lc[i].line, fnt);
-            int horzOffset = (int)((w - size.Width) / 2); // center based on actual text width
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 1, vertOffset + 0));
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 0, vertOffset + 1));
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset - 1, vertOffset + 0));
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 0, vertOffset - 1));
-            gBmp.DrawString(lc[i].line, fnt, brush, new PointF(horzOffset, vertOffset));
-          }
-        }
-      }
-      return bmp;
-    }
-
+    
     #endregion
 
     #region Subtitle queue handling
