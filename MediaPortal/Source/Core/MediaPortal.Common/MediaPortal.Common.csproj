@@ -488,6 +488,7 @@
     <Compile Include="UPnP\UPnPDtDictionary.cs" />
     <Compile Include="UPnP\UPnPDtMediaCategoryEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtRelationshipItemEnumeration.cs" />
+    <Compile Include="UPnP\UPnPDtUsageStatistics.cs" />
     <Compile Include="UPnP\UPnPSystemResumeHelper.cs" />
     <Compile Include="UPnP\UPnPTypesAndIds.cs" />
     <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />
@@ -517,6 +518,7 @@
     <Compile Include="UserManagement\UserMessaging.cs" />
     <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
     <Compile Include="UserProfileDataManagement\IUserRestriction.cs" />
+    <Compile Include="UserProfileDataManagement\UsageStatistics.cs" />
     <Compile Include="UserProfileDataManagement\UserDataKeysKnown.cs" />
     <Compile Include="UserProfileDataManagement\UserProfile.cs" />
     <Compile Include="VersionInfo\VersionInfo.cs" />

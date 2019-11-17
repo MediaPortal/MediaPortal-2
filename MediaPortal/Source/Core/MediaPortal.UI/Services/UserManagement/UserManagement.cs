@@ -159,4 +159,15 @@ namespace MediaPortal.UI.Services.UserManagement
       }
     }
   }
+
+  public static class UserManagementExtensions
+  {
+    public static async Task<bool> NotifyUsage(this IUserManagement userManagement, string scope, string usedItem)
+    {
+      if (userManagement == null || userManagement.UserProfileDataManagement == null || !userManagement.IsValidUser)
+        return false;
+
+      return await userManagement.UserProfileDataManagement.NotifyFeatureUsageAsync(userManagement.CurrentUser.ProfileId, scope, usedItem);
+    }
+  }
 }

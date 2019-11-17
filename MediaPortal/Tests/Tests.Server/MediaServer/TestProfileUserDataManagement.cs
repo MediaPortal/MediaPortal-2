@@ -16,6 +16,11 @@ namespace Tests.Server.MediaServer
       return Task.FromResult(true);
     }
 
+    public Task<UsageStatistics> GetFeatureUsageStatisticsAsync(Guid profileId, string scope)
+    {
+      throw new NotImplementedException();
+    }
+
     public Task<bool> ClearAllUserDataAsync(Guid profileId)
     {
       return Task.FromResult(true);
@@ -87,6 +92,11 @@ namespace Tests.Server.MediaServer
     }
 
     public Task<AsyncResult<IEnumerable<Tuple<string, int, string>>>> GetUserSelectedAdditionalDataListAsync(Guid profileId, string[] keys, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null)
+    {
+      throw new NotImplementedException();
+    }
+
+    public Task<bool> NotifyFeatureUsageAsync(Guid profileId, string scope, string usedItem)
     {
       throw new NotImplementedException();
     }

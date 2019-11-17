@@ -38,6 +38,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
@@ -387,7 +390,16 @@ namespace MediaPortal.UiComponents.Weather.Models
     {
       // Add citys from settings to the locations list
       ReadSettings(false).Wait();
+      NotifyUsage();
       StartRefreshTask();
+    }
+
+    private void NotifyUsage()
+    {
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      userManagement.NotifyUsage("weather", "main").Wait();
+
+      var stats = userManagement.UserProfileDataManagement.GetFeatureUsageStatisticsAsync(userManagement.CurrentUser.ProfileId, "weather").Result;
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

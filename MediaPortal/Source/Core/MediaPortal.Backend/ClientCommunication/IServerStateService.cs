@@ -27,7 +27,7 @@ using System;
 namespace MediaPortal.Backend.ClientCommunication
 {
   /// <summary>
-  /// Interface for sending arbitary state objects to connected clients.
+  /// Interface for sending arbitrary state objects to connected clients.
   /// </summary>
   public interface IServerStateService
   {
