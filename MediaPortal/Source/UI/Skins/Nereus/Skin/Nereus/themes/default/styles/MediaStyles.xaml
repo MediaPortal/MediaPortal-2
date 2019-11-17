@@ -176,6 +176,8 @@
                   <StackPanel x:Name="PlayControlsPanel_Back" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                             Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
+                    <Button x:Name="PlayingInfoButton" Style="{ThemeResource PlayerInfoButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=5764A810-F298-4a20-BF84-F03D16F775B1}"/>
                     <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                             IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                             Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
@@ -268,6 +270,8 @@
                   </Grid.RowDefinitions>
 
                   <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button x:Name="PlayingInfoButton" Style="{ThemeResource PlayerInfoButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=4596B758-CE2B-4e31-9CB9-6C30215831ED}"/>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}"
                             Command="{Command Stop}"/>
                     <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}"

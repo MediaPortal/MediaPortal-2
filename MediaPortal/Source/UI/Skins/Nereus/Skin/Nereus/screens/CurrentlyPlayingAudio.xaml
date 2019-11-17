@@ -257,6 +257,12 @@
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
+                <Grid.Triggers>
+                  <DataTrigger Binding="{Binding ElementName=ComposerList, Path=Items.Count}" Value="0">
+                    <Setter Property="Visibility" Value="Hidden"/>
+                  </DataTrigger>
+                </Grid.Triggers>
+
                 <Grid Margin="200,15,0,-2">
                   <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
@@ -264,7 +270,7 @@
                          Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Composers"/>
                 </Grid>
 
-                <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
+                <ListView x:Name="ComposerList" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
                   <ListView.ItemsSource>
                     <RelationshipQuery

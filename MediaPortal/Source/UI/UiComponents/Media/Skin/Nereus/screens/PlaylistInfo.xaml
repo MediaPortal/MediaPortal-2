@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.PlaylistDetailsHeader]"/>
+
+    <!-- Manage playlists model -->
+    <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="10"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Grid.Row="0" Grid.Column="0" Margin="10" Content="[Media.PlaylistNameInfoLabel]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+        <Label Grid.Row="0" Grid.Column="2" Margin="10" Content="{Binding Playlist.Name}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Label Grid.Row="1" Grid.Column="0" Margin="10" Content="[Media.PlaylistTypeInfoLabel]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+        <Label Grid.Row="1" Grid.Column="2" Margin="10" Content="{Binding Playlist.PlaylistType}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Label Grid.Row="2" Grid.Column="0" Margin="10" Content="[Media.PlaylistNumItemsLabel]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+        <Label Grid.Row="2" Grid.Column="2" Margin="10" Content="{Binding Playlist.NumItems}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Label Grid.Row="3" Grid.Column="0" Margin="10" Content="[Media.PlaylistIdInfoLabel]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
+        <Label Grid.Row="3" Grid.Column="2" Margin="10" Content="{Binding Playlist.PlaylistId}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+
+        <Grid Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="3" Margin="10,10,10,150">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="500"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="LoadButton" Grid.Row="0" Grid.Column="1" Style="{ThemeResource WizardButtonStyle}"
+              Content="[Media.LoadPlaylistButton]" IsEnabled="{Binding IsHomeServerConnected}"
+              Command="{Command LoadPlaylist}"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
