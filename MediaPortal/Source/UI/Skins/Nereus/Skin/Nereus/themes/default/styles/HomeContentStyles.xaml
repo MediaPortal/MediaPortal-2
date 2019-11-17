@@ -2500,6 +2500,71 @@
     </Grid>
   </ControlTemplate>
 
+  <!-- TODO -->
+  <ControlTemplate x:Key="OnlineVideosLanguageDataTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+          </MultiBinding>
+        </Grid.Background>
+      </Grid>
+
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="30*"/>
+          <ColumnDefinition Width="40*"/>
+          <ColumnDefinition Width="30*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30*"/>
+          <RowDefinition Height="40*"/>
+          <RowDefinition Height="30*"/>
+        </Grid.RowDefinitions>
+        <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Thumbnail="False"
+               Source="{Binding Thumb}" FallbackSource="{Binding [DefaultIcon]}" Grid.Column="1" Grid.Row="1"/>
+      </Grid>
+
+      <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="45"/>
+        </Grid.RowDefinitions>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
+               ScrollDelay="0" FontFamily="SegoeUIBold">
+          <Label.Scroll>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="Auto"/>
+              <Binding Source="None"/>
+            </MultiBinding>
+          </Label.Scroll>
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
+
   <DataTemplate DataType="{x:Type nereus_home_content:LastOnlineVideoSiteList}">
     <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
       <Control.Resources>
@@ -2516,6 +2581,15 @@
     </Control>
   </DataTemplate>
 
+  <!-- TODO -->
+  <DataTemplate DataType="{x:Type nereus_home_content:TopLanguagesOnlineVideoSitesList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
   <DataTemplate DataType="{x:Type nereus_home_content:OnlineVideosHomeContent}">
     <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
@@ -2525,6 +2599,8 @@
       </ListView.Resources>
     </ListView>
   </DataTemplate>
+
+  <!-- TODO DataTemplate for language list items? -->
 
   <!--++++++++++ TV +++++++++++-->
 

@@ -30,10 +30,11 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     protected override void PopulateBackingList()
     {
-      var alm = GetOnlineVideosListModel();
+      var onlineVideosModel = GetOnlineVideosListModel();
 
-      _backingList.Add(new LastOnlineVideoSiteList(alm.Lists["LastOnlineVideoSites"].AllItems));
-      _backingList.Add(new FavoriteOnlineVideoSiteList(alm.Lists["FavoriteOnlineVideoSites"].AllItems));
+      _backingList.Add(new LastOnlineVideoSiteList(onlineVideosModel.Lists["LastOnlineVideoSites"].AllItems));
+      _backingList.Add(new FavoriteOnlineVideoSiteList(onlineVideosModel.Lists["FavoriteOnlineVideoSites"].AllItems));
+      _backingList.Add(new TopLanguagesOnlineVideoSitesList(onlineVideosModel.Lists["TopLanguagesOnlineVideoSites"].AllItems));
     }
   }
 
@@ -48,6 +49,13 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public FavoriteOnlineVideoSiteList(ItemsList mediaList)
       : base(mediaList, "[Nereus.Home.Favorites]")
+    { }
+  }
+
+  public class TopLanguagesOnlineVideoSitesList : ItemsListWrapper
+  {
+    public TopLanguagesOnlineVideoSitesList(ItemsList mediaList)
+      : base(mediaList, "[Nereus.Home.TopLanguages]")
     { }
   }
 }
