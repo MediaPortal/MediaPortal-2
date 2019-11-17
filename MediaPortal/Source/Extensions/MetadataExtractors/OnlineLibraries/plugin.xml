@@ -20,39 +20,7 @@
     <Assembly FileName="OnlineLibraries.dll"/>
   </Runtime>
 
-  <Register Location="/Services">
-    <!--Movie Matchers-->
-    <Service Id="MovieFanArtTvMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieFanArtTvMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieFanArtTvMatcher"/>
-    <Service Id="MovieOmDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieOmDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieOmDbMatcher"/>
-    <Service Id="MovieTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieTheMovieDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieTheMovieDbMatcher"/>
-    <Service Id="MovieSimApiMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieSimApiMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MovieSimApiMatcher"/>
-    
-    <!--Series Matchers-->
-    <Service Id="SeriesTvDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTvDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTvDbMatcher"/>
-    <Service Id="SeriesFanArtTvMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesFanArtTvMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesFanArtTvMatcher"/>
-    <Service Id="SeriesOmDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesOmDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesOmDbMatcher"/>
-    <Service Id="SeriesTheMovieDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTheMovieDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTheMovieDbMatcher"/>
-    <Service Id="SeriesTvMazeMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTvMazeMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.SeriesTvMazeMatcher"/>
-    
-    <!--Music Matchers-->
-    <Service Id="MusicBrainzMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicBrainzMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicBrainzMatcher"/>
-    <Service Id="MusicFanArtTvMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFanArtTvMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFanArtTvMatcher"/>
-    <Service Id="MusicTheAudioDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicTheAudioDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicTheAudioDbMatcher"/>
-    <Service Id="MusicFreeDbMatcher" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFreeDbMatcher"
-        ServiceClassName="MediaPortal.Extensions.OnlineLibraries.Matchers.MusicFreeDbMatcher"/>
-    
+  <Register Location="/Services">   
    <!--Geo Location Service-->
     <Service Id="GeoLocationService" RegistrationClassName="MediaPortal.Extensions.OnlineLibraries.Libraries.IGeoLocationService"
         ServiceClassName="MediaPortal.Extensions.OnlineLibraries.GeoLocationService"/>

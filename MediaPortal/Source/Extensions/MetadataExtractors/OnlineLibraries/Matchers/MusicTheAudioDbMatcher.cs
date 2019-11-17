@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        TheAudioDbWrapper wrapper = new TheAudioDbWrapper();
+        TheAudioDbWrapper wrapper = new TheAudioDbWrapper(NAME);
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = new CultureInfo(PreferredLanguageCulture);
         string lang = new RegionInfo(currentCulture.Name).TwoLetterISORegionName;

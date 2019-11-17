@@ -72,6 +72,7 @@
     <Compile Include="Implementations\SubsceneMatcher.cs" />
     <Compile Include="Implementations\TvSubtitlesMatcher.cs" />
     <Compile Include="Implementations\OpenSubtitlesMatcher.cs" />
+    <Compile Include="SubtitleDownloaderProviderPlugin.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="BaseSubtitleDownloaderMatcher.cs" />
     <Compile Include="SubtitleDownloaderWrapper.cs" />

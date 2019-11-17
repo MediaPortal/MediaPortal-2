@@ -72,7 +72,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        TvDbWrapper wrapper = new TvDbWrapper();
+        TvDbWrapper wrapper = new TvDbWrapper(NAME);
         // Try to lookup online content in the configured language
         CultureInfo mpLocal = new CultureInfo(PreferredLanguageCulture);
         if (await wrapper.InitAsync(CACHE_PATH, useHttps).ConfigureAwait(false))

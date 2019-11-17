@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        SubsMaxWrapper wrapper = new SubsMaxWrapper();
+        SubsMaxWrapper wrapper = new SubsMaxWrapper(NAME);
         if (wrapper.Init())
         {
           _wrapper = wrapper;

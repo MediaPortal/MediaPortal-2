@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        SimApiWrapper wrapper = new SimApiWrapper();
+        SimApiWrapper wrapper = new SimApiWrapper(NAME);
         if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;

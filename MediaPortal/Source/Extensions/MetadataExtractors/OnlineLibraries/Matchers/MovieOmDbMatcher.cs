@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        OmDbWrapper wrapper = new OmDbWrapper();
+        OmDbWrapper wrapper = new OmDbWrapper(NAME);
         if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;

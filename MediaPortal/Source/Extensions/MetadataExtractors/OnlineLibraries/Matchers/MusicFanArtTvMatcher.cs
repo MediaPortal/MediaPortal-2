@@ -58,7 +58,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        FanArtTVWrapper wrapper = new FanArtTVWrapper();
+        FanArtTVWrapper wrapper = new FanArtTVWrapper(NAME);
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = new CultureInfo(PreferredLanguageCulture);
         wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);

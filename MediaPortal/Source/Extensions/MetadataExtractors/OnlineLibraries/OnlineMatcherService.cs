@@ -84,8 +84,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
       _subtitleMatchers.Add(new SubDbMatcher());
       _subtitleMatchers.Add(new SubsMaxMatcher());
 
-      InitProviders();
-
       //Load settings
       LoadSettings();
 
@@ -212,59 +210,6 @@ namespace MediaPortal.Extensions.OnlineLibraries
 
 
     #region Providers
-
-    private IEnumerable<T> InitProviders<T>(string providerPath)
-    {
-      List<T> providers = new List<T>();
-      IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-      foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(providerPath))
-      {
-        try
-        {
-          OnlineProviderRegistration onlineProviderRegistration = pluginManager.RequestPluginItem<OnlineProviderRegistration>(providerPath, itemMetadata.Id, _onlineProviderPluginItemStateTracker);
-          if (onlineProviderRegistration == null || onlineProviderRegistration.ProviderClass == null)
-            ServiceRegistration.Get<ILogger>().Warn("Could not instantiate {1} with id '{0}'", itemMetadata.Id, typeof(T).Name);
-          else
-          {
-            object provider = Activator.CreateInstance(onlineProviderRegistration.ProviderClass);
-            if (!(provider is T))
-              throw new PluginInvalidStateException("Could not create {1} instance of class {0}", onlineProviderRegistration.ProviderClass, typeof(T).Name);
-            providers.Add((T)provider);
-          }
-        }
-        catch (PluginInvalidStateException e)
-        {
-          ServiceRegistration.Get<ILogger>().Warn("Cannot add {1} with id '{0}'", e, itemMetadata.Id, typeof(T).Name);
-        }
-      }
-      return providers;
-    }
-
-    private void InitProviders()
-    {
-      lock (_syncObj)
-      {
-        if (_providersInited)
-          return;
-
-        _providersInited = true;
-        _onlineProviderPluginItemStateTracker = new FixedItemStateTracker("OnlineMatcher Service - Provider registration");
-
-        IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
-
-        //Audio providers
-        _audioMatchers.AddRange(InitProviders<IAudioMatcher>(OnlineProviderBuilder.AUDIO_PROVIDER_PATH));
-
-        //Movie providers
-        _movieMatchers.AddRange(InitProviders<IMovieMatcher>(OnlineProviderBuilder.MOVIE_PROVIDER_PATH));
-
-        //Series providers
-        _seriesMatchers.AddRange(InitProviders<ISeriesMatcher>(OnlineProviderBuilder.SERIES_PROVIDER_PATH));
-
-        //Subtitle providers
-        _subtitleMatchers.AddRange(InitProviders<ISubtitleMatcher>(OnlineProviderBuilder.SUBTITLE_PROVIDER_PATH));
-      }
-    }
 
     public void Dispose()
     {
@@ -449,6 +394,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
+    public void RegisterAudioMatchers(params IAudioMatcher[] matchers)
+    {
+      _audioMatchers.AddRange(matchers);
+    }
+
     #endregion
 
     #region Movie
@@ -615,6 +565,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
       {
         matcher.StoreCompanyMatch(company);
       }
+    }
+
+    public void RegisterMovieMatchers(params IMovieMatcher[] matchers)
+    {
+      _movieMatchers.AddRange(matchers);
     }
 
     #endregion
@@ -834,6 +789,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
       }
     }
 
+    public void RegisterSeriesMatchers(params ISeriesMatcher[] matchers)
+    {
+      _seriesMatchers.AddRange(matchers);
+    }
+
     #endregion
 
     #region Subtitles
@@ -862,6 +822,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
         success |= await matcher.DownloadSubtitleAsync(subtitleInfo, overwriteExisting).ConfigureAwait(false);
       }
       return success;
+    }
+
+    public void RegisterSubtitleMatchers(params ISubtitleMatcher[] matchers)
+    {
+      _subtitleMatchers.AddRange(matchers);
     }
 
     #endregion

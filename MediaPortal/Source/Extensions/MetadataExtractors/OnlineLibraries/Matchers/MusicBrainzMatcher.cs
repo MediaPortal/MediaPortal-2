@@ -59,7 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        MusicBrainzWrapper wrapper = new MusicBrainzWrapper();
+        MusicBrainzWrapper wrapper = new MusicBrainzWrapper(NAME);
         // Try to lookup online content in the configured language
         string lang = new RegionInfo(PreferredLanguageCulture).TwoLetterISORegionName;
         wrapper.SetPreferredLanguage(lang);

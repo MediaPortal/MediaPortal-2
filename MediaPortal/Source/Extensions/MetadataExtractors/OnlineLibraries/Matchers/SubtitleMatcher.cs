@@ -77,7 +77,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Fields
 
     private bool _enabled = true;
-    private bool _useHttps = true;
     private string _preferredLanguageCulture = "en-US";
     private bool _useMediaAudioIfUnmatched = false;
 

@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 
     #region Init
 
-    public TitulkyMatcher() : base("TitulkyMatcher", NAME, "Titulky.Com", "titulky.com")
+    public TitulkyMatcher() : base("TitulkyMatcher", NAME, "Titulky.Com")
     {
     }
 

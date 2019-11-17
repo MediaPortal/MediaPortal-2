@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        FreeDbWrapper wrapper = new FreeDbWrapper();
+        FreeDbWrapper wrapper = new FreeDbWrapper(NAME);
         if (wrapper.Init(CACHE_PATH))
         {
           _wrapper = wrapper;

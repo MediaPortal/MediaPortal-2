@@ -38,6 +38,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
   class FanArtTVWrapper : ApiMediaWrapper<FanArtMovieThumb, string>
   {
     protected FanArtTVApiV3 _fanArtTvHandler;
+    protected readonly string _name;
+
+    public FanArtTVWrapper(string name)
+    {
+      _name = name;
+    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.

@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        SubDbWrapper wrapper = new SubDbWrapper();
+        SubDbWrapper wrapper = new SubDbWrapper(NAME);
         if (wrapper.Init())
         {
           _wrapper = wrapper;

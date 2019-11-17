@@ -56,7 +56,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        TvMazeWrapper wrapper = new TvMazeWrapper();
+        TvMazeWrapper wrapper = new TvMazeWrapper(NAME);
         if (wrapper.Init(CACHE_PATH))
         {
           _wrapper = wrapper;

@@ -40,9 +40,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
   class OmDbWrapper : ApiMediaWrapper<object, string>
   {
-    private const string PROVIDER_NAME = "omdbapi.com";
-
     protected OmDbApiV1 _omDbHandler;
+    protected readonly string _name;
+
+    public OmDbWrapper(string name)
+    {
+      _name = name;
+    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -66,7 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ImdbId = m.ImdbID,
         MovieName = new SimpleTitle(m.Title, true),
         ReleaseDate = m.Year.HasValue ? new DateTime(m.Year.Value, 1, 1) : default(DateTime?),
-        DataProviders = new List<string>() { PROVIDER_NAME }
+        DataProviders = new List<string>() { _name }
       }).ToList();
     }
 
@@ -100,7 +104,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 SeriesName = new SimpleTitle(season.Title, true),
                 SeasonNumber = episodeSearch.SeasonNumber.Value,
                 EpisodeName = new SimpleTitle(episode.Title, false),
-                DataProviders = new List<string>() { PROVIDER_NAME }
+                DataProviders = new List<string>() { _name }
               };
               if(episode.EpisodeNumber.HasValue)
                 info.EpisodeNumbers.Add(episode.EpisodeNumber.Value);
@@ -119,7 +123,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SeriesName = seriesSearch == null ? episodeSearch.SeriesName : seriesSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
-          DataProviders = new List<string>() { PROVIDER_NAME }
+          DataProviders = new List<string>() { _name }
         };
         info.CopyIdsFrom(seriesSearch);
         info.EpisodeNumbers = info.EpisodeNumbers.Union(episodeSearch.EpisodeNumbers).ToList();
@@ -146,7 +150,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ImdbId = s.ImdbID,
         SeriesName = new SimpleTitle(s.Title, true),
         FirstAired = s.Year.HasValue ? new DateTime(s.Year.Value, 1, 1) : default(DateTime?),
-        DataProviders = new List<string>() { PROVIDER_NAME }
+        DataProviders = new List<string>() { _name }
       }).ToList();
       return series;
     }
@@ -217,8 +221,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (movie.Directors.Count == 0)
           movie.Directors = ConvertToPersons(movieDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, movieDetail.Title);
 
-        if (!movie.DataProviders.Contains(PROVIDER_NAME))
-          movie.DataProviders.Add(PROVIDER_NAME);
+        if (!movie.DataProviders.Contains(_name))
+          movie.DataProviders.Add(_name);
 
         return true;
       }
@@ -346,8 +350,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         series.TotalSeasons = series.Seasons.Count;
         series.TotalEpisodes = series.Episodes.Count;
 
-        if (!series.DataProviders.Contains(PROVIDER_NAME))
-          series.DataProviders.Add(PROVIDER_NAME);
+        if (!series.DataProviders.Contains(_name))
+          series.DataProviders.Add(_name);
 
         return true;
       }
@@ -372,8 +376,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         season.SeasonNumber = seasonDetail.SeasonNumber;
         season.TotalEpisodes = seasonDetail.Episodes.Count;
 
-        if (!season.DataProviders.Contains(PROVIDER_NAME))
-          season.DataProviders.Add(PROVIDER_NAME);
+        if (!season.DataProviders.Contains(_name))
+          season.DataProviders.Add(_name);
 
         return true;
       }
@@ -438,7 +442,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               info.Directors = ConvertToPersons(episodeDetail.Writers, PersonAspect.OCCUPATION_DIRECTOR, episodeDetail.Title, seasonDetail.Title);
             if (episode.Writers == null || episode.Writers.Count == 0)
               info.Writers = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_WRITER, episodeDetail.Title, seasonDetail.Title);
-            info.DataProviders = new List<string>() { PROVIDER_NAME };
+            info.DataProviders = new List<string>() { _name };
             episodeDetails.Add(info);
           }
         }
@@ -480,7 +484,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Order = sortOrder++,
           MediaName = media,
           ParentMediaName = parentMedia,
-          DataProviders = new List<string>() { PROVIDER_NAME }
+          DataProviders = new List<string>() { _name }
         });
       return retValue;
     }

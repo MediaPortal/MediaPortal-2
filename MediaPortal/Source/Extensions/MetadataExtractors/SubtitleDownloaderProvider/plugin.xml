@@ -18,63 +18,6 @@
 
   <Runtime>
     <Assembly FileName="SubtitleDownloaderProvider.dll"/>
-    <Assembly FileName="..\OnlineLibraries\OnlineLibraries.dll"/>
   </Runtime>
-
-  <Builder Name="OnlineProviderBuilder" ClassName="MediaPortal.Extensions.OnlineLibraries.OnlineProviderBuilder"/>
-  <Register Location="/Online/SubtitleProviders">
-    <OnlineProviderBuilder
-      Id="{67AF7077-B701-4B9E-BC54-7A24530CF381}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations.OpenSubtitlesMatcher"
-      ProviderName="OpenSubtitles"/>
-  </Register>
-  <Register Location="/Online/SubtitleProviders">
-    <OnlineProviderBuilder
-      Id="{14FDEB24-5649-4CCD-9C0F-73A1243BA768}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations.MovieSubtitlesMatcher"
-      ProviderName="MovieSubtitles"/>
-  </Register>
-  <Register Location="/Online/SubtitleProviders">
-    <OnlineProviderBuilder
-      Id="{8CAA0A9A-3374-48B4-A8B1-C8459739A40F}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations.SubsceneMatcher"
-      ProviderName="Subscene"/>
-  </Register>
-  <Register Location="/Online/SubtitleProviders">
-    <OnlineProviderBuilder
-      Id="{B78063ED-8AA7-4FBD-8D91-84E55246304E}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations.TvSubtitlesMatcher"
-      ProviderName="TvSubtitles"/>
-  </Register>
-  <Register Location="/Online/SubtitleProviders">
-    <OnlineProviderBuilder
-      Id="{FBDA20EB-27BF-443F-8FA2-C25D1D72DDB2}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations.PodnapisiMatcher"
-      ProviderName="Podnapisi"/>
-  </Register>
-  <Register Location="/Online/SubtitleProviders">
-    <OnlineProviderBuilder
-      Id="{B9F0B3DD-7715-4308-B86E-3AB0AD5F64E5}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations.SousTitresMatcher"
-      ProviderName="SousTitres"/>
-  </Register>
-  <Register Location="/Online/SubtitleProviders">
-    <OnlineProviderBuilder
-      Id="{DEC36DF6-8689-49FE-B329-EC23855514AA}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations.SublightMatcher"
-      ProviderName="Sublight"/>
-  </Register>
-  <Register Location="/Online/SubtitleProviders">
-    <OnlineProviderBuilder
-      Id="{766811A3-D0DE-4418-926B-45D9367E9422}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations.TitloviMatcher"
-      ProviderName="Titlovi"/>
-  </Register>
-  <Register Location="/Online/SubtitleProviders">
-    <OnlineProviderBuilder
-      Id="{4BD8DCB1-A1F1-4D23-A6F2-92ED6E01E8FD}"
-      ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations.TitulkyMatcher"
-      ProviderName="Titulky"/>
-  </Register>
 
 </Plugin>
