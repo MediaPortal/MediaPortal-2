@@ -32,9 +32,10 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     {
       var onlineVideosModel = GetOnlineVideosListModel();
 
+      _backingList.Add(new TopLanguagesOnlineVideoSitesList(onlineVideosModel.Lists["TopLanguagesOnlineVideoSites"].AllItems));
       _backingList.Add(new LastOnlineVideoSiteList(onlineVideosModel.Lists["LastOnlineVideoSites"].AllItems));
       _backingList.Add(new FavoriteOnlineVideoSiteList(onlineVideosModel.Lists["FavoriteOnlineVideoSites"].AllItems));
-      _backingList.Add(new TopLanguagesOnlineVideoSitesList(onlineVideosModel.Lists["TopLanguagesOnlineVideoSites"].AllItems));
+      
     }
   }
 
