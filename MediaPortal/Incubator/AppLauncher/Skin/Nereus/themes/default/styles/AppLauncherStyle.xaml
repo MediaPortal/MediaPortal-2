@@ -6,7 +6,7 @@
   xmlns:wrh="clr-namespace:AppLauncher.Models"
   DependsOnStyleResources="OtherControls,OtherControlsOverrides,MediaConsts,MediaStyles">
 
-  <Model x:Key="ViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
+  <Model x:Key="GenericViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
 
   <DataTemplate x:Key="AppLauncherListDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
@@ -137,7 +137,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <Binding Source="{ThemeResource AppLauncherListDataTemplate}"/>
               <Binding Source="{ThemeResource AppLauncherGridDataTemplate}"/>
             </MultiBinding>
@@ -151,7 +151,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <Binding Source="{ThemeResource AppLauncherListContainerStyle}"/>
               <Binding Source="{ThemeResource AppLauncherGridContainerStyle}"/>
             </MultiBinding>
@@ -177,7 +177,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <!-- List layout -->
               <Binding>
                 <Binding.Source>
