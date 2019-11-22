@@ -29,6 +29,7 @@ using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -50,7 +51,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Clear();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
-      foreach(MatcherSetting setting in settings.MusicMatchers)
+      foreach(MatcherSetting setting in settings.MusicMatchers.OrderBy(m => m.Name))
       {
         _items.Add(LocalizationHelper.CreateStaticString(setting.Name));
         if (setting.Enabled)
