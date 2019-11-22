@@ -1,0 +1,224 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ScriptableScraper>
+  <details>
+    <!-- These details are for display purposes only. -->
+    <name>moviemeter.nl</name>
+    <author>Armand Pondman (armandp)</author>
+    <description>This script pulls data from moviemeter.nl</description>
+
+    <!-- 
+    These two fields uniquely identify the script. The ID should never 
+    change and should be unique (no other script should use this ID). With
+    new versions of the script the version numbers should change. EVEN FOR 
+    MINOR CHANGES, you should change the version number if you are going to
+    disribute it to anyone but internal testers. The point number 
+    is for minor bug fix releases. Use it.
+    -->
+    <id>874910</id>
+    <version major="1" minor="2" point="0"/>
+    <published month="4" day="24" year="2009"/>
+
+    <!--
+    These fields are used for categorization purposes. Seperate multiple 
+    types with a pipe | character.
+    -->
+    <type>MovieDetailsFetcher|MovieCoverFetcher</type>
+    <language>nl</language>
+  </details>
+  
+  <action name="search">
+    
+    <!-- Variables -->
+    <set name="site" value="http://www.moviemeter.nl/film/" />
+
+    <!-- Regular Expressions -->
+    <set name="rx_results">
+      <![CDATA[
+      <h1>Zoekresultaten</h1>.+zoekresultaten in films:.+<p>Pas je zoekopdracht aan:</p>
+      ]]>
+    </set>
+    
+    <set name="rx_verify">
+      <![CDATA[
+      <a\shref="${site}(\d+)"[\s]*>(.+?)</a>[\s]*\((\d{4})\)
+      ]]>
+    </set>
+  
+    <!-- Make the search request -->
+    <retrieve name="search_request" url="${site}search/${search.title:safe}"/>
+    
+    <!-- Get the results from another url -->
+    <retrieve name="search_page" url="${site}searchresults#results" />    
+    
+    <!-- if we got a search result page, this is used. if not, regex does not match so we dont process the outer loop.-->
+    <parse name="search_results_block" input="${search_page}" regex="${rx_results}"/>
+    <loop name="search_results_verified" on="search_results_block">
+      <parse name="movie_details" input="${search_results_verified}" regex="${rx_verify}" />
+      <loop name="curr_details" on="movie_details">
+        <parse name="title" input="${curr_details[1]:htmldecode}" regex="(.+?)(?:, (The|A))?$"/>
+        <set name="movie[${count}].title" value="${title[0][1]} ${title[0][0]}"/>
+        <set name="movie[${count}].year" value="${curr_details[2]:htmldecode}"/>
+        <set name="movie[${count}].site_id" value="${curr_details[0]}"/>
+        <subtract name="movie[${count}].popularity" value1="100" value2="${count}"/>
+      </loop>
+    </loop>
+    
+  </action>
+
+  <action name="get_details">
+    
+    <!-- only continue if we have a site id -->
+    
+    <if test="${movie.site_id}!=">
+
+      <!-- Variables -->
+      <set name="site" value="http://www.moviemeter.nl/film/" />
+
+      <!-- Regular Expressions -->
+      <set name="rx_title">
+        <![CDATA[
+      <title>(.+?)(?:, (The|A))?\s\((\d{4})\).*</title>
+      ]]>
+      </set>
+
+      <set name="rx_filminfo">
+        <![CDATA[
+      <div id="film_info" class="film_info">.*?</div>
+      ]]>
+      </set>
+
+      <set name="rx_directors_block">
+        <![CDATA[
+      <br />geregisseerd\sdoor\s(.*?)<br />met
+      ]]>
+      </set>
+
+      <set name="rx_directors">
+        <![CDATA[
+      http://www.moviemeter.nl/director/[\d]+">([^<]+)
+      ]]>
+      </set>
+
+      <set name="rx_filminfo_block">
+        <![CDATA[
+      <br\s/>met\s(.*?)<br\s/><br
+      ]]>
+      </set>
+
+      <set name="rx_genres">
+        <![CDATA[
+      <div\sid="film_info" class="film_info">.+?<br\s/>(.+?)<br
+      ]]>
+      </set>
+
+      <set name="runtime">
+        <![CDATA[
+      <div\sid="film_info" class="film_info">.+?<br\s/>.+?<br\s/>(.+?)\sminuten
+      ]]>
+      </set>
+
+      <set name="rx_plot">
+        <![CDATA[
+      <br />met\s.+?<br /><br />(.*?)(</div>|<br /><br />)
+      ]]>
+      </set>
+
+      <set name="rx_votes_block">
+        <![CDATA[
+      <div id="film_votes">.*?</div>
+      ]]>
+      </set>
+      <set name="rx_votes">
+        <![CDATA[
+      <b>([,\d]+)</b>
+      ]]>
+      </set>
+
+      <!-- Retrieve details -->
+      <set name="movie.details_url" value="${site}${movie.site_id}"/>
+      <retrieve name="details_page" url="${movie.details_url}"/>      
+
+      <!-- Film info-->
+      <parse name="filminfo_block" input="${details_page}" regex="${rx_filminfo}"/>
+
+      <!-- IMDB ID -->
+      <parse name="imdb" input="${details_page}" regex="(tt[\d]+)"/>
+      <set name="movie.imdb_id" value="${imdb[0][0]}"/>
+
+      <!-- Title and Year -->
+      <parse name="title_year" input="${details_page}" regex="${rx_title}"/>
+      <set name="movie.title" value="${title_year[0][1]} ${title_year[0][0]}"/>
+      <set name="movie.year" value="${title_year[0][2]}"/>
+
+      <!-- Directors -->
+      <parse name="directors_block" input="${filminfo_block}" regex="${rx_directors_block}"/>
+      <parse name="directors" input="${directors_block}" regex="${rx_directors}"/>
+      <set name='movie.directors' value=''/>
+      <loop name='currDirector' on='directors'>
+        <set name="movie.directors" value="${movie.directors}|${currDirector[0]:htmldecode}"/>
+      </loop>
+
+      <!-- Actors -->
+      <parse name="actors_block" input="${filminfo_block}" regex="${rx_filminfo_block}"/>
+      <parse name='actors' input='${actors_block[0][0]}' regex="(\sen\s)*(.+?)(\,\s|\sen\s|$)"/>
+      <set name='movie.actors' value=''/>
+      <loop name='currActor' on='actors'>
+        <set name='movie.actors' value='${movie.actors}|${currActor[1]:htmldecode}'/>
+      </loop>
+
+      <!-- Genres -->
+      <parse name="genres_block" input="${filminfo_block}" regex='${rx_genres}'/>
+      <parse name='genres' input='${genres_block[0][0]}' regex='([^/]+)'/>
+      <set name='movie.genres' value=''/>
+      <loop name='currGenre' on='genres'>
+        <set name='movie.genres' value='${movie.genres}|${currGenre[0]:htmldecode}'/>
+      </loop>
+
+      <!-- Runtime-->
+      <parse name="runtime" input="${filminfo_block}" regex="${runtime}"/>
+      <set name="movie.runtime" value="${runtime[0][0]:htmldecode}"/>
+
+      <!-- Plot Summary -->
+      <parse name="plot" input ="${filminfo_block}" regex="${rx_plot}"/>
+      <set name="movie.summary" value="${plot[0][0]:htmldecode}"/>
+
+      <!-- Votes block-->
+      <parse name="votes_block" input="${details_page}" regex="${rx_votes_block}"/>
+      <parse name="votes" input="${votes_block}" regex="${rx_votes}" />
+
+      <!-- Score -->
+      <multiply name="score" value1="${votes[1][0]:htmldecode}" value2="2"/>
+      <set name="movie.score" value="${score}"/>
+
+      <!-- Popularity -->
+      <set name="movie.popularity" value="${votes[0][0]:htmldecode}"/>
+      
+    </if>
+  </action>
+  
+  <!-- Covert Art currently only works with the native site id -->
+  <action name="get_cover_art">
+
+    <if test="${movie.site_id}!=">
+
+      <!-- Retrieve details -->
+      <retrieve name="details_page" url="http://www.moviemeter.nl/film/${movie.site_id}"/>
+
+      <!-- Regular Expressions-->
+      <set name="rx_cover">
+        <![CDATA[
+      img class="poster" src="([^"]+?)"
+      ]]>
+      </set>
+
+      <!-- Get cover url from details page -->
+      <parse name="cover_url" input="${details_page}" regex="${rx_cover}"/>
+
+      <!-- set cover -->
+      <set name="cover_art[0].url" value="${cover_url[0][0]}" />
+      
+    </if>
+
+  </action>
+  
+</ScriptableScraper>

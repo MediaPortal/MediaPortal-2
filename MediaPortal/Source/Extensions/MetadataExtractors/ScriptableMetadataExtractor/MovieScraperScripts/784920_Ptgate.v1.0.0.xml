@@ -1,0 +1,107 @@
+<ScriptableScraper>
+  <details>
+    <!-- These details are for display purposes only. -->
+    <name>ptgate.pt</name>
+    <author>LRFalk01</author>
+    <description>This script pulls data from ptgate.pt.</description>
+    
+    <!-- 
+    These fields uniquely identify the script. The ID should never 
+    change and should be unique (no other script should use this ID). With
+    new versions of the script the version numbers should change. EVEN FOR 
+    MINOR CHANGES, you should change the version number if you are going to
+    disribute it to anyone but internal testers. The point number 
+    is for minor bug fix releases. Use it.
+    -->
+    <id>784920</id>
+    <version major="1" minor="0" point="0"/>
+    <published month="11" day="18" year="2009"/>
+    
+    <!--
+    These fields are used for categorization purposes. Seperate multiple 
+    types with a pipe | character.
+    -->
+    <type>MovieDetailsFetcher</type>
+    <language>pt</language>
+
+   </details>
+  
+  
+  <action name="search">
+    
+    <set name="offset" value="0" />
+    
+    <!-- Regular Expressions -->
+    <set name="rx_moviematch">
+      <![CDATA[
+      (?<movieMatch><a\shref=./filmes/[^\n]+)
+      ]]>
+    </set>
+
+    <set name="rx_matchinfo">
+      <![CDATA[
+      /filmes/(?<SiteID>\d+).>(?<MovieTitle>[^<]+)</a>[^>]+>(?<origTitle>[^(]+)\((?<movieYear>\d{4})
+      ]]>
+    </set>
+
+    <set name="rx_tag">
+      <![CDATA[
+      <b>
+      ]]>
+    </set>
+
+    <set name="rx_tag1">
+      <![CDATA[
+      </b>
+      ]]>
+    </set>
+
+    <retrieve name="search_page" url="http://cinema.ptgate.pt/pesquisa/avancada/?n=${search.title:safe(iso-8859-1)}&amp;s=&amp;y=${search.year}" />
+	<parse name="movieMatches" input="${search_page}" regex='${rx_moviematch}'/>
+	<!-- if we find any matches -->
+	<if test="${movieMatches[0][0]}!=">
+		<loop name='movieMatch' on='movieMatches'>
+			<add name="counter" value1="${count}" value2="${offset}" />
+			<!-- remove the bold tags -->
+			<replace name='movieMatch' input='${movieMatch}' pattern='${rx_tag}' with='' />
+			<replace name='movieMatch' input='${movieMatch}' pattern='${rx_tag1}' with='' />
+			<!-- get movie info -->
+			<parse name="movieItems" input="${movieMatch}" regex='${rx_matchinfo}'/>
+			<set name="movie[${counter}].site_id" value="${movieItems[0][0]}"/>
+			<set name="movie[${counter}].title" value="${movieItems[0][1]}"/>
+			<set name="movie[${counter}].alternate_titles" value="|${movieItems[0][2]}|"/>
+			<set name="movie[${counter}].year" value="${movieItems[0][3]}"/>
+		</loop>
+	</if>
+	
+ 
+    
+  </action>
+  <action name="get_details">
+	<if test="${movie.site_id}!=">
+		<set name="rx_movieSummary">
+		  <![CDATA[
+		  sinopse[^\n]+[^\p{L}]+(?<movieSummary>[^\n]+)
+		  ]]>
+		</set>
+		<set name="rx_imdbID">
+		  <![CDATA[
+		  (?<movieSummary>tt\d{7})
+		  ]]>
+		</set>
+	
+		<retrieve name="detail_page" url="http://cinema.ptgate.pt/filmes/${movie.site_id}" />
+		<parse name="movieSummary" input="${detail_page}" regex='${rx_movieSummary}'/>
+		<if test='${movieSummary[0][0]}!='>
+			<set name="movie.summary" value="${movieSummary[0][0]:striptags}"/>
+			<set name="movie.summary" value="${movie.summary:htmldecode}"/>
+			
+		</if>
+		<parse name="movieIMDB" input="${detail_page}" regex='${rx_imdbID}'/>
+		<if test='${movieIMDB[0][0]}!='>
+			<set name="movie.imdb_id" value="${movieIMDB[0][0]}"/>
+		</if>
+	</if>
+  </action>
+
+</ScriptableScraper>

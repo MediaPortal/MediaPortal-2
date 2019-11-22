@@ -1,0 +1,347 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ScriptableScraper>
+  <details>
+    <!-- These details are for display purposes only. -->
+    <name>Daum</name>
+    <author>edge</author>
+    <description>This script pulls data from movie.daum.net</description>
+
+    <!-- 
+    These two fields uniquely identify the script. The ID should never 
+    change and should be unique (no other script should use this ID). With
+    new versions of the script the version numbers should change. EVEN FOR 
+    MINOR CHANGES, you should change the version number if you are going to
+    disribute it to anyone but internal testers. The point number 
+    is for minor bug fix releases. Use it.
+    -->
+    <id>891820</id>
+    <version major="1" minor="0" point="1"/>
+    <published month="06" day="04" year="2010"/>
+
+    <!--
+    These fields are used for categorization purposes. Seperate multiple 
+    types with a pipe | character.
+    -->
+    <type>MovieDetailsFetcher|MovieCoverFetcher|MovieBackdropFetcher</type>
+    <language>ko</language>
+
+  </details>
+
+  <!-- ====================================
+       Search
+   -->
+  <action name="search">
+    <!-- Variables -->
+    <set name="site" value="http://movie.daum.net/" />
+    <set name="offset" value="0" />
+
+    <!-- Regular Expressions -->
+    <set name="rx_search_results">
+      <![CDATA[
+      <span class="fl srch">(.*?)<span class="item">
+      ]]>
+    </set>
+
+    <set name="rx_site_id">
+      <![CDATA[
+      movieId=(\d+)
+      ]]>
+    </set>
+
+    <set name="rx_title_year">
+      <![CDATA[
+      <a[^>]*>(.+?)</a>\s*\((\d+)\)
+      ]]>
+    </set>
+
+    <set name="rx_aka_block">
+      <![CDATA[
+      <span class="fs13">(.*?)</span>
+      ]]>
+    </set>
+
+    <!-- Make the search request -->
+    <retrieve name="search_page" url="${site}search.do?type=movie&amp;q=${search.title:safe}" retries="10" timeout="10000" timeout_increment="4000"/>
+
+    <!-- if we got a search result page, this is used. if not, regex does not match so we dont process the outer loop.-->
+    <parse name="search_result_block" input="${search_page}" regex="${rx_search_results}"/>
+    <loop name="movie_details" on="search_result_block">
+      <add name="counter" value1="${count}" value2="${offset}" />
+      <parse name="title_year" input="${movie_details[0]}" regex="${rx_title_year}"/>
+      <set name="movie[${counter}].title" value="${title_year[0][0]:striptags}"/>
+      <set name="movie[${counter}].year" value="${title_year[0][1]}"/>
+      <parse name="aka" input="${movie_details[0]}" regex="${rx_aka_block}"/>
+      <replace name="movie[${counter}].alternate_titles" input="${aka[0][0]:striptags}" pattern="," with="|"/>
+      <parse name="site_id" input="${movie_details[0]}" regex="${rx_site_id}"/>
+      <set name="movie[${counter}].site_id" value="${site_id[0][0]}"/>
+      <set name="movie[${counter}].details_url" value="${site}moviedetail/moviedetailMain.do?movieId=${site_id[0][0]}"/>
+      <subtract name="movie[${counter}].popularity" value1="100" value2="${counter}"/>
+    </loop>
+  </action>
+
+  <!-- ====================================
+       Movie Details
+   -->
+  <action name="get_details">
+    
+    <if test="${movie.site_id}!=">
+
+      <!-- Variables -->
+      <set name="site" value="http://movie.daum.net/" />
+
+      <!-- Regular Expressions -->
+      <set name="rx_title_year">
+        <![CDATA[
+        <strong class="title_kor"\s*>(.*?)</strong>\s*<em class="sub fs12">\((.*?)\)</em>
+        ]]>
+      </set>
+
+      <set name="rx_aka_block">
+        <![CDATA[
+        <em class="title_AKA"\s*>(.*?)</em>
+        ]]>
+      </set>
+
+      <set name="rx_get_aka_from_anchor_text">
+        <![CDATA[
+        >([^<]+)<
+        ]]>
+      </set>
+
+      <set name="rx_plot">
+        <![CDATA[
+        <a name="synopsis">줄거리</a>(.+?)</div>\s*</div>
+        ]]>
+      </set>
+
+      <set name="rx_plot_tail">
+        <![CDATA[
+        <p class="fl fs11">.*
+        ]]>
+      </set>
+
+      <set name="rx_director_block">
+        <![CDATA[
+        <h5[^>]*>\s*감독</h5>(.+?)<span class="etcs">
+        ]]>
+      </set>
+
+      <set name="rx_writer_block">
+        <![CDATA[
+        <h5\s*>\s*각본\s*</h5>(.*?)</dl>
+        ]]>
+      </set>      
+
+      <set name="rx_actor_block">
+        <![CDATA[
+        <h5\s*>\s*주연</h5>(.+?)<h5
+        ]]>
+      </set>
+
+      <set name="rx_get_person_from_anchor_text">
+        <![CDATA[
+        <a[^>]+>([^<]+)</a>
+        ]]>
+      </set>
+
+      <set name="rx_genre_block">
+        <![CDATA[
+        <dt class="fc4"><strong>요약정보</strong></dt>\s*<dd>(.+?)<span class="bar">
+        ]]>
+      </set>
+
+      <set name="rx_get_genre_from_anchor_text">
+        <![CDATA[
+        <a[^>]+>([^<]+)</a>
+        ]]>
+      </set>
+
+      <set name="rx_runtime">
+        <![CDATA[
+        <span class="bar"> \| </span>\s*(\d+) 분
+        ]]>
+      </set>
+
+      <set name="rx_certification">
+        <![CDATA[
+        <span class="rating"><img[^>]*title="([^"]*)"></span>
+        ]]>
+      </set>
+
+      <set name="rx_score">
+        <![CDATA[
+        >네티즌별점</span></span><em>(\d\.\d)</em>
+        ]]>
+      </set>      
+
+      <set name="rx_cut_aka">
+        <![CDATA[
+        [^\|](?<cut_aka>[^\|]+)
+        ]]>
+      </set>      
+
+      <set name="rx_imdb_titlepage">
+        <![CDATA[
+        <link\srel="canonical"\shref="http://www.imdb.com/title/(tt\d{7})/"\s/>
+        ]]>
+      </set>
+
+      <set name="movie.details_url" value="${site}moviedetail/moviedetailMain.do?movieId=${movie.site_id}"/>
+      <set name="movie_cast_url" value="${site}moviedetail/moviedetailCastCrew.do?movieId=${movie.site_id}"/>
+      <set name="movie_plot_url" value="${site}moviedetail/moviedetailStory.do?movieId=${movie.site_id}"/>
+
+      <retrieve name="details_page" url="${movie.details_url}" retries="10" timeout="10000" timeout_increment="4000"/>
+      <retrieve name="cast_page" url="${site}moviedetail/moviedetailCastCrew.do?movieId=${movie.site_id}"/>
+
+      <!-- Title -->
+      <parse name="title" input="${details_page}" regex="${rx_title_year}"/>
+      <set name="movie.title" value="${title[0][0]:htmldecode}"/>
+      <set name="movie.year" value="${title[0][1]:striptags}"/>
+
+      <!-- AKA -->
+      <parse name="aka_block" input="${details_page}" regex="${rx_aka_block}"/>
+      <parse name="akas" input="${aka_block}" regex="${rx_get_aka_from_anchor_text}"/>
+      <set name='movie.alternate_titles' value=''/>
+      <loop name='currAKA' on='akas'>
+        <set name="movie.alternate_titles" value="${movie.alternate_titles}|${currAKA[0]:htmldecode}"/>
+      </loop>
+
+      <!-- Plot/Summary -->
+      <retrieve name="plot_page" url="${movie_plot_url}"/>
+      <parse name="plot" input="${plot_page}" regex="${rx_plot}"/>
+      <replace name='movie.summary' input="${plot[0][0]}" pattern="${rx_plot_tail}" with=""/>
+      <set name="movie.summary" value="${movie.summary:htmldecode}"/>
+      <set name="movie.summary" value="${movie.summary:striptags}"/>
+
+      <!-- Year 
+      <parse name="year" input="${details_page}" regex="${rx_year}"/>
+      <set name="movie.year" value="${year[0][0]}"/>
+	  -->
+
+      <!-- Directors -->
+      <parse name="director_block" input="${cast_page}" regex="${rx_director_block}"/>
+      <parse name="directors" input="${director_block}" regex="${rx_get_person_from_anchor_text}"/>
+      <set name='movie.directors' value=''/>
+      <loop name='currDirector' on='directors'>
+        <set name="movie.directors" value="${movie.directors}|${currDirector[0]:htmldecode}"/>
+      </loop>
+
+      <!-- Writers -->
+      <parse name="writer_block" input="${cast_page}" regex="${rx_writer_block}"/>
+      <parse name="writers" input="${writer_block}" regex="${rx_get_person_from_anchor_text}"/>
+      <set name='movie.writers' value=''/>
+      <loop name='currWriter' on='writers'>
+        <set name="movie.writers" value="${movie.writers}|${currWriter[0]:htmldecode}"/>
+      </loop>
+
+      <!-- Actors -->
+      <parse name="actor_block" input="${cast_page}" regex="${rx_actor_block}"/>
+      <parse name="actors" input="${actor_block}" regex="${rx_get_person_from_anchor_text}"/>
+      <set name='movie.actors' value=''/>
+      <loop name='currActor' on='actors'>
+        <set name="movie.actors" value="${movie.actors}|${currActor[0]:htmldecode}"/>
+      </loop>
+
+      <!-- Genres -->
+      <parse name="genre_block" input="${details_page}" regex="${rx_genre_block}"/>
+      <parse name="genres" input="${genre_block}" regex="${rx_get_genre_from_anchor_text}"/>
+      <set name='movie.genres' value=''/>
+      <loop name='currGenre' on='genres'>
+        <set name="movie.genres" value="${movie.genres}|${currGenre[0]:htmldecode}"/>
+      </loop>
+
+      <!-- Runtime -->
+      <parse name="runtime" input="${details_page}" regex="${rx_runtime}"/>
+      <set name="movie.runtime" value="${runtime[0][0]}"/>
+
+      <!-- Score -->
+      <parse name="score" input="${details_page}" regex="${rx_score}"/>
+      <set name="movie.score" value="${score[0][0]}"/>
+      
+      <!-- Score -->
+      <parse name="certification" input="${details_page}" regex="${rx_certification}"/>
+      <set name="movie.certification" value="${certification[0][0]}"/>
+      
+      <!-- IMDb ID -->
+      <if test="${movie.alternate_titles}!=">
+        <!-- Daum doesn't provide IMDB_ID. Try to retrieve IMDB_ID from IMDB.com using Alternate Title -->
+        
+        <!-- cut "|" from alternate_titles and use only first Altenate Title for IMDB search -->
+        <parse name="cut_aka" input="${movie.alternate_titles}" regex="${rx_cut_aka}"/>
+        <retrieve name="imdb_page" url="http://akas.imdb.com/find?s=tt;q=${cut_aka[0]:safe}"/>
+        
+        <!-- if we got a details page, this is used -->
+        <parse name="imdb" input="${imdb_page}" regex="${rx_imdb_titlepage}"/>
+        <if test="${imdb[0][0]}!=">
+       	  <set name="movie.imdb_id" value="${imdb[0][0]}"/>
+        </if>
+        			
+        <!-- if we got a Search result page, this is used -->
+        <if test="${imdb[0][0]}=">
+          <parse name="imdb_det" input="${imdb_page}" regex='title_(popular|exact)/images/b.gif\?link=/title/(tt\d{7})'/>
+          <!-- if we got Search result page, use first match of RegEx -->
+          <set name="movie.imdb_id" value="${imdb_det[0][1]}"/>
+        </if>
+      </if>
+
+    </if>
+    
+  </action>
+  
+  <!-- ====================================
+       Poster
+   -->
+  <action name="get_cover_art">
+
+    <set name="rx_cover_block">
+      <![CDATA[
+      <div id="photo"(.*)<div id="photoViewer"
+      ]]>
+    </set>
+
+    <set name="rx_coverurl_from_anchor_text">
+      <![CDATA[
+      <img src="([^"]*)"
+      ]]>
+    </set>
+
+    <if test="${movie.site_id}!=">
+      <retrieve name="photo_page" url="http://movie.daum.net/moviedetail/moviedetailPhotoList.do?movieId=${movie.site_id}&amp;order=recommend"/>
+      <parse name="cover_block" input="${photo_page}" regex="${rx_cover_block}"/>
+      <parse name="cover_url" input="${cover_block}" regex="${rx_coverurl_from_anchor_text}"/>
+      <loop name="coverurl" on="cover_url">
+        <replace name='cover_art[${count}].url' input="${coverurl[0]}" pattern="C\d{3}x\d{3}" with="image"/>
+      </loop>
+    </if>
+
+  </action>
+
+  <!-- ====================================
+       Backdrop
+   -->
+  <action name="get_backdrop">
+
+    <set name="rx_backdrop_block">
+      <![CDATA[
+      <div id="photoViewer"(.*)<div class="g_r"
+      ]]>
+    </set>
+
+    <set name="rx_backdropurl_from_anchor_text">
+      <![CDATA[
+      <img src="([^"]*)"
+      ]]>
+    </set>
+
+    <if test="${movie.site_id}!=">
+      <retrieve name="photo_page" url="http://movie.daum.net/moviedetail/moviedetailPhotoList.do?movieId=${movie.site_id}&amp;order=recommend"/>
+      <parse name="backdrop_block" input="${photo_page}" regex="${rx_backdrop_block}"/>
+      <parse name="backdrop_url" input="${backdrop_block}" regex="${rx_backdropurl_from_anchor_text}"/>
+      <loop name="backdropurl" on="backdrop_url">
+        <replace name='backdrop[${count}].url' input="${backdropurl[0]}" pattern="S\d{3}x\d{3}" with="image"/>
+      </loop>
+    </if>
+
+  </action>
+
+</ScriptableScraper>

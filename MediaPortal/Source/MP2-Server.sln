@@ -182,6 +182,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SubtitleProviders", "Subtit
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubtitleDownloaderProvider", "Extensions\MetadataExtractors\SubtitleDownloaderProvider\SubtitleDownloaderProvider.csproj", "{D83D417B-6EB3-4C09-B0A9-94C219C9A426}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptableMetadataExtractor", "Extensions\MetadataExtractors\ScriptableMetadataExtractor\ScriptableMetadataExtractor.csproj", "{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -694,6 +696,14 @@ Global
 		{D83D417B-6EB3-4C09-B0A9-94C219C9A426}.Release|Any CPU.Build.0 = Release|Any CPU
 		{D83D417B-6EB3-4C09-B0A9-94C219C9A426}.Release|x86.ActiveCfg = Release|x86
 		{D83D417B-6EB3-4C09-B0A9-94C219C9A426}.Release|x86.Build.0 = Release|x86
+		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Debug|x86.ActiveCfg = Debug|x86
+		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Debug|x86.Build.0 = Debug|x86
+		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Release|x86.ActiveCfg = Release|x86
+		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -783,6 +793,7 @@ Global
 		{4CBD029B-7F5F-442F-8577-CB830A8F0CF1} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{1A4364AE-E225-42F8-BE12-811D4E5FCF66} = {26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}
 		{D83D417B-6EB3-4C09-B0A9-94C219C9A426} = {1A4364AE-E225-42F8-BE12-811D4E5FCF66}
+		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}

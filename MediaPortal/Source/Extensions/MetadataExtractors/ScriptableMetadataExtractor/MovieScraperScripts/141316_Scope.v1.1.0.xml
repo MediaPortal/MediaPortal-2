@@ -1,0 +1,404 @@
+<ScriptableScraper>
+	<details>
+		<!-- These details are for display purposes only. -->
+		<name>Scope.dk</name>
+		<author>LRFalk01, Ron (RoChess)</author>
+		<description>This script pulls data from Scope.dk.</description>
+
+		<!-- 
+		These fields uniquely identify the script. The ID should never 
+		change and should be unique (no other script should use this ID). With
+		new versions of the script the version numbers should change. EVEN FOR 
+		MINOR CHANGES, you should change the version number if you are going to
+		disribute it to anyone but internal testers. The point number 
+		is for minor bug fix releases. Use it.
+		-->
+		<id>141316</id>
+		<version major="1" minor="1" point="0" />
+		<published month="04" day="28" year="2011" />
+
+		<!--
+		These fields are used for categorization purposes. Seperate multiple 
+		types with a pipe | character.
+		-->
+		<type>MovieDetailsFetcher|MovieCoverFetcher</type>
+		<language>da</language>
+	</details>
+
+
+	<action name="search">
+
+		<!-- Regular Expressions -->
+
+		<set name="rx_id_check">
+			<![CDATA[
+			(?<MovieID>\d+)
+			]]>
+		</set>
+
+		<set name="rx_alternate">
+			<![CDATA[
+			(?<MovieAlternate>\([^\)]+\))
+			]]>
+		</set>
+
+		<set name="rx_search_results">
+			<![CDATA[
+			<a\shref="film/(?<MovieID>\d+)[^>]+>(?<MovieTitle>[^<]+)</a>(?:[^>]+>){2}(?<MovieYear>\d{4})
+			]]>
+		</set>
+
+		<set name="rx_search_results_google">
+			<![CDATA[
+			<li\sclass[^>]+>(?:[^>]+>)<a\shref="http.//www.scope.dk/film/(?<MovieID>\d+)"
+			]]>
+		</set>
+
+		<set name="rx_movie_id">
+			<![CDATA[
+			reviews2/1/(?<MovieID>\d+).html
+			]]>
+		</set>
+
+		<set name="rx_title">
+			<![CDATA[
+			<h2>\n\t{3}(?<MovieTitle>[^\t]+)\t{2}<
+			]]>
+		</set>
+
+		<set name="rx_year">
+			<![CDATA[
+			Produktions\D+?(?<MovieYear>\d+)</td>
+			]]>
+		</set>
+
+		<set name="rx_parentheses">
+			<![CDATA[
+			(?<MovieID>\([^)]+\))
+			]]>
+		</set>
+
+		<set name="rx_alternate_google">
+			<![CDATA[
+			<h2>\n[^(]+\((?<MovieAlternate>[^)]+)
+			]]>
+		</set>
+
+
+		<set name="offset" value="0" />
+
+		<if test='${search.title}!='>
+			<!-- Retrieve results using Title -->
+			<retrieve name="search_page" url="http://www.scope.dk/sogning.php?sog=${search.title:safe(ISO-8859-1)}" retries='10' timeout='10000' />
+
+			<!-- if we got a details page, this is used. if not, regex does not match so we dont process the loop-->
+			<parse name="details_page_block" input="${search_page}" regex="${rx_search_results}" />
+			<if test="${details_page_block[0][0]}!=">
+				<loop name="item_return" on="details_page_block">
+					<add name="counter" value1="${count}" value2="${offset}" />
+					<parse name="title" input="${item_return[1]}" regex="${rx_alternate}" />
+					<if test='${title[0][0]}!='>
+						<replace name='movie[${counter}].alternate_titles' input='${title[0][0]:htmldecode}' pattern='\(' with='' />
+						<replace name='movie[${counter}].alternate_titles' input='${movie[${counter}].alternate_titles}' pattern='\)' with='' />
+						<replace name='movie[${counter}].title' input='${item_return[1]}' pattern='${rx_parentheses}' with='' />
+					</if>
+					<if test='${title[0][0]}='>
+						<set name="movie[${counter}].title" value="${item_return[1]:htmldecode}" />
+					</if>
+					<!-- tests the existance of a year before trying to put on in the movie info -->
+					<if test="${item_return[2]}!=">
+						<set name="movie[${counter}].year" value="${item_return[2]:htmldecode}" />
+					</if>
+					<set name="movie[${counter}].site_id" value="${item_return[0]}" />
+					<set name="movie[${counter}].details_url" value="http://www.scope.dk/film/${item_return[0]}" />
+					<subtract name="movie[${counter}].popularity" value1="100" value2="${counter}" />
+				</loop>
+			</if>
+		</if>
+
+		<!-- search google if nothing comes up on Scope. -->
+		<if test='${movie[0].title}='>
+			<retrieve name="search_page" url="http://www.google.com/search?q=site%3Awww.scope.dk+${search.title:safe(ISO-8859-1)}" />
+			<parse name="film_id" input="${search_page}" regex="${rx_search_results_google}" />
+			<if test='${film_id[0][0]}!='>
+				<loop name="item_return" on="film_id">
+					<retrieve name="details_page" url="http://www.scope.dk/film.php?id=${item_return[0]}&amp;fil=2" />
+					<add name="counter" value1="${count}" value2="${offset}" />
+
+					<parse name="title" input="${details_page}" regex="${rx_title}" />
+					<set name="movie[${counter}].title" value="${title[0][0]:htmldecode}" />
+					<parse name="alternate" input="${details_page}" regex="${rx_alternate_google}" />
+					<if test='${alternate[0][0]}!='>
+						<set name="movie[${counter}].alternate_titles" value="${alternate[0][0]:htmldecode}" />
+					</if>
+
+					<parse name="year" input="${details_page}" regex="${rx_year}" />
+					<if test='${year[0][0]}!='>
+						<set name="movie[${counter}].year" value="${year[0][0]:htmldecode}" />
+					</if>
+
+					<set name="movie[${counter}].site_id" value="${item_return[0]}" />
+					<set name="movie[${counter}].details_url" value="http://www.scope.dk/film.php?id=${item_return[0]}&amp;fil=2" />
+					<subtract name="movie[${counter}].popularity" value1="100" value2="${counter}" />
+				</loop>
+			</if>
+		</if>
+
+		<!-- Try search by movie ID if movie not found -->
+		<if test='${movie[0].title}='>
+			<parse name="movie_search" input="${search.title}" regex="${rx_id_check}" />
+			<if test='${search.title}=${movie_search[0][0]}'>
+				<retrieve name="search_page" url="http://www.scope.dk/film/${search.title}" />
+				<parse name="movie_title" input="${search_page}" regex="${rx_title}" />
+				<set name="movie[0].title" value="${movie_title[0][0]:htmldecode}" />
+
+				<!-- tests the existance of a year before trying to put on in the movie info -->
+				<parse name="movie_year" input="${search_page}" regex="${rx_year}" />
+				<if test="${movie_year[0][0]}!=">
+					<set name="movie[0].year" value="${movie_year[0][0]:htmldecode}" />
+				</if>
+				<set name="movie[0].site_id" value="${movie_search[0][0]}" />
+				<set name="movie[0].details_url" value="http://www.scope.dk/film/${movie_search[0][0]}" />
+			</if>
+		</if>
+	</action>
+
+
+	<action name="get_details">
+
+		<set name="rx_director">
+			<![CDATA[
+			Instruktion[^\n]+\n[^"]+(?:[^>]+>)(?<MovieDirector>[^<]+)
+			]]>
+		</set>
+
+		<set name="rx_score_block">
+			<![CDATA[
+			<th>Scope-score</th>.+?<span[^>]+>(.+?)</span>
+			]]>
+		</set>
+
+		<set name="rx_score_full">
+			<![CDATA[
+			scope.dk/gfx/stjerner/gul.gif
+			]]>
+		</set>
+
+		<set name="rx_score_halves">
+			<![CDATA[
+			scope.dk/gfx/stjerner/gul_halv.gif
+			]]>
+		</set>
+
+		<set name="rx_actors">
+			<![CDATA[
+			<h3>\s*Fakta\s*</h3>.+?Medvirkende</th>[^>]+>(?<MovieActors>.+?)<tr style="border-bottom
+			]]>
+		</set>
+
+		<set name="rx_writers">
+			<![CDATA[
+			Manuskript</th>[^>]+>(?<MovieWriters>.+?)</td>
+			]]>
+		</set>
+
+		<set name="rx_list_break">
+			<![CDATA[
+			<a(?:[^>]+>)(?<MovieListItem>[^<]+)
+			]]>
+		</set>
+
+		<set name="rx_title">
+			<![CDATA[
+			<h2>\n\t{3}(?<MovieTitle>[^\(]+)[\(]?(?<MovieAlternate>.+)?\t{2}</h2>
+			]]>
+		</set>
+
+		<set name="rx_year">
+			<![CDATA[
+			Produktions\D+?(?<MovieYear>\d+)</td>
+			]]>
+		</set>
+
+		<set name="rx_genres">
+			<![CDATA[
+			th>Genre</th>[^>]+>(?<MovieGenres>.+?)</td>
+			]]>
+		</set>
+
+		<set name="rx_description">
+			<![CDATA[
+			<div\sid="film-top-middle">\n(?<MovieSummary>[^\n]+)
+			]]>
+		</set>
+
+		<set name="rx_runtime">
+			<![CDATA[
+			Spilletid[^\n]+[^>]+>(?<MovieDuration>\d+)
+			]]>
+		</set>
+
+		<set name="rx_certification">
+			<![CDATA[
+			Censur</th>\D*?>.*?alt="(?<MovieCertification>[^\"]+)"
+			]]>
+		</set>
+
+		<set name="rx_language">
+			<![CDATA[
+			Sprog</th>[^>]+>(?<MovieLanguage>.+?)</td>
+			]]>
+		</set>
+
+		<set name="rx_trailers_imdb_id">
+			<![CDATA[
+			<th.+?>Trailer</th>\s*<td><a\shref="http://www.imdb.com/title/(?<imdbID>tt\d{7})/trailers".+?</a>
+			]]>
+		</set>
+
+
+		<retrieve name="details_page" url="http://www.scope.dk/film.php?id=${movie.site_id}&amp;fil=2" />
+
+		<!-- Title and Year -->
+		<parse name="title" input="${details_page}" regex="${rx_title}" />
+		<set name="movie.title" value="${title[0][0]:htmldecode}" />
+		<replace name='movie.alternate_titles' input='${title[0][1]:htmldecode}' pattern='\)' with='' />
+
+		<parse name="year" input="${details_page}" regex="${rx_year}" />
+		<if test='${year[0][0]}!='>
+			<set name="movie.year" value="${year[0][0]:htmldecode}" />
+		</if>
+
+
+		<!-- Directors -->
+		<set name='movie.directors' value='' />
+		<parse name="directors_block" input="${details_page}" regex="${rx_director}" />
+		<if test='${directors_block[0][0]}!='>
+			<parse name="directors" input="${directors_block}" regex="${rx_list_break}" />
+			<loop name='currDirector' on='directors'>
+				<set name='movie.directors' value='${movie.directors}|${currDirector[0]:htmldecode}' />
+			</loop>
+		</if>
+
+
+		<!-- Writers -->
+		<set name='movie.writers' value='' />
+		<parse name="writers_block" input="${details_page}" regex="${rx_writers}" />
+		<if test='${writers_block[0][0]}!='>
+			<parse name="writers" input="${writers_block}" regex="${rx_list_break}" />
+			<loop name='currWriters' on='writers'>
+				<set name='movie.writers' value='${movie.writers}|${currWriters[0]:htmldecode}' />
+			</loop>
+		</if>
+
+
+		<!-- Actors -->
+		<set name='movie.actors' value='' />
+		<parse name='actors_block' input='"${details_page}' regex="${rx_actors}" />
+		<if test='${actors_block[0][0]}!='>
+			<parse name="actors" input="${actors_block}" regex="${rx_list_break}" />
+			<loop name='currActor' on='actors'>
+				<set name='movie.actors' value='${movie.actors}|${currActor[0]:htmldecode}' />
+			</loop>
+		</if>
+
+
+		<!-- Genres -->
+		<set name='movie.genres' value='' />
+		<parse name="genres_block" input="${details_page}" regex="${rx_genres}" />
+		<if test='${genres_block[0][0]}!='>
+			<parse name="genres" input="${genres_block}" regex="${rx_list_break}" />
+			<loop name='currGenre' on='genres'>
+				<set name='movie.genres' value='${movie.genres}|${currGenre[0]:htmldecode}' />
+			</loop>
+		</if>
+
+
+		<!-- Certification -->
+		<parse name="certification" input="${details_page}" regex="${rx_certification}" />
+		<if test='${certification[0][0]}!='>
+			<set name="movie.certification" value="${certification[0][0]:htmldecode}" />
+		</if>
+
+
+		<!-- Runtime -->
+		<parse name="runtime" input="${details_page}" regex="${rx_runtime}" />
+		<if test='${runtime[0][0]}!='>
+			<set name='movie.runtime' value='${runtime[0][0]:htmldecode}' />
+		</if>
+
+
+		<!-- Tagline -->
+
+
+		<!-- Score -->
+		<parse name="score_block" input="${details_page}" regex="${rx_score_block}" />
+		<parse name="score_full" input="${score_block}" regex="${rx_score_full}" />
+		<parse name="score_halves" input="${score_block}" regex="${rx_score_halves}" />
+		<!-- adding up full and half stars by counting full stars twice -->
+		<set name='scoreCount' value='${score_full.count}' />
+		<multiply name="scoreCount" value1="${scoreCount}" value2="2" />
+		<set name='scoreCount_halves' value='${score_halves.count}' />
+		<add name="scoreCount" value1="${scoreCount}" value2="${scoreCount_halves}" />
+		<!-- 12 star score converted to 10 point scale is 0.83333 -->
+		<multiply name="scoreCount" value1="${scoreCount}" value2="0.833333333333333" result_type="float" />
+		<set name='movie.score' value='${scoreCount}' />
+
+
+		<!-- Popularity -->
+
+
+		<!-- Language -->
+		<parse name="language_block" input="${details_page}" regex="${rx_language}" />
+		<if test='${language_block[0][0]}!='>
+			<set name="movie.language" value="${language_block[0][0]:htmldecode}" />
+		</if>
+
+
+		<!-- Plot Summary -->
+		<parse name="summary" input="${details_page}" regex="${rx_description}" />
+		<set name="movie.summary" value="${summary[0][0]:striptags}" />
+		<if test="${movie.summary}!=">
+			<set name="movie.summary" value="${movie.summary:htmldecode}" />
+		</if>
+
+
+		<!-- IMDB id -->
+		<parse name="trailers_imdb_id" input="${details_page}" regex="${rx_trailers_imdb_id}" />
+		<if test="${trailers_imdb_id[0][0]}!=">
+			<set name="movie.imdb_id" value="${trailers_imdb_id[0][0]}" />
+		</if>
+		<if test='${movie.imdb_id}='>
+			<retrieve name="imdb_find" url="http://www.google.com/search?hl=it&amp;hs=a8f&amp;q=site%3Awww.imdb.com+${movie.title:safe}+(${movie.year:safe})" />
+			<parse name="imdb_parser" input="${imdb_find}" regex="&lt;h3\sclass=&quot;r&quot;&gt;&lt;a\shref=&quot;[^&quot;]+imdb\.com/title/(tt\d+)\/&quot;.+?&lt;em&gt;${movie.title}&lt;/em&gt;\s*\(&lt;em&gt;${movie.year}&lt;/em&gt;\)&lt;/a&gt;&lt;/h3&gt;" />
+			<set name="movie.imdb_id" value="${imdb_parser[0][0]}" />
+			<!-- If no IMDB try to get it with the first alternate title. -->
+			<if test='${movie.imdb_id}='>
+				<retrieve name="imdb_find" url="http://www.google.com/search?hl=it&amp;hs=a8f&amp;q=site%3Awww.imdb.com+${movie.alternate_titles}+(${movie.year:safe})" />
+				<parse name="imdb_parser" input="${imdb_find}" regex="&lt;h3\sclass=&quot;r&quot;&gt;&lt;a\shref=&quot;[^&quot;]+imdb\.com/title/(tt\d+)\/&quot;.+?&lt;em&gt;${movie.title}&lt;/em&gt;\s*\(&lt;em&gt;${movie.year}&lt;/em&gt;\)&lt;/a&gt;&lt;/h3&gt;" />
+				<set name="movie.imdb_id" value="${imdb_parser[0][0]}" />
+			</if>
+		</if>
+	</action>
+
+
+	<action name="get_cover_art">
+
+		<set name="rx_poster_link">
+			<![CDATA[
+			<meta\sproperty="og:image"\scontent="(?<MovieCover>[^"]+)"\s/>
+			]]>
+		</set>
+
+
+		<!-- We need to find the link to the posters page from the details page -->
+		<if test="${movie.site_id}!=">
+			<retrieve name="details_page_cover" url="http://www.scope.dk/film.php?id=${movie.site_id}&amp;fil=1" />
+			<parse name="posterLink" input="${details_page_cover}" regex="${rx_poster_link}" />
+			<!-- If link found, continue -->
+			<if test="${posterLink[0][0]}!=">
+				<set name='cover_art[0].url' value='${posterLink[0][0]}' />
+			</if>
+		</if>
+	</action>
+</ScriptableScraper>

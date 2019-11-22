@@ -1,0 +1,335 @@
+<ScriptableScraper>
+  <details>
+    <!-- These details are for display purposes only. -->
+    <name>mymovies.it</name>
+    <author>Robyf and LRFalk01</author>
+    <description>Scraper to pull movie information/cover art from MyMovies.it</description>
+
+    <!-- 
+    These two fields uniquely identify the script. The ID should never 
+    change and should be unique (no other script should use this ID). With
+    new versions of the script the version numbers should change. EVEN FOR 
+    MINOR CHANGES, you should change the version number if you are going to
+    disribute it to anyone but internal testers. The point number 
+    is for minor bug fix releases. Use it.
+    -->
+    <id>874909</id>
+    <version major="1" minor="0" point="11"/>
+    <published month="10" day="19" year="2013"/>
+
+    <!--
+    These fields are used for categorization purposes. Seperate multiple 
+    types with a pipe | character.
+    -->
+    <type>MovieDetailsFetcher|MovieCoverFetcher</type>
+    <language>it</language>
+
+    <!-- If set to true, additional logging will be displayed during script execution. -->
+    <debug>false</debug>
+  </details>
+
+
+  <action name="search">
+    <set name="offset" value="0" />
+    <set name="counter" value="0" />
+
+    <set name="search_ID_Title">
+      <![CDATA[<h2>[^<]+<a[^\d]+(?<movieID>\d+)"\stitle="(?<movieTitle>[^"]+)]]>
+    </set>
+    <set name="search_Year">
+      <![CDATA[
+           Genere(?:[^<]+<){3}a\shref="http.//www.mymovies.it/film/.anno=(?<movieYear>\d{4})
+          ]]>
+    </set>
+    <set name="search_Details_Title">
+      <![CDATA[
+           <h1>[^\w]+(?<movieTitle>[^\n]+)
+          ]]>
+    </set>
+    <set name="search_Details_Year">
+      <![CDATA[
+           www.mymovies.it/film/.anno=(?<movieYear>\d{4})">
+          ]]>
+    </set>
+    <set name="rx_ID_Check">
+      <![CDATA[
+           (?<GroupName>\d+)
+          ]]>
+    </set>
+
+    <!-- Search for movie with title as original title. -->
+    <if test="${search.year}!=0">
+      <retrieve name="search_page" url='http://www.mymovies.it/database/ricerca/avanzata/?titolo=&amp;regista=&amp;attore=&amp;id_genere=-1&amp;nazione=&amp;clausola1=-1&amp;anno_prod=${search.year}&amp;clausola2=-1&amp;stelle=-1&amp;id_manif=-1&amp;anno_manif=&amp;disponib=-1&amp;ordinamento=0&amp;submit=Inizia+ricerca+%BB&amp;titolo_orig=${search.title:safe(ISO-8859-1)}' />
+    </if>
+    <if test="${search.year}=0">
+      <retrieve name="search_page" url='http://www.mymovies.it/database/ricerca/avanzata/?titolo=&amp;regista=&amp;attore=&amp;id_genere=-1&amp;nazione=&amp;clausola1=-1&amp;anno_prod=&amp;clausola2=-1&amp;stelle=-1&amp;id_manif=-1&amp;anno_manif=&amp;disponib=-1&amp;ordinamento=0&amp;submit=Inizia+ricerca+%BB&amp;titolo_orig=${search.title:safe(ISO-8859-1)}' />
+    </if>
+
+    <parse name="ID_Title" input="${search_page}" regex='${search_ID_Title}'/>
+    <parse name="Year" input="${search_page}" regex='${search_Year}'/>
+    <set name="next_year" value="0" />
+
+    <if test="${ID_Title[0][0]}!=">
+      <loop name="item_return" on="ID_Title">
+        <add name="counter" value1="${count}" value2="${offset}" />
+        <set name="movie[${counter}].site_id" value="${item_return[0]}"/>
+        <set name="movie[${counter}].details_url" value="http://www.mymovies.it/dizionario/recensione.asp?id=${item_return[0]}"/>
+        <subtract name="movie[${counter}].popularity" value1="100" value2="${counter}"/>
+        <set name="movie[${counter}].title" value="${item_return[1]}"/>
+        <set name="movie[${counter}].year" value="${Year[${next_year}][0]}"/>
+        <add name="next_year" value1="${next_year}" value2="1" />
+      </loop>
+    </if>
+
+    <!-- Search for movie with title as Italian title. This list of results will be added to the first search list. -->
+    <if test="${search.year}!=0">
+      <retrieve name="search_page" url='http://www.mymovies.it/database/ricerca/avanzata/?regista=&amp;attore=&amp;id_genere=-1&amp;nazione=&amp;clausola1=-1&amp;anno_prod=${search.year}&amp;clausola2=-1&amp;stelle=-1&amp;id_manif=-1&amp;anno_manif=&amp;disponib=-1&amp;ordinamento=0&amp;submit=Inizia+ricerca+%BB&amp;titolo_orig=&amp;titolo=${search.title:safe(ISO-8859-1)}' />
+    </if>
+    <if test="${search.year}=0">
+      <retrieve name="search_page" url='http://www.mymovies.it/database/ricerca/avanzata/?regista=&amp;attore=&amp;id_genere=-1&amp;nazione=&amp;clausola1=-1&amp;anno_prod=&amp;clausola2=-1&amp;stelle=-1&amp;id_manif=-1&amp;anno_manif=&amp;disponib=-1&amp;ordinamento=0&amp;submit=Inizia+ricerca+%BB&amp;titolo_orig=&amp;titolo=${search.title:safe(ISO-8859-1)}' />
+    </if>
+
+    <parse name="ID_Title" input="${search_page}" regex='${search_ID_Title}'/>
+    <parse name="Year" input="${search_page}" regex='${search_Year}'/>
+    <set name="next_year" value="0" />
+
+    <if test="${ID_Title[0][0]}!=">
+      <loop name="item_return" on="ID_Title">
+        <add name="counter" value1="${count}" value2="${offset}" />
+        <set name="movie[${counter}].site_id" value="${item_return[0]}"/>
+        <set name="movie[${counter}].details_url" value="http://www.mymovies.it/dizionario/recensione.asp?id=${item_return[0]}"/>
+        <subtract name="movie[${counter}].popularity" value1="100" value2="${counter}"/>
+        <set name="movie[${counter}].title" value="${item_return[1]}"/>
+        <set name="movie[${counter}].year" value="${Year[${next_year}][0]}"/>
+        <add name="next_year" value1="${next_year}" value2="1" />
+      </loop>
+    </if>
+
+    <if test="${movie[0].title}=">
+      <retrieve name="search_page" url='http://www.google.com/custom?domains=www.mymovies.it&amp;q=${search.title:safe(ISO-8859-1)}&amp;sitesearch=www.mymovies.it&amp;client=pub-1699801751737986&amp;forid=1&amp;ie=ISO-8859-1&amp;oe=ISO-8859-1&amp;cof=GALT%3A%233333FF%3BGL%3A1%3BDIV%3A%23000099%3BVLC%3A663399%3BAH%3Acenter%3BBGC%3AFFFFFF%3BLBGC%3A000099%3BALC%3A000099%3BLC%3A000099%3BT%3A666666%3BGFNT%3A999999%3BGIMP%3A999999%3BLH%3A50%3BLW%3A549%3BL%3Ahttp%3A%2F%2Fwww.mymovies.it%2Flogogoogle.gif%3BS%3Ahttp%3A%2F%2Fwww.mymovies.it%3BFORID%3A1%3B&amp;hl=it' />
+
+      <parse name="search_results_block" input="${search_page}" regex='.*'/>
+      <loop name="search_results_verified" on="search_results_block">
+
+        <parse name="movie_details" input="${search_results_verified}" regex='&lt;a\s+href="[^"]+/recensione\.asp\?id=(\d+)[^"]*"[^&gt;]*&gt;(.+?)(?=&lt;/a&gt;)' />
+        <loop name='curr_details' on='movie_details'>
+          <parse name="movie_year" input="${curr_details}" regex='\((\d{4})\)(?!\()' />
+
+          <set name="movie[${count}].site_id" value="${curr_details[0]:htmldecode}"/>
+          <set name="movie[${count}].details_url" value="http://www.mymovies.it/dizionario/recensione.asp?id=${curr_details[0]:htmldecode}"/>
+          <replace name='movie[${count}].title' input='${curr_details[1]:htmldecode}' pattern='(&lt;[^&gt;]+?&gt;)|(\s*\((\d{4})\)(?!\())\s\|\sMYmovies' with='' />
+          <set name="movie[${count}].year" value="${movie_year[0][0]}" />
+
+          <subtract name="movie[${count}].popularity" value1="100" value2="${count}"/>
+        </loop>
+
+      </loop>
+    </if>
+
+
+    <!-- If no movies are found we will assume one is searching with the 5 digit MyMovies ID -->
+    <if test="${movie[0].title}=">
+      <parse name="ID_Check" input="${search.title}" regex='${rx_ID_Check}'/>
+      <if test='${ID_Check[0][0]}=${ID_Check}'>
+        <retrieve name="search_page" url='http://www.mymovies.it/dizionario/recensione.asp?id=${search.title:safe}' />
+        <parse name="Title" input="${search_page}" regex='${search_Details_Title}'/>
+        <parse name="Year" input="${search_page}" regex='${search_Details_Year}'/>
+
+        <set name="movie[${counter}].site_id" value="${search.title:safe}"/>
+        <set name="movie[${counter}].details_url" value="http://www.mymovies.it/dizionario/recensione.asp?id=${search.title:safe}"/>
+        <set name="movie[${counter}].title" value="${Title[0][0]}"/>
+        <set name="movie[${counter}].year" value="${Year[0][0]}"/>
+      </if>
+    </if>
+
+  </action>
+
+  <action name="get_details">
+
+    <if test="${movie.site_id}!=">
+
+      <set name="it_summary">
+        <![CDATA[
+      <img onerror.*style="float:left;\sborder:solid\s1px\sgray;\spadding:3px;\smargin:5px;".*<div\sstyle="text-align:right;">
+      ]]>
+      </set>
+      <set name="score">
+        <![CDATA[
+      valutazione\smedia:\s+(?<rating>[^s]+)stelle
+      ]]>
+      </set>
+      <set name="rx_people">
+        <![CDATA[
+      <a\stitle="(?<moviePeople>[^"]+)
+      ]]>
+      </set>
+      <set name="rx_orgTitle">
+        <![CDATA[
+      Titolo\soriginale\s<em>(?<originalTitle>[^<]+)
+      ]]>
+      </set>
+
+      <retrieve name="details_page" url="http://www.mymovies.it/dizionario/recensione.asp?id=${movie.site_id}"/>
+
+      <retrieve name="people_page" url="http://www.mymovies.it/v7/ajax/cast_veloce.asp?amp;div=cast&amp;idfilm=${movie.site_id}"/>
+      <!-- Actors -->
+      <parse name='actors' input='${people_page}' regex='${rx_people}'/>
+      <if test='${actors[0][0]}!='>
+        <set name='movie.actors' value=''/>
+        <loop name='currActor' on='actors'>
+          <!-- First item will always be the director. Do test to make sure director is not put into the actors. -->
+          <if test="${currActor[0]:htmldecode}!=${actors[0][0]:htmldecode}">
+            <set name='movie.actors' value='${movie.actors}|${currActor[0]:htmldecode}'/>
+          </if>
+        </loop>
+      </if>
+      <!-- Set director from first actor result. -->
+      <set name="movie.directors" value="|${actors[0][0]:htmldecode}|" />
+
+      <!-- Genres -->
+      <parse name='genres' input='${details_page}' regex='&lt;a\s+title="Film[^"]+"\s+href="[^"]+"&gt;([^&lt;]+)&lt;/a&gt;'/>
+      <set name='movie.genres' value='|${genres[0][0]:htmldecode}|'/>
+
+      <!-- Original Title -->
+      <parse name="orgTitle" input="${details_page}" regex='${rx_orgTitle}'/>
+      <if test='${orgTitle[0][0]}!='>
+        <set name='movie.alternate_titles' value='${orgTitle[0][0]}' />
+      </if>
+
+      <!-- Runtime -->
+      <parse name="runtime" input="${details_page}" regex='durata\s+(\d+)\smin'/>
+      <set name='movie.runtime' value='${runtime[0][0]:htmldecode}'/>
+
+      <!-- Score -->
+      <parse name="score" input="${details_page}" regex='${score}'/>
+      <if test='${score[0][0]}!='>
+        <replace name='movie.score' input='${score[0][0]:htmldecode}' pattern=',' with='.' />
+        <multiply name="movie.score" value1="${movie.score}" value2="10" resultType="FLOAT" />
+        <divide name="movie.score" value1="${movie.score}" value2="5" resultType="INT"/>
+      </if>
+
+      <!-- Plot Summary -->
+      <parse name='summaryit' input ='${details_page}' regex='${it_summary}'/>
+      <set name="movie.summary" value="${summaryit:striptags}" />
+     
+                                <!-- Get IMDb ID via imdb.it to assist in obtaining fanarts -->
+                <set name="rx_details_page">
+                        <![CDATA[
+                        ="<title>.+?\((\d{4})\).*?</title>(.+?)</body>
+                        ]]>
+                </set>
+
+                <set name="rx_locate_title">
+                        <![CDATA[
+                        ="/title/(tt\d{7})/.*?\((\d{4})\)
+                        ]]>
+                </set>
+
+                <!-- We can not rely on user interaction to select the right movie -->
+                <!-- So this will rely solely on imdb.es for a correct match -->
+
+                <retrieve name="imdb_search" url="http://www.imdb.com/find?q=${movie.title:safe(ISO-8859-1)};s=tt" />
+
+                <!-- Verify first to see if the search results is an instant match -->
+                <parse name="details_page" input="${imdb_search}" regex="${rx_details_page}" />
+                <!-- Verify Release Year -->
+                <if test="${details_page[0][0]:htmldecode}=${movie.year}">
+                        <parse name="imdb_id" input="${details_page[0][1]}" regex="(tt\d{7})/fullcredits" />
+                        <set name="movie.imdb_id" value="${imdb_id[0][0]:htmldecode}" />
+                </if>
+
+                <!-- Use the Search page results otherwise -->
+                <if test="${movie.imdb_id}=">
+                         <parse name="imdb_id" input="${imdb_search}" regex="${rx_locate_title}" />
+                         <!-- Verify Release Year -->
+                         <if test="${imdb_id[0][1]:htmldecode}=${movie.year}">
+                            <set name="movie.imdb_id" value="${imdb_id[0][0]:htmldecode}" />
+                         </if>
+                </if>
+         
+        </if>
+
+  </action>
+
+  <!-- Covert Art currently only works with the native site id -->
+  <action name="get_cover_art">
+
+    <if test="${movie.site_id}!=">
+
+      <!-- Retrieve details -->
+      <retrieve name="details_page" url="http://www.mymovies.it/poster/?id=${movie.site_id}"/>
+
+      <!-- Regular Expressions-->
+      <set name="rx_cover">
+        <![CDATA[
+        <div id="poster">.+?<img[^>]+src=\"([^\"]+?)"
+        ]]>
+      </set>
+      <set name="rx_coverPages">
+        <![CDATA[
+        http.//www.mymovies.it/poster/(?<posterPage>\d/.id)=\d+"><img
+        ]]>
+      </set>
+      <set name="rx_coverPages2">
+        <![CDATA[
+        http.//www.mymovies.it/film/${movie.year:safe}/(?<posterTitle>.+?)/poster/\d/"><img
+        ]]>
+      </set>
+      <set name="rx_coverPages3">
+        <![CDATA[
+        http.//www.mymovies.it/film/${movie.year:safe}/.+?/poster/(?<posterPage2>\d/)"><img
+        ]]>
+      </set>
+      <set name="rx_oneCover">
+        <![CDATA[
+        <img\swidth="420"[^/]+//www.mymovies.it/filmclub/(?<coverArt>[^"]+)
+        ]]>
+      </set>
+      <set name="rx_alternateCover">
+        <![CDATA[
+        src=.(?<coverArt>[^"]+).\swidth=.150px.\sheight=.215px.
+        ]]>
+      </set>
+
+      <parse name='poster_pages' input='${details_page}' regex='${rx_coverPages}' />
+      <if test='${poster_pages[0][0]}!='>
+        <loop name='poster_page' on='poster_pages'>
+          <retrieve name="cover_page" url="http://www.mymovies.it/poster/${poster_page[0]}=${movie.site_id}"/>
+          <!-- Get cover url from details page -->
+          <parse name="cover_url" input="${cover_page}" regex="${rx_cover}"/>
+          <!-- set cover -->
+          <set name="cover_art[${count}].url" value="${cover_url[0][0]}" />
+        </loop>
+      </if>
+      <if test='${poster_pages[0][0]}='>
+        <parse name='poster_titles' input='${details_page}' regex='${rx_coverPages2}' />
+        <parse name='poster_pages' input='${details_page}' regex='${rx_coverPages3}' />
+        <if test='${poster_pages[0][0]}!='>
+          <loop name='poster_page' on='poster_pages'>
+            <retrieve name="cover_page" url="http://www.mymovies.it/film/${movie.year:safe}/${poster_titles[1][0]}/poster/${poster_page[0]}"/>
+            <!-- Get cover url from details page -->
+            <parse name="cover_url" input="${cover_page}" regex="${rx_cover}"/>
+            <!-- set cover -->
+            <set name="cover_art[${count}].url" value="${cover_url[0][0]}" />
+          </loop>
+        </if>
+      </if>
+      <if test='${poster_pages[0][0]}='>
+        <parse name='singlePoster' input='${details_page}' regex='${rx_oneCover}' />
+        <if test='${singlePoster[0][0]}!='>
+          <set name="cover_art[0].url" value="http://www.mymovies.it/filmclub/${singlePoster[0][0]}" />
+        </if>
+      </if>
+      <retrieve name="details_page" url="http://www.mymovies.it/dizionario/recensione.asp?id=${movie.site_id}"/>
+      <if test='${cover_art[0].url}='>
+        <parse name="cover_url" input="${details_page}" regex="${rx_alternateCover}"/>
+        <if test='${cover_url[0][0]}!='>
+          <set name="cover_art[0].url" value="${cover_url[0][0]}" />
+        </if>
+      </if>
+
+    </if>
+
+  </action>
+
+</ScriptableScraper>

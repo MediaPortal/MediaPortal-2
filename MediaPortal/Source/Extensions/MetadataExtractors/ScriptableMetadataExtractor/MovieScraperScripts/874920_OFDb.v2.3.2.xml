@@ -1,0 +1,245 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ScriptableScraper>
+  <details>
+    <!-- These details are for display purposes only. -->
+    <name>ofdb.de</name>
+    <author>Armand Pondman (armandp) and Schenk2302</author>
+    <description>
+      This script pulls data from the OFDb XML gateway at  http://ofdbgw.org. (ofdb.de)
+      Missing information is pulled from imdb.com
+    </description>
+
+    <!-- 
+    These two fields uniquely identify the script. The ID should never 
+    change and should be unique (no other script should use this ID). With
+    new versions of the script the version numbers should change. EVEN FOR 
+    MINOR CHANGES, you should change the version number if you are going to
+    disribute it to anyone but internal testers. The point number 
+    is for minor bug fix releases. Use it.
+    -->
+    <id>874920</id>
+    <version major="2" minor="3" point="2"/>
+    <published month="4" day="16" year="2011"/>
+
+    <!--
+    These fields are used for categorization purposes. Seperate multiple 
+    types with a pipe | character.
+    -->
+    <type>MovieDetailsFetcher|MovieCoverFetcher</type>
+    <language>de</language>
+
+  </details>
+
+
+  <!-- Search -->
+  <action name="search">
+
+    <!-- Variables -->
+    <set name="site" value=" http://ofdbgw.org/" />
+
+    <!-- Regular Expressions -->
+    <set name="rx_title_clean" value="\[(TV-Mini-Serie|Kurzfilm)\]" />
+    <set name="rx_title" value="(.+?)(?:, (The|A|Ein|Das|Die|Der|Les|Une))?\s*$" />
+    
+    <set name="rx_titles">
+      <![CDATA[
+      (.+?)(\s/\s(.+?))?\((\d{4})\)
+      ]]>
+    </set>
+    
+    <set name="offset" value="0" />
+
+    <!-- Retrieve IMDB result if we have an imdb id to search on -->
+    <if test='${search.imdb_id}!='>
+      <retrieve name="search_imdb" url="${site}imdb2ofdb/${search.imdb_id}" encoding="UTF-8"/>
+      <parse name="resultat" input="${search_imdb}" xpath="//resultat" />
+      <if test="${resultat[0]}!=">
+        <parse name="title_year" input="${resultat[0].titel}" regex="${rx_titles}" />
+        <replace name="title" input="${title_year[0]:htmldecode}" pattern="${rx_title_clean}" with="" />
+        <replace name="aka" input="${title_year[1]:htmldecode}" pattern="${rx_title_clean}" with="" />
+        <parse name="title" input="${title}" regex="${rx_title}"/>
+        <parse name="aka" input="${aka}" regex="${rx_title}"/>
+        <set name="movie[0].title" value="${title[0][1]} ${title[0][0]}"/>
+        <set name="movie[0].alternate_titles" value="|${aka[0][1]} ${aka[0][0]}|"/>
+        <set name="movie[0].year" value="${title_year[2]}"/>
+        <set name="movie[0].imdb_id" value="${resultat[0].imdbid}" />
+        <set name="movie[0].site_id" value="${resultat[0].ofdbid}"/>
+        <set name="movie[0].popularity" value="100"/>
+        <set name="offset" value="1" />
+      </if>
+    </if>
+
+    <!-- Retrieve the search results -->
+    <retrieve name="search_page" url="${site}search/${search.title:safe}" encoding="UTF-8"/>
+
+    <!-- if we got a search result page, this is used. if not, regex does not match so we dont process the outer loop.-->
+    <parse name="movies" input="${search_page}" xpath="//eintrag" />
+    
+    <!-- Loop through every movie result -->
+    <loop name="movienode" on="movies">
+      <set name="tvserie" value="" />
+      <parse name="tvserie" input="${movies[${count}].titel}" regex="(TV-Mini-Serie|TV-Serie)" />
+      <if test="${tvserie}!=">
+        <subtract name="offset" value1="${offset}" value2="1" />
+      </if>
+      <!-- only return non-tvserie types -->
+      <if test="${tvserie}=">
+        <add name="counter" value1="${count}" value2="${offset}" />
+        <replace name="title" input="${movies[${count}].titel:htmldecode}" pattern="${rx_title_clean}" with="" />
+        <replace name="aka" input="${movies[${count}].titel_orig:htmldecode}" pattern="${rx_title_clean}" with="" />
+        <parse name="title" input="${title}" regex="${rx_title}"/>
+        <parse name="aka" input="${aka}" regex="${rx_title}"/>
+        <set name="movie[${counter}].title" value="${title[0][1]} ${title[0][0]}"/>
+        <set name="movie[${counter}].alternate_titles" value="|${aka[0][1]} ${aka[0][0]}|"/>
+        <set name="movie[${counter}].year" value="${movies[${count}].jahr}"/>
+        <set name="movie[${counter}].details_url" value="${site}movie/${movies[${count}].id}"/>
+        <set name="movie[${counter}].site_id" value="${movies[${count}].id}"/>
+        <subtract name="movie[${counter}].popularity" value1="100" value2="${counter}"/>
+      </if>
+    </loop>
+
+  </action>
+
+  <!-- Details -->
+  <action name="get_details">
+
+    <set name="site" value=" http://ofdbgw.org/movie/" />
+    <set name="imdb2ofdb" value=" http://ofdbgw.org/imdb2ofdb/" />
+
+    <!-- If OFDB id is missing -->
+    <if test="${movie.site_id}=">
+      <if test='${movie.imdb_id}!='>
+        <!-- but we have an IMDB id -->
+        <retrieve name="imdb_lookup" url="${imdb2ofdb}${movie.imdb_id}" encoding="UTF-8"/>
+        <parse name="resultat" input="${imdb_lookup}" xpath="//resultat" />
+        <if test="${resultat[0]}!=">
+          <!-- try to lookup the OFDB id -->
+          <set name="movie.site_id" value="${resultat[0].ofdbid}"/>
+        </if>
+      </if>
+    </if>
+
+    <!-- Only execute when the OFDB ID is available  -->
+    <if test="${movie.site_id}!=">
+
+      <!-- Regular Expressions -->
+      <set name="rx_title_clean" value="\[(TV-Mini-Serie|Kurzfilm)\]" />
+      <set name="rx_title" value="(.+?)(?:, (The|A|Ein|Das|Die|Der|Les|Une))?\s*$" />
+
+      <!-- OFDB Details -->
+
+      <retrieve name="details_page" url="${site}${movie.site_id}" encoding="UTF-8" />
+      <parse name="details" input="${details_page}" xpath="//resultat"/>
+
+      <!-- Titles -->
+
+      <replace name="title" input="${details[0].titel:htmldecode}" pattern="${rx_title_clean}" with="" />
+      <replace name="aka" input="${details[0].alternativ:htmldecode}" pattern="${rx_title_clean}" with="" />
+
+      <parse name="title" input="${title}" regex="${rx_title}"/>
+      <parse name="aka" input="${aka}" regex="${rx_title}"/>
+
+      <set name="movie.alternate_titles" value="|${aka[0][1]} ${aka[0][0]}|"/>
+      <set name="movie.title" value="${title[0][1]} ${title[0][0]}"/>
+
+      <!-- IMDB ID -->
+      <set name="movie.imdb_id" value="tt${details[0].imdbid}" />
+
+      <!-- Year, Score and Votes-->
+      <set name="movie.year" value="${details[0].jahr}" />
+
+      <parse name="bewertung" input="${details[0].bewertung}" xpath="*"/>
+      <set name="movie.score" value="${bewertung[0].note}" />
+      <set name="movie.popularity" value="${bewertung[0].stimmen}" />
+
+      <!-- Summary -->
+      <set name="movie.summary" value="${details[0].beschreibung}"/>
+
+      <!-- Directors -->
+      <parse name="directors" input="${details[0].regie}" xpath="//name"/>
+      <set name="movie.directors" value=""/>
+      <loop name="director" on="directors">
+        <set name="movie.directors" value="${movie.directors}|${director:htmldecode}"/>
+      </loop>
+
+      <!-- Writers -->
+      <parse name="writers" input="${details[0].drehbuch}" xpath="//name"/>
+      <set name="movie.writers" value=""/>
+      <loop name="writer" on="writers">
+        <set name="movie.writers" value="${movie.writers}|${writer:htmldecode}"/>
+      </loop>
+
+      <!-- Actors -->
+      <parse name="actors" input="${details[0].besetzung}" xpath="//name"/>
+      <set name="movie.actors" value="" />
+      <loop name="actor" on="actors">
+        <set name="movie.actors" value="${movie.actors}|${actor:htmldecode}"/>
+      </loop>
+
+      <!-- Genres -->
+      <parse name="genres" input="${details[0].genre}" xpath="//titel"/>
+      <set name="movie.genres" value=""/>
+      <loop name="genre" on="genres">
+        <set name="movie.genres" value="${movie.genres}|${genre:htmldecode}"/>
+      </loop>
+
+      <!-- Runtime (IMDB) -->
+      <retrieve name="imdb_details" url="http://www.imdb.com/title/${movie.imdb_id}"/>
+
+      <parse name="runtime" input="${imdb_details}" regex="&lt;h4 class=&quot;inline&quot;&gt;Runtime:&lt;/h4&gt;.*?(\d+) min\s+"/>
+      <set name='movie.runtime' value="${runtime[0][0]:htmldecode}"/>
+
+      <!-- Tagline (IMDB) -->
+
+      <parse name="tagline" input="${imdb_details}" regex='&lt;h4 class=&quot;inline&quot;&gt;Taglines:&lt;/h4&gt;\s+([^\n\r]+?)(?:\s+)?&lt;'/>
+      <set name='movie.tagline' value='${tagline[0][0]:htmldecode}'/>
+
+      <!-- Certification (IMDB) -->
+      <retrieve name="imdb_details" url="http://www.imdb.com/title/${movie.imdb_id}"/>
+      <parse name="certification" input="${imdb_details}" regex='&gt;\s+Germany:((?:12)|(?:16)|(?:18)|(?:6)|(?:o.Al.))&lt;/a&gt;'/>
+      <set name='movie.certification' value='${certification[0][0]:htmldecode}'/>
+
+      <!-- Set Sortby for German Articles -->
+      <replace name="movie.sortby" input="${movie.title}" pattern="(^The\s+)|(^An?\s+)|(^De[rsmn]\s+)|(^Die\s+)|(^Das\s+)|(^Ein(e[srmn]?)?\s+)" with=""/>
+
+      <!-- OFDB Movie Details Page -->
+      <set name="movie.details_url" value="http://www.ofdb.de/film/${movie.site_id},"/>
+      
+    </if>
+  </action>
+
+  <!-- Covert Art Scraper Only Works with IMDB or OFDB id -->
+  <action name="get_cover_art">
+
+    <set name="imdb2ofdb" value=" http://ofdbgw.org/imdb2ofdb/" />
+
+    <if test="${movie.site_id}=">
+      <!-- If OFDB id is missing -->
+      <if test='${movie.imdb_id}!='>
+        <!-- but we have an IMDB id -->
+        <retrieve name="imdb_lookup" url="${imdb2ofdb}${movie.imdb_id}" encoding="UTF-8"/>
+        <parse name="resultat" input="${imdb_lookup}" xpath="//resultat" />
+        <if test="${resultat[0]}!=">
+          <!-- try to lookup the OFDB id -->
+          <set name="movie.site_id" value="${resultat[0].ofdbid}"/>
+        </if>
+      </if>
+    </if>
+
+    <!-- Get the covers using the OFDB id -->
+    <if test="${movie.site_id}!=">
+
+      <set name="rx_coverid"><![CDATA[thumbnail\.php\?cover=images%2Ffassung%2F(\d+)%2F(\d+)]]></set>
+      <retrieve name="ofdb_results" url="http://www.ofdb.de/film/${movie.site_id},"/>
+
+      <parse name="coverids" input="${ofdb_results}" regex="${rx_coverid}" />
+      <loop name="coverid" on="coverids">
+        <set name="cover_art[${count}].url" value="http://img.ofdb.de/fassung/${coverid[0]}/${coverid[1]}_f.jpg" />
+      </loop>
+
+    </if>
+
+  </action>  
+  
+
+</ScriptableScraper>
