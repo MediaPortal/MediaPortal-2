@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 
     #region Init
 
-    public OpenSubtitlesMatcher() : base("OpenSubtitlesMatcher", NAME, "OpenSubtitles")
+    public OpenSubtitlesMatcher() : base(NAME, "OpenSubtitles")
     {
     }
 

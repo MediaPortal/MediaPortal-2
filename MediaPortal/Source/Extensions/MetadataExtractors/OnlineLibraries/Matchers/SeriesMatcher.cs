@@ -131,6 +131,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
+    public override bool Equals(object obj)
+    {
+      if (obj is SeriesMatcher<TImg, TLang> m)
+        return Id.Equals(m.Id);
+      return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return Id.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return Name;
+    }
+
     #endregion
 
     #region Constants

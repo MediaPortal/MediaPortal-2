@@ -123,7 +123,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
       if (episodeInfo.IsBaseInfoPresent)
       {
         if (!forceQuickMode)
-          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
+          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, Tve3RecordingMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES).ConfigureAwait(false);
         if (episodeInfo.IsBaseInfoPresent)
           episodeInfo.SetMetadata(extractedAspectData);
       }

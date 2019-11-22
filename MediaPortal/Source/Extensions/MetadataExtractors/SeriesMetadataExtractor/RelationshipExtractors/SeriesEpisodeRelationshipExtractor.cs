@@ -43,6 +43,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
 
+    private string _category;
+
+    public SeriesEpisodeRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       //We don't want to build series -> episode relation because there already is a episode -> series relation
@@ -113,7 +120,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         return false;
 
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, true).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, true, _category).ConfigureAwait(false);
       
       foreach (EpisodeInfo episodeInfo in seriesInfo.Episodes)
       {

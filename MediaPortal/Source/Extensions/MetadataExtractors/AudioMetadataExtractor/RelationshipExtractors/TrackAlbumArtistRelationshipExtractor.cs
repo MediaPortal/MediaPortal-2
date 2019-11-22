@@ -43,6 +43,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
 
+    private string _category;
+
+    public TrackAlbumArtistRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       get { return true; }
@@ -99,7 +106,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       AudioMetadataExtractor.TryUpdateArtists(mediaItemAccessor, trackInfo.AlbumArtists, true);
       
       if (AudioMetadataExtractor.IncludeArtistDetails && !AudioMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateTrackPersonsAsync(trackInfo, PersonAspect.OCCUPATION_ARTIST, true).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateTrackPersonsAsync(trackInfo, PersonAspect.OCCUPATION_ARTIST, true, _category).ConfigureAwait(false);
       
       foreach (PersonInfo person in trackInfo.AlbumArtists)
       {

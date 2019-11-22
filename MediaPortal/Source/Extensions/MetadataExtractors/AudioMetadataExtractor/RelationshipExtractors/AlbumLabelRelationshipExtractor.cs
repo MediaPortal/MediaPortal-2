@@ -43,6 +43,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
 
+    private string _category;
+
+    public AlbumLabelRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       get { return true; }
@@ -94,7 +101,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
       
       if (AudioMetadataExtractor.IncludeMusicLabelDetails && !AudioMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateAlbumCompaniesAsync(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateAlbumCompaniesAsync(albumInfo, CompanyAspect.COMPANY_MUSIC_LABEL, _category).ConfigureAwait(false);
       
       foreach (CompanyInfo company in albumInfo.MusicLabels)
       {

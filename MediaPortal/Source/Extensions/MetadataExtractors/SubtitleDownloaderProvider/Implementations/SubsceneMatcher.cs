@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 
     #region Init
 
-    public SubsceneMatcher() : base("SubsceneMatcher", NAME, "Subscene")
+    public SubsceneMatcher() : base(NAME, "Subscene")
     {
     }
 

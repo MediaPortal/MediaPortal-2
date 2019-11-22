@@ -67,6 +67,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
+    public static readonly string MEDIA_CATEGORY_NAME_ADUIO = DefaultMediaCategories.Audio.CategoryName;
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
@@ -84,6 +85,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     protected SettingsChangeWatcher<AudioMetadataExtractorSettings> _settingWatcher;
     protected AsynchronousMessageQueue _messageQueue;
     protected int _importerCount;
+    protected string _category;
 
     /// <summary>
     /// Audio file accessor class needed for our tag library implementation. This class maps
@@ -132,6 +134,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     static AudioMetadataExtractor()
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Audio);
+      OnlineMatcherService.Instance.RegisterDefaultAudioMatchers(MEDIA_CATEGORY_NAME_ADUIO);
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -179,6 +182,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public AudioMetadataExtractor()
     {
+      _category = MEDIA_CATEGORY_NAME_ADUIO;
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Audio metadata extractor", MetadataExtractorPriority.Core, false,
           MEDIA_CATEGORIES, new[]
               {
@@ -792,13 +796,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if (SkipOnlineSearches && !SkipFanArtDownload)
           {
             TrackInfo tempInfo = trackInfo.Clone();
-            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo).ConfigureAwait(false);
+            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo, _category).ConfigureAwait(false);
             trackInfo.CopyIdsFrom(tempInfo);
             trackInfo.HasChanged = tempInfo.HasChanged;
           }
           else if (!SkipOnlineSearches)
           {
-            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo).ConfigureAwait(false);
+            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
           }
         }
 
@@ -994,7 +998,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         //Perform online search
         if (trackSearchinfo != null)
         {
-          var matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(trackSearchinfo).ConfigureAwait(false);
+          var matches = await OnlineMatcherService.Instance.FindMatchingTracksAsync(trackSearchinfo, _category).ConfigureAwait(false);
           ServiceRegistration.Get<ILogger>().Debug("AudioMetadataExtractor: Audio search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
@@ -1023,7 +1027,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         }
         else if (albumSearchinfo != null)
         {
-          var matches = await OnlineMatcherService.Instance.FindMatchingAlbumsAsync(albumSearchinfo).ConfigureAwait(false);
+          var matches = await OnlineMatcherService.Instance.FindMatchingAlbumsAsync(albumSearchinfo, _category).ConfigureAwait(false);
           ServiceRegistration.Get<ILogger>().Debug("AudioMetadataExtractor: Album search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
@@ -1066,7 +1070,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           TrackInfo info = new TrackInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(info).ConfigureAwait(false);
+          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(info, _category).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;
@@ -1075,7 +1079,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         {
           AlbumInfo info = new AlbumInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.UpdateAlbumAsync(info, false).ConfigureAwait(false);
+          await OnlineMatcherService.Instance.UpdateAlbumAsync(info, false, _category).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;

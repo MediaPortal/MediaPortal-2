@@ -39,6 +39,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
 
+    private string _category;
+
+    public TrackAlbumRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       get { return true; }
@@ -93,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       AudioMetadataExtractor.TryUpdateAlbum(mediaItemAccessor, albumInfo);
 
       if (!AudioMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateAlbumAsync(albumInfo, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateAlbumAsync(albumInfo, false, _category).ConfigureAwait(false);
       
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       albumInfo.SetMetadata(albumAspects);

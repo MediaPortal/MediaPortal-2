@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 
     #region Init
 
-    public PodnapisiMatcher() : base("PodnapisiMatcher", NAME, "Podnapisi")
+    public PodnapisiMatcher() : base(NAME, "Podnapisi")
     {
     }
 

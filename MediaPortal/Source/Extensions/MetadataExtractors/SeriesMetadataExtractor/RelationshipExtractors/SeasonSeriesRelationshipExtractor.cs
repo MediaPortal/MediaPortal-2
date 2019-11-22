@@ -41,6 +41,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { SeasonAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
 
+    private string _category;
+
+    public SeasonSeriesRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       get { return true; }
@@ -95,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         series[0] : seasonInfo.CloneBasicInstance<SeriesInfo>();
 
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false, _category).ConfigureAwait(false);
 
       if (seriesInfo.Genres.Count > 0)
       {

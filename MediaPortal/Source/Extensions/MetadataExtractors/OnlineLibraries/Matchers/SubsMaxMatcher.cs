@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public SubsMaxMatcher() : base(NAME, nameof(SubsMaxMatcher))
+    public SubsMaxMatcher() : base(NAME)
     {
       //Will be overridden if the user enables it in settings
       Enabled = true;

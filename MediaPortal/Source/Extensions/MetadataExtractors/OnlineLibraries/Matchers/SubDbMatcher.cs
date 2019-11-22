@@ -36,7 +36,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public SubDbMatcher() : base(NAME, nameof(SubDbMatcher))
+    public SubDbMatcher() : base(NAME)
     {
       //Will be overridden if the user enables it in settings
       Enabled = true;

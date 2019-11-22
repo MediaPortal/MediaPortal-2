@@ -150,7 +150,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       get { return _metadata; }
     }
 
-    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       string fileName = mediaItemAccessor.ResourceName;
       if (!HasImageExtension(fileName))

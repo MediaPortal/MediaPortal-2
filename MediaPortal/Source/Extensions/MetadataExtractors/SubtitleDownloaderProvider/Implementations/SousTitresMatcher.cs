@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 
     #region Init
 
-    public SousTitresMatcher() : base("SousTitresMatcher", NAME, "Sous-titres.eu")
+    public SousTitresMatcher() : base(NAME, "Sous-titres.eu")
     {
     }
 

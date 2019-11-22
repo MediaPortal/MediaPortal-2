@@ -40,9 +40,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public SubtitleMatcher(string id, string name)
+    public SubtitleMatcher(string name)
     {
-      _id = id;
+      _id = GetType().Name;
       _name = name;
     }
 
@@ -71,6 +71,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     }
 
     public abstract Task<bool> InitWrapperAsync(bool useHttps);
+
+    public override bool Equals(object obj)
+    {
+      if (obj is SubtitleMatcher<TId> m)
+        return Id.Equals(m.Id);
+      return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return Id.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return Name;
+    }
 
     #endregion
 

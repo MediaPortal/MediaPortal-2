@@ -225,7 +225,7 @@ namespace Tests.Server.OnlineLibraries
         {
           TvdbId = Int32.Parse(value)
         };
-        OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false).Wait();
+        OnlineMatcherService.Instance.UpdateSeriesAsync(seriesInfo, false, null).Wait();
         Console.WriteLine("{0}: {1}", seriesInfo.SeriesName, seriesInfo.Description);
       }
     }

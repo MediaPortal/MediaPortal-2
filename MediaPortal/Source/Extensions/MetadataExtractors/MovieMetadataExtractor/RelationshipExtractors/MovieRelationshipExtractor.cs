@@ -63,13 +63,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       _extractors = new List<IRelationshipRoleExtractor>();
 
-      _extractors.Add(new MovieCollectionRelationshipExtractor());
-      _extractors.Add(new MovieActorRelationshipExtractor());
-      _extractors.Add(new MovieDirectorRelationshipExtractor());
-      _extractors.Add(new MovieWriterRelationshipExtractor());
-      _extractors.Add(new MovieCharacterRelationshipExtractor());
-      _extractors.Add(new MovieProductionRelationshipExtractor());
-      _extractors.Add(new MovieCollectionMovieRelationshipExtractor());
+      _extractors.Add(new MovieCollectionRelationshipExtractor(MovieMetadataExtractor.MEDIA_CATEGORY_NAME_MOVIE));
+      _extractors.Add(new MovieActorRelationshipExtractor(MovieMetadataExtractor.MEDIA_CATEGORY_NAME_MOVIE));
+      _extractors.Add(new MovieDirectorRelationshipExtractor(MovieMetadataExtractor.MEDIA_CATEGORY_NAME_MOVIE));
+      _extractors.Add(new MovieWriterRelationshipExtractor(MovieMetadataExtractor.MEDIA_CATEGORY_NAME_MOVIE));
+      _extractors.Add(new MovieCharacterRelationshipExtractor(MovieMetadataExtractor.MEDIA_CATEGORY_NAME_MOVIE));
+      _extractors.Add(new MovieProductionRelationshipExtractor(MovieMetadataExtractor.MEDIA_CATEGORY_NAME_MOVIE));
+      _extractors.Add(new MovieCollectionMovieRelationshipExtractor(MovieMetadataExtractor.MEDIA_CATEGORY_NAME_MOVIE));
     }
 
     /// <summary>
@@ -102,11 +102,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       //We need to find movies because importer only works with files
       //The relationship extractor for movie collection should then do the update
       List<MovieCollectionInfo> changedCollections = OnlineMatcherService.Instance.GetLastChangedMovieCollections();
-      foreach (MovieCollectionInfo series in changedCollections)
+      foreach (MovieCollectionInfo collection in changedCollections)
       {
         Dictionary<string, string> ids = new Dictionary<string, string>();
-        if (series.MovieDbId > 0)
-          ids.Add(ExternalIdentifierAspect.SOURCE_TMDB, series.MovieDbId.ToString());
+        if (collection.MovieDbId > 0)
+          ids.Add(ExternalIdentifierAspect.SOURCE_TMDB, collection.MovieDbId.ToString());
+        foreach (var customId in collection.CustomIds)
+          ids.Add(customId.Key, customId.Value);
 
         IFilter collectionChangedFilter = null;
         foreach (var id in ids)
@@ -149,6 +151,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           ids.Add(ExternalIdentifierAspect.SOURCE_CINEPASSION, movie.CinePassionId.ToString());
         if (movie.CinePassionId > 0)
           ids.Add(ExternalIdentifierAspect.SOURCE_ALLOCINE, movie.AllocinebId.ToString());
+        foreach (var customId in movie.CustomIds)
+          ids.Add(customId.Key, customId.Value);
 
         IFilter moviesChangedFilter = null;
         foreach (var id in ids)

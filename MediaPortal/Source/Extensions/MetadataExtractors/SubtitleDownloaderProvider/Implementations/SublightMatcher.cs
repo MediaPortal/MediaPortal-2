@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 
     #region Init
 
-    public SublightMatcher() : base("SublightMatcher", NAME, "Sublight")
+    public SublightMatcher() : base(NAME, "Sublight")
     {
     }
 

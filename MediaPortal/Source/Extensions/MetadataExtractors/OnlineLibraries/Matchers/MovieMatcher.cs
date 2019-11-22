@@ -128,10 +128,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
+    public override bool Equals(object obj)
+    {
+      if (obj is MovieMatcher<TImg, TLang> m)
+        return Id.Equals(m.Id);
+      return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return Id.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return Name;
+    }
+
     #endregion
 
     #region Constants
-    
+
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
 
     protected override string MatchesSettingsFile

@@ -257,7 +257,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         }
 
         if(!SkipOnlineSearches && !forceQuickMode)
-          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo).ConfigureAwait(false);
+          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
 
         if (!trackInfo.HasChanged)
           return false;

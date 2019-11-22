@@ -43,6 +43,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
 
+    private string _category;
+
+    public EpisodeDirectorRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       get { return true; }
@@ -100,7 +107,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         episodeInfo.Directors = directors;
 
       if (SeriesMetadataExtractor.IncludeDirectorDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateEpisodePersonsAsync(episodeInfo, PersonAspect.OCCUPATION_DIRECTOR).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateEpisodePersonsAsync(episodeInfo, PersonAspect.OCCUPATION_DIRECTOR, _category).ConfigureAwait(false);
       
       foreach (PersonInfo person in episodeInfo.Directors)
       {

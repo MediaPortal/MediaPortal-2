@@ -71,6 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// The name of the root element in a valid nfo-file for movies
     /// </summary>
     private const string MOVIE_ROOT_ELEMENT_NAME = "movie";
+    private const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
 
     #endregion
 
@@ -153,7 +154,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
             _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' found when parsing the nfo-file as plain text.", _miNumber, imdbId);
 
             // Returns true, if the found IMDB-ID represents a movie (not a series)
-            if (await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(new MovieInfo { ImdbId = imdbId }).ConfigureAwait(false))
+            if (await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(new MovieInfo { ImdbId = imdbId }, MEDIA_CATEGORY_NAME_MOVIE).ConfigureAwait(false))
             {
               _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' confirmed online to represent a movie. Storing only Imdb-ID.", _miNumber, imdbId);
               var stub = new MovieStub { Id = imdbId };

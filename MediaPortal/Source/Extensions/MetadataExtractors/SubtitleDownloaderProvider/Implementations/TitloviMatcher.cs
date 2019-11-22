@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 
     #region Init
 
-    public TitloviMatcher() : base("TitloviMatcher", NAME, "Titlovi.com")
+    public TitloviMatcher() : base(NAME, "Titlovi.com")
     {
     }
 

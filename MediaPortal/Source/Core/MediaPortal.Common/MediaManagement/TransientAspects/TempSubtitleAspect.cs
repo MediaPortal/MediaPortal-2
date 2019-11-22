@@ -62,6 +62,12 @@ namespace MediaPortal.Common.MediaManagement.TransientAspects
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Provider", 100, Cardinality.Inline, false);
 
     /// <summary>
+    /// Subtitle categories.
+    /// </summary>
+    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_CATEGORY =
+        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("Category", 100, Cardinality.Inline, false);
+
+    /// <summary>
     /// Subtitle link or ID needed to download the subtitle.
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_SUBTITLEID =
@@ -74,6 +80,7 @@ namespace MediaPortal.Common.MediaManagement.TransientAspects
             ATTR_DISPLAY_NAME,
             ATTR_LANGUAGE,
             ATTR_PROVIDER,
+            ATTR_CATEGORY,
             ATTR_SUBTITLEID
         }, true);
   }

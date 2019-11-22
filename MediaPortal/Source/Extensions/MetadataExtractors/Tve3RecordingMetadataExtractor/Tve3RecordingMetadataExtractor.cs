@@ -47,6 +47,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
   /// </summary>
   public class Tve3RecordingSeriesMetadataExtractor : Tve3RecordingMetadataExtractor
   {
+    public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
+
     /// <summary>
     /// GUID string for the Tve3 Recording metadata extractor.
     /// </summary>
@@ -103,7 +105,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (episodeInfo.IsBaseInfoPresent)
         {
           if (!forceQuickMode)
-            await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
+            await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, MEDIA_CATEGORY_NAME_SERIES).ConfigureAwait(false);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }

@@ -41,6 +41,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { MovieCollectionAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
 
+    private string _category;
+
+    public MovieCollectionMovieRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       //We don't want to build collection -> movie relation because there already is a movie -> collection relation
@@ -96,7 +103,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return false;
 
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
-        await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, true).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, true, _category).ConfigureAwait(false);
       
       for (int i = 0; i < collectionInfo.Movies.Count; i++)
       {
