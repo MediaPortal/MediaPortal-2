@@ -272,6 +272,31 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return new AsyncResult<IEnumerable<Tuple<string, int, string>>>((bool)outParameters[1], data);
     }
 
+    public async Task<bool> NotifyFeatureUsageAsync(Guid profileId, string scope, string usedItem)
+    {
+      CpAction action = GetAction("NotifyFeatureUsage");
+      IList<object> inParameters = new List<object>
+      {
+        MarshallingHelper.SerializeGuid(profileId),
+        scope,
+        usedItem
+      };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public async Task<UsageStatistics> GetFeatureUsageStatisticsAsync(Guid profileId, string scope)
+    {
+      CpAction action = GetAction("GetFeatureUsageStatistics");
+      IList<object> inParameters = new List<object>
+      {
+        MarshallingHelper.SerializeGuid(profileId),
+        scope
+      };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (UsageStatistics)outParameters[0];
+    }
+
     #endregion
 
     #region Cleanup user data

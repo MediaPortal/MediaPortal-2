@@ -32,9 +32,9 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
 {
-  public class EnableAgeCertificationLogosConfiguration : YesNo, IDisposable
+  public class EnableHelpTextConfiguration : YesNo, IDisposable
   {
-    public EnableAgeCertificationLogosConfiguration()
+    public EnableHelpTextConfiguration()
     {
       SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
@@ -42,14 +42,14 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
     public override void Load()
     {
       base.Load();
-      _yes = SettingsManager.Load<NereusSkinSettings>().EnableAgeCertificationLogos;
+      _yes = SettingsManager.Load<NereusSkinSettings>().EnableHelpTexts;
     }
 
     public override void Save()
     {
       base.Save();
       var settings = SettingsManager.Load<NereusSkinSettings>();
-      settings.EnableAgeCertificationLogos = _yes;
+      settings.EnableHelpTexts = _yes;
       SettingsManager.Save(settings);
     }
 

@@ -26,8 +26,10 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using System.Xml.Serialization;
 using MediaPortal.Common.Async;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Utilities.Xml;
 
 namespace MediaPortal.Common.UserProfileDataManagement
 {
@@ -74,8 +76,28 @@ namespace MediaPortal.Common.UserProfileDataManagement
     // Other global user data 
     Task<bool> SetUserAdditionalDataAsync(Guid profileId, string key, string data, int dataNo = 0);
     Task<AsyncResult<string>> GetUserAdditionalDataAsync(Guid profileId, string key, int dataNo = 0);
-    Task<AsyncResult<IEnumerable<Tuple<int, string>>>> GetUserAdditionalDataListAsync(Guid profileId, string key, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint ? limit = null);
+    Task<AsyncResult<IEnumerable<Tuple<int, string>>>> GetUserAdditionalDataListAsync(Guid profileId, string key, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null);
     Task<AsyncResult<IEnumerable<Tuple<string, int, string>>>> GetUserSelectedAdditionalDataListAsync(Guid profileId, string[] keys, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, uint? offset = null, uint? limit = null);
+
+    #endregion
+
+    #region User feature usage statistics
+
+    /// <summary>
+    /// Notifies the server that the user with <paramref name="profileId"/> used the <see cref="usedItem"/>. The <paramref name="scope"/> defines the plugin or feature, like "onlinevideos".
+    /// </summary>
+    /// <param name="profileId">Profile ID</param>
+    /// <param name="scope">Plugin or feature</param>
+    /// <param name="usedItem">Name of used item</param>
+    /// <returns></returns>
+    Task<bool> NotifyFeatureUsageAsync(Guid profileId, string scope, string usedItem);
+
+    /// <summary>
+    /// Gets the usage statistics from server for the user with <paramref name="profileId"/> and <paramref name="scope"/>.
+    /// </summary>
+    /// <param name="profileId">Profile ID</param>
+    /// <param name="scope">Plugin or feature</param>
+    Task<UsageStatistics> GetFeatureUsageStatisticsAsync(Guid profileId, string scope);
 
     #endregion
 

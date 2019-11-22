@@ -2968,7 +2968,7 @@
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
               Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
       <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
-             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" 
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
              IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -2977,6 +2977,13 @@
             <Binding Source="None"/>
           </MultiBinding>
         </Label.Scroll>
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Label.Opacity>
       </Label>
 
       <!-- Thumbnail not available-->
@@ -3133,7 +3140,7 @@
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
               Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
       <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
-             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" 
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
              IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -3142,6 +3149,13 @@
             <Binding Source="None"/>
           </MultiBinding>
         </Label.Scroll>
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Label.Opacity>
       </Label>
 
       <!-- Thumbnail not available-->
@@ -3303,7 +3317,7 @@
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
               Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
       <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
-             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" 
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
              IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -3312,6 +3326,13 @@
             <Binding Source="None"/>
           </MultiBinding>
         </Label.Scroll>
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Label.Opacity>
       </Label>
 
       <!-- Thumbnail not available-->
