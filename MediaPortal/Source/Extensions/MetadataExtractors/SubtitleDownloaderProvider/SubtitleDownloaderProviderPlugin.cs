@@ -26,6 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.Implementations;
+using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Extensions.OnlineLibraries.Libraries;
 using System.Linq;
 
@@ -33,6 +34,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
 {
   public class SubtitleDownloaderProviderPlugin : IPluginStateTracker
   {
+    public const string DEFAULT_MOVIE_CATEGORY = "Movie";
+    public const string DEFAULT_SERIES_CATEGORY = "Series";
+
     public SubtitleDownloaderProviderPlugin()
     {
     }
@@ -42,9 +46,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
       var meta = pluginRuntime.Metadata;
       Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
-      Logger.Debug("SubtitleDownloaderProviderPlugin: Registering matchers");
+      Logger.Debug("SubtitleDownloaderProviderPlugin: Registering movie subtitle matchers");
       var providerNames = SubtitleDownloader.SubtitleDownloaderSetup.GetSupportedProviderNames();
-      var providers = new BaseSubtitleDownloaderMatcher[]
+      var movieProviders = new BaseSubtitleDownloaderMatcher[]
       {
         new MovieSubtitlesMatcher(),
         new OpenSubtitlesMatcher(),
@@ -54,10 +58,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
         new SubsceneMatcher(),
         new TitloviMatcher(),
         new TitulkyMatcher(),
+      };
+      OnlineMatcherService.Instance.RegisterSubtitleMatchers(movieProviders.Where(p => providerNames.Contains(p.SubtitleDownloaderProviderId)).ToArray(), DEFAULT_MOVIE_CATEGORY);
+
+      Logger.Debug("SubtitleDownloaderProviderPlugin: Registering series subtitle matchers");
+      var seriesProviders = new BaseSubtitleDownloaderMatcher[]
+      {
+        new OpenSubtitlesMatcher(),
+        new PodnapisiMatcher(),
+        new SousTitresMatcher(),
+        new SublightMatcher(),
+        new SubsceneMatcher(),
+        new TitloviMatcher(),
+        new TitulkyMatcher(),
         new TvSubtitlesMatcher(),
       };
-      var onlineService = ServiceRegistration.Get<IOnlineMatcherService>();
-      onlineService.RegisterSubtitleMatchers(providers.Where(p => providerNames.Contains(p.SubtitleDownloaderProviderId)).ToArray());
+      OnlineMatcherService.Instance.RegisterSubtitleMatchers(seriesProviders.Where(p => providerNames.Contains(p.SubtitleDownloaderProviderId)).ToArray(), DEFAULT_SERIES_CATEGORY);
     }
 
     public bool RequestEnd()
