@@ -495,17 +495,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       artists = (tag.TagTypes & TagTypes.Id3v2) != 0 ?
         PatchID3v23Enumeration(artists) : artists;
       artists = ApplyAdditionalSeparator(artists);
-      if (artists.Count() != 1)
+      var atistList = artists.ToList();
+      if (atistList.Count == 0)
         return false;
+
       string musicBrainzId = tag.Tag.MusicBrainzArtistId;
       if (string.IsNullOrEmpty(musicBrainzId))
         return false;
-      string artist = artists.First();
-      PersonInfo person = persons.FirstOrDefault(p => p.Name == artist);
-      if (person == null)
-        return false;
-      person.MusicBrainzId = musicBrainzId;
-      return true;
+      //Multiple ids can be contained in this tag
+      string[] musicBrainzIds = musicBrainzId.Split(';');
+
+      bool success = false;
+      for (int i = 0; i < musicBrainzIds.Length; i++)
+      {
+        string id = musicBrainzIds[i].Trim();
+        if (string.IsNullOrEmpty(id))
+          continue;
+        if (atistList.Count > i)
+        {
+          PersonInfo person = persons.FirstOrDefault(p => p.Name == atistList[i]);
+          if (person == null)
+            continue;
+          person.MusicBrainzId = id;
+          success = true;
+        }
+      }
+      return success;
     }
 
     #endregion
