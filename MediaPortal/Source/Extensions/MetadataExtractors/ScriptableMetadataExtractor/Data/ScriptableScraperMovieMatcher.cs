@@ -44,8 +44,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       _id = script.ScriptID.ToString();
       _wrapper = new ScriptableScraperMovieWrapper(script);
 
-      PreferredLanguageCulture = script.Language;
-
       //Will be overridden if the user enables it in settings
       Enabled = false;
     }
