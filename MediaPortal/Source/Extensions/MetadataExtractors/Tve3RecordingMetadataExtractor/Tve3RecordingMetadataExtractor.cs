@@ -162,8 +162,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
-    public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
-
     const string TAG_TITLE = "TITLE";
     const string TAG_PLOT = "COMMENT";
     const string TAG_GENRE = "GENRE";
