@@ -28,6 +28,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.UserServices.FanArtService.Client.Models;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
@@ -71,13 +72,16 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     protected AbstractProperty _contentIndexProperty;
     protected AbstractProperty _selectedItemProperty;
-    
+
+    protected AbstractProperty _menuEditModelProperty;
+
     protected DelayedEvent _updateEvent;
 
     protected IDictionary<Guid, object> _homeContent = new Dictionary<Guid, object>();
     protected static readonly DefaultHomeContent DEFAULT_HOME_CONTENT = new DefaultHomeContent();
 
     protected SettingsChangeWatcher<NereusSkinSettings> _settingsWatcher;
+    protected IList<Guid> _currentActionIdSettings;
 
     protected ItemsList _allHomeMenuItems;
     protected ItemsList _mainMenuItems = new ItemsList();
@@ -97,6 +101,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
       _contentIndexProperty = new WProperty(typeof(int), 0);
       _selectedItemProperty = new WProperty(typeof(ListItem), null);
+
+      _menuEditModelProperty = new WProperty(typeof(MenuEditModel), null);
 
       _updateEvent = new DelayedEvent(UPDATE_DELAY_MS);
       _updateEvent.OnEventHandler += OnUpdate;
@@ -135,6 +141,12 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     private void OnSettingsChanged(object sender, EventArgs e)
     {
+      // Check whether the configured action ids have changed,
+      var currentIds = _currentActionIdSettings;
+      if (currentIds == null || currentIds.SequenceEqual(_settingsWatcher.Settings.HomeMenuActionIds))
+        return;
+      // If so, rebuild the items
+      OnHomeMenuItemsChanged(_allHomeMenuItems);
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -232,6 +244,17 @@ namespace MediaPortal.UiComponents.Nereus.Models
       set { _selectedItemProperty.SetValue(value); }
     }
 
+    public AbstractProperty MenuEditModelProperty
+    {
+      get { return _menuEditModelProperty; }
+    }
+
+    public MenuEditModel MenuEditModel
+    {
+      get { return (MenuEditModel)_menuEditModelProperty.GetValue(); }
+      set { _menuEditModelProperty.SetValue(value); }
+    }
+
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
       ListItem item = e.FirstAddedItem as ListItem;
@@ -252,6 +275,36 @@ namespace MediaPortal.UiComponents.Nereus.Models
     public void CloseTopmostDialog(MouseButtons buttons, float x, float y)
     {
       ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
+    }
+
+    public void BeginMenuEdit()
+    {
+      // The dialog binds to the edit model, which handles editing the list 
+      MenuEditModel = new MenuEditModel(HOME_STATE_ID, _settingsWatcher.Settings.HomeMenuActionIds);
+
+      // Show the dialog and set a callback to clear the edit model when it closes
+      var sm = ServiceRegistration.Get<IScreenManager>();
+      sm.ShowDialog("DialogEditMenu", (n, i) => EndMenuEdit());
+    }
+
+    public void SaveMenuEdit()
+    {
+      // Check we've got a valid edit model
+      MenuEditModel editModel = MenuEditModel;
+      if (editModel == null)
+        return;
+
+      // Get the updated action ids and update the settings, we'll update
+      // the menu automatically when we get the settings changed event.
+      var sm = ServiceRegistration.Get<ISettingsManager>();
+      var settings = sm.Load<NereusSkinSettings>();
+      settings.HomeMenuActionIds = editModel.GetCurrentActionIds().ToArray();
+      sm.Save(settings);
+    }
+
+    public void EndMenuEdit()
+    {
+      MenuEditModel = null;
     }
 
     #endregion
@@ -322,22 +375,29 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
       // Get the action ids that will be visible in the main menu.
       // All other actions will be placed under 'Other'.
-      var actionIds = new HashSet<Guid>(_settingsWatcher.Settings.HomeMenuActionIds);
-            
+      var actionIds = _currentActionIdSettings = new List<Guid>(_settingsWatcher.Settings.HomeMenuActionIds);
+      
+      // The list items should be in the same order as the settings, so sort by settings index
+      SortedList<int, ListItem> sortedMainItems = new SortedList<int, ListItem>();
+
       // Sort the changed items into the main menu items and the 'other' items.
-      List<ListItem> changedMainItems = new List<ListItem>();
       List<ListItem> changedOtherItems = new List<ListItem>();
       lock (items.SyncRoot)
       {
         foreach (var item in items)
         {
-          if (TryGetAction(item, out var action) && actionIds.Contains(action.ActionId))
-            changedMainItems.Add(item);
+          int index;
+          // If there's a matching action, insert it into our main items at the same index
+          if (TryGetAction(item, out var action) && (index = actionIds.IndexOf(action.ActionId)) >= 0)
+            sortedMainItems.Add(index, item); // changedMainItems.Add(item);
           else // no action or it's not in our list of actions to show in the main menu
             changedOtherItems.Add(item);
         }
       }
-
+      
+      // Get the sorted main items into a regular list
+      List<ListItem> changedMainItems = new List<ListItem>(sortedMainItems.Values);
+      
       // We need to create the other plugins menu item if necessary and
       // add it to the changed main items manually to ensure that the
       // current and changed items are compared correctly.
