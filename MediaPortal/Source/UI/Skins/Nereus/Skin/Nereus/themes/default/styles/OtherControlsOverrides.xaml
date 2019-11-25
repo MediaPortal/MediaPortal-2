@@ -628,6 +628,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource NereusListButtonStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
+                  ContextMenuCommand ="{DynamicResource ResourceKey=Context_Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
