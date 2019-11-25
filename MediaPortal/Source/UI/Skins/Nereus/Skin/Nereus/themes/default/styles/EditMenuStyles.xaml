@@ -19,25 +19,43 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <ContentPresenter x:Name="EditItemData" Grid.Column="0" Grid.Row="0" Margin="0,0,10,0"
+            <ContentPresenter x:Name="EditItemData" Grid.Column="0" Grid.Row="0" Margin="0,0,10,0" Opacity="0.6"
                               VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
             <Button x:Name="MoveUpButton" Grid.Column="1" Grid.Row="0" Margin="3,2,3,2" Width="54" Height="34"
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     Style="{ThemeResource ChapterUpButtonStyle}" Context="{Binding}"
                     Command="{DynamicResource ResourceKey=MoveUp_Command}"
                     IsEnabled="{Binding Path=AdditionalProperties[IsUpButtonEnabled],Mode=OneTime}"
-                    SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}"/>
+                    SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="EditItemData" Property="Opacity" Value="1"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
             <Button x:Name="MoveDownButton" Grid.Column="2" Grid.Row="0" Margin="3,2,3,1" Width="54" Height="34"
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     Style="{ThemeResource ChapterDownButtonStyle}" Context="{Binding}"
                     Command="{DynamicResource ResourceKey=MoveDown_Command}"
                     IsEnabled="{Binding Path=AdditionalProperties[IsDownButtonEnabled],Mode=OneTime}"
-                    SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}"/>
-            <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Margin="3,2,3,2" Width="30" Height="30"
+                    SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="EditItemData" Property="Opacity" Value="1"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Margin="3,2,13,2" Width="30" Height="30"
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     Style="{ThemeResource RemoveEntryButtonStyle}" Context="{Binding}"
                     Command="{DynamicResource ResourceKey=Remove_Command}"
-                    SetFocus="{Binding Path=AdditionalProperties[IsRemoveButtonFocused],Mode=OneTime}"/>
+                    SetFocus="{Binding Path=AdditionalProperties[IsRemoveButtonFocused],Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="EditItemData" Property="Opacity" Value="1"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>              
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -56,7 +74,13 @@
       <Label x:Name="ItemNameLabel" Grid.Column="0" Grid.Row="0" Margin="10,0,10,0"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
              HorizontalAlignment="Left" VerticalAlignment="Center"
-             Content="{Binding [Name]}"/>
+             Content="{Binding [Name]}">
+        <Label.Triggers>
+          <DataTrigger Binding="Selected" Value="False">
+            <Setter TargetName="ItemNameLabel" Property="Opacity" Value="0.6"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
     </Grid>
   </DataTemplate>
   

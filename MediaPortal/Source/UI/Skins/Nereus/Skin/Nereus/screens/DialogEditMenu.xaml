@@ -16,7 +16,7 @@
     <ControlTemplate x:Key="Contents_Template">
       <StackPanel Orientation="Vertical">
 
-        <Button Style="{ThemeResource NextChapterButtonStyle}" Margin="0,0,0,0"
+        <Button Style="{ThemeResource NextChapterButtonStyle}" Margin="-5,0,0,0"
                 HorizontalAlignment="Left" VerticalAlignment="Top"
                 Command="{Command Source={Service ScreenManager}, Path=ShowDialog, Parameters=DialogAddMenuItem}"/>
 
