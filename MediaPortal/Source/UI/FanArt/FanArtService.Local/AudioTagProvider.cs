@@ -96,6 +96,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       IList<PictureType> patterns = new List<PictureType>();
       switch (fanArtType)
       {
+        case FanArtTypes.Poster:
         case FanArtTypes.Cover:
         case FanArtTypes.Thumbnail:
           patterns.Add(PictureType.FrontCover);

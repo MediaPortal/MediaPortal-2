@@ -84,6 +84,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       switch (fanArtType)
       {
         case FanArtTypes.Poster:
+        case FanArtTypes.Cover:
           patterns.Add(PictureType.FrontCover);
           break;
         case FanArtTypes.Thumbnail:
