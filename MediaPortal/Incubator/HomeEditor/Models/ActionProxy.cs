@@ -132,7 +132,7 @@ namespace HomeEditor.Models
         if (action.ActionId == currentActionId)
           item.Selected = true;
         item.SelectedProperty.Attach(OnActionItemSelected);
-        items.Add(action.DisplayTitle.Evaluate(), item);
+        items.Add($"{action.DisplayTitle.Evaluate()} {action.ActionId}", item);
       }
     }
 
