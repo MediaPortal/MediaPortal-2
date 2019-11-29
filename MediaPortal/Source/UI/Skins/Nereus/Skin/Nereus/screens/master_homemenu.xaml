@@ -286,7 +286,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
                     ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MainMenuItems, Mode=OneTime}"
                     SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
             <ListView.Resources>
+
+              <!--Main command-->
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              
+              <!--Context menu command-->
+              <Command x:Key="Context_Menu_Command" Source="{StaticResource HomeMenuModel}" Path="BeginMenuEdit" />
+              
             </ListView.Resources>
           </ListView>
         </Grid>

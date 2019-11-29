@@ -43,5 +43,8 @@
   
   <string name="Nereus.Home.OtherPlugins">Others</string>
   <string name="Nereus.Home.OtherPlugins.Help">All other plugins.</string>
+  
+  <string name="Nereus.Dialog.EditMenu.Header">Edit menu</string>
+  <string name="Nereus.Dialog.AddMenuItem.Header">Add menu item</string>
 
 </resources>
