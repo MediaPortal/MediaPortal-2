@@ -92,11 +92,16 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public void StartApp(ListItem item)
     {
+      StartApp((string)item.AdditionalProperties[Consts.KEY_ID]);
+    }
+
+    public void StartApp(string appId)
+    {
       if ((_apps?.AppsList?.Count ?? 0) == 0)
       {
         _apps = Helper.LoadApps(true);
       }
-      Start(_apps.AppsList.FirstOrDefault(a => Convert.ToString(a.Id) == (string)item.AdditionalProperties[Consts.KEY_ID]));
+      Start(_apps.AppsList.FirstOrDefault(a => Convert.ToString(a.Id).Equals(appId, StringComparison.OrdinalIgnoreCase)));
     }
 
     public void SelectGroup(ListItem item)
@@ -196,6 +201,9 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     {
       try
       {
+        if (app == null)
+          return;
+
         if (ServiceRegistration.Get<IPlayerContextManager>().NumActivePlayerContexts > 0)
         {
           var pp = ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext;

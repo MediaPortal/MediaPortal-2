@@ -27,15 +27,22 @@
   <string name="AppLauncher.Settings.Add.AsAdmin">Run as Admin</string>
   <string name="AppLauncher.Settings.Edit">Edit Application</string>
 	<string name="AppLauncher.Settings.Delete">Delete Application</string>
+  <string name="AppLauncher.Settings.Menu">Application menus</string>
+  <string name="AppLauncher.Settings.Menu.ClearMapping">Clear mapping</string>
 	<string name="AppLauncher.Settings.Test">Test Application</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Added a new Application</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Edit an existing Application</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Remove an existing Application</string>
+  <string name="AppLauncher.Settings.Menu.Helptext">Link an Application to a menu entry</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Remove an existing Group</string>
+  
   <string name="AppLauncher.Group">Group</string>
   <string name="AppLauncher.Ungrouped">Ungrouped</string>
   <string name="AppLauncher.SelectGroup">Select a Group</string>
   <string name="AppLauncher.SelectApp">Select an Application</string>
   <string name="AppLauncher.RemoveGroup">Remove Group</string>
   <string name="AppLauncher.Delete">Delete</string>
-  <string name="AppLauncher.Settings.Add.Helptext">Added a new Application</string>
-  <string name="AppLauncher.Settings.Edit.Helptext">Edit an existing Application</string>
-  <string name="AppLauncher.Settings.Delete.Helptext">Remove an existing Application</string>
-  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Remove an existing Group</string>
+  <string name="AppLauncher.MenuEntry">Launch Application</string>
+  <string name="AppLauncher.MenuEntry.Help">Launches the linked Application</string>
+  <string name="AppLauncher.Menu">Menu</string>
 </resources>

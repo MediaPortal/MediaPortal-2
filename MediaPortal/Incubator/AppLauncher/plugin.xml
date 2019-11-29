@@ -29,8 +29,15 @@
     <Model Id="D47E22A3-3D0F-4A28-8EF6-1121B811508C" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherSettingsAddModel"/>
     <Model Id="3C19B13A-D64C-4918-9AD6-17EC2D9AAE29" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherSettingsDeleteModel"/>
     <Model Id="3C38DF86-AE80-4411-8C3D-9480E7AAB279" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherRemoveGroupModel"/>
+    <Model Id="488A54AF-8EE5-4E9E-8C91-DE637DDB650C" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherSettingsMenuModel"/>
     
     <Model Id="E35E2C12-1B97-43EE-B7A2-D1527DF41D89" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppsListModel"/>
+
+    <Model Id="D79F4FC9-09F2-4F11-B72E-ADBFDB83A305" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherMenu1Action"/>
+    <Model Id="CD6B458A-BD1C-46A9-8E28-A4CCA437DB72" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherMenu2Action"/>
+    <Model Id="4C6EF574-3913-44EF-9076-FEB57B407005" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherMenu3Action"/>
+    <Model Id="DE224ADC-8E34-44F8-B888-046E47ED20D7" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherMenu4Action"/>
+    <Model Id="A6DE5560-46DC-443F-8DCB-0A6B7A3DED5C" ClassName="MediaPortal.Plugins.AppLauncher.Models.AppLauncherMenu5Action"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -56,13 +63,19 @@
       Name="SettingsDelete"
       MainScreen="AppLauncherSettingsDelete"
       DisplayLabel="[AppLauncher.Settings.Delete]"
-      WorkflowModel="3C19B13A-D64C-4918-9AD6-17EC2D9AAE29"/>   
-    
+      WorkflowModel="3C19B13A-D64C-4918-9AD6-17EC2D9AAE29"/>
+
     <DialogState Id="683B8FB9-9032-4260-AF07-CDBAFDCA58AE"
       Name="RemoveGroup"
       DialogScreen="DlgAppLauncherRemoveGroup"
       DisplayLabel="[AppLauncher.RemoveGroup]"
       WorkflowModel="3C38DF86-AE80-4411-8C3D-9480E7AAB279"/>
+                 
+    <WorkflowState Id="{C4FF422C-DBD7-4C76-9913-AC092B3F1B37}"
+      Name="SettingsMenu"
+      MainScreen="AppLauncherSettingsMenu"
+      DisplayLabel="[AppLauncher.Settings.Menu]"
+      WorkflowModel="488A54AF-8EE5-4E9E-8C91-DE637DDB650C"/>
   </Register>
 
   <Register Location="/Resources/Skin">
@@ -112,6 +125,12 @@
       HelpText="[AppLauncher.Settings.RemoveGroup.Helptext]"
       ClassName="MediaPortal.Plugins.AppLauncher.Settings.Configuration.RemoveGroup"
       AdditionalData="WorkflowState=683B8FB9-9032-4260-AF07-CDBAFDCA58AE,ConfAppPanel=..."/>
+    <CustomConfigSetting
+      Id="AppLauncherSettingsMenu"
+      Text="[AppLauncher.Settings.Menu]"
+      HelpText="[AppLauncher.Settings.Menu.Helptext]"
+      ClassName="MediaPortal.Plugins.AppLauncher.Settings.Configuration.Menu"
+			AdditionalData="WorkflowState=C4FF422C-DBD7-4C76-9913-AC092B3F1B37,ConfAppPanel=..."/>
   </Register>
   
 </Plugin>

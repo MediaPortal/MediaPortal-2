@@ -22,27 +22,31 @@
 
 #endregion
 
-using MediaPortal.Common.Configuration.ConfigurationClasses;
-
-namespace MediaPortal.Plugins.AppLauncher.Settings.Configuration
+namespace MediaPortal.Plugins.AppLauncher.Models
 {
-  internal class Edit : CustomConfigSetting
+  public class AppLauncherMenu1Action : BaseAppLauncherMenuAction
   {
+    public AppLauncherMenu1Action() : base("D79F4FC9-09F2-4F11-B72E-ADBFDB83A305", 1)
+    {}
   }
-
-  internal class Add : CustomConfigSetting
+  public class AppLauncherMenu2Action : BaseAppLauncherMenuAction
   {
+    public AppLauncherMenu2Action() : base("CD6B458A-BD1C-46A9-8E28-A4CCA437DB72", 2)
+    {}
   }
-
-  internal class Delete : CustomConfigSetting
+  public class AppLauncherMenu3Action : BaseAppLauncherMenuAction
   {
+    public AppLauncherMenu3Action() : base("4C6EF574-3913-44EF-9076-FEB57B407005", 3)
+    {}
   }
-
-  internal class RemoveGroup : CustomConfigSetting
+  public class AppLauncherMenu4Action : BaseAppLauncherMenuAction
   {
+    public AppLauncherMenu4Action() : base("DE224ADC-8E34-44F8-B888-046E47ED20D7", 4)
+    {}
   }
-
-  internal class Menu : CustomConfigSetting
+  public class AppLauncherMenu5Action : BaseAppLauncherMenuAction
   {
+    public AppLauncherMenu5Action() : base("A6DE5560-46DC-443F-8DCB-0A6B7A3DED5C", 5)
+    {}
   }
 }

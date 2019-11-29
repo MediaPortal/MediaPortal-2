@@ -39,7 +39,11 @@ namespace MediaPortal.Plugins.AppLauncher.General
     public const string KEY_GROUP = "Group";
     public const string KEY_ID = "Id";
     public const string KEY_DESCRIPTION = "Description";
+    public const string KEY_APP = "App";
+    public const string KEY_MENU = "Menu";
 
     public const string RES_UNGROUPED = "[AppLauncher.Ungrouped]";
+    public const string RES_MENU = "[AppLauncher.Menu]";
+    public const string RES_MENU_ENTRY = "[AppLauncher.MenuEntry]";
   }
 }
