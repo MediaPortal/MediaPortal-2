@@ -524,9 +524,9 @@ namespace MediaPortal.UiComponents.Nereus.Models
       return (MediaListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaListModel.MEDIA_LIST_MODEL_ID);
     }
 
-    protected static BaseContentListModel GetAppListModel()
+    protected static IContentListModel GetAppListModel()
     {
-      return (BaseContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(APPS_LIST_MODEL_ID);
+      return (IContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(APPS_LIST_MODEL_ID);
     }
 
     protected static MenuModel GetMenuModel()

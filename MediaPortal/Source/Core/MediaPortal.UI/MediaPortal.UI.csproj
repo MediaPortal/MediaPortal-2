@@ -80,6 +80,7 @@
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
     <Compile Include="Presentation\Models\BaseContentListModel.cs" />
+    <Compile Include="Presentation\Models\IContentListModel.cs" />
     <Compile Include="Presentation\Players\IResumablePlayer.cs" />
     <Compile Include="Presentation\Players\ITitlePlayer.cs" />
     <Compile Include="Presentation\Players\IAudioPlayerAnalyze.cs" />

@@ -42,7 +42,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.UI.Presentation.Models
 {
-  public abstract class BaseContentListModel : BaseTimerControlledModel
+  public abstract class BaseContentListModel : BaseTimerControlledModel, IContentListModel
   {
     public const int DEFAULT_QUERY_LIMIT = 5;
 

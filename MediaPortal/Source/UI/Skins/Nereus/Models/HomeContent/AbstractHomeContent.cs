@@ -123,14 +123,14 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       return (MediaListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaListModel.MEDIA_LIST_MODEL_ID);
     }
 
-    protected static BaseContentListModel GetAppListModel()
+    protected static IContentListModel GetAppListModel()
     {
-      return (BaseContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.APPS_LIST_MODEL_ID);
+      return (IContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.APPS_LIST_MODEL_ID);
     }
 
-    protected static BaseContentListModel GetOnlineVideosListModel()
+    protected static IContentListModel GetOnlineVideosListModel()
     {
-      return (BaseContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.OV_LIST_MODEL_ID);
+      return (IContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.OV_LIST_MODEL_ID);
     }
   }
 }
