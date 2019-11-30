@@ -148,7 +148,13 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public bool ShowInputDeviceSelection
     {
       get { return (bool)_showInputDeviceSelectionProperty.GetValue(); }
-      set { _showInputDeviceSelectionProperty.SetValue(value); }
+      set
+      {
+        if (value)
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Show input device selection screen");
+
+        _showInputDeviceSelectionProperty.SetValue(value);
+      }
     }
 
     public AbstractProperty ShowInputDeviceSelectionProperty
@@ -159,7 +165,13 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public bool ShowKeyMapping
     {
       get { return (bool)_showKeyMappingProperty.GetValue(); }
-      set { _showKeyMappingProperty.SetValue(value); }
+      set
+      {
+        if (value)
+          ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Show key mapping screen");
+
+        _showKeyMappingProperty.SetValue(value);
+      }
     }
 
     public AbstractProperty ShowKeyMappingProperty
@@ -575,9 +587,12 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     {
       ResetAddKey();
       _inWorkflowAddKey = true;
+      ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Show key add screen");
 
       _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey", (s, g) =>
       {
+        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Close key add screen");
+
         _addKeyDialogHandle = null;
         _keyInputTimer.Stop();
       });
