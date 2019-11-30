@@ -138,9 +138,13 @@
             <Image Stretch="Uniform" Source="audio.png" HorizontalAlignment="Center" VerticalAlignment="Center" 
                    IsVisible="{Binding ElementName=Thumb, Path=!HasImage}" Margin="50">
             </Image>
-            <Image x:Name="Thumb" Stretch="Fill" 
-                   Source="{Binding MediaItem}" HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch" Width="300" Height="300" Margin="0,0,0,0">
+            <Image x:Name="Thumb" Stretch="Fill"
+                  HorizontalAlignment="Stretch" FallbackSource="{Binding MediaItem}"
+                  VerticalAlignment="Stretch" Width="300" Height="300" Margin="0,0,0,0">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
+                                         fanart:MaxWidth="300" fanart:MaxHeight="300"/>
+              </Image.Source>
             </Image>
           </Grid>
         </Grid>

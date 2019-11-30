@@ -2173,7 +2173,7 @@
       </Label>
 
       <Label Grid.RowSpan="2" Grid.ColumnSpan="2" x:Name="ItemLabel2" FontSize="{ThemeResource SmallFontSize}" 
-             Margin="10,60,10,10" Wrap="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Opacity="0.7"
+             Margin="10,60,10,10" Wrap="True" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
              IsVisible="{Binding ElementName=thumb, Path=!HasImage}" VerticalContentAlignment="Center"
              Color="{ThemeResource TextColor}" Content="{Binding Title}" ScrollDelay="0">
         <Label.Scroll>
@@ -2190,6 +2190,13 @@
             <Binding Source="CharacterEllipsis"/>
           </MultiBinding>
         </Label.TextTrimming>
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.7"/>
+          </MultiBinding>
+        </Label.Opacity>
       </Label>
 
     </Grid>
