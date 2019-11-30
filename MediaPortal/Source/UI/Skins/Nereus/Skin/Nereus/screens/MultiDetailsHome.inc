@@ -18,6 +18,7 @@
     <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
     <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
     <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+    <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
   </Grid.Resources>
 
   <Control x:Name="AudioDetails">
@@ -114,7 +115,7 @@
     <Grid.IsVisible>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
         <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
-        <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableHelpTexts"/>
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
       </MultiBinding>
     </Grid.IsVisible>
     
@@ -134,8 +135,9 @@
     </Grid.Triggers>
 
     <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
+           IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
            VerticalAlignment="Top" HorizontalAlignment="Left"/>
-    <Label DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Opacity="0.6" Margin="38,5,0,-5"
+    <Label x:Name="HelpLabel" DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Opacity="0.6" Margin="38,5,0,-5"
            Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/> 
   </Grid>
 
