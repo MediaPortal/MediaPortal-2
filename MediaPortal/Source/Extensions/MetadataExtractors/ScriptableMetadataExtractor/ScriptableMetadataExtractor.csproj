@@ -90,12 +90,11 @@
     <Content Include="MovieScraperScripts\141516_FilmWeb.v2.2.11.xml" />
     <Content Include="MovieScraperScripts\141522_Kinopoisk.v1.5.0.xml" />
     <Content Include="MovieScraperScripts\241682_Sratim.v3.0.12.xml" />
+    <Content Include="MovieScraperScripts\360593_FilmInfo.v1.5.0.xml" />
     <Content Include="MovieScraperScripts\318622_FilmAffinity.com_IMDb.es.v2.1.8.xml" />
     <Content Include="MovieScraperScripts\784920_Ptgate.v1.0.0.xml" />
     <Content Include="MovieScraperScripts\874902_IMDb.v3.0.2.xml" />
     <Content Include="MovieScraperScripts\874909_MyMoviesItalian.v1.0.11.xml" />
-    <Content Include="MovieScraperScripts\874910_MovieMeter.v1.2.0.xml" />
-    <Content Include="MovieScraperScripts\874920_OFDb.v2.3.2.xml" />
     <Content Include="MovieScraperScripts\874930_Allocine.v2.1.1.xml" />
     <Content Include="MovieScraperScripts\874940_CSFD.v0.3.1.xml" />
     <Content Include="MovieScraperScripts\874987_filmtipset.se.v1.6.6.xml" />

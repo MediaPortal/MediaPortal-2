@@ -1,19 +1,39 @@
-﻿using MediaPortal.Common;
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2018 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.PathManager;
-using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.Data.Collections;
-using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.Data
 {
@@ -128,7 +148,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
           movie.MovieName = new SimpleTitle(value, false);
           return true;
         case "alternate_titles":
-          movie.OriginalName = new StringList(value).FirstOrDefault();
+          //movie.OriginalName = new StringList(value).FirstOrDefault();
           return true;
         case "sortBy":
           movie.MovieNameSort = new SimpleTitle(value, false);
@@ -197,6 +217,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         case "imdb_id":
           movie.ImdbId = value;
           return true;
+        default:
+          Logger.Error("ScriptableScraperProvider: Property '" + property + "' is unknown");
+          break;
       }
       return false;
     }
@@ -307,9 +330,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       if (Scraper == null)
         return null;
 
-      if (!ProvidesDetails)
-        return null;
-
       List<MovieInfo> rtn = new List<MovieInfo>();
       Dictionary<string, string> paramList = new Dictionary<string, string>();
       Dictionary<string, string> results;
@@ -394,6 +414,79 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
 
       return rtn;
+    }
+
+    public bool UpdateMovie(MovieInfo movie)
+    {
+      if (Scraper == null)
+        return false;
+
+      if (!ProvidesDetails)
+        return false;
+
+      Dictionary<string, string> paramList = new Dictionary<string, string>();
+      Dictionary<string, string> results;
+      bool hasSiteId = false;
+      string siteId = null;
+
+      // try to load the id for the movie for this script
+      // if we have no site id still continue as we might still
+      // be able to grab details using another identifier such as imdb_id
+      // try to load the id for the movie for this script
+      if (movie.CustomIds.ContainsKey(Name))
+      {
+        paramList["movie.site_id"] = movie.CustomIds[Name];
+        siteId = movie.CustomIds[Name];
+        hasSiteId = true;
+      }
+
+      // load params
+      foreach (string property in _supportedMoviePoperties)
+      {
+        if (TryGetMovieProperty(property, movie, out string val))
+          paramList["movie." + property] = val.Trim();
+      }
+
+      //set higher level settings for script to use
+      if (_defaultUserAgent != null)
+        paramList["settings.defaultuseragent"] = _defaultUserAgent;
+      paramList["settings.mepo_data"] = ServiceRegistration.Get<IPathManager>().GetPath(@"<CONFIG>\ScriptableScraperProvider\");
+      if (!Directory.Exists(paramList["settings.mepo_data"]))
+        Directory.CreateDirectory(paramList["settings.mepo_data"]);
+
+      // try to retrieve results
+      results = Scraper.Execute("get_details", paramList);
+      if (results == null)
+      {
+        Logger.Error("ScriptableScraperProvider: " + Name + " scraper script failed to execute \"get_details\" node.");
+        return false;
+      }
+
+      if (!hasSiteId)
+      {
+        // if we started out without a site id
+        // try to get it from the details response
+        if (results.TryGetValue("movie.site_id", out siteId))
+        {
+          movie.CustomIds.Add(Name, siteId);
+        }
+        else
+        {
+          // still no site id, so we are returning
+          Logger.Debug("ScriptableScraperProvider: " + Name + " scraper script failed to execute \"get_details\" because of missing site ID.");
+          return false;
+        }
+      }
+
+      // get our new movie details       
+      foreach (string property in _supportedMoviePoperties)
+      {
+        string value;
+        if (results.TryGetValue("movie." + property, out value))
+          TrySetMovieProperty(property, value.Trim(), movie);
+      }
+
+      return true;
     }
 
     public List<string> GetArtwork(MovieInfo movie)

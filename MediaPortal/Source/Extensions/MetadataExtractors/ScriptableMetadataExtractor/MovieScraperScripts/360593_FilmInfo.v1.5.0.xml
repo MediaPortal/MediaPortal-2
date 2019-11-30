@@ -1,0 +1,1887 @@
+﻿<ScriptableScraper>
+	<details>
+		<!-- These details are for display purposes only. -->
+		<name>FilmInfo+</name>
+		<author>Nils (Merlyn), hacked by bta489</author>
+		<description>A scraper based on RoChess' IMDb+ Scraper and OFDb Scraper by Armand Pondman (armandp) and Schenk2302. With additional info from themoviedb.org and automatic movie grouping. Many thanks to RoChess and fforde for their help, assistance, generosity and patience. Includes modification by otsche.</description>
+
+		<!-- 
+		Changed by Brudertac: 
+		
+		"Use English Plot Summary if German is not Found" is working again. 
+		If Writers are loaded from IMDB, there is no more Hyperlink HTML Code shown.
+		Use German Filmstarts.de Summary if available is fixed.
+		Another Bug fixed with HTML Code if Writers are loaded from IMDB
+		Another Fix for Filmstarts. Looks like they using different Code on some Detailpages.
+		Re-enabled Check for divergent Year on Filmstarts.de. There are a lot Releases with different Years on OFDB and Filmstarts.de, so they will not Match. This Fix corrects 1 Year difference. This Feature needs more Testing!
+		Remove unwanted Textparts from OFDB.de Summary (currently this does not work on OFDBGW Server, so if the Importer found the Movie on this Server the "cleaning" will not work. You can see the Source of Summary in the Logfile.
+		Include ability to get and insert the Movie Release Date from IMDB.
+		Fixed Genre Renaming. The old List at the Beginning of this File is obsolete and not used anymore. Look at the near End of the File for the new List and change it as you want.
+		IMDB Tagline is only Imported if there is no German Summary available
+		IMDB Ratings are fixed
+		You can enable or disable the use of OFDBGW Mirrors. In my case they do not work most of the Time so by default they are disabled now. (This should also speed up the Import)
+		Directors Import from IMDB is working again.
+		-->
+		
+		
+	<!-- Replace the following with <id>874902</id> to avoid having to re-import your collection. -->
+		<id>360593</id>
+	<!-- This will fool MovingPictures into thinking this scraper is the new imdb.com scraper. -->
+
+		<version major="1" minor="5" point="0" />
+		<published month="09" day="26" year="2018" />
+		<type>MovieDetailsFetcher</type>
+		<language>de</language>
+	</details>
+
+
+	<!-- Details -->
+	<action name="get_details">
+	
+		<!-- ### BEGIN OPTIONS ### -->
+		
+			<set name="use_ofdbgw" value="false" /> <!-- true = try to use OFDBGW Mirror -->
+			<set name="option_actor_rolle" value="false" />	<!-- true = Schauspieler (Rolle) | false = nur Schauspieler	-->
+			<set name="limitActors" value="false" />			<!-- true = es werden nur 5 Schauspieler geladen | false = es werden alle Schauspieler geladen -->
+			<set name="specials_xml_path" value="C:\FilmInfo+ Special Movies.xml" />
+			<set name="title_sort" value="2" />	
+				<!--
+					title_sort value: 0, 1, 2
+					Wert 0:
+						Titel:	Der Herr der Ringe
+						Sort:	Der Herr der Ringe
+					Wert 1:
+						Titel:	Herr der Ringe, Der
+						Sort:	Herr der Ringe
+					Wert 2:
+						Titel:	Der Herr der Ringe
+						Sort:	Herr der Ringe
+						
+				-->
+			<set name="useFSK" value="1" /> <!-- 1 für ja, 0 für nein -->
+			<set name="translate_genre" value="true" /> <!-- Translate genre name according to the table below.-->			
+			<set name="autoAproveDistance1Y" value="true" /> <!-- The parameter does only influence the search results for filmstarts.de.  true = auto approve distance of 1 year to match a movie is used | false = year has to match exactly -->	
+
+
+			<set name="useFilenameLanguage" value="false" /> 	<!-- (true/false) Parse Filename for Language (instead of online sources). Uses the Regular expression below-->
+			<set name="rx_filename_lang">
+				<![CDATA[
+					(?:\s*\[)([A-Z,\s]+)(?:\])
+				]]>
+			</set>
+				
+			
+		<!-- ### END OPTIONS ### -->
+
+		<!-- ### BEGIN GENRE TRANSLATION INIT ### -->
+			<!-- The first column is the genre name which will be replaced by the value in the second column. -->
+			<!-- This List is not used anymore
+			<set name="genre_translation_table">
+				<![CDATA[
+					Adventure#             Abenteuer#                 
+					Biography#             Biographie#                
+					Comedy#                Komödie#                   
+					Crime#                 Krimi#                     
+					Documentary#           Dokumentation#             
+					Family#                Familie#      
+					Film-Noir#             Komödie#                   
+					History#               Historie#                  
+					Music#                 Musikfilm#                 
+					Romance#               Romantik#            
+					Sci-Fi#                Science-Fiction#           
+					Sport#                 Sportfilm#                 
+					War#                   Krieg#                     
+					Biografie#             Biographie#                
+					Martial Arts#          Kampfsport#                
+					Monumentalfilm#        Historienfilm#             
+					Musik#                 Musikfilm#                 
+					Romanze#               Romantik#            
+					Spionage#              Krimi#                     
+					Tragikomödie#          Drama-Komödie#             
+					Zeichentrick#          Familie#        
+					Kinder-/Familienfilm#  Familie#
+					Musical#               Musikfilm#                 
+				]]>
+			</set>
+			-->
+			
+			
+			<!-- regex="\b[^#]+" description -->
+			<!-- \b    word begin -->
+			<!-- [^#]  any character except a # -->
+			<!-- +     repeat the last charakter (any except a #). The parser parses till the #. -->
+			<parse name="genre_translation_array" input="${genre_translation_table}" regex="\b[^#]+" />
+		<!-- ### END GENRE TRANSLATION INIT ### -->
+		
+		<!-- ### BEGIN GET_DETAILS ### -->
+		
+		<log LogLevel="Info" Message="#############################################" />
+		<set name="useBackup" value="0" />
+		<set name="noSummary" value="0"/>
+		
+		<log LogLevel="Debug" Message="# FilmInfo+ ### Begin of Detailssearch for ${movie.title} (${movie.year}, ${movie.imdb_id})" />
+		<set name="curSearch" value="${movie.title}" />
+		<set name="yearSearch" value="${movie.year}" />
+		<parse name="sefn_parsed" input="${movie.alternate_titles}" regex="(.+)?\|#SE#(.+)?#SE#\|#FN#(.+)?#FN#" />
+		<if test="${sefn_parsed[0][0]}!=">
+			<set name="movie.alternate_titles" value="${sefn_parsed[0][0]}" />
+		</if>
+		<if test="${sefn_parsed[0][0]}=">
+			<set name="movie.alternate_titles" value="..." />
+		</if>
+		<set name="special_edition" value="${sefn_parsed[0][1]}" />
+		<log LogLevel="Info" Message="SE: ${special_edition}" />
+		<replace name="special_edition" input="${special_edition}" pattern="\(" with="" />
+		<replace name="special_edition" input="${special_edition}" pattern="\)" with="" />
+		<log LogLevel="Info" Message="SE: ${special_edition}" />
+		<set name="movie.filename" value="${sefn_parsed[0][2]}" />
+		
+		<!-- Parse Filename for Language -->
+		<if test="${useFilenameLanguage}=true">
+			<parse name="lang" input="${movie.filename}" regex="${rx_filename_lang}" />
+			<set name="lang" value="${lang[0][0]}" />
+			<replace name="lang" input="${lang}" pattern="DE" with="Deutsch" />
+			<replace name="lang" input="${lang}" pattern="EN" with="Englisch" />
+			<replace name="lang" input="${lang}" pattern="FR" with="Französisch" />
+			<replace name="lang" input="${lang}" pattern="," with=", " />
+			<set name="movie.language" value="${lang}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Language(s) parsed from Filename: ${lang}" />
+		</if>
+		
+
+		<!-- Get OFDb ID -->
+		<if test='${movie.imdb_id}!='>
+			<!-- but we have an IMDB id -->	
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) OFDb.de begin..." />
+			
+			<set name="rx_ofdbsearch">
+				<![CDATA[
+					(?:Filme:</b>\s*<br>\s*<br>\s*1\.\s*<a\shref="film/)(?<OFDBID>\d*)(?:,)(?<TITEL>[^"]+)
+				]]>
+			</set>
+			<retrieve name="ofdb_searchresult" url="http://www.ofdb.de/view.php?page=suchergebnis&amp;SText=${movie.imdb_id}&amp;Kat=IMDb" encoding="UTF-8" timeout_increment="3000" use_caching="false" />
+			<parse name="ofdb_movie_url" input="${ofdb_searchresult}" regex="${rx_ofdbsearch}" />
+			<set name="movie.ofdb_id" value="${ofdb_movie_url[0][0]}" />
+			<log LogLevel="Debug" Message="# FilmInfo+ ### (${curSearch}) OFDB Id: ${movie.ofdb_id}" />
+			
+			<if test="${movie.ofdb_id}=">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) IMDB 2 OFDb ID conversion failed..." />
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) trying OFDb title search..." />
+				<retrieve name="ofdb_searchresult" url="http://ofdbgw.geeksphere.de/search/${movie.title}" encoding="UTF-8" timeout_increment="3000" use_caching="false" />
+				<parse name="status" input="${ofdb_searchresult}" xpath="//status" />
+				<if test="${status}=">
+					<set name="ofdb_fehler" value="1" />
+					<set name="useBackup" value="1" />
+				</if>
+				<if test="${status[0].rcode}=0">
+					<log LogLevel="Info" Message="# FilmInfo+ ### title Search succeeded!" />
+					<parse name="resultat" input="${ofdb_searchresult}" xpath="//resultat" />
+					<parse name="eintrag" input="${resultat[0]}" xpath="//eintrag" />
+					<set name="movie.ofdb_id" value="${eintrag[0].id}" />
+					<log LogLevel="Debug" Message="# FilmInfo+ ### OFDb ID: ${movie.ofdb_id}" />
+					<set name="ofdb_fehler" value="0" />
+					<set name="useBackup" value="0" />
+				</if>
+			</if>
+			<if test="${movie.ofdb_id}!=">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) OFDb ID found: ${movie.ofdb_id}" />
+			</if>
+		</if>
+		
+		
+		<!-- Only execute when the OFDB ID is available  -->
+		<if test="${use_ofdbgw}=true">
+		<if test="${movie.ofdb_id}!=">
+		 
+		 
+			<set name="useBackup" value="0" />
+					
+			<!-- OFDBGW Details -->
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) trying OFDBGW..." />
+			
+			<retrieve name="ofdb_details_page" url="http://ofdbgw.geeksphere.de/movie/${movie.ofdb_id}" encoding="UTF-8" use_caching="false" timeout_increment="3000" />
+			<parse name="status" input="${ofdb_details_page}" xpath="//status" />
+			
+			<if test="${status}=">
+				<set name="ofdb_fehler" value="1" />
+				<set name="useBackup" value="1" />
+			</if>
+				
+			
+			<if test="${status[0].rcode}=2">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Failure..." />
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) trying ofdbgw.lirzg.net backup..." />
+				<retrieve name="ofdb_details_page" url="http://ofdbgw.lirzg.net/movie/${movie.ofdb_id}" encoding="UTF-8" use_caching="false" timeout_increment="3000" />
+				<parse name="status" input="${ofdb_details_page}" xpath="//status" />
+				<if test="${status[0].rcode}=2">
+					<set name="ofdb_fehler" value="1" />
+					<set name="useBackup" value="1" />
+				</if>
+			</if>
+			
+				
+			<if test="${status[0].rcode}=0">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Success!" />
+				<parse name="details" input="${ofdb_details_page}" xpath="//resultat" />
+				
+				<!-- Titel -->
+				<!-- Regular Expressions -->
+				<set name="rx_ofdbgw_title">
+					<![CDATA[
+						(?<titleDE>.+?)(?:\s\/\s)(?<titleEN>.+?)(?:\s\()(?<Year>\d{4})(?:\))
+					]]>
+				</set>
+				<set name="rx_title_clean" value="\[(TV-Mini-Serie|Kurzfilm)\]" />
+				<set name="rx_title" value="(.+?)(?:, (The|A|An|Ein|Eine|Das|Die|Der|Les|Une|La))?\s*$" />
+
+				<replace name="title" input="${details[0].titel:htmldecode}" pattern="${rx_title_clean}" with="" />
+				<parse name="ofdbgw_title" input="${title}" regex="${rx_ofdbgw_title}" />
+				<if test="${ofdbgw_title}!=">
+					<parse name="ofdb_org_title" input="${ofdbgw_title[0][0]}" regex="${rx_title}" />
+				</if>
+				<if test="${ofdbgw_title}=">
+					<parse name="ofdb_org_title" input="${title}" regex="${rx_title}" />
+				</if>
+				
+				<if test="${title_sort}=0">
+					<set name="movie.title" value="${ofdb_org_title[0][1]} ${ofdb_org_title[0][0]}"/>
+					<if test="${ofdb_org_title[0][1]}=">
+						<set name="movie.title" value="${ofdb_org_title[0][0]}"/>
+					</if>
+					<set name="movie.sortby" value="${ofdb_org_title[0][1]} ${ofdb_org_title[0][0]}" />
+				</if>
+				<if test="${title_sort}=1">
+					<set name="movie.title" value="${ofdb_org_title[0][0]}, ${ofdb_org_title[0][1]}"/>
+					<if test="${ofdb_org_title[0][1]}=">
+						<set name="movie.title" value="${ofdb_org_title[0][0]}"/>
+					</if>
+					<set name="movie.sortby" value="${ofdb_org_title[0][0]}" />
+				</if>
+				<if test="${title_sort}=2">
+					<set name="movie.title" value="${ofdb_org_title[0][1]} ${ofdb_org_title[0][0]}"/>
+					<if test="${ofdb_org_title[0][1]}=">
+						<set name="movie.title" value="${ofdb_org_title[0][0]}"/>
+					</if>
+					<set name="movie.sortby" value="${ofdb_org_title[0][0]}" />
+				</if>
+				
+				<!-- Alternate Titles -->
+				<if test="${details[0].alternativ}!=">
+					<if test="${movie.alternate_titles}=...">
+						<set name="movie.alternate_titles" value="${details[0].alternativ}"/>
+					</if>
+				</if>
+				
+				<!-- Year, Score and Votes-->
+				<set name="movie.year" value="${details[0].jahr}" />
+
+				<parse name="bewertung" input="${details[0].bewertung}" xpath="*"/>
+				<set name="movie.score" value="${bewertung[0].note}" />
+				<set name="movie.popularity" value="${bewertung[0].stimmen}" />
+
+				<!-- Summary -->
+				<if test="${details[0].beschreibung}!=">
+					<set name="movie.summary" value="${details[0].beschreibung}"/>
+					<set name="useBackup" value="0"/>
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Summary obtained from OFDBGW..." />
+				</if>
+				<if test="${details[0].beschreibung}=">
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) no Summary obtained from OFDBGW..." />
+					<set name="useBackup" value="1"/>
+				</if>
+
+				<!-- Directors -->
+				<parse name="directors" input="${details[0].regie}" xpath="//name"/>
+				<set name="movie.directors" value=""/>
+				<loop name="director" on="directors">
+					<set name="movie.directors" value="${movie.directors}|${director:htmldecode}"/>
+				</loop>
+
+				<!-- Writers -->
+				<parse name="writers" input="${details[0].drehbuch}" xpath="//name"/>
+				<set name="movie.writers" value=""/>
+				<loop name="writer" on="writers">
+					<set name="movie.writers" value="${movie.writers}|${writer:htmldecode}"/>
+				</loop>
+				
+				<!-- Actors -->
+					<!-- moved to imdb details section, so we can get not only the actors but also the roles... -->
+
+				<!-- Genres -->
+				<parse name="genres" input="${details[0].genre}" xpath="//titel"/>
+				<set name="movie.genres" value=""/>
+				<loop name="genre" on="genres">
+					<set name="movie.genres" value="${movie.genres}|${genre:htmldecode}"/>
+				</loop>
+				<set name="movie.genres" value="${movie.genres:striptags}" />
+				
+				<!-- Produktionsland -->
+				<parse name="country" input="${details[0].produktionsland}" xpath="//name"/>
+				<set name="movie.language" value=""/>
+				<loop name="countries" on="country">
+					<set name="movie.language" value="${movie.language}|${countries:htmldecode}"/>
+				</loop>
+			</if>
+		</if>	
+		</if>
+		<if test="${use_ofdbgw}=false">
+		<set name="useBackup" value="1"/>
+		</if>
+		<!-- END OFDBGW Details -->
+		
+		<if test="${useBackup}=1">
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) trying Ofdb.de details backup..." />
+			<!-- OFDB.de Details Backup -->
+			<set name="ofdb_fehler" value="" />
+			
+			<retrieve name="ofdb_details_page" url="http://www.ofdb.de/film/${movie.ofdb_id},${ofdb_movie_url[0][1]}" encoding="UTF-8" timeout_increment="3000" use_caching="false" allow_unsafe_header="true" />
+			<parse name="ofdb_fehler" input="${ofdb_details_page}" regex="(Unter dieser ID existiert kein Film)" />
+
+			<if test="${ofdb_fehler}=">
+				<!-- Titles -->
+				<set name="rx_TitelDE">
+					<![CDATA[
+						(?:<title>OFDb\s-\s)(?<Titel>.*?)\s\((?<Jahr>\d{4})\)(?=</title>)
+					]]>
+				</set>
+				<set name="rx_title_clean" value="\[(TV-Mini-Serie|Kurzfilm)\]" />
+				<set name="rx_title" value="(.+?)(?:, (The|A|An|Ein|Eine|Das|Die|Der|Les|Une|La))?\s*$" />
+				
+				<parse name="DETitel_arr" input="${ofdb_details_page}" regex="${rx_TitelDE}" />
+				<set name="TitelPlain" value="${DETitel_arr[0][0]:htmldecode}" />
+
+				<replace name="title" input="${TitelPlain}" pattern="${rx_title_clean}" with="" />
+				<parse name="ofdb_org_title" input="${title}" regex="${rx_title}" />
+				
+				<if test="${title_sort}=0">
+					<set name="movie.title" value="${ofdb_org_title[0][1]} ${ofdb_org_title[0][0]}"/>
+					<if test="${ofdb_org_title[0][1]}=">
+						<set name="movie.title" value="${ofdb_org_title[0][0]}"/>
+					</if>
+					<set name="movie.sortby" value="${ofdb_org_title[0][1]} ${ofdb_org_title[0][0]}" />
+				</if>
+				<if test="${title_sort}=1">
+					<set name="movie.title" value="${ofdb_org_title[0][0]}, ${ofdb_org_title[0][1]}"/>
+					<if test="${ofdb_org_title[0][1]}=">
+						<set name="movie.title" value="${ofdb_org_title[0][0]}"/>
+					</if>
+					<set name="movie.sortby" value="${ofdb_org_title[0][0]}" />
+				</if>
+				<if test="${title_sort}=2">
+					<set name="movie.title" value="${ofdb_org_title[0][1]} ${ofdb_org_title[0][0]}"/>
+					<if test="${ofdb_org_title[0][1]}=">
+						<set name="movie.title" value="${ofdb_org_title[0][0]}"/>
+					</if>
+					<set name="movie.sortby" value="${ofdb_org_title[0][0]}" />
+				</if>				
+				
+
+				<!-- Alternate Titles -->
+				<set name="rx_altTitelBlock">
+					<![CDATA[
+						(?:Alternativtitel)(?<Block>.*?)(?:</tr>)
+					]]>
+				</set>
+				<set name="rx_OfdbAltTitel">
+					<![CDATA[
+						(?:<b>)(?<altTitle>.*?)(?=</b></li>)
+					]]>
+				</set>
+				<parse name="altTitelBlock" input="${ofdb_details_page}" regex="${rx_altTitelBlock}" />
+				<parse name="altTitel" input="${altTitelBlock}" regex="{rx_OfdbAltTitel}" />
+				<loop name="altTitelLoop" on="altTitel">
+					<set name="movie.alternate_titles" value="${movie.alternate_titles}|${altTitelLoop[0]:htmldecode}"/>
+				</loop>
+				
+				<set name="movie.year" value="${DETitel_arr[0][1]}" />
+
+				<!-- Countries --> <!-- Not Used, in favor of Filmstarts Language
+				<if test="${movie.language}=">
+					<set name="rx_ofdb_land">
+						<![CDATA[
+							(?:<a href="view.php\?page=blaettern&Kat=Land&Text=.*?">)(?<Land>.*?)(?=</a>)
+						]]>
+					</set>
+					<parse name="herstellungsland" input="${ofdb_details_page}" regex="${rx_ofdb_land}" />
+					<loop name="country" on="herstellungsland">
+						<set name="movie.language" value="${movie.language}|${country[0]:htmldecode}"/>
+					</loop>
+				</if>
+				-->
+				
+			
+				
+				<!-- Genres --> 
+				<if test="${movie.genres}=">
+					<set name="rx_Genre">
+						<![CDATA[
+							(?:page=genre&Genre=.*?">)(?<Genre>.*?)(?=</a>)
+						]]>
+					</set>
+					<parse name="genres" input="${ofdb_details_page}" regex="${rx_Genre}"/>
+					<set name="movie.genres" value=""/>
+					<loop name="genre" on="genres">
+						<set name="movie.genres" value="${movie.genres}|${genre[0]}"/>
+					</loop>
+					<set name="movie.genres" value="${movie.genres:striptags}" />
+				</if>
+				
+				
+				<!-- Summary -->
+				<set name="rx_PlotNr">
+					<![CDATA[
+						(?:<a href="plot/\d*?,)(?<PlotNR>\d*?)(?:,.*?">)
+					]]>
+				</set>
+				<set name="rx_Plot">
+					<![CDATA[
+						(?:seitdem\s\d*?\sMal\sgelesen.*?<br><br>)(?<Inhalt>.*?)(?=</font>)
+					]]>
+				</set>
+				<set name="rx_Plot_remove_quelle">
+					<![CDATA[
+						<b>Quelle:<\/b>.*?<br><br>
+					]]>
+				</set>
+				<parse name="plotNR" input="${ofdb_details_page}" regex="${rx_PlotNr}" />
+				<if test="${plotNR.count}!=0">
+					<retrieve name="ofdb_plot_page" url="http://www.ofdb.de/plot/${movie.ofdb_id},${plotNR[0][0]},${ofdb_movie_url[0][1]}" encoding="UTF-8" use_caching="false" timeout_increment="3000" />
+					<replace name="Plot" input="${ofdb_plot_page}" pattern="${rx_Plot_remove_quelle}" with="" />
+					<parse name="Plot" input="${Plot}" regex="${rx_Plot}" />
+					<if test="${Plot[0][0]}=">
+						<log LogLevel="Info" Message="# FilmInfo+ ### OFDb Plot[0][0] empty..." />
+						<set name="useBackup" value="1" />
+					</if>
+					<if test="${Plot[0][0]}!=">
+						<log LogLevel="Info" Message="# FilmInfo+ ### Summary obtained from OFDb.de..." />
+						<set name="useBackup" value="0" />
+					</if>
+					<!--set name="movie.summary" value="" /-->
+					<set name="movie.summary" value="${Plot[0][0]:htmldecode}" />
+					<!--replace name="movie.summary" input="${movie.summary}" pattern="&lt;br /&gt;" with=" " /-->
+				</if>
+				<if test="${plotNR.count}=0">
+					<set name="useBackup" value="1" />
+				</if>
+				
+				<!-- Actors -->
+					<!-- moved to imdb details section, so we can get not only the actors but also the roles... -->
+			</if>
+		</if>
+		
+		<if test="${useBackup}=1">
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Ofdb.de failed..." />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) trying Filmstarts.de..." />
+			
+			<!-- Filmstarts.de / Backinfoquelle -->
+								<!--(?<=<a href='\/kritiken\/)(?<fsID>\d*)(?=.)(?:.*?'>)(?<fsTitle>[^\s<>.!?][^<>.!?]*(?:<[^<>]+>[^<>.!?]*)*)(?:.*?<\/a>)(?:.*?fs11">.*?)(?<fsYear>\d{4})-->
+								<!-- 
+								Original: (?<=<a href='\/kritiken\/)(?<fsID>\d+?.*?\.html)(?:.*?alt=')(?<fsTitle>.*?)(?:'\s/>.*?fs11">.*?)(?<fsYear>\d{4}) 
+								(?<=<a href='\/kritiken\/)(?<fsID>\d+)(?=.)(?:.*?'>)(?:.*?alt=')(?<fsTitle>.*?)(?:' \/>.*?fs11">.*?)(?<fsYear>\d{4})
+								(?<=<a href='\/kritiken\/)(?<fsID>\d+)(?=.)(?:.*?'>)(?:.*?alt=')(?<fsTitle>.*?)(?:' \/>.*?fs11">.*?)(?<fsYear>\d{4})
+								(?<=<a href='\/kritiken\/)(?<fsID>\d+)(?:.html'>\s)(?<fsTitle>.*?)(?:<\/a>)(?:.*?fs11">.*?)(?<fsYear>\d{4})
+								(?<=margin-top:-5px;"><a href='\/kritiken\/)(?<fsID>.*?)(?:.html'>)(?<fsTitle>.*?)(?:<\/a>)(?:.*?fs11">.*?)(?<fsYear>\d{4})
+								(?<=<h2>Filme</h2>.*?alt=.*?<a href='\/kritiken\/)(?<fsID>.*?)(?:.html'>)(?<fsTitle>.*?)(?:<\/a>)(?:.*?fs11">.*?)(?<fsYear>\d{4})
+								-->			
+								
+			<set name="rx_filmstarts_search">
+				<![CDATA[
+					(?<=<a href='\/kritiken\/)(?<fsID>.*?)(?:.html'>)(?<fsTitle>.*?)(?:<\/a>)(?:.*?fs11">.*?)(?<fsYear>\d{4})
+				]]>
+			</set>
+			<set name="rx_filmstarts_titel">
+				<![CDATA[
+					(?:<title>\s{0,2})(?<TITEL>.*?)(?:\s-\sFilm\s)(?<JAHR>\d{4})(?:\s-\sFILMSTARTS.de\s*?)(?=</title>)
+				]]>
+			</set>
+			<set name="rx_filmstarts_synopsis">
+				<![CDATA[
+					(?:itemprop="description">)(?<Synopsis>.+?)(?:<br>)?(?:\s*</div>)
+				]]>
+			</set>
+			<set name="rx_filmstarts_genre">
+				<![CDATA[
+					(?<=itemprop="genre">)(?<Genre>.+?)(?=<\/span>)
+				]]>
+			</set>
+			<set name="rx_fs_landblock">
+				<![CDATA[
+					(?:Nationalität</span>\s*?<div class="oflow_a">)(?<LAND>.*?)(?=</div>)
+				]]>
+			</set>
+			<set name="rx_filmstarts_lang">
+				<![CDATA[
+					(?:span\sclass="what\slight">Sprachen</span>\s*<span\sclass="that">)(?<LAND>.+?)(?:</span>)
+				]]>
+			</set>
+			<set name="rx_fs_land">
+				<![CDATA[
+					(?:<span.*?>\s{0,2})(?<LAND>[^<]*?)(?=</span>)
+				]]>
+			</set>
+			<set name="rx_fs_director">
+				<![CDATA[
+					(?:<span itemprop="director".*?<span itemprop="name">)(.*?)(?=</span>)
+				]]>
+			</set>
+			<set name="rx_fs_actors">
+				<![CDATA[
+					(?:itemprop="actors".*?<span itemprop="name">\s{0,2})(?<ACTOR>.*?)(?:\s{0,2}</span></a>.*?Rolle:\s{0,2})(?<ROLE>.*?)(?=\s{0,2}</p>)
+				]]>
+			</set>
+			<set name="rx_hyper_filmstarts">
+				<![CDATA[
+					<.*?>
+				]]>
+			</set>
+			<set name="rx_hyper2_filmstarts">
+				<!--'Link mit Bild und alt vor dem eigentlichen Suchergebniss muss raus, sonst klappt die Suche nicht-->
+				<![CDATA[
+					<td style=" vertical-align:middle;"><a href='\/kritiken\/.*?<\/td>
+				]]>
+			</set>
+			<set name="rx_bold_remove">
+				<!--'alles raus was fett formatiert.-->
+				<![CDATA[
+					</b>|<b>
+				]]>
+			</set>
+			<set name="rx_removeCRLF">
+				<![CDATA[
+					\r\n
+				]]>
+			</set>
+			<set name="rx_removeCR">
+				<![CDATA[
+					\r
+				]]>
+			</set>
+			<set name="rx_removeLF">
+				<![CDATA[
+					\n
+				]]>
+			</set>
+
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) searching on Filmstarts.de" />
+			<retrieve name="filmstarts_search" url="http://www.filmstarts.de/suche/1/?q=${curSearch}" use_caching="false" encoding="UTF-8" timeout_increment="3000" />
+			
+			
+			<replace name="filmstarts_search" input="${filmstarts_search}" pattern="${rx_bold_remove}" with="" />
+			<replace name="filmstarts_search" input="${filmstarts_search}" pattern="${rx_removeCRLF}" with="" />
+			<replace name="filmstarts_search" input="${filmstarts_search}" pattern="${rx_removeCR}" with="" />
+			<replace name="filmstarts_search" input="${filmstarts_search}" pattern="${rx_removeLF}" with="" />
+			<replace name="filmstarts_search" input="${filmstarts_search}" pattern="${rx_hyper2_filmstarts}" with="" />
+			<parse name="filmstarts_search_result" input="${filmstarts_search}" regex="${rx_filmstarts_search}" />
+			<!--log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Found: ${filmstarts_search}" /-->
+			<!--log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Found: ${filmstarts_search_result}" /-->
+			<!--<replace name="filmstarts_search_result" input="${filmstarts_search_result}" pattern="${rx_hyper_filmstarts}" with="" />-->
+			
+			
+			<if test="${filmstarts_search_result.count}!=0">
+				<if test="${autoAproveDistance1Y}=false">
+					<loop name="fsSearchResult" on="filmstarts_search_result" limit="10">
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Filmstarts Result: " />
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Detail PageName: ${fsSearchResult[0]}" />
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Detail PageTitle: ${fsSearchResult[1]}" />
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Detail PageYear: ${fsSearchResult[2]}" />
+						<if test="${fsSearchResult[1]:htmldecode}=${movie.title}">
+							<if test="${fsSearchResult[2]}=${movie.year}">
+							<set name="fsDetailsPage" value="${fsSearchResult[0]}" />
+							</if>
+						</if>
+					</loop>
+				</if>
+				
+				<if test="${autoAproveDistance1Y}=true">
+					
+				
+					<loop name="fsSearchResult" on="filmstarts_search_result" limit="10">
+					<if test="${fsDetailsPage}=">
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) --- Filmstarts Result: ---" />
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Detail PageName: ${fsSearchResult[0]}" />
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Detail PageTitle: ${fsSearchResult[1]}" />
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Detail PageYear: ${fsSearchResult[2]}" />
+				
+					
+					
+					<!--if test="${fsSearchResult[1]:htmldecode}=${movie.title}"-->
+					<!--log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Movie Name match" /-->
+						<if test="${fsSearchResult[2]}=${movie.year}">
+							<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Movie Year match (${movie.year})" />
+							<set name="fsDetailsPage" value="${fsSearchResult[0]}" />
+						</if>
+									
+							<subtract name="yearLess" value1="${yearSearch}" value2="1" />
+							<add name="yearMore" value1="${yearSearch}" value2="1" />
+						
+							<log LogLevel="Debug" Message="# FilmInfo+ ### (${curSearch}) Trying years ${yearLess} and ${yearMore}" />
+						
+						
+							<if test="${fsSearchResult[2]}=${yearLess}">
+								<set name="fsDetailsPage" value="${fsSearchResult[0]}" />
+								<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Filmstarts search match with decremented year." />
+							</if>
+						
+							<if test="${fsSearchResult[2]}=${yearMore}">
+								<set name="fsDetailsPage" value="${fsSearchResult[0]}" />
+								<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Filmstarts search match with incremented year." />
+							</if>
+						
+						<!--/if-->
+					</if>
+					</loop>
+				</if>
+				
+				<if test="${fsDetailsPage}!=">
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) loading Filmstarts.de details page (${fsDetailsPage})..." />
+					<retrieve name="filmstarts_detail" url="http://www.filmstarts.de/kritiken/${fsDetailsPage}.html" use_caching="false" encoding="UTF-8"/>
+					<set name="useBackup" value="0" />
+					
+					
+					
+					<parse name="fs_titel" input="${filmstarts_detail}" regex="${rx_filmstarts_titel}" />
+					<set name="movie.title" value="${fs_titel[0][0]:htmldecode}" />
+					<set name="movie.year" value="${fs_titel[0][1]:htmldecode}" />
+					
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) obtained info from Filmstarts.de details page... ${movie.title} (${movie.year})" />
+
+					<if test="${details[0].beschreibung}=">
+						<set name="movie.summary" value="${details[0].kurzbeschreibung}"/> 
+						
+						<parse name="filmstarts_synopsis" input="${filmstarts_detail}" regex="${rx_filmstarts_synopsis}" />
+						<if test="${filmstarts_synopsis[0][0]}!=" >
+							<set name="movie.summary" value="${filmstarts_synopsis[0][0]:htmldecode}" />
+							<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Summary obtained from Filmstarts.de..." />
+							<set name="useBackup" value="0" />
+						</if>
+												
+						<if test="${filmstarts_synopsis[0][0]}=" >
+
+							<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) no Summary obtained from Filmstarts.de..." />
+							<set name="useBackup" value="1" />
+						</if>
+					</if>
+					
+					<if test="${movie.genres}=">
+						<parse name="filmstarts_genres" input="${filmstarts_detail}" regex="${rx_filmstarts_genre}" />
+						<loop name="genre" on="filmstarts_genres">
+							<set name="movie.genres" value="${movie.genres}|${genre:htmldecode}"/>
+						</loop>
+						<set name="movie.genres" value="${movie.genres}|"/>
+						<set name="movie.genres" value="${movie.genres:striptags}" />
+						<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) genre(s): ${movie.genres}" />
+					</if>
+					
+					<if test="${movie.language}=">
+						<parse name="fs_land_block" input="${filmstarts_detail}" regex="${rx_filmstarts_lang}" />
+						<parse name="fs_land" input="${fs_land_block}" regex="${rx_fs_land}" />
+						<loop name="fsland" on="fs_land">
+							<set name="movie.language" value="${movie.language}|${fsland[0]:htmldecode}"/>
+						</loop>
+						<replace name="movie.language" input="${movie.language}" pattern="\|" with="" />
+						<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Language(s): ${movie.language}" />
+					</if>
+				</if>
+			</if>			
+		</if>
+
+		
+		<if test="${useBackup}=1">
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Filmstarts.de Failure..." />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) using EN IMDb info..." />
+			<set name="movie.summary" value="" />
+		</if>
+
+		<!-- IMDb Section -->
+		<!-- Rest of Movie Info needs to be fetched from IMDb. We'll use akas.imdb.com as this site is not automatically translated based on country and hence more static -->
+		<if test="${movie.imdb_id}!=" >
+		
+			<!-- OFDB Failure Backup... -->
+			<if test="${useBackup}=1">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) everything failed so far... IMDB.com will be used..." />
+				<!--set name="rx_Check_Summary">
+					<![CDATA[
+						(Handlungs&#xFC;bersicht hinzuf&#xFC;gen)
+					]]>
+				</set>
+				<set name="rx_IMDBDE_summary">
+					<![CDATA[
+						(?:<div id="swiki.2.1">)(?<Text>.*?)(?=</div>)
+					]]>
+				</set>
+				<set name="rx_IMDBDE_Title">
+					<![CDATA[
+						(?:<title>)(?<Titel>.*?)\s\((?<Jahr>\d{4})(?=\)\s-\sInhaltsangabe)
+					]]>
+				</set>
+				
+				<retrieve name="imdbde_details" url="http://akas.imdb.com/title/${movie.imdb_id}/plotsummary" use_caching="false" encoding="iso-8859-1"/>
+				<parse name="Check_Summary" input="${imdbde_details:htmldecode}" regex="${rx_Check_Summary}" />
+				<if test="${Check_Summary}=">
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Success!" />
+					<parse name="imdbde_title" input="${imdbde_details:htmldecode}" regex="${rx_IMDBDE_Title}" />
+					
+					<set name="movie.title" value="${imdbde_title[0][0]}" />
+					<parse name="imdbde_summary" input="${imdbde_details:htmldecode}" regex="${rx_IMDBDE_summary}" />
+					<set name="movie.summary" value="${imdbde_summary[0][0]}" />
+					<set name="useBackup" value="0" />
+				</if>
+				<if test="${Check_Summary}!=">
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Failure! IMDB.de has no DE summary.. EN Info will be used from now on..." />
+					<set name="useBackup" value="1" />
+				</if>
+				-->
+			</if>
+					
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) loading IMDB details-page (${movie.imdb_id})" />
+			<retrieve name="imdb_details" url="http://akas.imdb.com/title/${movie.imdb_id}" use_caching="false" encoding="UTF-8"/>
+			<if test="${imdb_details}=">
+				<log LogLevel="Error" Message="# FilmInfo+ ### (${curSearch}) Couldn't Load IMDB details page" />
+			</if>
+	
+			<!-- org title (needed later on) -->
+			<set name="rx_title">
+				<![CDATA[
+					(?:<div\sclass="originalTitle">\s*)(?<movieTitle>.+)(?:\s*<span\sclass="description">\s*\(original\stitle\)</span></div>)
+				]]>
+			</set>
+			
+			<parse name="movie.orgtitle" input="${imdb_details:htmldecode}" regex="${rx_title}" />
+			<set name="movie.orgtitle" value="${movie.orgtitle[0][0]}" />
+			<if test="${movie.orgtitle}=">
+				<set name="movie.orgtitle" value="${movie.title}" />
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Parsed Title is the Original Title (${movie.orgtitle})" />
+			</if>
+			<if test="${movie.title}!=${movie.orgtitle}">
+				<set name="movie.alternate_titles" value="${movie.orgtitle}" />
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Original Title is ${movie.orgtitle}" />				
+			</if>
+
+			<!-- Runtime (IMDB) -->
+			<set name="rx_runtime">
+				<![CDATA[
+					(?:Runtime:</h4>\s*<time\sdatetime="PT(\d+)M">)
+				]]>
+			</set>
+			<parse name="runtime" input="${imdb_details}" regex="${rx_runtime}"/>
+			<set name='movie.runtime' value="${runtime[0][0]:htmldecode}"/>
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Runtime: ${movie.runtime} min" />
+
+			<!-- IMDb score & popularity -->
+			<set name="rx_score_rating">
+				<![CDATA[
+					(?:<div\sclass="ratingValue">\s*<strong\stitle="[^"]+">\s*<span\s*itemprop="ratingValue"\s*>\s*)(?<ratingValue>[^<]+)(?:</span>\s*</strong>)
+				]]>
+			</set>
+			<set name="rx_score_popularity">
+				<![CDATA[
+					(?:<div\sclass="ratingValue">\s*<strong\stitle="[\d,]+\sbased\son\s)([\d\,\.]+)(?:\suser\sratings">)
+				]]>
+			</set>
+			<parse name="imdb_rating" input="${imdb_details}" regex="${rx_score_rating}"/>
+			<set name="movie.score" value="${imdb_rating[0][0]}" />
+			<parse name="imdb_popularity" input="${imdb_details}" regex="${rx_score_popularity}"/>
+			<set name="movie.popularity" value="${imdb_popularity[0][0]}" />
+			<replace name="movie.popularity" input="${movie.popularity}" pattern="[\,\.]" with='' />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Score: ${movie.score} from ${movie.popularity} votes" />
+
+			<!-- Tagline (IMDB), imported only if there is no German summary available -->
+			<!--<if test="${movie.summary}=">-->
+				<parse name="tagline" input="${imdb_details}" regex="&lt;h4 class=&quot;inline&quot;&gt;Taglines:&lt;/h4&gt;\s+([^\n\r]+?)(?:\s+)?&lt;"/>
+				<set name="movie.tagline" value="${tagline[0][0]:htmldecode}"/>
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) loading Tagline (${movie.tagline})" />
+			<!--</if>-->
+				
+			<!-- STUDIO / PRODUCTION COMPANY -->
+			<set name="rx_studio_block">
+				<![CDATA[
+					(?:Production\sCo:</h4>\s*)([\s\S]*?)(?:<span\sclass="see-more\sinline">)
+				]]>
+			</set>
+			<set name="rx_studio">
+				<![CDATA[
+					(?:<a\shref="[^"]+"\s*>)(.+?)(?:</a>)
+				]]>
+			</set>
+			
+			<parse name="studio_block" input="${imdb_details:htmldecode}" regex="${rx_studio_block}" />
+			<parse name="studio" input="${studio_block}" regex="${rx_studio}" />
+			<set name="movie.studios" value="" />
+			<loop name="curStudio" on="studio">
+				<set name="movie.studios" value="${movie.studios}|${curStudio[0]:htmldecode}" />
+			</loop>
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) IMDB Studios: ${movie.studios}" />
+
+			<!-- Release Date -->
+			<set name="rx_release_date">
+				<![CDATA[
+				<h4 class="inline">Release Date:</h4>\s*(?<releaseDate>\d{1,2}\s*[^\s]+\s*\d{4})
+				]]>
+			</set>
+			<parse name="release_date" input="${imdb_details}" regex="${rx_release_date}" />
+			<set name="movie.release_date" value="${release_date[0][0]}" />
+						
+			<!-- Plot Keywords (IMDB, englisch) -->
+			<set name="rx_keywords">
+				<![CDATA[
+					(?:data-item-keyword=")([^"]+)(?:">)
+				]]>
+			</set>
+			
+			<retrieve name="imdb_keywords" url="http://akas.imdb.com/title/${movie.imdb_id}/keywords" use_caching="false" encoding="UTF-8"/>
+			<parse name="keywords" input="${imdb_keywords:htmldecode}" regex="${rx_keywords}" />
+			<set name="movie.plotkeywords" value="" />
+			<loop name="curKeyword" on="keywords">
+				<set name="movie.plotkeywords" value="${movie.plotkeywords}|${curKeyword[0]:htmldecode}" />
+			</loop>
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) IMDB Keywords: ${movie.plotkeywords}" />
+			
+			<!-- Actors & their roles -->
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) loading IMDB credits-page" />
+			<retrieve name="cast_page" url="http://akas.imdb.com/title/${movie.imdb_id}/fullcredits" use_caching="false" encoding="UTF-8"/>
+			
+			<set name="rx_cast_list">
+				<![CDATA[
+					(?:<table\sclass="cast_list">\s*)([\s\S]+)(?:\s*</table>)
+				]]>
+			</set>
+			<set name="rx_cast">
+				<![CDATA[
+					(?:<td>\s*<a\shref="[^"]*"\s*>\s*)([^<]+)(?:\s*</a>\s*</td>\s*<td\sclass="ellipsis">\s*\.{3}\s*</td>\s*<td\sclass="character"\s*>\s*)(?:<a\shref="[^"]+"\s*>\s*)?([^<]+)(?:\s*</a>\s*)?(?:\s*</td>)
+				]]>
+			</set>
+			<set name="rx_tag">
+				<![CDATA[
+					\s*<.*?>\s*
+				]]>
+			</set>
+			<set name="rx_crlf">
+				<![CDATA[
+					\s{2,}
+				]]>
+			</set>
+			
+			<parse name="cast_list" input="${cast_page:htmldecode}" regex="${rx_cast_list}" />
+			<parse name="actors" input="${cast_list:htmldecode}" regex="${rx_cast}" />
+			<set name="movie.actors" value='' />
+			<if test="${option_actor_rolle}=true">
+				<loop name="currActor" on="actors" limit="50">
+					<replace name="actor" input="${currActor[0]:htmldecode}" pattern="${rx_crlf}" with="" />
+					<replace name="actor" input="${actor}" pattern="${rx_tag}" with="" />
+					<replace name="char" input="${currActor[1]:htmldecode}" pattern="${rx_crlf}" with="" />
+					<replace name="char" input="${char}" pattern="${rx_tag}" with="" />
+					<set name="movie.actors" value="${movie.actors}|${actor} (${char})" />
+				</loop>
+			</if>
+			<if test="${option_actor_rolle}=false">
+				<loop name="currActor" on="actors" limit="50">
+					<!--<log LogLevel="Debug" Message="currActor: ${currActor[0]}" />-->
+					<replace name="actor" input="${currActor[0]:htmldecode}" pattern="${rx_crlf}" with="" />
+					<replace name="actor" input="${actor}" pattern="${rx_tag}" with="" />
+					<set name="movie.actors" value="${movie.actors}|${actor:htmldecode}" />
+				</loop>
+			</if>
+			<log LogLevel="Debug" Message="# FilmInfo+ ### (${curSearch}) loading IMDB Actors" />
+
+			<!-- load Directors, if not obtained from Ofdb -->
+			<if test="${movie.directors}=">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) loading Director(s)" />
+				<set name="rx_directors_block">
+					<![CDATA[
+						(?<=Directed by)(?<directors_block>.*?)(?=</table>)
+					]]>
+				</set>
+				<set name="rx_directors">
+					<![CDATA[
+						<a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7}[^"]+"[^>]*>(?:<span[^>]+>)?(?<movieDirectors>[^<]+)(?:</span>)?</a>
+					]]>
+				</set>
+				<parse name="directors_block" input="${cast_page:htmldecode}" regex="${rx_directors_block}" />
+				<parse name="directors" input="${directors_block}" regex="${rx_directors}" />
+				<set name="movie.directors" value="|" />
+				<loop name="currDirector" on="directors" limit="10">
+					<set name="movie.directors" value="${movie.directors}${currDirector[0]:htmldecode}|" />
+				</loop>
+			</if>
+
+			<!-- load Writers if not obtained from Ofdb -->
+			<if test="${movie.writers}=">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) loading Writer(s)" />
+				<set name="rx_writers_block">
+					<![CDATA[
+						(?<=Writing Credits)(?<WritersBlock>.*?)(?=</table>)
+					]]>
+				</set>
+				<!--(?:" > )([^<]+?)(?:|)-->
+				<set name="rx_writers">
+					<![CDATA[
+						<a [^>]+>(.*?)<\/a>
+					]]>
+				</set>
+				<set name="rx_hyper">
+				<![CDATA[
+					\s*<.*?>\s*
+				]]>
+				</set>
+				<set name="rx_removeCRLF">
+				<![CDATA[
+					\r\n
+				]]>
+				</set>
+				<set name="rx_removeLF">
+				<![CDATA[
+					\n
+				]]>
+				</set>
+				<set name="rx_removeCR">
+				<![CDATA[
+					\r
+				]]>
+				</set>
+				<parse name="writers_block" input="${cast_page:htmldecode}" regex="${rx_writers_block}" />
+				
+				<set name="movie.writers" value='' />
+				
+				<replace name="writers" input="${writers_block}" pattern="${rx_removeCRLF}" with=" " />
+				<!--<replace name="writers" input="${writers}" pattern="${rx_removeCR}" with=" " />
+				<replace name="writers" input="${writers}" pattern="${rx_removeLF}" with=" " />-->
+				
+				
+				<!--<replace name="writers" input="${writers_block}" pattern="${rx_tag}" with=" " />-->
+				<!--<replace name="writers" input="${writers}" pattern="\((.*?)\)" with=" " />-->
+				<!--<replace name="writers" input="${writers}" pattern="\s+" with=" " />-->
+				<!--<replace name="writers" input="${writers}" pattern="</a>" with="</a>|" />-->
+				<!--<replace name="writers" input="${writers}" pattern="${rx_hyper}" with=" | " />-->
+				
+				
+				<parse name="writers" input="${writers}" regex="${rx_writers}" />
+				
+				<!--<replace name="writers" input="${writers}" pattern="\<a(.*?)\ >" with=" " />-->
+				
+				<!--replace name="writers" input="${writers}" pattern=")" with=")|" /-->
+				<!--set name="movie.writers" value="${writers}" /-->
+				<loop name="currWriter" on="writers">
+					<set name="movie.writers" value="${movie.writers}|${currWriter[0]:htmldecode}" />
+					<if test="${currWriter[1]}!=">
+						<set name="movie.writers" value="${movie.writers} ${currWriter[1]:htmldecode}" />
+					</if>
+				</loop>
+				<set name="new_import" value="true" />
+			</if>
+
+			<!-- get IMDb Summary, if not obtained from OFDb -->
+			<if test="${useBackup}=1">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) so far no DE summary found... getting IMDb.com summary..." />
+				<set name="rx_plot">
+					<![CDATA[
+						(?<=<p class="plotSummary">)(.+?)(?=</p>)
+					]]>
+				</set>
+				<retrieve name="imdb_plot_web" url="http://akas.imdb.com/title/${movie.imdb_id}/plotsummary" use_caching="false" />
+				<parse name="imdb_plot" input="${imdb_plot_web}" regex="${rx_plot}" />
+				<if test="${imdb_plot}!=">
+					<set name="useBackup" value="0" />
+					<loop name="imdb_sumall" on="imdb_plot">
+						<set name="summary_clean" value="${summary_clean} ${imdb_sumall[0]:striptags}" />
+					</loop>
+					<set name="movie.summary" value="${summary_clean:htmldecode}" />
+				</if>
+				<if test="${imdb_plot}=">
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) no summary found on IMDb.com..." />
+					<if test="${movie.summary}=">
+						<set name="movie.summary" value="Keine Beschreibung gefunden..." />
+					</if>
+				</if>
+			</if>
+			
+
+			<!-- get genres from IMDb if not obtained from OFDb or Filmstarts.de -->
+			<if test="${movie.genres}=">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) loading Genre(s)" />
+				<set name="rx_genres">
+					<![CDATA[
+					<a href="(?:/Sections)?/[Gg]enre[s]?/[^/]+/?">(?<movieGenres>.+?)</a>
+					]]>
+				</set>
+				<parse name="genres" input="${imdb_details}" regex="${rx_genres}" />
+				<set name="movie.genres" value='' />
+				<loop name="currGenre" on="genres">
+					<set name="movie.genres" value="${movie.genres}|${currGenre[0]:htmldecode}" />
+				</loop>
+				<set name="movie.genres" value="${movie.genres:striptags}" />
+			</if>
+
+			<!-- Certification (IMDB) -->
+			<retrieve name="imdb_details_pg" url="http://akas.imdb.com/title/${movie.imdb_id}/parentalguide" use_caching="false" />
+
+			<if test="${useFSK}=1">
+				<set name="rx_certification">
+					<![CDATA[
+					(?:Germany:)(.{1,9}?)(?:</a>)
+					]]>
+				</set>
+				<parse name="certification" input="${imdb_details_pg}" regex="${rx_certification}" />
+				<set name="cert" value="${certification[0][0]:htmldecode}" />
+				<replace name="cert" input="${cert}" pattern="o.Al." with="0" />
+				<set name="rx_strange">
+					<![CDATA[
+						(0)|(6)|(12)|(16)|(18)
+					]]>
+				</set>
+				<parse name="chk_cert" input="${cert}" regex="${rx_strange}" />
+				<if test="${chk_cert}!=">
+					<set name="movie.certification" value="${cert}" />
+				</if>
+			</if>
+			<if test="${useFSK}=0">
+				<set name="chk_cert" value="" />
+			</if>
+			
+			<if test="${chk_cert}=">
+				<!-- use US Certification and translate, if no german certification is available... -->
+				<set name="rx_certification">
+					<![CDATA[
+					(?:USA:)(.{1,9}?)(?:</a>)
+					]]>
+				</set>
+				<parse name="certification" input="${imdb_details_pg}" regex="${rx_certification}"/>
+				<set name="cert" value="${certification[0][0]:htmldecode}" />
+				<if test="${useFSK}=1">
+					<if test="${cert}!=">
+						<set name="movie.certification" value="${cert}" /> <!-- if certification is something else than G, PG, PG13, R, NC17 or X lets just copy it -->
+						<if test="${cert}=G">
+							<set name="movie.certification" value="0" />
+						</if>
+						<if test="${cert}=PG">
+							<set name="movie.certification" value="6" />
+						</if>
+						<if test="${cert}=PG-13">
+							<set name="movie.certification" value="12" />
+						</if>
+						<if test="${cert}=R">
+							<set name="movie.certification" value="16" />
+						</if>
+						<if test="${cert}=NC-17">
+							<set name="movie.certification" value="18" />
+						</if>
+						<if test="${cert}=X">
+							<set name="movie.certification" value="18" />
+						</if>
+					</if>
+				</if>
+				<if test="${useFSK}=0">
+					<set name="movie.certification" value="${cert}" />
+				</if>
+				<if test="${cert}=">
+					<set name="rx_filmstarts_cert">
+						<![CDATA[
+							(?:FSK\sab\s)(?<FSK>.+?)(?:\sfreigegeben)
+						]]>
+					</set>
+					<parse name="filmstarts_cert" input="${filmstarts_detail}" regex="${rx_filmstarts_cert}" />
+					<if test="${filmstarts_cert[0][0]}!=">
+						<set name="movie.certification" value="${filmstarts_cert[0][0]}" />
+					</if>
+					<if test="${filmstarts_cert[0][0]}=">
+						<set name="movie.certification" value="-" />
+					</if>
+				</if>
+			</if>
+						
+
+				
+			<!-- test for special movie -->
+			<!-- CUSTOM MOVIE -->
+			<set name="automatic_grouping" value="true" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) BEGIN SPECIAL MOVIES CHECK" />
+			<retrieve name="fip_file" file="${specials_xml_path}" encoding="UTF-8" use_caching="false"/>
+			<parse name="fip_check" input="${fip_file}" regex="${movie.imdb_id}" />
+			<if test="${fip_check}!=">
+				<parse name="community_update" input="${fip_file}" xpath="//community_update" />
+				<set name="community_update" value="${community_update[0]}" />
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) community update: ${community_update}" />
+				<parse name="file_clean" input="${fip_file}" regex="([^\r\n\t]+)+?" />
+				<set name="fip_clean" value="" />
+				<loop name="fip_builder" on="file_clean" limit="9999">
+					<set name="fip_clean" value="${fip_clean}${fip_builder[0]}" />
+				</loop>
+				<parse name="fipspecials" input="${fip_clean}" xpath="//film" />
+				<loop name="fip_loop" on="fipspecials" limit="9999">
+					<if test="${fipspecials[${count}].imdbid}=${movie.imdb_id}">
+						<if test="${fipspecials[${count}].fsk}!=">
+							<set name="movie.certification" value="${fipspecials[${count}].fsk}" />
+						</if>
+						<if test="${fipspecials[${count}].genre}!=">
+							<set name="movie.genres" value="${fipspecials[${count}].genre}" />
+						</if>
+						<if test="${fipspecials[${count}].titel}!=">
+							<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Match found on ${fipspecials[${count}].imdbid}" />
+							<set name="movie.title" value="${fipspecials[${count}].titel}" />
+							<if test="${fipspecials[${count}].sortby}=">
+								<set name="fipspecials[${count}].sortby" value="${fipspecials[${count}].titel}" />
+							</if>
+							<set name="movie.sortby" value="${fipspecials[${count}].sortby}" />
+							<if test="${community_update}=true">
+								<retrieve name="community" url="http://www.merviz.de/FilmInfoPlus/fipcommunity.php?id=${fipspecials[${count}].imdbid}&amp;t=${fipspecials[${count}].titel:safe}&amp;s=${fipspecials[${count}].sortby:safe}" encoding="UTF-8" />
+								<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) sending Community update [id=${fipspecials[${count}].imdbid}, t=${fipspecials[${count}].titel:safe}, s=${fipspecials[${count}].sortby:safe}" />
+							</if>
+							<set name="automatic_grouping" value="false" />
+						</if>
+					</if>
+				</loop>
+			</if>
+			<if test="${fip_check}=">
+				<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) checking FI+ Online DB for ${movie.imdb_id}..." />
+				<retrieve name="MovieDBEntry" url="http://www.merviz.de/FilmInfoPlus/fipserv4.php?i=${movie.imdb_id}" timeout_increment="3000" use_caching="false"/>
+				<parse name="FIPDB" input="${MovieDBEntry:htmldecode}" xpath="//FIPDB" />
+				<parse name="FIPTMDB" input="${MovieDBEntry:htmldecode}" xpath="//TMDB" />
+				<if test="${FIPDB[0]}!=">
+					<if test="${FIPDB[0].FIPTitle}!=">
+						<set name="movie.title" value="${FIPDB[0].FIPTitle}" />
+						<parse name="db_sort_title" input="${FIPDB[0]}" xpath="//FIPSortTitle" />
+						<parse name="db_sort_id" input="${FIPDB[0]}" xpath="//FIPSortID" />
+						<set name="movie.sortby" value="${db_sort_title[0]} ${db_sort_id[0]}" />
+						<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) FI+ Online DB entry for ${movie.imdb_id}: ${db_movie_title[0]} (${db_sort_title[0]} [${db_sort_id[0]}])" />
+						<set name="automatic_grouping" value="false" />
+						<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) skipping autosort for ${movie.imdb_id}..." />
+					</if>
+				</if>
+				<if test="${FIPDB[0]}=">
+					<if test="${FIPTMDB[0]}!=">
+					</if>
+				</if>
+			</if>
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) END SPECIAL MOVIES CHECK" />
+
+			<!-- CUSTOM MOVIE -->
+				
+				
+			<!-- Set Sortby -->
+			<if test="${automatic_grouping}=true">
+				<log LogLevel="Info" Message="################################ Sortby begin" />
+				<!-- retrieve imdb connections page... -->
+				<retrieve name="imdb_connections" url="http://akas.imdb.com/title/${movie.imdb_id}/movieconnections" use_caching="false" />
+			
+				<set name="do_tmdb" value="false" />
+				<set name="do_collection" value="true" />
+
+				
+				<set name="rx_followedby_block">
+					<![CDATA[
+					(?<=<h4.class="li_group">Followed.by&nbsp;</h4>)(?<followedby_block>.*?)(?=</div)
+					]]>
+				</set>
+				<set name="rx_follows_block">
+					<![CDATA[
+					(?:<h4.class="li_group">Follows&nbsp;</h4>)(?<follows_block>.*?)(?:</div)
+					]]>
+				</set>
+				<set name="rx_follow_links">
+					<![CDATA[
+					(?:"/title/)(?<IMDB_ID>tt\d{7})/">(?<TITLE>.*?)</a>.+?\((?<YEAR>\d{4})\)
+					]]>
+				</set>
+				<set name="rx_spinoff_block">
+					<![CDATA[
+					(?<=<h4 class="li_group">Spin-off&nbsp;</h4>*)(?<followedby_block>.*?)(?=<a id)
+					]]>
+				</set>
+				<set name="rx_spinofffrom_block">
+					<![CDATA[
+					(?<=<h4 class="li_group">Spun-off from&nbsp;</h4>*)(?<followedby_block>.*?)(?=<a id)
+					]]>
+				</set>
+				<set name="rx_quot_replace">
+					<![CDATA["]]>
+				</set>
+
+				<parse name="follows_block" input="${imdb_connections}" regex="${rx_follows_block}" />
+				<parse name="follows_links" input="${follows_block:htmldecode}" regex="${rx_follow_links}" />
+				<set name="link_counter" value="0" />
+				<set name="do_tmdb" value="false" />
+				<set name="check_spinoff" value="true" />
+
+				<if test="${follows_links}!=">
+					<set name="do_tmdb" value="true" />	<!-- this is a series, we will need further info -->
+					<set name="check_spinoff" value="false" />	<!-- this is a series, so we wont check on spinoffs... -->
+					<set name="series_first_title" value="${follows_links[0][1]:htmldecode}" />
+					<set name="series_first_imdbid" value="${follows_links[0][0]}" />
+					<replace name="series_first_title" input="${series_first_title}" pattern="${rx_quot_replace}" with="" />	<!-- lets remove quots from series title -->
+					<loop name="follows" on="follows_links" limit="50">
+						<add name="link_counter" value1="${link_counter}" value2="1" />
+					</loop>
+					<add name="link_counter" value1="${link_counter}" value2="1" />
+				</if>
+				<set name="sortid" value="${link_counter}" />
+
+				<if test="${follows_links}=">
+					<parse name="followedby_block" input="${imdb_connections}" regex="${rx_followedby_block}" />
+					<parse name="followedby_links" input="${followedby_block:htmldecode}" regex="${rx_follow_links}" />
+					
+					<if test="${followedby_links}!=">
+						<!-- other movie(s) follow this one, so we are a series first -->
+						<set name="do_tmdb" value="true" />
+						<set name="check_spinoff" value="false" />
+						<set name="series_first_title" value="${movie.orgtitle[0][0]}" />
+						<replace name="series_first_title" input="${series_first_title}" pattern="${rx_quot_replace}" with="" />	<!-- lets remove quots from series title -->
+						<set name="series_first_imdbid" value="${movie.imdb_id}" />
+						<set name="collection_title" value="${series_first_title}" />
+						<set name="sortid" value="1" />
+					</if>
+				</if>
+				
+				<if test="${check_spinoff}=true">
+					<parse name="spinofffrom_block" input="${imdb_connections}" regex="${rx_spinofffrom_block}" />
+					<parse name="spinofffrom_links" input="${spinofffrom_block:htmldecode}" regex="${rx_follow_links}" />
+					
+					<if test="${spinofffrom_links}!=">
+						<set name="do_tmdb" value="false" />
+							<!-- this is a spinoff of something else. we will sort spin offs by title prefix (year). tmdb wont be needed -->
+						<set name="spinoff_main_title" value="${spinofffrom_links[0][1]}" />
+						<set name="spinoff_main_imdbid" value="${spinofffrom_links[0][0]}" />
+						<replace name="spinoff_main_title" input="${spinoff_main_title}" pattern="${rx_quot_replace}" with="" />	<!-- lets remove quots from series title -->
+						<set name="collection_title" value="${spinoff_main_title}" />
+						<set name="sortid" value="${movie.year}" />
+					</if>
+						
+				</if>
+					
+					<!--if test="${spinofffrom_links}=">
+						siehe tt0383216 & tt0838232
+					</if-->
+				
+				<if test="${sortid}&gt;0">
+					<!-- we do have a series of movies... -->
+				
+					<if test="${sortid}&lt;10">
+						<set name="sortid" value="${sortid}" />
+						<set name="sort_id" value="0" />
+					</if>
+					<set name="sort_id" value="${sort_id}${sortid}" />
+
+					<retrieve name="m_tmdb_id" url="http://www.merviz.de/FilmInfoPlus/fipserv.php?s=tmdb&amp;i=${movie.imdb_id}" timeout_increment="3000" use_caching="false"/>
+					<parse name="p_tmdb_id" input="${m_tmdb_id}" xpath="//ausgabe" />
+					<set name="tmdb_id" value="${p_tmdb_id[0]}" />
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Result (${tmdb_id})" />
+					<parse name="p_movie_title" input="${m_tmdb_id:htmldecode}" xpath="//movie_title" />
+					<parse name="p_special_title" input="${m_tmdb_id:htmldecode}" xpath="//sorttitle" />
+					<parse name="p_special_sort" input="${m_tmdb_id:htmldecode}" xpath="//specialsort" />
+					<if test="${p_special_sort[0]}!=">
+						<set name="sort_id" value="${p_special_sort[0]}" />
+					</if>
+					<if test="${p_special_title[0]}!=">
+						<set name="special_title" value="${p_special_title[0]}" />
+						<set name="collection_title" value="${special_title}" />
+						<set name="collection_title_de" value="${special_title}" />
+						<set name="movie.sortby" value="${p_special_title[0]} ${sort_id}" />
+						<set name="do_collection" value="false" />
+						<set name="do_tmdb" value="false" />
+					</if>
+					<if test="${p_movie_title[0]}!=">
+						<set name="movie.title" value="${p_movie_title[0]}" />
+						<set name="do_tmdb" value="false" />
+						<set name="do_collection" value="false" />
+						<if test="${p_special_sort[0]}=">
+							<set name="movie.sortby" value="${p_movie_title[0]}" />
+						</if>
+					</if>
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Special sort		(${special_title})" />
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Special sortid		(${p_special_sort[0]})" />
+					<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Special title		(${movie.title})" />
+					
+					<!-- get themoviedb.org detail page -->
+					<if test="${do_tmdb}=true">
+						<set name="resultspage" value="true" />
+						<set name="rx_tmdb_title">
+							<![CDATA[
+								<h2 id="title"><a href="/movie/(?:\d+)">(?<title>[^<]+)+</a></h2>
+							]]>
+						</set>
+						<set name="rx_tmdb_orgtitle">
+							<![CDATA[
+								(?:<h3>Original Title</h3>(?:\s+)?<p>)(?<orgTitle>[^<]+)+
+							]]>
+						</set>
+						<set name="rx_collection">
+							<![CDATA[
+								(?:<strong>Part of the:</strong> <a href="[^"]+">)([^<]+)+?(?:</a>)
+							]]>
+						</set>
+						<set name="rx_title_split">
+							<![CDATA[
+								^(?<titlePrefix>.+?)(?:\:\s)(?<titlePostfix>.+?)$
+							]]>
+						</set>
+
+						
+						<set name="look_further" value="true" />
+						<if test="${tmdb_id}!=-1">
+							<retrieve name="tmdb_lookup" url="http://www.themoviedb.org/movie/${tmdb_id}" timeout_increment="3000" use_caching="false" encoding="UTF-8" />
+							<parse name="tmdb_check_collection" input="${tmdb_lookup:htmldecode}" regex="${rx_collection}" />
+							<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) collection? (${tmdb_check_collection[0][0]})" />
+							<if test="${tmdb_check_collection[0][0]}!=">
+								<set name="collection_title" value="${tmdb_check_collection[0][0]}" />
+								<set name="look_further" value="false" />
+							</if>
+							<if test="${tmdb_check_collection[0][0]}=">
+								<parse name="corr_tmdb_page" input="${tmdb_lookup:htmldecode}" regex="${rx_tmdb_title}" />
+								<if test="${corr_tmdb_page[0][0]}=${movie.orgtitle[0][0]}">
+									<!-- we had found the right tmdb page and it doesnt have a collection... -->
+									<set name="look_further" value="false" /> <!-- no need to look further here... -->
+									<set name="collection_title" value="${series_first_title}" /> <!-- lets take the series first title from imdb... -->
+								</if>
+							</if>
+							
+							<if test="${look_further}=true">
+								<!-- if this is executed, we did not get the collection title from the movie id page. Can be, that id was incorrect, or tmdb does not have collection info... -->
+								<!-- lets do a movie search... -->
+								<set name="rx_isresultpage">
+									<![CDATA[
+										(?<Resultpage><h3>Movie results for)
+									]]>
+								</set>
+								<set name="rx_tmdb_results">
+									<![CDATA[
+										(?:<a href="/movie/(?<TMDBID>\d+)">)(?<Title>[^<]+)+?(?:[^\(]+)+?\((?<Year>\d{4})\)
+									]]>
+								</set>
+								<set name="tmdb_title" value="${movie.orgtitle[0][0]} ${movie.orgtitle[0][1]}" /> <!-- original title and year -->
+								<retrieve name="tmdb_lookup" url="http://www.themoviedb.org/search?search=${tmdb_title:safe}" use_caching="false" encoding="UTF-8" />
+								<parse name="tmdb_lookup_test" input="${tmdb_lookup:htmldecode}" regex="${rx_isresultpage}" />
+								<if test="${tmdb_lookup_test}!=">
+									<!-- several movies found... -->
+									<parse name="tmdb_results" input="${tmdb_lookup:htmldecode}" regex="${rx_tmdb_results}" />
+									<loop name="tmdb_results_loop" on="tmdb_results" limit="10">
+										<distance name="compDistance" string1="${tmdb_results_loop[1]:htmldecode}" string2="${movie.orgtitle[0][0]}" />
+										<if test="${compDistance}&lt;=2">
+											<if test="${tmdb_results_loop[2]}=${movie.orgtitle[0][1]}">
+												<retrieve name="tmdb_lookup" url="http://www.themoviedb.org/movie/${tmdb_results_loop[0]}" use_caching="false" encoding="UTF-8"/>
+												<parse name="tmdb_check_collection" input="${tmdb_lookup:htmldecode}" regex="${rx_collection}" />
+												<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) collection? (${tmdb_check_collection[0][0]})" />
+												<if test="${tmdb_check_collection[0][0]}!=">
+													<set name="collection_title" value="${tmdb_check_collection[0][0]}" />
+													<set name="look_further" value="false" />
+												</if>
+											</if>
+										</if>
+									</loop>
+								</if>
+							</if>
+						</if>
+						<if test="${tmdb_id}=-1">
+							<!-- no tmdb id available... lets do a movie search... -->
+							<set name="rx_nothingfound">
+								<![CDATA[
+									(?<nothingFound><p>No results were found while searching for)
+								]]>
+							</set>
+							<set name="rx_isresultpage">
+								<![CDATA[
+									(?<Resultpage><h3>Movie results for)
+								]]>
+							</set>
+							<set name="rx_tmdb_results">
+								<![CDATA[
+									(?:<a href="/movie/(?<TMDBID>\d+)">)(?<Title>[^<]+)+?(?:[^\(]+)+?\((?<Year>\d{4})\)
+								]]>
+							</set>
+							<set name="tmdb_title" value="${movie.orgtitle[0][0]} ${movie.orgtitle[0][1]}" /> <!-- original title and year -->
+							<retrieve name="tmdb_lookup" url="http://www.themoviedb.org/search?search=${tmdb_title:safe}" use_caching="false" encoding="UTF-8" />
+							<parse name="tmdb_lookup_test" input="${tmdb_lookup:htmldecode}" regex="${rx_isresultpage}" />
+							<if test="${tmdb_lookup_test}!=">
+								<!-- several movies found... -->
+								<parse name="tmdb_results" input="${tmdb_lookup:htmldecode}" regex="${rx_tmdb_results}" />
+								<loop name="tmdb_results_loop" on="tmdb_results" limit="10">
+									<distance name="compDistance" string1="${tmdb_results_loop[1]:htmldecode}" string2="${movie.orgtitle[0][0]}" />
+									<if test="${compDistance}&lt;=2">
+										<if test="${tmdb_results_loop[2]}=${movie.orgtitle[0][1]}">
+											<retrieve name="tmdb_lookup" url="http://www.themoviedb.org/movie/${tmdb_results_loop[0]}" use_caching="false" encoding="UTF-8"/>
+											<parse name="tmdb_check_collection" input="${tmdb_lookup:htmldecode}" regex="${rx_collection}" />
+											<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) collection? (${tmdb_check_collection[0][0]})" />
+											<if test="${tmdb_check_collection[0][0]}!=">
+												<set name="collection_title" value="${tmdb_check_collection[0][0]}" />
+												<set name="look_further" value="false" />
+											</if>
+										</if>
+									</if>
+								</loop>
+							</if>
+							<if test="${tmdb_lookup_test}=">
+								<!-- not a result page... could be a movie details page or nothing found at all... -->
+								<parse name="nothingfound" input="${tmdb_lookup:htmldecode}" regex="${rx_nothingfound}" />
+								<if test="${nothingfound[0][0]}!=">
+									<!-- really nothing found... :( -->
+									<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) ${movie.imdb_id} is not listed on TMDb" />
+									<set name="collection_title" value="${series_first_title}" />
+									<set name="look_further" value="false" />
+								</if>
+								<parse name="tmdb_lookup_test" input="${tmdb_lookup:htmldecode}" regex="${rx_tmdb_title}" />
+							</if>
+							<if test="${tmdb_lookup_test}!=">
+								<!-- movie details page found -->
+								<parse name="tmdb_check_collection" input="${tmdb_lookup:htmldecode}" regex="${rx_collection}" />
+								<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) collection? (${tmdb_check_collection[0][0]})" />
+								<if test="${tmdb_check_collection[0][0]}!=">
+									<set name="collection_title" value="${tmdb_check_collection[0][0]}" />
+									<set name="look_further" value="false" />
+								</if>
+								<if test="${tmdb_check_collection[0][0]}=">
+									<parse name="corr_tmdb_page" input="${tmdb_lookup:htmldecode}" regex="${rx_tmdb_title}" />
+									<if test="${corr_tmdb_page[0][0]}=${movie.orgtitle[0][0]}">
+										<!-- we had found the right tmdb page and it doesnt have a collection... -->
+										<set name="look_further" value="false" /> <!-- no need to look further here... -->
+										<set name="collection_title" value="${series_first_title}" /> <!-- lets take the series first title from imdb... -->
+									</if>
+								</if>
+							</if>
+						</if>
+						
+						<if test="${look_further}=true">
+							<!-- if this is executed, we did not get the collection title from the movie id page nor from a movie search... -->
+							<!-- instead we will use the title of the first movie in the series as collection title, if sortid > 1 or call it a day... -->
+							<if test="${sortid}&gt;1">
+								<set name="collection_title" value="${series_first_title}" />
+								<set name="look_further" value="false" />
+							</if>
+							<if test="${sortid}=1">
+								<set name="collection_title" value="${movie.orgtitle[0][0]}" />
+								<set name="look_further" value="false" />
+							</if>
+								
+						</if>
+					</if>
+					
+					<if test="${do_collection}=true">
+						<!-- lets clean up the collection... -->
+						<replace name="collection_title" input="${collection_title}" pattern=" Collection" with="" />
+						<replace name="movie.title" input="${movie.title}" pattern=" - " with=": " />
+						
+						<!-- split the movie.title -->
+						<set name="rx_de_title_split">
+							<![CDATA[
+								^(?<titlePrefix>.+?)(?:\:\s|\s\-\s)(?<titlePostfix>.+?)$
+							]]>
+						</set>
+						<parse name="de_title_split" input="${movie.title}" regex="${rx_de_title_split}" />
+						<if test="${de_title_split[0][0]}!=">
+							<set name="de_title" value="${de_title_split[0][0]}" />
+							<set name="de_subtitle" value="${de_title_split[0][1]}" />
+						</if>
+						<if test="${de_title_split[0][0]}=">
+							<set name="de_title" value="${movie.title}" />
+						</if>
+						
+						<!-- split the collection -->
+						<parse name="collection_title_split" input="${collection_title}" regex="${rx_de_title_split}" />
+						<if test="${collection_title_split[0][0]}!=">
+							<set name="collection_title" value="${collection_title_split[0][0]}" />
+						</if>
+						
+						<!-- get collection title translation -->
+						<if test="${special_title}=">
+							<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Trans: (${collection_title:safe})" />
+							<retrieve name="m_title" url="http://www.merviz.de/FilmInfoPlus/fipserv.php?s=trans&amp;i=${collection_title:safe}&amp;tt=${movie.imdb_id}" timeout_increment="3000" use_caching="false" encoding="UTF-8"/>
+							<parse name="p_title" input="${m_title:htmldecode}" xpath="//ausgabe" />
+							<set name="collection_title_de" value="${p_title[0]:htmldecode}" />
+							<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) Result (${collection_title_de})" />
+						</if>
+						
+						<if test="${collection_title_de}=#HIDE#">
+							<if test="${de_subtitle}!=">
+								<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) >>> Found collection, but unmatching... using '${de_title}' instead" />						
+								<set name="movie.sortby" value="${de_title} ${sort_id}" />
+							</if>
+							<if test="${de_subtitle}=">
+								<set name="movie.sortby" value="${movie.title}" />
+							</if>
+						</if>
+						<if test="${collection_title_de}!=#HIDE#">
+							<set name="rx_collectionfilter">
+								<![CDATA[
+									^(?<title>[\w\s\&]+)+?(?:.+)?$
+								]]>
+							</set>
+							<if test="${collection_title_de}!=">
+								<parse name="collection_clean" input="${collection_title_de}" regex="${rx_collectionfilter}" />
+							</if>
+							<if test="${collection_title_de}=">
+								<parse name="collection_clean" input="${collection_title}" regex="${rx_collectionfilter}" />
+								<set name="collection_title_de" value="${collection_title}" />
+							</if>
+							
+							<parse name="collection_clean_sm" input="${collection_clean}" regex="^(.{1,30})" />
+							<set name="rx_boxtitle" value="^(${collection_clean_sm[0][0]})(.*)?" />
+							<parse name="boxtitle" input="${movie.title}" regex="${rx_boxtitle}" />
+							
+							<if test="${boxtitle}=">
+								<if test="${de_subtitle}=">
+									<if test="${movie.title}=">
+										<set name="title" value="${collection_title_de}" />
+									</if>
+									<if test="${movie.title}!=">
+										<set name="title" value="${collection_title_de}: ${movie.title}" />
+									</if>
+									<set name="movie.title" value="${title}" />
+									<set name="movie.sortby" value="${collection_title_de} ${sort_id}" />
+								</if>
+								<if test="${de_subtitle}!=">
+									<if test="${sortid}&gt;0}">
+										<set name="movie.title" value="${collection_title_de}: ${de_subtitle}" />
+										<set name="movie.sortby" value="${collection_title_de} ${sort_id}" />
+									</if>
+									<if test="${sortid}=0}">
+										<set name="movie.sortby" value="${movie.title}" />
+									</if>
+								</if>							
+							</if>
+							<if test="${boxtitle}!=">
+								<set name="movie.title" value="${collection_clean_sm[0][0]}${boxtitle[0][1]}" />
+								<set name="movie.sortby" value="${collection_clean_sm[0][0]} ${sort_id}" />
+							</if>
+						</if>
+					</if>
+				</if>
+				<if test="${sortid}=0">
+					<set name="movie.sortby" value="${movie.title}" />
+				</if>
+			</if>
+					
+
+			<!-- ende... -->
+			<!-- in case we were really, really unfortunate, I mean so really Murphy like, we didnt manage to fetch any info from ofdb -->
+			<!-- so, lets just set the title to the original title we got from imdb... -->
+			<!--if test="${movie.title}=">
+				<set name="movie.title" value="${movie.orgtitle[0][0]}" />
+			</if-->
+			
+			<!-- reduce actors... -->
+			<if test="${limitActors}=true">
+				<set name="rx_Actors">
+					<![CDATA[
+						(?<=\|)(?<Actor>.+?)(?=\|)
+					]]>
+				</set>
+				<parse name="lstActors" input="${movie.actors}" regex="${rx_Actors}" />
+				<set name="movie.actors" value="" />
+				<loop name="curActor" on="lstActors" limit="5">
+					<set name="movie.actors" value="${movie.actors}|${curActor[0]}" />
+				</loop>
+			</if>
+			
+			<!-- some last minute clean up -->
+			<!--set name="movie.summary" value="${movie.summary:striptags}" /-->
+			<replace name="movie.summary" input="${movie.summary}" pattern="${rx_tag}" with="" />
+
+			<!-- convert sort to title_sort -->
+			<replace name="movie.title" input="${movie.title}" pattern="${rx_quot_replace}" with="" />	<!-- lets remove quots from series title -->
+			<replace name="movie.sortby" input="${movie.sortby}" pattern="${rx_quot_replace}" with="" />	<!-- lets remove quots from series title -->
+			
+			<set name="rx_title" value="(The |A |An |Ein |Eine |Das |Die |Der |Les |Une |La )?(.+?)$" />
+			<parse name="title" input="${movie.sortby}" regex="${rx_title}"/>
+			
+			<if test="${title.count}!=0">
+				<if test="${title_sort}=0">
+					<if test="${title[0][0]}=">
+						<set name="movie.sortby" value="${title[0][1]}"/>
+					</if>
+					<if test="${title[0][0]}!=">
+						<set name="movie.sortby" value="${title[0][0]}${title[0][1]}" />
+					</if>
+				</if>
+				<if test="${title_sort}=1">
+					<set name="movie.sortby" value="${title[0][1]}"/>
+				</if>
+				<if test="${title_sort}=2">
+					<set name="movie.sortby" value="${title[0][1]}" />
+				</if>
+			</if>
+
+			<!-- Replace the genre according to the table in the beginning of this script. -->
+				<!-- old Version not in use anymore. Does not Work correctly -->
+			<if test="${translate_genre_old}=true">
+				<set name="loopcounter" value='0' />
+				<loop name="genre_runner" on="genre_translation_array">
+					<!-- In this Loop we do not use the "genre_runner" as usual but the variable loopcounter to get the table entrys we want to process. -->
+					<multiply name="GenreToReplace_index" value1="${loopcounter}" value2='2' />      <!--Calculate the index for the current array entry which is to replace. -->
+					<add name="ReplaceBy_index" value1="${GenreToReplace_index}" value2='1' />       <!--Add 1 to get the index for the translation value. -->
+					<if test="${genre_translation_array[${GenreToReplace_index}]}!=">
+						<log LogLevel="Debug" Message="# FilmInfo+ ### Run:${loopcounter} In GenreString:'${movie.genres}'  replace:'${genre_translation_array[${GenreToReplace_index}]}'  with:'${genre_translation_array[${ReplaceBy_index}]}'" />
+						<replace name="movie.genres" input="${movie.genres}" pattern="${genre_translation_array[${GenreToReplace_index}]}" with="${genre_translation_array[${ReplaceBy_index}]}" />
+					</if>
+					<add name="loopcounter" value1="${loopcounter}" value2='1' />                    <!--Increment the loopcounter -->
+				</loop>
+			</if>
+			
+			<if test="${translate_genre}=true">
+			<!-- Rename of Genres. Just Edit or Add a new Line and Change the "Pattern" and "with". (Change From -> to) -->
+				<replace name="movie.genres" input="${movie.genres}" pattern="Adventure" with="Abenteuer" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Animation" with="Zeichentrick" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Biography" with="Biographie" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Comedy" with="Komödie" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Crime" with="Krimi" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Documentary" with="Dokumentation" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Family" with="Familie" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Film-Noir" with="Kriminalfilm" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Game-Show" with="Spielshow" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="History" with="Geschichte" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Music\|" with="Musik|" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="News" with="Nachrichten" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Romance" with="Romanze" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Short" with="Kurzfilm" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="War" with="Krieg" />
+				<replace name="movie.genres" input="${movie.genres}" pattern="Kinder-/Familienfilm" with="Familie" />
+				
+			</if>
+			
+			
+			<!-- oh, the special edition... almost forgot... -->
+			<if test="${special_edition}!=">
+				<set name="movie.title" value="${movie.title} (${special_edition})" />
+			</if>
+			
+			<log LogLevel="Info" Message="################################ FilmInfo+ Debug INFO" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### filename          >>>> ${movie.filename}" />
+			<!--log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) special edition				>>>> ${special_edition}" /-->
+			<log LogLevel="Info" Message="# FilmInfo+ ### imdb id           >>>> ${movie.imdb_id}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### ofdb id           >>>> ${movie.ofdb_id}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### tmdb id           >>>> ${tmdb_id}" />
+			<!--log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) follows							>>>> ${series_first_title}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) follows							>>>> ${series_first_imdbid}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) sortid								>>>> ${sortid}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) sort id							>>>> ${sort_id}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) collection_title			>>>> ${collection_title}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) collection_title_de	>>>> ${collection_title_de}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) rx_boxtitle					>>>> ${rx_boxtitle}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) boxtitle							>>>> ${boxtitle[0][0]}" /-->
+			<log LogLevel="Info" Message="# FilmInfo+ ### movie.orgtitle    >>>> ${movie.orgtitle[0][0]}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### movie.title       >>>> ${movie.title}" />
+			<!--log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) de title							>>>> ${de_title}" />
+			<log LogLevel="Info" Message="# FilmInfo+ ### (${curSearch}) de subtitle					>>>> ${de_subtitle}" /-->
+			<log LogLevel="Info" Message="# FilmInfo+ ### movie.sortby      >>>> ${movie.sortby}" />
+			<log LogLevel="Info" Message="################################ FilmInfo+ Debug INFO" />
+
+
+			<!-- Details URL -->
+			<set name="movie.details_url" value="http://www.ofdb.de/film/${movie.ofdb_id}"/>
+			<if test="${movie.ofdb_id}=">
+				<set name="movie.details_url" value="http://akas.imdb.com/title/${movie.imdb_id}"/>
+			</if>
+
+			<!-- replace lang code from fliename with corr language... -->
+			<!--if test="${movie.language}=" >
+				<parse name="lang_arr" input="${movie.language}" regex="(?&lt;=\|)([a-zA-Z]{2})" />
+				<set name="movie.language" value="" />
+				<loop name="lang_loop" on="lang_arr">
+					<if test="${lang_loop[0]}=de">
+						<set name="movie.language" value="${movie.language}|deutsch" />
+					</if>
+					<if test="${lang_loop[0]}=en">
+						<set name="movie.language" value="${movie.language}|englisch" />
+					</if>
+					<if test="${lang_loop[0]}=fr">
+						<set name="movie.language" value="${movie.language}|französisch" />
+					</if>
+					<if test="${lang_loop[0]}=no">
+						<set name="movie.language" value="${movie.language}|norwegisch" />
+					</if>
+					<if test="${lang_loop[0]}=ru">
+						<set name="movie.language" value="${movie.language}|russisch" />
+					</if>
+					<if test="${lang_loop[0]}=tr">
+						<set name="movie.language" value="${movie.language}|türkisch" />
+					</if>
+					<if test="${lang_loop[0]}=cn">
+						<set name="movie.language" value="${movie.language}|chinesisch" />
+					</if>
+					<if test="${lang_loop[0]}=jp">
+						<set name="movie.language" value="${movie.language}|japanisch" />
+					</if>
+					<if test="${lang_loop[0]}=it">
+						<set name="movie.language" value="${movie.language}|italienisch" />
+					</if>
+				</loop>
+			</if-->
+		</if>
+		
+		<!-- ####################################################### -->
+		
+		<!--set name="movie.actors" value="" /-->
+		
+	</action>
+
+	<action name="search">
+
+		<!-- Regular Expressions -->
+		<set name="rx_imdb_results">
+			<![CDATA[
+			<title>(?:IMDb[\s-]*)?(?:IMDb[\s-]*)?(?<TITEL>.+?)\(\D*(?<JAHR>\d{4})(?:.*?\d{0,4})?[\/IVX]*\.*?</title>.+?(tt\d{7})/fullcredits
+			]]>
+		</set>
+		<set name="rx_se">
+			<![CDATA[
+				(.+)?(?:\s)([\(\[\{]?(?:3D|[Ee]xtended|[Uu]nrated|[Dd]irector'?s [Cc]ut|[Aa]lternate [Ee]nding|[Ss]pecial|[Kk]inofassung|[Bb]onus)(?:\s[Ee]dition|\s[Dd]is[ck])?[\}\]\)]?)
+			]]>
+		</set>
+
+		<!-- Retrieve result using IMDB id (if provided) -->
+		<if test="${search.imdb_id}!=">
+			<retrieve name="imdb_page" url="http://akas.imdb.com/title/${search.imdb_id}" />
+			<parse name="imdb_results" input="${imdb_page}" regex="${rx_imdb_results}" />
+			<if test="${imdb_results[0][2]}!=">
+				<!-- Direct match found, let's get the results and be done with it -->
+				<set name="movie[0].title" value="${imdb_results[0][1]:htmldecode}" />
+				<set name="movie[0].year" value="${imdb_results[0][2]:htmldecode}" />
+				<set name="movie[0].imdb_id" value="${imdb_results[0][0]:htmldecode}" />
+				<set name="movie[0].site_id" value="${imdb_results[0][0]:htmldecode}" />
+				<set name="movie[0].popularity" value="100" />
+
+			</if>
+		</if>
+
+		<!-- No sense looking up any other movie if we have found a direct IMDb match -->
+		<if test="${movie[0].site_id}=">
+		
+			<set name="offset" value="0" />
+
+			<set name="rx_details_page_block">
+				<![CDATA[
+				<title>.+?\(\D*\d{4}[\/IVX]*\).*?</title>.+</body>
+				]]>
+			</set>
+			<set name="rx_search_results">
+				<![CDATA[
+				<h1 class="findHeader">No results found for <span class="findSearchTerm">[^<]+</span>
+				]]>
+			</set>
+			<set name="rx_aka_details">
+				<![CDATA[
+				<tr>\s+?<td>(.+?)</td>\s+?<td>(.+?)</td>.*?</tr>
+				]]>
+			</set>
+			<set name="rx_aka">
+				<![CDATA[
+				aka "(.+?)"
+				]]>
+			</set>
+
+			<!-- Retrieve other results using "Title (year)" -->
+
+			<set name="query_year" value='' />
+			<if test="${search.year}>1800">
+				<set name="query_year" value="+(${search.year})" />
+			</if>
+
+			<!--retrieve name="search_page" url="http://akas.imdb.com/find?s=tt&amp;q=${search.title:safe(UTF-8)}${query_year}" /-->
+			<retrieve name="search_page" url="http://akas.imdb.com/find?q=${search.title:safe(UTF-8)}&amp;s=tt" encoding="UTF-8" timeout_increment="3000" use_caching="false" />
+
+			<!-- extra check to see if search page came back with no results -->
+			<parse name="search_results_not_found" input="${search_page}" regex="${rx_search_results}" />
+			<if test="${search_results_not_found}!=">
+				<!-- new IMDb search system can cause failures when year is provided, so trying again without -->
+				<retrieve name="search_page" url="http://akas.imdb.com/find?s=tt&amp;q=${search.title:safe(UTF-8)}" />
+			</if>
+
+			<parse name="details_page_block" input="${search_page}" regex="${rx_details_page_block}" />
+			<!-- loop gets skipped if no match is found -->
+			<loop name="details_page_verified" on="details_page_block" limit="99">
+				<add name="counter" value1="${count}" value2="${offset}" />
+				<parse name="imdb_results" input="${details_page_verified}" regex="${rx_imdb_results}" />
+				<set name="movie[${counter}].title" value="${imdb_results[0][1]:htmldecode}" />
+				<set name="movie[${counter}].year" value="${imdb_results[0][2]:htmldecode}" />
+				<set name="movie[${counter}].imdb_id" value="${imdb_results[0][0]}" />
+				<set name="movie[${counter}].site_id" value="${imdb_results[0][0]}" />
+
+				<!-- AKA page -->
+				<retrieve name="aka_page" url="http://akas.imdb.com/title/${imdb_results[0][2]}/releaseinfo" />
+				<parse name="akas" input="${aka_page}" regex="${rx_aka_details}" />
+				<set name="movie[${counter}].alternate_titles" value='' />
+				<loop name="currAka" on="akas" limit="9999">
+					<set name="movie[${counter}].alternate_titles" value="${movie[${counter}].alternate_titles}|${currAka[0]:htmldecode}" />
+				</loop>
+
+				<subtract name="movie[${counter}].popularity" value1="100" value2="${counter}" />
+			</loop>
+
+			<!-- No sense looking up any other movie if we found a details page already -->
+			<if test="${movie[0].site_id}=">
+
+				<set name="rx_search_page">
+					<![CDATA[
+						<table.class="findList">(.*?)</table>
+					]]>
+				</set>
+
+				<!-- if we got a search result page, this is used. if not, regex does not match so we dont process the outer loop. -->
+				<parse name="search_results_block" input="${search_page}" regex="${rx_search_page}" />
+				<if test="${search_results_block}!=">
+
+					<set name="rx_search_results">
+						<![CDATA[
+							(?:<td.class="result_text">\s+?<a.href="/title/)(?<IMDBID>tt\d{7})(?:.+?>)(?<TITLE>.+?)(?:</a>\s\()(?<YEAR>\d{4})
+						]]>
+					</set>
+
+					<!-- process the rest of the search page and obtain all the popular results -->
+					<loop name="search_results_verified" on="search_results_block" limit="99">
+						<parse name="movie_details" input="${search_results_verified}" regex="${rx_search_results}" />
+						<loop name="curr_details" on="movie_details" limit="99">
+							<add name="counter" value1="${count}" value2="${offset}" />
+							<set name="movie[${counter}].imdb_id" value="${curr_details[0]:htmldecode}" />
+							<set name="movie[${counter}].site_id" value="${curr_details[0]:htmldecode}" />
+							<set name="movie[${counter}].title" value="${curr_details[1]:htmldecode}" />
+							<set name="movie[${counter}].year" value="${curr_details[2]:htmldecode}" />
+							<set name="movie[${counter}].alternate_titles" value="${curr_details[3]:htmldecode}" />
+							
+							<log LogLevel="Info" Message="# FilmInfo+ ###  Special Search mode...(${search.title})" />
+							<parse name="title_InStr" input="${curr_details[1]:htmldecode}" regex="^${search.title}" />
+							<log LogLevel="Info" Message="# FilmInfo+ ###  parsed...(${title_InStr})" />
+							<if test="${title_InStr}!=">
+								<if test="${curr_details[2]:htmldecode}=${search.year}">
+									<set name="movie[${counter}].title" value="${search.title}" />
+								</if>
+							</if>
+							<if test="${title_InStr}=">
+								<set name="rx_title" value="^(The|A|An|Ein|Eine|Das|Die|Der|Les|Une|La)?\s?(.*?)$" />
+								<parse name="title_clean" input="${curr_details[1]:htmldecode}" regex="${rx_title}" />
+								<parse name="title_InStr" input="${title_clean[0][1]}" regex="^${search.title}" />
+								<if test="${title_InStr}!=">
+									<if test="${curr_details[2]:htmldecode}=${search.year}">
+										<set name="movie[${counter}].title" value="${search.title}" />
+									</if>
+								</if>
+							</if>
+							
+
+							<subtract name="movie[${counter}].popularity" value1="100" value2="${counter}" />
+						</loop>
+					</loop>
+				</if>
+			</if>
+		</if>
+
+		<!-- get the languagecode from filename, if provided... -->
+		<set name="fn" value="${search.filename_noext}" />
+		<set name="rx_lang" value="(?&lt;=[\(|,])([a-zA-Z]{2})(?=[\)|,])" />
+		<parse name="lang" input="${fn}" regex="${rx_lang}" />
+		<if test="${lang[0]}!=">
+			<loop name="lang_loop" on="lang">
+				<set name="movie[0].language" value="${movie[0].language}|${lang_loop[0]}" />
+			</loop>
+		</if>
+
+		<!-- clean up seach title, if special edition strings are present -->
+		<parse name="special_edition" input="${search.filename_noext}" regex="${rx_se}" />
+		<set name="movie[0].alternate_titles" value="${movie[0].alternate_titles}|#SE#${special_edition[0][1]}#SE#" />
+		<if test="${special_edition[0][1]}!=">
+			<set name="search.title" value="${special_edition[0][0]}" />
+		</if>
+
+		<!-- lets set the search title, which should be the filename title, for later use... -->
+		<!--set name="movie[0].language" value="${search.title}|${movie.language}" /-->
+		<set name="movie[0].alternate_titles" value="${movie[0].alternate_titles}|#FN#${search.filename_noext}#FN#" />
+
+	</action>
+	<!-- End Search -->
+
+
+</ScriptableScraper>
