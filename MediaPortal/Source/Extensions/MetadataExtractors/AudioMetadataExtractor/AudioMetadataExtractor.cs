@@ -480,7 +480,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (tag == null)
         return false;
       using (tag)
-        return TryUpdateArtists(tag, persons, false);
+        return TryUpdateArtists(tag, persons, forAlbum);
     }
 
     protected static bool TryUpdateArtists(File tag, IList<PersonInfo> persons, bool albumArtists)
