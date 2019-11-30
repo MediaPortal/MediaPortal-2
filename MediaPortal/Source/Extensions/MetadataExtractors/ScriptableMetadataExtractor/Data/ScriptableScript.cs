@@ -288,7 +288,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     private string GetFileNameWithoutExtensionAndStackMarkers(string fileName)
     {
-
       // Remove the file extension from the filename
       string cleanFileName = Path.GetFileNameWithoutExtension(fileName);
 

@@ -50,6 +50,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       _language = script.LanguageCode;
       _script = script;
       _downloader = new Downloader { EnableCompression = true };
+
+      SetDefaultLanguage(_language);
     }
 
     public bool Init()
@@ -76,7 +78,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override async Task<ApiWrapperImageCollection<string>> GetFanArtAsync<T>(T infoObject, string language, string fanartMediaType)
     {
-      if (_language != null && _language != language)
+      if (_language != null && !_language.Equals(language, StringComparison.InvariantCultureIgnoreCase))
         return null;
 
       await Task.Yield();
