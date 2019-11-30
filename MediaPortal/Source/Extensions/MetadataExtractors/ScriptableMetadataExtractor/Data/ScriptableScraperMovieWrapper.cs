@@ -50,8 +50,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       _language = script.LanguageCode;
       _script = script;
       _downloader = new Downloader { EnableCompression = true };
-
-      SetDefaultLanguage(_language);
     }
 
     public bool Init()
@@ -70,6 +68,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       List<MovieInfo> foundMovies = _script.SearchMovie(movieSearch);
       if (foundMovies == null || foundMovies.Count == 0) return null;
       return foundMovies;
+    }
+
+    #endregion
+
+    #region Update
+
+    public override Task<bool> UpdateFromOnlineMovieAsync(MovieInfo movie, string language, bool cacheOnly)
+    {
+      try
+      {
+        language = language ?? PreferredLanguage;
+        if (_language != null && !_language.Equals(language, StringComparison.InvariantCultureIgnoreCase))
+          return Task.FromResult(false);
+        if (cacheOnly)
+          return Task.FromResult(false);
+
+        if (!_script.UpdateMovie(movie))
+          return Task.FromResult(false);
+
+        if (!movie.DataProviders.Contains(_name))
+          movie.DataProviders.Add(_name);
+
+        return Task.FromResult(true);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Debug(_name + ": Exception in while processing movie {0}", ex, movie.ToString());
+        return Task.FromResult(false);
+      }
     }
 
     #endregion

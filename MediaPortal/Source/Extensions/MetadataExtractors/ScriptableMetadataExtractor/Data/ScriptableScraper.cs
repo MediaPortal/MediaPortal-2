@@ -28,6 +28,7 @@ using MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.Data
 using MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.Data.Nodes;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Xml;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.Data
@@ -99,21 +100,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     public ScriptableScraper(string xmlScriptFile)
     {
       LoadSuccessful = true;
+      string fileName = Path.GetFileName(xmlScriptFile);
 
       try
       {
+        Logger.Debug("ScriptableScraperProvider: Loading scriptable scraper XML file " + fileName);
+
         xml = new XmlDocument();
         xml.Load(xmlScriptFile);
 
-        if (xml.DocumentElement.Name != "ScriptableScraper")
+        if (!xml.DocumentElement.Name.Equals("ScriptableScraper", StringComparison.InvariantCultureIgnoreCase))
         {
-          Logger.Error("ScriptableScraperProvider: Invalid root node. Expecting <ScriptableScraper>.");
+          Logger.Error("ScriptableScraperProvider: Invalid root node (expecting <ScriptableScraper>) in scriptable scraper XML file " + fileName);
           return;
         }
       }
       catch (Exception e)
       {
-        Logger.Error("ScriptableScraperProvider: Error parsing scriptable scraper XML file", e);
+        Logger.Error("ScriptableScraperProvider: Error parsing scriptable scraper XML file " + fileName, e);
         LoadSuccessful = false;
         return;
       }

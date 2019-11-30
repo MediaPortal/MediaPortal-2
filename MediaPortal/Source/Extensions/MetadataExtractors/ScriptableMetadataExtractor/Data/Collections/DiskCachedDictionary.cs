@@ -35,12 +35,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     private bool _initialized = false;
     private string _cacheLocation = null;
 
-    public void Init()
+    public void Init(string id = null)
     {
       if (_initialized) return;
       _initialized = true;
 
-      _cacheLocation = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\ScriptableScraperProvider\Cache\");
+      if (string.IsNullOrEmpty(id))
+        _cacheLocation = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\ScriptableScraperProvider\Cache\");
+      else
+        _cacheLocation = ServiceRegistration.Get<IPathManager>().GetPath($@"<DATA>\ScriptableScraperProvider\Cache\{id}\");
       Directory.CreateDirectory(_cacheLocation);
     }
 
