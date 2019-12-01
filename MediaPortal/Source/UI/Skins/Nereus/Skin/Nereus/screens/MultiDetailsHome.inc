@@ -113,9 +113,7 @@
   <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens-->
   <Grid x:Name="Helptext">
     <Grid.IsVisible>
-      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
-        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
-      </MultiBinding>
+      <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
     </Grid.IsVisible>
     
     <Grid.Resources>
