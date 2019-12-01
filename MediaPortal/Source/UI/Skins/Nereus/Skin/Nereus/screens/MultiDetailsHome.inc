@@ -113,13 +113,16 @@
   <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens-->
   <Grid x:Name="Helptext">
     <Grid.IsVisible>
-      <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
+        <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
+      </MultiBinding>
     </Grid.IsVisible>
     
     <Grid.Resources>
       <Storyboard x:Key="StartStoryboard">
         <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0"
-                         Duration="0:0:1" AutoReverse="False" Storyboard.TargetName="Helptext"/>
+                         Duration="0:0:2" AutoReverse="False" Storyboard.TargetName="Helptext"/>
         </Storyboard>
     </Grid.Resources>
     
