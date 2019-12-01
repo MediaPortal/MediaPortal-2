@@ -114,7 +114,6 @@
   <Grid x:Name="Helptext">
     <Grid.IsVisible>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
-        <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
         <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
       </MultiBinding>
     </Grid.IsVisible>
@@ -127,18 +126,18 @@
     </Grid.Resources>
     
     <Grid.Triggers>
-      <Trigger Property="Visibility" Value="Visible">
-        <Trigger.EnterActions>
+      <EventTrigger RoutedEvent="Binding.TargetUpdated">
+        <EventTrigger.Actions>
           <BeginStoryboard x:Name="BeginStoryboard" Storyboard="{ThemeResource StartStoryboard}"/>
-        </Trigger.EnterActions>
-      </Trigger>
+        </EventTrigger.Actions>
+      </EventTrigger>
     </Grid.Triggers>
 
     <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
            IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
            VerticalAlignment="Top" HorizontalAlignment="Left"/>
     <Label x:Name="HelpLabel" DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Opacity="0.6" Margin="38,5,0,-5"
-           Content="{Binding [Help]}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/> 
+           Content="{Binding Path=[Help], NotifyOnTargetUpdated=True}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/> 
   </Grid>
 
 </Grid>
