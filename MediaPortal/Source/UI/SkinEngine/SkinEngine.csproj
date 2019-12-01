@@ -365,6 +365,7 @@
     <Compile Include="MpfElements\Converters\StringSplitConverter.cs" />
     <Compile Include="MpfElements\Converters\SafeFilenameConverter.cs" />
     <Compile Include="MpfElements\Converters\StringFormatConverter.cs" />
+    <Compile Include="MpfElements\DataTransferEventArgs.cs" />
     <Compile Include="MpfElements\EventManager.cs" />
     <Compile Include="MpfElements\GlobalEventManager.cs" />
     <Compile Include="MpfElements\IBindingContainer.cs" />
