@@ -46,8 +46,8 @@
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <CheckBox DockPanel.Dock="Left" IsChecked="{Binding Selected}" />
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
-        HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
-        Color="{ThemeResource TextColor}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 
@@ -63,4 +63,28 @@
       </Setter.Value>
     </Setter>
   </Style>
+
+
+  <DataTemplate x:Key="AppLauncherMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Button DockPanel.Dock="Right" Content="Map" />
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <Style x:Key="AppLauncherMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource AppLauncherMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
 </ResourceDictionary>

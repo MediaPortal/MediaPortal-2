@@ -71,7 +71,7 @@
       DisplayLabel="[AppLauncher.RemoveGroup]"
       WorkflowModel="3C38DF86-AE80-4411-8C3D-9480E7AAB279"/>
                  
-    <WorkflowState Id="{C4FF422C-DBD7-4C76-9913-AC092B3F1B37}"
+    <WorkflowState Id="C4FF422C-DBD7-4C76-9913-AC092B3F1B37"
       Name="SettingsMenu"
       MainScreen="AppLauncherSettingsMenu"
       DisplayLabel="[AppLauncher.Settings.Menu]"

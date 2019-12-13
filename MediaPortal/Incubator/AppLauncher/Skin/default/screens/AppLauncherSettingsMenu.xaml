@@ -8,10 +8,9 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Settings.Menu]"/>
 
-    <Model x:Key="Model" Id="3C19B13A-D64C-4918-9AD6-17EC2D9AAE29"/>
+    <Model x:Key="Model" Id="488A54AF-8EE5-4E9E-8C91-DE637DDB650C"/>
 
     <!--List items have "Name", "App" and "ImgSrc" -->
-    <!--Delete selected item mapping with "DeleteSelectedMenuMapping" -->
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}">
@@ -23,14 +22,16 @@
             <ColumnDefinition Width="*"  />
           </Grid.ColumnDefinitions>
 
-          <ListView Grid.Row="0" Style="{StaticResource DefaultListViewStyle}" SetFocus="True"
-            ItemsSource="{Binding Path=Items, Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
-            CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
+          <ListView Style="{StaticResource AppLauncherMenuListViewStyle}" SetFocus="True"
+                    ItemsSource="{Binding Path=Items, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <ListView.Resources>
-              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
-                <TranslateTransform X="40" />
-              </ResourceWrapper>
-              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="Select">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}"/>
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
             </ListView.Resources>
           </ListView>
 

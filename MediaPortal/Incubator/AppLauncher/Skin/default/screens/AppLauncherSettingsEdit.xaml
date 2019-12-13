@@ -22,7 +22,7 @@
           </Grid.ColumnDefinitions>
 
           <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource MenuListViewStyle}"
-            ItemsSource="{Binding Path=Items, Mode=TwoWay}" Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="2">
+                    ItemsSource="{Binding Path=Items, Mode=TwoWay}">
             <ListView.Resources>
               <CommandList x:Key="Menu_Command">
                 <Command Source="{StaticResource Model}" Path="Select">
