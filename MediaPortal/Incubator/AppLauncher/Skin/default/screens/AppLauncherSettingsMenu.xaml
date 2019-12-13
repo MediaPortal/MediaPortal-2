@@ -23,15 +23,13 @@
           </Grid.ColumnDefinitions>
 
           <ListView Style="{StaticResource AppLauncherMenuListViewStyle}" SetFocus="True"
-                    ItemsSource="{Binding Path=Items, Mode=TwoWay}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            ItemsSource="{Binding Path=Items,Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
+            CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
             <ListView.Resources>
-              <CommandList x:Key="Menu_Command">
-                <Command Source="{StaticResource Model}" Path="Select">
-                  <Command.Parameters>
-                    <LateBoundValue BindingValue="{Binding}"/>
-                  </Command.Parameters>
-                </Command>
-              </CommandList>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+                <TranslateTransform X="40" />
+              </ResourceWrapper>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
 

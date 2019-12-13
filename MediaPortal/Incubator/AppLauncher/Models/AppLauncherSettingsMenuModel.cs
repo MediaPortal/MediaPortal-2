@@ -52,6 +52,11 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     protected AbstractProperty _selectedItemProperty;
 
+    public AppLauncherSettingsMenuModel()
+    {
+      _selectedItemProperty = new WProperty(typeof(ListItem), null);
+    }
+
     #region Properties
 
     public ItemsList Items
@@ -94,6 +99,8 @@ namespace MediaPortal.Plugins.AppLauncher.Models
         selectedItem.SetLabel(Consts.KEY_ICON, "");
         selectedItem.AdditionalProperties[Consts.KEY_ID] = "";
         selectedItem.FireChange();
+
+        FillAppItems();
       }
     }
 
@@ -136,13 +143,13 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private void FillAppItems()
     {
       _appItems.Clear();
-      foreach (var a in _apps.AppsList)
+      foreach (var a in _apps.AppsList.Where(a => a.MenuNumber <= 0))
       {
         var item = new ListItem();
         item.AdditionalProperties[Consts.KEY_ID] = Convert.ToString(a.Id);
         item.SetLabel(Consts.KEY_NAME, a.ShortName);
         item.SetLabel(Consts.KEY_ICON, a.IconPath);
-        Items.Add(item);
+        _appItems.Add(item);
       }
       _appItems.FireChange();
     }
@@ -163,11 +170,14 @@ namespace MediaPortal.Plugins.AppLauncher.Models
               foreach (var conflictApp in _apps.AppsList.Where(a => a.MenuNumber == appNumber).ToList())
                 conflictApp.MenuNumber = 0;
               app.MenuNumber = appNumber;
+              Helper.SaveApps(_apps);
 
               item.SetLabel(Consts.KEY_APP, app.ShortName);
               item.SetLabel(Consts.KEY_ICON, app.IconPath);
               item.AdditionalProperties[Consts.KEY_ID] = _selectedAppId;
               item.FireChange();
+
+              FillAppItems();
             }
           }
         }

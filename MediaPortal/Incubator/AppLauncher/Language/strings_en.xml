@@ -45,4 +45,5 @@
   <string name="AppLauncher.MenuEntry">Launch Application</string>
   <string name="AppLauncher.MenuEntry.Help">Launches the linked Application</string>
   <string name="AppLauncher.Menu">Menu</string>
+  <string name="AppLauncher.Menu.Clear">Clear</string>
 </resources>
