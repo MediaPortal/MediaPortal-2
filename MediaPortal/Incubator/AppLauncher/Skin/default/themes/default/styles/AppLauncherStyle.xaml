@@ -66,16 +66,6 @@
     </Setter>
   </Style>
 
-
-  <!--<DataTemplate x:Key="AppLauncherMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
-    <DockPanel x:Name="ItemControl" LastChildFill="False">
-      <Button DockPanel.Dock="Right" Content="Map" />
-      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
-             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
-             Color="{ThemeResource TextColor}"/>
-    </DockPanel>
-  </DataTemplate>-->
-
   <DataTemplate x:Key="AppLauncherMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl">
       <Grid.RowDefinitions>
@@ -86,7 +76,7 @@
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Image Source="{Binding [ImageSrc]}" Thumbnail="True" Stretch="Uniform" Height="45" Width="45" Margin="0,-2,4,-5" VerticalAlignment="Center" FallbackSource="keys\fallback.png"/>
+      <Image Source="{Binding [ImageSrc]}" Thumbnail="True" Stretch="Uniform" Height="32" Width="32" Margin="20,0,10,0" VerticalAlignment="Center" FallbackSource="keys\fallback.png"/>
       <Label x:Name="ItemLabel" Content="{Binding [Name]}" Grid.Column="1"
              HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
              Color="{ThemeResource TextColor}"/>
@@ -115,7 +105,7 @@
                 </Trigger>
               </Button.Triggers>
             </Button>
-            <Button Grid.Column="1" Content="[AppLauncher.Menu.Clear]" FontSize="{ThemeResource SmallFontSize}"
+            <Button Grid.Column="1" Content="[AppLauncher.Menu.Clear]" FontSize="{ThemeResource SmallFontSize}" Margin="40,0,10,0"
                     Style="{ThemeResource ButtonWideStyle}" HorizontalAlignment="Right" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
                     Command="{Command Source={StaticResource AppManagerModel}, Path=DeleteSelectedMenuMapping}"
                     IsVisible="{Binding Path=[App],Converter={StaticResource EmptyStringToFalseConverter}}"/>
@@ -127,7 +117,6 @@
 
   <Style x:Key="AppLauncherMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource AppLauncherMenuItemDataTemplate}"/>
-    <!--<Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>-->
     <Setter Property="ItemContainerStyle" Value="{ThemeResource AppLauncherMenuItemContainerStyle}"/>
     <Setter Property="ItemsPanel">
       <Setter.Value>
