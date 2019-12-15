@@ -15,6 +15,7 @@
   <string name="System.Information">Информация</string>
   <string name="System.Warning">Предупреждение</string>
   <string name="System.Error">Ошибка</string>
+  <string name="Keys.Copy">Копировать</string>
   <string name="Home.HomeStateDisplayLabel">Домой</string>
   <string name="Dialogs.InfoHeaderText">Информация</string>
   <string name="Dialogs.WarningHeaderText">Предупреждение</string>

@@ -2,9 +2,11 @@
 <resources>
   <string name="Menu.Audio">Ses</string>
   <string name="Menu.Image">Resimler</string>
+  <string name="Menu.MediaHub">Medya Merkezi</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Haberler</string>
   <string name="Menu.Weather">Hava durumu</string>
   <string name="Menu.Settings">Ayarlar</string>
-  <string name="Menu.Others">Others</string>
+  <string name="Menu.Others">Diğerleri</string>
+  <string name="Menu.Main">Ana Menü</string>
 </resources>
