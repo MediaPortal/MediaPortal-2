@@ -89,6 +89,10 @@
       <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
       <Name>MediaPortal.Common</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\MatroskaLib\MatroskaLib.csproj">
       <Project>{0DCFE91A-60DE-42BF-A5F9-A925AA45ECD4}</Project>
       <Name>MatroskaLib</Name>

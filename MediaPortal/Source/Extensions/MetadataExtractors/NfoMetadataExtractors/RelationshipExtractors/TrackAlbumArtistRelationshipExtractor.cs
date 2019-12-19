@@ -53,11 +53,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// Asynchronously tries to extract series actors for the given <param name="mediaItemAccessor"></param>
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
+    /// <param name="artistName">The artists name which will be used to search the central artist info folder if available</param>
     /// <param name="extractedAspects">List of MediaItemAspect dictionaries to update with metadata</param>
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspects"/>, else <c>false</c></returns>
-    protected async Task<bool> TryExtractAlbumArtistMetadataAsync(IResourceAccessor mediaItemAccessor, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
+    protected async Task<bool> TryExtractAlbumArtistMetadataAsync(IResourceAccessor mediaItemAccessor, string artistName, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedAspects)
     {
-      NfoArtistReader artistReader = await TryGetNfoArtistReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      NfoArtistReader artistReader = await TryGetNfoArtistReaderAsync(mediaItemAccessor, artistName).ConfigureAwait(false);
       if (artistReader != null)
       {
         IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
@@ -127,8 +128,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (!NfoAudioMetadataExtractor.IncludeArtistDetails)
         return false;
 
+      string albumArtist = null;
+      if (MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out var audioAspect))
+      {
+        var list = audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS);
+        albumArtist = list.FirstOrDefault();
+      }
+
       IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
-      if (!await TryExtractAlbumArtistMetadataAsync(mediaItemAccessor, nfoLinkedAspects).ConfigureAwait(false))
+      if (!await TryExtractAlbumArtistMetadataAsync(mediaItemAccessor, albumArtist, nfoLinkedAspects).ConfigureAwait(false))
         return false;
 
       List<PersonInfo> artists;
