@@ -2463,22 +2463,23 @@
       </Grid.RowDefinitions>
 
       <Grid Name="PosterGrid" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="1"
-            MaxHeight="{StaticResource VIDEO_COVER_HEIGHT}" Width="{StaticResource VIDEO_COVER_WIDTH}">
+            MaxHeight="{StaticResource VIDEO_COVER_HEIGHT}" Width="{StaticResource VIDEO_COVER_WIDTH}" Background="Black">
         <Image x:Name="thumb" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
                Source="{Binding MediaItem}"/>
-        <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Margin="-5,-5,0,100"
+               Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       </Grid>
 
       <Image Source="Thumbnail_small.png" Grid.Row="1" Stretch="Fill" Panel.ZIndex="0" Margin="-8"
              HorizontalAlignment="Center" VerticalAlignment="Center">
         <Image.Height>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+15">
-            <Binding Source="{Binding ElementName=thumb, Path=ActualHeight}"/>
+            <Binding Source="{Binding ElementName=PosterGrid, Path=ActualHeight}"/>
           </MultiBinding>
         </Image.Height>
         <Image.Width>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+15">
-            <Binding Source="{Binding ElementName=thumb, Path=ActualWidth}"/>
+            <Binding Source="{Binding ElementName=PosterGrid, Path=ActualWidth}"/>
           </MultiBinding>
         </Image.Width>
       </Image>
@@ -2960,7 +2961,7 @@
 
       <Grid Name="PosterGrid" Grid.Row="1" HorizontalAlignment="Center" VerticalAlignment="Center" Panel.ZIndex="1"
             MaxHeight="{StaticResource VIDEO_COVER_HEIGHT}" Width="{StaticResource VIDEO_COVER_WIDTH}">
-        <Image x:Name="thumb" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="UniformToFill"
+        <Image x:Name="thumb" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
                Source="{Binding MediaItem}"/>
         <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       </Grid>
