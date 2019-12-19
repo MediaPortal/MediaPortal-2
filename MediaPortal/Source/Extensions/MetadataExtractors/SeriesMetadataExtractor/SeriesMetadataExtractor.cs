@@ -142,6 +142,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 fanartHandler.ClearCache();
             }
             break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            Interlocked.Decrement(ref _importerCount);
+            break;
         }
       }
     }

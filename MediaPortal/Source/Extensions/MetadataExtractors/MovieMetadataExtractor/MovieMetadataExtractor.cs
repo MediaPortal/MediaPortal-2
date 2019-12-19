@@ -141,6 +141,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
                 fanartHandler.ClearCache();
             }
             break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            Interlocked.Decrement(ref _importerCount);
+            break;
         }
       }
     }
