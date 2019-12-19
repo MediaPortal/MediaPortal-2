@@ -364,7 +364,10 @@ namespace MediaPortal.UiComponents.Login.Models
             }
             else if (newState == SystemState.Suspending || newState == SystemState.Hibernating)
             {
-              LogoutUser();
+              if ((UserSettingStorage.AutoLoginUser == Guid.Empty || UserSettingStorage.AutoLoginUser != CurrentUser?.ProfileId) && UserSettingStorage.UserLoginEnabled)
+              {
+                LogoutUser();
+              }
             }
             else if (newState == SystemState.ShuttingDown)
             {
