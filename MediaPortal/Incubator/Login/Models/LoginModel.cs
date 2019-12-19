@@ -382,6 +382,7 @@ namespace MediaPortal.UiComponents.Login.Models
         switch (messageType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
+            _firstLogin = true;
             _ = SetCurrentUser();
             _ = RefreshUserList();
             break;
