@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate TEST attribute
       if (Test == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing TEST attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing TEST attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }
@@ -59,7 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override void Execute(Dictionary<string, string> variables)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing if: " + xmlNode.Attributes.GetNamedItem("test").InnerText);
+      Logger.Debug("ScriptableScraperProvider: Executing if: {0}", xmlNode.Attributes.GetNamedItem("test").InnerText);
 
       // try to split the test on the operator, quit if we fail
       Regex splitter = new Regex("\\s*(.*?)\\s*(>=|<=|!=|=|<|>)\\s*(.*)$");
@@ -77,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       left = ParseString(variables, left);
       right = ParseString(variables, right);
 
-      Logger.Debug("ScriptableScraperProvider: if node left value: " + (left.Length < 500 ? left : "[not logged due to size]") + "     right value: " + (right.Length < 500 ? right : "[not logged due to size]"));
+      Logger.Debug("ScriptableScraperProvider: if node left value: {0}     right value: {1}", left.Length < 500 ? left : "[not logged due to size]", right.Length < 500 ? right : "[not logged due to size]");
 
       float leftNum = 0;
       float rightNum = 0;
@@ -119,11 +119,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
       else
       {
-        Logger.Error("ScriptableScraperProvider: Unrecognized operator: " + op);
+        Logger.Error("ScriptableScraperProvider: Unrecognized operator: {0}", op);
         return;
       }
 
-      // if the test passed exxecute the child nodes
+      // if the test passed execute the child nodes
       if (testPassed)
         ExecuteChildren(variables);
     }

@@ -68,7 +68,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate INPUT attribute
       if (Input == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing INPUT attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing INPUT attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }
@@ -76,7 +76,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate REGEX/XPATH attribute
       if (Pattern == null && Xpath == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing REGEX or XPATH attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing REGEX or XPATH attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }
@@ -85,7 +85,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override void Execute(Dictionary<string, string> variables)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing parse: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing parse: {0}", xmlNode.OuterXml);
       // parse variables from the input string
       string parsedInput = ParseString(variables, Input);
       string parsedName = ParseString(variables, Name);
@@ -102,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     {
       string parsedPattern = ParseString(variables, Pattern);
 
-      Logger.Debug("ScriptableScraperProvider: Name: " + parsedName + " ||| pattern: " + parsedPattern + " ||| input: " + (parsedInput != null && parsedInput.Length < 500 ? parsedInput : "[not logged due to size]"));
+      Logger.Debug("ScriptableScraperProvider: Name: {0} ||| pattern: {1} ||| input: {2}", parsedName, parsedPattern, (parsedInput != null && parsedInput.Length < 500 ? parsedInput : "[not logged due to size]"));
 
       // try to find matches via regex pattern
       MatchCollection matches;
@@ -121,7 +121,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
       if (matches.Count == 0)
       {
-        Logger.Debug("ScriptableScraperProvider: Parse node returned no results... " + xmlNode.OuterXml);
+        Logger.Debug("ScriptableScraperProvider: Parse node returned no results... {0}", xmlNode.OuterXml);
         return;
       }
 

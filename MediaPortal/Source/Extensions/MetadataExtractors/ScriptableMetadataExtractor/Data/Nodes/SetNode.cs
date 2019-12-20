@@ -42,7 +42,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     public SetNode(XmlNode xmlNode, ScriptableScraper context)
         : base(xmlNode, context)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing set: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing set: {0}", xmlNode.OuterXml);
 
       // Load attributes
       foreach (XmlAttribute attr in xmlNode.Attributes)
@@ -64,14 +64,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         Value = innerValue;
         if (innerValue.Equals(String.Empty))
         {
-          Logger.Error("ScriptableScraperProvider: Missing VALUE attribute on: " + xmlNode.OuterXml);
+          Logger.Error("ScriptableScraperProvider: Missing VALUE attribute on: {0}", xmlNode.OuterXml);
           LoadSuccess = false;
           return;
         }
       }
       else if (!innerValue.Equals(String.Empty))
       {
-        Logger.Error("ScriptableScraperProvider: Ambiguous assignment on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Ambiguous assignment on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }

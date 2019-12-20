@@ -66,7 +66,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate VALUE1 attribute
       if (Value1 == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing VALUE1 attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing VALUE1 attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }
@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate VALUE2 attribute
       if (Value2 == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing VALUE2 attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing VALUE2 attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }
@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override void Execute(Dictionary<string, string> variables)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing add: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing add: {0}", xmlNode.OuterXml);
 
       string parsedValue1 = ParseString(variables, Value1);
       string parsedValue2 = ParseString(variables, Value2);
@@ -115,7 +115,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
       catch (Exception e)
       {
-        Logger.Error("ScriptableScraperProvider: Error parsing numbers: " + xmlNode.OuterXml, e);
+        Logger.Error("ScriptableScraperProvider: Error parsing numbers: {0}", xmlNode.OuterXml, e);
       }
     }
   }
@@ -130,7 +130,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override void Execute(Dictionary<string, string> variables)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing subtract: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing subtract: {0}", xmlNode.OuterXml);
 
       string parsedValue1 = ParseString(variables, Value1);
       string parsedValue2 = ParseString(variables, Value2);
@@ -147,7 +147,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
       catch (Exception e)
       {
-        Logger.Error("ScriptableScraperProvider: Error parsing numbers: " + xmlNode.OuterXml, e);
+        Logger.Error("ScriptableScraperProvider: Error parsing numbers: {0}", xmlNode.OuterXml, e);
       }
     }
   }
@@ -162,7 +162,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override void Execute(Dictionary<string, string> variables)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing multiply: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing multiply: {0}", xmlNode.OuterXml);
       string parsedValue1 = ParseString(variables, Value1);
       string parsedValue2 = ParseString(variables, Value2);
 
@@ -178,7 +178,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
       catch (Exception e)
       {
-        Logger.Error("ScriptableScraperProvider: Error parsing numbers: " + xmlNode.OuterXml, e);
+        Logger.Error("ScriptableScraperProvider: Error parsing numbers: {0}", xmlNode.OuterXml, e);
       }
     }
   }
@@ -193,7 +193,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override void Execute(Dictionary<string, string> variables)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing divide: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing divide: {0}", xmlNode.OuterXml);
       string parsedValue1 = ParseString(variables, Value1);
       string parsedValue2 = ParseString(variables, Value2);
 
@@ -209,7 +209,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
       catch (Exception e)
       {
-        Logger.Error("ScriptableScraperProvider: Error parsing numbers: " + xmlNode.OuterXml, e);
+        Logger.Error("ScriptableScraperProvider: Error parsing numbers: {0}", xmlNode.OuterXml, e);
       }
     }
   }

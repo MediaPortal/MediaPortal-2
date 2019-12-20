@@ -65,21 +65,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate INPUT attribute
       if (Input == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing INPUT attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing INPUT attribute on: {0}", xmlNode.OuterXml);
         return;
       }
 
       // Validate PATTERN attribute
       if (Pattern == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing PATTERN attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing PATTERN attribute on: {0}", xmlNode.OuterXml);
         return;
       }
 
       // Validate WITH attribute
       if (With == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing WITH attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing WITH attribute on: {0}", xmlNode.OuterXml);
         return;
       }
 
@@ -88,7 +88,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override void Execute(Dictionary<string, string> variables)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing replace: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing replace: {0}", xmlNode.OuterXml);
       string output = string.Empty;
       try
       {

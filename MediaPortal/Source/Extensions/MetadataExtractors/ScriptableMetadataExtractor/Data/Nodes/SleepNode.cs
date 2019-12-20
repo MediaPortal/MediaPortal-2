@@ -43,7 +43,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         : base(xmlNode, context)
     {
 
-      Logger.Debug("ScriptableScraperProvider: Executing set: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing set: {0}", xmlNode.OuterXml);
 
       // Load attributes
       foreach (XmlAttribute attr in xmlNode.Attributes)
@@ -65,7 +65,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate length attribute
       if (Length <= 0)
       {
-        Logger.Error("ScriptableScraperProvider: The LENGTH attribute must be greater than 0: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: The LENGTH attribute must be greater than 0: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }

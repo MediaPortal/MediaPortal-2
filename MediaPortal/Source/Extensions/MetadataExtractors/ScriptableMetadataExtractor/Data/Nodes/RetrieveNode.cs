@@ -125,7 +125,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate URL / FILE attribute
       if (Url == null && File == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing URL or FILE attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing URL or FILE attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }
@@ -209,7 +209,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
       catch (Exception e)
       {
-        Logger.Warn("ScriptableScraperProvider: Could not connect to " + parsedUrl, e);
+        Logger.Warn("ScriptableScraperProvider: Could not connect to {0}", parsedUrl, e);
       }
 
       return pageContents;
@@ -238,7 +238,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         }
         catch (Exception e)
         {
-          Logger.Warn("ScriptableScraperProvider: Could not read file: " + parsedFile, e);
+          Logger.Warn("ScriptableScraperProvider: Could not read file: {0}", parsedFile, e);
         }
       }
       else

@@ -57,7 +57,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
             else if (dirStr == "asc" || dirStr == "ascending")
               Direction = DirectionType.ASCENDING;
             else
-              Logger.Error("ScriptableScraperProvider: Invalid sort direction on: " + xmlNode.OuterXml);
+              Logger.Error("ScriptableScraperProvider: Invalid sort direction on: {0}", xmlNode.OuterXml);
             break;
           case "by":
             SortBy = attr.Value;
@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate BY attribute
       if (SortBy == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing BY attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing BY attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }
@@ -77,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override void Execute(Dictionary<string, string> variables)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing sort: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing sort: {0}", xmlNode.OuterXml);
 
       // get our initial parsed settings from the script
       string arrayName = ParseString(variables, Name);

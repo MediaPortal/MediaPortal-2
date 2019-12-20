@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     #endregion
 
     private XmlDocument xml;
-    private Dictionary<string, ScraperNode> actionNodes;
+    private Dictionary<string, ScraperNode> actionNodes = null;
     private DiskCachedDictionary<string, string> _cache = new DiskCachedDictionary<string, string>();
 
     public ScriptableScraper(string xmlScriptFile)
@@ -104,20 +104,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
       try
       {
-        Logger.Debug("ScriptableScraperProvider: Loading scriptable scraper XML file " + fileName);
+        Logger.Debug("ScriptableScraperProvider: Loading scriptable scraper XML file {0}", fileName);
 
         xml = new XmlDocument();
         xml.Load(xmlScriptFile);
 
         if (!xml.DocumentElement.Name.Equals("ScriptableScraper", StringComparison.InvariantCultureIgnoreCase))
         {
-          Logger.Error("ScriptableScraperProvider: Invalid root node (expecting <ScriptableScraper>) in scriptable scraper XML file " + fileName);
+          Logger.Error("ScriptableScraperProvider: Invalid root node (expecting <ScriptableScraper>) in scriptable scraper XML file {0}", fileName);
           return;
         }
       }
       catch (Exception e)
       {
-        Logger.Error("ScriptableScraperProvider: Error parsing scriptable scraper XML file " + fileName, e);
+        Logger.Error("ScriptableScraperProvider: Error parsing scriptable scraper XML file {0}", fileName, e);
         LoadSuccessful = false;
         return;
       }
@@ -127,8 +127,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       if (!LoadSuccessful)
         return;
 
-      Logger.Debug("ScriptableScraperProvider: Parsing scriptable scraper: " + Name + " (" + ID + ") Version " + Version);
-      LoadActionNodes();
+      Logger.Debug("ScriptableScraperProvider: Successfully parsed scriptable scraper: {0} ({1}) Version {2}", Name, ID, Version);
     }
 
     private bool LoadDetails()
@@ -191,6 +190,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     private void LoadActionNodes()
     {
+      Logger.Debug("ScriptableScraperProvider: Parsing action nodes on scriptable scraper: {0}", Name);
       actionNodes = new Dictionary<string, ScraperNode>();
       foreach (XmlNode currAction in xml.DocumentElement.SelectNodes("child::action"))
       {
@@ -199,7 +199,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
           actionNodes[newNode.Name] = newNode;
         else
         {
-          Logger.Error("ScriptableScraperProvider: Error loading action node: " + currAction.OuterXml);
+          Logger.Error("ScriptableScraperProvider: Error loading action node: {0}", currAction.OuterXml);
           LoadSuccessful = false;
         }
       }
@@ -209,6 +209,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     {
       if (!LoadSuccessful)
         return null;
+
+      if (actionNodes == null)
+      {
+        LoadActionNodes();
+        if (!LoadSuccessful)
+          return null;
+      }
 
       if (actionNodes.ContainsKey(action))
       {

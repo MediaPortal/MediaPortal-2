@@ -43,7 +43,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     public LoopNode(XmlNode xmlNode, ScriptableScraper context)
         : base(xmlNode, context)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing loop: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing loop: {0}", xmlNode.OuterXml);
 
       // Load attributes
       foreach (XmlAttribute attr in xmlNode.Attributes)
@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
             }
             catch (Exception e)
             {
-              Logger.Error("ScriptableScraperProvider: Invalid value for LIMIT attribute on: " + xmlNode.OuterXml, e);
+              Logger.Error("ScriptableScraperProvider: Invalid value for LIMIT attribute on: {0}", xmlNode.OuterXml, e);
             }
             break;
         }
@@ -69,7 +69,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate ON attribute
       if (LoopingVariable == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing ON attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing ON attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }

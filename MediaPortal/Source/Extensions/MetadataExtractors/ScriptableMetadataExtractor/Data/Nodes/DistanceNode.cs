@@ -56,7 +56,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate STRING1 attribute
       if (String1 == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing STRING1 attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing STRING1 attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }
@@ -64,7 +64,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // Validate STRING2 attribute
       if (String2 == null)
       {
-        Logger.Error("ScriptableScraperProvider: Missing STRING2 attribute on: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Missing STRING2 attribute on: {0}", xmlNode.OuterXml);
         LoadSuccess = false;
         return;
       }
@@ -72,11 +72,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
     public override void Execute(Dictionary<string, string> variables)
     {
-      Logger.Debug("ScriptableScraperProvider: Executing distance: " + xmlNode.OuterXml);
+      Logger.Debug("ScriptableScraperProvider: Executing distance: {0}", xmlNode.OuterXml);
 
       string parsedString1 = ParseString(variables, String1);
       string parsedString2 = ParseString(variables, String2);
-      Logger.Debug("ScriptableScraperProvider: Executing distance: " + parsedString1 + " vs. " + parsedString2);
+      Logger.Debug("ScriptableScraperProvider: Executing distance: {0} vs. {1}",parsedString1, parsedString2);
 
       int distance = StringUtils.GetLevenshteinDistance(parsedString1, parsedString2);
 

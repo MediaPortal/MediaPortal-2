@@ -73,7 +73,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         }
         catch (Exception e)
         {
-          Logger.Error("ScriptableScraperProvider: Missing MESSAGE attribute on: " + xmlNode.OuterXml, e);
+          Logger.Error("ScriptableScraperProvider: Missing MESSAGE attribute on: {0}", xmlNode.OuterXml, e);
           LoadSuccess = false;
           return;
         }
@@ -87,16 +87,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       switch (LogLevel)
       {
         case LoggingLevel.Error:
-          Logger.Error("ScriptableScraperProvider: " + ParseString(variables, Message));
+          Logger.Error("ScriptableScraperProvider: {0}", ParseString(variables, Message));
           break;
         case LoggingLevel.Warn:
-          Logger.Warn("ScriptableScraperProvider: " + ParseString(variables, Message));
+          Logger.Warn("ScriptableScraperProvider: {0}", ParseString(variables, Message));
           break;
         case LoggingLevel.Info:
-          Logger.Info("ScriptableScraperProvider: " + ParseString(variables, Message));
+          Logger.Info("ScriptableScraperProvider: {0}", ParseString(variables, Message));
           break;
         case LoggingLevel.Debug:
-          Logger.Debug("ScriptableScraperProvider: " + ParseString(variables, Message));
+          Logger.Debug("ScriptableScraperProvider: {0}", ParseString(variables, Message));
           break;
       }
     }

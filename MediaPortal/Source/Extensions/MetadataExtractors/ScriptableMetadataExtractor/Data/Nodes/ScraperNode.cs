@@ -96,7 +96,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         // Validate NAME attribute
         if (Name == null)
         {
-          Logger.Error("ScriptableScraperProvider: Missing NAME attribute on: " + xmlNode.OuterXml);
+          Logger.Error("ScriptableScraperProvider: Missing NAME attribute on: {0}", xmlNode.OuterXml);
           LoadSuccess = false;
           return;
         }
@@ -104,7 +104,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         // if it's a bad variable name we fail as well
         if (Name.Contains(" "))
         {
-          Logger.Error("ScriptableScraperProvider: Invalid NAME attribute (no spaces allowed) \"" + Name + "\" for " + xmlNode.OuterXml);
+          Logger.Error("ScriptableScraperProvider: Invalid NAME attribute (no spaces allowed) \"{0}\" for {}", Name, xmlNode.OuterXml);
           LoadSuccess = false;
           return;
         }
@@ -116,14 +116,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     protected virtual void SetVariable(Dictionary<string, string> variables, string key, string value)
     {
       variables[key] = value;
-      if (value.Length < 500) Logger.Debug("ScriptableScraperProvider: Assigned variable: " + key + " = " + value);
+      if (value.Length < 500) Logger.Debug("ScriptableScraperProvider: Assigned variable: {0} = {1}", key, value);
     }
 
     protected virtual void RemoveVariable(Dictionary<string, string> variables, string key)
     {
       variables.Remove(key);
       RemoveArrayValues(variables, key);
-      Logger.Debug("ScriptableScraperProvider: Removed variable: " + key);
+      Logger.Debug("ScriptableScraperProvider: Removed variable: {0}", key);
     }
 
     private void RemoveArrayValues(Dictionary<string, string> variables, string key)
@@ -258,7 +258,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
 
       if (modifierType == null)
       {
-        Logger.Error("ScriptableScraperProvider: Unsupported modifier type: " + modifierTypeName);
+        Logger.Error("ScriptableScraperProvider: Unsupported modifier type: {0}", modifierTypeName);
         return null;
       }
 
@@ -272,7 +272,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         if (e.GetType() == typeof(ThreadAbortException))
           throw e;
 
-        Logger.Error("ScriptableScraperProvider: Error instantiating Modifier based on: " + modifier, e);
+        Logger.Error("ScriptableScraperProvider: Error instantiating Modifier based on: {0}", modifier, e);
         return null;
       }
     }
@@ -311,7 +311,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       // if we couldn't find anything log the unhandled node and exit
       if (nodeType == null)
       {
-        Logger.Error("ScriptableScraperProvider: Unsupported node type: " + xmlNode.OuterXml);
+        Logger.Error("ScriptableScraperProvider: Unsupported node type: {0}", xmlNode.OuterXml);
         return null;
       }
 
@@ -328,7 +328,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         if (e.GetType() == typeof(ThreadAbortException))
           throw e;
 
-        Logger.Error("ScriptableScraperProvider: Error instantiating ScraperNode based on: " + xmlNode.OuterXml, e);
+        Logger.Error("ScriptableScraperProvider: Error instantiating ScraperNode based on: {0}", xmlNode.OuterXml, e);
         return null;
       }
     }
