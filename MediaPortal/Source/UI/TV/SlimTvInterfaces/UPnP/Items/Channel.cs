@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 
     public bool VisibleInGuide { get; set; }
 
-    public IList<string> GroupNames { get; set; }
+    public List<string> GroupNames { get; set; }
 
     #endregion
 

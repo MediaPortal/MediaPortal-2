@@ -32,12 +32,13 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Xml;
+using MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.Helpers;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.Data.Nodes
 {
   public abstract class ScraperNode
   {
-    protected static ILogger Logger => ServiceRegistration.Get<ILogger>();
+    protected static ILogger Logger => new EscapedLogger(ServiceRegistration.Get<ILogger>());
     private static Dictionary<string, Type> TypeCache;
 
     protected XmlNode xmlNode;
