@@ -36,6 +36,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 {
@@ -54,14 +55,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 
     static BaseScriptableMovieMetadataExtractor()
     {
-      try
-      {
-        LoadScripts();
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("ScriptableMetadataExtractor: Error initializing scripts", ex);
-      }
+      Task.Run(() => LoadScripts());
     }
 
     public BaseScriptableMovieMetadataExtractor(string id)
@@ -95,52 +89,60 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 
     private static void LoadScripts()
     {
-      MetadataExtractorCustomCategories = new ConcurrentBag<string>();
-
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      var settings = settingsManager.Load<ScriptableMetadataExtractorSettings>();
-
-      //Load latest version of scripts
-      Assembly assembly = Assembly.GetExecutingAssembly();
-      Dictionary<string, List<ScriptableScraperMovieMatcher>> matchers = new Dictionary<string, List<ScriptableScraperMovieMatcher>>();
-      List<string> categories = new List<string>();
-      Dictionary<int, ScriptableScript> scripts = new Dictionary<int, ScriptableScript>();
-      foreach (var file in Directory.EnumerateFiles(Path.Combine(Path.GetDirectoryName(assembly.Location), "MovieScraperScripts\\"), "*.xml"))
+      try
       {
-        var script = new ScriptableScript(settings.DefaultUserAgent);
-        if (script.Load(file))
+        MetadataExtractorCustomCategories = new ConcurrentBag<string>();
+
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+        var settings = settingsManager.Load<ScriptableMetadataExtractorSettings>();
+
+        //Load latest version of scripts
+        Assembly assembly = Assembly.GetExecutingAssembly();
+        Dictionary<string, List<ScriptableScraperMovieMatcher>> matchers = new Dictionary<string, List<ScriptableScraperMovieMatcher>>();
+        List<string> categories = new List<string>();
+        Dictionary<int, ScriptableScript> scripts = new Dictionary<int, ScriptableScript>();
+        foreach (var file in Directory.EnumerateFiles(Path.Combine(Path.GetDirectoryName(assembly.Location), "MovieScraperScripts\\"), "*.xml"))
         {
-          if (string.IsNullOrEmpty(script.Category))
-            script.Category = MEDIA_CATEGORY_NAME_MOVIE;
-
-          if (!scripts.ContainsKey(script.ScriptID))
-            scripts.Add(script.ScriptID, script);
-          else if (Version.TryParse(scripts[script.ScriptID].Version, out var curVer) && Version.TryParse(script.Version, out var newVer) && newVer > curVer)
-            scripts[script.ScriptID] = script;
-        }
-      }
-
-      //Categorize scripts
-      foreach (var script in scripts.Values)
-      {
-        if (!matchers.ContainsKey(script.Category))
-          matchers.Add(script.Category, new List<ScriptableScraperMovieMatcher>());
-        matchers[script.Category].Add(new ScriptableScraperMovieMatcher(script));
-      }
-
-      //Register movie matchers
-      foreach (var matcher in matchers)
-      {
-        if (!matcher.Key.Equals(MEDIA_CATEGORY_NAME_MOVIE, StringComparison.OrdinalIgnoreCase))
-        {
-          if (!categories.Contains(matcher.Key))
+          var script = new ScriptableScript(settings.DefaultUserAgent);
+          if (script.Load(file))
           {
-            //Store custom MDE movie category
-            categories.Add(matcher.Key);
-            MetadataExtractorCustomCategories.Add(matcher.Key);
+            if (string.IsNullOrEmpty(script.Category))
+              script.Category = MEDIA_CATEGORY_NAME_MOVIE;
+
+            if (!scripts.ContainsKey(script.ScriptID))
+              scripts.Add(script.ScriptID, script);
+            else if (Version.TryParse(scripts[script.ScriptID].Version, out var curVer) && Version.TryParse(script.Version, out var newVer) && newVer > curVer)
+              scripts[script.ScriptID] = script;
           }
         }
-        OnlineMatcherService.Instance.RegisterMovieMatchers(matcher.Value.ToArray(), matcher.Key);
+
+        //Categorize scripts
+        foreach (var script in scripts.Values)
+        {
+          if (!matchers.ContainsKey(script.Category))
+            matchers.Add(script.Category, new List<ScriptableScraperMovieMatcher>());
+          matchers[script.Category].Add(new ScriptableScraperMovieMatcher(script));
+        }
+
+        //Register movie matchers
+        foreach (var matcher in matchers)
+        {
+          if (!matcher.Key.Equals(MEDIA_CATEGORY_NAME_MOVIE, StringComparison.OrdinalIgnoreCase))
+          {
+            if (!categories.Contains(matcher.Key))
+            {
+              //Store custom MDE movie category
+              categories.Add(matcher.Key);
+              MetadataExtractorCustomCategories.Add(matcher.Key);
+            }
+          }
+
+          OnlineMatcherService.Instance.RegisterMovieMatchers(matcher.Value.ToArray(), matcher.Key);
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("ScriptableMetadataExtractor: Error initializing scripts", ex);
       }
     }
 
