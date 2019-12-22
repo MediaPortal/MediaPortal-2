@@ -55,7 +55,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 
     static BaseScriptableMovieMetadataExtractor()
     {
-      Task.Run(() => LoadScripts());
+      LoadScripts();
     }
 
     public BaseScriptableMovieMetadataExtractor(string id)

@@ -59,7 +59,6 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Helpers\EscapedLogger.cs" />
     <Compile Include="ScriptableMovieMetadataExtractor.cs" />
     <Compile Include="Data\ScriptableScraperMovieMatcher.cs" />
     <Compile Include="Data\ScriptableScraperMovieWrapper.cs" />
