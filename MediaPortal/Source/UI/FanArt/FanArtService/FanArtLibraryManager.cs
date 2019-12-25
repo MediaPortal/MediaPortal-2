@@ -289,9 +289,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
         sw.Stop();
         if(_cleanupTokenSource.IsCancellationRequested)
-          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up cancelled after {0}ms.", sw.ElapsedMilliseconds);
+          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up canceled after {0}ms.", sw.ElapsedMilliseconds);
         else
-          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up orphaned fanart for {0} non existant media items in {1}ms.", fanArtToDelete.Count, sw.ElapsedMilliseconds);
+          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up orphaned fanart for {0} non existent media items in {1}ms.", fanArtToDelete.Count, sw.ElapsedMilliseconds);
       }
       catch (Exception ex)
       {
