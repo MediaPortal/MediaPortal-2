@@ -113,8 +113,8 @@ namespace MediaPortal.Plugins.WifiRemote
       }
       catch (Exception ex)
       {
-        Logger.Error("WifiRemote: Bonjour enabled but failed to publish! If not installed get it at http://support.apple.com/downloads/Bonjour_for_Windows", ex);
-        Logger.Info("WifiRemote: Disabling Bonjour for this session.");
+        Logger.Debug("WifiRemote: Bonjour enabled but failed to publish!", ex);
+        Logger.Info("WifiRemote: Disabling Bonjour for this session. If not installed get it at http://support.apple.com/downloads/Bonjour_for_Windows");
         _disableBonjour = true;
         return;
       }
