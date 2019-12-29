@@ -333,9 +333,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         if (_underlayingResource != null)
         {
           LocalFsResourceProvider lfsProvider = _underlayingResource.ParentProvider as LocalFsResourceProvider;
-          string path = NetworkPath;
-          if (!path.EndsWith(@"\")) path += @"\";
-          lfsProvider.RegisterChangeTracker(PathChangedProxy, path, fileNameFilters, changeTypes);
+          lfsProvider.RegisterChangeTracker(PathChangedProxy, LocalFileSystemPath, fileNameFilters, changeTypes);
         }
       }
     }
