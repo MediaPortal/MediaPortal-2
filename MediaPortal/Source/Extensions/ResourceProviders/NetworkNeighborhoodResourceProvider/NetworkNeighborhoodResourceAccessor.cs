@@ -300,6 +300,14 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       return ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath);
     }
 
+    private string FixSharePath(string path)
+    {
+      if (!path.EndsWith(@"\"))
+        path += @"\";
+
+      return path;
+    }
+
     /// <summary>
     /// Returns a UNC representation of the resource.
     /// </summary>
@@ -333,7 +341,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         if (_underlayingResource != null)
         {
           LocalFsResourceProvider lfsProvider = _underlayingResource.ParentProvider as LocalFsResourceProvider;
-          lfsProvider.RegisterChangeTracker(PathChangedProxy, LocalFileSystemPath, fileNameFilters, changeTypes);
+          lfsProvider.RegisterChangeTracker(PathChangedProxy, FixSharePath(LocalFileSystemPath), fileNameFilters, changeTypes);
         }
       }
     }
@@ -344,7 +352,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       {
         _changeDelegateProxy = null;
         LocalFsResourceProvider lfsProvider = _underlayingResource.ParentProvider as LocalFsResourceProvider;
-        lfsProvider.UnregisterChangeTracker(PathChangedProxy, LocalFileSystemPath);
+        lfsProvider.UnregisterChangeTracker(PathChangedProxy, FixSharePath(LocalFileSystemPath));
       }
     }
 
