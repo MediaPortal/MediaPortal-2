@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">Iberna</string>
   <string name="SystemState.Shutdown">Spegni</string>
   <string name="SystemState.Suspend">Sospendi</string>
-  <string name="SystemState.Restart">Riavvia</string>
   <string name="SystemState.Logoff">Esci</string>
   <string name="SystemState.SleepTimerConfig">Imposta conto alla rovescia spegnimento</string>
   <string name="SystemState.SleepTimerStop">Arresta conto alla rovescia spegnimento</string>

@@ -14,6 +14,9 @@
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerSubtitle">Legenda</string>
   <string name="Settings.General">Geral</string>
+  <string name="Settings.General.System">Sistema</string>
+  <string name="Settings.Regional.Language">Linguagem</string>
+  <string name="Settings.Regional.Language.Main">Linguagem</string>
   <!--Section name-->
   <!--Group name-->
   <!--Setting-->

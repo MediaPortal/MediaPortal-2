@@ -2,9 +2,13 @@
 <resources>
   <string name="Match.Video.Music">संगीत</string>
   <string name="Match.Video.TVMovie">टेलीविज़न</string>
+  <string name="Match.Video.News">समाचार</string>
   <string name="Match.Epg.Music">संगीत</string>
+  <string name="Match.Epg.News">समाचार</string>
   <string name="Label.Audio.World">विश्व</string>
   <string name="Label.Video.Music">संगीत</string>
   <string name="Label.Video.TVMovie">टेलीविज़न</string>
+  <string name="Label.Video.News">समाचार</string>
   <string name="Label.Epg.Music">संगीत</string>
+  <string name="Label.Epg.News">समाचार</string>
   </resources>

@@ -4,6 +4,7 @@
   <string name="UserConfig.AddUser">Ekle</string>
   <string name="UserConfig.CopyUser">Kopyala</string>
   <string name="UserConfig.DeleteUser">Sil</string>
+  <string name="UserConfig.SaveUser">Kayıt Et</string>
   <string name="UserConfig.Yes">Evet</string>
   <string name="UserConfig.No">Hayır</string>
   <string name="UserConfig.SharesText">Paylaşımlar</string>

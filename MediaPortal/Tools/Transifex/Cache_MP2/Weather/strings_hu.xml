@@ -6,12 +6,14 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">Válassz helyet</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Időjárás</string>
+  <string name="Weather.Title.Help">Ellenőrizd az aktuális időjárást és előrejelzést.</string>
   <string name="Weather.ChooseLocation">Válassz helyet</string>
   <string name="Weather.Refresh">Frissítés</string>
   <string name="Weather.Updating">Frissítés...</string>
   <string name="Weather.Weather">Időjárás</string>
   <string name="Weather.NoData">nincs adat</string>
   <string name="Weather.Temp">Hőmérséklet</string>
+  <string name="Weather.TempFeel">Érzésre</string>
   <string name="Weather.UVIndex">UV Sugárzás</string>
   <string name="Weather.Wind">Szél</string>
   <string name="Weather.Humidity">Páratartalom</string>
@@ -75,10 +77,15 @@
   <string name="Settings.Plugins.Weather">Időjárás</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Helyek beállítása</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Állítsa be a városokat, hogy elérhetővé váljanak az időjárás képernyőn</string>
+  <string name="Settings.Plugins.Weather.ApiKey">Személyes API kulcs beállítása</string>
+  <string name="Settings.Plugins.Weather.ApiKey.Help">Konfigurál egy személyes API kulcsot a https://openweathermap.org/api által, hogy elkerüld a kérelmi korlátozásokat.</string>
   <string name="WeatherSetup.Title">Városok beállítása</string>
   <string name="WeatherSetup.ConfiguredCities">Beállított városok</string>
   <string name="WeatherSetup.EnterCity">Kérjük írja be a hozzáadandó város nevét:</string>
   <string name="WeatherSetup.SearchCity">Város keresése</string>
   <string name="WeatherSetup.AddCity">Város hozzáadása</string>
   <string name="WeatherSetup.RemoveCity">Város eltávolítása</string>
+  <string name="WeatherSetup.Detect">Érzékel</string>
+  <string name="WeatherSetup.DetectionFailed">Sikertelen érzékelés</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Az automata helyzetmeghatározás nem sikerült.</string>
 </resources>

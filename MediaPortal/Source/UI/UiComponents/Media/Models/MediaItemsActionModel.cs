@@ -176,7 +176,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     }
 
-    protected class DummyListItem : IMediaItemListItem
+    protected class DummyListItem : ListItem, IMediaItemListItem
     {
       public DummyListItem(MediaItem mediaItem)
       {

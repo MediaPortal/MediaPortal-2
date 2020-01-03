@@ -1,13 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players">Çalıcılar</string>
+  <string name="Settings.Players">Oynatıcılar</string>
+  <string name="Settings.Players.AudioPlayer">Müzik Oynatıcı</string>
   <string name="Settings.Players.BassPlayer.Setup">Çıkış cihazını yapılandır</string>
-  <string name="Settings.Players.BassPlayer.Setup.Help">Bassplayer çıkış cihazını ve ayarları yapılandırır</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">Bass Oynatıcı çıkış cihazını ve seçenekleri yapılandırır</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">ayrıcalıklı mod</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">şarkı geçiş modu</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Parçayı değiştirirken duraklama/yumuşak geçiş  zamanını ayarla</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normal</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">boşluksuz</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">yumuşak geçiş</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">playback tamponlama</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">tampon zamanı [0-300] ms</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">directsound</string>
   <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
-  <string name="Settings.Players.Rendering">Çalma şekli</string>
+  <string name="Settings.Players.Rendering">yorumlama</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Yumuşak Geçiş uzunluğu</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Yumuşak Geçiş süresi, saniye olarak</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">artış saniyelerini ara</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Seek increment seconds help text...</string>
 </resources>
