@@ -28,8 +28,8 @@
 		<id>360593</id>
 	<!-- This will fool MovingPictures into thinking this scraper is the new imdb.com scraper. -->
 
-		<version major="1" minor="5" point="0" />
-		<published month="09" day="26" year="2018" />
+		<version major="1" minor="5" point="1" />
+    <published month="09" day="26" year="2018" />
 		<type>MovieDetailsFetcher</type>
 		<language>de</language>
 	</details>
@@ -1178,7 +1178,7 @@
 				</set>
 				<set name="rx_follow_links">
 					<![CDATA[
-					(?:"/title/)(?<IMDB_ID>tt\d{7})/">(?<TITLE>.*?)</a>.+?\((?<YEAR>\d{4})\)
+					(?:"/title/)(?<IMDB_ID>tt\d{7,8})/">(?<TITLE>.*?)</a>.+?\((?<YEAR>\d{4})\)
 					]]>
 				</set>
 				<set name="rx_spinoff_block">
@@ -1714,7 +1714,7 @@
 		<!-- Regular Expressions -->
 		<set name="rx_imdb_results">
 			<![CDATA[
-			<title>(?:IMDb[\s-]*)?(?:IMDb[\s-]*)?(?<TITEL>.+?)\(\D*(?<JAHR>\d{4})(?:.*?\d{0,4})?[\/IVX]*\.*?</title>.+?(tt\d{7})/fullcredits
+			<title>(?:IMDb[\s-]*)?(?:IMDb[\s-]*)?(?<TITEL>.+?)\(\D*(?<JAHR>\d{4})(?:.*?\d{0,4})?[\/IVX]*\.*?</title>.+?(tt\d{7,8})/fullcredits
 			]]>
 		</set>
 		<set name="rx_se">
@@ -1817,7 +1817,7 @@
 
 					<set name="rx_search_results">
 						<![CDATA[
-							(?:<td.class="result_text">\s+?<a.href="/title/)(?<IMDBID>tt\d{7})(?:.+?>)(?<TITLE>.+?)(?:</a>\s\()(?<YEAR>\d{4})
+							(?:<td.class="result_text">\s+?<a.href="/title/)(?<IMDBID>tt\d{7,8})(?:.+?>)(?<TITLE>.+?)(?:</a>\s\()(?<YEAR>\d{4})
 						]]>
 					</set>
 

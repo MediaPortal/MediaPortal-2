@@ -14,8 +14,8 @@
     is for minor bug fix releases. Use it.
     -->
     <id>874909</id>
-    <version major="1" minor="0" point="11"/>
-    <published month="10" day="19" year="2013"/>
+    <version major="1" minor="0" point="12"/>
+    <published month="12" day="30" year="2019"/>
 
     <!--
     These fields are used for categorization purposes. Seperate multiple 
@@ -221,7 +221,7 @@
 
                 <set name="rx_locate_title">
                         <![CDATA[
-                        ="/title/(tt\d{7})/.*?\((\d{4})\)
+                        ="/title/(tt\d{7,8})/.*?\((\d{4})\)
                         ]]>
                 </set>
 
@@ -234,7 +234,7 @@
                 <parse name="details_page" input="${imdb_search}" regex="${rx_details_page}" />
                 <!-- Verify Release Year -->
                 <if test="${details_page[0][0]:htmldecode}=${movie.year}">
-                        <parse name="imdb_id" input="${details_page[0][1]}" regex="(tt\d{7})/fullcredits" />
+                        <parse name="imdb_id" input="${details_page[0][1]}" regex="(tt\d{7,8})/fullcredits" />
                         <set name="movie.imdb_id" value="${imdb_id[0][0]:htmldecode}" />
                 </if>
 

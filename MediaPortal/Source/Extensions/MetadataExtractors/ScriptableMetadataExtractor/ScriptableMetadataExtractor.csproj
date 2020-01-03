@@ -91,7 +91,7 @@
     <Content Include="MovieScraperScripts\141522_Kinopoisk.xml" />
     <Content Include="MovieScraperScripts\241682_Sratim.xml" />
     <Content Include="MovieScraperScripts\360593_FilmInfo.xml" />
-    <Content Include="MovieScraperScripts\318622_FilmAffinity.com_IMDb.es.xml" />
+    <Content Include="MovieScraperScripts\141417_FilmAffinity.com_IMDB.es.xml" />
     <Content Include="MovieScraperScripts\784920_Ptgate.xml" />
     <Content Include="MovieScraperScripts\874902_IMDb.xml" />
     <Content Include="MovieScraperScripts\874909_MyMoviesItalian.xml" />

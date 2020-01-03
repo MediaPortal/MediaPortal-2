@@ -14,8 +14,8 @@
     is for minor bug fix releases. Use it.
     -->
     <id>874902</id>
-    <version major="3" minor="0" point="2" />
-    <published month="1" day="20" year="2014" />
+    <version major="3" minor="0" point="3" />
+    <published month="12" day="30" year="2019" />
     
     <!--
     These fields are used for categorization purposes. Seperate multiple 
@@ -51,7 +51,7 @@
     
     <set name="rx_search_results">
     <![CDATA[
-    <td class="result_text">\s*<a href="/title/(tt\d{7})/[^"]*"\s*>([^<]+)</a>\s*[\/IV\(\)]*\s*\((\d{4})\)(?! \(TV)(?! \(VG)(?:\s*<br/>\s*aka\s*<i>"([^"]+)"</i>)*
+    <td class="result_text">\s*<a href="/title/(tt\d{7,8})/[^"]*"\s*>([^<]+)</a>\s*[\/IV\(\)]*\s*\((\d{4})\)(?! \(TV)(?! \(VG)(?:\s*<br/>\s*aka\s*<i>"([^"]+)"</i>)*
     ]]>
     </set>
 
@@ -69,7 +69,7 @@
         <parse name="title_year" input="${imdb_page}" regex="${rx_title_year}" />
         <set name="movie[0].title" value="${title_year[0][0]:htmldecode}" />
         <set name="movie[0].year" value="${title_year[0][1]:htmldecode}" />
-        <parse name="imdb" input="${imdb_page}" regex="(tt\d{7})/fullcredits" />
+        <parse name="imdb" input="${imdb_page}" regex="(tt\d{7,8})/fullcredits" />
         <set name="movie[0].imdb_id" value="${imdb[0][0]}" />
         <set name="movie[0].site_id" value="${imdb[0][0]}" />
         <set name="movie[0].popularity" value="100" />
@@ -92,7 +92,7 @@
       <parse name="title_year" input="${details_page_verified}" regex="${rx_title_year}" />
       <set name="movie[${counter}].title" value="${title_year[0][0]:htmldecode}" />
       <set name="movie[${counter}].year" value="${title_year[0][1]:htmldecode}" />
-      <parse name="imdb" input="${details_page_verified}" regex="(tt\d{7})/fullcredits" />
+      <parse name="imdb" input="${details_page_verified}" regex="(tt\d{7,8})/fullcredits" />
       <set name="movie[${counter}].imdb_id" value="${imdb[0][0]}" />
       <set name="movie[${counter}].site_id" value="${imdb[0][0]}" />
 
@@ -158,7 +158,7 @@
         </set>
         <set name="rx_directors">
             <![CDATA[
-            <a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7}[^"]+"[^>]*>(?:<span[^>]+>)?(?<movieDirectors>[^<]+)(?:</span>)?</a>
+            <a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7,8}[^"]+"[^>]*>(?:<span[^>]+>)?(?<movieDirectors>[^<]+)(?:</span>)?</a>
             ]]>
         </set>
 
@@ -181,7 +181,7 @@
         </set>
         <set name="rx_writers">
             <![CDATA[
-            <a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7}[^"]+"[^>]*>(?:<span[^>]+>)?(?<movieWriters>[^<]+)(?:</span>)?</a>
+            <a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7,8}[^"]+"[^>]*>(?:<span[^>]+>)?(?<movieWriters>[^<]+)(?:</span>)?</a>
             ]]>
         </set>
 
@@ -192,7 +192,7 @@
         </set>
         <set name="rx_actors">
             <![CDATA[
-            <td class="name"[^<]*<a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7}[^"]+"[^>]*>(?:<span[^>]+>)?\s*(?<movieActors>.+?)\s*(?:</span>)?</a>|<span class="itemprop" itemprop="name"[^>]*>\s*(?<movieActors>[^<]+)</span>\s*</a>
+            <td class="name"[^<]*<a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7,8}[^"]+"[^>]*>(?:<span[^>]+>)?\s*(?<movieActors>.+?)\s*(?:</span>)?</a>|<span class="itemprop" itemprop="name"[^>]*>\s*(?<movieActors>[^<]+)</span>\s*</a>
             ]]>
         </set>
 

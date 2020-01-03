@@ -86,7 +86,7 @@
 		</set>
 		<set name="rx_imdbID">
 		  <![CDATA[
-		  (?<movieSummary>tt\d{7})
+		  (?<movieSummary>tt\d{7,8})
 		  ]]>
 		</set>
 	
