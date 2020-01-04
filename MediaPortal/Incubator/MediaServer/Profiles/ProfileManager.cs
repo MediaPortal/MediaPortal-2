@@ -131,12 +131,12 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       {
         if (link.Profile != null)
         {
-          Logger.Debug("DetectProfile: IP: {0}, using: {1}", ip, link.Profile.ID);
+          //Logger.Debug("DetectProfile: IP: {0}, using: {1}", ip, link.Profile.ID);
           return link;
         }
         else if (link.AutoProfile == false)
         {
-          Logger.Debug("DetectProfile: IP: {0}, using: None", ip);
+          //Logger.Debug("DetectProfile: IP: {0}, using: None", ip);
           return null;
         }
       }      
