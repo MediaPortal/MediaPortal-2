@@ -31,23 +31,15 @@
     </Grid.RowDefinitions>
 
     <!--Playerstate overlay-->
-    <Grid Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Image Width="250" Stretch="Uniform" Opacity="0.9" VerticalAlignment="Center" HorizontalAlignment="Center">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {3} : ({1} ? {4} : ({2} &amp;&amp; {6} ? {5} : {7}))">
-            <Binding Path="IsSeekingForward"/>
-            <Binding Path="IsSeekingBackward"/>
-            <Binding Path="IsPaused"/>
-            <Binding Source="fastforward.png"/>
-            <Binding Source="fastrewind.png"/>
-            <Binding Source="pause.png"/>
-            <!-- SlimTvClientModel -->
-            <Binding Source="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}" Path="!IsZapping"/>
-            <Binding Source=""/>
-          </MultiBinding>
-        </Image.Source>
-      </Image>
-    </Grid>
+    <Image Grid.ColumnSpan="3" Grid.RowSpan="4" Width="250" Stretch="Uniform" Opacity="0.7" 
+           VerticalAlignment="Center" HorizontalAlignment="Center" Source="pause.png">
+      <Image.IsVisible>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} &amp;&amp; {1})">
+          <Binding ElementName="PrimaryOSD" Path="IsPaused" />
+          <Binding Source="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}" Path="!IsZapping"/>
+        </MultiBinding>
+      </Image.IsVisible>
+    </Image>
 
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
              IsVisible="{Binding !IsOSDVisible}" Margin="0,0,30,0"/>
