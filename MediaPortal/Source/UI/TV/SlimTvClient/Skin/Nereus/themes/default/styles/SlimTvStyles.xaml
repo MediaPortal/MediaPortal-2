@@ -719,8 +719,8 @@
         <ControlTemplate>
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="2,2,2,2">
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
               <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
@@ -731,11 +731,11 @@
               </TransformGroup>
             </Grid.RenderTransform>
             <Control Grid.ColumnSpan="2" Style="{ThemeResource ProgramGuideButtonControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
-            <ContentPresenter Grid.ColumnSpan="2" x:Name="ButtonContentPresenter" Margin="3,5,0,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
-            <Image Grid.Column="1" x:Name="RecIndicator" Source="record_single.png" IsVisible="False" Width="25"
-                   Stretch="Uniform" Margin="0,4,2,4" HorizontalAlignment="Right" Grid.ZIndex="3"/>
-            <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="record_series.png" IsVisible="False" Width="25"
-                   Stretch="Uniform" Margin="0,4,2,4" HorizontalAlignment="Right" Grid.ZIndex="3"/>
+            <ContentPresenter Grid.Column="1" x:Name="ButtonContentPresenter" Margin="3,5,3,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="2"/>
+            <Image Grid.Column="0" x:Name="RecIndicator" Source="record_single.png" IsVisible="False" Width="25"
+                   Stretch="Uniform" Margin="3,4,0,4" HorizontalAlignment="Left" Grid.ZIndex="3"/>
+            <Image Grid.Column="0" x:Name="SeriesRecIndicator" Source="record_series.png" IsVisible="False" Width="25"
+                   Stretch="Uniform" Margin="3,4,0,4" HorizontalAlignment="Left" Grid.ZIndex="3"/>
           </Grid>
           
           <ControlTemplate.Triggers>
