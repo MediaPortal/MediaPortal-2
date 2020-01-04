@@ -3017,7 +3017,7 @@
       <Image Stretch="Fill" Source="square_small.png" Margin="-5"/>
 
       <!-- Thumbnail available-->
-      <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
+      <Image x:Name="thumbnail" Stretch="UniformToFill" Margin="3">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource AUDIO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_GRID_HEIGHT}"/>
@@ -3134,7 +3134,7 @@
       </Grid.RowDefinitions>
 
       <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-6"/>
-      <Image x:Name="thumbnail" Grid.Row="1" Stretch="Fill">
+      <Image x:Name="thumbnail" Grid.Row="1" Stretch="UniformToFill">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource AUDIO_COVER_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_COVER_HEIGHT}"/>
