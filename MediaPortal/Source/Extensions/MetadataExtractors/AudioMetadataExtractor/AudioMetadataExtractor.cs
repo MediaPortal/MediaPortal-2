@@ -135,7 +135,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     static AudioMetadataExtractor()
     {
       MEDIA_CATEGORIES.Add(DefaultMediaCategories.Audio);
-      OnlineMatcherService.Instance.RegisterDefaultAudioMatchers(MEDIA_CATEGORY_NAME_ADUIO);
+      OnlineMatcherService.RegisterDefaultAudioMatchers(MEDIA_CATEGORY_NAME_ADUIO);
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();

@@ -50,8 +50,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     Task<bool> DownloadAudioFanArtAsync(Guid mediaItemId, BaseInfo mediaItemInfo);
     void StoreAudioPersonMatch(PersonInfo person);
     void StoreAudioCompanyMatch(CompanyInfo company);
-    void RegisterDefaultAudioMatchers(string category);
-    void RegisterAudioMatchers(IAudioMatcher[] matchers, string category);
 
     #endregion
 
@@ -71,8 +69,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void StoreMoviePersonMatch(PersonInfo person);
     void StoreMovieCharacterMatch(CharacterInfo character);
     void StoreMovieCompanyMatch(CompanyInfo company);
-    void RegisterDefaultMovieMatchers(string category);
-    void RegisterMovieMatchers(IMovieMatcher[] matchers, string category);
 
     #endregion
 
@@ -96,8 +92,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     void StoreSeriesPersonMatch(PersonInfo person);
     void StoreSeriesCharacterMatch(CharacterInfo character);
     void StoreSeriesCompanyMatch(CompanyInfo company);
-    void RegisterDefaultSeriesMatchers(string category);
-    void RegisterSeriesMatchers(ISeriesMatcher[] matchers, string category);
 
     #endregion
 
@@ -106,9 +100,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     Task<IEnumerable<SubtitleInfo>> FindMatchingEpisodeSubtitlesAsync(SubtitleInfo subtitleInfo, List<string> languages, string category);
     Task<IEnumerable<SubtitleInfo>> FindMatchingMovieSubtitlesAsync(SubtitleInfo subtitleInfo, List<string> languages, string category);
     Task<bool> DownloadSubtitleAsync(SubtitleInfo subtitleInfo, bool overwriteExisting, string category = null);
-    void RegisterDefaultSeriesSubtitleMatchers(string category);
-    void RegisterDefaultMovieSubtitleMatchers(string category);
-    void RegisterSubtitleMatchers(ISubtitleMatcher[] matchers, string category);
 
     #endregion
   }

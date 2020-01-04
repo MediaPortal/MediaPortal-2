@@ -4,7 +4,7 @@
     PluginId="{678E18FA-E228-4B3D-8CFE-8E4BC4E2B1A7}"
     Author = "henso, Third party: seco"
     Copyright="GPL"
-    Description="Subtitle provider based on SubtitleDownloader."
+    Description="Subtitle provider based on SubtitleDownloader"
     AutoActivate="true">
 
   <Version

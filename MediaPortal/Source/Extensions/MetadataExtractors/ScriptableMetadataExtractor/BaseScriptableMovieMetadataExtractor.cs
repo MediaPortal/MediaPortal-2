@@ -137,7 +137,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
             }
           }
 
-          OnlineMatcherService.Instance.RegisterMovieMatchers(matcher.Value.ToArray(), matcher.Key);
+          OnlineMatcherService.RegisterMovieMatchers(matcher.Value.ToArray(), matcher.Key);
         }
       }
       catch (Exception ex)

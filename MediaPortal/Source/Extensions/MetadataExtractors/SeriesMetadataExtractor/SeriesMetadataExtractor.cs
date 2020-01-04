@@ -86,8 +86,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
         seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(seriesCategory);
-      OnlineMatcherService.Instance.RegisterDefaultSeriesMatchers(MEDIA_CATEGORY_NAME_SERIES);
-      OnlineMatcherService.Instance.RegisterDefaultSeriesSubtitleMatchers(MEDIA_CATEGORY_NAME_SERIES);
+      OnlineMatcherService.RegisterDefaultSeriesMatchers(MEDIA_CATEGORY_NAME_SERIES);
+      OnlineMatcherService.RegisterDefaultSeriesSubtitleMatchers(MEDIA_CATEGORY_NAME_SERIES);
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();

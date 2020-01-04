@@ -59,7 +59,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
         new TitloviMatcher(),
         new TitulkyMatcher(),
       };
-      OnlineMatcherService.Instance.RegisterSubtitleMatchers(movieProviders.Where(p => providerNames.Contains(p.SubtitleDownloaderProviderId)).ToArray(), DEFAULT_MOVIE_CATEGORY);
+      OnlineMatcherService.RegisterSubtitleMatchers(movieProviders.Where(p => providerNames.Contains(p.SubtitleDownloaderProviderId)).ToArray(), DEFAULT_MOVIE_CATEGORY);
 
       Logger.Debug("SubtitleDownloaderProviderPlugin: Registering series subtitle matchers");
       var seriesProviders = new BaseSubtitleDownloaderMatcher[]
@@ -73,7 +73,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
         new TitulkyMatcher(),
         new TvSubtitlesMatcher(),
       };
-      OnlineMatcherService.Instance.RegisterSubtitleMatchers(seriesProviders.Where(p => providerNames.Contains(p.SubtitleDownloaderProviderId)).ToArray(), DEFAULT_SERIES_CATEGORY);
+      OnlineMatcherService.RegisterSubtitleMatchers(seriesProviders.Where(p => providerNames.Contains(p.SubtitleDownloaderProviderId)).ToArray(), DEFAULT_SERIES_CATEGORY);
     }
 
     public bool RequestEnd()

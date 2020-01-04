@@ -87,8 +87,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
         movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(movieCategory);
-      OnlineMatcherService.Instance.RegisterDefaultMovieMatchers(MEDIA_CATEGORY_NAME_MOVIE);
-      OnlineMatcherService.Instance.RegisterDefaultMovieSubtitleMatchers(MEDIA_CATEGORY_NAME_MOVIE);
+      OnlineMatcherService.RegisterDefaultMovieMatchers(MEDIA_CATEGORY_NAME_MOVIE);
+      OnlineMatcherService.RegisterDefaultMovieSubtitleMatchers(MEDIA_CATEGORY_NAME_MOVIE);
 
       // Register reimport support
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
