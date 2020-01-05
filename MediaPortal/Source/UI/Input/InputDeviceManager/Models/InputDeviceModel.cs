@@ -51,6 +51,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public const string INPUTDEVICES_ID_STR = "CC11183C-01A9-4F96-AF90-FAA046981006";
     public const string RES_REMOVE_MAPPING_TEXT = "[InputDeviceManager.KeyMapping.Dialog.RemoveMapping]";
     public const string RES_KEY_TEXT = "[InputDeviceManager.Key]";
+    public const string RES_ACTION_TEXT = "[InputDeviceManager.Action]";
     public const string RES_SCREEN_TEXT = "[InputDeviceManager.Screen]";
     public const string RES_DEFAULT_KEYBOARD_TEXT = "[InputDeviceManager.DefaultConfig.Keyboard]";
     public const string RES_DEFAULT_REMOTE_TEXT = "[InputDeviceManager.DefaultConfig.Remote]";
@@ -61,6 +62,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public const string KEY_PREFIX = "Key.";
     public const string HOME_PREFIX = "Home.";
     public const string CONFIG_PREFIX = "Config.";
+    public const string ACTION_PREFIX = "Action.";
 
     public static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
     public static readonly Guid CONFIGURATION_STATE_ID = new Guid("E7422BB8-2779-49ab-BC99-E3F56138061B");
@@ -76,6 +78,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     protected AbstractProperty _selectedInputProperty;
     protected ItemsList _items;
     protected ItemsList _keyItems;
+    protected ItemsList _actionItems;
     protected ItemsList _homeScreenItems;
     protected ItemsList _configScreenItems;
     protected ItemsList _defaultConfigItems;
@@ -128,6 +131,11 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     public ItemsList KeyItems
     {
       get { return _keyItems; }
+    }
+
+    public ItemsList ActionItems
+    {
+      get { return _actionItems; }
     }
 
     public ItemsList HomeScreenItems
@@ -221,6 +229,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       {
         _items = new ItemsList();
         _keyItems = new ItemsList();
+        _actionItems = new ItemsList();
         _configScreenItems = new ItemsList();
         _homeScreenItems = new ItemsList();
         _defaultConfigItems = new ItemsList();
@@ -231,14 +240,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           if (key.Value == Key.None)
             continue;
 
-          var listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_KEY_TEXT)} \"{key.Key}\"")
-          {
-            Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key.Key))
-          };
-          listItem.SetLabel(KEY_KEYMAP, "");
-          listItem.SetLabel(KEY_KEYMAP_NAME, key.Key);
-          listItem.AdditionalProperties[KEY_KEYMAP_DATA] = KEY_PREFIX + key.Key;
-          _items.Add(listItem);
+          AddKey(key.Key);
         }
         
         // TODO: Add more actions?
@@ -249,14 +251,19 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           {
             //ServiceRegistration.Get<ILogger>().Info("MenuActions - Name: {0}, DisplayTitle: {1}, ActionId: {2}", item.Name, item.DisplayTitle, item.ActionId);
             //Add home menu items
-            if (item.SourceStateIds?.Contains(HOME_STATE_ID) == true)
+            if (item.SourceStateIds == null && string.Equals(item.Group, "Global", StringComparison.CurrentCultureIgnoreCase) && !string.IsNullOrEmpty(item.DisplayTitle.Evaluate()))
             {
+              AddAction(item);
+            }
+            //Add home menu items
+            else if (item.SourceStateIds?.Contains(HOME_STATE_ID) == true)
+            {
+              //Only add home menus for now. Other menus seem to have a dependency on the previews screen
               AddScreen(item, HOME_PREFIX);
             }
             //Add config menu items
             else if (item.SourceStateIds?.Contains(CONFIGURATION_STATE_ID) == true)
             {
-              //Only add home menus for now. Other menus seem to have a dependency on the previews screen
               AddScreen(item, CONFIG_PREFIX);
             }
           }
@@ -291,9 +298,38 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       _defaultConfigItems.Add(listItem);
     }
 
+    protected void AddKey(string key)
+    {
+      var listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_KEY_TEXT)} \"{key}\"")
+      {
+        Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key))
+      };
+      listItem.SetLabel(KEY_KEYMAP, "");
+      listItem.SetLabel(KEY_KEYMAP_NAME, key);
+      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = KEY_PREFIX + key;
+      if (!_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], (string)listItem.AdditionalProperties[KEY_KEYMAP_DATA], true) == 0))
+        _items.Add(listItem);
+    }
+
+    protected void AddAction(WorkflowAction item)
+    {
+      var listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_ACTION_TEXT)} \"{item.DisplayTitle}\"")
+      {
+        Command = new MethodDelegateCommand(() => ChooseKeyAction(ACTION_PREFIX + item.Name))
+      };
+      listItem.SetLabel(KEY_KEYMAP, "");
+      listItem.SetLabel(KEY_KEYMAP_NAME, item.DisplayTitle);
+      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = ACTION_PREFIX + item.Name;
+      if (!_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], (string)listItem.AdditionalProperties[KEY_KEYMAP_DATA], true) == 0))
+        _items.Add(listItem);
+    }
+
     protected void AddScreen(WorkflowAction item, string prefix)
     {
-      ListItem listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_SCREEN_TEXT)} \"{item.DisplayTitle}\"") { Command = new MethodDelegateCommand(() => ChooseKeyAction(prefix + item.Name)) };
+      ListItem listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_SCREEN_TEXT)} \"{item.DisplayTitle}\"")
+      {
+        Command = new MethodDelegateCommand(() => ChooseKeyAction(prefix + item.Name))
+      };
       listItem.SetLabel(KEY_KEYMAP, "");
       listItem.SetLabel(KEY_KEYMAP_NAME, item.DisplayTitle);
       listItem.AdditionalProperties[KEY_KEYMAP_DATA] = prefix + item.Name;
@@ -644,6 +680,13 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
         _keyItems.Add(item);
       _keyItems.FireChange();
+
+      _actionItems.Clear();
+      foreach (var item in _items.
+        Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(ACTION_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+        OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
+        _actionItems.Add(item);
+      _actionItems.FireChange();
 
       _homeScreenItems.Clear();
       foreach (var item in _items.

@@ -35,6 +35,8 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 {
   public class BaseAppLauncherMenuAction : IWorkflowContributor
   {
+    protected static Guid WF_HOME_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
+
     private string _actionId;
     private int _appNumber;
     private string _appId;
@@ -70,7 +72,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public IResourceString DisplayTitle
     {
-      get { return LocalizationHelper.CreateStaticString($"{LocalizationHelper.Translate(Consts.RES_MENU_ENTRY)} {(_appName ?? _appNumber.ToString())}"); }
+      get { return LocalizationHelper.CreateStaticString($"{LocalizationHelper.Translate(Consts.RES_MENU_ENTRY)} {_appNumber.ToString()}{(_appName == null ? "" : " (" + _appName + ")")}"); }
     }
 
     public void Initialize()
@@ -84,7 +86,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public bool IsActionVisible(NavigationContext context)
     {
-      return _appId != null;
+      return context?.WorkflowState?.StateId == WF_HOME_ID && _appId != null;
     }
 
     public bool IsActionEnabled(NavigationContext context)
