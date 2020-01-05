@@ -73,6 +73,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
     private string GetRemovableMediaItemPath(MediaItem mediaItem)
     {
+      if (mediaItem == null)
+        return null;
+
       foreach (var pra in mediaItem.PrimaryResources)
       {
         var resPath = ResourcePath.Deserialize(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
