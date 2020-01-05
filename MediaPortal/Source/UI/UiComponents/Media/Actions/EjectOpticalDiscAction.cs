@@ -27,16 +27,22 @@ using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.Utilities.FileSystem;
+using Timer = System.Timers.Timer;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
   public class EjectOpticalDiscAction : IWorkflowContributor
   {
     private string _opticalDrive;
+    private Timer _checkTimer;
 
     #region IWorkflowContributor implementation
 
@@ -49,15 +55,33 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public void Initialize()
     {
-      foreach (var drive in DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.CDRom))
+      DetectOpticalDrive();
+
+      _checkTimer = new Timer
       {
-        _opticalDrive = drive.Name;
-        break;
-      }
+        AutoReset = true,
+        Interval = 20000
+      };
+      _checkTimer.Elapsed += (sender, args) =>
+      {
+        DetectOpticalDrive();
+      };
+      _checkTimer.Enabled = true;
+    }
+
+    private void DetectOpticalDrive()
+    {
+      var drives = DriveInfo.GetDrives();
+      if (drives.Any(d => d.Name == _opticalDrive))
+        return; //Last found drive still exists
+
+      _opticalDrive = drives.FirstOrDefault(d => d.DriveType == DriveType.CDRom)?.Name;
     }
 
     public void Uninitialize()
     {
+      _checkTimer.Enabled = false;
+      _checkTimer.Dispose();
     }
 
     public bool IsActionVisible(NavigationContext context)
@@ -81,8 +105,21 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public void Execute()
     {
-      var error = DriveUtils.EjectDrive(_opticalDrive);
-      string driveLetter = _opticalDrive.Length >= 2 ? _opticalDrive.Substring(0, 2) : "?";
+      var path = _opticalDrive;
+
+      //Eject the media for the currently playing video
+      var currentPlayer = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext;
+      var mediaItem = currentPlayer?.CurrentMediaItem;
+      var mediaItemPath = GetRemovableMediaItemPath(mediaItem);
+      if (!string.IsNullOrEmpty(mediaItemPath))
+      {
+        //Stop playback before eject
+        currentPlayer?.Stop();
+        path = mediaItemPath;
+      }
+
+      var error = DriveUtils.EjectDrive(path);
+      string driveLetter = path.Length >= 2 ? path.Substring(0, 2) : "?";
       switch (error)
       {
         case DriveUtils.DriveEjectError.InvalidMediaError:
@@ -104,6 +141,23 @@ namespace MediaPortal.UiComponents.Media.Actions
           ServiceRegistration.Get<ILogger>().Error("Media eject failed. Drive {0} could not be ejected!", driveLetter);
           break;
       }
+    }
+
+    private string GetRemovableMediaItemPath(MediaItem mediaItem)
+    {
+      if (mediaItem == null)
+        return null;
+
+      foreach (var pra in mediaItem.PrimaryResources)
+      {
+        var resPath = ResourcePath.Deserialize(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+        var dosPath = LocalFsResourceProviderBase.ToDosPath(resPath);
+        if (string.IsNullOrEmpty(dosPath))
+          continue;
+        if (DriveUtils.IsDVD(dosPath))
+          return dosPath;
+      }
+      return null;
     }
 
     #endregion
