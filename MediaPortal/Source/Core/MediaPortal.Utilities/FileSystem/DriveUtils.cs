@@ -27,6 +27,7 @@ using System.IO;
 using System.Management;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 
 namespace MediaPortal.Utilities.FileSystem
 {
@@ -35,16 +36,49 @@ namespace MediaPortal.Utilities.FileSystem
   /// </summary>
   public class DriveUtils
   {
+    public enum DriveEjectError
+    {
+      None,
+      InvalidMediaError,
+      NotFoundError,
+      LockError,
+      DismountError,
+      PreventRemovalError,
+      EjectError
+    }
+
     #region Windows API functions
 
+    private const int OPEN_EXISTING = 3;
+    private const uint GENERIC_READ = 0x80000000;
+    private const uint GENERIC_WRITE = 0x40000000;
+    private const uint FILE_SHARE_READ = 0x00000001;
+    private const uint FILE_SHARE_WRITE = 0x00000002;
+    private const uint FSCTL_LOCK_VOLUME = 0x00090018;
+    private const uint FSCTL_DISMOUNT_VOLUME = 0x00090020;
+    private const uint IOCTL_STORAGE_EJECT_MEDIA = 0x002D4808;
+    private const uint IOCTL_STORAGE_MEDIA_REMOVAL = 0x002D4804;
+    private const long INVALID_HANDLE = -1;
+
     [DllImport("Kernel32.dll", CharSet = CharSet.Auto, SetLastError = true)]
-    public extern static bool GetVolumeInformation(string RootPathName, StringBuilder VolumeNameBuffer, int VolumeNameSize,
+    public static extern bool GetVolumeInformation(string RootPathName, StringBuilder VolumeNameBuffer, int VolumeNameSize,
       out uint VolumeSerialNumber, out uint MaximumComponentLength, out uint FileSystemFlags, StringBuilder FileSystemNameBuffer,
       int nFileSystemNameSize);
 
     [DllImport("kernel32.dll")]
-    public extern static bool GetDiskFreeSpaceEx(string lpDirectoryName, out UInt64 lpFreeBytesAvailable, out UInt64 lpTotalNumberOfBytes,
+    public static extern bool GetDiskFreeSpaceEx(string lpDirectoryName, out UInt64 lpFreeBytesAvailable, out UInt64 lpTotalNumberOfBytes,
         out UInt64 lpTotalNumberOfFreeBytes);
+
+    [DllImport("kernel32", SetLastError = true)]
+    public static extern IntPtr CreateFile(string filename, uint desiredAccess, uint shareMode, IntPtr securityAttributes, int creationDisposition, int flagsAndAttributes, IntPtr templateFile);
+
+    [DllImport("kernel32", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool DeviceIoControl(IntPtr deviceHandle, uint ioControlCode, byte[] inBuffer, int inBufferSize, byte[] outBuffer, int outBufferSize, ref int bytesReturned, IntPtr overlapped);
+
+    [DllImport("kernel32.dll", SetLastError = true)]
+    [return: MarshalAs(UnmanagedType.Bool)]
+    public static extern bool CloseHandle(IntPtr handle);
 
     #endregion
 
@@ -234,6 +268,68 @@ namespace MediaPortal.Utilities.FileSystem
         GetDiskFreeSpaceEx(drive, out freeBytesAvailable, out totalNumberOfBytes, out totalNumberOfFreeBytes);
         return (long)freeBytesAvailable;
       }
+    }
+
+    /// <summary>
+    /// Ejects the drive for the specified file
+    /// </summary>
+    /// <returns>Error if any</returns>
+    public static DriveEjectError EjectDrive(string strFile)
+    {
+      if (!IsDVD(strFile) && !IsRemovable(strFile))
+        return DriveEjectError.InvalidMediaError;
+
+      bool success = false;
+      string sPhysicalDrive = $@"\\.\{strFile.Substring(0, 2)}";
+
+      // Open drive (prepare for eject)
+      IntPtr handle = CreateFile(sPhysicalDrive, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
+        IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
+      if (handle.ToInt64() == INVALID_HANDLE)
+        return DriveEjectError.NotFoundError;
+
+      try
+      {
+        int dummy = 0;
+        // Lock Volume (retry 4 times - 2 seconds)
+        for (int i = 0; i < 4; i++)
+        {
+          success = DeviceIoControl(handle, FSCTL_LOCK_VOLUME, null, 0, null, 0, ref dummy, IntPtr.Zero);
+          if (success)
+            break;
+
+          Thread.Sleep(500);
+        }
+        if (!success)
+          return DriveEjectError.LockError;
+
+        // Volume dismount
+        dummy = 0;
+        success = DeviceIoControl(handle, FSCTL_DISMOUNT_VOLUME, null, 0, null, 0, ref dummy, IntPtr.Zero);
+        if (!success)
+          return DriveEjectError.DismountError;
+
+        // Prevent Removal Of Volume
+        byte[] flag = new byte[1];
+        flag[0] = 0; // 0 = false
+        dummy = 0;
+        success = DeviceIoControl(handle, IOCTL_STORAGE_MEDIA_REMOVAL, flag, 1, null, 0, ref dummy, IntPtr.Zero);
+        if (!success)
+          return DriveEjectError.PreventRemovalError;
+
+        // Eject Media
+        dummy = 0;
+        success = DeviceIoControl(handle, IOCTL_STORAGE_EJECT_MEDIA, null, 0, null, 0, ref dummy, IntPtr.Zero);
+        if (!success)
+          return DriveEjectError.EjectError;
+      }
+      finally
+      {
+        // Close Handle
+        CloseHandle(handle);
+      }
+
+      return DriveEjectError.None;
     }
   }
 }

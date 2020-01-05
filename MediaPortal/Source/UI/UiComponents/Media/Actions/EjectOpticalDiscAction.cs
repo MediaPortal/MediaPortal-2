@@ -22,49 +22,21 @@
 
 #endregion
 
-using System;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.UiComponents.Media.Actions
 {
   public class EjectOpticalDiscAction : IWorkflowContributor
   {
-    private string _opticalDriveLetter;
-
-    #region Native
-
-    private const int OPEN_EXISTING = 3;
-    private const uint GENERIC_READ = 0x80000000;
-    private const uint GENERIC_WRITE = 0x40000000;
-    private const uint FILE_SHARE_READ = 0x00000001;
-    private const uint FILE_SHARE_WRITE = 0x00000002;
-    private const uint FSCTL_LOCK_VOLUME = 0x00090018;
-    private const uint FSCTL_DISMOUNT_VOLUME = 0x00090020;
-    private const uint IOCTL_STORAGE_EJECT_MEDIA = 0x002D4808;
-    private const uint IOCTL_STORAGE_MEDIA_REMOVAL = 0x002D4804;
-    private const long INVALID_HANDLE = -1;
-
-    [DllImport("kernel32", SetLastError = true)]
-    private static extern IntPtr CreateFile(string filename, uint desiredAccess, uint shareMode, IntPtr securityAttributes, int creationDisposition, int flagsAndAttributes, IntPtr templateFile);
-
-    [DllImport("kernel32", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool DeviceIoControl(IntPtr deviceHandle, uint ioControlCode, byte[] inBuffer, int inBufferSize, byte[] outBuffer, int outBufferSize, ref int bytesReturned, IntPtr overlapped);
-
-    [DllImport("kernel32.dll", SetLastError = true)]
-    [return: MarshalAs(UnmanagedType.Bool)]
-    private static extern bool CloseHandle(IntPtr handle);
-
-    #endregion
+    private string _opticalDrive;
 
     #region IWorkflowContributor implementation
 
@@ -79,7 +51,7 @@ namespace MediaPortal.UiComponents.Media.Actions
     {
       foreach (var drive in DriveInfo.GetDrives().Where(d => d.DriveType == DriveType.CDRom))
       {
-        _opticalDriveLetter = drive.Name.Substring(0, 1);
+        _opticalDrive = drive.Name;
         break;
       }
     }
@@ -91,86 +63,39 @@ namespace MediaPortal.UiComponents.Media.Actions
     public bool IsActionVisible(NavigationContext context)
     {
       NavigationData navigationData = MediaNavigationModel.GetNavigationData(context, false);
-      return navigationData != null && !string.IsNullOrEmpty(_opticalDriveLetter);
+      return navigationData != null && !string.IsNullOrEmpty(_opticalDrive);
     }
 
     public bool IsActionEnabled(NavigationContext context)
     {
-      return !string.IsNullOrEmpty(_opticalDriveLetter);
+      return !string.IsNullOrEmpty(_opticalDrive);
     }
 
     public void Execute()
     {
-      EjectMedia(_opticalDriveLetter);
-    }
-
-    protected bool EjectMedia(string driveLetter)
-    {
-      bool success = false;
-      string sPhysicalDrive = $@"\\.\{driveLetter}:";
-
-      // Open drive (prepare for eject)
-      IntPtr handle = CreateFile(sPhysicalDrive, GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_WRITE,
-        IntPtr.Zero, OPEN_EXISTING, 0, IntPtr.Zero);
-      if (handle.ToInt64() == INVALID_HANDLE)
+      var error = DriveUtils.EjectDrive(_opticalDrive);
+      string driveLetter = _opticalDrive.Length >= 2 ? _opticalDrive.Substring(0, 2) : "?";
+      switch (error)
       {
-        ServiceRegistration.Get<ILogger>().Error("Media eject failed. Drive {0} does not exist!", driveLetter);
-        return false;
-      }
-
-      try
-      {
-        int dummy = 0;
-        // Lock Volume (retry 4 times - 2 seconds)
-        for (int i = 0; i < 4; i++)
-        {
-          success = DeviceIoControl(handle, FSCTL_LOCK_VOLUME, null, 0, null, 0, ref dummy, IntPtr.Zero);
-          if (success)
-            break;
-
-          Thread.Sleep(500);
-        }
-        if (!success)
-        {
+        case DriveUtils.DriveEjectError.InvalidMediaError:
+          ServiceRegistration.Get<ILogger>().Error("Media eject failed. Drive {0} is invalid!", driveLetter);
+          break;
+        case DriveUtils.DriveEjectError.NotFoundError:
+          ServiceRegistration.Get<ILogger>().Error("Media eject failed. Drive {0} does not exist!", driveLetter);
+          break;
+        case DriveUtils.DriveEjectError.LockError:
           ServiceRegistration.Get<ILogger>().Error("Media eject failed. Drive {0} could not be locked!", driveLetter);
-          return false;
-        }
-
-        // Volume dismount
-        dummy = 0;
-        success = DeviceIoControl(handle, FSCTL_DISMOUNT_VOLUME, null, 0, null, 0, ref dummy, IntPtr.Zero);
-        if (!success)
-        {
+          break;
+        case DriveUtils.DriveEjectError.DismountError:
           ServiceRegistration.Get<ILogger>().Error("Media eject failed. Drive {0} could not be dismounted!", driveLetter);
-          return false;
-        }
-
-        // Prevent Removal Of Volume
-        byte[] flag = new byte[1];
-        flag[0] = 0; // 0 = false
-        dummy = 0;
-        success = DeviceIoControl(handle, IOCTL_STORAGE_MEDIA_REMOVAL, flag, 1, null, 0, ref dummy, IntPtr.Zero);
-        if (!success)
-        {
+          break;
+        case DriveUtils.DriveEjectError.PreventRemovalError:
           ServiceRegistration.Get<ILogger>().Error("Media eject failed. Drive {0} could not be suspended!", driveLetter);
-          return false;
-        }
-
-        // Eject Media
-        dummy = 0;
-        success = DeviceIoControl(handle, IOCTL_STORAGE_EJECT_MEDIA, null, 0, null, 0, ref dummy, IntPtr.Zero);
-        if (!success)
-        {
+          break;
+        case DriveUtils.DriveEjectError.EjectError:
           ServiceRegistration.Get<ILogger>().Error("Media eject failed. Drive {0} could not be ejected!", driveLetter);
-          return false;
-        }
+          break;
       }
-      finally
-      {
-        // Close Handle
-        CloseHandle(handle);
-      }
-      return true;
     }
 
     #endregion

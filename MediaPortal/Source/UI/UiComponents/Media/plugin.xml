@@ -258,6 +258,7 @@
     <MediaItemActionBuilder Id="{6B6F3A76-B631-45C9-936B-1BEE51664A21}" Caption="[Media.SubtitleSearch]" Sort="C.2" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.SearchForSubtitles"/>
     <MediaItemActionBuilder Id="{8B92989B-B57F-43C9-ACE2-C1E4866122E7}" Caption="[Media.Refresh]" Sort="C.3" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.RefreshMediaItem"/>
     <MediaItemActionBuilder Id="{3185CBDB-0EF8-4E22-AE3E-2D79FA52F63A}" Caption="[Media.Reimport]" Sort="C.4" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.ReimportMediaItem"/>
+    <MediaItemActionBuilder Id="{0F58BD42-A1CD-4103-9482-A64F017049BF}" Caption="[Media.Eject]" Sort="C.5" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.EjectMediaItem"/>
     <MediaItemActionBuilder Id="{37417344-B43E-486F-A2C5-DFF9E8C1C8E1}" Caption="[Media.DeleteFromStorage]" Sort="D.2" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.DeleteFromStorage" RestrictionGroup="Media.DeleteMediaItem" />
   </Register>
 
