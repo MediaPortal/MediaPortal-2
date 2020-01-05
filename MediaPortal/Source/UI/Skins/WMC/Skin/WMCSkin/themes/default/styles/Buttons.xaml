@@ -2137,6 +2137,23 @@
     </Setter>
   </Style>
 
+  <Style x:Key="EjectDiscButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="PlayerControl\EjectDisc.NOFOCUS.PNG" Stretch="Uniform" Height="45" Width="45" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="PlayerControl\EjectDisc.FOCUS.PNG"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="PreviousChapterButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
