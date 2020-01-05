@@ -39,6 +39,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
     public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
+      if (!IsManagedByMediaLibrary(mediaItem))
+        return Task.FromResult(false);
+
       try
       {
         if (mediaItem.PrimaryResources.Count > 0 || mediaItem.IsStub)

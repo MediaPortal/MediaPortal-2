@@ -69,7 +69,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
     public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
-      var result = !IsRecordingItem(mediaItem) && IsResourceDeletor(mediaItem);
+      var result = !IsRecordingItem(mediaItem) && IsResourceDeletor(mediaItem) && IsManagedByMediaLibrary(mediaItem);
       return Task.FromResult(result);
     }
 
