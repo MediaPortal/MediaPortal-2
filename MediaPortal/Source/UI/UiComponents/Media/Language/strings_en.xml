@@ -262,6 +262,7 @@
   <string name="Media.ListIsBeingBuiltHint">The items list is being built...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Searching...</string>
   <string name="Media.EjectOpticalDisc">Eject optical disc</string>
+  <string name="Media.Eject">Eject</string>
 
   <!-- Playlists -->
   <string name="Media.ManagePlaylists">Playlists</string>

@@ -45,6 +45,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     {
       try
       {
+        if (!IsManagedByMediaLibrary(mediaItem))
+          return Task.FromResult(false);
+
         MediaItemMatchModel mimm = ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaItemMatchModel.MODEL_ID_MIMATCH) as MediaItemMatchModel;
         return Task.FromResult(mimm?.IsValidMediaItem(mediaItem) ?? false);
       }
