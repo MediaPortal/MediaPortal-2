@@ -2133,6 +2133,24 @@
     </Setter>
   </Style>
 
+  <Style x:Key="EjectDiscButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="PlayerControl\EjectDisc.NOFOCUS.PNG" Stretch="Uniform" Height="80" Width="80" Opacity="0.6" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="PlayerControl\EjectDisc.FOCUS.PNG"/>
+              <Setter TargetName="image" Property="Opacity" Value="1"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="PauseButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>

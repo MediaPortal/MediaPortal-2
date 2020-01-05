@@ -396,6 +396,8 @@
                             Command="{Command SeekForward}"/>
                     <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
                             Command="{Command Next}"/>
+                    <Button x:Name="EjectDisc" Style="{ThemeResource EjectDiscButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=9EE2C4A6-70FD-4947-9418-A40012925DA6}"/>
                   </StackPanel>
 
                   <StackPanel x:Name="PlayControlsPanel_Back" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
