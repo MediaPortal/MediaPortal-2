@@ -261,6 +261,7 @@
   <string name="Media.MoreThanMaxItemsSearchResultHint">The search result contains more than {0} items. Please narrow your search.</string>
   <string name="Media.ListIsBeingBuiltHint">The items list is being built...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Searching...</string>
+  <string name="Media.EjectOpticalDisc">Eject optical disc</string>
 
   <!-- Playlists -->
   <string name="Media.ManagePlaylists">Playlists</string>

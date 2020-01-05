@@ -111,6 +111,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Actions\EjectOpticalDiscAction.cs" />
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
     <Compile Include="Actions\BaseTrackServerConnectionAction.cs" />
@@ -563,7 +564,9 @@
     <Content Include="Skin\default\workflow\filter-actions.xml" />
     <Content Include="Skin\default\workflow\grouping-actions.xml" />
     <Content Include="Skin\default\workflow\sorting-actions.xml" />
-    <Content Include="Skin\default\workflow\media-actions.xml" />
+    <Content Include="Skin\default\workflow\media-actions.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\workflow\viewmode-actions.xml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingImage.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentImage.xaml" />
