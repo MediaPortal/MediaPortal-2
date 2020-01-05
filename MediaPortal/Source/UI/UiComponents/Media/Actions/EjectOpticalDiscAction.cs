@@ -62,8 +62,16 @@ namespace MediaPortal.UiComponents.Media.Actions
 
     public bool IsActionVisible(NavigationContext context)
     {
+      if (string.IsNullOrEmpty(_opticalDrive))
+        return false;
+
+      //Allow action from OSD screens
+      if (context?.Models?.Any(m => m.Value is BaseOSDPlayerModel) ?? false)
+        return true;
+
+      //Allow action from navigation views
       NavigationData navigationData = MediaNavigationModel.GetNavigationData(context, false);
-      return navigationData != null && !string.IsNullOrEmpty(_opticalDrive);
+      return navigationData != null;
     }
 
     public bool IsActionEnabled(NavigationContext context)

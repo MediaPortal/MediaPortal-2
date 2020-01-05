@@ -291,31 +291,33 @@ namespace MediaPortal.Utilities.FileSystem
       try
       {
         int dummy = 0;
-        // Lock Volume (retry 4 times - 2 seconds)
-        for (int i = 0; i < 4; i++)
+        if (IsRemovable(strFile))
         {
-          success = DeviceIoControl(handle, FSCTL_LOCK_VOLUME, null, 0, null, 0, ref dummy, IntPtr.Zero);
-          if (success)
-            break;
+          // Lock Volume (retry 10 times - 5 seconds)
+          for (int i = 0; i < 4; i++)
+          {
+            success = DeviceIoControl(handle, FSCTL_LOCK_VOLUME, null, 0, null, 0, ref dummy, IntPtr.Zero);
+            if (success)
+              break;
+            Thread.Sleep(500);
+          }
+          if (!success)
+            return DriveEjectError.LockError;
 
-          Thread.Sleep(500);
+          // Volume dismount
+          dummy = 0;
+          success = DeviceIoControl(handle, FSCTL_DISMOUNT_VOLUME, null, 0, null, 0, ref dummy, IntPtr.Zero);
+          if (!success)
+            return DriveEjectError.DismountError;
+
+          // Prevent Removal Of Volume
+          byte[] flag = new byte[1];
+          flag[0] = 0; // 0 = false
+          dummy = 0;
+          success = DeviceIoControl(handle, IOCTL_STORAGE_MEDIA_REMOVAL, flag, 1, null, 0, ref dummy, IntPtr.Zero);
+          if (!success)
+            return DriveEjectError.PreventRemovalError;
         }
-        if (!success)
-          return DriveEjectError.LockError;
-
-        // Volume dismount
-        dummy = 0;
-        success = DeviceIoControl(handle, FSCTL_DISMOUNT_VOLUME, null, 0, null, 0, ref dummy, IntPtr.Zero);
-        if (!success)
-          return DriveEjectError.DismountError;
-
-        // Prevent Removal Of Volume
-        byte[] flag = new byte[1];
-        flag[0] = 0; // 0 = false
-        dummy = 0;
-        success = DeviceIoControl(handle, IOCTL_STORAGE_MEDIA_REMOVAL, flag, 1, null, 0, ref dummy, IntPtr.Zero);
-        if (!success)
-          return DriveEjectError.PreventRemovalError;
 
         // Eject Media
         dummy = 0;
