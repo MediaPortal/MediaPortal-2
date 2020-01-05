@@ -59,6 +59,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="ScriptableMovieMetadataExtractor.cs" />
     <Compile Include="Data\ScriptableScraperMovieMatcher.cs" />
     <Compile Include="Data\ScriptableScraperMovieWrapper.cs" />
