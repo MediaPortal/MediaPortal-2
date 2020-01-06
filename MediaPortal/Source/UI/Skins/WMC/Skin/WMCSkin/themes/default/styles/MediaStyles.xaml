@@ -328,6 +328,8 @@
                       <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="5,0,5,0" 
                               Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}"/>
                       <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
+                      <Button x:Name="EjectDisc" Style="{ThemeResource EjectDiscButtonStyle}" Margin="0"
+                              Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9EE2C4A6-70FD-4947-9418-A40012925DA6}"/>
                       <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}"
                               Command="{Command Stop}"/>
                       <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}"

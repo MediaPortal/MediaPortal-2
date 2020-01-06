@@ -384,6 +384,8 @@
                           Command="{Command SeekForward}"/>
                   <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}"
                           Command="{Command Next}"/>
+                  <Button x:Name="EjectDiscButton" Style="{ThemeResource EjectDiscButtonStyle}"
+                          Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9EE2C4A6-70FD-4947-9418-A40012925DA6}"/>
                   <Image Source="topbar_devider.png" Height="60" Width="80" Stretch="Fill" Margin="-5,5,-5,5"/>
                   <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}"/>

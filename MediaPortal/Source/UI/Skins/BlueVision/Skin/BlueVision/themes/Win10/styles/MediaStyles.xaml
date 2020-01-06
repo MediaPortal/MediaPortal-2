@@ -2374,6 +2374,8 @@
                   Command="{Command SeekForward}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
                   Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="EjectDisc" Style="{ThemeResource EjectDiscButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9EE2C4A6-70FD-4947-9418-A40012925DA6}"/>
           <DockPanel LastChildFill="False">
             <Label DockPanel.Dock="Top" x:Name="DurationLabel" Content="{Binding Duration}" Margin="10,10,20,0"
                    Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold"/>

@@ -542,6 +542,7 @@
     <Content Include="Skin\BlueVision\images\PlayerControls.Large.Dark\StopButton.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\Audio.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\AudioMute.png" />
+    <Content Include="Skin\BlueVision\images\PlayerControls.Large\Ejectdisc.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\ForwardButton.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\NextChapterButton.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\PauseButton.png" />
