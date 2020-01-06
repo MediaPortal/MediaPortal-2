@@ -645,13 +645,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
         List<SubtitleInfo> matches = new List<SubtitleInfo>();
         if (searchAspectData.ContainsKey(MovieAspect.ASPECT_ID))
         {
-          foreach(var category in searchCategories)
-            matches.AddRange(await OnlineMatcherService.Instance.FindMatchingMovieSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), category).ConfigureAwait(false));
+          if (searchCategories?.Any() ?? false)
+          {
+            foreach (var category in searchCategories)
+              matches.AddRange(await OnlineMatcherService.Instance.FindMatchingMovieSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), category).ConfigureAwait(false));
+          }
+          else
+          {
+            matches.AddRange(await OnlineMatcherService.Instance.FindMatchingMovieSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), null).ConfigureAwait(false));
+          }
         }
         else if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
         {
-          foreach (var category in searchCategories)
-            matches.AddRange(await OnlineMatcherService.Instance.FindMatchingEpisodeSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), category).ConfigureAwait(false));
+          if (searchCategories?.Any() ?? false)
+          {
+            foreach (var category in searchCategories)
+              matches.AddRange(await OnlineMatcherService.Instance.FindMatchingEpisodeSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), category).ConfigureAwait(false));
+          }
+          else
+          {
+            matches.AddRange(await OnlineMatcherService.Instance.FindMatchingEpisodeSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), null).ConfigureAwait(false));
+          }
         }
         ServiceRegistration.Get<ILogger>().Debug("SubtitleMetadataExtractor: Subtitle search returned {0} matches", matches.Count());
         foreach (var match in matches.OrderBy(m => m.LanguageMatchRank ?? int.MaxValue).ThenByDescending(m => m.MatchPercentage ?? 0))
