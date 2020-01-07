@@ -13,6 +13,7 @@
   <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
   <Model x:Key="SlimTvMultiChannelGuide" Id="5054408D-C2A9-451f-A702-E84AFCD29C10"/>
   <Model x:Key="SlimTvSettings" Id="F5D4AA07-8469-46A7-8FD0-E1CD1E8F5898"/>
+  <Model x:Key="SlimTvExtSchedule" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
@@ -941,7 +942,7 @@
                   <TriggerCommand>
                     <TriggerCommand.Command>
                       <Command x:Key="SelectionChanged_Command"
-                               Source="{StaticResource SlimTvSettings}"
+                               Source="{StaticResource SlimTvMultiChannelGuide}"
                                Path="UpdateProgram"
                                Parameters="{LateBoundValue BindingValue={Binding}}" />
                     </TriggerCommand.Command>
