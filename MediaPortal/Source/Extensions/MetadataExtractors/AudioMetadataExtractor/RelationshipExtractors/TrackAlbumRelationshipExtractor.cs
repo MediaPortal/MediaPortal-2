@@ -109,16 +109,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
         MediaItemAspect.SetAttribute(albumAspects, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
 
-      if (!aspects.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the image might be wrong
-      {
-        byte[] data;
-        if (MediaItemAspect.TryGetAttribute(aspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
-        {
-          //Use image from track as image
-          MediaItemAspect.SetAttribute(albumAspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, data);
-        }
-      }
-
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;
 

@@ -47,6 +47,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using TagLib;
 using File = TagLib.File;
+using Tag = TagLib.Id3v2.Tag;
 
 namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 {
@@ -70,6 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public static readonly string MEDIA_CATEGORY_NAME_ADUIO = DefaultMediaCategories.Audio.CategoryName;
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
     public const string PICARD_ARTISTS_TAG = "ARTISTS";
+    public static readonly char[] PICARD_ID_SEPARATORS = new char[] { ';', '/' };
 
     #endregion
 
@@ -510,10 +512,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         return false;
 
       string musicBrainzId = tag.Tag.MusicBrainzArtistId;
+      if (albumArtists)
+        musicBrainzId = tag.Tag.MusicBrainzReleaseArtistId;
       if (string.IsNullOrEmpty(musicBrainzId))
         return false;
       //Multiple ids can be contained in this tag
-      string[] musicBrainzIds = musicBrainzId.Split(ADDITIONAL_SEPARATOR);
+      string[] musicBrainzIds = musicBrainzId.Split(PICARD_ID_SEPARATORS.Union(new char[] { ADDITIONAL_SEPARATOR }).ToArray());
 
       bool success = false;
       for (int i = 0; i < musicBrainzIds.Length; i++)
@@ -537,13 +541,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       if((tag.TagTypes & TagTypes.Id3v2) != 0)
       {
-        var id3v2tag = tag.GetTag(TagTypes.Id3v2, false) as TagLib.Id3v2.Tag;
-        if (id3v2tag != null)
+        if (tag.GetTag(TagTypes.Id3v2, false) is Tag id3v2tag)
         {
           foreach (TagLib.Id3v2.Frame frame in id3v2tag.GetFrames())
           {
             var frameId = frame.FrameId.ToString();
-            if (frameId == "TXXX" && (frame as TagLib.Id3v2.UserTextInformationFrame).Description.ToUpperInvariant() == frameDescription.ToUpperInvariant())
+            if (frameId == "TXXX" && (frame as TagLib.Id3v2.UserTextInformationFrame)?.Description?.ToUpperInvariant() == frameDescription.ToUpperInvariant())
             {
               return string.Join(ADDITIONAL_SEPARATOR.ToString(), (frame as TagLib.Id3v2.UserTextInformationFrame).Text);
             }
