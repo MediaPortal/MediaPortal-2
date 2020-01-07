@@ -64,8 +64,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaType != FanArtMediaTypes.Album && mediaType != FanArtMediaTypes.Audio)
         return false;
 
-      // Don't try to load "fanart" for images
-      if (!Guid.TryParse(name, out mediaItemId) || mediaType == FanArtMediaTypes.Image)
+      if (!Guid.TryParse(name, out mediaItemId))
         return false;
 
       IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
