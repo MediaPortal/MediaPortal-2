@@ -125,8 +125,7 @@
             </StackPanel>
 
             <Button x:Name="NewScheduleButton" Style="{ThemeResource ButtonWideStyle}" Margin="55,0,10,10"
-                    HorizontalAlignment="Left" VerticalAlignment="Top"
-                    Content="[SlimTvClient.NewSchedule]"
+                    HorizontalAlignment="Left" VerticalAlignment="Top" Content="[SlimTvClient.NewSchedule]"
                     Command="{Command Source={StaticResource SlimTvManualSchedule}, Path=Show}" />
           </StackPanel>
 
@@ -140,7 +139,7 @@
                                         fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
             </Image.Source>
           </Image>
-          <Label x:Name="Program" Grid.Row="2" Grid.ColumnSpan="2" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+          <Label x:Name="Program" Grid.Row="2" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                  Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
 
           <Grid Grid.Row="3" IsVisible="{Binding ElementName=ScheduleTypeLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">

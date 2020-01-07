@@ -52,7 +52,7 @@
             DataContext="{Binding Source={StaticResource SlimTvExtScheduleGuide}}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="1000"/>
+          <ColumnDefinition Width="740"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
@@ -72,8 +72,8 @@
             <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
           </Grid.Resources>
 
-          <!--Image x:Name="FanArtImageBackground" Stretch="Fill" VerticalAlignment="Top" Source="ov_sites.jpg" HorizontalAlignment="Stretch" Height="600"
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}"/-->
+          <Image x:Name="FanArtImageBackground" Stretch="Fill" VerticalAlignment="Top" Source="schedule-background.jpg" HorizontalAlignment="Stretch" Height="600"
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}"/>
           <Image Grid.RowSpan="2" Stretch="Fill" Source="List_overlay.png"/>
           <Image Grid.RowSpan="2" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
 
@@ -88,7 +88,7 @@
         </Grid>
 
         <!-- Content -->
-        <ListView x:Name="ExtScheduleList" Margin="-10,-20,-45,-20"
+        <ListView x:Name="ExtScheduleList" Margin="20,-20,-15,-20"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource ExtScheduleListViewStyle}"
                   ItemsSource="{Binding Path=ProgramsList}"
@@ -99,20 +99,23 @@
         </ListView>
 
         <!-- Details -->
-        <Grid Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,380,0,80">
+        <Grid Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,50,0,80">
           <Grid.RowDefinitions>
-            <RowDefinition Height="30*"/>
-            <RowDefinition Height="70*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="60*"/>
-            <ColumnDefinition Width="40*"/>
+            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"  >
-            <Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}" Margin="10,10,0,10"
-                  Content="[SlimTvClient.DontRecordProgram]" 
-                  Command="{Command CancelSchedule}">
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0,0,0,100">
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="10"
+                    Content="[SlimTvClient.DontRecordProgram]" Command="{Command CancelSchedule}">
               <Button.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
                   <Binding Path="IsSingleRecordingScheduled"/>
@@ -121,9 +124,8 @@
               </Button.IsVisible>
             </Button>
 
-            <Button Style="{ThemeResource ButtonWideStyle}" Margin="10,10,0,10"
-                  Content="[SlimTvClient.RecordProgram]" 
-                  Command="{Command RecordSingleProgram}">
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="0,10,10,5"
+                    Content="[SlimTvClient.RecordProgram]" Command="{Command RecordSingleProgram}">
               <Button.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
                   <Binding Path="IsSingleRecordingScheduled"/>
@@ -132,9 +134,9 @@
               </Button.IsVisible>
             </Button>
 
-            <Button Style="{ThemeResource ButtonWideStyle}" Margin="5,10,10,10"
-                  Content="[SlimTvClient.RecordSeries]" 
-                  Command="{Command RecordSeries}">
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="0,5,10,10"
+                    Content="[SlimTvClient.RecordSeries]" 
+                    Command="{Command RecordSeries}">
               <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
                   <Binding Path="IsSingleRecordingScheduled"/>
@@ -144,12 +146,52 @@
             </Button>
           </StackPanel>
 
-          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Control.TemplateControl>
-              <Include Source="screens\ProgramInfo.inc"/>
-            </Control.TemplateControl>
-          </Control>
+          <!-- Common control for program duration formatting -->
+          <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
+                 IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}" Grid.Row="1"/>
+          <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="1"
+                 Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
+                                        fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+            </Image.Source>
+          </Image>
+          <Label x:Name="Program" Grid.Row="2" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+                 Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
 
+          <Grid Grid.Row="3" IsVisible="{Binding ElementName=ScheduleTypeLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="ScheduleTypeLabel" Content="{Binding ScheduleType}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+          </Grid>
+
+          <Grid Grid.Row="4" DataContext="{Binding Path=CurrentProgram}"
+                IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\duration.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="40,0,0,0" >
+              <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColorForeground}"
+                     Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+              <Label x:Name="Delimiter" Margin="10,0,10,0"  Color="{ThemeResource TextColorForeground}" Content="-"
+                     IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+              <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                     Color="{ThemeResource TextColorForeground}"/>
+            </StackPanel>
+          </Grid>
+
+          <Grid Grid.Row="5" Grid.ColumnSpan="2" IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\series.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label HorizontalAlignment="Stretch" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" x:Name="SeriesLabel" >
+              <Label.Content>
+                <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+              </Label.Content>
+            </Label>
+          </Grid>
+
+          <Label x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Wrap="True" Scroll="Auto" ScrollDelay="5" ScrollSpeed="10" Opacity="0.6" Grid.Row="6"
+                 Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}" Margin="0,0,0,50" />
         </Grid>
 
         <!-- Actual Item / Total items -->
