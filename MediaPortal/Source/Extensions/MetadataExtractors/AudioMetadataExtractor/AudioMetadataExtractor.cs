@@ -71,7 +71,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     public static readonly string MEDIA_CATEGORY_NAME_ADUIO = DefaultMediaCategories.Audio.CategoryName;
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
     public const string PICARD_ARTISTS_TAG = "ARTISTS";
-    public static readonly char[] PICARD_ID_SEPARATORS = new char[] { ';', '/' };
 
     #endregion
 
@@ -398,7 +397,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     /// <param name="valuesEnumer">Enumeration of values, which were potentially wrongly splitted by TagLib#.</param>
     protected static IEnumerable<string> PatchID3v23Enumeration(IEnumerable<string> valuesEnumer)
     {
-      return JoinUnsplittableValues(valuesEnumer, UNSPLITTABLE_ID3V23_VALUES, '/');
+      char splitChar = '/';
+      valuesEnumer = valuesEnumer.SelectMany(v => v.Contains(splitChar) ? v.Split(splitChar) : new[] { v });
+      return JoinUnsplittableValues(valuesEnumer, UNSPLITTABLE_ID3V23_VALUES, splitChar);
     }
 
     /// <summary>
@@ -499,15 +500,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!albumArtists)
       {
         var customArtists = GetCustomId3v2FrameValue(tag, PICARD_ARTISTS_TAG);
-        if (!string.IsNullOrEmpty(customArtists))
-          artists = customArtists.Split(ADDITIONAL_SEPARATOR);
+        if (customArtists.Any())
+        {
+          if ((tag.TagTypes & TagTypes.Id3v2) != 0)
+            artists = PatchID3v23Enumeration(customArtists);
+        }
       }
       if (!artists.Any())
         return false;
       artists = (tag.TagTypes & TagTypes.Id3v2) != 0 ?
         PatchID3v23Enumeration(artists) : artists;
       artists = ApplyAdditionalSeparator(artists);
-      var atistList = artists.ToList();
+      var atistList = artists.Select(a => a.Trim()).ToList();
       if (atistList.Count == 0)
         return false;
 
@@ -517,17 +521,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (string.IsNullOrEmpty(musicBrainzId))
         return false;
       //Multiple ids can be contained in this tag
-      string[] musicBrainzIds = musicBrainzId.Split(PICARD_ID_SEPARATORS.Union(new char[] { ADDITIONAL_SEPARATOR }).ToArray());
+      IEnumerable<string> musicBrainzIds = new [] { musicBrainzId };
+      if ((tag.TagTypes & TagTypes.Id3v2) != 0)
+        musicBrainzIds = PatchID3v23Enumeration(musicBrainzIds);
 
       bool success = false;
-      for (int i = 0; i < musicBrainzIds.Length; i++)
+      musicBrainzIds = ApplyAdditionalSeparator(musicBrainzIds);
+      int artistIdx = -1;
+      foreach(string id in musicBrainzIds.Select(i => i.Trim()))
       {
-        string id = musicBrainzIds[i].Trim();
+        artistIdx++;
         if (string.IsNullOrEmpty(id))
           continue;
-        if (atistList.Count > i)
+        if (atistList.Count > artistIdx)
         {
-          PersonInfo person = persons.FirstOrDefault(p => p.Name == atistList[i]);
+          PersonInfo person = persons.FirstOrDefault(p => string.Equals(p.Name, atistList[artistIdx], StringComparison.InvariantCultureIgnoreCase));
           if (person == null)
             continue;
           person.MusicBrainzId = id;
@@ -537,7 +545,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       return success;
     }
 
-    protected static string GetCustomId3v2FrameValue(File tag, string frameDescription)
+    protected static string[] GetCustomId3v2FrameValue(File tag, string frameDescription)
     {
       if((tag.TagTypes & TagTypes.Id3v2) != 0)
       {
@@ -548,7 +556,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
             var frameId = frame.FrameId.ToString();
             if (frameId == "TXXX" && (frame as TagLib.Id3v2.UserTextInformationFrame)?.Description?.ToUpperInvariant() == frameDescription.ToUpperInvariant())
             {
-              return string.Join(ADDITIONAL_SEPARATOR.ToString(), (frame as TagLib.Id3v2.UserTextInformationFrame).Text);
+              return (frame as TagLib.Id3v2.UserTextInformationFrame).Text;
             }
           }
         }
@@ -607,11 +615,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
               if (!isReimport) //Don't assign metadata for reimports because they might be the cause of the wrong import
               {
-                IEnumerable<string> artists;
-                var customArtists = GetCustomId3v2FrameValue(tag, PICARD_ARTISTS_TAG);
-                if (!string.IsNullOrEmpty(customArtists))
+                IEnumerable<string> artists = GetCustomId3v2FrameValue(tag, PICARD_ARTISTS_TAG);
+                if (artists.Any())
                 {
-                  artists = customArtists.Split(ADDITIONAL_SEPARATOR);
                   if ((tag.TagTypes & TagTypes.Id3v2) != 0)
                     artists = PatchID3v23Enumeration(artists);
                 }
@@ -776,7 +782,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 //}
               }
 
-              if (tag.Properties.Codecs.Count() > 0)
+              if (tag.Properties.Codecs.Any())
               {
                 trackInfo.Encoding = tag.Properties.Codecs.First().Description;
                 trackInfo.HasChanged = true;
