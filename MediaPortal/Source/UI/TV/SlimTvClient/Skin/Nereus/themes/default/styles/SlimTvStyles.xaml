@@ -1501,10 +1501,10 @@
           </Label.Content>
         </Label>
 
-        <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="{Binding Program.IsSeriesScheduled}"
-             VerticalAlignment="Center" HorizontalAlignment="Right" Height="30" Stretch="Uniform" Margin="8,5,8,5"/>
-        <Image Grid.Column="1" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="{Binding Program.IsScheduled}"
-             VerticalAlignment="Center" HorizontalAlignment="Right" Height="30" Stretch="Uniform" Margin="8,10,8,10"/>
+        <Image Grid.Column="1" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="False"
+               VerticalAlignment="Center" HorizontalAlignment="Right" Height="30" Stretch="Uniform" Margin="8,5,8,5"/>
+        <Image Grid.Column="1" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="False"
+               VerticalAlignment="Center" HorizontalAlignment="Right" Height="30" Stretch="Uniform" Margin="8,10,8,10"/>
       </Grid>
 
       <Label x:Name="ProgramStartEnd" Grid.Column="2" Margin="10,0,10,0" Color="{ThemeResource TextColor}" VerticalAlignment="Center"

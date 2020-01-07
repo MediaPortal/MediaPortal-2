@@ -72,7 +72,7 @@
             <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
           </Grid.Resources>
 
-          <Image x:Name="FanArtImageBackground" Stretch="Fill" VerticalAlignment="Top" Source="schedule-background.jpg" HorizontalAlignment="Stretch" Height="600"
+          <Image x:Name="FanArtImageBackground" Stretch="Fill" VerticalAlignment="Top" Source="search_background.jpg" HorizontalAlignment="Stretch" Height="600"
                  IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}"/>
           <Image Grid.RowSpan="2" Stretch="Fill" Source="List_overlay.png"/>
           <Image Grid.RowSpan="2" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
