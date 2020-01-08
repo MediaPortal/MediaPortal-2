@@ -329,11 +329,17 @@
 
       <!-- Background fill -->
       <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
-                   x:Name="HomeFill" Fill="black" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                 x:Name="HomeFill" Fill="black" Opacity="0.4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
 
       <!-- Image -->
-      <Image Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
+      <Image x:Name="Cover" Grid.RowSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="UniformToFill"
              Source="{Binding MediaItem}"/>
+      <Image x:Name="Poster" Stretch="Fill" IsVisible="{Binding ElementName=Cover, Path=!HasImage}">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="{StaticResource AUDIO_COVER_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_COVER_HEIGHT}"/>
+        </Image.Source>
+      </Image>
 
       <!-- Darkened band -->
       <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
