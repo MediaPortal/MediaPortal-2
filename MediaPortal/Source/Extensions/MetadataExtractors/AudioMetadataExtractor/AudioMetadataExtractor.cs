@@ -561,7 +561,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           }
         }
       }
-      return null;
+      return new string[0];
     }
 
     #endregion
