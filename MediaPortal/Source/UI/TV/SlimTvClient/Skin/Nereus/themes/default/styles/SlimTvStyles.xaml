@@ -962,10 +962,11 @@
 
               <Label x:Name="ItemLabel" Opacity="0.8" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                      Margin="2,0,0,0" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-              <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+              <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
+                     FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="Auto"
                      Margin="2,0,0,0" FontFamily="SegoeUIBold" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
-              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="5,0,0,0" Opacity="0.8" />
+              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" 
+                     FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0" Opacity="0.8" />
             </Grid>
           </Button>
         </ControlTemplate>
@@ -1017,6 +1018,7 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="Item" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
               <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+              <Setter TargetName="ItemLabel" Property="FontFamily" Value="SegoeUIBold"/>
               <Setter TargetName="ChannelName" Property="Scroll" Value="Auto"/>
             </Trigger>
           </ControlTemplate.Triggers>
@@ -1064,6 +1066,7 @@
               <Setter TargetName="Item2_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
               <Setter TargetName="Item3_overlay" Property="Background" Value="{ThemeResource ProgramFocusedFill}"/>
               <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+              <Setter TargetName="ItemLabel" Property="FontFamily" Value="SegoeUIBold"/>
             </Trigger>
 
           </ControlTemplate.Triggers>
