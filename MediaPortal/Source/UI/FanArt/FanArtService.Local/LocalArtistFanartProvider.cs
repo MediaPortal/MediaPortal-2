@@ -166,7 +166,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           {
             var potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryFsra);
 
-            if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
+            if (fanArtType == FanArtTypes.Undefined || fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
             {
               fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.ARTIST_FILENAMES));
               fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.POSTER_FILENAMES));

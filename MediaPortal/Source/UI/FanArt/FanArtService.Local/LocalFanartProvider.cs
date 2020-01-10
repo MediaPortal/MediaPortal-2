@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           {
             var potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryFsra);
 
-            if (fanArtType == FanArtTypes.Thumbnail)
+            if (fanArtType == FanArtTypes.Undefined || fanArtType == FanArtTypes.Thumbnail)
             {
               fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles, LocalFanartHelper.THUMB_FILENAMES,
                 LocalFanartHelper.THUMB_FILENAMES.Select(f => mediaItemFileNameWithoutExtension + "-" + f)));

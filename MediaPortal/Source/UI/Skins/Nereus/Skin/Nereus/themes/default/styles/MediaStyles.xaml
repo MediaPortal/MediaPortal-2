@@ -940,7 +940,7 @@
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
                Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -950,7 +950,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" FallbackSource="Navigation.png"
                Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -960,7 +960,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform" FallbackSource="Navigation.png" VerticalAlignment="Center" Margin="0,0,0,10"
                Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -989,7 +989,7 @@
       <!-- Thumbnail available-->
       <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
@@ -1063,7 +1063,7 @@
       <Image x:Name="thumb" Grid.Row="1" Stretch="Fill">
         <Image.Source>
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource AUDIO_COVER_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_COVER_HEIGHT}"/>
           </Image.Source>
         </Image.Source>
@@ -1280,7 +1280,7 @@
       <!-- Thumbnail available-->
       <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
@@ -1354,7 +1354,7 @@
       <Image x:Name="thumb" Grid.Row="1" Stretch="Fill">
         <Image.Source>
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource AUDIO_COVER_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_COVER_HEIGHT}"/>
           </Image.Source>
         </Image.Source>
@@ -3021,7 +3021,7 @@
       <!-- Thumbnail available-->
       <Image x:Name="thumbnail" Stretch="UniformToFill" Margin="3">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource AUDIO_GRID_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
@@ -3089,7 +3089,7 @@
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -3099,7 +3099,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" FallbackSource="person.png"
             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -3109,7 +3109,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform" FallbackSource="person.png"
             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -3138,7 +3138,7 @@
       <Image Grid.Row="1" Source="Square_large.png" Stretch="Fill" Margin="-6"/>
       <Image x:Name="thumbnail" Grid.Row="1" Stretch="UniformToFill">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Source={StaticResource FanArtBackgroundModel}, Path=FanArtMediaType}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource AUDIO_COVER_WIDTH}" fanart:MaxHeight="{StaticResource AUDIO_COVER_HEIGHT}"/>
         </Image.Source>
       </Image>
