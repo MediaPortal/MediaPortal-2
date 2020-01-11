@@ -299,116 +299,132 @@ namespace MediaPortal.Extensions.MediaServer
 
     private static UPnPError OnBrowse(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      // In parameters
-      var objectId = (string)inParams[0];
-      var browseFlag = inParams[1].ToString();
-      var filter = inParams[2].ToString();
-      var startingIndex = Convert.ToInt32(inParams[3]);
-      var requestedCount = Convert.ToInt32(inParams[4]);
-      var sortCriteria = (string)inParams[5];
+      outParams = new List<object>();
+      string objectId = "?";
 
-      Logger.Debug(
-        "MediaServer - entry OnBrowse(objectId=\"{0}\",browseFlag=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
-        objectId, browseFlag, filter, startingIndex, requestedCount, sortCriteria);
-
-      // Out parameters
-      int numberReturned = 0;
-      int totalMatches = 0;
-      int containterUpdateId;
-
-      IPAddress ip = ProfileManager.ResolveIpAddress(context.Request?.RemoteIpAddress);
-      EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
-      if (deviceClient?.Profile == null)
+      try
       {
-        outParams = null;
-        return null;
+        // In parameters
+        objectId = (string)inParams[0];
+        var browseFlag = inParams[1].ToString();
+        var filter = inParams[2].ToString();
+        var startingIndex = Convert.ToInt32(inParams[3]);
+        var requestedCount = Convert.ToInt32(inParams[4]);
+        var sortCriteria = (string)inParams[5];
+        if (objectId.Contains('/'))
+        {
+          //Sub item browsing is not allowed. Kodi for some reason tries to get a folder.jpg this way
+          return null;
+        }
+
+        Logger.Debug(
+          "MediaServer - entry OnBrowse(objectId=\"{0}\",browseFlag=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
+          objectId, browseFlag, filter, startingIndex, requestedCount, sortCriteria);
+
+        // Out parameters
+        int numberReturned = 0;
+        int totalMatches = 0;
+        int containterUpdateId;
+
+        IPAddress ip = ProfileManager.ResolveIpAddress(context.Request?.RemoteIpAddress);
+        EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
+        if (deviceClient?.Profile == null)
+        {
+          return null;
+        }
+
+        deviceClient.InitializeAsync(ip.ToString()).Wait();
+
+        //Check if user login
+        CheckUserLogin(objectId, deviceClient);
+
+        GenericContentDirectoryFilter deviceFilter = GenericContentDirectoryFilter.GetContentFilter(deviceClient.Profile.DirectoryContentFilter);
+        var newObjectId = deviceFilter.FilterObjectId(objectId, false);
+        if (newObjectId == null)
+        {
+          Logger.Debug("MediaServer: Request for container ID {0} ignored", objectId);
+          return null;
+        }
+        if (objectId != newObjectId)
+        {
+          Logger.Debug("MediaServer: Request for container ID {0} intercepted, changing it to {1}", objectId, newObjectId);
+          objectId = newObjectId;
+        }
+
+        // Find the container object requested
+        //var parentDirectoryId = objectId == "0" ? Guid.Empty : MarshallingHelper.DeserializeGuid(objectId);
+        var o = deviceClient.RootContainer.FindContainerObject(objectId);
+        if (o as BasicContainer == null)
+        {
+          // We failed to find the container requested
+          // throw error!
+          throw new ArgumentException(string.Format("Container with ObjectID {0} not found", objectId));
+        }
+
+        deviceFilter.FilterContainerClassType(objectId, ref o);
+        deviceFilter.FilterClassProperties(objectId, ref o);
+
+        BasicContainer c = o as BasicContainer;
+        Logger.Debug("MediaServer Got object {0} / {1} : {2}, {3}", c, c.Id, c.Key, c.Title, c.ChildCount);
+        Logger.Debug("MediaServer: Using DIDL content builder {0}", deviceClient.Profile.DirectoryContentBuilder);
+        var msgBuilder = GenericDidlMessageBuilder.GetDidlMessageBuilder(deviceClient.Profile.DirectoryContentBuilder);
+
+        // Start to build the XML DIDL-Lite document.
+        switch (browseFlag)
+        {
+          case "BrowseMetadata":
+            // Render the container as XML
+            msgBuilder.Build(filter, o);
+
+            // We are only after information about 1 container
+            numberReturned = 1;
+            totalMatches = 1;
+            break;
+          case "BrowseDirectChildren":
+            // Create a new object based on search criteria
+            c.Initialise();
+            var resultList = c.Browse(sortCriteria);
+            Logger.Debug("MediaServer: Browse has {0} results", resultList.Count);
+            totalMatches = resultList.Count;
+
+            // Reduce number of items down to a specific range
+            if (requestedCount != 0)
+            {
+              var itemCount = requestedCount;
+              // Make sure that the requested itemCount value doesn't exceed total items in the list
+              // otherwise we will get an exception.
+              if (itemCount + startingIndex > resultList.Count) itemCount = resultList.Count - startingIndex;
+              if (itemCount > 0) resultList = resultList.GetRange(startingIndex, itemCount);
+              else resultList.Clear();
+            }
+
+            numberReturned = resultList.Count;
+
+            // Render this list of containers as XML.
+            msgBuilder.BuildAll(filter, resultList);
+
+            break;
+          default:
+            // Error! invalid browseFlag value.
+            break;
+        }
+
+        // Grab the container updateid
+        //TODO: sort out object updating
+        containterUpdateId = 0; // c.UpdateId;
+
+        // Construct the return arguments.
+        var xml = msgBuilder.ToString();
+        outParams = new List<object>(4) { xml, numberReturned, totalMatches, containterUpdateId };
+
+        Logger.Debug(
+          "MediaServer - exit OnBrowse(objectId=\"{0}\"...) = (numberReturned=\"{1}\",totalMatches=\"{2}\",containerUpdateId=\"{3}\") {4}",
+          objectId, numberReturned, totalMatches, containterUpdateId, xml);
       }
-      deviceClient.InitializeAsync(ip.ToString()).Wait();
-
-      //Check if user login
-      CheckUserLogin(objectId, deviceClient);
-
-      GenericContentDirectoryFilter deviceFilter = GenericContentDirectoryFilter.GetContentFilter(deviceClient.Profile.DirectoryContentFilter);
-      var newObjectId = deviceFilter.FilterObjectId(objectId, false);
-      if (newObjectId == null)
+      catch (Exception ex)
       {
-        Logger.Debug("MediaServer: Request for container ID {0} ignored", objectId);
-        outParams = null;
-        return null;
+        Logger.Error("MediaServer - OnBrowse(objectId=\"{0}\"...) error", ex, objectId);
       }
-      if (objectId != newObjectId)
-      {
-        Logger.Debug("MediaServer: Request for container ID {0} intercepted, changing it to {1}", objectId, newObjectId);
-        objectId = newObjectId;
-      }
-
-      // Find the container object requested
-      //var parentDirectoryId = objectId == "0" ? Guid.Empty : MarshallingHelper.DeserializeGuid(objectId);
-      var o = deviceClient.RootContainer.FindObject(objectId);
-      if (o as BasicContainer == null)
-      {
-        // We failed to find the container requested
-        // throw error!
-        throw new ArgumentException(string.Format("Container with ObjectID {0} not found", objectId));
-      }
-      deviceFilter.FilterContainerClassType(objectId, ref o);
-      deviceFilter.FilterClassProperties(objectId, ref o);
-
-      BasicContainer c = o as BasicContainer;
-      Logger.Debug("MediaServer Got object {0} / {1} : {2}, {3}", c, c.Id, c.Key, c.Title, c.ChildCount);
-      Logger.Debug("MediaServer: Using DIDL content builder {0}", deviceClient.Profile.DirectoryContentBuilder);
-      var msgBuilder = GenericDidlMessageBuilder.GetDidlMessageBuilder(deviceClient.Profile.DirectoryContentBuilder);
-
-      // Start to build the XML DIDL-Lite document.
-      switch (browseFlag)
-      {
-        case "BrowseMetadata":
-          // Render the container as XML
-          msgBuilder.Build(filter, o);
-
-          // We are only after information about 1 container
-          numberReturned = 1;
-          totalMatches = 1;
-          break;
-        case "BrowseDirectChildren":
-          // Create a new object based on search criteria
-          c.Initialise();
-          var resultList = c.Browse(sortCriteria);
-          Logger.Debug("MediaServer: Browse has {0} results", resultList.Count);
-          totalMatches = resultList.Count;
-
-          // Reduce number of items down to a specific range
-          if (requestedCount != 0)
-          {
-            var itemCount = requestedCount;
-            // Make sure that the requested itemCount value doesn't exceed total items in the list
-            // otherwise we will get an exception.
-            if (itemCount + startingIndex > resultList.Count) itemCount = resultList.Count - startingIndex;
-            if (itemCount > 0) resultList = resultList.GetRange(startingIndex, itemCount);
-            else resultList.Clear();
-          }
-          numberReturned = resultList.Count;
-
-          // Render this list of containers as XML.
-          msgBuilder.BuildAll(filter, resultList);
-
-          break;
-        default:
-          // Error! invalid browseFlag value.
-          break;
-      }
-
-      // Grab the container updateid
-      //TODO: sort out object updating
-      containterUpdateId = 0; // c.UpdateId;
-
-      // Construct the return arguments.
-      var xml = msgBuilder.ToString();
-      outParams = new List<object>(4) { xml, numberReturned, totalMatches, containterUpdateId };
-
-      Logger.Debug(
-        "MediaServer - exit OnBrowse(objectId=\"{0}\"...) = (numberReturned=\"{1}\",totalMatches=\"{2}\",containerUpdateId=\"{3}\") {4}",
-        objectId, numberReturned, totalMatches, containterUpdateId, xml);
 
       // This upnp action doesn't have a return type.
       return null;
@@ -439,100 +455,120 @@ namespace MediaPortal.Extensions.MediaServer
 
     private static UPnPError OnSearch(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      // In parameters
-      var objectId = (string)inParams[0];
-      var searchCriteria = inParams[1].ToString();
-      var filter = inParams[2].ToString();
-      var startingIndex = Convert.ToUInt32(inParams[3]);
-      var requestedCount = Convert.ToUInt32(inParams[4]);
-      var sortCriteria = (string)inParams[5];
+      outParams = new List<object>();
+      string objectId = "?";
 
-      Logger.Debug(
-        "MediaServer - entry OnSearch(objectId=\"{0}\",searchCriteria=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
-        objectId, searchCriteria, filter, startingIndex, requestedCount, sortCriteria);
-
-      // Out parameters
-      int numberReturned = 0;
-      int totalMatches = 0;
-
-      IPAddress ip = ProfileManager.ResolveIpAddress(context.Request?.RemoteIpAddress);
-      EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
-      if (deviceClient?.Profile == null)
+      try
       {
-        outParams = null;
-        return null;
-      }
-      deviceClient.InitializeAsync(ip.ToString()).Wait();
+        // In parameters
+        objectId = (string)inParams[0];
+        var searchCriteria = inParams[1].ToString();
+        var filter = inParams[2].ToString();
+        var startingIndex = Convert.ToUInt32(inParams[3]);
+        var requestedCount = Convert.ToUInt32(inParams[4]);
+        var sortCriteria = (string)inParams[5];
+        string fileRequest;
+        if (objectId.Contains('/'))
+        {
+          fileRequest = objectId.Substring(objectId.IndexOf('/') + 1);
+          objectId = objectId.Substring(0, objectId.IndexOf('/') - 1);
+        }
 
-      GenericContentDirectoryFilter deviceFilter = GenericContentDirectoryFilter.GetContentFilter(deviceClient.Profile.DirectoryContentFilter);
-      var newObjectId = deviceFilter.FilterObjectId(objectId, true);
-      if (newObjectId == null)
-      {
-        Logger.Debug("MediaServer: Request for container ID {0} ignored", objectId);
-        outParams = null;
-        return null;
-      }
-      if (objectId != newObjectId)
-      {
-        Logger.Debug("MediaServer: Request for container ID {0} intercepted, changing it to {1}", objectId, newObjectId);
-        objectId = newObjectId;
-      }
+        Logger.Debug(
+          "MediaServer - entry OnSearch(objectId=\"{0}\",searchCriteria=\"{1}\",filter=\"{2}\",startingIndex=\"{3}\",requestedCount=\"{4}\",sortCriteria=\"{5}\")",
+          objectId, searchCriteria, filter, startingIndex, requestedCount, sortCriteria);
 
-      //TODO: DNLA clients use this ID to determine if the any content was changed/added to the container since last request
-      int containterUpdateId = 0;
+        // Out parameters
+        int numberReturned = 0;
+        int totalMatches = 0;
 
-      SearchExp exp = SearchParser.Parse(searchCriteria);
+        IPAddress ip = ProfileManager.ResolveIpAddress(context.Request?.RemoteIpAddress);
+        EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
+        if (deviceClient?.Profile == null)
+        {
+          return null;
+        }
 
-      ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
-      necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
-      necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
-      IFilter searchFilter = SearchParser.Convert(exp, necessaryMIATypes);
-      ISet<Guid> optionalMIATypes = new HashSet<Guid>();
-      if (necessaryMIATypes.Contains(VideoAspect.ASPECT_ID) == false)
-      {
-        optionalMIATypes.Add(VideoAspect.ASPECT_ID);
-      }
-      if (necessaryMIATypes.Contains(AudioAspect.ASPECT_ID) == false)
-      {
-        optionalMIATypes.Add(AudioAspect.ASPECT_ID);
-      }
-      if (necessaryMIATypes.Contains(ImageAspect.ASPECT_ID) == false)
-      {
-        optionalMIATypes.Add(ImageAspect.ASPECT_ID);
-      }
-      optionalMIATypes.Add(DirectoryAspect.ASPECT_ID);
-      optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
-      optionalMIATypes.Add(SeasonAspect.ASPECT_ID);
+        deviceClient.InitializeAsync(ip.ToString()).Wait();
 
-      BasicContainer tempContainer = new BasicContainer("TEMP", deviceClient);
-      searchFilter = tempContainer.AppendUserFilter(searchFilter, necessaryMIATypes);
-      MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter);
-      searchQuery.Offset = startingIndex;
-      searchQuery.Limit = requestedCount;
+        GenericContentDirectoryFilter deviceFilter = GenericContentDirectoryFilter.GetContentFilter(deviceClient.Profile.DirectoryContentFilter);
+        var newObjectId = deviceFilter.FilterObjectId(objectId, true);
+        if (newObjectId == null)
+        {
+          Logger.Debug("MediaServer: Request for container ID {0} ignored", objectId);
+          return null;
+        }
 
-      Logger.Debug("MediaServer - OnSearch query {0}", searchQuery);
-      IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true, deviceClient.UserId ?? deviceClient.ClientId, false);
+        if (objectId != newObjectId)
+        {
+          Logger.Debug("MediaServer: Request for container ID {0} intercepted, changing it to {1}", objectId, newObjectId);
+          objectId = newObjectId;
+        }
 
-      var msgBuilder = new GenericDidlMessageBuilder();
-      var o = deviceClient.RootContainer.FindObject(objectId);
-      if (o == null)
-      {
-        // We failed to find the container requested
-        // throw error!
-        throw new ArgumentException("ObjectID not found");
-      }
-      IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, (BasicContainer)o));
-      msgBuilder.BuildAll(filter, objects);
+        //TODO: DNLA clients use this ID to determine if the any content was changed/added to the container since last request
+        int containterUpdateId = 0;
 
-      numberReturned = items.Count;
-      totalMatches = items.Count;
+        SearchExp exp = SearchParser.Parse(searchCriteria);
 
-      var xml = msgBuilder.ToString();
-      outParams = new List<object>(4) { xml, numberReturned, totalMatches, containterUpdateId };
+        ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
+        necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
+        necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
+        IFilter searchFilter = SearchParser.Convert(exp, necessaryMIATypes);
+        ISet<Guid> optionalMIATypes = new HashSet<Guid>();
+        if (necessaryMIATypes.Contains(VideoAspect.ASPECT_ID) == false)
+        {
+          optionalMIATypes.Add(VideoAspect.ASPECT_ID);
+        }
 
-      Logger.Debug(
+        if (necessaryMIATypes.Contains(AudioAspect.ASPECT_ID) == false)
+        {
+          optionalMIATypes.Add(AudioAspect.ASPECT_ID);
+        }
+
+        if (necessaryMIATypes.Contains(ImageAspect.ASPECT_ID) == false)
+        {
+          optionalMIATypes.Add(ImageAspect.ASPECT_ID);
+        }
+
+        optionalMIATypes.Add(DirectoryAspect.ASPECT_ID);
+        optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
+        optionalMIATypes.Add(SeasonAspect.ASPECT_ID);
+
+        BasicContainer tempContainer = new BasicContainer("TEMP", deviceClient);
+        searchFilter = tempContainer.AppendUserFilter(searchFilter, necessaryMIATypes);
+        MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter);
+        searchQuery.Offset = startingIndex;
+        searchQuery.Limit = requestedCount;
+
+        Logger.Debug("MediaServer - OnSearch query {0}", searchQuery);
+        IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true, deviceClient.UserId ?? deviceClient.ClientId, false);
+
+        var msgBuilder = new GenericDidlMessageBuilder();
+        var o = deviceClient.RootContainer.FindContainerObject(objectId);
+        if (o == null)
+        {
+          // We failed to find the container requested
+          // throw error!
+          throw new ArgumentException("ObjectID not found");
+        }
+
+        IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, (BasicContainer)o));
+        msgBuilder.BuildAll(filter, objects);
+
+        numberReturned = items.Count;
+        totalMatches = items.Count;
+
+        var xml = msgBuilder.ToString();
+        outParams = new List<object>(4) { xml, numberReturned, totalMatches, containterUpdateId };
+
+        Logger.Debug(
           "MediaServer - exit OnSearch(objectId=\"{0}\"...) = (numberReturned=\"{1}\",totalMatches=\"{2}\",containerUpdateId=\"{3}\") {4}",
           objectId, numberReturned, totalMatches, containterUpdateId, xml);
+      }
+      catch (Exception ex)
+      {
+        Logger.Error("MediaServer - OnSearch(objectId=\"{0}\"...) error", ex, objectId);
+      }
 
       // This upnp action doesn't have a return type.
       return null;
@@ -555,12 +591,34 @@ namespace MediaPortal.Extensions.MediaServer
       return null;
     }
 
+    private static bool IsUserContainer(string objectId)
+    {
+      return objectId.StartsWith($"{MediaLibraryHelper.CONTAINER_USERS_KEY}>");
+    }
+
     private static void CheckUserLogin(string objectId, EndPointSettings deviceClient)
     {
-      if (objectId.StartsWith($"{MediaLibraryHelper.CONTAINER_USERS_KEY}>"))
+      if (IsUserContainer(objectId))
       {
+        //Login user
         deviceClient.UserId = Guid.TryParse(objectId.Substring(MediaLibraryHelper.CONTAINER_USERS_KEY.Length + 1), out Guid g) ? g : (Guid?)null;
         deviceClient.InitializeUserAsync().Wait();
+      }
+      else if (!deviceClient.UserId.HasValue && deviceClient.RootContainer.Children.Any(c => IsUserContainer(c.Key)))
+      {
+        //User login is required so find user container
+        var o = deviceClient.RootContainer.FindContainerObject(objectId);
+        while (o != null)
+        {
+          o = o?.Parent;
+          if (o != null && IsUserContainer(o.Key))
+          {
+            //Login user
+            deviceClient.UserId = Guid.TryParse(o.Key.Substring(MediaLibraryHelper.CONTAINER_USERS_KEY.Length + 1), out Guid g) ? g : (Guid?)null;
+            deviceClient.InitializeUserAsync().Wait();
+            break;
+          }
+        }
       }
     }
 

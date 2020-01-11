@@ -93,7 +93,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Metadata
     {
       get
       {
-        if (Audio.Count > 0 && Video.Codec != VideoCodec.Unknown)
+        if (Audio.Count > 0 && Video.Codec != VideoCodec.Unknown && Metadata.VideoContainerType != VideoContainer.Unknown)
         {
           return true;
         }

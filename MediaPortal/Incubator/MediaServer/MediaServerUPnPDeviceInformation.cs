@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.MediaServer
       catch { }
       if (string.IsNullOrEmpty(result))
       {
-        result = "Media Server";
+        result = "MP2 Media Server";
       }
       result += " (" + Dns.GetHostName() + ")";
       return result;

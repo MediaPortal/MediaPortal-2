@@ -326,12 +326,12 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       {
         await userManager.LoginProfileAsync(UserId.Value);
         var audioList = await userManager.GetUserAdditionalDataListAsync(UserId.Value, UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE);
-        PreferredAudioLanguages = audioList.Result.Select(l => l.Item2);
-        if (PreferredAudioLanguages.Count() == 0)
+        PreferredAudioLanguages = audioList.Result?.Select(l => l.Item2);
+        if (!(PreferredAudioLanguages?.Any() ?? false))
           PreferredAudioLanguages = new List<string>() { "EN" };
         var subtitleList = await userManager.GetUserAdditionalDataListAsync(UserId.Value, UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE);
-        PreferredSubtitleLanguages = subtitleList.Result.Select(l => l.Item2);
-        if (PreferredSubtitleLanguages.Count() == 0)
+        PreferredSubtitleLanguages = subtitleList.Result?.Select(l => l.Item2);
+        if (!(PreferredSubtitleLanguages?.Any() ?? false))
           PreferredSubtitleLanguages = new List<string>() { "EN" };
       }
     }

@@ -32,7 +32,6 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common;
-using MediaPortal.Common.Certifications;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.Basic
@@ -137,6 +136,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 
     private string _containerClass = "object.container";
 
+    public ICollection<BasicObject> Children => _children;
+
     public BasicContainer(string id, EndPointSettings client) 
       : base(id, client)
     {
@@ -160,11 +161,11 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       Logger.Debug("MediaServer added {0} to {1}, now {2} children", node.Key, Key, _children.Count);
     }
 
-    public virtual BasicObject FindObject(string key)
+    public virtual BasicObject FindContainerObject(string key)
     {
       return Key == key ? this : _children
         .Where(node => node is BasicContainer)
-        .Select(node => ((BasicContainer)node).FindObject(key))
+        .Select(node => ((BasicContainer)node).FindContainerObject(key))
         .FirstOrDefault(n => n != null);
     }
 
@@ -182,7 +183,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
     {
       // TODO: Need to sort based on sortCriteria.
       _children.Sort();
-      return _children.Cast<IDirectoryObject>().ToList();
+      return _children.OfType<IDirectoryObject>().ToList();
     }
 
     public override void Initialise()

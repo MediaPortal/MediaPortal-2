@@ -131,12 +131,16 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       {
         if (link.Profile != null)
         {
-          //Logger.Debug("DetectProfile: IP: {0}, using: {1}", ip, link.Profile.ID);
+#if DEBUG
+          Logger.Debug("DetectProfile: IP: {0}, using: {1}", ip, link.Profile.ID);
+#endif
           return link;
         }
         else if (link.AutoProfile == false)
         {
-          //Logger.Debug("DetectProfile: IP: {0}, using: None", ip);
+#if DEBUG
+          Logger.Debug("DetectProfile: IP: {0}, using: None", ip);
+#endif
           return null;
         }
       }      
@@ -171,7 +175,9 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             List<TrackedDevice> trackedDevices = MediaServerPlugin.Tracker.GeTrackedDevicesByIp(ip);
             if (trackedDevices == null || trackedDevices.Count == 0)
             {
+#if DEBUG
               Logger.Warn("DetectProfile: No matching Devices");
+#endif
               break;
             }
 
