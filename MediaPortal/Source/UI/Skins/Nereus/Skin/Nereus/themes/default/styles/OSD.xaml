@@ -125,7 +125,7 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
 
-          <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="260" Width="1920" Margin="0,0,0,0">
+          <Grid x:Name="MainOSDGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="260" Width="1920" IsVisible="False">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="*"/>
@@ -140,6 +140,9 @@
 
             <Grid.Resources>
               <Storyboard x:Key="SlideInStoryboard" FillBehavior="HoldEnd">
+                <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainOSDGrid" Storyboard.TargetProperty="IsVisible">
+                  <DiscreteObjectKeyFrame KeyTime="00:00:00" Value="True"/>
+                </ObjectAnimationUsingKeyFrames>
                 <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainOSDGrid" Storyboard.TargetProperty="RenderTransform.Y">
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="370"/>
                   <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="0"/>
@@ -150,6 +153,9 @@
                   <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
                   <SplineDoubleKeyFrame KeyTime="00:00:00.35" Value="370"/>
                 </DoubleAnimationUsingKeyFrames>
+                <ObjectAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainOSDGrid" Storyboard.TargetProperty="IsVisible">
+                  <DiscreteObjectKeyFrame KeyTime="00:00:00.35" Value="False"/>
+                </ObjectAnimationUsingKeyFrames>
               </Storyboard>
             </Grid.Resources>
 
