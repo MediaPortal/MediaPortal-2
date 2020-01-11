@@ -347,7 +347,7 @@
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Controls_Template">
-                <DockPanel x:Name="PlayControlsPanel" LastChildFill="False" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+                <DockPanel x:Name="PlayControlsPanel" LastChildFill="False" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" IsEnabled="{Binding IsOSDVisible}">
 
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
