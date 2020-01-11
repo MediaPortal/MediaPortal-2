@@ -690,7 +690,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra != null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("MediaAccessor: Importing file '{0}'", fsra.ResourceName);
+        ServiceRegistration.Get<ILogger>().Debug("MediaAccessor: Importing file '{0}'", fsra.ResourcePathName);
       }
 
       bool success = false;
