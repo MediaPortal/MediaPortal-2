@@ -151,6 +151,10 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       {
         valuesProfiles.Add("MP2_MPS");
       }
+      else if (container == AudioContainer.Mpeg2Ts) //TODO: Working for radio recordings?
+      {
+        valuesProfiles.Add("MP2_MPS");
+      }
       else if (container == AudioContainer.Lpcm)
       {
         if (frequency > 0 && channels > 0)
