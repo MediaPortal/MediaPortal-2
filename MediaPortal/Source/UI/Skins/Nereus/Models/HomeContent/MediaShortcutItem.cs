@@ -109,6 +109,15 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     { }
   }
 
+  public class ArtistShortcutItem : MediaScreenShortcutItem
+  {
+    public ArtistShortcutItem() { }
+
+    public ArtistShortcutItem(Guid mediaNavigationRootState, Type filterScreenType)
+      : base(mediaNavigationRootState, filterScreenType)
+    { }
+  }
+
   public class SearchShortcutItem : MediaScreenShortcutItem
   {
     public SearchShortcutItem() { }

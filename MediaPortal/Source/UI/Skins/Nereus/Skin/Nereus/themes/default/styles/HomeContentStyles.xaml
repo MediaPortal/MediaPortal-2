@@ -1745,7 +1745,7 @@
   <!--Generic genre shortcut button-->
   <Style x:Key="GenreShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Genre"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Genre]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\genre.png"/>
     </Style.Resources>
   </Style>
@@ -1753,7 +1753,7 @@
   <!--Generic year shortcut button-->
   <Style x:Key="YearShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Year"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Year]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\year.png"/>
     </Style.Resources>
   </Style>
@@ -1761,7 +1761,7 @@
   <!--Generic age shortcut button-->
   <Style x:Key="AgeShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Age"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Age]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\age.png"/>
     </Style.Resources>
   </Style>
@@ -1769,15 +1769,23 @@
   <!--Generic actor shortcut button-->
   <Style x:Key="ActorShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Actor"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Actor]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\actor.png"/>
+    </Style.Resources>
+  </Style>
+
+  <!--Generic artist shortcut button-->
+  <Style x:Key="ArtistShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Artist]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\artist.png"/>
     </Style.Resources>
   </Style>
 
   <!--Generic search shortcut button-->
   <Style x:Key="SearchShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Search"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Search]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\search.png"/>
     </Style.Resources>
   </Style>
@@ -1798,6 +1806,10 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:ActorShortcutItem}">
     <Control Style="{ThemeResource ActorShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:ArtistShortcutItem}">
+    <Control Style="{ThemeResource ArtistShortcutItemControlStyle}"/>
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:SearchShortcutItem}">
@@ -1993,7 +2005,7 @@
   <!--Audio genre shortcut button-->
   <Style x:Key="AudioGenreShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Genre"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Genre]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\audiogenre.png"/>
     </Style.Resources>
   </Style>
@@ -2001,7 +2013,7 @@
   <!--Track shortcut button-->
   <Style x:Key="TrackShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Track"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Track]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\track.png"/>
     </Style.Resources>
   </Style>
@@ -2009,7 +2021,7 @@
   <!--Album shortcut button-->
   <Style x:Key="AlbumShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Album"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Album]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\album.png"/>
     </Style.Resources>
   </Style>
@@ -2659,7 +2671,7 @@
   <!--Live TV shortcut button-->
   <Style x:Key="LiveTVShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="LiveTV"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.LiveTV]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\LiveTV.png"/>
     </Style.Resources>
   </Style>
@@ -2667,7 +2679,7 @@
   <!--EPG shortcut button-->
   <Style x:Key="EPGShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="TV-Guide"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.TVGuide]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\EPG.png"/>
     </Style.Resources>
   </Style>
@@ -2675,7 +2687,7 @@
   <!--Schedules shortcut button-->
   <Style x:Key="SchedulesShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Schedules"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Schedules]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\schedules.png"/>
     </Style.Resources>
   </Style>
@@ -2683,7 +2695,7 @@
   <!--Recordings shortcut button-->
   <Style x:Key="RecordingsShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Recordings"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Recordings]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\Recordings.png"/>
     </Style.Resources>
   </Style>
@@ -2756,7 +2768,7 @@
   <!--Image location shortcut button-->
   <Style x:Key="ImageLocationShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Place"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Place]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\place.png"/>
     </Style.Resources>
   </Style>
@@ -2764,7 +2776,7 @@
   <!--Image system shortcut button-->
   <Style x:Key="ImageSystemShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="System"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.System]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\System.png"/>
     </Style.Resources>
   </Style>
@@ -2772,7 +2784,7 @@
   <!--Image size shortcut button-->
   <Style x:Key="ImageSizeShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Size"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Size]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\Size.png"/>
     </Style.Resources>
   </Style>
@@ -2831,21 +2843,21 @@
   <!--Video location shortcut button>
   <Style x:Key="VideoLocationShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Place"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Place]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Video" Value="MediaMenu\place.png"/>
     </Style.Resources>
   </Style>
 
   <Style x:Key="VideoSystemShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="System"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.System]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Video" Value="MediaMenu\System.png"/>
     </Style.Resources>
   </Style>
 
   <Style x:Key="VideoSizeShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="Size"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Size]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Video" Value="MediaMenu\Size.png"/>
     </Style.Resources>
   </Style>
