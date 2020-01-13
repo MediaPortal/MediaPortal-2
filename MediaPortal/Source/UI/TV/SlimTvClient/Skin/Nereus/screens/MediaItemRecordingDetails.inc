@@ -22,7 +22,7 @@
   </Grid.ColumnDefinitions>
 
   <tv:RecordingAspectWrapper Grid.Row="1" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                             HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,30">
     <tv:RecordingAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
