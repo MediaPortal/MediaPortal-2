@@ -51,7 +51,7 @@
     
     <set name="rx_search_results">
     <![CDATA[
-    <td class="result_text">\s*<a href="/title/(tt\d{7,8})/[^"]*"\s*>([^<]+)</a>\s*[\/IV\(\)]*\s*\((\d{4})\)(?! \(TV)(?! \(VG)(?:\s*<br/>\s*aka\s*<i>"([^"]+)"</i>)*
+    <td class="result_text">\s*<a href="/title/(tt\d+)/[^"]*"\s*>([^<]+)</a>\s*[\/IV\(\)]*\s*\((\d{4})\)(?! \(TV)(?! \(VG)(?:\s*<br/>\s*aka\s*<i>"([^"]+)"</i>)*
     ]]>
     </set>
 
@@ -69,7 +69,7 @@
         <parse name="title_year" input="${imdb_page}" regex="${rx_title_year}" />
         <set name="movie[0].title" value="${title_year[0][0]:htmldecode}" />
         <set name="movie[0].year" value="${title_year[0][1]:htmldecode}" />
-        <parse name="imdb" input="${imdb_page}" regex="(tt\d{7,8})/fullcredits" />
+        <parse name="imdb" input="${imdb_page}" regex="(tt\d+)/fullcredits" />
         <set name="movie[0].imdb_id" value="${imdb[0][0]}" />
         <set name="movie[0].site_id" value="${imdb[0][0]}" />
         <set name="movie[0].popularity" value="100" />
@@ -92,7 +92,7 @@
       <parse name="title_year" input="${details_page_verified}" regex="${rx_title_year}" />
       <set name="movie[${counter}].title" value="${title_year[0][0]:htmldecode}" />
       <set name="movie[${counter}].year" value="${title_year[0][1]:htmldecode}" />
-      <parse name="imdb" input="${details_page_verified}" regex="(tt\d{7,8})/fullcredits" />
+      <parse name="imdb" input="${details_page_verified}" regex="(tt\d+)/fullcredits" />
       <set name="movie[${counter}].imdb_id" value="${imdb[0][0]}" />
       <set name="movie[${counter}].site_id" value="${imdb[0][0]}" />
 

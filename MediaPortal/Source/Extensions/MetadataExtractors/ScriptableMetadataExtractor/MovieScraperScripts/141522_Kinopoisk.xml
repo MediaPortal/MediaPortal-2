@@ -277,7 +277,7 @@ href=[^\d]+\d+/film/(?<movieID>[\d]+)[^>]+>(?<movieTitle>[^>]+)</a>\s[^>]+>(?<mo
 	
 	<set name="rx_imdb_titlepage">
       <![CDATA[
-      <link\srel="canonical"\shref="http://www.imdb.com/title/(tt\d{7,8})/"\s/>
+      <link\srel="canonical"\shref="http://www.imdb.com/title/(tt\d+)/"\s/>
       ]]>
     </set>
 
@@ -444,7 +444,7 @@ href=[^\d]+\d+/film/(?<movieID>[\d]+)[^>]+>(?<movieTitle>[^>]+)</a>\s[^>]+>(?<mo
 					
 		<!-- if we got a Search result page, this is used -->
 		<if test="${imdb[0][0]}=">
-			<parse name="imdb_det" input="${imdb_page}" regex='title_(popular|exact)/images/b.gif\?link=/title/(tt\d{7,8})'/>
+			<parse name="imdb_det" input="${imdb_page}" regex='title_(popular|exact)/images/b.gif\?link=/title/(tt\d+)'/>
 			<!-- if we got Search result page, use first match of RegEx -->
 			<set name="movie.imdb_id" value="${imdb_det[0][1]}"/>
 		</if>
