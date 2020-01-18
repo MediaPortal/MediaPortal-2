@@ -23,10 +23,10 @@
   <Target Name="AfterBuild">
     <!-- Platform specifc, bass.dll and all plugins -->
     <ItemGroup>
-      <ReferencesX86 Include="$(TargetDir)\x86\**\*.*" />
+      <ReferencesX86 Include="$(TargetDir)\x86\*.*" />
     </ItemGroup>
     <ItemGroup>
-      <ReferencesX64 Include="$(TargetDir)\x64\**\*.*" />
+      <ReferencesX64 Include="$(TargetDir)\x64\*.*" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
