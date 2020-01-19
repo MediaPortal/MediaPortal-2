@@ -101,7 +101,7 @@ namespace MediaPortal.UI.Players.BassPlayer.OutputDevices
 
       Log.Debug("Disposing output stream");
 
-      _outputStream.Dispose();
+      _outputStream?.Dispose();
       _outputStream = null;
 
       Log.Debug("Resetting global Bass environment");

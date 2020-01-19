@@ -353,23 +353,31 @@ namespace MediaPortal.Extensions.MediaServer
 
         // Find the container object requested
         //var parentDirectoryId = objectId == "0" ? Guid.Empty : MarshallingHelper.DeserializeGuid(objectId);
-        var o = deviceClient.RootContainer.FindContainerObject(objectId);
-        if (o as BasicContainer == null)
+        var o = deviceClient.RootContainer.FindObject(objectId);
+        if (o is BasicContainer)
         {
-          // We failed to find the container requested
-          // throw error!
-          throw new ArgumentException(string.Format("Container with ObjectID {0} not found", objectId));
+          deviceFilter.FilterContainerClassType(objectId, ref o);
+          deviceFilter.FilterClassProperties(objectId, ref o);
+
+          BasicContainer c = o as BasicContainer;
+          Logger.Debug("MediaServer: Got container object {0} / {1} : {2}, {3}", c.Id, c.Key, c.Title, c.ChildCount);
         }
-
-        deviceFilter.FilterContainerClassType(objectId, ref o);
-        deviceFilter.FilterClassProperties(objectId, ref o);
-
-        BasicContainer c = o as BasicContainer;
-        Logger.Debug("MediaServer Got object {0} / {1} : {2}, {3}", c, c.Id, c.Key, c.Title, c.ChildCount);
+        else if (o is BasicObject b)
+        {
+          Logger.Debug("MediaServer: Got object {0} / {1} : {2}", b.Id, b.Key, b.Title);
+        }
+        else
+        {
+          // We failed to find the object requested
+          // throw error!
+          throw new ArgumentException(string.Format("Browse object with ObjectID {0} not found", objectId));
+        }
+        
         Logger.Debug("MediaServer: Using DIDL content builder {0}", deviceClient.Profile.DirectoryContentBuilder);
         var msgBuilder = GenericDidlMessageBuilder.GetDidlMessageBuilder(deviceClient.Profile.DirectoryContentBuilder);
 
         // Start to build the XML DIDL-Lite document.
+        List<IDirectoryObject> resultList = new List<IDirectoryObject>();
         switch (browseFlag)
         {
           case "BrowseMetadata":
@@ -381,23 +389,25 @@ namespace MediaPortal.Extensions.MediaServer
             totalMatches = 1;
             break;
           case "BrowseDirectChildren":
-            // Create a new object based on search criteria
-            c.Initialise();
-            var resultList = c.Browse(sortCriteria);
-            Logger.Debug("MediaServer: Browse has {0} results", resultList.Count);
-            totalMatches = resultList.Count;
-
-            // Reduce number of items down to a specific range
-            if (requestedCount != 0)
+            if (o is BasicContainer c)
             {
-              var itemCount = requestedCount;
-              // Make sure that the requested itemCount value doesn't exceed total items in the list
-              // otherwise we will get an exception.
-              if (itemCount + startingIndex > resultList.Count) itemCount = resultList.Count - startingIndex;
-              if (itemCount > 0) resultList = resultList.GetRange(startingIndex, itemCount);
-              else resultList.Clear();
-            }
+              // Create a new object based on search criteria
+              c.Initialise();
+              resultList = c.Browse(sortCriteria);
+              Logger.Debug("MediaServer: Browse has {0} results", resultList.Count);
+              totalMatches = resultList.Count;
 
+              // Reduce number of items down to a specific range
+              if (requestedCount != 0)
+              {
+                var itemCount = requestedCount;
+                // Make sure that the requested itemCount value doesn't exceed total items in the list
+                // otherwise we will get an exception.
+                if (itemCount + startingIndex > resultList.Count) itemCount = resultList.Count - startingIndex;
+                if (itemCount > 0) resultList = resultList.GetRange(startingIndex, itemCount);
+                else resultList.Clear();
+              }
+            }
             numberReturned = resultList.Count;
 
             // Render this list of containers as XML.
@@ -544,7 +554,7 @@ namespace MediaPortal.Extensions.MediaServer
         IList<MediaItem> items = ServiceRegistration.Get<IMediaLibrary>().Search(searchQuery, true, deviceClient.UserId ?? deviceClient.ClientId, false);
 
         var msgBuilder = new GenericDidlMessageBuilder();
-        var o = deviceClient.RootContainer.FindContainerObject(objectId);
+        var o = deviceClient.RootContainer.FindObject(objectId);
         if (o == null)
         {
           // We failed to find the container requested
@@ -607,7 +617,7 @@ namespace MediaPortal.Extensions.MediaServer
       else if (!deviceClient.UserId.HasValue && deviceClient.RootContainer.Children.Any(c => IsUserContainer(c.Key)))
       {
         //User login is required so find user container
-        var o = deviceClient.RootContainer.FindContainerObject(objectId);
+        var o = deviceClient.RootContainer.FindObject(objectId);
         while (o != null)
         {
           o = o?.Parent;

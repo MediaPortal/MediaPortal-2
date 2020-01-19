@@ -161,12 +161,25 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       Logger.Debug("MediaServer added {0} to {1}, now {2} children", node.Key, Key, _children.Count);
     }
 
-    public virtual BasicObject FindContainerObject(string key)
+    public virtual BasicObject FindObject(string key)
     {
-      return Key == key ? this : _children
-        .Where(node => node is BasicContainer)
-        .Select(node => ((BasicContainer)node).FindContainerObject(key))
-        .FirstOrDefault(n => n != null);
+      //Check if it is this item
+      if (Key == key)
+        return this;
+
+      //Check child items
+      var obj = _children.FirstOrDefault(c => c.Key == key);
+      if (obj != null)
+        return obj;
+
+      //Check child dirs
+      foreach (BasicContainer dir in _children.Where(c => c is BasicContainer))
+      {
+        obj = dir.FindObject(key);
+        if (obj != null)
+          return obj;
+      }
+      return null;
     }
 
     public void Sort()

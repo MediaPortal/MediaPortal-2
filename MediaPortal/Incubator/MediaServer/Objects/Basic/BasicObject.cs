@@ -83,7 +83,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
     public int CompareTo(BasicObject other)
     {
       if ((object)other == null) return 1;
-      return Title.CompareTo(other.Title);
+      return Title?.CompareTo(other.Title) ?? -1;
     }
 
     internal static ILogger Logger

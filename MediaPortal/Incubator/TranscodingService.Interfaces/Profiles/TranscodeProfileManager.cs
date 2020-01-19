@@ -880,7 +880,8 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
               if (info.Audio[idx].StreamIndex == srcVideo.MatchedAudioStream)
                 continue;
 
-              video.SourceAudioStreams[infoIndex].Add(info.Audio[idx]);
+              if (video.SourceAudioStreams.ContainsKey(infoIndex))
+                video.SourceAudioStreams[infoIndex].Add(info.Audio[idx]);
             }
           }
           if (subtitleStreamIndex.HasValue)
