@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.SystemAPI;
@@ -40,6 +41,7 @@ namespace MediaPortal.Extensions.BassLibraries
     #region Static members
 
     private static readonly object _syncObj = new object();
+    private static volatile int _refCount = 0;
     private readonly ICollection<int> _decoderPluginHandles = new List<int>();
 
     [Obsolete("Player plugins are now located in BassLibraries plugin. Setting other folder is no longer supported.")]
@@ -76,6 +78,10 @@ namespace MediaPortal.Extensions.BassLibraries
 
     private void Initialize(string playerPluginsDirectory)
     {
+      Interlocked.Increment(ref _refCount);
+      if (_refCount > 1)
+        return;
+
       // Register BASS.Net, necessary to avoid splash screen
       BassRegistration.BassRegistration.Register();
 
@@ -132,6 +138,9 @@ namespace MediaPortal.Extensions.BassLibraries
       lock (_syncObj)
       {
         Log.Debug("BassLibraryManager.Dispose()");
+        Interlocked.Decrement(ref _refCount);
+        if (_refCount > 0)
+          return;
 
         Log.Debug("Unloading all BASS player plugins");
         foreach (int pluginHandle in _decoderPluginHandles)
