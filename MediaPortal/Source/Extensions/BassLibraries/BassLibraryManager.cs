@@ -40,7 +40,6 @@ namespace MediaPortal.Extensions.BassLibraries
     #region Static members
 
     private static readonly object _syncObj = new object();
-    private static volatile BassLibraryManager _bassLibraryManager = null;
     private readonly ICollection<int> _decoderPluginHandles = new List<int>();
 
     [Obsolete("Player plugins are now located in BassLibraries plugin. Setting other folder is no longer supported.")]
@@ -57,16 +56,13 @@ namespace MediaPortal.Extensions.BassLibraries
     {
       lock (_syncObj)
       {
-        if (_bassLibraryManager != null)
-          return _bassLibraryManager;
-
         string absolutePlatformDir;
         if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
           throw new Exception("Error adding dll probe path");
         string playerPluginsDirectory = Path.Combine(absolutePlatformDir, "Plugins");
-        _bassLibraryManager = new BassLibraryManager();
-        _bassLibraryManager.Initialize(playerPluginsDirectory);
-        return _bassLibraryManager;
+        var bassLibraryManager = new BassLibraryManager();
+        bassLibraryManager.Initialize(playerPluginsDirectory);
+        return bassLibraryManager;
       }
     }
 
@@ -148,8 +144,6 @@ namespace MediaPortal.Extensions.BassLibraries
 
         if (!Bass.BASS_Free())
           throw new BassLibraryException("BASS_Free");
-
-        _bassLibraryManager = null;
       }
     }
 
