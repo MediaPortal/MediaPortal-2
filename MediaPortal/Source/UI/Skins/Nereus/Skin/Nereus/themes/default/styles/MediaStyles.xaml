@@ -116,8 +116,8 @@
               <ControlTemplate x:Key="OSD_InfoArea_Template">
                 <Grid x:Name="InfoGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -127,6 +127,10 @@
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
                          FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+                  <Label x:Name="CurrentTimeLabel" Grid.Column="1" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+                         HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,25,0" FontFamily="SegoeUIBold"
+                         FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
 
                   <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                     <media:VideoAspectWrapper.Template>
