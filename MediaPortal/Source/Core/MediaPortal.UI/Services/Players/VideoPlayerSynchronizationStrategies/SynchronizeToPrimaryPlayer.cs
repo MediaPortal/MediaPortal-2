@@ -35,10 +35,15 @@ namespace MediaPortal.UI.Services.Players.VideoPlayerSynchronizationStrategies
     protected override IVideoPlayer GetPlayerToSynchronize()
     {
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
-      IVideoPlayer player = playerContextManager[PlayerContextIndex.PRIMARY] as IVideoPlayer;
-      // Note: once the player "Ended", the PCM might still have a reference to this player (due to asynchronous message delivery),
-      // so we check that the player is active. Otherwise we return null to disable synchronization with that player.
-      return player == null || player.State != PlayerState.Active ? null : player;
+      foreach (var index in new[] { PlayerContextIndex.PRIMARY, PlayerContextIndex.SECONDARY })
+      {
+        IVideoPlayer player = playerContextManager[index] as IVideoPlayer;
+        // Note: once the player "Ended", the PCM might still have a reference to this player (due to asynchronous message delivery),
+        // so we check that the player is active. Otherwise we return null to disable synchronization with that player.
+        if (player != null && player.State == PlayerState.Active)
+          return player;
+      }
+      return null;
     }
   }
 }
