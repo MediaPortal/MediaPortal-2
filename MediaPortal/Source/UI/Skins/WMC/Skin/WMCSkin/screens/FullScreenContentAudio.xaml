@@ -290,14 +290,15 @@
           <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.RowSpan="3"  Grid.Column="1" Grid.ColumnSpan="2"
                      LastChildFill="false" HorizontalAlignment="Right">
             <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-                Style="{ThemeResource PrimaryAudioOSDStyle}" IsVisible="{Binding IsOSDVisible}"
+                Style="{ThemeResource PrimaryAudioOSDStyle}" IsVisible="{Binding Source={StaticResource AudioPlayerModel}, Path=IsOSDVisible}"
                 VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
           </DockPanel>
 
           <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
-                   IsVisible="{Binding !IsOSDVisible}"/>
+                   IsVisible="{Binding Source={StaticResource AudioPlayerModel}, Path=!IsOSDVisible}"/>
 
-          <DockPanel x:Name="OSD_PiPPanel" Grid.Column="1" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}" Margin="0,0,20,0">
+          <DockPanel x:Name="OSD_PiPPanel" Grid.Column="1" Grid.Row="1" LastChildFill="false" Margin="0,0,20,0"
+                     IsVisible="{Binding Source={StaticResource AudioPlayerModel}, Path=IsOSDVisible}">
             <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Right"
                   Style="{ThemeResource SecondaryMediaOSDStyle}" AutoVisibility="true"/>
           </DockPanel>
@@ -330,11 +331,6 @@
           </StackPanel>
         </Grid>
 
-        <!--DockPanel x:Name="OSD_RightPanel" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false"
-                   IsVisible="{Binding Source={StaticResource AudioPlayerModel}, Path=IsOSDVisible}">
-          <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-            Style="{ThemeResource PrimaryAudioOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
-        </DockPanel-->
       </Grid>
     </mp_special_controls:PlayerControl.TemplateControl>
   </mp_special_controls:PlayerControl>
