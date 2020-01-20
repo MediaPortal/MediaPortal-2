@@ -570,12 +570,6 @@
     <Compile Include="Utils\CalcHelper.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="References\x64\freetype.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="References\x86\freetype.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\FreeImage.dll" />
     <Content Include="Skin\default\screens\skinengine_config_skinresource_dialog.xaml" />
     <None Include="Skin\default\shaders\blur.fx" />
@@ -661,6 +655,9 @@
     </PackageReference>
     <PackageReference Include="MediaPortal.FreeImageNET">
       <Version>3.18.3</Version>
+    </PackageReference>
+    <PackageReference Include="MediaPortal.FreeType">
+      <Version>2.10.1</Version>
     </PackageReference>
     <PackageReference Include="SharpDX.Direct3D9">
       <Version>4.0.1</Version>
