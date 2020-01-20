@@ -53,7 +53,7 @@
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
              IsVisible="{Binding !IsOSDVisible}" Margin="0,0,30,0"/>
 
-    <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
+    <DockPanel x:Name="OSD_RightPanel" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}">
       <mp_special_controls:PlayerControl x:Name="SecondaryOSD" Style="{ThemeResource SecondaryMediaOSDStyle}" Margin="0,0,30,0"
                                          VerticalAlignment="Stretch" HorizontalAlignment="Stretch" AutoVisibility="true"/>
     </DockPanel>
