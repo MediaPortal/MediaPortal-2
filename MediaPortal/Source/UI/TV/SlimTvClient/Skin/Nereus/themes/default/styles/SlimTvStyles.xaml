@@ -17,6 +17,8 @@
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter" />
+  <tv:ElapsedDurationConverter x:Key="ElapsedDurationConverter" />
+  <tv:RemainingDurationConverter x:Key="RemainingDurationConverter" />
 
   <!-- Program duration control style -->
   <Style x:Key="ProgramDurationControlStyle" TargetType="{x:Type Control}">
@@ -99,9 +101,9 @@
                   <Image Source="PlayerControl\Time.Indicator.png" Stretch="Uniform" Margin="2,35,-2,0" Width="20"
                        VerticalAlignment="Top" HorizontalAlignment="Center" Opacity="0.9"/>
 
-                  <Label x:Name="CurrentTimeLabel" Grid.Row="0" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Opacity="0.9"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="SegoeUIBold"
-                       Color="Black" FontSize="{ThemeResource SmallerFontSize}"/>
+                  <Label x:Name="RemainingTimeLabel" Content="{Binding Path=EndTime, Converter={StaticResource RemainingDurationConverter}}" Opacity="0.9"
+                         HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="SegoeUIBold"
+                         Color="Black" FontSize="{ThemeResource SmallerFontSize}"/>
                   
                 </Grid>
               </Grid>
@@ -141,7 +143,7 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="0" MaxWidth="900">
+            <StackPanel Orientation="Horizontal" MaxWidth="900">
               <Label x:Name="CurrentProgramTitleLabel" Content="{Binding Path=Title}" Scroll="Auto"
                      FontFamily="SegoeUIBold" Color="{DynamicResource ProgramFontColor}"/>
               <Label x:Name="CurrentProgramSeriesLabel" Color="{DynamicResource ProgramFontColor}" Scroll="Auto"
@@ -151,6 +153,10 @@
                 </Label.Content>
               </Label>
             </StackPanel>
+
+            <Label x:Name="CurrentTimeLabel" Grid.Column="3" Grid.ColumnSpan="2" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+                   HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,25,0" FontFamily="SegoeUIBold"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
 
             <Label x:Name="Channel" Grid.Row="1" Grid.Column="0" Scroll="Auto"
                    Content="{Binding Source={StaticResource SlimTvClient},Path=ChannelName}"
@@ -1225,7 +1231,7 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Source={StaticResource SlimTvSettings}, Path=CurrentChannel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
+        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
           <Label.IsVisible>
             <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
@@ -1330,7 +1336,7 @@
       <Border x:Name="Item3_overlay" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
 
-      <Grid>
+      <Grid x:Name="ChannelData">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="Auto"/>
@@ -1338,13 +1344,13 @@
         </Grid.ColumnDefinitions>
 
         <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
+               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="85">
           <Label.IsVisible>
             <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
           </Label.IsVisible>
         </Label>
 
-        <Image x:Name="ChannelLogo" Grid.Column="1" Width="{ThemeResource ChannelLogoWidth}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
+        <Image x:Name="ChannelLogo" Grid.Column="1" Width="140" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
@@ -1353,7 +1359,7 @@
           </Image.IsVisible>
         </Image>
 
-        <Label x:Name="NameLabel" Grid.Column="2" Margin="3,1,5,3" Content="{Binding Channel.Name}" Color="{ThemeResource TextColor}" Width="280"
+        <Label x:Name="NameLabel" Grid.Column="2" Margin="3,1,5,3" Content="{Binding Channel.Name}" Color="{ThemeResource TextColor}" Width="240"
                VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None">
           <Label.IsVisible>
             <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
