@@ -24,7 +24,11 @@
 
 using System;
 using System.Globalization;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
+using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.MpfElements.Converters;
+using MediaPortal.UI.SkinEngine.Xaml;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Controls
 {
@@ -38,16 +42,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
       DateTime dtVal = (DateTime)val;
       TimeSpan delta = CalculateDifference(dtVal);
+      FormatDuration(delta, culture, ref result);
+      return true;
+    }
+
+    public static void FormatDuration(TimeSpan delta, CultureInfo culture, ref object result)
+    {
       if (delta > TimeSpan.FromHours(1))
         result = delta.ToString("hh\\:mm\\:ss", culture);
       else if (delta > TimeSpan.Zero)
         result = delta.ToString("mm\\:ss", culture);
-      return true;
     }
 
     protected abstract TimeSpan CalculateDifference(DateTime dtVal);
   }
 
+  /// <summary>
+  /// Calculates the difference between the given DateTime and "Now".
+  /// </summary>
   public class RemainingDurationConverter : AbstractDurationConverter
   {
     protected override TimeSpan CalculateDifference(DateTime dtVal)
@@ -55,11 +67,32 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       return dtVal - DateTime.Now;
     }
   }
+
+  /// <summary>
+  /// Calculates the difference between "Now" and the given DateTime.
+  /// </summary>
   public class ElapsedDurationConverter : AbstractDurationConverter
   {
     protected override TimeSpan CalculateDifference(DateTime dtVal)
     {
       return DateTime.Now - dtVal;
+    }
+  }
+
+  /// <summary>
+  /// Calculates the difference between two DateTime values: value2 - value1.
+  /// </summary>
+  public class DurationMultiConverter : IMultiValueConverter
+  {
+    public bool Convert(IDataDescriptor[] values, Type targetType, object parameter, out object result)
+    {
+      result = null;
+      if (values == null || values.Length != 2 || values[0]?.Value?.GetType() != typeof(DateTime) || values[1]?.Value?.GetType() != typeof(DateTime))
+        return true;
+
+      TimeSpan delta = (DateTime)values[1].Value - (DateTime)values[0].Value;
+      AbstractDurationConverter.FormatDuration(delta, ServiceRegistration.Get<ILocalization>().CurrentCulture, ref result);
+      return true;
     }
   }
 }
