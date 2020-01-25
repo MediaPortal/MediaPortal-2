@@ -25,11 +25,7 @@
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.Xaml;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 
