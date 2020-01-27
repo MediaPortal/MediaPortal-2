@@ -23,17 +23,18 @@
 #endregion
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading;
 using System.Windows.Forms;
-using System.Xml.Serialization;
+using MediaPortal.Client.Launcher.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Settings;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -153,6 +154,22 @@ namespace MediaPortal.Client.Launcher
     #region Properties
 
     private static bool IsAutoStartEnabled { get; set; }
+    private static bool SupportsX64
+    {
+      get { return IntPtr.Size > 4; }
+    }
+
+    private static bool UseX64
+    {
+      get { return ServiceRegistration.Get<ISettingsManager>().Load<ClientLauncherSettings>().UseX64; }
+      set
+      {
+        var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+        var clientLauncherSettings = settingsManager.Load<ClientLauncherSettings>();
+        clientLauncherSettings.UseX64 = value;
+        settingsManager.Save(clientLauncherSettings);
+      }
+    }
 
     #endregion
 
@@ -171,7 +188,7 @@ namespace MediaPortal.Client.Launcher
           ILogger logger = ServiceRegistration.Get<ILogger>();
           logger.Info("Received StartButton press");
 
-          Process[] processes = Process.GetProcessesByName("MP2-Client");
+          Process[] processes = GetMP2ClientProcesses();
 
           if (processes.Length == 0)
           {
@@ -271,6 +288,7 @@ namespace MediaPortal.Client.Launcher
         {
           MenuItem closeItem = new MenuItem { Index = 0, Text = "Close" };
           MenuItem startClientItem = new MenuItem { Index = 0, Text = "Start MP2-Client" };
+          MenuItem preferX64Item = new MenuItem { Index = 0, Text = "Use 64 Bit Client", Enabled = SupportsX64, Checked = UseX64 };
           MenuItem addAutostartItem = new MenuItem { Index = 0, Text = "Add to Autostart" };
           MenuItem removeAutostartItem = new MenuItem { Index = 0, Text = "Remove from Autostart" };
 
@@ -283,6 +301,11 @@ namespace MediaPortal.Client.Launcher
           startClientItem.Click += delegate (object sender, EventArgs args)
           {
             StartClient();
+          };
+          preferX64Item.Click += delegate(object sender, EventArgs args)
+          {
+            UseX64 = !UseX64;
+            preferX64Item.Checked = UseX64;
           };
           addAutostartItem.Click += delegate (object sender, EventArgs args)
           {
@@ -308,6 +331,8 @@ namespace MediaPortal.Client.Launcher
           {
             startClientItem,
             new MenuItem("-"),
+            preferX64Item,
+            new MenuItem("-"),
             addAutostartItem, removeAutostartItem,
             new MenuItem("-"),
             closeItem
@@ -328,17 +353,24 @@ namespace MediaPortal.Client.Launcher
         }
     }
 
+    private static string GetStartExe()
+    {
+      if (SupportsX64 && UseX64)
+        return "MP2-Client (x64).exe";
+      return "MP2-Client.exe";
+    }
+
     private static string GetMP2ClientPath()
     {
       string path = Assembly.GetExecutingAssembly().Location;
-
+      string startExe = GetStartExe();
       try
       {
         do
         {
           // Get parent dir of current path location
           path = Directory.GetParent(path).Parent.FullName;
-          path = Path.Combine(path, "MP2-Client.exe");
+          path = Path.Combine(path, startExe);
         } while (!File.Exists(path));
       }
       catch (Exception ex)
@@ -355,8 +387,10 @@ namespace MediaPortal.Client.Launcher
       try
       {
         string clientExe = GetMP2ClientPath();
-        ProcessStartInfo psi = new ProcessStartInfo(clientExe);
-        psi.WorkingDirectory = Directory.GetParent(clientExe).FullName;
+        ProcessStartInfo psi = new ProcessStartInfo(clientExe)
+        {
+          WorkingDirectory = Directory.GetParent(clientExe).FullName
+        };
         Process.Start(psi);
       }
       catch (Exception ex)
@@ -369,7 +403,7 @@ namespace MediaPortal.Client.Launcher
     {
       try
       {
-        Process[] processes = Process.GetProcessesByName("MP2-Client");
+        Process[] processes = GetMP2ClientProcesses();
         if (processes.Length == 0)
           return;
 
@@ -386,9 +420,15 @@ namespace MediaPortal.Client.Launcher
       }
     }
 
+    private static Process[] GetMP2ClientProcesses()
+    {
+      return Process.GetProcessesByName("MP2-Client").Union(
+        Process.GetProcessesByName("MP2-Client (x64)")).ToArray();
+    }
+
     private static void SwitchFocus()
     {
-      Process[] processes = Process.GetProcessesByName("mp2-client");
+      Process[] processes = GetMP2ClientProcesses();
 
       if (processes.Length > 0)
       {
