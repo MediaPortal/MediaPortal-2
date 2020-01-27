@@ -1312,16 +1312,7 @@
           </MultiBinding>
         </Border.Background>
       </Border>
-      <!--Image Source="homecontenticons\folder.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Width="35" Stretch="Uniform" Margin="10"
-             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1"/>
-            <Binding Source="0.5"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </-->
+
       <Label x:Name="ItemLabel2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Margin="5,40,5,8" 
              Color="{ThemeResource TextColor}" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Wrap="True"
              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Content="{Binding Path=SimpleTitle}">
