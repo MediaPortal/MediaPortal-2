@@ -382,8 +382,8 @@ namespace MediaPortal.Common.MediaManagement
         if (ActiveEditionIndex <= MaximumEditionIndex)
         {
           var currentEdition = Editions[ActiveEditionIndex];
-          var resourceIndex = Editions[ActiveEditionIndex].PrimaryResourceIndexes.First();
-          if (resourceIndex < providerAspects.Count)
+          var resourceIndex = currentEdition.PrimaryResourceIndexes.First();
+          if (resourceIndex <= providerAspects.Count)
             aspect = providerAspects.First(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == resourceIndex);
         }
       }

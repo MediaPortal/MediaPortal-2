@@ -28,7 +28,8 @@
     <!-- TODO: nicer background cycle effect -->
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
         Storyboard.TargetName="OSDInfoArea" Storyboard.TargetProperty="Fill.GradientStops[0].Color">
-      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource OSDCurrentPlayerControlBackgroundColor1}"/>
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource NereusColorMedium}"/>
+      <SplineColorKeyFrame KeyTime="00:00:05" Value="{ThemeResource NereusColorLight}"/>
     </ColorAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -37,7 +38,8 @@
 		######################################################################## OSD STYLES ########################################################################
 		############################################################################################################################################################
 	-->
-  
+
+
   <ControlTemplate x:Key="GenericVideoOSDProgressControl">
     <DockPanel LastChildFill="true" Margin="3">
       <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
@@ -116,8 +118,8 @@
               <ControlTemplate x:Key="OSD_InfoArea_Template">
                 <Grid x:Name="InfoGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -127,6 +129,10 @@
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
                          FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+                  <Label x:Name="CurrentTimeLabel" Grid.Column="1" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
+                         HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,25,0" FontFamily="SegoeUIBold"
+                         FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
 
                   <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
                     <media:VideoAspectWrapper.Template>
@@ -512,6 +518,10 @@
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PipBorderColor}"/>
       <SplineColorKeyFrame KeyTime="00:00:01" Value="{ThemeResource OSDPipBorderFocusColor}"/>
     </ColorAnimationUsingKeyFrames>
+    <ColorAnimationUsingKeyFrames BeginTime="00:00:00" RepeatBehavior="Forever" AutoReverse="True" Storyboard.TargetName="PiPBackground" Storyboard.TargetProperty="Background">
+      <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource NereusColorMedium}"/>
+      <SplineColorKeyFrame KeyTime="00:00:01" Value="{ThemeResource NereusColorLight}"/>
+    </ColorAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PiPButton" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
@@ -521,24 +531,17 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
-
+  
   <Style x:Key="SecondaryMediaOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="FixedImageHeight" Value="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDPipHeight}"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}" Background="#D8000000"
-              CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
-              DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <!--Border.Background>
-              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Offset="0" Color="{ThemeResource OSDPlayerControlBackgroundColor1}"/>
-                <GradientStop Offset="0.5" Color="{ThemeResource OSDPlayerControlBackgroundColor2}"/>
-                <GradientStop Offset="1" Color="{ThemeResource OSDPlayerControlBackgroundColor3}"/>
-              </LinearGradientBrush >
-            </-->
+                  CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
+                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid x:Name="PlayerGrid" Grid.Column="2" Grid.Row="0" Margin="10,0,10,0"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -583,7 +586,7 @@
               </Button>
               
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
-                  VerticalAlignment="Center" HorizontalAlignment="Center">
+                          VerticalAlignment="Center" HorizontalAlignment="Center">
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" 
                         IsVisible="{Binding CanSkipBack}" Command="{Command Previous}"/>
                 <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
@@ -1309,16 +1312,7 @@
           </MultiBinding>
         </Border.Background>
       </Border>
-      <!--Image Source="homecontenticons\folder.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="35" Width="35" Stretch="Uniform" Margin="10"
-             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
-        <Image.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="1"/>
-            <Binding Source="0.5"/>
-          </MultiBinding>
-        </Image.Opacity>
-      </-->
+
       <Label x:Name="ItemLabel2" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Stretch" Margin="5,40,5,8" 
              Color="{ThemeResource TextColor}" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Wrap="True"
              IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Content="{Binding Path=SimpleTitle}">

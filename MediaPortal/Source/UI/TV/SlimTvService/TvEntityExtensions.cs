@@ -167,7 +167,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
           EpisodePart = tvProgram.EpisodePart,
           EpisodeTitle = tvProgram.EpisodeName,
-          Genre = tvProgram.ProgramCategory.Category
+          Genre = tvProgram.ProgramCategory?.Category
         };
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);

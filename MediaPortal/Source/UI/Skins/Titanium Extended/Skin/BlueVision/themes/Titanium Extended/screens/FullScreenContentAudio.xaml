@@ -11,7 +11,7 @@
     xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
     x:Name="FullscreenContentAudioScreen">
 
-  <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <mp_special_controls:PlayerControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <mp_special_controls:PlayerControl.TemplateControl>
       <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
         <Grid.Resources>

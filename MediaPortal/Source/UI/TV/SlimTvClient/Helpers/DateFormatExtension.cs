@@ -24,6 +24,8 @@
 
 using System;
 using System.Globalization;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Plugins.SlimTv.Client.Controls;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Helpers
@@ -72,7 +74,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     {
       if (dateTime == DateTime.MinValue)
         return string.Empty;
-      cultureInfo = cultureInfo ?? CultureInfo.CurrentUICulture;
+      cultureInfo = cultureInfo ?? ServiceRegistration.Get<ILocalization>().CurrentCulture;
       string result = "";
 
       // Date formats are exclusive
