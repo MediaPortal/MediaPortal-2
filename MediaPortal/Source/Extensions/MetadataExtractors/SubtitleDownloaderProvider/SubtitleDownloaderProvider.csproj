@@ -100,8 +100,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MediaPortal.SubtitleDownloader">
-      <Version>3.0.17.3</Version>
+    <PackageReference Include="SubtitleDownloader">
+      <Version>3.0.20.1</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
