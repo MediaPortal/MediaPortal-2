@@ -14,8 +14,8 @@
 	is for minor bug fix releases. Use it.
 	-->
 	<id>874987</id>
-	<version major="1" minor="6" point="7"/>
-	<published month="12" day="30" year="2019"/>
+  <version major="1" minor="6" point="8"/>
+  <published month="01" day="16" year="2020"/>
 
 	<!--
 	These fields are used for categorization purposes. Seperate multiple 
@@ -42,7 +42,7 @@
 		</set>
 		<set name="rx_imdb">
 			<![CDATA[
-			(tt)0*(\d{7,8})"
+			(tt)0*(\d+)"
 			]]>
 		</set>
 		<set name="rx_alternate_title_block">
@@ -157,7 +157,7 @@
 			</set>
 			<set name="rx_imdb">
 				<![CDATA[
-				(tt)0*(\d{7,8})"
+				(tt)0*(\d+)"
 				]]>
 			</set>
 			<set name="rx_tagline">

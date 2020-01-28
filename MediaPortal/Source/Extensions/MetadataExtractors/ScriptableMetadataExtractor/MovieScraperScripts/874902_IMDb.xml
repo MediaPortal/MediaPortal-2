@@ -14,8 +14,8 @@
     is for minor bug fix releases. Use it.
     -->
     <id>874902</id>
-    <version major="3" minor="0" point="3" />
-    <published month="12" day="30" year="2019" />
+    <version major="3" minor="0" point="4" />
+    <published month="01" day="16" year="2020" />
     
     <!--
     These fields are used for categorization purposes. Seperate multiple 
@@ -158,7 +158,7 @@
         </set>
         <set name="rx_directors">
             <![CDATA[
-            <a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7,8}[^"]+"[^>]*>(?:<span[^>]+>)?(?<movieDirectors>[^<]+)(?:</span>)?</a>
+            <a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d+[^"]+"[^>]*>(?:<span[^>]+>)?(?<movieDirectors>[^<]+)(?:</span>)?</a>
             ]]>
         </set>
 
@@ -181,7 +181,7 @@
         </set>
         <set name="rx_writers">
             <![CDATA[
-            <a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7,8}[^"]+"[^>]*>(?:<span[^>]+>)?(?<movieWriters>[^<]+)(?:</span>)?</a>
+            <a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d+[^"]+"[^>]*>(?:<span[^>]+>)?(?<movieWriters>[^<]+)(?:</span>)?</a>
             ]]>
         </set>
 
@@ -192,7 +192,7 @@
         </set>
         <set name="rx_actors">
             <![CDATA[
-            <td class="name"[^<]*<a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d{7,8}[^"]+"[^>]*>(?:<span[^>]+>)?\s*(?<movieActors>.+?)\s*(?:</span>)?</a>|<span class="itemprop" itemprop="name"[^>]*>\s*(?<movieActors>[^<]+)</span>\s*</a>
+            <td class="name"[^<]*<a\s+(?:onclick="[^"]+"\s*)?href="/name/nm\d+[^"]+"[^>]*>(?:<span[^>]+>)?\s*(?<movieActors>.+?)\s*(?:</span>)?</a>|<span class="itemprop" itemprop="name"[^>]*>\s*(?<movieActors>[^<]+)</span>\s*</a>
             ]]>
         </set>
 
