@@ -373,7 +373,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         str += ", UsagePage: " + hidEvent.UsagePageNameAndValue() + ", UsageCollection: " + hidEvent.UsageCollectionNameAndValue() + ", Input Report: 0x" + hidEvent.InputReportString();
         if (hidEvent.Device?.IsGamePad ?? false)
         {
-          str += ", GamePad, DirectionState: " + hidEvent.GetDirectionPadState();
+          str += ", GamePad, DirectionState: " + GetDirectionPadState(hidEvent);
         }
         else if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl)
         {
