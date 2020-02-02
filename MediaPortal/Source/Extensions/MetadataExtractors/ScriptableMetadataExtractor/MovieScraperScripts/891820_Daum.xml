@@ -15,8 +15,8 @@
     is for minor bug fix releases. Use it.
     -->
     <id>891820</id>
-    <version major="1" minor="0" point="2"/>
-    <published month="12" day="30" year="2019"/>
+    <version major="1" minor="0" point="3"/>
+    <published month="01" day="16" year="2020"/>
 
     <!--
     These fields are used for categorization purposes. Seperate multiple 
@@ -182,7 +182,7 @@
 
       <set name="rx_imdb_titlepage">
         <![CDATA[
-        <link\srel="canonical"\shref="http://www.imdb.com/title/(tt\d{7,8})/"\s/>
+        <link\srel="canonical"\shref="http://www.imdb.com/title/(tt\d+)/"\s/>
         ]]>
       </set>
 
@@ -278,7 +278,7 @@
         			
         <!-- if we got a Search result page, this is used -->
         <if test="${imdb[0][0]}=">
-          <parse name="imdb_det" input="${imdb_page}" regex='title_(popular|exact)/images/b.gif\?link=/title/(tt\d{7,8})'/>
+          <parse name="imdb_det" input="${imdb_page}" regex='title_(popular|exact)/images/b.gif\?link=/title/(tt\d+)'/>
           <!-- if we got Search result page, use first match of RegEx -->
           <set name="movie.imdb_id" value="${imdb_det[0][1]}"/>
         </if>

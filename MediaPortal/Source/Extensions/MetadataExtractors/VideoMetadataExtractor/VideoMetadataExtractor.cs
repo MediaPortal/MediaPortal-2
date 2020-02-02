@@ -217,6 +217,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       protected int? _height;
       protected long? _playTime;
       protected long? _vidBitRate;
+      protected int? _multiViewCount;
+      protected string _scanType;
+      protected string _commercialFormat;
       protected int _audioStreamCount;
       protected int _subStreamCount;
       protected long _fileSize;
@@ -278,6 +281,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             _width = mediaInfo.GetWidth(i);
           if (!_height.HasValue)
             _height = mediaInfo.GetHeight(i);
+          if (!_multiViewCount.HasValue)
+            _multiViewCount = mediaInfo.GetMultiviewCount(i);
+          if (string.IsNullOrEmpty(_commercialFormat))
+            _commercialFormat = mediaInfo.GetCommercialVideoFormat(i);
+          if (string.IsNullOrEmpty(_scanType))
+            _scanType = mediaInfo.GetScanType(i);
           if (!_playTime.HasValue)
           {
             long? time = mediaInfo.GetPlaytime(i);
@@ -417,7 +426,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamId++);
 
           Match match = REGEXP_STEREOSCOPICFILE.Match(lfsra.LocalFileSystemPath);
-          string videoType = VideoStreamAspect.GetVideoType(match.Groups[GROUP_STEREO_MODE].Value, match.Groups[GROUP_STEREO].Value, _height, _width);
+          string steroscopicType = match.Groups[GROUP_STEREO].Value;
+          if (_multiViewCount > 1)
+            steroscopicType = "MVC";
+          string videoType = VideoStreamAspect.GetVideoType(match.Groups[GROUP_STEREO_MODE].Value, steroscopicType, _scanType, _commercialFormat, _height, _width);
           if (!string.IsNullOrWhiteSpace(videoType))
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, videoType);
           if (videoType == VideoStreamAspect.TYPE_SBS || videoType == VideoStreamAspect.TYPE_HSBS)

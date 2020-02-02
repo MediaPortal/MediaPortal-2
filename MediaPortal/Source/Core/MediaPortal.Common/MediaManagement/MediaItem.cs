@@ -43,12 +43,13 @@ namespace MediaPortal.Common.MediaManagement
   /// </remarks>
   public class MediaItem : IEquatable<MediaItem>, IXmlSerializable
   {
+    public static readonly string[] OPTICAL_DISC_MIMES = new string[] { "video/dvd", "video/bluray" };
+
     #region Protected fields
 
     protected Guid _id;
     protected readonly IDictionary<Guid, IList<MediaItemAspect>> _aspects;
     protected readonly IDictionary<string, string> _userData = new Dictionary<string, string>();
-    protected readonly string[] _opticalDiscMimes = new string[] { "video/dvd", "video/bluray" };
 
     #endregion
 
@@ -226,7 +227,7 @@ namespace MediaPortal.Common.MediaManagement
             return false;
 
           //Special case for optical discs
-          if (providerAspects.Count(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))) > 1)
+          if (providerAspects.Count(pra => OPTICAL_DISC_MIMES.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))) > 1)
             return true;
         }
 
@@ -267,7 +268,7 @@ namespace MediaPortal.Common.MediaManagement
             isPrimary = providerAspects.Any(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY &&
               videoStreams.Any(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)));
 
-            isOpticalDisc = providerAspects.Any(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)) &&
+            isOpticalDisc = providerAspects.Any(pra => OPTICAL_DISC_MIMES.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)) &&
               videoStreams.Any(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)));
           }
 

@@ -202,7 +202,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
       else if (MediaItemAspect.TryGetAspect(aspectData, MediaAspect.Metadata, out var mediaAspect))
       {
-        MediaTitle = movieAspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
+        MediaTitle = mediaAspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
       }
 
       if (MediaItemAspect.TryGetAspect(aspectData, TempSubtitleAspect.Metadata, out var subAspect))

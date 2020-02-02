@@ -1178,7 +1178,7 @@
 				</set>
 				<set name="rx_follow_links">
 					<![CDATA[
-					(?:"/title/)(?<IMDB_ID>tt\d{7,8})/">(?<TITLE>.*?)</a>.+?\((?<YEAR>\d{4})\)
+					(?:"/title/)(?<IMDB_ID>tt\d+)/">(?<TITLE>.*?)</a>.+?\((?<YEAR>\d{4})\)
 					]]>
 				</set>
 				<set name="rx_spinoff_block">
@@ -1714,7 +1714,7 @@
 		<!-- Regular Expressions -->
 		<set name="rx_imdb_results">
 			<![CDATA[
-			<title>(?:IMDb[\s-]*)?(?:IMDb[\s-]*)?(?<TITEL>.+?)\(\D*(?<JAHR>\d{4})(?:.*?\d{0,4})?[\/IVX]*\.*?</title>.+?(tt\d{7,8})/fullcredits
+			<title>(?:IMDb[\s-]*)?(?:IMDb[\s-]*)?(?<TITEL>.+?)\(\D*(?<JAHR>\d{4})(?:.*?\d{0,4})?[\/IVX]*\.*?</title>.+?(tt\d+)/fullcredits
 			]]>
 		</set>
 		<set name="rx_se">
@@ -1817,7 +1817,7 @@
 
 					<set name="rx_search_results">
 						<![CDATA[
-							(?:<td.class="result_text">\s+?<a.href="/title/)(?<IMDBID>tt\d{7,8})(?:.+?>)(?<TITLE>.+?)(?:</a>\s\()(?<YEAR>\d{4})
+							(?:<td.class="result_text">\s+?<a.href="/title/)(?<IMDBID>tt\d+)(?:.+?>)(?<TITLE>.+?)(?:</a>\s\()(?<YEAR>\d{4})
 						]]>
 					</set>
 
