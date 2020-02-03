@@ -80,8 +80,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       }
 
       Guid? userId = ResourceAccessUtils.GetUser(context);
-      streamItem.TranscoderObject = new ProfileMediaItem(identifier, streamItem.RequestedMediaItem, profile, streamItem.IsLive);
-      await streamItem.TranscoderObject.Initialize(userId);
+      streamItem.TranscoderObject = new ProfileMediaItem(identifier, profile, streamItem.IsLive);
+      await streamItem.TranscoderObject.Initialize(userId, streamItem.RequestedMediaItem, null);
       if (streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding vt)
       {
         vt.HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);

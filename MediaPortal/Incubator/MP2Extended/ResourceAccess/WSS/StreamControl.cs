@@ -27,14 +27,16 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
 {
   static class StreamControl
   {
-    private static readonly ConcurrentDictionary<string, StreamItem> StreamItems = new ConcurrentDictionary<string, StreamItem>();
+    private static readonly ConcurrentDictionary<string, StreamItem> STREAM_ITEMS = new ConcurrentDictionary<string, StreamItem>();
 
     /// <summary>
     /// Adds a new stream Item to the list.
@@ -46,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       if (await DeleteStreamItemAsync(identifier))
         Logger.Debug("StreamControl: Identifier {0} is already in list -> deleting old stream item", identifier);
 
-      return StreamItems.TryAdd(identifier, item);
+      return STREAM_ITEMS.TryAdd(identifier, item);
     }
 
     /// <summary>
@@ -59,7 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       if (ValidateIdentifier(identifier))
       {
         await StopStreamingAsync(identifier);
-        if(StreamItems.TryRemove(identifier, out var stream))
+        if(STREAM_ITEMS.TryRemove(identifier, out var stream))
         {
           if (stream.TranscoderObject != null)
             stream.TranscoderObject.StopTranscoding();
@@ -87,11 +89,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <returns>Returns the requested stream item otherwise null</returns>
     internal static Task<StreamItem> GetStreamItemAsync(string identifier)
     {
-      if (ValidateIdentifier(identifier))
-      {
-        if (StreamItems.TryGetValue(identifier, out var stream))
-          return Task.FromResult(stream);
-      }
+      if (STREAM_ITEMS.TryGetValue(identifier, out var stream))
+        return Task.FromResult(stream);
+
       return Task.FromResult<StreamItem>(null);
     }
 
@@ -101,12 +101,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <returns>Returns a Dictionary of stream Items</returns>
     internal static IReadOnlyDictionary<string, StreamItem> GetStreamItems()
     {
-      return StreamItems;
+      return STREAM_ITEMS;
     }
 
     internal static bool ValidateIdentifier(string identifier)
     {
-      return StreamItems.ContainsKey(identifier);
+      return STREAM_ITEMS.ContainsKey(identifier);
     }
 
     /// <summary>
@@ -114,37 +114,120 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// </summary>
     /// <param name="identifier">The unique string which identifies the stream Item</param>
     /// <param name="context">Transcoder context</param>
-    internal static async Task StartStreamingAsync(string identifier, double startTime)
+    internal static async Task<TranscodeContext> StartStreamingAsync(string identifier, double startTime)
     {
-      if (ValidateIdentifier(identifier))
+      if (STREAM_ITEMS.TryGetValue(identifier, out var currentStreamItem))
       {
-        if (StreamItems.TryGetValue(identifier, out var stream))
+        await currentStreamItem.BusyLock.WaitAsync();
+        try
         {
-          await stream.BusyLock.WaitAsync();
-          try
+          if (currentStreamItem.TranscoderObject == null)
           {
-            if (stream.TranscoderObject == null)
-              return;
-            if (stream.TranscoderObject.StartTrancoding() == false)
-            {
-              Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", stream.RequestedMediaItem.MediaItemId);
-              return;
-            }
-            stream.TranscoderObject.StartStreaming();
-            if (stream.IsLive == true)
-              stream.StreamContext = await MediaConverter.GetLiveStreamAsync(identifier, stream.TranscoderObject.TranscodingParameter, stream.LiveChannelId, true);
-            else
-              stream.StreamContext = await MediaConverter.GetMediaStreamAsync(identifier, stream.TranscoderObject.TranscodingParameter, startTime, 0, true);
+            STREAM_ITEMS.TryRemove(identifier, out _);
+            return null;
+          }
 
-            stream.TranscoderObject.SegmentDir = stream.StreamContext.SegmentDir;
-            stream.IsActive = true;
-          }
-          finally
+          if (currentStreamItem.IsActive)
           {
-            stream.BusyLock.Release();
+            currentStreamItem.TranscoderObject?.StopStreaming();
+            if (currentStreamItem.StreamContext is TranscodeContext existingContext)
+            {
+              existingContext.UpdateStreamUse(false);
+            }
+            else if (currentStreamItem.StreamContext != null)
+            {
+              currentStreamItem.StreamContext.Dispose();
+              currentStreamItem.StreamContext = null;
+            }
           }
+
+          if (currentStreamItem.TranscoderObject.StartTrancoding() == false)
+          {
+            Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", currentStreamItem.RequestedMediaItem.MediaItemId);
+            return null;
+          }
+
+          currentStreamItem.TranscoderObject.StartStreaming();
+          if (currentStreamItem.IsLive)
+            currentStreamItem.StreamContext = await MediaConverter.GetLiveStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, currentStreamItem.LiveChannelId, true);
+          else
+            currentStreamItem.StreamContext = await MediaConverter.GetMediaStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, startTime, 0, true);
+
+          if (currentStreamItem.StreamContext is TranscodeContext context)
+          {
+            context.UpdateStreamUse(true);
+            currentStreamItem.TranscoderObject.SegmentDir = context.SegmentDir;
+            return context;
+          }
+          else if (currentStreamItem.StreamContext != null)
+          {
+            //We want a transcoded stream
+            currentStreamItem.StreamContext.Dispose();
+            currentStreamItem.StreamContext = null;
+          }
+
+          return null;
+        }
+        finally
+        {
+          currentStreamItem.BusyLock.Release();
         }
       }
+
+      return null;
+    }
+
+    /// <summary>
+    /// Does the preparation to start a stream
+    /// </summary>
+    internal static async Task<StreamContext> StartOriginalFileStreamingAsync(string identifier)
+    {
+      if (STREAM_ITEMS.TryGetValue(identifier, out var currentStreamItem))
+      {
+        await currentStreamItem.BusyLock.WaitAsync();
+        try
+        {
+          if (currentStreamItem.IsActive)
+          {
+            currentStreamItem.TranscoderObject?.StopStreaming();
+            if (currentStreamItem.StreamContext is TranscodeContext context)
+            {
+              context.UpdateStreamUse(false);
+            }
+            else if (currentStreamItem.StreamContext != null)
+            {
+              currentStreamItem.StreamContext.Dispose();
+              currentStreamItem.StreamContext = null;
+            }
+          }
+          
+          IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+          List<IResourceAccessor> resources = new List<IResourceAccessor>();
+          foreach (var res in currentStreamItem.TranscoderObject.Metadata.FilePaths)
+          {
+            var path = ResourcePath.Deserialize(res.Value);
+            if (mediaAccessor.LocalResourceProviders.TryGetValue(path.BasePathSegment.ProviderId, out var resourceProvider) &&
+                resourceProvider is IBaseResourceProvider baseProvider && baseProvider.TryCreateResourceAccessor(res.Value, out var accessor))
+            {
+              using (accessor)
+              {
+                if (accessor is IFileSystemResourceAccessor)
+                {
+                  currentStreamItem.TranscoderObject.StartStreaming();
+                  currentStreamItem.StreamContext = await MediaConverter.GetFileStreamAsync(path);
+                  return currentStreamItem.StreamContext;
+                }
+              }
+            }
+          }
+        }
+        finally
+        {
+          currentStreamItem.BusyLock.Release();
+        }
+      }
+
+      return null;
     }
 
     /// <summary>
@@ -153,37 +236,38 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <param name="identifier">The unique string which identifies the stream Item</param>
     internal static async Task<bool> StopStreamingAsync(string identifier)
     {
-      if (ValidateIdentifier(identifier))
+      if (STREAM_ITEMS.TryGetValue(identifier, out var stream))
       {
-        if (StreamItems.TryGetValue(identifier, out var stream))
+        await stream.BusyLock.WaitAsync();
+        try
         {
-          await stream.BusyLock.WaitAsync();
-          try
+          stream.TranscoderObject?.StopStreaming();
+          if (stream.StreamContext is TranscodeContext context)
           {
-            stream.IsActive = false;
-            if (stream.TranscoderObject != null)
-              stream.TranscoderObject.StopStreaming();
-
-            if (stream.StreamContext != null)
-              stream.StreamContext.UpdateStreamUse(false);
-
-            return true;
+            context.UpdateStreamUse(false);
           }
-          finally
+          else if (stream.StreamContext != null)
           {
-            stream.BusyLock.Release();
+            stream.StreamContext.Dispose();
+            stream.StreamContext = null;
           }
+
+          return true;
+        }
+        finally
+        {
+          stream.BusyLock.Release();
         }
       }
       return false;
     }
 
-    internal static IMediaConverter MediaConverter
+    private static IMediaConverter MediaConverter
     {
       get { return ServiceRegistration.Get<IMediaConverter>(); }
     }
 
-    internal static ILogger Logger
+    private static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
     }

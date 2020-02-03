@@ -28,6 +28,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using System.Threading.Tasks;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using Microsoft.Owin;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
 
@@ -46,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if (streamItem == null)
         throw new BadRequestException(string.Format("GetTranscodingInfo: Unknown identifier: {0}", identifier));
 
-      return new WebTranscodingInfo(streamItem.StreamContext);
+      return new WebTranscodingInfo(streamItem.StreamContext as TranscodeContext);
     }
 
     internal static ILogger Logger

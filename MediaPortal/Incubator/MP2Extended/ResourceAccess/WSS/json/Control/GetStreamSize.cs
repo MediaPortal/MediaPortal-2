@@ -76,18 +76,18 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
       if (profile == null)
         throw new BadRequestException(string.Format("GetStreamSize: unknown profile: {0}", profileName));
 
-      var target = new ProfileMediaItem(Guid.NewGuid().ToString(), item, profile, false);
+      var target = new ProfileMediaItem(Guid.NewGuid().ToString(), profile, false);
 
       var output = new WebResolution();
-      if (target.WebMetadata.IsImage)
+      if (target.IsImage)
       {
-        output.Height = target.WebMetadata.Image.Height ?? 0;
-        output.Width = target.WebMetadata.Image.Width ?? 0;
+        output.Height = target.Image.Height ?? 0;
+        output.Width = target.Image.Width ?? 0;
       }
-      else if (target.WebMetadata.IsVideo)
+      else if (target.IsVideo)
       {
-        output.Height = target.WebMetadata.Image.Height ?? 0;
-        output.Width = target.WebMetadata.Image.Width ?? 0;
+        output.Height = target.Image.Height ?? 0;
+        output.Width = target.Image.Width ?? 0;
       }
 
       return Task.FromResult(output);
