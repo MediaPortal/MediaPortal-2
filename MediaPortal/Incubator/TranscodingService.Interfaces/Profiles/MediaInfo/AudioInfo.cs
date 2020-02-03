@@ -35,12 +35,12 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInf
     public bool ForceStereo = false;
     public bool ForceInheritance = false;
 
-    public bool Matches(MetadataContainer info, int audioStreamIndex)
+    public bool Matches(MetadataContainer info, int edition, int audioStreamIndex)
     {
       bool bPass = true;
-      bPass &= (AudioContainerType == AudioContainer.Unknown || AudioContainerType == info.Metadata.AudioContainerType);
-      bPass &= (Bitrate == 0 || Bitrate >= info.Audio.First(s => s.StreamIndex == audioStreamIndex).Bitrate);
-      bPass &= (Frequency == 0 || Frequency >= info.Audio.First(s => s.StreamIndex == audioStreamIndex).Frequency);
+      bPass &= (AudioContainerType == AudioContainer.Unknown || AudioContainerType == info.Metadata[edition].AudioContainerType);
+      bPass &= (Bitrate == 0 || Bitrate >= info.Audio[edition].First(s => s.StreamIndex == audioStreamIndex).Bitrate);
+      bPass &= (Frequency == 0 || Frequency >= info.Audio[edition].First(s => s.StreamIndex == audioStreamIndex).Frequency);
 
       return bPass;
     }

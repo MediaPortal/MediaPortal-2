@@ -32,8 +32,8 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
   {
     public static bool IsVideoDimensionChanged(VideoTranscoding video)
     {
-      return IsVideoHeightChangeNeeded(video.FirstSourceVideoStream.Height, video.TargetVideoMaxHeight) ||
-        IsVideoAspectRatioChanged(video.FirstSourceVideoStream.Width, video.FirstSourceVideoStream.Height, video.FirstSourceVideoStream.PixelAspectRatio, video.TargetVideoAspectRatio) ||
+      return IsVideoHeightChangeNeeded(video.SourceVideoStream.Height, video.TargetVideoMaxHeight) ||
+        IsVideoAspectRatioChanged(video.SourceVideoStream.Width, video.SourceVideoStream.Height, video.SourceVideoStream.PixelAspectRatio, video.TargetVideoAspectRatio) ||
         IsSquarePixelNeeded(video);
     }
 
@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
 
     public static bool IsSquarePixelNeeded(VideoTranscoding video)
     {
-      bool squarePixels = IsSquarePixel(video.FirstSourceVideoStream.PixelAspectRatio);
+      bool squarePixels = IsSquarePixel(video.SourceVideoStream.PixelAspectRatio);
       return (video.TargetVideoContainer == VideoContainer.Asf || video.TargetVideoContainer == VideoContainer.Flv) && squarePixels == false;
     }
 
@@ -89,9 +89,9 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
       bool notChanged = true;
       notChanged &= video.TargetForceVideoTranscoding == false;
       notChanged &= (video.TargetSubtitleSupport == SubtitleSupport.None || video.PreferredSourceSubtitles.Any() == false || video.TargetSubtitleSupport != SubtitleSupport.HardCoded);
-      notChanged &= (video.TargetVideoCodec == VideoCodec.Unknown || video.TargetVideoCodec == video.FirstSourceVideoStream.Codec);
+      notChanged &= (video.TargetVideoCodec == VideoCodec.Unknown || video.TargetVideoCodec == video.SourceVideoStream.Codec);
       notChanged &= IsVideoDimensionChanged(video) == false;
-      notChanged &= video.TargetVideoBitrate <= 0;
+      notChanged &= (!video.TargetVideoBitrate.HasValue || video.TargetVideoBitrate <= 0);
 
       return notChanged == false;
     }
@@ -101,7 +101,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
       return container == VideoContainer.Mpeg2Ts || container == VideoContainer.Wtv || container == VideoContainer.Hls || container == VideoContainer.M2Ts;
     }
 
-    public static bool IsAudioStreamChanged(int mediaStreamIndex, int audioStreamIndex, BaseTranscoding media)
+    public static bool IsAudioStreamChanged(int audioStreamIndex, BaseTranscoding media)
     {
       AudioCodec sourceCodec = AudioCodec.Unknown;
       AudioCodec targetCodec = AudioCodec.Unknown;
@@ -112,9 +112,9 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
       if (media is VideoTranscoding)
       {
         VideoTranscoding video = (VideoTranscoding)media;
-        sourceCodec = video.SourceAudioStreams[mediaStreamIndex].First(s => s.StreamIndex == audioStreamIndex).Codec;
-        sourceBitrate = video.SourceAudioStreams[mediaStreamIndex].First(s => s.StreamIndex == audioStreamIndex).Bitrate;
-        sourceFrequency = video.SourceAudioStreams[mediaStreamIndex].First(s => s.StreamIndex == audioStreamIndex).Frequency;
+        sourceCodec = video.SourceAudioStreams.First(s => s.StreamIndex == audioStreamIndex).Codec;
+        sourceBitrate = video.SourceAudioStreams.First(s => s.StreamIndex == audioStreamIndex).Bitrate;
+        sourceFrequency = video.SourceAudioStreams.First(s => s.StreamIndex == audioStreamIndex).Frequency;
         targetCodec = video.TargetAudioCodec;
         targetBitrate = video.TargetAudioBitrate;
         targetFrequency = video.TargetAudioFrequency;
@@ -131,9 +131,9 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
       }
 
       bool notChanged = true;
-      notChanged &= (sourceCodec != AudioCodec.Unknown && targetCodec != AudioCodec.Unknown && sourceCodec == targetCodec);
-      notChanged &= (sourceBitrate > 0 && targetBitrate > 0 && sourceBitrate == targetBitrate);
-      notChanged &= (sourceFrequency > 0 && targetFrequency > 0 && sourceFrequency == targetFrequency);
+      notChanged &= (targetCodec == AudioCodec.Unknown || sourceCodec == targetCodec);
+      notChanged &= (!targetBitrate.HasValue || sourceBitrate == targetBitrate);
+      notChanged &= (!targetFrequency.HasValue || sourceFrequency == targetFrequency);
 
       return notChanged == false;
     }
@@ -142,10 +142,10 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
     {
       bool notChanged = true;
       notChanged &= (image.SourceOrientation == 0 || image.TargetAutoRotate == false);
-      notChanged &= (image.SourceHeight > 0 && image.SourceHeight <= image.TargetHeight);
-      notChanged &= (image.SourceWidth > 0 && image.SourceWidth <= image.TargetWidth);
+      notChanged &= (image.SourceHeight == 0 || image.SourceHeight <= image.TargetHeight);
+      notChanged &= (image.SourceWidth == 0 || image.SourceWidth <= image.TargetWidth);
       notChanged &= (image.TargetPixelFormat == PixelFormat.Unknown || image.SourcePixelFormat == image.TargetPixelFormat);
-      notChanged &= (image.TargetImageCodec == ImageContainer.Unknown && image.SourceImageCodec == image.TargetImageCodec);
+      notChanged &= (image.TargetImageCodec == ImageContainer.Unknown || image.SourceImageCodec == image.TargetImageCodec);
 
       return notChanged == false;
     }

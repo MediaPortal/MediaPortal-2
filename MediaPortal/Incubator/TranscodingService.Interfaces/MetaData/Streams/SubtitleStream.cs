@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.ResourceAccess;
 using Newtonsoft.Json;
 
 namespace MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams
@@ -31,9 +32,23 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams
     public SubtitleCodec Codec { get; set; } = SubtitleCodec.Unknown;
     public int StreamIndex { get; set; } = -1;
     public string Language { get; set; }
-    public string Source { get; set; }
+    public string SourcePath { get; set; }
     public string CharacterEncoding { get; set; } = "";
     public bool Default { get; set; } = false;
+
+    public string GetFileSystemPath()
+    {
+      if (!string.IsNullOrEmpty(SourcePath))
+      {
+        var path = ResourcePath.Deserialize(SourcePath);
+        if (path.BasePathSegment.ProviderId == LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID)
+        {
+          return LocalFsResourceProviderBase.ToDosPath(path);
+        }
+      }
+
+      return null;
+    }
 
     [JsonIgnore]
     public bool IsEmbedded

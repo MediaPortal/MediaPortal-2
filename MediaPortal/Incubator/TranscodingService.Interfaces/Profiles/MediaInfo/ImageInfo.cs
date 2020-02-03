@@ -33,11 +33,11 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInf
     public QualityMode QualityType = QualityMode.Default;
     public bool ForceInheritance = false;
 
-    public bool Matches(MetadataContainer info)
+    public bool Matches(MetadataContainer info, int edition)
     {
       bool bPass = true;
-      bPass &= (ImageContainerType == ImageContainer.Unknown || ImageContainerType == info.Metadata.ImageContainerType);
-      bPass &= (PixelFormatType == PixelFormat.Unknown || PixelFormatType == info.Image.PixelFormatType);
+      bPass &= (ImageContainerType == ImageContainer.Unknown || ImageContainerType == info.Metadata[edition].ImageContainerType);
+      bPass &= (PixelFormatType == PixelFormat.Unknown || PixelFormatType == info.Image[edition].PixelFormatType);
 
       return bPass;
     }

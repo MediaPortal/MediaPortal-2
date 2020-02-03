@@ -33,11 +33,10 @@ using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parse
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 using System.IO;
+using System.Linq;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using System.Threading.Tasks;
 using System.Threading;
-using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
-using System.Linq;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
@@ -54,7 +53,6 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
     private readonly SemaphoreSlim _probeLock = new SemaphoreSlim(Environment.ProcessorCount, Environment.ProcessorCount);
     private readonly Dictionary<string, CultureInfo> _countryCodesMapping = new Dictionary<string, CultureInfo>();
-    private readonly string ANALYSIS_CACHE_PATH = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, "FFMpeg");
 
     public FFMpegMediaAnalyzer()
     {
@@ -92,83 +90,176 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       return null;
     }
 
-    public override async Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource, string AnalysisName = null)
+    private async Task<ProcessExecutionResult> ParseUrlAsync(string url, string arguments)
     {
-      if (MediaResource is ILocalFsResourceAccessor fileRes)
+      await _probeLock.WaitAsync();
+      try
       {
-        if (!fileRes.IsFile)
-          return null;
+        ProcessExecutionResult executionResult = await FFMpegBinary.FFProbeExecuteAsync(arguments, ProcessPriorityClass.BelowNormal, _analyzerTimeout);
+        return executionResult;
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("FFMpegMediaAnalyzer: Failed to parse url '{0}'", ex, url);
+      }
+      finally
+      {
+        _probeLock.Release();
+      }
+      return null;
+    }
 
-        string name = AnalysisName ?? fileRes.ResourceName;
-        string fileName = fileRes.LocalFileSystemPath;
-        if (!(HasImageExtension(fileName) || HasVideoExtension(fileName) || HasAudioExtension(fileName)))
-          return null;
-        string arguments = "";
+    public override async Task<MetadataContainer> ParseMediaStreamAsync(IEnumerable<IResourceAccessor> mediaResources)
+    {
+      bool isImage = true;
+      bool isFileSystem = false;
+      bool isNetwork = false;
+      bool isUnsupported = false;
 
-        //Check cache
-        MetadataContainer info = await LoadAnalysisAsync(MediaResource, name);
-        if (info != null)
-          return info;
+      //Check all files
+      if (!mediaResources.Any())
+        throw new ArgumentException($"FFMpegMediaAnalyzer: Resource list is empty", "mediaResources");
 
-        if (HasImageExtension(fileName))
+      foreach (var res in mediaResources)
+      {
+        if (res is IFileSystemResourceAccessor fileRes)
         {
-          //Default image decoder (image2) fails if file name contains å, ø, ö etc., so force format to image2pipe
-          arguments = string.Format("-threads {0} -f image2pipe -i \"{1}\"", _analyzerMaximumThreads, fileName);
+          isFileSystem = true;
+          if (!fileRes.IsFile)
+            throw new ArgumentException($"FFMpegMediaAnalyzer: Resource '{res.ResourceName}' is not a file", "mediaResources");
+        }
+        else if (res is INetworkResourceAccessor urlRes)
+        {
+          isNetwork = true;
         }
         else
         {
-          arguments = string.Format("-threads {0} -i \"{1}\"", _analyzerMaximumThreads, fileName);
+          isUnsupported = true;
         }
+      }
 
-        ProcessExecutionResult executionResult = await ParseFileAsync(fileRes, arguments);
-        if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
+      if (isFileSystem && isNetwork)
+        throw new ArgumentException($"FFMpegMediaAnalyzer: Resources are of mixed media formats", "mediaResources");
+
+      if (isUnsupported)
+        throw new ArgumentException($"FFMpegMediaAnalyzer: Resources are of unsupported media formats", "mediaResources");
+
+      ProcessExecutionResult executionResult = null;
+      string logFileName = "?";
+      if (isFileSystem)
+      {
+        List<LocalFsResourceAccessorHelper> helpers = new List<LocalFsResourceAccessorHelper>();
+        List<IDisposable> accessors = new List<IDisposable>();
+        try
         {
-          //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
-          info = new MetadataContainer { Metadata = { Source = MediaResource } };
-          info.Metadata.Size = fileRes.Size;
-          FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
+          MetadataContainer info = null;
+          logFileName = mediaResources.First().ResourceName;
 
-          // Special handling for files like OGG which will be falsely identified as videos
-          if (info.Metadata.VideoContainerType != VideoContainer.Unknown && info.Video.Codec == VideoCodec.Unknown)
+          //Initialize and check file system resources
+          foreach (var res in mediaResources)
           {
-            info.Metadata.VideoContainerType = VideoContainer.Unknown;
+            string resName = res.ResourceName;
+            if (!(HasImageExtension(resName) || HasVideoExtension(resName) || HasAudioExtension(resName) || HasOpticalDiscFileExtension(resName)))
+              throw new ArgumentException($"FFMpegMediaAnalyzer: Resource '{res.ResourceName}' has unsupported file extension", "mediaResources");
+
+            if (!(HasImageExtension(resName)))
+              isImage = false;
+
+            //Ensure availability
+            var rah = new LocalFsResourceAccessorHelper(res);
+            helpers.Add(rah);
+            var accessor = rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess();
+            if (accessor != null)
+              accessors.Add(accessor);
           }
 
-          if (info.IsImage || HasImageExtension(fileName))
+          string fileName;
+          if (helpers.Count > 1) //Check if concatenation needed
+            fileName = $"concat:\"{string.Join("|", helpers.Select(h => h.LocalFsResourceAccessor.LocalFileSystemPath))}\"";
+          else
+            fileName = $"\"{helpers.First().LocalFsResourceAccessor.LocalFileSystemPath}\"";
+
+          string arguments = "";
+          if (isImage)
           {
-            info.Metadata.Mime = MimeDetector.GetFileMime(fileRes, "image/unknown");
-          }
-          else if (info.IsVideo|| HasVideoExtension(fileName))
-          {
-            info.Metadata.Mime = MimeDetector.GetFileMime(fileRes, "video/unknown");
-            FFMpegParseH264Info.ParseH264Info(info, fileRes, _h264MaxDpbMbs, H264_TIMEOUT_MS);
-            FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(info, fileRes);
-          }
-          else if (info.IsAudio || HasAudioExtension(fileName))
-          {
-            info.Metadata.Mime = MimeDetector.GetFileMime(fileRes, "audio/unknown");
+            //Default image decoder (image2) fails if file name contains å, ø, ö etc., so force format to image2pipe
+            arguments = string.Format("-threads {0} -f image2pipe -i {1}", _analyzerMaximumThreads, fileName);
           }
           else
           {
-            info.Metadata.Mime = MimeDetector.GetFileMime(fileRes, "unknown/unknown");
+            arguments = string.Format("-threads {0} -i {1}", _analyzerMaximumThreads, fileName);
           }
-          await SaveAnalysisAsync(fileRes, info, name);
-          return info;
+
+          //Use first file for parsing. The other files are expected to be of same encoding and same location
+          var firstFile = helpers.First().LocalFsResourceAccessor;
+          executionResult = await ParseFileAsync(helpers.First().LocalFsResourceAccessor, arguments);
+          if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
+          {
+            //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
+            info = new MetadataContainer();
+            info.AddEdition(Editions.DEFAULT_EDITION);
+            info.Metadata[Editions.DEFAULT_EDITION].Size = helpers.Sum(h => h.LocalFsResourceAccessor.Size);
+            FFMpegParseFFMpegOutput.ParseFFMpegOutput(firstFile, executionResult.StandardError, ref info, _countryCodesMapping);
+
+            // Special handling for files like OGG which will be falsely identified as videos
+            if (info.Metadata[0].VideoContainerType != VideoContainer.Unknown && info.Video[0].Codec == VideoCodec.Unknown)
+            {
+              info.Metadata[0].VideoContainerType = VideoContainer.Unknown;
+            }
+
+            if (info.IsImage(Editions.DEFAULT_EDITION) || HasImageExtension(fileName))
+            {
+              info.Metadata[Editions.DEFAULT_EDITION].Mime = MimeDetector.GetFileMime(firstFile, "image/unknown");
+            }
+            else if (info.IsVideo(Editions.DEFAULT_EDITION) || HasVideoExtension(fileName))
+            {
+              info.Metadata[Editions.DEFAULT_EDITION].Mime = MimeDetector.GetFileMime(firstFile, "video/unknown");
+              await _probeLock.WaitAsync();
+              try
+              {
+                FFMpegParseH264Info.ParseH264Info(firstFile, info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
+              }
+              finally
+              {
+                _probeLock.Release();
+              }
+              FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(firstFile, info);
+            }
+            else if (info.IsAudio(Editions.DEFAULT_EDITION) || HasAudioExtension(fileName))
+            {
+              info.Metadata[Editions.DEFAULT_EDITION].Mime = MimeDetector.GetFileMime(firstFile, "audio/unknown");
+            }
+            else
+            {
+              return null;
+            }
+
+            return info;
+          }
+        }
+        finally
+        {
+          foreach (var accessor in accessors)
+            accessor?.Dispose();
+          foreach (var helper in helpers)
+            helper?.Dispose();
         }
 
         if (executionResult != null)
-          _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", fileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
+          _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Result: {1}, ExitCode: {2}, Success: {3}", logFileName, executionResult.StandardError, executionResult.ExitCode, executionResult.Success);
         else
-          _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Execution result empty", fileName);
+          _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Execution result empty", logFileName);
       }
-      else if (MediaResource is INetworkResourceAccessor urlRes)
+      else if (isNetwork)
       {
+        //We can only read one network resource so take the first
+        var urlRes = mediaResources.First() as INetworkResourceAccessor;
         string url = urlRes.URL;
 
         string arguments = "";
         if (url.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase) == true)
         {
-          arguments += "-rtsp_transport +tcp+udp ";
+          arguments += "-rtsp_transport tcp ";
         }
         arguments += "-analyzeduration " + _analyzerStreamTimeout + " ";
 
@@ -176,56 +267,50 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         var resolvedUrl = UrlHelper.ResolveHostToIPv4Url(url);
         if (string.IsNullOrEmpty(resolvedUrl))
         {
-          _logger.Error("FFMpegMediaAnalyzer: Failed to resolve host for resource '{0}'", url);
-          return null;
+          throw new InvalidOperationException($"FFMpegMediaAnalyzer: Failed to resolve host for resource '{url}'");
         }
         arguments += string.Format("-i \"{0}\"", resolvedUrl);
 
-        ProcessExecutionResult executionResult = null;
-        await _probeLock.WaitAsync();
-        try
-        {
-          executionResult = FFMpegBinary.FFProbeExecuteAsync(arguments, ProcessPriorityClass.BelowNormal, _analyzerTimeout).Result;
-        }
-        catch (Exception ex)
-        {
-          _logger.Error("FFMpegMediaAnalyzer: Failed to parse url '{0}'", ex, url);
-        }
-        finally
-        {
-          _probeLock.Release();
-        }
-
+        executionResult = await ParseUrlAsync(url, arguments);
         if (executionResult != null && executionResult.Success && executionResult.ExitCode == 0 && !string.IsNullOrEmpty(executionResult.StandardError))
         {
           //_logger.Debug("MediaAnalyzer: Successfully ran FFProbe:\n {0}", executionResult.StandardError);
-          MetadataContainer info = new MetadataContainer { Metadata = { Source = MediaResource } };
-          info.Metadata.Size = 0;
-          FFMpegParseFFMpegOutput.ParseFFMpegOutput(executionResult.StandardError, ref info, _countryCodesMapping);
+          MetadataContainer info = new MetadataContainer();
+          info.AddEdition(Editions.DEFAULT_EDITION);
+          info.Metadata[Editions.DEFAULT_EDITION].Size = 0;
+          FFMpegParseFFMpegOutput.ParseFFMpegOutput(urlRes, executionResult.StandardError, ref info, _countryCodesMapping);
 
           // Special handling for files like OGG which will be falsely identified as videos
-          if (info.Metadata.VideoContainerType != VideoContainer.Unknown && info.Video.Codec == VideoCodec.Unknown)
+          if (info.Metadata[Editions.DEFAULT_EDITION].VideoContainerType != VideoContainer.Unknown && info.Video[Editions.DEFAULT_EDITION].Codec == VideoCodec.Unknown)
           {
-            info.Metadata.VideoContainerType = VideoContainer.Unknown;
+            info.Metadata[Editions.DEFAULT_EDITION].VideoContainerType = VideoContainer.Unknown;
           }
 
-          if (info.IsImage)
+          if (info.IsImage(Editions.DEFAULT_EDITION))
           {
-            info.Metadata.Mime = MimeDetector.GetUrlMime(url, "image/unknown");
+            info.Metadata[Editions.DEFAULT_EDITION].Mime = MimeDetector.GetUrlMime(url, "image/unknown");
           }
-          else if (info.IsVideo)
+          else if (info.IsVideo(Editions.DEFAULT_EDITION))
           {
-            info.Metadata.Mime = MimeDetector.GetUrlMime(url, "video/unknown");
-            FFMpegParseH264Info.ParseH264Info(info, urlRes, _h264MaxDpbMbs, H264_TIMEOUT_MS);
-            FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(info, urlRes);
+            info.Metadata[Editions.DEFAULT_EDITION].Mime = MimeDetector.GetUrlMime(url, "video/unknown");
+            await _probeLock.WaitAsync();
+            try
+            {
+              FFMpegParseH264Info.ParseH264Info(urlRes, info, _h264MaxDpbMbs, H264_TIMEOUT_MS);
+            }
+            finally
+            {
+              _probeLock.Release();
+            }
+            FFMpegParseMPEG2TSInfo.ParseMPEG2TSInfo(urlRes, info);
           }
-          else if (info.IsAudio)
+          else if (info.IsAudio(Editions.DEFAULT_EDITION))
           {
-            info.Metadata.Mime = MimeDetector.GetUrlMime(url, "audio/unknown");
+            info.Metadata[Editions.DEFAULT_EDITION].Mime = MimeDetector.GetUrlMime(url, "audio/unknown");
           }
           else
           {
-            info.Metadata.Mime = MimeDetector.GetUrlMime(url, "unknown/unknown");
+            return null;
           }
           return info;
         }
@@ -235,10 +320,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         else
           _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Execution result empty", url);
       }
-      else
-      {
-        _logger.Error("FFMpegMediaAnalyzer: Failed to extract media type information for resource '{0}', Unsupported media format ", MediaResource);
-      }
+
       return null;
     }
   }

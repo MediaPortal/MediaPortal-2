@@ -52,29 +52,29 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInf
     public EncodingProfile EncodingProfileType = EncodingProfile.Unknown;
     public float LevelMinimum = 0;
 
-    public bool Matches(MetadataContainer info, int audioStreamIndex, LevelCheck levelCheckType)
+    public bool Matches(MetadataContainer info, int edition, int audioStreamIndex, LevelCheck levelCheckType)
     {
       bool bPass = true;
-      bPass &= (VideoContainerType == VideoContainer.Unknown || VideoContainerType == info.Metadata.VideoContainerType);
-      bPass &= (VideoCodecType == VideoCodec.Unknown || VideoCodecType == info.Video.Codec);
-      if(info.Audio.Count > 0)
-        bPass &= (AudioCodecType == AudioCodec.Unknown || AudioCodecType == info.Audio.FirstOrDefault(s => s.StreamIndex == audioStreamIndex).Codec);
+      bPass &= (VideoContainerType == VideoContainer.Unknown || VideoContainerType == info.Metadata[edition].VideoContainerType);
+      bPass &= (VideoCodecType == VideoCodec.Unknown || VideoCodecType == info.Video[edition].Codec);
+      if(info.Audio[edition].Count > 0)
+        bPass &= (AudioCodecType == AudioCodec.Unknown || AudioCodecType == info.Audio[edition].FirstOrDefault(s => s.StreamIndex == audioStreamIndex)?.Codec);
       if (SquarePixels == true)
       {
-        bPass &= (info.Video.HasSquarePixels == true);
+        bPass &= (info.Video[edition].HasSquarePixels == true);
       }
       else if (SquarePixels == false)
       {
-        bPass &= (info.Video.HasSquarePixels == false);
+        bPass &= (info.Video[edition].HasSquarePixels == false);
       }
-      bPass &= (PixelFormatType == PixelFormat.Unknown || PixelFormatType == info.Video.PixelFormatType);
+      bPass &= (PixelFormatType == PixelFormat.Unknown || PixelFormatType == info.Video[edition].PixelFormatType);
       if (AudioMultiChannel == true)
       {
-        bPass &= (!info.Audio.First(s => s.StreamIndex == audioStreamIndex).Channels.HasValue || info.Audio.First(s => s.StreamIndex == audioStreamIndex).Channels > 2);
+        bPass &= (info.Audio[edition].FirstOrDefault(s => s.StreamIndex == audioStreamIndex)?.Channels == null || info.Audio[edition].First(s => s.StreamIndex == audioStreamIndex).Channels > 2);
       }
       else if (AudioMultiChannel == false)
       {
-        bPass &= (!info.Audio.First(s => s.StreamIndex == audioStreamIndex).Channels.HasValue || info.Audio.First(s => s.StreamIndex == audioStreamIndex).Channels <= 2);
+        bPass &= (info.Audio[edition].FirstOrDefault(s => s.StreamIndex == audioStreamIndex)?.Channels == null || info.Audio[edition].First(s => s.StreamIndex == audioStreamIndex).Channels <= 2);
       }
 
       List<string> brandExclusions = new List<string>();
@@ -82,58 +82,58 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInf
       {
         brandExclusions.AddRange(BrandExclusion.Split(','));
       }
-      bPass &= (BrandExclusion == null || (info.Metadata.MajorBrand != null && !brandExclusions.Contains(info.Metadata.MajorBrand)));
+      bPass &= (BrandExclusion == null || (info.Metadata[edition].MajorBrand != null && !brandExclusions.Contains(info.Metadata[edition].MajorBrand)));
 
       List<string> fourcc = new List<string>();
       if (FourCC != null)
       {
         fourcc.AddRange(FourCC.Split(','));
       }
-      bPass &= (FourCC == null || (info.Video.FourCC != null && fourcc.Contains(info.Video.FourCC)));
+      bPass &= (FourCC == null || (info.Video[edition].FourCC != null && fourcc.Contains(info.Video[edition].FourCC)));
 
-      if (info.Video.Codec == VideoCodec.H264)
+      if (info.Video[edition].Codec == VideoCodec.H264)
       {
         if (EncodingProfileType != EncodingProfile.Unknown)
         {
-          bPass &= (info.Video.ProfileType != EncodingProfile.Unknown && EncodingProfileType == info.Video.ProfileType);
+          bPass &= (info.Video[edition].ProfileType != EncodingProfile.Unknown && EncodingProfileType == info.Video[edition].ProfileType);
           if (LevelMinimum > 0)
           {
             float? videoLevel = 0;
             if (levelCheckType == LevelCheck.RefFramesLevel)
             {
-              videoLevel = info.Video.RefLevel;
+              videoLevel = info.Video[edition].RefLevel;
             }
             else if (levelCheckType == LevelCheck.HeaderLevel)
             {
-              videoLevel = info.Video.HeaderLevel;
+              videoLevel = info.Video[edition].HeaderLevel;
             }
             else
             {
-              if (info.Video.RefLevel.HasValue)
+              if (info.Video[edition].RefLevel.HasValue)
               {
-                videoLevel = info.Video.RefLevel;
+                videoLevel = info.Video[edition].RefLevel;
               }
-              else if (info.Video.HeaderLevel.HasValue)
+              else if (info.Video[edition].HeaderLevel.HasValue)
               {
-                videoLevel = info.Video.HeaderLevel;
+                videoLevel = info.Video[edition].HeaderLevel;
               }
-              if (info.Video.HeaderLevel > info.Video.RefLevel)
+              if (info.Video[edition].HeaderLevel > info.Video[edition].RefLevel)
               {
-                videoLevel = info.Video.HeaderLevel;
+                videoLevel = info.Video[edition].HeaderLevel;
               }
             }
             bPass &= (videoLevel > 0 && videoLevel >= LevelMinimum);
           }
         }
       }
-      else if (info.Video.Codec == VideoCodec.H265)
+      else if (info.Video[edition].Codec == VideoCodec.H265)
       {
         if (EncodingProfileType != EncodingProfile.Unknown)
         {
-          bPass &= (info.Video.ProfileType != EncodingProfile.Unknown && EncodingProfileType == info.Video.ProfileType);
+          bPass &= (info.Video[edition].ProfileType != EncodingProfile.Unknown && EncodingProfileType == info.Video[edition].ProfileType);
           if (LevelMinimum > 0)
           {
-            bPass &= (info.Video.HeaderLevel > 0 && info.Video.HeaderLevel >= LevelMinimum);
+            bPass &= (info.Video[edition].HeaderLevel > 0 && info.Video[edition].HeaderLevel >= LevelMinimum);
           }
         }
       }

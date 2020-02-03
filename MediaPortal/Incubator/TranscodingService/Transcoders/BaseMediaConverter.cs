@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Text;
 using System.IO;
@@ -42,6 +43,7 @@ using MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers;
 using MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Utilities.Threading;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
@@ -86,7 +88,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       }
     }
 
-    protected Dictionary<string, Dictionary<string, List<TranscodeContext>>> _runningClientTranscodes = new Dictionary<string, Dictionary<string, List<TranscodeContext>>>();
+    protected ConcurrentDictionary<string, Dictionary<string, List<TranscodeContext>>> _runningClientTranscodes = new ConcurrentDictionary<string, Dictionary<string, List<TranscodeContext>>>();
     protected AsyncReaderWriterLock _transcodeLock = new AsyncReaderWriterLock();
     protected SemaphoreSlim _cacheLock = new SemaphoreSlim(1, 1);
     protected string _cachePath;
@@ -122,32 +124,32 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 
     #region HLS
 
-    public long GetSegmentSequence(string FileName)
+    public long GetSegmentSequence(string fileName)
     {
       long sequenceNumber = -1;
-      long.TryParse(Path.GetFileNameWithoutExtension(FileName), out sequenceNumber);
+      long.TryParse(Path.GetFileNameWithoutExtension(fileName), out sequenceNumber);
       return sequenceNumber;
     }
 
-    public async Task<(Stream FileData, dynamic ContainerEnum)?> GetSegmentFileAsync(VideoTranscoding TranscodingInfo, TranscodeContext Context, string FileName)
+    public async Task<(Stream FileData, dynamic ContainerEnum)?> GetSegmentFileAsync(VideoTranscoding transcodingInfo, TranscodeContext context, string fileName)
     {
       (Stream FileData, dynamic ContainerEnum)? nullVal = null;
       try
       {
-        string completePath = Path.Combine(Context.SegmentDir, FileName);
+        string completePath = Path.Combine(context.SegmentDir, fileName);
         string playlistPath = null;
-        if (TranscodingInfo.TargetIsLive == false)
+        if (transcodingInfo.TargetIsLive == false)
         {
-          playlistPath = Path.Combine(Context.SegmentDir, PLAYLIST_TEMP_FILE_NAME);
+          playlistPath = Path.Combine(context.SegmentDir, PLAYLIST_TEMP_FILE_NAME);
         }
         else
         {
-          playlistPath = Path.Combine(Context.SegmentDir, PLAYLIST_FILE_NAME);
+          playlistPath = Path.Combine(context.SegmentDir, PLAYLIST_FILE_NAME);
         }
         DateTime waitStart = DateTime.Now;
 
         //Ensure that writing is completed. Is there a better way?
-        if (Path.GetExtension(PLAYLIST_FILE_NAME) == Path.GetExtension(FileName)) //playlist file
+        if (Path.GetExtension(PLAYLIST_FILE_NAME) == Path.GetExtension(fileName)) //playlist file
         {
           while (!File.Exists(completePath))
           {
@@ -157,18 +159,18 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
             await Task.Delay(10).ConfigureAwait(false);
           }
 
-          return (await PlaylistManifest.CorrectPlaylistUrlsAsync(TranscodingInfo.HlsBaseUrl, completePath).ConfigureAwait(false), VideoContainer.Hls);
+          return (await PlaylistManifest.CorrectPlaylistUrlsAsync(transcodingInfo.HlsBaseUrl, completePath).ConfigureAwait(false), VideoContainer.Hls);
         }
-        if (Path.GetExtension(HLS_SEGMENT_FILE_TEMPLATE) == Path.GetExtension(FileName)) //segment file
+        if (Path.GetExtension(HLS_SEGMENT_FILE_TEMPLATE) == Path.GetExtension(fileName)) //segment file
         {
-          long sequenceNumber = GetSegmentSequence(FileName);
-          while (Context.Running)
+          long sequenceNumber = GetSegmentSequence(fileName);
+          while (context.Running)
           {
             if (!File.Exists(completePath))
             {
-              if (Context.CurrentSegment > sequenceNumber)
+              if (context.CurrentSegment > sequenceNumber)
                 return nullVal; // Probably rewinding
-              if ((sequenceNumber - Context.CurrentSegment) > 2)
+              if ((sequenceNumber - context.CurrentSegment) > 2)
                 return nullVal; //Probably forwarding
             }
             else
@@ -182,7 +184,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
                   while (!reader.EndOfStream)
                   {
                     string line = await reader.ReadLineAsync().ConfigureAwait(false);
-                    if (line.Contains(FileName))
+                    if (line.Contains(fileName))
                     {
                       fileFound = true;
                       break;
@@ -200,14 +202,14 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
           }
 
           if (sequenceNumber >= 0)
-            Context.CurrentSegment = sequenceNumber;
+            context.CurrentSegment = sequenceNumber;
           return (await GetFileStreamAsync(completePath).ConfigureAwait(false), VideoContainer.Mpeg2Ts);
         }
-        if (Path.GetExtension(HLS_SEGMENT_SUB_TEMPLATE) == Path.GetExtension(FileName)) //subtitle file
+        if (Path.GetExtension(HLS_SEGMENT_SUB_TEMPLATE) == Path.GetExtension(fileName)) //subtitle file
         {
           while (!File.Exists(completePath))
           {
-            if (!Context.Running)
+            if (!context.Running)
               return nullVal;
             if ((DateTime.Now - waitStart).TotalMilliseconds > _hlsSegmentTimeInSeconds)
               return nullVal;
@@ -220,7 +222,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       }
       catch (Exception ex)
       {
-        _logger.Error("MediaConverter: Error getting segment file '{0}'", ex, FileName);
+        _logger.Error("MediaConverter: Error getting segment file '{0}'", ex, fileName);
       }
       return nullVal;
     }
@@ -229,35 +231,35 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 
     #region Metadata
 
-    public TranscodedAudioMetadata GetTranscodedAudioMetadata(AudioTranscoding TranscodingInfo)
+    public TranscodedAudioMetadata GetTranscodedAudioMetadata(AudioTranscoding transcodingInfo)
     {
       TranscodedAudioMetadata metadata = new TranscodedAudioMetadata
       {
-        TargetAudioBitrate = TranscodingInfo.TargetAudioBitrate,
-        TargetAudioCodec = TranscodingInfo.TargetAudioCodec,
-        TargetAudioContainer = TranscodingInfo.TargetAudioContainer,
-        TargetAudioFrequency = TranscodingInfo.TargetAudioFrequency
+        TargetAudioBitrate = transcodingInfo.TargetAudioBitrate,
+        TargetAudioCodec = transcodingInfo.TargetAudioCodec,
+        TargetAudioContainer = transcodingInfo.TargetAudioContainer,
+        TargetAudioFrequency = transcodingInfo.TargetAudioFrequency
       };
-      if (TranscodingInfo.TargetForceCopy)
+      if (transcodingInfo.TargetForceCopy)
       {
-        metadata.TargetAudioBitrate = TranscodingInfo.SourceAudioBitrate;
-        metadata.TargetAudioCodec = TranscodingInfo.SourceAudioCodec;
-        metadata.TargetAudioContainer = TranscodingInfo.SourceAudioContainer;
-        metadata.TargetAudioFrequency = TranscodingInfo.SourceAudioFrequency;
-        metadata.TargetAudioChannels = TranscodingInfo.SourceAudioChannels;
+        metadata.TargetAudioBitrate = transcodingInfo.SourceAudioBitrate;
+        metadata.TargetAudioCodec = transcodingInfo.SourceAudioCodec;
+        metadata.TargetAudioContainer = transcodingInfo.SourceAudioContainer;
+        metadata.TargetAudioFrequency = transcodingInfo.SourceAudioFrequency;
+        metadata.TargetAudioChannels = transcodingInfo.SourceAudioChannels;
       }
-      if (TranscodingInfo.TargetAudioContainer == AudioContainer.Unknown)
+      if (transcodingInfo.TargetAudioContainer == AudioContainer.Unknown)
       {
-        metadata.TargetAudioContainer = TranscodingInfo.SourceAudioContainer;
+        metadata.TargetAudioContainer = transcodingInfo.SourceAudioContainer;
       }
 
-      if (TranscodingInfo.TargetForceCopy == false)
+      if (transcodingInfo.TargetForceCopy == false)
       {
-        if (Checks.IsAudioStreamChanged(0, 0, TranscodingInfo))
+        if (Checks.IsAudioStreamChanged(0, transcodingInfo))
         {
-          if (TranscodingInfo.TargetAudioCodec == AudioCodec.Unknown)
+          if (transcodingInfo.TargetAudioCodec == AudioCodec.Unknown)
           {
-            switch (TranscodingInfo.TargetAudioContainer)
+            switch (transcodingInfo.TargetAudioContainer)
             {
               case AudioContainer.Unknown:
                 break;
@@ -295,63 +297,63 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
                 metadata.TargetAudioCodec = AudioCodec.Lpcm;
                 break;
               default:
-                metadata.TargetAudioCodec = TranscodingInfo.SourceAudioCodec;
+                metadata.TargetAudioCodec = transcodingInfo.SourceAudioCodec;
                 break;
             }
           }
-          long? frequency = Validators.GetAudioFrequency(TranscodingInfo.SourceAudioCodec, TranscodingInfo.TargetAudioCodec, TranscodingInfo.SourceAudioFrequency, TranscodingInfo.TargetAudioFrequency);
+          long? frequency = Validators.GetAudioFrequency(transcodingInfo.SourceAudioCodec, transcodingInfo.TargetAudioCodec, transcodingInfo.SourceAudioFrequency, transcodingInfo.TargetAudioFrequency);
           if (frequency > 0)
           {
             metadata.TargetAudioFrequency = frequency;
           }
-          if (TranscodingInfo.TargetAudioContainer != AudioContainer.Lpcm)
+          if (transcodingInfo.TargetAudioContainer != AudioContainer.Lpcm)
           {
-            metadata.TargetAudioBitrate = Validators.GetAudioBitrate(TranscodingInfo.SourceAudioBitrate, TranscodingInfo.TargetAudioBitrate);
+            metadata.TargetAudioBitrate = Validators.GetAudioBitrate(transcodingInfo.SourceAudioBitrate, transcodingInfo.TargetAudioBitrate);
           }
         }
-        metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(TranscodingInfo.SourceAudioCodec, TranscodingInfo.TargetAudioCodec, TranscodingInfo.SourceAudioChannels, TranscodingInfo.TargetForceAudioStereo);
+        metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(transcodingInfo.SourceAudioCodec, transcodingInfo.TargetAudioCodec, transcodingInfo.SourceAudioChannels, transcodingInfo.TargetForceAudioStereo);
       }
       return metadata;
     }
 
-    public TranscodedImageMetadata GetTranscodedImageMetadata(ImageTranscoding TranscodingInfo)
+    public TranscodedImageMetadata GetTranscodedImageMetadata(ImageTranscoding transcodingInfo)
     {
       TranscodedImageMetadata metadata = new TranscodedImageMetadata
       {
-        TargetMaxHeight = TranscodingInfo.SourceHeight,
-        TargetMaxWidth = TranscodingInfo.SourceWidth,
-        TargetOrientation = TranscodingInfo.SourceOrientation,
-        TargetImageCodec = TranscodingInfo.TargetImageCodec
+        TargetMaxHeight = transcodingInfo.SourceHeight,
+        TargetMaxWidth = transcodingInfo.SourceWidth,
+        TargetOrientation = transcodingInfo.SourceOrientation,
+        TargetImageCodec = transcodingInfo.TargetImageCodec
       };
       if (metadata.TargetImageCodec == ImageContainer.Unknown)
       {
-        metadata.TargetImageCodec = TranscodingInfo.SourceImageCodec;
+        metadata.TargetImageCodec = transcodingInfo.SourceImageCodec;
       }
-      metadata.TargetPixelFormat = TranscodingInfo.TargetPixelFormat;
+      metadata.TargetPixelFormat = transcodingInfo.TargetPixelFormat;
       if (metadata.TargetPixelFormat == PixelFormat.Unknown)
       {
-        metadata.TargetPixelFormat = TranscodingInfo.SourcePixelFormat;
+        metadata.TargetPixelFormat = transcodingInfo.SourcePixelFormat;
       }
-      if (Checks.IsImageStreamChanged(TranscodingInfo) == true)
+      if (Checks.IsImageStreamChanged(transcodingInfo) == true)
       {
-        metadata.TargetMaxHeight = TranscodingInfo.SourceHeight;
-        metadata.TargetMaxWidth = TranscodingInfo.SourceWidth;
-        if (metadata.TargetMaxHeight > TranscodingInfo.TargetHeight && TranscodingInfo.TargetHeight > 0)
+        metadata.TargetMaxHeight = transcodingInfo.SourceHeight;
+        metadata.TargetMaxWidth = transcodingInfo.SourceWidth;
+        if (metadata.TargetMaxHeight > transcodingInfo.TargetHeight && transcodingInfo.TargetHeight > 0)
         {
-          double scale = (double)TranscodingInfo.SourceWidth / (double)TranscodingInfo.SourceHeight;
-          metadata.TargetMaxHeight = TranscodingInfo.TargetHeight;
+          double scale = (double)transcodingInfo.SourceWidth / (double)transcodingInfo.SourceHeight;
+          metadata.TargetMaxHeight = transcodingInfo.TargetHeight;
           metadata.TargetMaxWidth = Convert.ToInt32(scale * (double)metadata.TargetMaxHeight);
         }
-        if (metadata.TargetMaxWidth > TranscodingInfo.TargetWidth && TranscodingInfo.TargetWidth > 0)
+        if (metadata.TargetMaxWidth > transcodingInfo.TargetWidth && transcodingInfo.TargetWidth > 0)
         {
-          double scale = (double)TranscodingInfo.SourceHeight / (double)TranscodingInfo.SourceWidth;
-          metadata.TargetMaxWidth = TranscodingInfo.TargetWidth;
+          double scale = (double)transcodingInfo.SourceHeight / (double)transcodingInfo.SourceWidth;
+          metadata.TargetMaxWidth = transcodingInfo.TargetWidth;
           metadata.TargetMaxHeight = Convert.ToInt32(scale * (double)metadata.TargetMaxWidth);
         }
 
-        if (TranscodingInfo.TargetAutoRotate == true)
+        if (transcodingInfo.TargetAutoRotate == true)
         {
-          if (TranscodingInfo.SourceOrientation > 4)
+          if (transcodingInfo.SourceOrientation > 4)
           {
             int? tempWidth = metadata.TargetMaxWidth.Value;
             metadata.TargetMaxWidth = metadata.TargetMaxHeight;
@@ -365,11 +367,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 
     protected abstract void GetVideoDimensions(VideoTranscoding video, out Size newSize, out Size newContentSize, out float newPixelAspectRatio, out bool pixelARChanged, out bool videoARChanged, out bool videoHeightChanged);
 
-    public TranscodedVideoMetadata GetTranscodedVideoMetadata(VideoTranscoding TranscodingInfo)
+    public TranscodedVideoMetadata GetTranscodedVideoMetadata(VideoTranscoding transcodingInfo)
     {
-      VideoContainer srcContainer = TranscodingInfo.FirstSourceVideoContainer;
-      VideoStream srcVideo = TranscodingInfo.FirstSourceVideoStream;
-      AudioStream srcAudio = TranscodingInfo.FirstSourceAudioStream;
+      VideoContainer srcContainer = transcodingInfo.SourceVideoContainer;
+      VideoStream srcVideo = transcodingInfo.SourceVideoStream;
+      AudioStream srcAudio = transcodingInfo.FirstSourceAudioStream;
       
       //Handle video without audio track
       if (srcAudio == null)
@@ -385,16 +387,16 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 
       TranscodedVideoMetadata metadata = new TranscodedVideoMetadata
       {
-        TargetAudioBitrate = TranscodingInfo.TargetAudioBitrate ?? srcAudio.Bitrate,
-        TargetAudioCodec = TranscodingInfo.TargetAudioCodec == AudioCodec.Unknown ? srcAudio.Codec : TranscodingInfo.TargetAudioCodec,
-        TargetAudioFrequency = TranscodingInfo.TargetAudioFrequency ?? srcAudio.Frequency,
+        TargetAudioBitrate = transcodingInfo.TargetAudioBitrate ?? srcAudio.Bitrate,
+        TargetAudioCodec = transcodingInfo.TargetAudioCodec == AudioCodec.Unknown ? srcAudio.Codec : transcodingInfo.TargetAudioCodec,
+        TargetAudioFrequency = transcodingInfo.TargetAudioFrequency ?? srcAudio.Frequency,
         TargetVideoFrameRate = srcVideo.Framerate,
-        TargetLevel = TranscodingInfo.TargetLevel,
-        TargetPreset = TranscodingInfo.TargetPreset,
-        TargetProfile = TranscodingInfo.TargetProfile,
-        TargetVideoPixelFormat = TranscodingInfo.TargetPixelFormat
+        TargetLevel = transcodingInfo.TargetLevel,
+        TargetPreset = transcodingInfo.TargetPreset,
+        TargetProfile = transcodingInfo.TargetProfile,
+        TargetVideoPixelFormat = transcodingInfo.TargetPixelFormat
       };
-      if (TranscodingInfo.TargetForceVideoCopy)
+      if (transcodingInfo.TargetForceVideoCopy)
       {
         metadata.TargetVideoContainer = srcContainer;
         metadata.TargetVideoAspectRatio = srcVideo.AspectRatio;
@@ -405,7 +407,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         metadata.TargetVideoMaxWidth = srcVideo.Width;
         metadata.TargetVideoMaxHeight = srcVideo.Height;
       }
-      if (TranscodingInfo.TargetForceAudioCopy)
+      if (transcodingInfo.TargetForceAudioCopy)
       {
         metadata.TargetAudioBitrate = srcAudio.Bitrate;
         metadata.TargetAudioCodec = srcAudio.Codec;
@@ -415,17 +417,17 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 
       metadata.TargetVideoMaxWidth = srcVideo.Width;
       metadata.TargetVideoMaxHeight = srcVideo.Height ?? 1080;
-      metadata.TargetVideoAspectRatio = TranscodingInfo.TargetVideoAspectRatio ?? 16.0F / 9.0F;
-      metadata.TargetVideoBitrate = TranscodingInfo.TargetVideoBitrate;
-      metadata.TargetVideoCodec = TranscodingInfo.TargetVideoCodec == VideoCodec.Unknown ? srcVideo.Codec : TranscodingInfo.TargetVideoCodec;
-      metadata.TargetVideoContainer = TranscodingInfo.TargetVideoContainer == VideoContainer.Unknown ? srcContainer : TranscodingInfo.TargetVideoContainer;
+      metadata.TargetVideoAspectRatio = transcodingInfo.TargetVideoAspectRatio ?? 16.0F / 9.0F;
+      metadata.TargetVideoBitrate = transcodingInfo.TargetVideoBitrate;
+      metadata.TargetVideoCodec = transcodingInfo.TargetVideoCodec == VideoCodec.Unknown ? srcVideo.Codec : transcodingInfo.TargetVideoCodec;
+      metadata.TargetVideoContainer = transcodingInfo.TargetVideoContainer == VideoContainer.Unknown ? srcContainer : transcodingInfo.TargetVideoContainer;
       metadata.TargetVideoTimestamp = Timestamp.None;
       if (metadata.TargetVideoContainer == VideoContainer.M2Ts)
         metadata.TargetVideoTimestamp = Timestamp.Valid;
       if (metadata.TargetVideoPixelFormat == PixelFormat.Unknown)
         metadata.TargetVideoPixelFormat = PixelFormat.Yuv420;
 
-      if (TranscodingInfo.TargetForceVideoCopy == false)
+      if (transcodingInfo.TargetForceVideoCopy == false)
       {
         float newPixelAspectRatio = 1.0F;
         if (srcVideo.PixelAspectRatio.HasValue)
@@ -436,23 +438,23 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         bool pixelARChanged = false;
         bool videoARChanged = false;
         bool videoHeightChanged = false;
-        GetVideoDimensions(TranscodingInfo, out newSize, out newContentSize, out newPixelAspectRatio, out pixelARChanged, out videoARChanged, out videoHeightChanged);
+        GetVideoDimensions(transcodingInfo, out newSize, out newContentSize, out newPixelAspectRatio, out pixelARChanged, out videoARChanged, out videoHeightChanged);
         metadata.TargetVideoPixelAspectRatio = newPixelAspectRatio;
         metadata.TargetVideoMaxWidth = newSize.Width;
         metadata.TargetVideoMaxHeight = newSize.Height;
         metadata.TargetVideoFrameRate = Validators.GetNormalizedFramerate(srcVideo.Framerate);
       }
-      if (TranscodingInfo.TargetForceAudioCopy == false)
+      if (transcodingInfo.TargetForceAudioCopy == false)
       {
-        metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(srcAudio.Codec, TranscodingInfo.TargetAudioCodec, srcAudio.Channels, TranscodingInfo.TargetForceAudioStereo);
-        long? frequency = Validators.GetAudioFrequency(srcAudio.Codec, TranscodingInfo.TargetAudioCodec, srcAudio.Frequency, TranscodingInfo.TargetAudioFrequency);
+        metadata.TargetAudioChannels = Validators.GetAudioNumberOfChannels(srcAudio.Codec, transcodingInfo.TargetAudioCodec, srcAudio.Channels, transcodingInfo.TargetForceAudioStereo);
+        long? frequency = Validators.GetAudioFrequency(srcAudio.Codec, transcodingInfo.TargetAudioCodec, srcAudio.Frequency, transcodingInfo.TargetAudioFrequency);
         if (frequency.HasValue)
         {
           metadata.TargetAudioFrequency = frequency;
         }
-        if (TranscodingInfo.TargetAudioCodec != AudioCodec.Lpcm)
+        if (transcodingInfo.TargetAudioCodec != AudioCodec.Lpcm)
         {
-          metadata.TargetAudioBitrate = Validators.GetAudioBitrate(srcAudio.Bitrate, TranscodingInfo.TargetAudioBitrate);
+          metadata.TargetAudioBitrate = Validators.GetAudioBitrate(srcAudio.Bitrate, transcodingInfo.TargetAudioBitrate);
         }
       }
       return metadata;
@@ -486,28 +488,28 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       }
     }
 
-    public async Task<bool> IsTranscodeRunningAsync(string ClientId, string TranscodeId)
+    public Task<bool> IsTranscodeRunningAsync(string clientId, string transcodeId)
     {
-      using (await _transcodeLock.ReaderLockAsync().ConfigureAwait(false))
-      {
-        return _runningClientTranscodes.Where(t => t.Key == ClientId && t.Value.ContainsKey(TranscodeId)).Any();
-      }
+      return Task.FromResult(_runningClientTranscodes.Any(t => t.Key == clientId && t.Value.ContainsKey(transcodeId)));
     }
 
-    public async Task StopTranscodeAsync(string ClientId, string TranscodeId)
+    public async Task StopTranscodeAsync(string clientId, string transcodeId)
     {
       using (await _transcodeLock.WriterLockAsync().ConfigureAwait(false))
       {
-        foreach (TranscodeContext context in _runningClientTranscodes.Where(t => t.Key == ClientId && t.Value.ContainsKey(TranscodeId)).SelectMany(t => t.Value[TranscodeId]))
+        if (_runningClientTranscodes.TryGetValue(clientId, out var clientTranscodings) && clientTranscodings.TryGetValue(transcodeId, out var transcodings))
         {
-          try
+          foreach (TranscodeContext context in transcodings)
           {
-            context.Dispose();
-          }
-          catch (Exception ex)
-          {
-            if (context.Live) _logger.Error("MediaConverter: Error disposing transcode context for live stream", ex);
-            else _logger.Error("MediaConverter: Error disposing transcode context for file '{0}'", ex, context.TargetFile);
+            try
+            {
+              context?.Dispose();
+            }
+            catch (Exception ex)
+            {
+              if (context?.Live ?? false) _logger.Error("MediaConverter: Error disposing transcode context for live stream", ex);
+              else _logger.Error("MediaConverter: Error disposing transcode context for file '{0}'", ex, context?.TargetFile);
+            }
           }
         }
       }
@@ -521,12 +523,12 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         {
           try
           {
-            context.Dispose();
+            context?.Dispose();
           }
           catch (Exception ex)
           {
-            if (context.Live) _logger.Error("MediaConverter: Error disposing transcode context for live stream", ex);
-            else _logger.Error("MediaConverter: Error disposing transcode context for file '{0}'", ex, context.TargetFile);
+            if (context?.Live ?? false) _logger.Error("MediaConverter: Error disposing transcode context for live stream", ex);
+            else _logger.Error("MediaConverter: Error disposing transcode context for file '{0}'", ex, context?.TargetFile);
           }
         }
       }
@@ -728,8 +730,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 
     protected Dictionary<int, SubtitleStream> FindPrimarySubtitle(VideoTranscoding video)
     {
-      if (video.SourceSubtitles == null) return null;
-      if (video.TargetSubtitleLanguages == null) return null;
+      if (video.SourceSubtitles == null)
+        return null;
+      if (video.TargetSubtitleLanguages == null)
+        return null;
 
       Dictionary<int, SubtitleStream> currentEmbeddedSub = new Dictionary<int, SubtitleStream>();
       Dictionary<int, SubtitleStream> currentExternalSub = new Dictionary<int, SubtitleStream>();
@@ -742,13 +746,12 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       Dictionary<int, SubtitleStream> subs = new Dictionary<int, SubtitleStream>();
       Dictionary<int, SubtitleStream> langSubs = new Dictionary<int, SubtitleStream>();
 
-      Dictionary<int, List<SubtitleStream>> allSubs = video.SourceSubtitles;
       //Find embedded sub
-      foreach (var mediaSourceIndex in allSubs.Keys)
+      foreach (var mediaSourceIndex in video.SourceSubtitles.Keys)
       {
-        foreach (var sub in allSubs.Where(s => s.Key == mediaSourceIndex).SelectMany(s => s.Value).Where(s => s.IsEmbedded))
+        foreach (var sub in video.SourceSubtitles.Where(s => s.Key == mediaSourceIndex).SelectMany(s => s.Value).Where(s => s.IsEmbedded))
         {
-          if (sub.Default == true)
+          if (sub.Default)
           {
             if(!defaultEmbeddedSub.ContainsKey(mediaSourceIndex))
               defaultEmbeddedSub.Add(mediaSourceIndex, sub);
@@ -779,7 +782,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         }
 
         //Find external sub
-        foreach (SubtitleStream sub in allSubs.Where(s => s.Key == mediaSourceIndex).SelectMany(s => s.Value).Where(s => !s.IsEmbedded))
+        foreach (SubtitleStream sub in video.SourceSubtitles.Where(s => s.Key == mediaSourceIndex).SelectMany(s => s.Value).Where(s => !s.IsEmbedded))
         {
           if (sub.Default == true)
           {
@@ -896,16 +899,16 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
             if (!Directory.Exists(path))
               Directory.CreateDirectory(path);
 
-            string sourceName = sub.Source;
-            using (var sourceReader = new StreamReader(sourceName, Encoding.GetEncoding(sourceCharEncoding)))
+            string sourceFileName = sub.GetFileSystemPath();
+            using (var sourceReader = new StreamReader(sourceFileName, Encoding.GetEncoding(sourceCharEncoding)))
             using (var targetWriter = new StreamWriter(targetFileName, false, Encoding.GetEncoding(charEncoding)))
             {
               while (!sourceReader.EndOfStream)
                 await targetWriter.WriteLineAsync(await sourceReader.ReadLineAsync());
             };
             sub.CharacterEncoding = charEncoding;
-            sub.Source = targetFileName;
-            _logger.Debug("MediaConverter: Converted subtitle file '{0}' to {1}", sourceName, charEncoding);
+            sub.SourcePath = LocalFsResourceProviderBase.ToProviderPath(targetFileName);
+            _logger.Debug("MediaConverter: Converted subtitle file '{0}' to {1}", sourceFileName, charEncoding);
           }
         }
       }
@@ -916,22 +919,24 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       return sub;
     }
 
-    public async Task<Stream> GetSubtitleStreamAsync(string ClientId, VideoTranscoding TranscodingInfo)
+    public async Task<StreamContext> GetSubtitleStreamAsync(string clientId, VideoTranscoding transcodingInfo)
     {
       try
       {
-        Dictionary<int, List<SubtitleStream>> subs = await GetSubtitlesAsync(ClientId, TranscodingInfo, 0).ConfigureAwait(false);
+        Dictionary<int, List<SubtitleStream>> subs = await GetSubtitlesAsync(clientId, transcodingInfo, 0).ConfigureAwait(false);
         if (subs == null)
           return null;
 
         SubtitleStream sub = subs.SelectMany(s => s.Value).FirstOrDefault(s => !s.IsPartial);
-        if (sub != null && File.Exists(sub.Source))
+        var subPath = sub?.GetFileSystemPath();
+        if (!string.IsNullOrEmpty(subPath) && File.Exists(subPath))
         {
-          if (await IsTranscodeRunningAsync(ClientId, TranscodingInfo.TranscodeId).ConfigureAwait(false) == false)
+          if (await IsTranscodeRunningAsync(clientId, transcodingInfo.TranscodeId).ConfigureAwait(false) == false)
           {
-            TouchFile(sub.Source);
+            if (subPath.StartsWith(_cachePath, StringComparison.InvariantCultureIgnoreCase))
+              TouchFile(subPath);
           }
-          return await GetFileStreamAsync(sub.Source).ConfigureAwait(false);
+          return await GetFileStreamAsync(ResourcePath.Deserialize(sub.SourcePath)).ConfigureAwait(false);
         }
       }
       catch (Exception ex)
@@ -981,11 +986,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
               StreamIndex = srcStream.StreamIndex,
               Codec = srcStream.Codec,
               Language = srcStream.Language,
-              Source = srcStream.Source,
+              SourcePath = srcStream.SourcePath,
               CharacterEncoding = string.IsNullOrEmpty(srcStream.CharacterEncoding) ? _subtitleDefaultEncoding : srcStream.CharacterEncoding,
-              IsPartial = video.SourceMedia.Count > 1
+              IsPartial = video.SourceMediaPaths.Count > 1
             };
-            if (SubtitleAnalyzer.IsSubtitleSupportedByContainer(srcStream.Codec, video.FirstSourceVideoContainer, video.TargetVideoContainer) == true)
+            if (SubtitleAnalyzer.IsSubtitleSupportedByContainer(srcStream.Codec, video.SourceVideoContainer, video.TargetVideoContainer) == true)
             {
               if (srcStream.IsEmbedded)
               {
@@ -1003,11 +1008,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
               targetCodec = srcStream.Codec;
             }
 
-            // create a file name for the output file which contains the subtitle informations
+            // Create a file name for the output file which contains the subtitle informations
             string transcodingFile = GetSubtitleTranscodingFileName(video, timeStart, srcStream, targetCodec, sourceSubtitles.Count > 1 ? sourceMediaIndex : (int?)null);
             transcodingFile = Path.Combine(_cachePath, transcodingFile);
 
-            // the file already exists in the cache -> just return
+            // The file already exists in the cache -> just return
             if (File.Exists(transcodingFile))
             {
               if (await IsTranscodeRunningAsync(clientId, video.TranscodeId).ConfigureAwait(false) == false)
@@ -1015,21 +1020,21 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
                 TouchFile(transcodingFile);
               }
               sub.Codec = targetCodec;
-              sub.Source = transcodingFile;
+              sub.SourcePath = LocalFsResourceProviderBase.ToProviderPath(transcodingFile);
               sub.CharacterEncoding = video.TargetSubtitleCharacterEncoding;
-              if (!res[sourceMediaIndex].Any(s => s.Source == transcodingFile))
+              if (!res[sourceMediaIndex].Any(s => s.SourcePath.Equals(sub.SourcePath, StringComparison.InvariantCultureIgnoreCase)))
                 res[sourceMediaIndex].Add(sub);
               continue;
             }
 
-            // subtitle is embedded in the source file
+            // Subtitle is embedded in the source file
             if (srcStream.IsEmbedded)
             {
               if (await ExtractSubtitleFileAsync(sourceMediaIndex, video, srcStream, sub.CharacterEncoding, transcodingFile, timeStart).ConfigureAwait(false) && File.Exists(transcodingFile))
               {
                 sub.StreamIndex = -1;
                 sub.Codec = targetCodec;
-                sub.Source = transcodingFile;
+                sub.SourcePath = LocalFsResourceProviderBase.ToProviderPath(transcodingFile);
                 res[sourceMediaIndex].Add(sub);
                 continue;
               }
@@ -1044,7 +1049,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
             }
 
             // Burn external subtitle into video
-            if (sub.Source == null)
+            if (string.IsNullOrEmpty(sub?.SourcePath))
             {
               return new Dictionary<int, List<SubtitleStream>>();
             }
@@ -1061,8 +1066,8 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         Dictionary<int, SubtitleStream> partSrtSubs = new Dictionary<int, SubtitleStream>();
         foreach (var key in res.Keys)
         {
-          if (res[key].Any(s => s.Source != null && s.Codec == SubtitleCodec.Srt && s.IsPartial))
-            partSrtSubs.Add(key, res[key].First(s => s.Source != null && s.Codec == SubtitleCodec.Srt && s.IsPartial));
+          if (res[key].Any(s => s.SourcePath != null && s.Codec == SubtitleCodec.Srt && s.IsPartial))
+            partSrtSubs.Add(key, res[key].First(s => !string.IsNullOrEmpty(s?.SourcePath) && s.Codec == SubtitleCodec.Srt && s.IsPartial));
         }
         if (partSrtSubs.Count() > 1)
         {
@@ -1079,7 +1084,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
                 Codec = SubtitleCodec.Srt,
                 Language = partSrtSubs.First().Value.Language,
                 StreamIndex = -1,
-                Source = transcodingFile,
+                SourcePath = LocalFsResourceProviderBase.ToProviderPath(transcodingFile),
                 IsPartial = false
               }
             });
@@ -1099,7 +1104,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
     {
       try
       {
-        if (subtitles.Any(s => s.Value.Source == null || s.Value.Codec != SubtitleCodec.Srt))
+        if (subtitles.Any(s => string.IsNullOrEmpty(s.Value?.SourcePath) || s.Value.Codec != SubtitleCodec.Srt))
           return false;
 
         int sequence = 0;
@@ -1107,7 +1112,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         {
           foreach (var sub in subtitles)
           {
-            using (StreamReader input = new StreamReader(sub.Value.Source, Encoding.UTF8))
+            using (StreamReader input = new StreamReader(sub.Value.GetFileSystemPath(), Encoding.UTF8))
             {
               await output.WriteAsync(SRT_LINE_REGEX.Replace(await input.ReadToEndAsync().ConfigureAwait(false), (m) =>
               {
@@ -1213,11 +1218,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       {
         using (await _transcodeLock.ReaderLockAsync().ConfigureAwait(false))
         {
-          if (_runningClientTranscodes.Where(t => t.Key == clientId && t.Value.ContainsKey(transcodeId)).Any())
+          if (_runningClientTranscodes.TryGetValue(clientId, out var clientTranscodings) && clientTranscodings.TryGetValue(transcodeId, out var transcodings))
           {
-            List<TranscodeContext> runningContexts = _runningClientTranscodes[clientId][transcodeId];
             //Non partial have first priority
-            return runningContexts?.FirstOrDefault(c => !c.Partial);
+            return transcodings?.FirstOrDefault(c => !c.Partial);
           }
           return null;
         }
@@ -1229,20 +1233,20 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       return null;
     }
 
-    public async Task<TranscodeContext> GetLiveStreamAsync(string ClientId, BaseTranscoding TranscodingInfo, int ChannelId, bool WaitForBuffer)
+    public async Task<TranscodeContext> GetLiveStreamAsync(string clientId, BaseTranscoding transcodingInfo, int channelId, bool waitForBuffer)
     {
       try
       {
-        TranscodingInfo.SourceMedia = new Dictionary<int, IResourceAccessor> { { 0, new TranscodeLiveAccessor(ChannelId) } };
-        if (TranscodingInfo is AudioTranscoding at)
+        transcodingInfo.SourceMediaPaths = new Dictionary<int, string> { { 0, (new TranscodeLiveAccessor(channelId)).CanonicalLocalResourcePath.Serialize() } };
+        if (transcodingInfo is AudioTranscoding at)
         {
           at.TargetIsLive = true;
-          return await TranscodeAudioAsync(ClientId, at, 0, 0, WaitForBuffer);
+          return await TranscodeAudioAsync(clientId, at, 0, 0, waitForBuffer);
         }
-        else if (TranscodingInfo is VideoTranscoding vt)
+        else if (transcodingInfo is VideoTranscoding vt)
         {
           vt.TargetIsLive = true;
-          return await TranscodeVideoAsync(ClientId, vt, 0, 0, WaitForBuffer);
+          return await TranscodeVideoAsync(clientId, vt, 0, 0, waitForBuffer);
         }
       }
       catch (Exception ex)
@@ -1252,31 +1256,47 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       return null;
     }
 
-    public async Task<TranscodeContext> GetMediaStreamAsync(string ClientId, BaseTranscoding TranscodingInfo, double StartTime, double Duration, bool WaitForBuffer)
+    public async Task<TranscodeContext> GetMediaStreamAsync(string clientId, BaseTranscoding transcodingInfo, double startTime, double duration, bool waitForBuffer)
     {
       try
       {
-        if (TranscodingInfo.SourceMedia is ILocalFsResourceAccessor lfra)
+        if (transcodingInfo == null)
+          return null;
+
+        foreach (var path in transcodingInfo.SourceMediaPaths.Values)
         {
-          if (lfra.Exists == false)
+          var p = ResourcePath.Deserialize(path);
+          if (p.TryCreateLocalResourceAccessor(out var res))
           {
-            _logger.Error("MediaConverter: File '{0}' does not exist for transcode '{1}'", TranscodingInfo.SourceMedia, TranscodingInfo.TranscodeId);
-            return null;
+            try
+            {
+              using (var rah = new LocalFsResourceAccessorHelper(res))
+              {
+                if (rah.LocalFsResourceAccessor.Exists)
+                  continue;
+              }
+            }
+            finally
+            {
+              res.Dispose();
+            }
           }
+          _logger.Error("MediaConverter: File '{0}' does not exist for transcode '{1}'", path, transcodingInfo.TranscodeId);
+          return null;
         }
-        if (TranscodingInfo is ImageTranscoding it)
+        if (transcodingInfo is ImageTranscoding it)
         {
-          return await TranscodeImageAsync(ClientId, it, WaitForBuffer);
+          return await TranscodeImageAsync(clientId, it, waitForBuffer);
         }
-        else if (TranscodingInfo is AudioTranscoding at)
+        else if (transcodingInfo is AudioTranscoding at)
         {
-          return await TranscodeAudioAsync(ClientId, at, StartTime, Duration, WaitForBuffer);
+          return await TranscodeAudioAsync(clientId, at, startTime, duration, waitForBuffer);
         }
-        else if (TranscodingInfo is VideoTranscoding vt)
+        else if (transcodingInfo is VideoTranscoding vt)
         {
-          return await TranscodeVideoAsync(ClientId, vt, StartTime, Duration, WaitForBuffer);
+          return await TranscodeVideoAsync(clientId, vt, startTime, duration, waitForBuffer);
         }
-        _logger.Error("MediaConverter: Transcoding info is not valid for transcode '{0}'", TranscodingInfo.TranscodeId);
+        _logger.Error("MediaConverter: Transcoding info is not valid for transcode '{0}'", transcodingInfo.TranscodeId);
         return null;
       }
       catch (Exception ex)
@@ -1292,46 +1312,58 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 
     protected abstract Task<TranscodeContext> TranscodeImageAsync(string clientId, ImageTranscoding image, bool waitForBuffer);
 
-    public async Task<Stream> GetFileStreamAsync(ILocalFsResourceAccessor FileResource)
+    public async Task<StreamContext> GetFileStreamAsync(ResourcePath filePath)
     {
+      var context = new StreamContext();
       // Impersonation
-      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(FileResource.CanonicalLocalResourcePath))
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(filePath))
       {
-        return await GetFileStreamAsync(FileResource.LocalFileSystemPath);
+        if (filePath.TryCreateLocalResourceAccessor(out var res))
+        {
+          var rah = new LocalFsResourceAccessorHelper(res);
+          var accessToken = rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess();
+          if (accessToken != null)
+            context.StreamDisposables.Add(accessToken);
+          context.StreamDisposables.Add(rah);
+          context.StreamDisposables.Add(res);
+          context.Stream = await GetFileStreamAsync(rah.LocalFsResourceAccessor.LocalFileSystemPath);
+          return context;
+        }
       }
+      return null;
     }
 
-    private async Task<Stream> GetFileStreamAsync(string filePath)
+    protected async Task<Stream> GetFileStreamAsync(string fileSystemPath)
     {
       try
       {
-        DateTime waitStart = DateTime.Now;
+        DateTime waitStart = DateTime.UtcNow;
         long length = 0;
-        while (!File.Exists(filePath) || length == 0)
+        while (!File.Exists(fileSystemPath) || length == 0)
         {
           try
           {
-            if (File.Exists(filePath))
-              length = new FileInfo(filePath).Length;
+            if (File.Exists(fileSystemPath))
+              length = new FileInfo(fileSystemPath).Length;
           }
           catch { }
 
-          if ((DateTime.Now - waitStart).TotalMilliseconds > FILE_STREAM_TIMEOUT)
+          if ((DateTime.UtcNow - waitStart).TotalMilliseconds > FILE_STREAM_TIMEOUT)
           {
-            _logger.Error("MediaConverter: Timed out waiting for ready file '{0}'", filePath);
+            _logger.Error("MediaConverter: Timed out waiting for ready file '{0}'", fileSystemPath);
             return null;
           }
 
           await Task.Delay(500).ConfigureAwait(false);
         }
 
-        _logger.Debug(string.Format("MediaConverter: Serving ready file '{0}'", filePath));
-        BufferedStream stream = new BufferedStream(new FileStream(filePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+        _logger.Debug(string.Format("MediaConverter: Serving ready file '{0}'", fileSystemPath));
+        BufferedStream stream = new BufferedStream(new FileStream(fileSystemPath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
         return stream;
       }
       catch (Exception ex)
       {
-        _logger.Error("MediaConverter: Error serving ready file '{0}'", ex, filePath);
+        _logger.Error("MediaConverter: Error serving ready file '{0}'", ex, fileSystemPath);
       }
       return null;
     }
@@ -1346,34 +1378,48 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       {
         try
         {
-          if (!_runningClientTranscodes.ContainsKey(clientId))
-            _runningClientTranscodes.Add(clientId, new Dictionary<string, List<TranscodeContext>>());
-
-          if (_runningClientTranscodes[clientId].Count > 0 &&
-            (!_runningClientTranscodes[clientId].ContainsKey(transcodeId) || !context.Partial))
+          List<TranscodeContext> transcodings = new List<TranscodeContext>();
+          if (_runningClientTranscodes.TryGetValue(clientId, out var clientTranscodings))
           {
-            //Don't waste resources on transcoding if the client wants different media item
-            _logger.Debug("MediaConverter: Ending {0} transcodes for client {1}", _runningClientTranscodes[clientId].Count, clientId);
-            foreach (var transcodeContext in _runningClientTranscodes[clientId].Values.SelectMany(t => t))
+            if (!context.Partial)
             {
-              transcodeContext.Stop();
+              //Don't waste resources on transcoding if the client wants different media item
+              _logger.Debug("MediaConverter: Ending {0} transcodes for client {1}", clientTranscodings.Count, clientId);
+              foreach (var transcodeContext in clientTranscodings.Values.SelectMany(t => t))
+              {
+                transcodeContext?.Stop();
+              }
+              clientTranscodings.Clear();
+              clientTranscodings.Add(transcodeId, transcodings);
             }
-            _runningClientTranscodes[clientId].Clear();
+            else if (clientTranscodings.Count > 0)
+            {
+              //Don't waste resources on transcoding multiple partial transcodes
+              if (clientTranscodings.TryGetValue(transcodeId, out transcodings))
+              {
+                _logger.Debug("MediaConverter: Ending partial transcodes for client {0}", clientId);
+                foreach (var transcodeContext in transcodings.Where(c => c.Partial && c != context).ToList())
+                {
+                  transcodings.Remove(transcodeContext);
+                  transcodeContext?.Stop();
+                }
+              }
+              else
+              {
+                transcodings = new List<TranscodeContext>();
+                clientTranscodings.Add(transcodeId, transcodings);
+              }
+            }
           }
-          else if (_runningClientTranscodes[clientId].Count > 0)
+          else
           {
-            //Don't waste resources on transcoding multiple partial transcodes
-            _logger.Debug("MediaConverter: Ending partial transcodes for client {0}", clientId);
-            List<TranscodeContext> contextList = new List<TranscodeContext>(_runningClientTranscodes[clientId][transcodeId]);
-            foreach (var transcodeContext in _runningClientTranscodes[clientId][transcodeId].Where(c => c.Partial && c != context))
+            clientTranscodings = new Dictionary<string, List<TranscodeContext>>();
+            if (_runningClientTranscodes.TryAdd(clientId, clientTranscodings))
             {
-              transcodeContext.Stop();
+              clientTranscodings.Add(transcodeId, transcodings);
             }
           }
-          if (_runningClientTranscodes[clientId].ContainsKey(transcodeId) == false)
-            _runningClientTranscodes[clientId].Add(transcodeId, new List<TranscodeContext>());
-
-          _runningClientTranscodes[clientId][transcodeId].Add(context);
+          transcodings.Add(context);
         }
         catch (Exception ex)
         {
@@ -1388,15 +1434,19 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       {
         try
         {
-          if (_runningClientTranscodes.Where(t => t.Key == clientId && t.Value.ContainsKey(transcodeId)).Any())
+          context?.Stop();
+          if (_runningClientTranscodes.TryGetValue(clientId, out var clientTranscodings))
           {
-            context.Stop();
-            _runningClientTranscodes[clientId][transcodeId].Remove(context);
-            if (_runningClientTranscodes[clientId][transcodeId].Count == 0)
-              _runningClientTranscodes[clientId].Remove(transcodeId);
+            if (clientTranscodings.TryGetValue(transcodeId, out var transcodings))
+            {
+              transcodings.Remove(context);
+              if (transcodings.Count == 0)
+                clientTranscodings.Remove(transcodeId);
+            }
+
+            if (clientTranscodings.Count == 0)
+              _runningClientTranscodes.TryRemove(clientId, out _);
           }
-          if (_runningClientTranscodes[clientId].Count == 0)
-            _runningClientTranscodes.Remove(clientId);
         }
         catch (Exception ex)
         {

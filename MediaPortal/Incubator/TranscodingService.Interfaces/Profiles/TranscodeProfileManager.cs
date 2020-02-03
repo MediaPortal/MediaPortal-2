@@ -494,9 +494,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
           }
           while (await reader.ReadAsync())
           {
-            if (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement)
-              break;
-            if (reader.Name == "VideoTarget" && reader.NodeType == XmlNodeType.EndElement)
+            if ((reader.Name == "VideoTarget" && reader.NodeType == XmlNodeType.EndElement) || (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement))
             {
               vList.Add(vTranscoding);
               break;
@@ -612,9 +610,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
           }
           while (await reader.ReadAsync())
           {
-            if (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement)
-              break;
-            if (reader.Name == "AudioTarget" && reader.NodeType == XmlNodeType.EndElement)
+            if ((reader.Name == "AudioTarget" && reader.NodeType == XmlNodeType.EndElement) || (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement))
             {
               aList.Add(aTranscoding);
               break;
@@ -678,9 +674,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
           }
           while (await reader.ReadAsync())
           {
-            if (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement)
-              break;
-            if (reader.Name == "ImageTarget" && reader.NodeType == XmlNodeType.EndElement)
+            if ((reader.Name == "ImageTarget" && reader.NodeType == XmlNodeType.EndElement) || (reader.Name == elementName && reader.NodeType == XmlNodeType.EndElement))
             {
               iList.Add(iTranscoding);
               break;
@@ -761,23 +755,28 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
       return false;
     }
 
-    private int GetPreferredAudioStream(MetadataContainer info, IEnumerable<string> preferredAudioLanguages)
+    private int GetPreferredAudioStream(MetadataContainer info, int edition, IEnumerable<string> preferredAudioLanguages)
     {
-      int matchedAudioStream = info.FirstAudioStream?.StreamIndex ?? -1;
+      if (info == null)
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
+      if (!info.HasEdition(edition))
+        throw new ArgumentException("Parameter is invalid", nameof(edition));
+
+      int matchedAudioStream = info.GetFirstAudioStream(edition)?.StreamIndex ?? -1;
       if (preferredAudioLanguages?.Any() ?? false)
       {
         List<string> valuesLangs = preferredAudioLanguages.ToList();
         int currentPriority = -1;
-        for (int idx = 0; idx < info.Audio.Count; idx++)
+        for (int idx = 0; idx < info.Audio[edition].Count; idx++)
         {
           for (int priority = 0; priority < valuesLangs.Count; priority++)
           {
-            if (valuesLangs[priority].Equals(info.Audio[idx].Language, StringComparison.InvariantCultureIgnoreCase) == true)
+            if (valuesLangs[priority].Equals(info.Audio[edition][idx].Language, StringComparison.InvariantCultureIgnoreCase) == true)
             {
               if (currentPriority == -1 || priority < currentPriority)
               {
                 currentPriority = priority;
-                matchedAudioStream = info.Audio[idx].StreamIndex;
+                matchedAudioStream = info.Audio[edition][idx].StreamIndex;
               }
             }
           }
@@ -786,43 +785,64 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
       return matchedAudioStream;
     }
 
-    /// <summary>
-    /// Get the video transcoding profile that best matches the source video.
-    /// </summary>
-    public VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, IEnumerable<string> preferedAudioLanguages, bool liveStreaming, string transcodeId)
+    private void AddBaseTrancodingParameters(MetadataContainer info, int edition, BaseTranscoding trans)
     {
-      int matchedAudioStream = GetPreferredAudioStream(infos.First(), preferedAudioLanguages);
-      return GetVideoTranscoding(section, profile, infos, matchedAudioStream, null, liveStreaming, transcodeId);
+      if (info.Metadata[edition].Duration.HasValue)
+        trans.SourceMediaDuration = TimeSpan.FromSeconds(info.Metadata[edition].Duration ?? 0);
+      foreach (var file in info.Metadata[edition].FilePaths)
+        trans.SourceMediaPaths.Add(file.Key, file.Value);
+      foreach (var d in info.Metadata[edition].FileDurations)
+        trans.SourceMediaDurations.Add(d.Key, TimeSpan.FromSeconds(d.Value ?? 0));
+      if (info.ContainsDvdResource(edition))
+        trans.ConcatSourceMediaPaths = true;
     }
 
     /// <summary>
     /// Get the video transcoding profile that best matches the source video.
     /// </summary>
-    public VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, int audioStreamIndex, int? subtitleStreamIndex, bool liveStreaming, string transcodeId)
+    public VideoTranscoding GetVideoTranscoding(string section, string profile, MetadataContainer info, int edition, IEnumerable<string> preferedAudioLanguages, bool liveStreaming, string transcodeId)
     {
-      if (infos == null)
-        return null;
+      if (info == null)
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
+      if (!info.HasEdition(edition))
+        throw new ArgumentException("Parameter is invalid", nameof(edition));
+
+      int matchedAudioStream = GetPreferredAudioStream(info, edition, preferedAudioLanguages);
+      return GetVideoTranscoding(section, profile, info, edition, matchedAudioStream, null, liveStreaming, transcodeId);
+    }
+
+    /// <summary>
+    /// Get the video transcoding profile that best matches the source video.
+    /// </summary>
+    public VideoTranscoding GetVideoTranscoding(string section, string profile, MetadataContainer info, int edition, int audioStreamIndex, int? subtitleStreamIndex, bool liveStreaming, string transcodeId)
+    {
+      if (info == null)
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
+      if (!info.HasEdition(edition))
+        throw new ArgumentException("Parameter is invalid", nameof(edition));
 
       TranscodingSetup transSetup = GetTranscodeProfile(section, profile);
       if (transSetup == null)
         return null;
 
       VideoMatch srcVideo = null;
-      VideoTranscodingTarget dstVideo = transSetup.GetMatchingVideoTranscoding(infos.First(), audioStreamIndex, out srcVideo);
+      VideoTranscodingTarget dstVideo = transSetup.GetMatchingVideoTranscoding(info, edition, audioStreamIndex, out srcVideo);
       SubtitleSupport subMode = transSetup.SubtitleSettings.SubtitleMode;
       if (subMode != SubtitleSupport.HardCoded)
       {
-        if (!infos.Any(i => i.Subtitles.Any()))
+        if (!info.Subtitles[edition].Any())
         {
           //No subtitles
           subMode = SubtitleSupport.None;
         }
-        else if (subMode != SubtitleSupport.None && transSetup.SubtitleSettings.TetxBasedSupported && !transSetup.SubtitleSettings.ImageBasedSupported && !infos.Any(i => i.Subtitles.Any(s => !SubtitleAnalyzer.IsImageBasedSubtitle(s.Codec))))
+        else if (subMode != SubtitleSupport.None && transSetup.SubtitleSettings.TetxBasedSupported && !transSetup.SubtitleSettings.ImageBasedSupported && 
+                 !info.Subtitles[edition].Any(s => s.Value.Any(sub => !SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec))))
         {
           //No matching text subtitles supported
           subMode = SubtitleSupport.None;
         }
-        else if (subMode != SubtitleSupport.None && !transSetup.SubtitleSettings.TetxBasedSupported && transSetup.SubtitleSettings.ImageBasedSupported && !infos.Any(i => i.Subtitles.Any(s => SubtitleAnalyzer.IsImageBasedSubtitle(s.Codec))))
+        else if (subMode != SubtitleSupport.None && !transSetup.SubtitleSettings.TetxBasedSupported && transSetup.SubtitleSettings.ImageBasedSupported && 
+                 !info.Subtitles[edition].Any(s => s.Value.Any(sub => SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec))))
         {
           //No matching image subtitles supported
           subMode = SubtitleSupport.None;
@@ -833,65 +853,60 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
           //Embedding subtitles not supported
           subMode = SubtitleSupport.None;
         }
-        if (ForceSubtitles && subMode == SubtitleSupport.None && infos.Any(i => i.Subtitles.Any()))
+        if (ForceSubtitles && subMode == SubtitleSupport.None && info.Subtitles[edition].Any())
         {
           //Force subtitles
           subMode = SubtitleSupport.HardCoded;
         }
       }
 
-      if ((infos.Any() || subMode == SubtitleSupport.HardCoded) && transSetup.GenericVideoTargets.Any())
+      if (info.Metadata[edition].FilePaths.Count() > 1 || subMode == SubtitleSupport.HardCoded)
       {
-        //Stacked files or hardcoded subs need generic transcoding
-        srcVideo = new VideoMatch();
-        srcVideo.MatchedAudioStream = audioStreamIndex;
-        dstVideo = transSetup.GenericVideoTargets.First();
-        srcVideo.MatchedVideoSource = dstVideo.Target;
+        //Stacked files or hardcoded subs need transcoding
+        if (transSetup.GenericVideoTargets.Any())
+        {
+          //Use generic transcoding if available
+          srcVideo = new VideoMatch();
+          srcVideo.MatchedAudioStream = audioStreamIndex;
+          srcVideo.MatchedVideoSource = new VideoInfo();
+          dstVideo = transSetup.GenericVideoTargets.First();
+        }
       }
-      else if (dstVideo == null)
-      {
+
+      if (dstVideo == null)
         return null;
-      }
 
       if (srcVideo.MatchedVideoSource.Matches(dstVideo.Target) == false)
       {
         VideoTranscoding video = new VideoTranscoding();
-        List<MetadataContainer> infoList = infos.ToList();
-        for (int infoIndex = 0; infoIndex < infoList.Count; infoIndex++)
+
+        video.SourceVideoStream = info.Video[edition];
+        video.SourceVideoContainer = info.Metadata[edition].VideoContainerType;
+
+        AddBaseTrancodingParameters(info, edition, video);
+
+        //Add preferred audio stream first so it is the default stream
+        var audioStream = info.Audio[edition].FirstOrDefault(s => s.StreamIndex == srcVideo.MatchedAudioStream);
+        if (audioStream != null)
+          video.SourceAudioStreams = new List<AudioStream>() { audioStream };
+        if (transSetup.VideoSettings.MultipleAudioTracksSupported)
         {
-          MetadataContainer info = infoList[infoIndex];
-
-          video.SourceVideoStreams.Add(infoIndex, info.Video);
-          video.SourceVideoContainers.Add(infoIndex, info.Metadata.VideoContainerType);
-
-          if (info.Metadata.Duration.HasValue)
-            video.SourceMediaDurations.Add(infoIndex, TimeSpan.FromSeconds(info.Metadata.Duration.Value));
-          if (info.Metadata.Source != null)
-            video.SourceMedia.Add(infoIndex, info.Metadata.Source);
-
-          var audioStream = info.Audio.FirstOrDefault(s => s.StreamIndex == srcVideo.MatchedAudioStream);
-          if (audioStream != null)
-            video.SourceAudioStreams.Add(infoIndex, new List<AudioStream>() { audioStream });
-          if (transSetup.VideoSettings.MultipleAudioTracksSupported)
+          video.TargetAudioMultiTrackSupport = true;
+          for (int idx = 0; idx < info.Audio[edition].Count; idx++)
           {
-            video.TargetAudioMultiTrackSupport = true;
-            for (int idx = 0; idx < info.Audio.Count; idx++)
-            {
-              if (info.Audio[idx].StreamIndex == srcVideo.MatchedAudioStream)
-                continue;
+            if (info.Audio[edition][idx].StreamIndex == srcVideo.MatchedAudioStream)
+              continue;
 
-              if (video.SourceAudioStreams.ContainsKey(infoIndex))
-                video.SourceAudioStreams[infoIndex].Add(info.Audio[idx]);
-            }
+            video.SourceAudioStreams.Add(info.Audio[edition][idx]);
           }
-          if (subtitleStreamIndex.HasValue)
-            video.SourceSubtitles.Add(infoIndex, new List<SubtitleStream>(info.Subtitles.Where(s => s.StreamIndex == subtitleStreamIndex.Value)));
-          else
-            video.SourceSubtitles.Add(infoIndex, new List<SubtitleStream>(info.Subtitles));
         }
+        foreach (var subRes in info.Subtitles[edition])
+          video.SourceSubtitles.Add(subRes.Key, subRes.Value.Where(s => !subtitleStreamIndex.HasValue || s.StreamIndex == subtitleStreamIndex.Value).ToList());
 
         if (dstVideo.Target.VideoContainerType != VideoContainer.Unknown)
           video.TargetVideoContainer = dstVideo.Target.VideoContainerType;
+        else
+          video.TargetVideoContainer = info.Metadata[edition].VideoContainerType;
 
         if (dstVideo.Target.Movflags != null)
           video.Movflags = dstVideo.Target.Movflags;
@@ -899,12 +914,18 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
         video.TargetAudioBitrate = transSetup.AudioSettings.DefaultBitrate;
         if (dstVideo.Target.AudioBitrate > 0)
           video.TargetAudioBitrate = dstVideo.Target.AudioBitrate;
+        else if (audioStream != null)
+          video.TargetAudioBitrate = audioStream.Bitrate;
 
         if (dstVideo.Target.AudioFrequency > 0)
           video.TargetAudioFrequency = dstVideo.Target.AudioFrequency;
+        else if (audioStream != null)
+          video.TargetAudioFrequency = audioStream.Frequency;
 
         if (dstVideo.Target.AudioCodecType != AudioCodec.Unknown)
           video.TargetAudioCodec = dstVideo.Target.AudioCodecType;
+        else if (audioStream != null)
+          video.TargetAudioCodec = audioStream.Codec;
 
         video.TargetForceAudioStereo = transSetup.AudioSettings.DefaultStereo;
         if (dstVideo.Target.ForceStereo)
@@ -925,6 +946,8 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
 
         if (dstVideo.Target.VideoCodecType != VideoCodec.Unknown)
           video.TargetVideoCodec = dstVideo.Target.VideoCodecType;
+        else
+          video.TargetVideoCodec = info.Video[edition].Codec;
 
         video.TargetVideoMaxHeight = transSetup.VideoSettings.MaxHeight;
         if (dstVideo.Target.MaxVideoHeight > 0)
@@ -994,48 +1017,56 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
     /// <summary>
     /// Get the audio transcoding profile that best matches the source audio.
     /// </summary>
-    public AudioTranscoding GetAudioTranscoding(string section, string profile, MetadataContainer info, bool liveStreaming, string transcodeId)
+    public AudioTranscoding GetAudioTranscoding(string section, string profile, MetadataContainer info, int edition, bool liveStreaming, string transcodeId)
     {
       if (info == null)
-        return null;
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
+      if (!info.HasEdition(edition))
+        throw new ArgumentException("Parameter is invalid", nameof(edition));
 
       TranscodingSetup transSetup = GetTranscodeProfile(section, profile);
       if (transSetup == null)
         return null;
 
       AudioMatch srcAudio;
-      AudioTranscodingTarget dstAudio = transSetup.GetMatchingAudioTranscoding(info, out srcAudio);
-      if (dstAudio != null && srcAudio.MatchedAudioSource.Matches(dstAudio.Target) == false)
+      AudioTranscodingTarget dstAudio = transSetup.GetMatchingAudioTranscoding(info, edition, out srcAudio);
+
+      if (dstAudio == null)
+        return null;
+
+      if (srcAudio.MatchedAudioSource.Matches(dstAudio.Target) == false)
       {
         AudioTranscoding audio = new AudioTranscoding();
-        if (info.Metadata.AudioContainerType != AudioContainer.Unknown)
-          audio.SourceAudioContainer = info.Metadata.AudioContainerType;
 
-        if (info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Bitrate > 0)
-          audio.SourceAudioBitrate = info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Bitrate;
-       
-        if (info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Frequency > 0)
-          audio.SourceAudioFrequency = info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Frequency;
-        
-        if (info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Channels > 0)
-          audio.SourceAudioChannels = info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Channels;
-        
-        if (info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Codec != AudioCodec.Unknown)
-          audio.SourceAudioCodec = info.Audio.First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Codec;
-      
-        if (info.Metadata.Duration.HasValue)
-          audio.SourceDuration = TimeSpan.FromSeconds(info.Metadata.Duration.Value);
-      
-        if (info.Metadata.Source != null)
-          audio.SourceMedia.Add(0, info.Metadata.Source);
+        AddBaseTrancodingParameters(info, edition, audio);
+
+        if (info.Metadata[edition].AudioContainerType != AudioContainer.Unknown)
+          audio.SourceAudioContainer = info.Metadata[edition].AudioContainerType;
+
+        if (info.Audio[edition].Count > 0)
+        {
+          if (info.Audio[edition].First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Bitrate > 0)
+            audio.SourceAudioBitrate = info.Audio[edition].First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Bitrate;
+
+          if (info.Audio[edition].First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Frequency > 0)
+            audio.SourceAudioFrequency = info.Audio[edition].First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Frequency;
+
+          if (info.Audio[edition].First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Channels > 0)
+            audio.SourceAudioChannels = info.Audio[edition].First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Channels;
+
+          if (info.Audio[edition].First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Codec != AudioCodec.Unknown)
+            audio.SourceAudioCodec = info.Audio[edition].First(s => s.StreamIndex == srcAudio.MatchedAudioStream).Codec;
+        }
 
         audio.TargetAudioBitrate = transSetup.AudioSettings.DefaultBitrate;
         if (dstAudio.Target.Bitrate > 0)
           audio.TargetAudioBitrate = dstAudio.Target.Bitrate;
-   
+
         if (dstAudio.Target.AudioContainerType != AudioContainer.Unknown)
           audio.TargetAudioContainer = dstAudio.Target.AudioContainerType;
-      
+        else
+          audio.TargetAudioContainer = audio.SourceAudioContainer;
+
         if (dstAudio.Target.Frequency > 0)
           audio.TargetAudioFrequency = dstAudio.Target.Frequency;
        
@@ -1057,37 +1088,39 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
     /// <summary>
     /// Get the image transcoding profile that best matches the source image.
     /// </summary>
-    public ImageTranscoding GetImageTranscoding(string section, string profile, MetadataContainer info, string transcodeId)
+    public ImageTranscoding GetImageTranscoding(string section, string profile, MetadataContainer info, int edition, string transcodeId)
     {
       if (info == null)
-        return null;
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
+      if (!info.HasEdition(edition))
+        throw new ArgumentException("Parameter is invalid", nameof(edition));
 
       TranscodingSetup transSetup = GetTranscodeProfile(section, profile);
       if (transSetup == null)
         return null;
 
       ImageMatch srcImage;
-      ImageTranscodingTarget dstImage = transSetup.GetMatchingImageTranscoding(info, out srcImage);
+      ImageTranscodingTarget dstImage = transSetup.GetMatchingImageTranscoding(info, edition, out srcImage);
       if (dstImage != null && srcImage.MatchedImageSource.Matches(dstImage.Target) == false)
       {
         ImageTranscoding image = new ImageTranscoding();
-        if (info.Metadata.ImageContainerType != ImageContainer.Unknown)
-          image.SourceImageCodec = info.Metadata.ImageContainerType;
-   
-        if (info.Image.Height.HasValue)
-          image.SourceHeight = info.Image.Height.Value;
-    
-        if (info.Image.Width.HasValue)
-          image.SourceWidth = info.Image.Width.Value;
-    
-        if (info.Image.Orientation.HasValue)
-          image.SourceOrientation = info.Image.Orientation.Value;
 
-        if (info.Image.PixelFormatType != PixelFormat.Unknown)
-          image.SourcePixelFormat = info.Image.PixelFormatType;
- 
-        if (info.Metadata.Source != null)
-          image.SourceMedia.Add(0, info.Metadata.Source);
+        AddBaseTrancodingParameters(info, edition, image);
+
+        if (info.Metadata[edition].ImageContainerType != ImageContainer.Unknown)
+          image.SourceImageCodec = info.Metadata[edition].ImageContainerType;
+   
+        if (info.Image[edition].Height.HasValue)
+          image.SourceHeight = info.Image[edition].Height.Value;
+    
+        if (info.Image[edition].Width.HasValue)
+          image.SourceWidth = info.Image[edition].Width.Value;
+    
+        if (info.Image[edition].Orientation.HasValue)
+          image.SourceOrientation = info.Image[edition].Orientation.Value;
+
+        if (info.Image[edition].PixelFormatType != PixelFormat.Unknown)
+          image.SourcePixelFormat = info.Image[edition].PixelFormatType;
 
         if (dstImage.Target.PixelFormatType > 0)
           image.TargetPixelFormat = dstImage.Target.PixelFormatType;
@@ -1118,51 +1151,47 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
     /// <summary>
     /// Get a video transcoding profile that adds subtitles the source video.
     /// </summary>
-    public VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, bool live, string transcodeId)
+    public VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, MetadataContainer info, int edition, bool live, string transcodeId)
     {
-      if (infos == null)
+      if (info == null)
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
+      if (!info.HasEdition(edition))
+        throw new ArgumentException("Parameter is invalid", nameof(edition));
+
+      if (info.Metadata[edition].VideoContainerType == VideoContainer.Unknown)
         return null;
 
       TranscodingSetup transSetup = GetTranscodeProfile(section, profile);
       if (transSetup == null)
         return null;
 
-      if (!infos.Any(i => i.Audio.Count > 0))
-        return null;
-
       int matchedAudioStream = 0;
       VideoTranscoding video = new VideoTranscoding();
-      List<MetadataContainer> infoList = infos.ToList();
-      for (int infoIndex = 0; infoIndex < infoList.Count; infoIndex++)
+      video.SourceVideoStream = info.Video[edition];
+      video.SourceVideoContainer = info.Metadata[edition].VideoContainerType;
+
+      AddBaseTrancodingParameters(info, edition, video);
+
+      if (info.Audio[edition].Count > 0)
       {
-        MetadataContainer info = infoList[infoIndex];
-
-        video.SourceVideoStreams.Add(infoIndex, info.Video);
-        video.SourceVideoContainers.Add(infoIndex, info.Metadata.VideoContainerType);
-
-        if (info.Metadata.Duration.HasValue)
-          video.SourceMediaDurations.Add(infoIndex, TimeSpan.FromSeconds(info.Metadata.Duration.Value));
-
-        if (info.Metadata.Source != null)
-          video.SourceMedia.Add(infoIndex, info.Metadata.Source);
-
-        video.SourceAudioStreams.Add(infoIndex, new List<AudioStream>() { info.Audio[matchedAudioStream] });
-        for (int idx = 0; idx < info.Audio.Count; idx++)
+        video.SourceAudioStreams = new List<AudioStream>() { info.Audio[edition][matchedAudioStream] };
+        for (int idx = 0; idx < info.Audio[edition].Count; idx++)
         {
           if (idx == matchedAudioStream)
             continue;
 
-          video.SourceAudioStreams[infoIndex].Add(info.Audio[idx]);
+          video.SourceAudioStreams.Add(info.Audio[edition][idx]);
         }
-
-        video.SourceSubtitles.Add(infoIndex, new List<SubtitleStream>(info.Subtitles));
       }
 
-      video.TargetVideoContainer = video.FirstSourceVideoContainer;
-      video.TargetAudioCodec = video.FirstSourceAudioStream.Codec;
-      video.TargetVideoCodec = video.FirstSourceVideoStream.Codec;
-      video.TargetLevel = video.FirstSourceVideoStream.HeaderLevel;
-      video.TargetProfile = video.FirstSourceVideoStream.ProfileType;
+      foreach (var subRes in info.Subtitles[edition])
+        video.SourceSubtitles.Add(subRes.Key, subRes.Value);
+
+      video.TargetVideoContainer = video.SourceVideoContainer;
+      video.TargetAudioCodec = video.FirstSourceAudioStream?.Codec ?? AudioCodec.Unknown;
+      video.TargetVideoCodec = video.SourceVideoStream.Codec;
+      video.TargetLevel = video.SourceVideoStream.HeaderLevel;
+      video.TargetProfile = video.SourceVideoStream.ProfileType;
       video.TargetForceAudioCopy = true;
       video.TargetForceVideoCopy = true;
 
@@ -1183,7 +1212,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
     /// </summary>
     public VideoTranscoding GetLiveVideoTranscoding(MetadataContainer info, IEnumerable<string> preferedAudioLanguages, string transcodeId)
     {
-      int matchedAudioStream = GetPreferredAudioStream(info, preferedAudioLanguages);
+      int matchedAudioStream = GetPreferredAudioStream(info, Editions.DEFAULT_EDITION, preferedAudioLanguages);
       return GetLiveVideoTranscoding(info, matchedAudioStream, transcodeId);
     }
 
@@ -1193,36 +1222,39 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
     public VideoTranscoding GetLiveVideoTranscoding(MetadataContainer info, int audioStreamIndex, string transcodeId)
     {
       if (info == null)
-        return null;
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
 
       VideoTranscoding video = new VideoTranscoding();
-      video.SourceVideoStreams.Add(0, info.Video);
-      video.SourceVideoContainers.Add(0, info.Metadata.VideoContainerType);
+      video.SourceVideoStream = info.Video[Editions.DEFAULT_EDITION];
+      video.SourceVideoContainer = info.Metadata[Editions.DEFAULT_EDITION].VideoContainerType;
 
-      if (info.Metadata.Source != null)
-        video.SourceMedia.Add(0, info.Metadata.Source);
+      AddBaseTrancodingParameters(info, Editions.DEFAULT_EDITION, video);
 
-      video.SourceAudioStreams.Add(0, new List<AudioStream>() { info.Audio.First(s => s.StreamIndex == audioStreamIndex) });
-      for (int idx = 0; idx < info.Audio.Count; idx++)
+      if (info.Audio.Count > 0)
       {
-        if (info.Audio[idx].StreamIndex == audioStreamIndex)
-          continue;
+        video.SourceAudioStreams = new List<AudioStream>() { info.Audio[Editions.DEFAULT_EDITION].First(s => s.StreamIndex == audioStreamIndex) };
+        for (int idx = 0; idx < info.Audio[Editions.DEFAULT_EDITION].Count; idx++)
+        {
+          if (info.Audio[Editions.DEFAULT_EDITION][idx].StreamIndex == audioStreamIndex)
+            continue;
 
-        video.SourceAudioStreams[0].Add(info.Audio[idx]);
+          video.SourceAudioStreams.Add(info.Audio[Editions.DEFAULT_EDITION][idx]);
+        }
       }
 
-      video.SourceSubtitles.Add(0, new List<SubtitleStream>(info.Subtitles));
+      foreach (var subRes in info.Subtitles[Editions.DEFAULT_EDITION])
+        video.SourceSubtitles.Add(subRes.Key, subRes.Value);
 
       video.TargetSubtitleBox = _subtitleBox;
       video.TargetSubtitleColor = _subtitleColor;
       video.TargetSubtitleFont = _subtitleFont;
       video.TargetSubtitleFontSize = _subtitleFontSize;
 
-      video.TargetVideoContainer = video.FirstSourceVideoContainer;
+      video.TargetVideoContainer = video.SourceVideoContainer;
       video.TargetAudioCodec = video.FirstSourceAudioStream.Codec;
-      video.TargetVideoCodec = video.FirstSourceVideoStream.Codec;
-      video.TargetLevel = video.FirstSourceVideoStream.HeaderLevel;
-      video.TargetProfile = video.FirstSourceVideoStream.ProfileType;
+      video.TargetVideoCodec = video.SourceVideoStream.Codec;
+      video.TargetLevel = video.SourceVideoStream.HeaderLevel;
+      video.TargetProfile = video.SourceVideoStream.ProfileType;
       video.TargetForceVideoCopy = true;
       video.TargetForceAudioCopy = true;
 
@@ -1238,28 +1270,31 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles
     public AudioTranscoding GetLiveAudioTranscoding(MetadataContainer info, string transcodeId)
     {
       if (info == null)
-        return null;
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
 
       int matchedAudioStream = 0;
 
       AudioTranscoding audio = new AudioTranscoding();
-      if (info.Metadata.AudioContainerType != AudioContainer.Unknown)
-        audio.SourceAudioContainer = info.Metadata.AudioContainerType;
-    
-      if (info.Audio[matchedAudioStream].Bitrate > 0)
-        audio.SourceAudioBitrate = info.Audio[matchedAudioStream].Bitrate;
-    
-      if (info.Audio[matchedAudioStream].Frequency > 0)
-        audio.SourceAudioFrequency = info.Audio[matchedAudioStream].Frequency;
-     
-      if (info.Audio[matchedAudioStream].Channels > 0)
-        audio.SourceAudioChannels = info.Audio[matchedAudioStream].Channels;
-  
-      if (info.Audio[matchedAudioStream].Codec != AudioCodec.Unknown)
-        audio.SourceAudioCodec = info.Audio[matchedAudioStream].Codec;
-   
-      if (info.Metadata.Source != null)
-        audio.SourceMedia.Add(0, info.Metadata.Source);
+
+      AddBaseTrancodingParameters(info, Editions.DEFAULT_EDITION, audio);
+
+      if (info.Metadata[Editions.DEFAULT_EDITION].AudioContainerType != AudioContainer.Unknown)
+        audio.SourceAudioContainer = info.Metadata[Editions.DEFAULT_EDITION].AudioContainerType;
+
+      if (info.Audio[Editions.DEFAULT_EDITION].Count > 0)
+      {
+        if (info.Audio[Editions.DEFAULT_EDITION][matchedAudioStream].Bitrate > 0)
+          audio.SourceAudioBitrate = info.Audio[Editions.DEFAULT_EDITION][matchedAudioStream].Bitrate;
+
+        if (info.Audio[Editions.DEFAULT_EDITION][matchedAudioStream].Frequency > 0)
+          audio.SourceAudioFrequency = info.Audio[Editions.DEFAULT_EDITION][matchedAudioStream].Frequency;
+
+        if (info.Audio[Editions.DEFAULT_EDITION][matchedAudioStream].Channels > 0)
+          audio.SourceAudioChannels = info.Audio[Editions.DEFAULT_EDITION][matchedAudioStream].Channels;
+
+        if (info.Audio[Editions.DEFAULT_EDITION][matchedAudioStream].Codec != AudioCodec.Unknown)
+          audio.SourceAudioCodec = info.Audio[Editions.DEFAULT_EDITION][matchedAudioStream].Codec;
+      }
 
       audio.TargetAudioContainer = audio.SourceAudioContainer;
       audio.TargetAudioCodec = audio.SourceAudioCodec;

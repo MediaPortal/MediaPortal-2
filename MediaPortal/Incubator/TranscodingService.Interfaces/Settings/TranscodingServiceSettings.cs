@@ -26,6 +26,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
 {
   public enum Transcoder
   {
+    None = -1,
     FFMpeg
   };
 
@@ -99,7 +100,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
 
     public TranscodingServiceSettings()
     {
-      CacheEnabled = true;
+      CacheEnabled = false;
       CacheMaximumSizeInGB = 0; //GB
       CacheMaximumAgeInDays = 30; //Days
       CachePath = DEFAULT_CACHE_PATH;
@@ -120,7 +121,28 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
       SubtitleBox = false;
       SubtitleFont = null;
       ForceSubtitles = true;
-  }
+      EnableAnalysisOfImportedMedia = false;
+      EnableCleanupOrphanedAnalysis = true;
+      CleanupOrphanedAnalysisIntervalHours = 24;
+    }
+
+    /// <summary>
+    /// After new media has been imported schedule an analysis of the new media item
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public bool EnableAnalysisOfImportedMedia { get; set; }
+
+    /// <summary>
+    /// Delete analysis files for media items that were deleted
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public bool EnableCleanupOrphanedAnalysis { get; set; }
+
+    /// <summary>
+    /// Cleanup any orphaned analysis files
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public int CleanupOrphanedAnalysisIntervalHours { get; set; }
 
     /// <summary>
     /// Enable caching of transcoded files so they can be reused at a later time

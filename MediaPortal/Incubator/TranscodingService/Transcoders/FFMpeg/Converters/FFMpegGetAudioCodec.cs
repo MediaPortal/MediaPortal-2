@@ -33,7 +33,8 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.C
       switch (codec)
       {
         case AudioCodec.Mp3:
-          return "libshine";
+          return "libmp3lame";
+          //return "libshine";
         case AudioCodec.Mp2:
           return "mp2";
         case AudioCodec.Aac:

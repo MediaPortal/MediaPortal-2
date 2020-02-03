@@ -850,9 +850,9 @@ namespace Test.TranscodingService
       FFMpegMediaConverter fFMpegMediaConverter = new FFMpegMediaConverter();
       if (mi.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
-        var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi);
-        var container = containers.Values.First(); //Use first
-        var transcodeInfo = profileManager.GetVideoTranscoding(profileSection, profileName, container, new string[] { "EN" }, false, fileId);
+        var info = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi);
+        var edition = info.Metadata.Keys.First();
+        var transcodeInfo = profileManager.GetVideoTranscoding(profileSection, profileName, info, edition, new string[] { "EN" }, false, fileId);
         if (transcodeInfo == null)
         {
           Console.WriteLine("No transoding needed!");
@@ -870,9 +870,9 @@ namespace Test.TranscodingService
       }
       else if (mi.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi);
-        var container = containers.Values.First().First(); //Only one container for audio
-        var transcodeInfo = profileManager.GetAudioTranscoding(profileSection, profileName, container, false, fileId);
+        var info = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi);
+        var edition = info.Metadata.Keys.First();
+        var transcodeInfo = profileManager.GetAudioTranscoding(profileSection, profileName, info, edition, false, fileId);
         if (transcodeInfo == null)
         {
           Console.WriteLine("No transoding needed!");
@@ -890,9 +890,9 @@ namespace Test.TranscodingService
       }
       else if (mi.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
-        var containers = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi);
-        var container = containers.Values.First().First(); //Only one container for images
-        var transcodeInfo = profileManager.GetImageTranscoding(profileSection, profileName, container, fileId);
+        var info = await fFMpegMediaAnalyzer.ParseMediaItemAsync(mi);
+        var edition = info.Metadata.Keys.First();
+        var transcodeInfo = profileManager.GetImageTranscoding(profileSection, profileName, info, edition, fileId);
         if (transcodeInfo == null)
         {
           Console.WriteLine("No transoding needed!");

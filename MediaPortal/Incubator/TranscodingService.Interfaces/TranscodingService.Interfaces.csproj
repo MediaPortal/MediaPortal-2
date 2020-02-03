@@ -108,6 +108,7 @@
     <Compile Include="Profiles\Transcoding\Target\VideoTranscodingTarget.cs" />
     <Compile Include="Profiles\Transcoding\TranscodingSetup.cs" />
     <Compile Include="Profiles\TranscodeProfileManager.cs" />
+    <Compile Include="Transcoding\StreamContext.cs" />
     <Compile Include="Transcoding\TranscodeContext.cs" />
     <Compile Include="Transcoding\VideoTranscoding.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

@@ -34,6 +34,7 @@ using System.Linq;
 using MediaPortal.Extensions.TranscodingService.Interfaces.MetaData;
 using System.Threading.Tasks;
 using System.Collections.Concurrent;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 
 namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
 {
@@ -42,6 +43,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
     private class ChannelInfo
     {
       public int ChannelId;
+      public int SlotIndex;
       public TranscodeChannel Channel;
     }
 
@@ -54,57 +56,76 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
       _logger = ServiceRegistration.Get<ILogger>();
     }
 
-    public Task<IResourceAccessor> GetAnalysisAccessorAsync(int ChannelId)
+    private IResourceAccessor GetResolvedAccessor(ResourcePath resourcePath)
+    {
+      // Parse slotindex from path and cut the prefix off.
+      int slotIndex;
+      string path = resourcePath.BasePathSegment.Path;
+      if (!Int32.TryParse(path.Substring(0, 1), out slotIndex))
+      {
+        _logger.Error("SlimTvHandler: Error resolving accessor for path {0}", path);
+        return null;
+      }
+      path = path.Substring(2, path.Length - 2);
+      //Resolve host first because ffprobe can hang when resolving host
+      var resolvedUrl = UrlHelper.ResolveHostToIPv4Url(path);
+      return SlimTvResourceProvider.GetResourceAccessor(slotIndex, resolvedUrl);
+    }
+
+    public Task<IResourceAccessor> GetAnalysisAccessorAsync(int channelId)
     {
       try
       {
-        var client = _clientChannels.FirstOrDefault(c => c.Value.ChannelId == ChannelId);
+        var client = _clientChannels.FirstOrDefault(c => c.Value.ChannelId == channelId);
         if (client.Value?.Channel != null)
         {
           var resourcePath = ResourcePath.Deserialize(client.Value.Channel.MediaItem.PrimaryProviderResourcePath());
-          return Task.FromResult(SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path));
+          //Resolve host first because ffprobe can hang when resolving host
+          var accessor = GetResolvedAccessor(resourcePath);
+          return Task.FromResult(accessor);
         }
         return null;
       }
       catch (Exception ex)
       {
-        _logger.Error("SlimTvHandler: Error getting analysis accessor for channel {0}", ex, ChannelId);
+        _logger.Error("SlimTvHandler: Error getting analysis accessor for channel {0}", ex, channelId);
         return null;
       }
     }
 
-    public Task<IResourceAccessor> GetDefaultAccessorAsync(int ChannelId)
+    public Task<IResourceAccessor> GetDefaultAccessorAsync(int channelId)
     {
       try
       {
-        var client = _clientChannels.FirstOrDefault(c => c.Value.ChannelId == ChannelId);
+        var client = _clientChannels.FirstOrDefault(c => c.Value.ChannelId == channelId);
         if (client.Value?.Channel != null)
         {
           var resourcePath = ResourcePath.Deserialize(client.Value.Channel.MediaItem.PrimaryProviderResourcePath());
-          IResourceAccessor stra = SlimTvResourceProvider.GetResourceAccessor(resourcePath.BasePathSegment.Path);
-          return Task.FromResult(stra);
+          //Resolve host first because ffmpeg can hang when resolving host
+          var accessor = GetResolvedAccessor(resourcePath);
+          return Task.FromResult(accessor);
         }
       }
       catch (Exception ex)
       {
-        _logger.Error("SlimTvHandler: Error getting default accessor for channel {0}", ex, ChannelId);
+        _logger.Error("SlimTvHandler: Error getting default accessor for channel {0}", ex, channelId);
       }
       return Task.FromResult<IResourceAccessor>(null);
     }
 
-    public async Task<(bool Success, MediaItem LiveMediaItem)> StartTuningAsync(string ClientId, int ChannelId)
+    public async Task<(bool Success, MediaItem LiveMediaItem)> StartTuningAsync(string clientId, int channelId)
     {
       try
       {
-        var client = _clientChannels.FirstOrDefault(c => c.Value.ChannelId == ChannelId);
+        var client = _clientChannels.FirstOrDefault(c => c.Value.ChannelId == channelId);
         if(client.Value?.Channel?.MediaItem != null)
         {
           //Check if already streaming
-          if(client.Key == ClientId)
+          if(client.Key == clientId)
             return (true, client.Value.Channel.MediaItem);
 
           //Use same stream url as other channel
-          if (!_clientChannels.TryAdd(ClientId, client.Value))
+          if (!_clientChannels.TryAdd(clientId, client.Value))
             return (false, null);
           else
             return (true, client.Value.Channel.MediaItem);
@@ -113,15 +134,25 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
         if (ServiceRegistration.IsRegistered<ITvProvider>())
         {
           IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
-          var channelResult = await channelAndGroupInfo.GetChannelAsync(ChannelId).ConfigureAwait(false);
+          var channelResult = await channelAndGroupInfo.GetChannelAsync(channelId).ConfigureAwait(false);
           if (!channelResult.Success)
+          {
+            _logger.Error("SlimTvHandler: Couldn't find channel {0}", channelId);
             return (false, null);
+          }
+
+          var slotIndex = GetFreeSlot();
+          if (slotIndex == null)
+          {
+            _logger.Error("SlimTvHandler: Couldn't find free slot for channel {0}", channelId);
+            return (false, null);
+          }
 
           ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-          var mediaItem = (await timeshiftControl.StartTimeshiftAsync(TV_USER_NAME, ChannelId, channelResult.Result).ConfigureAwait(false));
+          var mediaItem = (await timeshiftControl.StartTimeshiftAsync(TV_USER_NAME, slotIndex.Value, channelResult.Result).ConfigureAwait(false));
           if (!mediaItem.Success)
           {
-            _logger.Error("SlimTvHandler: Couldn't start timeshifting for channel {0}", ChannelId);
+            _logger.Error("SlimTvHandler: Couldn't start timeshifting for channel {0}", channelId);
             return (false, null);
           }
 
@@ -131,11 +162,12 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
             ChannelInfo newChannel = new ChannelInfo
             {
               Channel = new TranscodeChannel(),
-              ChannelId = ChannelId,
+              SlotIndex = slotIndex.Value,
+              ChannelId = channelId,
             };
-            if (!_clientChannels.TryAdd(ClientId, newChannel))
+            if (!_clientChannels.TryAdd(clientId, newChannel))
             {
-              await timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, ChannelId);
+              await timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, slotIndex.Value);
               return (false, null);
             }
 
@@ -143,13 +175,10 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
           }
           catch
           {
-            _clientChannels.TryRemove(ClientId, out ChannelInfo c);
-            await timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, ChannelId);
+            _clientChannels.TryRemove(clientId, out ChannelInfo c);
+            await timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, slotIndex.Value);
             throw;
           }
-
-          //Allow channel content to become available or stream analysis/transoding will fail
-          await Task.Delay(5000).ConfigureAwait(false);
           return (true, mediaItem.Result);
         }
 
@@ -157,22 +186,22 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
       }
       catch (Exception ex)
       {
-        _logger.Error("SlimTvHandler: Error starting tuning of channel {0}", ex, ChannelId);
+        _logger.Error("SlimTvHandler: Error starting tuning of channel {0}", ex, channelId);
         return (false, null);
       }
     }
 
-    public async Task<bool> EndTuningAsync(string ClientId)
+    public async Task<bool> EndTuningAsync(string clientId)
     {
       try
       {
-        if (!_clientChannels.TryRemove(ClientId, out ChannelInfo channel))
+        if (!_clientChannels.TryRemove(clientId, out ChannelInfo channel))
           return false;
 
-        if (channel != null && !_clientChannels.Any(c => c.Value?.ChannelId == channel.ChannelId))
+        if (channel != null && _clientChannels.All(c => c.Value?.ChannelId != channel.ChannelId))
         {
           ITimeshiftControlEx timeshiftControl = ServiceRegistration.Get<ITvProvider>() as ITimeshiftControlEx;
-          if (!(await timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, channel.ChannelId).ConfigureAwait(false)))
+          if (!(await timeshiftControl.StopTimeshiftAsync(TV_USER_NAME, channel.SlotIndex).ConfigureAwait(false)))
           {
             _logger.Error("SlimTvHandler: Couldn't stop timeshifting for channel {0}", channel.ChannelId);
             return false;
@@ -183,7 +212,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
       }
       catch (Exception ex)
       {
-        _logger.Error("SlimTvHandler: Error ending tuning for client {0}", ex, ClientId);
+        _logger.Error("SlimTvHandler: Error ending tuning for client {0}", ex, clientId);
       }
       return false;
     }
@@ -208,6 +237,16 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.SlimTv
       }
       catch
       {}
+    }
+
+    private int? GetFreeSlot()
+    {
+      var availableIndexes = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 }; 
+      var usedIndexes = _clientChannels.Select(c => c.Value.SlotIndex).Distinct();
+      var freeIndexes = availableIndexes.Except(usedIndexes);
+      if (!freeIndexes.Any())
+        return null;
+      return freeIndexes.First();
     }
   }
 }

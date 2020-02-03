@@ -29,7 +29,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
 {
-  public class TranscodeContext : IDisposable
+  public class TranscodeContext : StreamContext
   {
     protected Stream _transcodedStream;
     protected long _lastSize = 0;
@@ -206,20 +206,23 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
     /// because of this one has to close the stream after reading the playlist file.
     /// Here we try to recreate the stream for convenience.
     /// </summary>
-    public Stream TranscodedStream
+    public override Stream Stream
     {
       get
       {
-        var stream = _transcodedStream as FileStream;
-        if (stream != null)
+        if (_streamInUse && _transcodedStream is FileStream stream)
         {
+          _transcodedStream.Dispose();
           if (!stream.CanRead)
             _transcodedStream = new FileStream(stream.Name, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
         }
 
         return _transcodedStream;
       }
-      private set { _transcodedStream = value; }
+      set
+      {
+        _transcodedStream = value;
+      }
     }
 
     public Task WaitForCompleteAsync() { return _completeTask?.Task ?? Task.CompletedTask; }
@@ -228,9 +231,8 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
 
     public void AssignStream(Stream stream)
     {
-      if (TranscodedStream != null)
-        TranscodedStream.Dispose();
-      TranscodedStream = stream;
+      Stream?.Dispose();
+      Stream = stream;
     }
 
     public virtual void UpdateStreamUse(bool inUse)
@@ -281,19 +283,20 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
       {
         if (Running)
         {
+          base.Dispose();
           Running = false;
           _completeTask?.TrySetResult(true);
         }
       }
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
       Abort();
       _completeTask?.TrySetResult(true);
       UpdateStreamUse(false);
-      if (TranscodedStream != null)
-        TranscodedStream.Dispose();
+      Stream?.Dispose();
+      base.Dispose();
     }
   }
 }

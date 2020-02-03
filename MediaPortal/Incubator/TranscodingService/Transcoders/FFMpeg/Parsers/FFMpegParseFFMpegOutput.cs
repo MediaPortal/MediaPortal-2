@@ -25,18 +25,19 @@
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseFFMpegOutput
   {
-    internal static void ParseFFMpegOutput(string output, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
+    internal static void ParseFFMpegOutput(IResourceAccessor file, string output, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
     {
       var input = output.Split('\n');
       if (!input[0].StartsWith("ffmpeg version") && !input[0].StartsWith("ffprobe version"))
         throw new InvalidOperationException($"Cannot decode output because output '{input[0]}' is not valid");
-      FFMpegParseFFMpegOutputLines.ParseFFMpegOutputLines(input, ref info, countryCodesMapping);
+      FFMpegParseFFMpegOutputLines.ParseFFMpegOutputLines(file, input, ref info, countryCodesMapping);
     }
   }
 }

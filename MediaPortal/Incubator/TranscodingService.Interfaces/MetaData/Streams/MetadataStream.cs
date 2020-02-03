@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Common.ResourceAccess;
 using Newtonsoft.Json;
 
@@ -35,10 +36,10 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams
     public long? Size { get; set; }
     public long? Bitrate { get; set; }
     public double? Duration { get; set; }
-    [JsonIgnore]
-    public IResourceAccessor Source { get; set; }
     public bool Live { get; set; }
     public string Mime { get; set; }
     public string MajorBrand { get; set; }
+    public Dictionary<int, string> FilePaths { get; set; } = new Dictionary<int, string>();
+    public Dictionary<int, double?> FileDurations { get; set; } = new Dictionary<int, double?>();
   }
 }
