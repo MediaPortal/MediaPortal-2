@@ -29,108 +29,84 @@ using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 
 namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
-  internal class StreamItem
+  public class StreamItem
   {
-    private const int DEFAULT_TIMEOUT = 5 * 60; // 5 minutes
+    private SemaphoreSlim _busyLock = new SemaphoreSlim(1, 1);
 
-    private int _idleTimeout;
-    private object _busyLock = new object();
-    private DateTime _requestTime = DateTime.MinValue;
-    private long _requestSegment = 0;
-    private object _requestLock = new object();
+    public StreamItem(string clientIp)
+    {
+      ClientIp = clientIp;
+    }
 
     /// <summary>
     /// Gets or sets the requested MediaItem
     /// </summary>
-    internal Guid RequestedMediaItem { get; set; }
+    public Guid RequestedMediaItem { get; set; }
 
     /// <summary>
     /// Gets or sets the title of the requested item
     /// </summary>
-    internal string Title { get; set; }
-
-    /// <summary>
-    /// Gets or sets the Idle timeout in seconds.
-    /// If the tuimeout is set to -1 the default timeout is used
-    /// </summary>
-    internal int IdleTimeout
-    {
-      get
-      {
-        if (_idleTimeout == -1)
-          return DEFAULT_TIMEOUT;
-        return _idleTimeout;
-      }
-      set { _idleTimeout = value; }
-    }
+    public string Title { get; set; }
 
     /// <summary>
     /// Gets or sets the transcode object used to setup transcoding
     /// </summary>
-    internal DlnaMediaItem TranscoderObject { get; set; }
-
-    /// <summary>
-    /// Gets or sets the position from which the streaming should start
-    /// </summary>
-    internal long StartPosition { get; set; }
+    public DlnaMediaItem TranscoderObject { get; set; }
 
     /// <summary>
     /// Gets a lock for indicating that files are in use
     /// </summary>
-    internal object BusyLock { get { return _busyLock; } }
+    public SemaphoreSlim BusyLock { get { return _busyLock; } }
 
     /// <summary>
     /// Gets whether the stream is live
     /// </summary>
-    internal bool IsLive { get; set; }
+    public bool IsLive
+    {
+      get => LiveChannelId > 0;
+    }
 
     /// <summary>
     /// Gets or sets the live Channel ID
     /// </summary>
-    internal int LiveChannelId { get; set; }
+    public int LiveChannelId { get; set; }
 
     /// <summary>
     /// Gets or sets the time when the stream was started
     /// </summary>
-    internal DateTime StartTime { get; set; }
+    public DateTime StartTimeUtc { get; }
 
     /// <summary>
     /// Gets or sets the IP of the Client, which started the stream
     /// </summary>
-    internal string ClientIp { get; set; }
+    public string ClientIp { get; }
 
     /// <summary>
     /// Gets or sets whether a stream is currently in progress
     /// </summary>
-    internal bool IsActive { get; set; }
+    public bool IsActive
+    {
+      get
+      {
+        if (StreamContext == null)
+          return false;
+        if (StreamContext is TranscodeContext context)
+          return context.InUse;
+        return false;
+      }
+    }
 
     /// <summary>
-    /// Gets or sets the transcoding context used by this stream
+    /// Gets or sets the stream context currently streaming
     /// </summary>
-    internal TranscodeContext StreamContext { get; set; }
-
-    internal bool RequestSegment(long Segment)
-    {
-      lock (_requestLock)
-      {
-        if (_requestTime < DateTime.Now)
-        {
-          _requestTime = DateTime.Now;
-          _requestSegment = Segment;
-        }
-      }
-      //Allow multiple requests to die out so only the last request is used
-      Thread.Sleep(2000);
-      if (Segment == _requestSegment) return true;
-      return false;
-    }
+    public StreamContext StreamContext { get; set; }
 
     /// <summary>
     /// Constructor, sets for example the start time
     /// </summary>
-    internal StreamItem()
+    public StreamItem()
     {
-      StartTime = DateTime.Now;
+      StartTimeUtc = DateTime.UtcNow;
     }
   }
 }

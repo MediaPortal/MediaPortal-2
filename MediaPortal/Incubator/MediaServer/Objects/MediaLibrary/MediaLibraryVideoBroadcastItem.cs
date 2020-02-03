@@ -23,46 +23,45 @@
 #endregion
 
 using System;
-using MediaPortal.Common.MediaManagement;
+using System.Collections.Generic;
+using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
-  public class MediaLibraryVideoBroadcastItem : MediaLibraryItem, IDirectoryVideoBroadcast
+  public class MediaLibraryVideoBroadcastItem : BasicItem, IDirectoryItemThumbnail, IDirectoryVideoBroadcast
   {
-    public MediaLibraryVideoBroadcastItem(MediaItem item, string title, int channelNr, EndPointSettings client)
-      : base(item, client)
+    public MediaLibraryVideoBroadcastItem(string title, int channelNr, EndPointSettings client)
+      : base(DlnaResourceAccessUtils.TV_CHANNEL_RESOURCE + channelNr, client)
     {
+      Id = Key;
       Title = title;
       ChannelName = title;
       ChannelNr = channelNr;
-      LiveTvMediaItem tvStream = (LiveTvMediaItem)item;
-      DateTime tuningStart = (DateTime)tvStream.AdditionalProperties[LiveTvMediaItem.TUNING_TIME];
-      Date = tuningStart.Date.ToString("yyyy-MM-dd");
+      Date = DateTime.Now.ToString("yyyy-MM-dd");
+      AlbumArtUrls = new List<IDirectoryAlbumArt>();
 
-      //Support alternative ways to get cover
-      if (AlbumArtUrls.Count > 0)
+      var albumArt = new MediaLibraryAlbumArt(Guid.Empty, client);
+      albumArt.Initialise(title, true);
+      AlbumArtUrls.Add(albumArt);
+
+      if (client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.Icon)
       {
-        AlbumArtUrls[0].Uri = DlnaResourceAccessUtils.GetChannelLogoBaseURL(title, client, true);
-        if (client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.Icon)
-        {
-          Icon = AlbumArtUrls[0].Uri;
-        }
-        if (client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.Resource)
-        {
-          var albumResource = new MediaLibraryAlbumArtResource((MediaLibraryAlbumArt)AlbumArtUrls[0]);
-          albumResource.Initialise();
-          Resources.Add(albumResource);
-        }
-        if (client.Profile.Settings.Thumbnails.Delivery != ThumbnailDelivery.All && client.Profile.Settings.Thumbnails.Delivery != ThumbnailDelivery.AlbumArt)
-        {
-          AlbumArtUrls.Clear();
-        }
+        Icon = albumArt.Uri;
+      }
+      if (client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.All || client.Profile.Settings.Thumbnails.Delivery == ThumbnailDelivery.Resource)
+      {
+        var albumResource = new MediaLibraryAlbumArtResource(albumArt);
+        albumResource.Initialise();
+        Resources.Add(albumResource);
+      }
+      if (client.Profile.Settings.Thumbnails.Delivery != ThumbnailDelivery.All && client.Profile.Settings.Thumbnails.Delivery != ThumbnailDelivery.AlbumArt)
+      {
+        AlbumArtUrls.Clear();
       }
 
-      var resource = new MediaLibraryLiveResource(item, client);
+      var resource = new MediaLibraryLiveResource(Key, channelNr, client);
       resource.Initialise();
       Resources.Add(resource);
     }
@@ -81,5 +80,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     public string ChannelName { get; set; }
 
     public string Icon { get; set; }
+
+    public IList<IDirectoryAlbumArt> AlbumArtUrls { get; set; }
   }
 }

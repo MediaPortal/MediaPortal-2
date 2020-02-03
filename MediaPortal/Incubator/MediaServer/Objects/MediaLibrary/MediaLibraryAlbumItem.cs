@@ -42,13 +42,13 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       Artist = new List<string>();
       Contributor = new List<string>();
 
-      if (MediaItemAspect.TryGetAspect(Item.Aspects, AudioAlbumAspect.Metadata, out SingleMediaItemAspect albumAspect))
+      if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAlbumAspect.Metadata, out SingleMediaItemAspect albumAspect))
       {
         //Title = albumAspect.GetAttributeValue<string>(AudioAlbumAspect.ATTR_ALBUM);
         if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
         {
           IList<MultipleMediaItemAspect> genreAspects;
-          if (MediaItemAspect.TryGetAspects(Item.Aspects, GenreAspect.Metadata, out genreAspects))
+          if (MediaItemAspect.TryGetAspects(item.Aspects, GenreAspect.Metadata, out genreAspects))
           {
             CollectionUtils.AddAll(Genre, genreAspects.Select(g => g.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)));
           }
@@ -63,7 +63,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       }
 
       //Support alternative ways to get album art
-      var albumArt = new MediaLibraryAlbumArt(Item, Client);
+      var albumArt = new MediaLibraryAlbumArt(item, Client);
       if (albumArt != null)
       {
         albumArt.Initialise();

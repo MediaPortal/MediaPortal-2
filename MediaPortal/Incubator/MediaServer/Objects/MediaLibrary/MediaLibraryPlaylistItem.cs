@@ -41,9 +41,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       get { return "object.item.playlistItem"; }
     }
 
-    public override IList<MediaItem> GetItems()
+    public override IList<MediaItem> GetItems(string sortCriteria)
     {
-      throw new NotImplementedException("Playlists don't work");
+      throw new NotImplementedException("Playlists support not implemented");
     }
 
     public IList<string> Artist { get; set; }

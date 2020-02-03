@@ -124,7 +124,7 @@ namespace Tests.Server.MediaServer
       MediaItem album = new MediaItem(albumId, aspects);
 
       MediaLibraryAlbumItem item = new TestMediaLibraryAlbumItem(album, settings);
-      item.Initialise();
+      item.Initialise("");
       objects.Add(item);
 
       GenericDidlMessageBuilder builder = new GenericDidlMessageBuilder();

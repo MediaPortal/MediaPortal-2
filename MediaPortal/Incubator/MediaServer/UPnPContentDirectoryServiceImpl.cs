@@ -392,8 +392,8 @@ namespace MediaPortal.Extensions.MediaServer
             if (o is BasicContainer c)
             {
               // Create a new object based on search criteria
-              c.Initialise();
-              resultList = c.Browse(sortCriteria);
+              c.Initialise(sortCriteria, Convert.ToUInt32(startingIndex), Convert.ToUInt32(requestedCount));
+              resultList = c.Browse();
               Logger.Debug("MediaServer: Browse has {0} results", resultList.Count);
               totalMatches = resultList.Count;
 
@@ -403,9 +403,12 @@ namespace MediaPortal.Extensions.MediaServer
                 var itemCount = requestedCount;
                 // Make sure that the requested itemCount value doesn't exceed total items in the list
                 // otherwise we will get an exception.
-                if (itemCount + startingIndex > resultList.Count) itemCount = resultList.Count - startingIndex;
-                if (itemCount > 0) resultList = resultList.GetRange(startingIndex, itemCount);
-                else resultList.Clear();
+                if (itemCount + startingIndex > resultList.Count)
+                  itemCount = resultList.Count - startingIndex;
+                if (itemCount > 0)
+                  resultList = resultList.GetRange(startingIndex, itemCount);
+                else
+                  resultList.Clear();
               }
             }
             numberReturned = resultList.Count;
@@ -419,7 +422,7 @@ namespace MediaPortal.Extensions.MediaServer
             break;
         }
 
-        // Grab the container updateid
+        // Grab the container update id
         //TODO: sort out object updating
         containterUpdateId = 0; // c.UpdateId;
 
@@ -528,6 +531,7 @@ namespace MediaPortal.Extensions.MediaServer
         if (necessaryMIATypes.Contains(VideoAspect.ASPECT_ID) == false)
         {
           optionalMIATypes.Add(VideoAspect.ASPECT_ID);
+          optionalMIATypes.Add(VideoStreamAspect.ASPECT_ID);
         }
 
         if (necessaryMIATypes.Contains(AudioAspect.ASPECT_ID) == false)
@@ -562,7 +566,9 @@ namespace MediaPortal.Extensions.MediaServer
           throw new ArgumentException("ObjectID not found");
         }
 
-        IEnumerable<IDirectoryObject> objects = items.Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, (BasicContainer)o));
+        IEnumerable<IDirectoryObject> objects = items
+          .OrderBy(s => MediaItemAspect.TryGetAspect(s.Aspects, MediaAspect.Metadata, out var aspect) ? aspect.GetAttributeValue<string>(MediaAspect.ATTR_SORT_TITLE) : "")
+          .Select(item => MediaLibraryHelper.InstansiateMediaLibraryObject(item, (BasicContainer)o));
         msgBuilder.BuildAll(filter, objects);
 
         numberReturned = items.Count;
@@ -603,6 +609,8 @@ namespace MediaPortal.Extensions.MediaServer
 
     private static bool IsUserContainer(string objectId)
     {
+      if (string.IsNullOrEmpty(objectId))
+        return false;
       return objectId.StartsWith($"{MediaLibraryHelper.CONTAINER_USERS_KEY}>");
     }
 
@@ -614,7 +622,7 @@ namespace MediaPortal.Extensions.MediaServer
         deviceClient.UserId = Guid.TryParse(objectId.Substring(MediaLibraryHelper.CONTAINER_USERS_KEY.Length + 1), out Guid g) ? g : (Guid?)null;
         deviceClient.InitializeUserAsync().Wait();
       }
-      else if (!deviceClient.UserId.HasValue && deviceClient.RootContainer.Children.Any(c => IsUserContainer(c.Key)))
+      else if (!deviceClient.UserId.HasValue && deviceClient.RootContainer.Children.Any(c => IsUserContainer(c?.Key)))
       {
         //User login is required so find user container
         var o = deviceClient.RootContainer.FindObject(objectId);

@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.MediaServer.DIDL
         var propType = p.Property.PropertyType;
         IList<object> values = new List<object>();
 
-        if (propType.IsGenericType)
+        if (propType.IsGenericType && !propType.IsValueType)
         {
           var enumerable = valueObj as IEnumerable;
           if (enumerable != null)

@@ -40,7 +40,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       Publisher = new List<string>();
       Rights = new List<string>();
 
-      if (MediaItemAspect.TryGetAspect(Item.Aspects, AudioAspect.Metadata, out SingleMediaItemAspect audioAspect))
+      if (MediaItemAspect.TryGetAspect(item.Aspects, AudioAspect.Metadata, out SingleMediaItemAspect audioAspect))
       {
         Title = audioAspect.GetAttributeValue<string>(AudioAspect.ATTR_TRACKNAME);
       }
@@ -68,8 +68,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         }
       }
 
-      var resource = new MediaLibraryResource(item, client);
-      resource.Initialise();
+      var resource = new MediaLibraryResource(client);
+      resource.Initialise(item);
       Resources.Add(resource);
     }
 

@@ -58,6 +58,7 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Consts.cs" />
     <Compile Include="DIDL\SamsungTizenDidlMessageBuilder.cs" />
     <Compile Include="MediaServerClientManager.cs" />
     <Compile Include="DIDL\PacketVideoDidlMessageBuilder.cs" />

@@ -152,54 +152,61 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
     public bool AutoProfile { get; set; } = true;
     public BasicContainer RootContainer { get; private set; } = null;
     public ConcurrentDictionary<Guid, DlnaMediaItem> DlnaMediaItems { get; } = new ConcurrentDictionary<Guid, DlnaMediaItem>();
+    public ConcurrentDictionary<int, DlnaMediaItem> DlnaLiveItems { get; } = new ConcurrentDictionary<int, DlnaMediaItem>();
 
     public static string GetClientName(IPAddress ip)
     {
       return $"DLNA ({ip.ToString()})";
     }
 
-    public DlnaMediaItem GetDlnaItem(MediaItem item, bool isLive, int? edition = null)
+    public DlnaMediaItem GetDlnaItem(Guid mediaItemId)
     {
-      lock (DlnaMediaItems)
-      {
-        DlnaMediaItem dlnaItem;
-        if (DlnaMediaItems.TryGetValue(item.MediaItemId, out dlnaItem))
-          return dlnaItem;
-
-        dlnaItem = new DlnaMediaItem(item, this, isLive);
-        dlnaItem.Initialize(edition).Wait();
-        DlnaMediaItems.TryAdd(item.MediaItemId, dlnaItem);
+      DlnaMediaItem dlnaItem;
+      if (DlnaMediaItems.TryGetValue(mediaItemId, out dlnaItem))
         return dlnaItem;
-      }
+
+      return null;
+    }
+
+    public DlnaMediaItem GetDlnaItem(MediaItem item, int? edition = null)
+    {
+      DlnaMediaItem dlnaItem;
+      if (DlnaMediaItems.TryGetValue(item.MediaItemId, out dlnaItem))
+        return dlnaItem;
+
+      dlnaItem = new DlnaMediaItem(this);
+      dlnaItem.Initialize(item, edition).Wait();
+      DlnaMediaItems.TryAdd(item.MediaItemId, dlnaItem);
+      return dlnaItem;
+    }
+
+    public DlnaMediaItem GetLiveDlnaItem(int channelId)
+    {
+      DlnaMediaItem dlnaItem;
+      if (DlnaLiveItems.TryGetValue(channelId, out dlnaItem))
+        return dlnaItem;
+
+      return null;
+    }
+
+    public MediaItem StoreLiveDlnaItem(int channelId)
+    {
+      var dlnaItem = new DlnaMediaItem(this);
+      var mediaItem = dlnaItem.InitializeChannel(channelId).Result;
+      DlnaLiveItems.TryRemove(channelId, out _);
+      DlnaLiveItems.TryAdd(channelId, dlnaItem);
+      return mediaItem;
     }
 
     private void InitialiseContainerTree()
     {
       if (Profile == null) return;
 
-      const string RES_ROOT = "[MediaServer.RootContainter]";
-      const string RES_AUDIO = "[MediaServer.AudiotContainter]";
-      const string RES_ALBUM = "[MediaServer.AlbumContainter]";
-      const string RES_RECENT = "[MediaServer.RecentContainter]";
-      const string RES_ARTIST = "[MediaServer.ArtistContainter]";
-      const string RES_ALBUM_ARTIST = "[MediaServer.AlbumArtistContainter]";
-      const string RES_GENRE = "[MediaServer.GenreContainter]";
-      const string RES_YEAR = "[MediaServer.YearContainter]";
-      const string RES_SHARE = "[MediaServer.ShareContainter]";
-      const string RES_IMAGE = "[MediaServer.ImageContainter]";
-      const string RES_VIDEO = "[MediaServer.VideoContainter]";
-      const string RES_TITLE = "[MediaServer.TitleContainter]";
-      const string RES_MOVIE = "[MediaServer.MovieContainter]";
-      const string RES_UNWATCHED = "[MediaServer.UnwatchedContainter]";
-      const string RES_ACTOR = "[MediaServer.ActorContainter]";
-      const string RES_SERIES = "[MediaServer.SeriesContainter]";
-      const string RES_BROADCAST = "[MediaServer.BroadcastContainter]";
-
       ILocalization language = ServiceRegistration.Get<ILocalization>();
 
       List<BasicContainer> mediaRoots = new List<BasicContainer>();
       RootContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_ROOT_KEY, this)
-      { Title = StringUtils.TrimToNull(language.ToString(RES_ROOT)) ?? "MediaPortal Media Library" };
+      { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_ROOT)) ?? "MediaPortal Media Library" };
       if (MediaServerPlugin.Settings.ShowUserLogin)
       {
         IUserProfileDataManagement userManager = ServiceRegistration.Get<IUserProfileDataManagement>();
@@ -223,79 +230,79 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       foreach (var mediaRoot in mediaRoots)
       {
         var audioContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY, this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_AUDIO)) ?? "Audio" };
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_AUDIO)) ?? "Audio" };
         audioContainer.Add(new MediaLibraryAlbumContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AL", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_ALBUM)) ?? "Albums" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_ALBUM)) ?? "Albums" });
         audioContainer.Add(new MediaLibraryMusicRecentContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "RA", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_RECENT)) ?? "Recently Added" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_RECENT)) ?? "Recently Added" });
         audioContainer.Add(new MediaLibraryAlbumArtistContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AR", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_ALBUM_ARTIST)) ?? "Album Artists" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_ALBUM_ARTIST)) ?? "Album Artists" });
         audioContainer.Add(new MediaLibraryMusicArtistContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AAR", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_ARTIST)) ?? "Artists" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_ARTIST)) ?? "Artists" });
         audioContainer.Add(new MediaLibraryMusicGenreContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "G", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_GENRE)) ?? "Genres" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_GENRE)) ?? "Genres" });
         audioContainer.Add(new MediaLibraryMusicYearContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AY", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_YEAR)) ?? "Year" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_YEAR)) ?? "Year" });
         audioContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_AUDIO_KEY + "AS", this, "Audio")
-        { Title = StringUtils.TrimToNull(language.ToString(RES_SHARE)) ?? "Shares" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_SHARE)) ?? "Shares" });
         mediaRoot.Add(audioContainer);
 
         var pictureContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_IMAGES_KEY, this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_IMAGE)) ?? "Images" };
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_IMAGE)) ?? "Images" };
         pictureContainer.Add(new MediaLibraryImageAlbumContainer(MediaLibraryHelper.CONTAINER_IMAGES_KEY + "IA", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_ALBUM)) ?? "Albums" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_ALBUM)) ?? "Albums" });
         pictureContainer.Add(new MediaLibraryImageRecentContainer(MediaLibraryHelper.CONTAINER_IMAGES_KEY + "RA", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_RECENT)) ?? "Recently Added" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_RECENT)) ?? "Recently Added" });
         pictureContainer.Add(new MediaLibraryImageYearContainer(MediaLibraryHelper.CONTAINER_IMAGES_KEY + "IY", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_YEAR)) ?? "Year" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_YEAR)) ?? "Year" });
         pictureContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_IMAGES_KEY + "IS", this, "Image")
-        { Title = StringUtils.TrimToNull(language.ToString(RES_SHARE)) ?? "Shares" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_SHARE)) ?? "Shares" });
         mediaRoot.Add(pictureContainer);
 
         var videoContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY, this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_VIDEO)) ?? "Video" };
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_VIDEO)) ?? "Video" };
         var movieContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "M", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_MOVIE)) ?? "Movies" };
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_MOVIE)) ?? "Movies" };
         movieContainer.Add(new MediaLibraryMovieContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "MT", null, this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_TITLE)) ?? "Titles" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_TITLE)) ?? "Titles" });
         movieContainer.Add(new MediaLibraryMovieRecentContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "MRA", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_RECENT)) ?? "Recently Added" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_RECENT)) ?? "Recently Added" });
         movieContainer.Add(new MediaLibraryMovieUnwatchedContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "MU", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_UNWATCHED)) ?? "Unwatched" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_UNWATCHED)) ?? "Unwatched" });
         movieContainer.Add(new MediaLibraryMovieActorsContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "MAR", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_ACTOR)) ?? "Actors" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_ACTOR)) ?? "Actors" });
         movieContainer.Add(new MediaLibraryMovieGenreContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "MG", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_GENRE)) ?? "Genres" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_GENRE)) ?? "Genres" });
         movieContainer.Add(new MediaLibraryMovieYearContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "MY", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_YEAR)) ?? "Year" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_YEAR)) ?? "Year" });
         videoContainer.Add(movieContainer);
         var seriesContainer = new BasicContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "S", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_SERIES)) ?? "Series" };
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_SERIES)) ?? "Series" };
         seriesContainer.Add(new MediaLibrarySeriesContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "ST", null, this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_TITLE)) ?? "Titles" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_TITLE)) ?? "Titles" });
         seriesContainer.Add(new MediaLibrarySeriesActorsContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "SAR", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_ACTOR)) ?? "Actors" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_ACTOR)) ?? "Actors" });
         seriesContainer.Add(new MediaLibrarySeriesGenresContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "SG", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_GENRE)) ?? "Genres" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_GENRE)) ?? "Genres" });
         seriesContainer.Add(new MediaLibrarySeriesYearContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "SY", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_YEAR)) ?? "Year" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_YEAR)) ?? "Year" });
         seriesContainer.Add(new MediaLibrarySeriesRecentContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "SRA", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_RECENT)) ?? "Recently Added" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_RECENT)) ?? "Recently Added" });
         seriesContainer.Add(new MediaLibrarySeriesUnwatchedContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "SU", this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_UNWATCHED)) ?? "Unwatched" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_UNWATCHED)) ?? "Unwatched" });
         videoContainer.Add(seriesContainer);
         videoContainer.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_VIDEO_KEY + "VS", this, "Video")
-        { Title = StringUtils.TrimToNull(language.ToString(RES_SHARE)) ?? "Shares" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_SHARE)) ?? "Shares" });
         mediaRoot.Add(videoContainer);
 
         if (ServiceRegistration.IsRegistered<ITvProvider>())
         {
           mediaRoot.Add(new MediaLibraryBroadcastGroupContainer(MediaLibraryHelper.CONTAINER_BROADCAST_KEY, this)
-          { Title = StringUtils.TrimToNull(language.ToString(RES_BROADCAST)) ?? "Broadcasts" });
+          { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_BROADCAST)) ?? "Broadcasts" });
         }
 
         mediaRoot.Add(new MediaLibraryShareContainer(MediaLibraryHelper.CONTAINER_MEDIA_SHARES_KEY, this)
-        { Title = StringUtils.TrimToNull(language.ToString(RES_SHARE)) ?? "Shares" });
+        { Title = StringUtils.TrimToNull(language.ToString(Consts.RES_SHARE)) ?? "Shares" });
       }
     }
 
@@ -339,15 +346,15 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
   public class EndPointProfile
   {
-    public bool Active = false;
-    public string ID = "";
-    public string Name = "?";
-    public UpnpDeviceInformation UpnpDevice = new UpnpDeviceInformation();
-    public GenericDidlMessageBuilder.ContentBuilder DirectoryContentBuilder = GenericDidlMessageBuilder.ContentBuilder.GenericContentBuilder;
-    public GenericAccessProtocol.ResourceAccessProtocol ResourceAccessHandler = GenericAccessProtocol.ResourceAccessProtocol.GenericAccessProtocol;
-    public GenericContentDirectoryFilter.ContentFilter DirectoryContentFilter = GenericContentDirectoryFilter.ContentFilter.GenericContentFilter;
-    public ProtocolInfoFormat ProtocolInfo = ProtocolInfoFormat.DLNA;
-    public ProfileSettings Settings = new ProfileSettings();
+    public bool Active { get; set; } = false;
+    public string ID { get; set; } = "";
+    public string Name { get; set; } = "?";
+    public UpnpDeviceInformation UpnpDevice { get; set; } = new UpnpDeviceInformation();
+    public GenericDidlMessageBuilder.ContentBuilder DirectoryContentBuilder { get; set; } = GenericDidlMessageBuilder.ContentBuilder.GenericContentBuilder;
+    public GenericAccessProtocol.ResourceAccessProtocol ResourceAccessHandler { get; set; } = GenericAccessProtocol.ResourceAccessProtocol.GenericAccessProtocol;
+    public GenericContentDirectoryFilter.ContentFilter DirectoryContentFilter { get; set; } = GenericContentDirectoryFilter.ContentFilter.GenericContentFilter;
+    public ProtocolInfoFormat ProtocolInfo { get; set; } = ProtocolInfoFormat.DLNA;
+    public ProfileSettings Settings { get; set; } = new ProfileSettings();
     public TranscodingSetup MediaTranscoding
     {
       get
@@ -355,8 +362,8 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
         return TranscodeProfileManager.GetTranscodeProfile(ProfileManager.TRANSCODE_PROFILE_SECTION, ID);
       }
     }
-    public Dictionary<string, MediaMimeMapping> MediaMimeMap = new Dictionary<string, MediaMimeMapping>();
-    public List<Detection> Detections = new List<Detection>();
+    public Dictionary<string, MediaMimeMapping> MediaMimeMap { get; set; } = new Dictionary<string, MediaMimeMapping>();
+    public List<Detection> Detections { get; set; } = new List<Detection>();
 
     public override string ToString()
     {

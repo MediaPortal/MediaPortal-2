@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Profiles;
@@ -31,7 +32,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibrarySubtitle : IDirectorySubtitle
   {
-    public MediaItem Item { get; private set; }
+    public Guid MediaItemId { get; private set; }
 
     public EndPointSettings Client { get; private set; }
 
@@ -41,7 +42,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
     public MediaLibrarySubtitle(MediaItem item, EndPointSettings client)
     {
-      Item = item;
+      MediaItemId = item.MediaItemId;
       Client = client;
       MimeType = null;
       SubtitleType = null;
@@ -49,12 +50,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
     public void Initialise()
     {
-      DlnaMediaItem dlnaItem = Client.GetDlnaItem(Item, false);
+      DlnaMediaItem dlnaItem = Client.GetDlnaItem(MediaItemId);
       if (DlnaResourceAccessUtils.IsSoftCodedSubtitleAvailable(dlnaItem, Client) == true)
       {
         string mime = null;
         string type = null;
-        Uri = DlnaResourceAccessUtils.GetSubtitleBaseURL(Item, Client, out mime, out type);
+        Uri = DlnaResourceAccessUtils.GetSubtitleBaseURL(MediaItemId, Client, out mime, out type);
         MimeType = mime;
         SubtitleType = type;
       }

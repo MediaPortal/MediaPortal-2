@@ -3,6 +3,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -10,36 +11,35 @@ namespace Tests.Server.MediaServer
 {
   class TestAudioAnalyzer : IMediaAnalyzer
   {
-    public Task<MetadataContainer> ParseChannelStreamAsync(int ChannelId, LiveTvMediaItem ChannelMediaItem)
+    public Task DeleteAnalysisAsync(Guid mediaItemId)
     {
-      return Task.FromResult(new MetadataContainer
-      {
-        Audio = new List<MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams.AudioStream>(),
-        Video = new MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams.VideoStream(),
-        Metadata = new MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams.MetadataStream()
-      });
+      return Task.CompletedTask;
     }
 
-    public Task<IDictionary<int, IList<MetadataContainer>>> ParseMediaItemAsync(MediaItem Media, int? MediaPartSetId = null)
+    public ICollection<Guid> GetAllAnalysisIds()
     {
-      IDictionary<int, IList<MetadataContainer>> dictionary = new Dictionary<int, IList<MetadataContainer>>();
-      List<MetadataContainer> list = new List<MetadataContainer>();
-      list.Add(new MetadataContainer
-      {
-        Audio = new List<MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams.AudioStream>(),
-        Metadata = new MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams.MetadataStream()
-      });
-      dictionary.Add(1, list);
-      return Task.FromResult(dictionary);
+      return new List<Guid>();
     }
 
-    public Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource, string AnalysisName = null)
+    public Task<MetadataContainer> ParseChannelStreamAsync(int channelId, LiveTvMediaItem channelMediaItem)
     {
-      return Task.FromResult(new MetadataContainer
-      {
-        Audio = new List<MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams.AudioStream>(),
-        Metadata = new MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams.MetadataStream()
-      });
+      var info = new MetadataContainer();
+      info.AddEdition(0);
+      return Task.FromResult(info);
+    }
+
+    public Task<MetadataContainer> ParseMediaItemAsync(MediaItem media, int? mediaPartSetId = null, bool cache = true)
+    {
+      var info = new MetadataContainer();
+      info.AddEdition(mediaPartSetId ?? 0);
+      return Task.FromResult(info);
+    }
+
+    public Task<MetadataContainer> ParseMediaStreamAsync(IEnumerable<IResourceAccessor> mediaResources)
+    {
+      var info = new MetadataContainer();
+      info.AddEdition(0);
+      return Task.FromResult(info);
     }
   }
 }

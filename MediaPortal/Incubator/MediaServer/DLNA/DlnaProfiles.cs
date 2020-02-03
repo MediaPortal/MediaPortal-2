@@ -153,7 +153,9 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       }
       else if (container == AudioContainer.Mpeg2Ts) //TODO: Working for radio recordings?
       {
-        valuesProfiles.Add("MP2_MPS");
+        valuesProfiles.Add("MPEG_TS_SD_EU");
+        valuesProfiles.Add("MPEG_TS_SD_NA");
+        valuesProfiles.Add("MPEG_TS_SD_KO");
       }
       else if (container == AudioContainer.Lpcm)
       {
@@ -216,14 +218,6 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       else if (container == AudioContainer.Ogg)
       {
         valuesProfiles.Add("OGG");
-      }
-      else if (container == AudioContainer.Rtsp)
-      {
-        valuesProfiles.Add("RTSP");
-      }
-      else if (container == AudioContainer.Rtp)
-      {
-        valuesProfiles.Add("RTP");
       }
       else if (container == AudioContainer.Wav)
       {
@@ -1084,14 +1078,14 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           valuesProfiles.Add("HLS");
         }
       }
-      else if (container == VideoContainer.Rtsp)
-      {
-        valuesProfiles.Add("RTSP");
-      }
-      else if (container == VideoContainer.Rtp)
-      {
-        valuesProfiles.Add("RTP");
-      }
+      //else if (container == VideoContainer.Rtsp)
+      //{
+      //  valuesProfiles.Add("RTSP");
+      //}
+      //else if (container == VideoContainer.Rtp)
+      //{
+      //  valuesProfiles.Add("RTP");
+      //}
       else
       {
         throw new Exception("Video does not match any supported DLNA profile");

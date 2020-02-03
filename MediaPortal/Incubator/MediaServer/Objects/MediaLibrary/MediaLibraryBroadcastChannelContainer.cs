@@ -28,8 +28,6 @@ using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Extensions.TranscodingService.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
@@ -41,48 +39,42 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       Title = title;
     }
 
-    public override void Initialise()
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
+      base.Initialise(sortCriteria, offset, count);
+
       if (ServiceRegistration.IsRegistered<ITvProvider>())
       {
-        LiveTvMediaItem mediaItem = null;
-        if (ServiceRegistration.IsRegistered<IMediaAnalyzer>())
-        {
-          IMediaAnalyzer analyzer = ServiceRegistration.Get<IMediaAnalyzer>() as IMediaAnalyzer;
-          var analysis = analyzer.ParseChannelStreamAsync(ChannelId, mediaItem).Result;
-          if (analysis == null)
-          {
-            Logger.Error("MediaServer: Error analyzing channel {0} stream", ChannelId);
-            return;
-          }
-        }
-
         IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
-        var res = channelAndGroupInfo.GetChannelAsync(ChannelId).Result;
-        if (res.Success)
+        var res = channelAndGroupInfo?.GetChannelAsync(ChannelId).Result;
+        if (res?.Success ?? false)
         {
+          var dlnaItem = Client.GetLiveDlnaItem(ChannelId);
+          if (dlnaItem == null)
+          {
+            var mediaItem = Client.StoreLiveDlnaItem(ChannelId);
+            if (mediaItem == null)
+            {
+              Logger.Error("MediaServer: Error analyzing channel {0} stream", ChannelId);
+              return;
+            }
+          }
+
           IChannel channel = res.Result;
           try
           {
             if (channel.MediaType == MediaType.TV)
             {
-              if (mediaItem != null)
-              {
-                Add(new MediaLibraryVideoBroadcastItem(mediaItem, channel.Name, channel.ChannelId, Client));
-              }
+              Add(new MediaLibraryVideoBroadcastItem(channel.Name, channel.ChannelId, Client));
             }
             else if (channel.MediaType == MediaType.Radio)
             {
-              if (mediaItem != null)
-              {
-                Add(new MediaLibraryAudioBroadcastItem(mediaItem, channel.Name, channel.ChannelId, Client));
-              }
+              Add(new MediaLibraryAudioBroadcastItem(channel.Name, channel.ChannelId, Client));
             }
           }
           catch (Exception ex)
           {
             Logger.Error("MediaServer: Error analyzing channel {0}", ex, ChannelId);
-            return;
           }
         }
       }

@@ -41,8 +41,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     {
     }
 
-    public override void Initialise()
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
+      base.Initialise(sortCriteria, offset, count);
+
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       var allowedShares = GetAllowedShares();
       List<MediaItem> shares = new List<MediaItem>();
@@ -56,7 +58,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         }
       }
 
-      foreach (MediaItem share in shares)
+      foreach (MediaItem share in shares.OrderBy(s => MediaItemAspect.TryGetAspect(s.Aspects, MediaAspect.Metadata, out var aspect) ? aspect.GetAttributeValue<string>(MediaAspect.ATTR_SORT_TITLE) : ""))
       {
         IList<MediaItem> albums = library.Browse(share.MediaItemId, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, _userId, false);
         foreach (MediaItem album in albums)
@@ -65,6 +67,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
             Add(new MediaLibraryBrowser(album, Client));
         }
       }
+    }
+
+    public override void InitialiseContainers()
+    {
+      base.InitialiseContainers();
+      Initialise(null);
     }
   }
 }

@@ -44,10 +44,10 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
       if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {
-        if (MediaItemAspect.TryGetAspect(Item.Aspects, SeriesAspect.Metadata, out SingleMediaItemAspect seriesAspect))
+        if (MediaItemAspect.TryGetAspect(item.Aspects, SeriesAspect.Metadata, out SingleMediaItemAspect seriesAspect))
         {
           IList<MultipleMediaItemAspect> genreAspects;
-          if (MediaItemAspect.TryGetAspects(Item.Aspects, GenreAspect.Metadata, out genreAspects))
+          if (MediaItemAspect.TryGetAspects(item.Aspects, GenreAspect.Metadata, out genreAspects))
           {
             CollectionUtils.AddAll(Genre, genreAspects.Select(g => g.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)));
           }
@@ -62,7 +62,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       }
 
       //Support alternative ways to get album art
-      var albumArt = new MediaLibraryAlbumArt(Item, Client);
+      var albumArt = new MediaLibraryAlbumArt(item, Client);
       if (albumArt != null)
       {
         albumArt.Initialise();
