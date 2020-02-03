@@ -222,9 +222,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     /// <param name="mediaItemId">The media item id of the media item to collect fanart for.</param>
     public void ScheduleFanArtCollection(Guid mediaItemId)
     {
-      ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart collection for {0}.", mediaItemId);
-      if (!_fanartActionBlock.Post(new FanArtManagerAction(ActionType.Collect, mediaItemId)))
-        ServiceRegistration.Get<ILogger>().Warn("FanArtManagement: Failed to scheduling fanart collection for {0}.", mediaItemId);
+      if (mediaItemId != Guid.Empty)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart collection for {0}.", mediaItemId);
+        if (!_fanartActionBlock.Post(new FanArtManagerAction(ActionType.Collect, mediaItemId)))
+          ServiceRegistration.Get<ILogger>().Warn("FanArtManagement: Failed to scheduling fanart collection for {0}.", mediaItemId);
+      }
     }
 
     /// <summary>
@@ -233,9 +236,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     /// <param name="mediaItemId">The media item id of the media item to delete fanart for.</param>
     public void ScheduleFanArtDeletion(Guid mediaItemId)
     {
-      ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart deletion for {0}.", mediaItemId);
-      if (!_fanartActionBlock.Post(new FanArtManagerAction(ActionType.Delete, mediaItemId)))
-        ServiceRegistration.Get<ILogger>().Warn("FanArtManagement: Failed to schedule delete fanart for {0}.", mediaItemId);
+      if (mediaItemId != Guid.Empty)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart deletion for {0}.", mediaItemId);
+        if (!_fanartActionBlock.Post(new FanArtManagerAction(ActionType.Delete, mediaItemId)))
+          ServiceRegistration.Get<ILogger>().Warn("FanArtManagement: Failed to schedule delete fanart for {0}.", mediaItemId);
+      }
     }
     
     /// <summary>
