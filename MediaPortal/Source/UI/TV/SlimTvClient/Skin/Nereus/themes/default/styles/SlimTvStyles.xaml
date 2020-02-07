@@ -1237,7 +1237,7 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
-        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
+        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Program.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
           <Label.IsVisible>
             <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
@@ -1249,7 +1249,7 @@
             <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
           <Image.IsVisible>
-            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogo" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
           </Image.IsVisible>
         </Image>
 
@@ -1361,7 +1361,7 @@
             <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
           <Image.IsVisible>
-            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogo" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
           </Image.IsVisible>
         </Image>
 
