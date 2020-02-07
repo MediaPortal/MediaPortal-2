@@ -37,8 +37,6 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
 {
   internal class MessageNowPlaying : MessageNowPlayingBase, IMessage
   {
-    protected readonly string[] _opticalDiscMimes = new string[] { "video/dvd", "video/bluray" };
-
     public String Type
     {
       get { return "nowplaying"; }
@@ -55,7 +53,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
 
           IList<MultipleMediaItemAspect> providerAspects;
           if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
-            providerAspects.Any(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))))
+            providerAspects.Any(pra => MediaItem.OPTICAL_DISC_MIMES.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))))
             return new DVDInfo();
 
           if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
