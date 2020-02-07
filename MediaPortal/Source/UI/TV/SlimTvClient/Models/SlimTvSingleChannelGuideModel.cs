@@ -49,6 +49,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected AbstractProperty _channelNameProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
+    protected AbstractProperty _channelNumberProperty = null;
 
     #endregion
 
@@ -60,6 +61,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #endregion
 
     #region GUI properties and methods
+
+    /// <summary>
+    /// Gets the currently selected channel, or <c>null</c> if not initilalized.
+    /// </summary>
+    public IChannel Channel
+    {
+      get
+      {
+        return _channel;
+      }
+    }
 
     /// <summary>
     /// Exposes the current channel name to the skin.
@@ -96,6 +108,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_channelNumberProperty.GetValue(); }
+      set { _channelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _channelNumberProperty; }
+    }
+
+    /// <summary>
     /// Exposes the list of channels in current group.
     /// </summary>
     public ItemsList ProgramsList
@@ -115,6 +144,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
+        _channelNumberProperty = new WProperty(typeof(int), 0);
       }
 
       base.InitModel();
@@ -139,8 +169,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.UpdateGuiProperties();
 
-      ChannelName = CurrentChannel != null ? CurrentChannel.Name : string.Empty;
+      ChannelName = CurrentChannel?.Name ?? string.Empty;
       ChannelLogoType = CurrentChannel.GetFanArtMediaType();
+      ChannelNumber = CurrentChannel?.ChannelNumber ?? 0;
       _channel = CurrentChannel;
     }
 

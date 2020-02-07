@@ -52,6 +52,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected int _lastProgramId;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelNumberProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
     protected AbstractProperty _programSearchTextProperty = null;
     protected readonly ItemsList _programsList = new ItemsList();
@@ -92,6 +93,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ChannelLogoTypeProperty
     {
       get { return _channelLogoTypeProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_channelNumberProperty.GetValue(); }
+      set { _channelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _channelNumberProperty; }
     }
 
     /// <summary>
@@ -159,6 +177,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_isInitialized)
       {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelNumberProperty = new WProperty(typeof(int), 0);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _programSearchTextProperty = new WProperty(typeof(string), string.Empty);
         _programSearchTextProperty.Attach(ProgramSearchTextChanged);
@@ -230,6 +249,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
 
       ChannelName = result.Success ? result.Result.Name : string.Empty;
+      ChannelNumber = result.Success ? result.Result.ChannelNumber : 0;
       ChannelLogoType = result.Result.GetFanArtMediaType();
     }
 

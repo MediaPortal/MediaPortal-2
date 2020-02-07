@@ -89,6 +89,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _selectedCurrentProgramProperty = null;
     protected AbstractProperty _selectedNextProgramProperty = null;
     protected AbstractProperty _selectedChannelNameProperty = null;
+    protected AbstractProperty _selectedChannelNumberProperty = null;
     protected AbstractProperty _selectedChannelLogoTypeProperty = null;
     protected AbstractProperty _selectedProgramProgressProperty = null;
 
@@ -99,6 +100,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _timeshiftProgressProperty = null;
     protected AbstractProperty _currentChannelNameProperty = null;
     protected AbstractProperty _currentChannelLogoTypeProperty = null;
+    protected AbstractProperty _currentChannelNumberProperty = null;
 
     // PiP Control properties
     protected AbstractProperty _piPAvailableProperty = null;
@@ -192,6 +194,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_currentChannelNumberProperty.GetValue(); }
+      set { _currentChannelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _currentChannelNumberProperty; }
+    }
+
+    /// <summary>
     /// Exposes the current channel logo type to the skin.
     /// </summary>
     public string ChannelLogoType
@@ -240,6 +259,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty SelectedChannelLogoTypeProperty
     {
       get { return _selectedChannelLogoTypeProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the selected channel number to the skin.
+    /// </summary>
+    public int SelectedChannelNumber
+    {
+      get { return (int)_selectedChannelNumberProperty.GetValue(); }
+      set { _selectedChannelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the selected channel number to the skin.
+    /// </summary>
+    public AbstractProperty SelectedChannelNumberProperty
+    {
+      get { return _selectedChannelNumberProperty; }
     }
 
     /// <summary>
@@ -407,6 +443,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               nextProgram = channelItem.Programs[1].AdditionalProperties["PROGRAM"] as IProgram;
             }
           SelectedChannelName = channelItem.Channel.Name;
+          SelectedChannelNumber = channelItem.Channel.ChannelNumber;
           SelectedChannelLogoType = channelItem.Channel.GetFanArtMediaType();
           SelectedCurrentProgram.SetProgram(currentProgram, channelItem.Channel);
           SelectedNextProgram.SetProgram(nextProgram, channelItem.Channel);
@@ -734,20 +771,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected async Task UpdateSelectedChannelPrograms(IChannel channel)
     {
-      await UpdateForChannel(channel, SelectedCurrentProgram, SelectedNextProgram, SelectedChannelNameProperty, SelectedProgramProgressProperty);
+      await UpdateForChannel(channel, SelectedCurrentProgram, SelectedNextProgram, SelectedChannelNameProperty, SelectedChannelNumberProperty, SelectedProgramProgressProperty);
     }
 
     protected async Task UpdateRunningChannelPrograms(IChannel channel)
     {
-      await UpdateForChannel(channel, CurrentProgram, NextProgram, ChannelNameProperty, ProgramProgressProperty);
+      await UpdateForChannel(channel, CurrentProgram, NextProgram, ChannelNameProperty, ChannelNumberProperty, ProgramProgressProperty);
     }
 
-    protected async Task UpdateForChannel(IChannel channel, ProgramProperties current, ProgramProperties next, AbstractProperty channelNameProperty, AbstractProperty progressProperty)
+    protected async Task UpdateForChannel(IChannel channel, ProgramProperties current, ProgramProperties next, AbstractProperty channelNameProperty, AbstractProperty channelNumberProperty, AbstractProperty progressProperty)
     {
       bool success = channel != null;
       if (success)
       {
         channelNameProperty.SetValue(channel.Name);
+        channelNumberProperty.SetValue(channel.ChannelNumber);
         var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(channel);
         success = result.Success;
         if (success)
@@ -780,12 +818,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _currentGroupNameProperty = new WProperty(typeof(string), string.Empty);
 
         _selectedChannelNameProperty = new WProperty(typeof(string), string.Empty);
+        _selectedChannelNumberProperty = new WProperty(typeof(int), 0);
         _selectedChannelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _selectedCurrentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _selectedNextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _selectedProgramProgressProperty = new WProperty(typeof(double), 0d);
 
         _currentChannelNameProperty = new WProperty(typeof(string), string.Empty);
+        _currentChannelNumberProperty = new WProperty(typeof(int), 0);
         _currentChannelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _nextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
@@ -932,6 +972,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           {
             channel = context.Channel;
             ChannelName = channel.Name;
+            ChannelNumber = channel.ChannelNumber;
             ChannelLogoType = channel.GetFanArtMediaType();
             if (_tvHandler.ProgramInfo != null)
             {

@@ -59,6 +59,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _guideStartTimeProperty = null;
     protected AbstractProperty _visibleHoursProperty = null;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelNumberProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
 
     protected DateTime _bufferStartTime;
@@ -113,6 +114,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ChannelLogoTypeProperty
     {
       get { return _channelLogoTypeProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_channelNumberProperty.GetValue(); }
+      set { _channelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _channelNumberProperty; }
     }
 
     /// <summary>
@@ -217,6 +235,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
         _visibleHoursProperty = new WProperty(typeof(double), settings.EpgVisibleHours);
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelNumberProperty = new WProperty(typeof(int), 0);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
       }
       base.InitModel();
@@ -354,6 +373,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         var currentChannel = result.Result;
         ChannelName = currentChannel.Name;
+        ChannelNumber = currentChannel.ChannelNumber;
         ChannelLogoType = currentChannel.GetFanArtMediaType();
       }
     }
@@ -522,6 +542,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       base.OnCurrentGroupChanged(oldindex, newindex);
       UpdateProgramStatus(null);
       ChannelName = "";
+      ChannelNumber = 0;
       UpdateChannels();
       _ = UpdatePrograms();
       // Notify listeners about group change
