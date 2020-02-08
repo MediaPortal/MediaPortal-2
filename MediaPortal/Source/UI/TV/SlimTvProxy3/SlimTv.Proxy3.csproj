@@ -159,7 +159,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Core3">
-      <Version>3.0.21.2</Version>
+      <Version>3.0.23.100</Version>
     </PackageReference>
     <PackageReference Include="MediaPortal.TvEngine.Interfaces">
       <Version>1.0.4</Version>
