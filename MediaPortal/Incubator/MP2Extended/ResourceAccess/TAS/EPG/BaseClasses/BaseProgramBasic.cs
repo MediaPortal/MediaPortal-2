@@ -24,6 +24,7 @@
 
 using System;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
@@ -46,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses
         Title = program.Title,
         Id = program.ProgramId,
         DurationInMinutes = Convert.ToInt32(program.EndTime.Subtract(program.StartTime).TotalMinutes),
-        IsScheduled = recordingStatus.IsScheduled,
+        IsScheduled = recordingStatus?.RecordingStatus != RecordingStatus.None
       };
 
       return webProgramBasic;

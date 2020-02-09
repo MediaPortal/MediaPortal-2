@@ -81,7 +81,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (tvProgram.IsRecordingManual)
         program.RecordingStatus |= RecordingStatus.RecordingManual;
       program.HasConflict = tvProgram.HasConflict;
-      program.IsScheduled = TvDatabase.Schedule.ListAll().Any(schedule => schedule.IdChannel == tvProgram.IdChannel && schedule.IsRecordingProgram(tvProgram, true));
 
       return program;
     }
@@ -154,8 +153,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           ProgramId = tvProgram.IdProgram,
           Title = tvProgram.Title,
           Description = tvProgram.Description,
-          // TODO: Morpheus_xx, 2017-11-25: TVE35 handles genres differently, needs to be checked and fixed.
-          // Genre = tvProgram.ProgramCategory?.Category,
+          Genre = tvProgram.ProgramCategory?.Category,
           StartTime = tvProgram.StartTime,
           EndTime = tvProgram.EndTime,
           OriginalAirDate = tvProgram.OriginalAirDate,
@@ -167,7 +165,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
           EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
           EpisodePart = tvProgram.EpisodePart,
           EpisodeTitle = tvProgram.EpisodeName,
-          Genre = tvProgram.ProgramCategory?.Category
         };
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);
@@ -183,7 +180,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (programLogic.IsRecordingManual)
         program.RecordingStatus |= RecordingStatus.RecordingManual;
       program.HasConflict = programLogic.HasConflict;
-      program.IsScheduled = GlobalServiceProvider.Instance.Get<IScheduleService>().ListAllSchedules().Any(schedule => schedule.IdChannel == tvProgram.IdChannel && schedule.ProgramName == tvProgram.Title);
 
       return program;
     }

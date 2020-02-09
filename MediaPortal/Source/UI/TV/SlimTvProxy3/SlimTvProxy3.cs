@@ -375,7 +375,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         {
           string genreMapEntry = TvDatabase.Setting.RetrieveByTag("genreMapEntry" + genreIndex).Value;
           if (!string.IsNullOrEmpty(genreMapEntry))
-            _tvGenres.TryAdd(epgGenre.Value, genreMapEntry.Split(new char[] { '{' }, StringSplitOptions.RemoveEmptyEntries));
+            _tvGenres.TryAdd(epgGenre.Value, new HashSet<string>(genreMapEntry.Split(new char[] { '{' }, StringSplitOptions.RemoveEmptyEntries), StringComparer.InvariantCultureIgnoreCase));
         }
         genreIndex++;
       }
@@ -754,7 +754,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
-      return CreateScheduleByTimeAsync(channel, "Manual", from, to, recordingType);
+      return await CreateScheduleByTimeAsync(channel, "Manual", from, to, recordingType);
     }
 
     public override async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType)

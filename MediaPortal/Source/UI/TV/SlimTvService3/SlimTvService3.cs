@@ -441,7 +441,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         {
           string genreMapEntry = _tvBusiness.GetSetting("genreMapEntry" + genreIndex).Value;
           if (!string.IsNullOrEmpty(genreMapEntry))
-            _tvGenres.TryAdd(epgGenre.Value, genreMapEntry.Split(new char[] { '{' }, StringSplitOptions.RemoveEmptyEntries));
+            _tvGenres.TryAdd(epgGenre.Value, new HashSet<string>(genreMapEntry.Split(new char[] { '{' }, StringSplitOptions.RemoveEmptyEntries), StringComparer.InvariantCultureIgnoreCase));
         }
         genreIndex++;
       }
