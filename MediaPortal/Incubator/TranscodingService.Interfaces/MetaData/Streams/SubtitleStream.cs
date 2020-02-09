@@ -22,6 +22,8 @@
 
 #endregion
 
+using System.IO;
+using System.Net;
 using MediaPortal.Common.ResourceAccess;
 using Newtonsoft.Json;
 
@@ -40,6 +42,10 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams
     {
       if (!string.IsNullOrEmpty(SourcePath))
       {
+        var systemPath = LocalFsResourceProviderBase.ToDosPath(SourcePath);
+        if (File.Exists(systemPath))
+          return systemPath;
+
         var path = ResourcePath.Deserialize(SourcePath);
         if (path.BasePathSegment.ProviderId == LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID)
         {

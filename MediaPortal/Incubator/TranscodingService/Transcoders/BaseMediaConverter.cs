@@ -936,7 +936,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
             if (subPath.StartsWith(_cachePath, StringComparison.InvariantCultureIgnoreCase))
               TouchFile(subPath);
           }
-          return await GetFileStreamAsync(ResourcePath.Deserialize(sub.SourcePath)).ConfigureAwait(false);
+          return new StreamContext() { Stream = await GetFileStreamAsync(subPath).ConfigureAwait(false) };
         }
       }
       catch (Exception ex)
