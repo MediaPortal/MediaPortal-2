@@ -182,6 +182,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubtitleDownloaderProvider"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptableMetadataExtractor", "Extensions\MetadataExtractors\ScriptableMetadataExtractor\ScriptableMetadataExtractor.csproj", "{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCvLib", "Extensions\MetadataExtractors\OpenCvLib\OpenCvLib.csproj", "{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -655,13 +657,9 @@ Global
 		{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC}.Release|x86.ActiveCfg = Release|x86
 		{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC}.Release|x86.Build.0 = Release|x86
 		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Debug|x86.ActiveCfg = Debug|x86
-		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Debug|x86.Build.0 = Debug|x86
 		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Release|Any CPU.Build.0 = Release|Any CPU
 		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Release|x86.ActiveCfg = Release|x86
-		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Release|x86.Build.0 = Release|x86
 		{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6}.Debug|x86.ActiveCfg = Debug|x86
@@ -694,6 +692,14 @@ Global
 		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Release|Any CPU.Build.0 = Release|Any CPU
 		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Release|x86.ActiveCfg = Release|x86
 		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}.Release|x86.Build.0 = Release|x86
+		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Debug|x86.ActiveCfg = Debug|x86
+		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Debug|x86.Build.0 = Debug|x86
+		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Release|x86.ActiveCfg = Release|x86
+		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -783,6 +789,7 @@ Global
 		{1A4364AE-E225-42F8-BE12-811D4E5FCF66} = {26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}
 		{D83D417B-6EB3-4C09-B0A9-94C219C9A426} = {1A4364AE-E225-42F8-BE12-811D4E5FCF66}
 		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
+		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A} = {F7CD0109-EDD1-4265-9D15-DA808A6F01F3}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}

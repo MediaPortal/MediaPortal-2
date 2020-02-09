@@ -27,6 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
 using MediaPortal.Common.Localization;
+using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -63,6 +64,11 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       settings.CacheOfflineFanArt = _selected.Contains(0);
       settings.CacheLocalFanArt = _selected.Contains(1);
       serverSettings.Save(settings);
+
+      VideoMetadataExtractorSettings videoSettings = serverSettings.Load<VideoMetadataExtractorSettings>();
+      videoSettings.CacheOfflineMovieFanArt = settings.CacheOfflineFanArt;
+      videoSettings.CacheLocalMovieFanArt = settings.CacheLocalFanArt;
+      serverSettings.Save(videoSettings);
     }
 
     public void Dispose()

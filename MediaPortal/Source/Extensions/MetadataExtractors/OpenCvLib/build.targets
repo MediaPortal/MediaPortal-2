@@ -6,25 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
-  </ItemGroup>
-
   <ItemGroup>
-    <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
+    <References Include="$(TargetDir)OpenCvSharp.dll" />
+    <Dlls Include="$(TargetDir)dll\**\*.*" />
   </ItemGroup>
 
   <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-    <References Include="$(TargetDir)FanArtService.Interfaces.pdb" />
+    <References Include="$(TargetDir)OpenCvSharp.pdb" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(Dlls)" DestinationFiles="@(Dlls->'$(PluginDestination)\dll\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

@@ -462,8 +462,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             info.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0, episodeDetail.EpisodeName, seriesDetail.SeriesName);
             info.Languages.Add(episodeDetail.Language.Abbriviation);
 
-            if (isFirstEpisode && !episode.HasThumbnail && episodeDetail.Banner != null)
-              info.Thumbnail = await episodeDetail.Banner.LoadImageDataAsync().ConfigureAwait(false);
+            //Should be handled by the fanart collector instead
+            //if (isFirstEpisode && !episode.HasThumbnail && episodeDetail.Banner != null)
+            //  info.Thumbnail = await episodeDetail.Banner.LoadImageDataAsync().ConfigureAwait(false);
             
             episodeDetails.Add(info);
             isFirstEpisode = false;

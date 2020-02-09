@@ -146,11 +146,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
     public static bool CacheOfflineFanArt { get; private set; }
     public static bool CacheLocalFanArt { get; private set; }
+    public static bool CacheOfflineMovieFanArt { get; private set; }
+    public static bool CacheLocalMovieFanArt { get; private set; }
+    public static bool CacheOfflineSeriesFanArt { get; private set; }
+    public static bool CacheLocalSeriesFanArt { get; private set; }
 
     private void LoadSettings()
     {
       CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
       CacheLocalFanArt = _settingWatcher.Settings.CacheLocalFanArt;
+      CacheOfflineMovieFanArt = _settingWatcher.Settings.CacheOfflineMovieFanArt;
+      CacheLocalMovieFanArt = _settingWatcher.Settings.CacheLocalMovieFanArt;
+      CacheOfflineSeriesFanArt = _settingWatcher.Settings.CacheOfflineSeriesFanArt;
+      CacheLocalSeriesFanArt = _settingWatcher.Settings.CacheLocalSeriesFanArt;
     }
 
     private void SettingsChanged(object sender, EventArgs e)
