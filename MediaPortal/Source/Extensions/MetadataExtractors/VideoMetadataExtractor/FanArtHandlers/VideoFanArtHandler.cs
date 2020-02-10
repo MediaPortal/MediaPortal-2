@@ -165,7 +165,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
           //Don't create thumbs if they already exist or if it is a movie (they use posters)
           var thumbs = ServiceRegistration.Get<IFanArtCache>().GetFanArtFiles(mediaItemId, FanArtTypes.Thumbnail);
-          if (!thumbs.Any() && !aspects.ContainsKey(MovieAspect.ASPECT_ID))
+          if (!thumbs.Any() && !aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID) && !aspects.ContainsKey(MovieAspect.ASPECT_ID))
             await ExtractThumbnailFanArt(rah.LocalFsResourceAccessor, mediaItemId, title, aspects);
         }
       }
