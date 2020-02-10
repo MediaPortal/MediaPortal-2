@@ -45,34 +45,34 @@ namespace Tests.Server.Libraries.MatroskaLib
       ServiceRegistration.Set<ILogger>(new NoLogger());
     }
 
-    [Test]
-    public void TestExtractThumbnail()
-    {
-      // Arrange
-      string testFileName = "Test Media.mkv";
-      string testDataDir = TestContext.CurrentContext.TestDirectory + "\\VideoThumbnailer\\TestData\\";
-      ILocalFsResourceAccessor lfsra = new LocalFsResourceAccessor(new LocalFsResourceProvider(), "/" + Path.Combine(testDataDir, testFileName));
+    //[Test]
+    //public void TestExtractThumbnail()
+    //{
+    //  // Arrange
+    //  string testFileName = "Test Media.mkv";
+    //  string testDataDir = TestContext.CurrentContext.TestDirectory + "\\VideoThumbnailer\\TestData\\";
+    //  ILocalFsResourceAccessor lfsra = new LocalFsResourceAccessor(new LocalFsResourceProvider(), "/" + Path.Combine(testDataDir, testFileName));
 
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      MultipleMediaItemAspect videoStreamAspect = new MultipleMediaItemAspect(VideoStreamAspect.Metadata);
-      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 1);
-      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, (long)1);
-      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 1076);
-      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 1916);
-      MediaItemAspect.AddOrUpdateAspect(aspects, videoStreamAspect);
-      MultipleMediaItemAspect resourceAspect = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
-      resourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-      resourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
-      resourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, lfsra.CanonicalLocalResourcePath.Serialize());
-      MediaItemAspect.AddOrUpdateAspect(aspects, resourceAspect);
+    //  IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+    //  MultipleMediaItemAspect videoStreamAspect = new MultipleMediaItemAspect(VideoStreamAspect.Metadata);
+    //  videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+    //  videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 1);
+    //  videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, (long)1);
+    //  videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_WIDTH, 1076);
+    //  videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 1916);
+    //  MediaItemAspect.AddOrUpdateAspect(aspects, videoStreamAspect);
+    //  MultipleMediaItemAspect resourceAspect = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
+    //  resourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+    //  resourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
+    //  resourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, lfsra.CanonicalLocalResourcePath.Serialize());
+    //  MediaItemAspect.AddOrUpdateAspect(aspects, resourceAspect);
 
-      // Act
-      bool success = new OCVVideoThumbnailer().TryExtractMetadataAsync(lfsra, aspects, false).Result;
+    //  // Act
+    //  bool success = new OCVVideoThumbnailer().TryExtractMetadataAsync(lfsra, aspects, false).Result;
 
-      // Assert
-      Assert.IsTrue(success);
-      Assert.IsTrue(aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID));
-    }
+    //  // Assert
+    //  Assert.IsTrue(success);
+    //  Assert.IsTrue(aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID));
+    //}
   }
 }
