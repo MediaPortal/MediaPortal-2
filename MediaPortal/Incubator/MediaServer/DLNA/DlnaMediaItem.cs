@@ -384,12 +384,12 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       else if (IsAudio)
       {
         var audio = Audio.FirstOrDefault();
-        profileList = DlnaProfiles.ResolveAudioProfile(Metadata.AudioContainerType, audio.Codec, audio.Bitrate, audio.Frequency, audio.Channels);
+        profileList = DlnaProfiles.ResolveAudioProfile(Metadata.AudioContainerType, audio?.Codec ?? AudioCodec.Unknown, audio?.Bitrate, audio?.Frequency, audio?.Channels);
       }
       else if (IsVideo)
       {
         var audio = Audio.FirstOrDefault();
-        profileList = DlnaProfiles.ResolveVideoProfile(Metadata.VideoContainerType, Video.Codec, Audio.Count > 0 ? audio.Codec : AudioCodec.Unknown, Video.ProfileType, Video.HeaderLevel,
+        profileList = DlnaProfiles.ResolveVideoProfile(Metadata.VideoContainerType, Video.Codec, audio?.Codec ?? AudioCodec.Unknown, Video.ProfileType, Video.HeaderLevel,
           Video.Framerate, Video.Width, Video.Height, Video.Bitrate, audio?.Bitrate, Video.TimestampType);
       }
 
