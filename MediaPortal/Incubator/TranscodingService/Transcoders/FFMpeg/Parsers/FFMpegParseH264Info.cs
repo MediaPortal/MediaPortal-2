@@ -35,6 +35,8 @@ using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using System.Text;
+using MediaPortal.Utilities.Process;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {

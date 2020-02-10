@@ -772,8 +772,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         }
       }
 
+      ResourcePath firstPath;
       using (var mediaAccessor = data.TranscodeData.GetFirstResourceAccessor())
       {
+        firstPath = mediaAccessor.CanonicalLocalResourcePath;
         if (mediaAccessor is INetworkResourceAccessor)
         {
           isFile = false;
@@ -818,7 +820,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         {
           //TODO: Fix usages of obsolete and deprecated methods when alternative is available
 #if !TRANSCODE_CONSOLE_TEST
-          using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor((mediaAccessor).CanonicalLocalResourcePath))
+          using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(firstPath))
           {
             //Only when the server is running as a service it will have elevation rights
             using (ImpersonationProcess ffmpeg = new ImpersonationProcess { StartInfo = startInfo })
