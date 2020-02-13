@@ -102,7 +102,7 @@
                   <Image Source="PlayerControl\Time.Indicator.png" Stretch="Uniform" Margin="2,35,-2,0" Width="20"
                        VerticalAlignment="Top" HorizontalAlignment="Center" Opacity="0.9"/>
 
-                  <Label x:Name="RemainingTimeLabel" Content="{Binding Path=CurrentProgram.EndTime, Converter={StaticResource RemainingDurationConverter}}" Opacity="0.9"
+                  <Label x:Name="ElapsedDurationLabel" Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource ElapsedDurationConverter}}" Opacity="0.9"
                          HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="SegoeUIBold"
                          Color="Black" FontSize="{ThemeResource SmallerFontSize}"/>
                   
