@@ -889,8 +889,8 @@
     <Setter Property="HeaderTemplate">
       <Setter.Value>
         <ControlTemplate>
-          <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Binding Command}" Margin="0,0,0,0">
-            <Grid x:Name="ChannelHeader" Margin="2,2,2,2">
+          <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Binding Command}">
+            <Grid x:Name="ChannelHeader" Margin="2">
               <Grid.ColumnDefinitions>
                 <!-- Channel Logo -->
                 <ColumnDefinition Width="Auto"/>
@@ -1210,7 +1210,7 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="400"/>
+        <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -1231,10 +1231,17 @@
               Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
 
       <Grid>
+        <Grid.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? 90 : 0) + ({1} ? 160 : 0) + ({2} ? 200 : 0)">
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
+            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
+          </MultiBinding>
+        </Grid.Width>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="Auto"/>
           <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
         <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Program.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
@@ -1244,7 +1251,7 @@
           </Label.IsVisible>
         </Label>
 
-        <Image x:Name="ChannelLogo" Grid.Column="1" Width="{ThemeResource ChannelLogoWidth}" Stretch="Uniform" Margin="10,0,10,0" VerticalAlignment="Center">
+        <Image x:Name="ChannelLogo" Grid.Column="1" Width="{ThemeResource ChannelLogoWidth}" Stretch="Uniform" Margin="5,-1,0,-1" VerticalAlignment="Center">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
           </Image.Source>
@@ -1253,7 +1260,7 @@
           </Image.IsVisible>
         </Image>
 
-        <Label x:Name="NameLabel" Grid.Column="2" Margin="3,1,5,3" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}" Width="280"
+        <Label x:Name="NameLabel" Grid.Column="2" Margin="5,1,5,3" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}"
                VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None">
           <Label.IsVisible>
             <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
