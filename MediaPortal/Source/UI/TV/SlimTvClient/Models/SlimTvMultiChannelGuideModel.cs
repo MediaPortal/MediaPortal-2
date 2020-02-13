@@ -193,6 +193,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       Scroll(TimeSpan.FromHours(-VisibleHours));
     }
 
+    public void ScrollForwardHalfScreen()
+    {
+      Scroll(TimeSpan.FromHours(VisibleHours / 2.0));
+    }
+
+    public void ScrollBackwardHalfScreen()
+    {
+      Scroll(TimeSpan.FromHours(-VisibleHours / 2.0));
+    }
+
     public void Scroll(TimeSpan difference)
     {
       GuideStartTime = GuideStartTime + difference;
