@@ -35,8 +35,10 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Threading.Tasks;
+using MediaPortal.Common.Services.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 {
@@ -47,7 +49,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
   {
     #region Constants
 
-    private static ConcurrentBag<string> MetadataExtractorCustomCategories = null;
+    private static ConcurrentBag<string> _metadataExtractorCustomCategories = null;
+    private static SettingsChangeWatcher<ScriptableMetadataExtractorSettings> _scriptableSettingWatcher = null;
+    private static ConcurrentDictionary<string, string> _customSettings = new ConcurrentDictionary<string, string>();
+    private static string _defaultUserAgent = null;
+
+    private const string SAMPLE_KEY = "Setting";
+    private const string SAMPLE_VALUE = "Value";
 
     #endregion
 
@@ -55,6 +63,45 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 
     static BaseScriptableMovieMetadataExtractor()
     {
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      var settings = settingsManager.Load<ScriptableMetadataExtractorSettings>();
+      if (settings.CustomSettings.Count == 0 && settings.DefaultUserAgent == null)
+      {
+        settings.DefaultUserAgent = "";
+        settings.CustomSettings.Add($"{SAMPLE_KEY}={SAMPLE_VALUE}");
+        settingsManager.Save(settings); //Save sample settings so they can be edited
+      }
+
+      _scriptableSettingWatcher = new SettingsChangeWatcher<ScriptableMetadataExtractorSettings>();
+      _scriptableSettingWatcher.SettingsChanged += (sender, args) =>
+      {
+        Dictionary<string, string> customSettings = new Dictionary<string, string>();
+        foreach (var settingPair in _scriptableSettingWatcher.Settings.CustomSettings)
+        {
+          var split = settingPair.Split('=');
+          if (split.Length == 2)
+          {
+            if (string.IsNullOrWhiteSpace(split[0]) || split[0] == SAMPLE_KEY)
+              continue; //Ignore empty or sample entry
+
+            customSettings.Add(split[0], split[1]);
+          }
+        }
+
+        //Add update custom settings
+        foreach (var setting in customSettings)
+          _customSettings.AddOrUpdate(setting.Key, setting.Value, (k, v) => setting.Value);
+
+        //Delete removed custom settings
+        foreach (var settingKey in _customSettings.Keys.Except(customSettings.Keys))
+          _customSettings.TryRemove(settingKey, out _);
+
+        //Update custom user agent
+        if (!string.IsNullOrWhiteSpace(_scriptableSettingWatcher.Settings.DefaultUserAgent))
+        _defaultUserAgent = _scriptableSettingWatcher.Settings.DefaultUserAgent;
+      };
+      _scriptableSettingWatcher.Refresh();
+
       LoadScripts();
     }
 
@@ -62,7 +109,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
     {
       try
       {
-        bool loaded = MetadataExtractorCustomCategories.TryTake(out _category);
+        bool loaded = _metadataExtractorCustomCategories.TryTake(out _category);
 
         List<MediaCategory> mediaCategories = new List<MediaCategory>();
         if (loaded)
@@ -75,11 +122,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
         }
 
         _metadata = new MetadataExtractorMetadata(new Guid(id), $"Scriptable movie metadata extractor ({(loaded ? _category : "Disabled")})", MetadataExtractorPriority.External, true,
-            mediaCategories, new MediaItemAspectMetadata[]
-                {
-                MediaAspect.Metadata,
-                MovieAspect.Metadata
-                });
+            mediaCategories, new MediaItemAspectMetadata[] { MediaAspect.Metadata, MovieAspect.Metadata });
       }
       catch (Exception ex)
       {
@@ -91,10 +134,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
     {
       try
       {
-        MetadataExtractorCustomCategories = new ConcurrentBag<string>();
-
-        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-        var settings = settingsManager.Load<ScriptableMetadataExtractorSettings>();
+        _metadataExtractorCustomCategories = new ConcurrentBag<string>();
 
         //Load latest version of scripts
         Assembly assembly = Assembly.GetExecutingAssembly();
@@ -103,7 +143,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
         Dictionary<int, ScriptableScript> scripts = new Dictionary<int, ScriptableScript>();
         foreach (var file in Directory.EnumerateFiles(Path.Combine(Path.GetDirectoryName(assembly.Location), "MovieScraperScripts\\"), "*.xml"))
         {
-          var script = new ScriptableScript(settings.DefaultUserAgent);
+          var script = new ScriptableScript();
           if (script.Load(file))
           {
             if (string.IsNullOrEmpty(script.Category))
@@ -133,7 +173,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
             {
               //Store custom MDE movie category
               categories.Add(matcher.Key);
-              MetadataExtractorCustomCategories.Add(matcher.Key);
+              _metadataExtractorCustomCategories.Add(matcher.Key);
             }
           }
 
@@ -144,6 +184,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
       {
         ServiceRegistration.Get<ILogger>().Error("ScriptableMetadataExtractor: Error initializing scripts", ex);
       }
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      _scriptableSettingWatcher.Dispose();
+    }
+
+    #endregion
+
+    #region Static methods
+
+    public static void AddOrUpdateParamsFromCustomSettings(Dictionary<string, string> paramList)
+    {
+      foreach (var setting in _customSettings)
+        paramList[setting.Key] = setting.Value;
+
+      if (!string.IsNullOrWhiteSpace(_defaultUserAgent))
+        paramList["settings.defaultuseragent"] = _defaultUserAgent;
     }
 
     #endregion
