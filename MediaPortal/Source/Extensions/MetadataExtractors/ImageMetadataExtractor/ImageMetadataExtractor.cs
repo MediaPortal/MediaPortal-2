@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for image files. Supports several formats.
   /// </summary>
-  public class ImageMetadataExtractor : IMetadataExtractor
+  public class ImageMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -109,6 +109,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       _settingWatcher.SettingsChanged += SettingsChanged;
 
       LoadSettings();
+    }
+
+    public virtual void Dispose()
+    {
+      _settingWatcher.Dispose();
     }
 
     #endregion Ctor

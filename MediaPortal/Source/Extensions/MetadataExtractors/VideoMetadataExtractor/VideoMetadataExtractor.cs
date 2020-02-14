@@ -48,7 +48,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for video files. Supports several formats.
   /// </summary>
-  public class VideoMetadataExtractor : IMetadataExtractor
+  public class VideoMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -138,6 +138,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       _settingWatcher.SettingsChanged += SettingsChanged;
 
       LoadSettings();
+    }
+
+    public void Dispose()
+    {
+      _settingWatcher.Dispose();
     }
 
     #endregion
