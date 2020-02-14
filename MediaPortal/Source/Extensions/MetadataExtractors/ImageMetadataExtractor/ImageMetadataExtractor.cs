@@ -65,6 +65,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
     /// </summary>
     public const string DEFAULT_MIMETYPE = "image/unknown";
 
+    public const int MAX_LARGE_THUMBNAIL_SIZE = 256;
+
     #endregion Constants
 
     #region Protected fields and classes
@@ -158,9 +160,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       if (DosPathHelper.GetFileNameWithoutExtension(fileName).ToLowerInvariant() == "folder")
         return false; //Ignore folder images
 
-      bool refresh = false;
-      if (extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID))
-        refresh = true;
+      bool refresh = extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID);
 
       try
       {
@@ -246,7 +246,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, forceQuickMode, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, MAX_LARGE_THUMBNAIL_SIZE, MAX_LARGE_THUMBNAIL_SIZE, forceQuickMode, out thumbData, out imageType))
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
             }
           }
@@ -288,7 +288,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, cachedOnly, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, MAX_LARGE_THUMBNAIL_SIZE, MAX_LARGE_THUMBNAIL_SIZE, cachedOnly, out thumbData, out imageType))
               {
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
                 updated = true;
