@@ -289,8 +289,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         //Assign all tags to the aspects for both tv and radio recordings
         string value;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-        if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value) && !value.Equals("manual", StringComparison.InvariantCultureIgnoreCase))
+        if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
         {
+          if (value.Equals("manual", StringComparison.InvariantCultureIgnoreCase))
+            value = ResourcePathHelper.GetFileNameWithoutExtension(metaFileAccessor.Path);
+          
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
         }
