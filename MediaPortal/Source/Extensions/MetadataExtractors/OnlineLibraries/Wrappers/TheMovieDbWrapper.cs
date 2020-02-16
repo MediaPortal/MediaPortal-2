@@ -280,6 +280,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(MovieInfo movie)
+    {
+      if (movie.MovieDbId > 0 || !string.IsNullOrWhiteSpace(movie.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(movie);
+    }
+
     public override async Task<bool> UpdateFromOnlineMovieCollectionAsync(MovieCollectionInfo collection, string language, bool cacheOnly)
     {
       try
@@ -352,6 +360,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(PersonInfo person)
+    {
+      if (person.MovieDbId > 0 || person.TvRageId > 0 || !string.IsNullOrWhiteSpace(person.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(person);
+    }
+
     public override async Task<bool> UpdateFromOnlineMovieCharacterAsync(MovieInfo movieInfo, CharacterInfo character, string language, bool cacheOnly)
     {
       try
@@ -417,6 +433,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Exception while processing company {0}", ex, company.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(CompanyInfo company)
+    {
+      if (company.MovieDbId > 0)
+        return true;
+
+      return base.HasSearchableIds(company);
     }
 
     public override async Task<bool> UpdateFromOnlineSeriesAsync(SeriesInfo series, string language, bool cacheOnly)
@@ -585,6 +609,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Exception while processing series {0}", ex, series.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(SeriesInfo series)
+    {
+      if (series.MovieDbId > 0 || !string.IsNullOrWhiteSpace(series.ImdbId) || series.TvdbId > 0 || series.TvRageId > 0)
+        return true;
+
+      return base.HasSearchableIds(series);
     }
 
     public override async Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, string language, bool cacheOnly)
@@ -763,6 +795,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Exception while processing episode {0}", ex, episode.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(EpisodeInfo episode)
+    {
+      if (episode.SeriesMovieDbId > 0 || !string.IsNullOrWhiteSpace(episode.SeriesImdbId) || episode.SeriesTvdbId > 0 || episode.SeriesTvRageId > 0)
+        return true;
+
+      return base.HasSearchableIds(episode);
     }
 
     public override Task<bool> UpdateFromOnlineSeriesPersonAsync(SeriesInfo seriesInfo, PersonInfo person, string language, bool cacheOnly)

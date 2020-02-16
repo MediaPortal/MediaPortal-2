@@ -357,6 +357,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(SeriesInfo series)
+    {
+      if (series.TvdbId > 0 || !string.IsNullOrWhiteSpace(series.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(series);
+    }
+
     public override async Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, TvdbLanguage language, bool cacheOnly)
     {
       try
@@ -490,6 +498,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Exception while processing episode {0}", ex, episode.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(EpisodeInfo episode)
+    {
+      if (episode.SeriesTvdbId > 0 || !string.IsNullOrWhiteSpace(episode.SeriesImdbId))
+        return true;
+
+      return base.HasSearchableIds(episode);
     }
 
     public override async Task<bool> UpdateFromOnlineSeriesCharacterAsync(SeriesInfo seriesInfo, CharacterInfo character, TvdbLanguage language, bool cacheOnly)

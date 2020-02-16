@@ -296,6 +296,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(CompanyInfo company)
+    {
+      if (!string.IsNullOrWhiteSpace(company.MusicBrainzId))
+        return true;
+
+      return base.HasSearchableIds(company);
+    }
+
     public override async Task<bool> UpdateFromOnlineMusicTrackAlbumPersonAsync(AlbumInfo albumInfo, PersonInfo person, string language, bool cacheOnly)
     {
       try
@@ -327,6 +335,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return UpdateFromOnlineMusicTrackAlbumPersonAsync(trackInfo.CloneBasicInstance<AlbumInfo>(), person, language, cacheOnly);
     }
 
+    public override bool HasSearchableIds(PersonInfo person)
+    {
+      if (!string.IsNullOrWhiteSpace(person.MusicBrainzId))
+          return true;
+
+      return base.HasSearchableIds(person);
+    }
+
     public override async Task<bool> UpdateFromOnlineMusicTrackAsync(TrackInfo track, string language, bool cacheOnly)
     {
       try
@@ -339,9 +355,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           List<TrackResult> foundTracks = await _musicBrainzHandler.SearchTrackFromIsrcAsync(track.IsrcId).ConfigureAwait(false);
           if (foundTracks != null && foundTracks.Count == 1)
-          {
             trackDetail = await _musicBrainzHandler.GetTrackAsync(foundTracks[0].Id, cacheOnly).ConfigureAwait(false);
-          }
         }
         if (trackDetail == null) return false;
 
@@ -429,6 +443,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(TrackInfo track)
+    {
+      if (!string.IsNullOrWhiteSpace(track.MusicBrainzId) || !string.IsNullOrWhiteSpace(track.IsrcId))
+        return true;
+
+      return base.HasSearchableIds(track);
+    }
+
     public override async Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, string language, bool cacheOnly)
     {
       try
@@ -496,6 +518,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("MusicBrainzWrapper: Exception while processing album {0}", ex, album.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(AlbumInfo album)
+    {
+      if (!string.IsNullOrWhiteSpace(album.MusicBrainzId))
+        return false;
+
+      return base.HasSearchableIds(album);
     }
 
     #endregion

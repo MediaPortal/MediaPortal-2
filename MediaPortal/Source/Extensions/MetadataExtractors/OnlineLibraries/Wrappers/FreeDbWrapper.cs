@@ -252,6 +252,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(TrackInfo track)
+    {
+      if (!string.IsNullOrWhiteSpace(track.AlbumCdDdId))
+        return true;
+
+      return base.HasSearchableIds(track);
+    }
+
     public override Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, string language, bool cacheOnly)
     {
       try
@@ -301,6 +309,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("FreeDbWrapper: Exception while processing album {0}", ex, album.ToString());
         return Task.FromResult(false);
       }
+    }
+
+    public override bool HasSearchableIds(AlbumInfo album)
+    {
+      if (!string.IsNullOrWhiteSpace(album.CdDdId))
+        return true;
+
+      return base.HasSearchableIds(album);
     }
 
     #endregion
