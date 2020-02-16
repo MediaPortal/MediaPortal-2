@@ -187,6 +187,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       return VIDEO_FILE_EXTENSIONS.Contains(ext);
     }
 
+    protected static string CleanupTitle(string title)
+    {
+      foreach (Regex regex in REGEXP_CLEANUPS)
+        title = regex.Replace(title, "");
+      while (title.Contains(".."))
+        title = title.Replace("..", "."); //Remove leftover periods
+      return BaseInfo.CleanupWhiteSpaces(title);
+    }
+
     protected MediaInfoWrapper ReadMediaInfo(IFileSystemResourceAccessor mediaItemAccessor)
     {
       MediaInfoWrapper result = new MediaInfoWrapper();
@@ -264,15 +273,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       public static VideoResult CreateFileInfo(string fileName, MediaInfoWrapper fileInfo)
       {
         return new VideoResult(CleanupTitle(fileName), fileInfo);
-      }
-
-      protected static string CleanupTitle(string title)
-      {
-        foreach (Regex regex in REGEXP_CLEANUPS)
-          title = regex.Replace(title, "");
-        while (title.Contains(".."))
-          title = title.Replace("..", "."); //Remove leftover periods
-        return BaseInfo.CleanupWhiteSpaces(title);
       }
 
       public void AddMediaInfo(MediaInfoWrapper mediaInfo)
@@ -748,9 +748,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       IList<MultipleMediaItemAspect> videoStreamAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoStreamAspects))
       {
-        string title = null;
-        if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
-          title = ProviderPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName);
+        string title = DosPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName);
+        title = CleanupTitle(title);
 
         string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
         int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
@@ -875,11 +874,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
             }
 
-            using (Stream stream = fsra.OpenRead())
-              result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
-
             if (result != null)
             {
+              using (Stream stream = fsra.OpenRead())
+                result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
+
               using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
               {
                 ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;
