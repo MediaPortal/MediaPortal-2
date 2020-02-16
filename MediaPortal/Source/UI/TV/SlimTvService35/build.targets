@@ -7,10 +7,6 @@
       <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
     </PropertyGroup>
 
-    <PropertyGroup>
-      <DatabaseDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Database\</DatabaseDestination>
-    </PropertyGroup>
-
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
@@ -25,6 +21,7 @@
       <ReferencesTarget Include="$(TargetDir)SlimTv.Integration.MP2.dll" />
       <ReferencesTarget Include="$(TargetDir)Common.Utils.dll" />
       <ReferencesTarget Include="$(TargetDir)MediaPortal.TV.Server.*.dll" />
+      <ReferencesTarget Include="$(TargetDir)NCode.ReparsePoints.dll" />
     </ItemGroup>
 
     <ItemGroup>
@@ -35,19 +32,14 @@
       <SetupTvIntegration Include="$(TargetDir)SlimTv.Integration.MP2.dll" />
     </ItemGroup>
 
-    <ItemGroup>
-      <DatabaseFiles Include="$(ProjectDir)Database\MP2TVE.s3db" />
-    </ItemGroup>
-
-    <ItemGroup>
+    <!--<ItemGroup>
       <References Include="$(TvEngine35References)\**\*.*" />
       <References Include="$(TvEngine35SetupReferences)\**\*.*" />
-    </ItemGroup>
+    </ItemGroup>-->
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(DatabaseFiles)" DestinationFolder="$(DatabaseDestination)" />
     <Copy SourceFiles="@(ReferencesTarget)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+    <!--<Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />-->
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)Integration\%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)SetupTv\Integration\%(Filename)%(Extension)')" />
   </Target>

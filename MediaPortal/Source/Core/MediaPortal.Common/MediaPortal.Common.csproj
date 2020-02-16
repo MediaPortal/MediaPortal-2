@@ -148,6 +148,7 @@
     <Compile Include="MediaManagement\TransientAspects\TempArtistAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempSubtitleAspect.cs" />
     <Compile Include="MediaManagement\TransientAspects\TempSeriesAspect.cs" />
+    <Compile Include="Reflection\AssemblyResolver.cs" />
     <Compile Include="ResourceAccess\IUncachableResource.cs" />
     <Compile Include="ResourceAccess\IImpersonationService.cs" />
     <Compile Include="Services\Dokan\DokanFileInfo.cs" />

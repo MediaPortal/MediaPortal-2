@@ -24,8 +24,10 @@
 
 using System;
 using System.Collections.Generic;
-using System.Data.Common;
+using System.Configuration;
+using System.IO;
 using System.Linq;
+using System.Reflection;
 using MediaPortal.Backend.Database;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
@@ -38,7 +40,6 @@ using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 using MediaPortal.Common.Utils;
-using MediaPortal.Plugins.SlimTv.Service.Helpers;
 using Mediaportal.TV.Server.TVControl;
 using Mediaportal.TV.Server.TVControl.Events;
 using Mediaportal.TV.Server.TVControl.Interfaces.Events;
@@ -46,13 +47,10 @@ using Mediaportal.TV.Server.TVControl.Interfaces.Services;
 using Mediaportal.TV.Server.TVControl.ServiceAgents;
 using Mediaportal.TV.Server.TVDatabase.Entities;
 using Mediaportal.TV.Server.TVDatabase.Entities.Factories;
-using Mediaportal.TV.Server.TVDatabase.EntityModel.ObjContext;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer;
 using Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.Entities;
 using Mediaportal.TV.Server.TVLibrary;
 using Mediaportal.TV.Server.TVLibrary.Interfaces.Integration;
-using Mediaportal.TV.Server.TVService.Interfaces;
-using Mediaportal.TV.Server.TVService.Interfaces.CardHandler;
 using Mediaportal.TV.Server.TVService.Interfaces.Enums;
 using CamType = Mediaportal.TV.Server.TVLibrary.Interfaces.CamType;
 using Card = Mediaportal.TV.Server.TVDatabase.Entities.Card;
@@ -70,7 +68,8 @@ using IVirtualCard = Mediaportal.TV.Server.TVService.Interfaces.IVirtualCard;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common.Async;
 using System.Threading.Tasks;
-using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.Reflection;
+using NCode.ReparsePoints;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -95,12 +94,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override void PrepareConnection(ITransaction transaction)
     {
-      if (transaction.Connection.GetCloneFactory(TVDB_NAME, out _dbProviderFactory, out _cloneConnection))
-      {
-        EntityFrameworkHelper.AssureKnownFactory(_dbProviderFactory);
-        // Register our factory to create new cloned connections
-        ObjectContextManager.SetDbConnectionCreator(ClonedConnectionFactory);
-      }
     }
 
     protected override void PrepareFilterRegistrations()
@@ -110,7 +103,23 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override void InitTvCore()
     {
-      _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
+      // Load assemblies via file name without version check
+      AssemblyResolver.RedirectAllAssemblies();
+
+      // Unfortunately native images are expected at the level of the executing assembly. The LoadLibraryEx is not used, so we can't override the load path of SQLite.
+      // So instead of making a copy of files, we create a Junction to point into SlimTV plugin subfolder.
+      var executingFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
+      var runtimeFolder = Path.Combine(executingFolder, "runtimes");
+      if (!Directory.Exists(runtimeFolder))
+      {
+        var assemblyFolder = Path.GetDirectoryName(GetType().Assembly.Location);
+        var targetFolder = Path.Combine(assemblyFolder, "runtimes");
+        ReparsePointFactory.Provider.CreateLink(runtimeFolder, targetFolder, LinkType.Junction);
+      }
+
+      var dbPath = ServiceRegistration.Get<MediaPortal.Common.PathManager.IPathManager>().GetPath("<DATABASE>\\" + TVDB_NAME + ".s3db");
+      ConnectionStringSettings connectionString = new ConnectionStringSettings("TvEngineDb", "Data Source=" + dbPath, "SQLite");
+      _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0], connectionString);
       _tvServiceThread.Start();
       if (!_tvServiceThread.InitializedEvent.WaitOne(MAX_WAIT_MS))
       {
@@ -124,20 +133,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
         DeInit();
       }
     }
-
-    /// <summary>
-    /// Creates a new <see cref="DbConnection"/> on each request. This is used by the Tve35 EF model handling.
-    /// </summary>
-    /// <returns>Connection, still closed</returns>
-    private DbConnection ClonedConnectionFactory()
-    {
-      DbConnection connection = _dbProviderFactory.CreateConnection();
-      if (connection == null)
-        return null;
-      connection.ConnectionString = _cloneConnection;
-      return connection;
-    }
-
 
     public override bool DeInit()
     {
@@ -421,7 +416,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
         Schedule tvSchedule = scheduleService.GetSchedule(schedule.ScheduleId);
 
-        tvSchedule.IdChannel = channel.ChannelId;
+        tvSchedule.ChannelId = channel.ChannelId;
         if (title != null)
         {
           tvSchedule.ProgramName = title;
@@ -484,7 +479,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         {
           case (int)ScheduleRecordingType.Once:
             StopRecording(schedule);
-            scheduleService.DeleteSchedule(schedule.IdSchedule);
+            scheduleService.DeleteSchedule(schedule.ScheduleId);
             break;
           default:
             // If only single program should be canceled
@@ -520,10 +515,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
       var tvProgram = programService.GetProgram(program.ProgramId);
       try
       {
-        ServiceRegistration.Get<ILogger>().Debug("Uncancelling schedule for programId {0}", tvProgram.IdProgram);
-        foreach (Schedule schedule in scheduleService.ListAllSchedules().Where(schedule => schedule.StartTime == program.StartTime && schedule.IdChannel == tvProgram.IdChannel))
+        ServiceRegistration.Get<ILogger>().Debug("Uncancelling schedule for programId {0}", tvProgram.ProgramId);
+        foreach (Schedule schedule in scheduleService.ListAllSchedules().Where(schedule => schedule.StartTime == program.StartTime && schedule.ChannelId == tvProgram.ChannelId))
         {
-          scheduleService.UnCancelSerie(schedule, program.StartTime, tvProgram.IdChannel);
+          scheduleService.UnCancelSerie(schedule, program.StartTime, tvProgram.ChannelId);
         }
 
         return Task.FromResult(true);
@@ -539,7 +534,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Instance.Get<ICanceledScheduleService>();
 
-      CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.IdSchedule, canceledProgram.IdChannel, canceledProgram.StartTime);
+      CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.ScheduleId, canceledProgram.ChannelId, canceledProgram.StartTime);
       canceledScheduleService.SaveCanceledSchedule(canceledSchedule);
       StopRecording(schedule);
     }
@@ -560,7 +555,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return;
 
       parentSchedule = schedule;
-      Schedule spawn = ServiceAgents.Instance.ScheduleServiceAgent.RetrieveSpawnedSchedule(parentSchedule.IdSchedule, parentSchedule.StartTime);
+      Schedule spawn = ServiceAgents.Instance.ScheduleServiceAgent.RetrieveSpawnedSchedule(parentSchedule.ScheduleId, parentSchedule.StartTime);
       if (spawn != null)
         schedule = spawn;
     }
@@ -568,10 +563,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
     private static bool StopRecording(Schedule schedule)
     {
       bool stoppedRec = false;
-      bool isRec = ServiceAgents.Instance.ScheduleServiceAgent.IsScheduleRecording(schedule.IdSchedule);
+      bool isRec = ServiceAgents.Instance.ScheduleServiceAgent.IsScheduleRecording(schedule.ScheduleId);
       if (isRec)
       {
-        ServiceAgents.Instance.ControllerServiceAgent.StopRecordingSchedule(schedule.IdSchedule);
+        ServiceAgents.Instance.ControllerServiceAgent.StopRecordingSchedule(schedule.ScheduleId);
         stoppedRec = true;
       }
       return stoppedRec;
@@ -586,12 +581,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
         try
         {
           if (currentSchedule != null)
-            wasDeleted |= DeleteSchedule(currentSchedule.IdSchedule);
+            wasDeleted |= DeleteSchedule(currentSchedule.ScheduleId);
         }
         catch (Exception ex)
         {
           ServiceRegistration.Get<ILogger>().Error("Error deleting schedule with ID '{0}'", ex,
-            currentSchedule != null ? currentSchedule.IdSchedule.ToString() : "<null>");
+            currentSchedule != null ? currentSchedule.ScheduleId.ToString() : "<null>");
         }
       }
       return wasDeleted;
@@ -603,7 +598,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (schedule == null)
         return false;
 
-      ServiceAgents.Instance.ScheduleServiceAgent.DeleteSchedule(schedule.IdSchedule);
+      ServiceAgents.Instance.ScheduleServiceAgent.DeleteSchedule(schedule.ScheduleId);
       return true;
     }
 
@@ -682,13 +677,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
         Name = card.Value.CardName,
         CardId = card.Value.Card.TunerId,
         EpgIsGrabbing = card.Value.Epg.IsGrabbing,
-        HasCam = card.Value.DataBaseCard.UseConditionalAccess, 
-        CamType = card.Value.Card.CamType == CamType.Default ? SlimTvCamType.Default : SlimTvCamType.Astoncrypt2, 
-        DecryptLimit = card.Value.DataBaseCard.DecryptLimit, Enabled = card.Value.DataBaseCard.Enabled, 
-        RecordingFolder = card.Value.DataBaseCard.RecordingFolder, 
-        TimeshiftFolder = card.Value.DataBaseCard.TimeshiftingFolder, 
-        DevicePath = card.Value.DataBaseCard.DevicePath, 
-        PreloadCard = card.Value.DataBaseCard.PreloadCard, 
+        HasCam = card.Value.DataBaseCard.UseConditionalAccess,
+        CamType = card.Value.Card.CamType == CamType.Default ? SlimTvCamType.Default : SlimTvCamType.Astoncrypt2,
+        DecryptLimit = card.Value.DataBaseCard.DecryptLimit,
+        Enabled = card.Value.DataBaseCard.Enabled,
+        RecordingFolder = card.Value.DataBaseCard.RecordingFolder,
+        TimeshiftFolder = card.Value.DataBaseCard.TimeshiftingFolder,
+        DevicePath = card.Value.DataBaseCard.DevicePath,
+        PreloadCard = card.Value.DataBaseCard.PreloadCard,
         Priority = card.Value.DataBaseCard.Priority
       }).Cast<ICard>().ToList();
 
@@ -700,10 +696,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
       List<SlimTvIVirtualCard> cards = new List<SlimTvIVirtualCard>();
       foreach (var card in ServiceAgents.Instance.CardServiceAgent.ListAllCards())
       {
-        IDictionary<string, IUser> usersForCard = ServiceAgents.Instance.ControllerServiceAgent.GetUsersForCard(card.IdCard);
-        
+        IDictionary<string, IUser> usersForCard = ServiceAgents.Instance.ControllerServiceAgent.GetUsersForCard(card.CardId);
+
         foreach (IUser user1 in usersForCard.Values)
-        {          
+        {
           foreach (var subchannel in user1.SubChannels.Values)
           {
             var vcard = new VirtualCard(user1);
@@ -752,14 +748,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
                   FailedCardId = vcard.User.FailedCardId,
                   HeartBeat = DateTime.Now, // TVE 3.5 doesn't have a heart beat
                   History = vcard.User.History,
-                  IdChannel = subchannel.IdChannel,
+                  IdChannel = subchannel.ChannelId,
                   //IsAdmin = vcard.User.IsAdmin,
                   SubChannel = subchannel.Id,
                   TvStoppedReason = (SlimTvStoppedReason)Enum.Parse(typeof(SlimTvStoppedReason), vcard.User.TvStoppedReason.ToString()),
                 } : null
               });
             }
-          }          
+          }
         }
       }
 
