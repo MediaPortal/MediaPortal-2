@@ -905,24 +905,31 @@
               <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
                 <Label.IsVisible>
-                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
+                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers"/>
                 </Label.IsVisible>
               </Label>
-              <Image x:Name="ChannelLogo" Grid.Column="1" Stretch="Uniform" Margin="5,-1,0,-1" Width="{ThemeResource ChannelLogoWidth}" HorizontalAlignment="Center"
+              <Image x:Name="ChannelLogoImage" Grid.Column="1" Stretch="Uniform" Margin="5,-1,0,-1" Width="{ThemeResource ChannelLogoWidth}" HorizontalAlignment="Center"
                      Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
                 <Image.Source>
                   <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
                                             fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0" />
                 </Image.Source>
                 <Image.IsVisible>
-                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
+                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
                 </Image.IsVisible>
               </Image>
-
+              <!--Label Grid.Column="1" x:Name="NameLabelFallBack" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding ElementName=ChannelLogoImage, Path=!HasImage}">
+                <Label.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
+                  </DataTrigger>
+                </Label.Triggers>
+              </-->
               <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
                 <Label.IsVisible>
-                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
+                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames"/>
                 </Label.IsVisible>
                 <Label.Triggers>
                   <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
