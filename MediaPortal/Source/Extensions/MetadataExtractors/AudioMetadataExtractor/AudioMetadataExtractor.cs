@@ -206,9 +206,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       LoadSettings();
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       _messageQueue.Shutdown();
+      _settingWatcher.Dispose();
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)

@@ -22,6 +22,7 @@
 
 #endregion
 
+using System.Collections.Generic;
 using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.Settings
@@ -32,6 +33,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
   public class ScriptableMetadataExtractorSettings
   {
     private string _userAgent = null;
+    private List<string> _customSettings = new List<string>();
 
     public ScriptableMetadataExtractorSettings()
     {
@@ -47,6 +49,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     {
       get { return _userAgent; }
       set { _userAgent = value; }
+    }
+
+    /// <summary>
+    /// Custom settings to use during scraping. Key/value pairs defined like: Key=Value
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public List<string> CustomSettings
+    {
+      get { return _customSettings; }
+      set { _customSettings = value; }
     }
 
     #endregion

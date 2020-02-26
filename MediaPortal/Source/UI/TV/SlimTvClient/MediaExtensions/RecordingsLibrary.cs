@@ -57,6 +57,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       _mediaNavigationRootState = SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE;
       _viewName = SlimTvConsts.RES_RECORDINGS_VIEW_NAME;
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
+      _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
     }
 
     protected override async Task PrepareAsync()

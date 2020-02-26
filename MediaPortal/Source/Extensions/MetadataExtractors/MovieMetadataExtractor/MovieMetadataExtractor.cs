@@ -121,9 +121,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       LoadSettings();
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       _messageQueue.Shutdown();
+      _settingWatcher.Dispose();
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)

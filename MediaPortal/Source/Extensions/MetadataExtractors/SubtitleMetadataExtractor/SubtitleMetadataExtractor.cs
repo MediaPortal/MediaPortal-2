@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for subtitle files. Supports several formats.
   /// </summary>
-  public class SubtitleMetadataExtractor : IMetadataExtractor
+  public class SubtitleMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -109,6 +109,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
 
       _settingWatcher = new SettingsChangeWatcher<SubtitleMetadataExtractorSettings>();
       _settingWatcher.SettingsChanged += SettingsChanged;
+    }
+
+    public void Dispose()
+    {
+      _settingWatcher.Dispose();
     }
 
     #endregion

@@ -259,6 +259,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public async Task<bool> SearchMovieUniqueAndUpdateAsync(MovieInfo movieSearch, TLang language)
     {
       language = language != null ? language : PreferredLanguage;
+
       List<MovieInfo> movies = await SearchMovieAsync(movieSearch, language).ConfigureAwait(false);
       if (movies == null)
         return false;
@@ -397,6 +398,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<bool> IsCacheChangedForOnlineMovieCollectionAsync(MovieCollectionInfo collection, TLang language)
     {
       return Task.FromResult(false);
+    }
+
+    public virtual bool HasSearchableIds(MovieInfo movie)
+    {
+      return false;
     }
 
     #endregion
@@ -784,6 +790,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult(false);
     }
 
+    public virtual bool HasSearchableIds(EpisodeInfo episode)
+    {
+      return false;
+    }
+
+    public virtual bool HasSearchableIds(SeriesInfo series)
+    {
+      return false;
+    }
+
     protected virtual void SetMultiEpisodeDetails(EpisodeInfo episodeInfo, List<EpisodeInfo> episodeMatches)
     {
       EpisodeInfo firstEpisodeMatch = episodeMatches.First();
@@ -1022,6 +1038,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult(false);
     }
 
+    public virtual bool HasSearchableIds(PersonInfo person)
+    {
+      return false;
+    }
+
     #endregion
 
     #region Characters
@@ -1154,6 +1175,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<bool> IsCacheChangedForOnlineSeriesEpisodeCharacterAsync(EpisodeInfo episodeInfo, CharacterInfo character, TLang language)
     {
       return Task.FromResult(false);
+    }
+
+    public virtual bool HasSearchableIds(CharacterInfo character)
+    {
+      return false;
     }
 
     #endregion
@@ -1289,6 +1315,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<bool> IsCacheChangedForOnlineMusicTrackAlbumCompanyAsync(AlbumInfo albumInfo, CompanyInfo company, TLang language)
     {
       return Task.FromResult(false);
+    }
+
+    public virtual bool HasSearchableIds(CompanyInfo company)
+    {
+      return false;
     }
 
     #endregion
@@ -1736,6 +1767,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<bool> IsCacheChangedForOnlineMusicTrackAlbumAsync(AlbumInfo album, TLang language)
     {
       return Task.FromResult(false);
+    }
+
+    public virtual bool HasSearchableIds(TrackInfo track)
+    {
+      return false;
+    }
+
+    public virtual bool HasSearchableIds(AlbumInfo album)
+    {
+      return false;
     }
 
     private bool CompareArtists(List<PersonInfo> trackArtists, List<PersonInfo> searchArtists, bool strict)

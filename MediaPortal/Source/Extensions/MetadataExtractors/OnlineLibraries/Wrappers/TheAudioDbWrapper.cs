@@ -286,6 +286,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(PersonInfo person)
+    {
+      if (person.AudioDbId > 0 || !string.IsNullOrWhiteSpace(person.MusicBrainzId))
+        return true;
+
+      return base.HasSearchableIds(person);
+    }
+
     public override Task<bool> UpdateFromOnlineMusicTrackPersonAsync(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
     {
       return UpdateFromOnlineMusicTrackAlbumPersonAsync(trackInfo.CloneBasicInstance<AlbumInfo>(), person, language, cacheOnly);
@@ -373,6 +381,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing track {0}", ex, track.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(TrackInfo track)
+    {
+      if (track.AudioDbId > 0 || track.AlbumAudioDbId > 0 || !string.IsNullOrWhiteSpace(track.AlbumMusicBrainzGroupId))
+        return true;
+
+      return base.HasSearchableIds(track);
     }
 
     public override async Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, string language, bool cacheOnly)
@@ -473,6 +489,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(AlbumInfo album)
+    {
+      if (album.AudioDbId > 0 || !string.IsNullOrWhiteSpace(album.MusicBrainzGroupId))
+        return true;
+
+      return base.HasSearchableIds(album);
+    }
+
     public override async Task<bool> UpdateFromOnlineMusicTrackAlbumCompanyAsync(AlbumInfo album, CompanyInfo company, string language, bool cacheOnly)
     {
       try
@@ -510,6 +534,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing company {0}", ex, company.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(CompanyInfo company)
+    {
+      if (company.AudioDbId > 0)
+        return true;
+
+      return base.HasSearchableIds(company);
     }
 
     #endregion

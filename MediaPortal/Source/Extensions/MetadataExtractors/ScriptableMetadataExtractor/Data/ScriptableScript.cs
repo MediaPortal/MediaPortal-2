@@ -69,7 +69,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     };
 
     private string _category = null;
-    private string _defaultUserAgent = null;
 
     #region Properties
 
@@ -110,11 +109,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     #endregion
 
     #region Public Methods
-
-    public ScriptableScript(string defaultUserAgent)
-    {
-      _defaultUserAgent = defaultUserAgent;
-    }
 
     public bool Load(string script)
     {
@@ -350,11 +344,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       if (file != null) paramList["search.filename"] = file; //The filename of the movie
 
       //set higher level settings for script to use
-      if (_defaultUserAgent != null)
-        paramList["settings.defaultuseragent"] = _defaultUserAgent;
       paramList["settings.mepo_data"] = ServiceRegistration.Get<IPathManager>().GetPath(@"<CONFIG>\ScriptableScraperProvider\");
       if (!Directory.Exists(paramList["settings.mepo_data"]))
         Directory.CreateDirectory(paramList["settings.mepo_data"]);
+      BaseScriptableMovieMetadataExtractor.AddOrUpdateParamsFromCustomSettings(paramList);
 
       // this variable is the filename without extension (and a second one without stackmarkers)
       if (!String.IsNullOrEmpty(file))
@@ -448,11 +441,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
 
       //set higher level settings for script to use
-      if (_defaultUserAgent != null)
-        paramList["settings.defaultuseragent"] = _defaultUserAgent;
       paramList["settings.mepo_data"] = ServiceRegistration.Get<IPathManager>().GetPath(@"<CONFIG>\ScriptableScraperProvider\");
       if (!Directory.Exists(paramList["settings.mepo_data"]))
         Directory.CreateDirectory(paramList["settings.mepo_data"]);
+      BaseScriptableMovieMetadataExtractor.AddOrUpdateParamsFromCustomSettings(paramList);
 
       // try to retrieve results
       results = Scraper.Execute("get_details", paramList);
@@ -518,11 +510,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
 
       //set higher level settings for script to use
-      if (_defaultUserAgent != null)
-        paramList["settings.defaultuseragent"] = _defaultUserAgent;
       paramList["settings.mepo_data"] = ServiceRegistration.Get<IPathManager>().GetPath(@"<CONFIG>\ScriptableScraperProvider\");
       if (!Directory.Exists(paramList["settings.mepo_data"]))
         Directory.CreateDirectory(paramList["settings.mepo_data"]);
+      BaseScriptableMovieMetadataExtractor.AddOrUpdateParamsFromCustomSettings(paramList);
 
       // run the scraper
       results = Scraper.Execute("get_cover_art", paramList);
@@ -592,11 +583,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
       }
 
       //set higher level settings for script to use
-      if (_defaultUserAgent != null)
-        paramList["settings.defaultuseragent"] = _defaultUserAgent;
       paramList["settings.mepo_data"] = ServiceRegistration.Get<IPathManager>().GetPath(@"<CONFIG>\ScriptableScraperProvider\");
       if (!Directory.Exists(paramList["settings.mepo_data"]))
         Directory.CreateDirectory(paramList["settings.mepo_data"]);
+      BaseScriptableMovieMetadataExtractor.AddOrUpdateParamsFromCustomSettings(paramList);
 
       // run the scraper
       results = Scraper.Execute("get_backdrop", paramList);
