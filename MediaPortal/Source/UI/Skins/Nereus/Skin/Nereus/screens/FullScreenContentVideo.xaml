@@ -47,7 +47,7 @@
           </MultiBinding>
         </Image.Source>
       </Image>
-      <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="DefaultBold" Opacity="0.7" Margin="0,0,0,5"
+      <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="SegoeUIBold" Opacity="0.7" Margin="0,0,0,5"
              Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 
