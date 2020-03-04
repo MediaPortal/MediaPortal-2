@@ -57,7 +57,7 @@ namespace MediaPortal.Common.Reflection
 
     private static Assembly CurrentDomain_ResolveAssembly(object sender, ResolveEventArgs e)
     {
-      var name = e.Name.Substring(0, e.Name.IndexOf(','));
+      var name = e.Name.Contains(",") ? e.Name.Substring(0, e.Name.IndexOf(',')) : e.Name;
       if (_loadedAssemblies.TryGetValue(name, out Assembly assembly))
         return assembly;
 

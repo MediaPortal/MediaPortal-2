@@ -32,14 +32,14 @@
       <SetupTvIntegration Include="$(TargetDir)SlimTv.Integration.MP2.dll" />
     </ItemGroup>
 
-    <!--<ItemGroup>
+    <ItemGroup>
       <References Include="$(TvEngine35References)\**\*.*" />
-      <References Include="$(TvEngine35SetupReferences)\**\*.*" />
-    </ItemGroup>-->
+      <!--<References Include="$(TvEngine35SetupReferences)\**\*.*" />-->
+    </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(ReferencesTarget)" DestinationFolder="$(PluginDestination)" />
-    <!--<Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />-->
+    <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)Integration\%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)SetupTv\Integration\%(Filename)%(Extension)')" />
   </Target>

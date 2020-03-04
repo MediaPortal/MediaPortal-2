@@ -140,61 +140,16 @@
     <WCFMetadata Include="Connected Services\" />
   </ItemGroup>
   <ItemGroup>
-    <Reference Include="Common.Utils, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Common.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVControl, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Mediaportal.TV.Server.TVControl.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVDatabase.Entities, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Mediaportal.TV.Server.TVDatabase.Entities.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVDatabase.EntityModel, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Mediaportal.TV.Server.TVDatabase.EntityModel.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVDatabase.TVBusinessLayer, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Mediaportal.TV.Server.TVDatabase.TVBusinessLayer.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVLibrary, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Mediaportal.TV.Server.TVLibrary.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVLibrary.Interfaces, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Mediaportal.TV.Server.TVLibrary.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVLibrary.Services, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Mediaportal.TV.Server.TVLibrary.Services.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TvLibrary.Utils, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Mediaportal.TV.Server.TvLibrary.Utils.dll</HintPath>
-    </Reference>
-    <Reference Include="Mediaportal.TV.Server.TVService.Interfaces, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Mediaportal.TV.Server.TVService.Interfaces.dll</HintPath>
-    </Reference>
-    <Reference Include="Microsoft.Extensions.Options, Version=3.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\Microsoft.Extensions.Options.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.IO.Compression" />
     <Reference Include="System.IO.Compression.FileSystem" />
-    <Reference Include="TVService, Version=1.7.1.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\..\TVE35\MediaPortal-1\TvEngine3\Mediaportal\TV\Server\TvService\bin\Debug\TVService.exe</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="MediaPortal.TvEngine.Core" GeneratePathProperty="true">
+      <Version>1.1.1.4</Version>
+    </PackageReference>
     <PackageReference Include="NCode.ReparsePoints">
       <Version>1.0.2</Version>
     </PackageReference>

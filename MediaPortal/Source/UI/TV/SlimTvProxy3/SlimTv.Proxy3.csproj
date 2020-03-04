@@ -162,7 +162,7 @@
       <Version>3.0.23.100</Version>
     </PackageReference>
     <PackageReference Include="MediaPortal.TvEngine.Interfaces">
-      <Version>1.0.4</Version>
+      <Version>1.0.5</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
