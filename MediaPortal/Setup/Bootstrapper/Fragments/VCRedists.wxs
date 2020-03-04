@@ -57,9 +57,7 @@
       </ExePackage>
     </PackageGroup>
   </Fragment>
-
-  <Variable Name="VCRedist2015_2019" Type="version" Value="14.22.27821" />
-
+  
   <Fragment>
     <util:ProductSearch Id="VCRedist2015_2019x86"
                         Result="version"
@@ -77,7 +75,7 @@
                     DownloadUrl="http://install.team-mediaportal.com/MP2/install/vc_redist_2019_x86.exe"
                     InstallCommand="/passive /norestart"
                     InstallCondition="VersionNT"
-                    DetectCondition="VCRedist2015_2019x86 >= VCRedist2015_2019"
+                    DetectCondition="VCRedist2015_2019x86 >= v14.22.27821"
                     Protocol="burn">
         <RemotePayload CertificatePublicKey="6608A9DBA86701156A4C17CE63BA99BE8B932F8D" 
                        CertificateThumbprint="62009AAABDAE749FD47D19150958329BF6FF4B34" 
@@ -107,7 +105,7 @@
                     DownloadUrl="http://install.team-mediaportal.com/MP2/install/vc_redist_2019_x64.exe"
                     InstallCommand="/passive /norestart"
                     InstallCondition="VersionNT64"
-                    DetectCondition="VCRedist2015_2019x64 >= VCRedist2015_2019"
+                    DetectCondition="VCRedist2015_2019x64 >= v14.22.27821"
                     Protocol="burn">
         <RemotePayload 
 		                CertificatePublicKey="6608A9DBA86701156A4C17CE63BA99BE8B932F8D" 
