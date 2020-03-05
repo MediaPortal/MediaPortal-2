@@ -103,6 +103,7 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="SetupTV.ico" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

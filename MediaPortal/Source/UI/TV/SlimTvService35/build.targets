@@ -37,11 +37,16 @@
       <!--<References Include="$(TvEngine35SetupReferences)\**\*.*" />-->
     </ItemGroup>
 
+    <ItemGroup>
+      <SetupIcon Include="$(ProjectDir)*.ico" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(ReferencesTarget)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)Integration\%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)SetupTv\Integration\%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(SetupIcon)" DestinationFolder="$(PluginDestination)SetupTv" />
   </Target>
 
 </Project>
