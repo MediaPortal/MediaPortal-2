@@ -81,12 +81,6 @@
     <Compile Include="..\SlimTvService\AbstractSlimTvService.cs">
       <Link>AbstractSlimTvService.cs</Link>
     </Compile>
-    <Compile Include="..\SlimTvService\Helpers\ConnectionHelper.cs">
-      <Link>Helpers\ConnectionHelper.cs</Link>
-    </Compile>
-    <Compile Include="..\SlimTvService\Helpers\EntityFrameworkHelper.cs">
-      <Link>Helpers\EntityFrameworkHelper.cs</Link>
-    </Compile>
     <Compile Include="..\SlimTvService\SlimTvServicePlugin.cs">
       <Link>SlimTvServicePlugin.cs</Link>
     </Compile>
@@ -149,7 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Core" GeneratePathProperty="true">
-      <Version>1.1.1.4</Version>
+      <Version>1.1.1.5</Version>
     </PackageReference>
     <PackageReference Include="NCode.ReparsePoints">
       <Version>1.0.2</Version>
