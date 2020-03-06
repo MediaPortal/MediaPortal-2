@@ -62,14 +62,14 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       return shares;
     }
 
-    public override void Initialise()
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
       Logger.Debug("MediaServer initialise share containers");
 
+      base.Initialise(sortCriteria, offset, count);
       IDictionary<Guid, Share> shares = GetShares();
 
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-
       BasicContainer parent = new BasicContainer(Id, Client);
       var items = (from share in shares
                    select new
@@ -80,7 +80,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
                                              OPTIONAL_SHARE_MIA_TYPE_IDS),
                      ShareName = share.Value.Name
                    }).ToList();
-      foreach (var item in items)
+      foreach (var item in items.OrderBy(s => s.ShareName))
       {
         try
         {
@@ -92,6 +92,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
           Logger.Error("Media item '{0}' could not be added", ex, item.Item);
         }
       }
+    }
+
+    public override void InitialiseContainers()
+    {
+      base.InitialiseContainers();
+      Initialise(null);
     }
   }
 }

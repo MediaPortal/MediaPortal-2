@@ -24,13 +24,15 @@
 
 using System;
 using System.Globalization;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseDurationLine
   {
-    internal static void ParseDurationLine(string durationLine, ref MetadataContainer info)
+    internal static void ParseDurationLine(IResourceAccessor file, string durationLine, ref MetadataContainer info)
     {
       durationLine = durationLine.Trim();
       string[] tokens = durationLine.Split(',');
@@ -69,7 +71,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
             timeSpan += TimeSpan.FromSeconds(Convert.ToDouble(seconds));
             timeSpan += TimeSpan.FromMinutes(Convert.ToDouble(minutes));
             timeSpan += TimeSpan.FromHours(Convert.ToDouble(hours));
-            info.Metadata.Duration = timeSpan.TotalSeconds;
+            info.Metadata[Editions.DEFAULT_EDITION].Duration = timeSpan.TotalSeconds;
           }
         }
         else if (token.StartsWith("bitrate: ", StringComparison.InvariantCultureIgnoreCase))
@@ -85,7 +87,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
             {
               bitrate = 1024 * bitrate;
             }
-            info.Metadata.Bitrate = bitrate;
+            info.Metadata[Editions.DEFAULT_EDITION].Bitrate = bitrate;
           }
         }
       }

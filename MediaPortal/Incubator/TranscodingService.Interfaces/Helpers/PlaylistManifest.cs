@@ -132,7 +132,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
           writer.WriteLine("#EXT-X-TARGETDURATION:" + converter.HLSSegmentTimeInSeconds);
           writer.WriteLine("#EXT-X-MEDIA-SEQUENCE:0");
 
-          double remainingDuration = video.SourceMediaTotalDuration.TotalSeconds;
+          double remainingDuration = video.SourceMediaDuration.TotalSeconds;
           remainingDuration -= (Convert.ToDouble(startSegment) * Convert.ToDouble(converter.HLSSegmentTimeInSeconds));
           while (remainingDuration > 0)
           {
@@ -170,7 +170,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
           writer.WriteLine("#EXT-X-MEDIA-SEQUENCE:0");
           writer.WriteLine();
 
-          double remainingDuration = video.SourceMediaTotalDuration.TotalSeconds;
+          double remainingDuration = video.SourceMediaDuration.TotalSeconds;
           remainingDuration -= (Convert.ToDouble(startSegment) * Convert.ToDouble(converter.HLSSegmentTimeInSeconds));
           while (remainingDuration > 0)
           {

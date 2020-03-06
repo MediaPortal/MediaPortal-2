@@ -357,6 +357,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(SeriesInfo series)
+    {
+      if (series.TvdbId > 0 || !string.IsNullOrWhiteSpace(series.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(series);
+    }
+
     public override async Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, TvdbLanguage language, bool cacheOnly)
     {
       try
@@ -462,8 +470,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             info.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0, episodeDetail.EpisodeName, seriesDetail.SeriesName);
             info.Languages.Add(episodeDetail.Language.Abbriviation);
 
-            if (isFirstEpisode && !episode.HasThumbnail && episodeDetail.Banner != null)
-              info.Thumbnail = await episodeDetail.Banner.LoadImageDataAsync().ConfigureAwait(false);
+            //Should be handled by the fanart collector instead
+            //if (isFirstEpisode && !episode.HasThumbnail && episodeDetail.Banner != null)
+            //  info.Thumbnail = await episodeDetail.Banner.LoadImageDataAsync().ConfigureAwait(false);
             
             episodeDetails.Add(info);
             isFirstEpisode = false;
@@ -489,6 +498,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Exception while processing episode {0}", ex, episode.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(EpisodeInfo episode)
+    {
+      if (episode.SeriesTvdbId > 0 || !string.IsNullOrWhiteSpace(episode.SeriesImdbId))
+        return true;
+
+      return base.HasSearchableIds(episode);
     }
 
     public override async Task<bool> UpdateFromOnlineSeriesCharacterAsync(SeriesInfo seriesInfo, CharacterInfo character, TvdbLanguage language, bool cacheOnly)

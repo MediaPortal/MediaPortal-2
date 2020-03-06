@@ -124,8 +124,82 @@ namespace Tests.Server.MediaServer
       MediaItem album = new MediaItem(albumId, aspects);
 
       MediaLibraryAlbumItem item = new TestMediaLibraryAlbumItem(album, settings);
-      item.Initialise();
+      item.Initialise("");
       objects.Add(item);
+
+      GenericDidlMessageBuilder builder = new GenericDidlMessageBuilder();
+      builder.BuildAll("*", objects);
+
+      string xml = builder.ToString();
+      Console.WriteLine("XML: {0}", xml);
+    }
+
+    [Test]
+    public void TestVideoItem()
+    {
+      IList<IDirectoryObject> objects = new List<IDirectoryObject>();
+
+      BasicContainer root = new BasicContainer("TEST", new EndPointSettings
+      {
+        PreferredSubtitleLanguages = new string[] { "EN" },
+        PreferredAudioLanguages = new string[] { "EN" },
+        Profile = new EndPointProfile()
+      });
+
+      Guid id = new Guid("11111111-aaaa-aaaa-aaaa-111111111111");
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      SingleMediaItemAspect aspect1 = new SingleMediaItemAspect(MediaAspect.Metadata);
+      aspect1.SetAttribute(MediaAspect.ATTR_TITLE, "The Video");
+      MediaItemAspect.SetAspect(aspects, aspect1);
+
+      MultipleMediaItemAspect aspect2 = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
+      aspect2.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.mp4");
+      MediaItemAspect.AddOrUpdateAspect(aspects, aspect2);
+
+      SingleMediaItemAspect aspect3 = new SingleMediaItemAspect(VideoAspect.Metadata);
+      MediaItemAspect.SetAspect(aspects, aspect3);
+
+      MediaItem item = new MediaItem(id, aspects);
+
+      objects.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item, root, "Test"));
+
+      GenericDidlMessageBuilder builder = new GenericDidlMessageBuilder();
+      builder.BuildAll("*", objects);
+
+      string xml = builder.ToString();
+      Console.WriteLine("XML: {0}", xml);
+    }
+
+    [Test]
+    public void TestImageItem()
+    {
+      IList<IDirectoryObject> objects = new List<IDirectoryObject>();
+
+      BasicContainer root = new BasicContainer("TEST", new EndPointSettings
+      {
+        PreferredSubtitleLanguages = new string[] { "EN" },
+        PreferredAudioLanguages = new string[] { "EN" },
+        Profile = new EndPointProfile()
+      });
+
+      Guid id = new Guid("11111111-aaaa-aaaa-aaaa-111111111111");
+      IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      SingleMediaItemAspect aspect1 = new SingleMediaItemAspect(MediaAspect.Metadata);
+      aspect1.SetAttribute(MediaAspect.ATTR_TITLE, "The Image");
+      MediaItemAspect.SetAspect(aspects, aspect1);
+
+      MultipleMediaItemAspect aspect2 = new MultipleMediaItemAspect(ProviderResourceAspect.Metadata);
+      aspect2.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, "c:\\file.jpg");
+      MediaItemAspect.AddOrUpdateAspect(aspects, aspect2);
+
+      SingleMediaItemAspect aspect3 = new SingleMediaItemAspect(ImageAspect.Metadata);
+      MediaItemAspect.SetAspect(aspects, aspect3);
+
+      MediaItem item = new MediaItem(id, aspects);
+
+      objects.Add(MediaLibraryHelper.InstansiateMediaLibraryObject(item, root, "Test"));
 
       GenericDidlMessageBuilder builder = new GenericDidlMessageBuilder();
       builder.BuildAll("*", objects);

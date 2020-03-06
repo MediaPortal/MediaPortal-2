@@ -155,37 +155,25 @@ namespace MediaPortal.Extensions.MediaServer.DIDL
                 break;
               }
             }
-            DateTime? createDate = null;
-            if (!MediaItemAspect.TryGetAttribute(res.Item.Aspects, ImporterAspect.ATTR_DATEADDED, out createDate) && res.Item.Aspects.ContainsKey(ProviderResourceAspect.ASPECT_ID))
-            {
-              ILocalFsResourceAccessor lfsra = null;
-              res.Item.GetResourceLocator().TryCreateLocalFsAccessor(out lfsra);
-              if (lfsra != null)
-              {
-                if (File.Exists(lfsra.LocalFileSystemPath) == true)
-                {
-                  createDate = File.GetCreationTime(lfsra.LocalFileSystemPath);
-                }
-              }
-            }
+
+            var dlnaItem = res.Client.GetDlnaItem(res.MediaItemId);
             long creationDateSecs = 0;
-            if (createDate != null)
+            if (dlnaItem?.MediaItemAddedDate != null)
             {
-              creationDateSecs = Convert.ToInt64((createDate.Value - new DateTime(1970, 1, 1)).TotalSeconds);
+              creationDateSecs = Convert.ToInt64((dlnaItem.MediaItemAddedDate.Value - new DateTime(1970, 1, 1)).TotalSeconds);
             }
             string dcm = "CREATIONDATE=" + creationDateSecs;
-            List<int> values;
-            if(MediaItemAspect.TryGetAttribute(res.Item.Aspects, VideoStreamAspect.ATTR_WIDTH, out values))
+            if (dlnaItem?.MediaItemWidth != null)
             {
-              dcm += ",WIDTH=" + Convert.ToString(values[0]);
+              dcm += ",WIDTH=" + Convert.ToString(dlnaItem.MediaItemWidth.Value);
             }
-            if (MediaItemAspect.TryGetAttribute(res.Item.Aspects, VideoStreamAspect.ATTR_HEIGHT, out values))
+            if (dlnaItem?.MediaItemHeight != null)
             {
-              dcm += ",HEIGHT=" + Convert.ToString(values[0]);
+              dcm += ",HEIGHT=" + Convert.ToString(dlnaItem.MediaItemHeight.Value);
             }
-            if (MediaItemAspect.TryGetAttribute(res.Item.Aspects, MediaAspect.ATTR_RECORDINGTIME, out createDate))
+            if (dlnaItem?.MediaItemRecordingDate != null)
             {
-              dcm += ",YEAR=" + createDate.Value.Year;
+              dcm += ",YEAR=" + dlnaItem.MediaItemRecordingDate.Value.Year;
             }
 
             //TODO: Support resumed playback of videos?
@@ -205,84 +193,64 @@ namespace MediaPortal.Extensions.MediaServer.DIDL
           try
           {
             MediaLibraryImageItem res = (MediaLibraryImageItem)directoryPropertyObject;
-            if (MediaItemAspect.TryGetAspect(res.Item.Aspects, ImageAspect.Metadata, out SingleMediaItemAspect imageAspect))
+            var dlnaItem = res.Client.GetDlnaItem(res.MediaItemId);
+            if (dlnaItem?.MediaItemImageMake != null)
             {
-              object oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_MAKE);
-              if (oValue != null)
-              {
-                _xml.WriteStartElement("sec", "manufacturer", null);
-                _xml.WriteValue(Convert.ToString(oValue));
-                _xml.WriteEndElement();
-              }
-              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_MODEL);
-              if (oValue != null)
-              {
-                _xml.WriteStartElement("sec", "model", null);
-                _xml.WriteValue(Convert.ToString(oValue));
-                _xml.WriteEndElement();
-              }
-              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_FNUMBER);
-              if (oValue != null)
-              {
-                _xml.WriteStartElement("sec", "fvalue", null);
-                _xml.WriteValue(Convert.ToString(oValue));
-                _xml.WriteEndElement();
-              }
-              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_ISO_SPEED);
-              if (oValue != null)
-              {
-                _xml.WriteStartElement("sec", "iso", null);
-                _xml.WriteValue(Convert.ToString(oValue));
-                _xml.WriteEndElement();
-              }
-              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_EXPOSURE_TIME);
-              if (oValue != null)
-              {
-                _xml.WriteStartElement("sec", "exposureTime", null);
-                _xml.WriteValue(Convert.ToString(oValue));
-                _xml.WriteEndElement();
-              }
-
-              long lCreationDate = 0;
-              if (MediaItemAspect.TryGetAspect(res.Item.Aspects, ImporterAspect.Metadata, out SingleMediaItemAspect importerAspect))
-              {
-                oValue = importerAspect.GetAttributeValue(ImporterAspect.ATTR_DATEADDED);
-                if (oValue != null)
-                {
-                  lCreationDate = Convert.ToInt64((Convert.ToDateTime(oValue) - new DateTime(1970, 1, 1)).TotalSeconds);
-                }
-              }
-                
-              string dcm = "CREATIONDATE=" + lCreationDate;
-              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_WIDTH);
-              if (oValue != null)
-              {
-                dcm += ",WIDTH=" + Convert.ToString(oValue);
-              }
-              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_HEIGHT);
-              if (oValue != null)
-              {
-                dcm += ",HEIGHT=" + Convert.ToString(oValue);
-              }
-              oValue = imageAspect.GetAttributeValue(ImageAspect.ATTR_ORIENTATION);
-              if (oValue != null)
-              {
-                dcm += ",ORT=" + Convert.ToString(oValue);
-              }
-
-              if (MediaItemAspect.TryGetAspect(res.Item.Aspects, MediaAspect.Metadata, out SingleMediaItemAspect mediaAspect))
-              {
-                oValue = mediaAspect.GetAttributeValue(MediaAspect.ATTR_RECORDINGTIME);
-                if (oValue != null)
-                {
-                  dcm += ",YEAR=" + Convert.ToDateTime(oValue).Year;
-                }
-              }
-
-              _xml.WriteStartElement("sec", "dcmInfo", null);
-              _xml.WriteValue(dcm);
+              _xml.WriteStartElement("sec", "manufacturer", null);
+              _xml.WriteValue(dlnaItem.MediaItemImageMake);
               _xml.WriteEndElement();
             }
+            if (dlnaItem?.MediaItemImageModel != null)
+            {
+              _xml.WriteStartElement("sec", "model", null);
+              _xml.WriteValue(dlnaItem.MediaItemImageModel);
+              _xml.WriteEndElement();
+            }
+            if (dlnaItem?.MediaItemImageFNumber != null)
+            {
+              _xml.WriteStartElement("sec", "fvalue", null);
+              _xml.WriteValue(dlnaItem.MediaItemImageFNumber);
+              _xml.WriteEndElement();
+            }
+            if (dlnaItem?.MediaItemImageIsoSpeed != null)
+            {
+              _xml.WriteStartElement("sec", "iso", null);
+              _xml.WriteValue(dlnaItem.MediaItemImageIsoSpeed);
+              _xml.WriteEndElement();
+            }
+            if (dlnaItem?.MediaItemImageExposureTime != null)
+            {
+              _xml.WriteStartElement("sec", "exposureTime", null);
+              _xml.WriteValue(dlnaItem.MediaItemImageExposureTime);
+              _xml.WriteEndElement();
+            }
+
+            long creationDateSecs = 0;
+            if (dlnaItem?.MediaItemAddedDate != null)
+            {
+              creationDateSecs = Convert.ToInt64((dlnaItem.MediaItemAddedDate.Value - new DateTime(1970, 1, 1)).TotalSeconds);
+            }
+            string dcm = "CREATIONDATE=" + creationDateSecs;
+            if (dlnaItem?.MediaItemWidth != null)
+            {
+              dcm += ",WIDTH=" + Convert.ToString(dlnaItem.MediaItemWidth.Value);
+            }
+            if (dlnaItem?.MediaItemHeight != null)
+            {
+              dcm += ",HEIGHT=" + Convert.ToString(dlnaItem.MediaItemHeight.Value);
+            }
+            if (dlnaItem?.MediaItemImageOrientation != null)
+            {
+              dcm += ",ORT=" + Convert.ToString(dlnaItem.MediaItemImageOrientation.Value);
+            }
+            if (dlnaItem?.MediaItemRecordingDate != null)
+            {
+              dcm += ",YEAR=" + dlnaItem.MediaItemRecordingDate.Value.Year;
+            }
+            
+            _xml.WriteStartElement("sec", "dcmInfo", null);
+            _xml.WriteValue(dcm);
+            _xml.WriteEndElement();
           }
           catch (Exception ex)
           {

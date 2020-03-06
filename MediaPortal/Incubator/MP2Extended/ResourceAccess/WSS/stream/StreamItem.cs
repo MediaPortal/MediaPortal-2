@@ -24,6 +24,7 @@
 
 using System;
 using System.Threading;
+using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Common.MediaManagement;
@@ -36,10 +37,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     private const int DEFAULT_TIMEOUT = 5 * 60; // 5 minutes
 
     private int _idleTimeout;
-    private SemaphoreSlim _busyLock = new SemaphoreSlim(1);
+    private readonly SemaphoreSlim _busyLock = new SemaphoreSlim(1);
+    private readonly object _requestLock = new object();
     private DateTime _requestTime = DateTime.MinValue;
     private long _requestSegment = 0;
-    private object _requestLock = new object();
 
     /// <summary>
     /// Gets or sets the requested MediaItem
@@ -58,7 +59,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
 
     /// <summary>
     /// Gets or sets the Idle timeout in seconds.
-    /// If the tuimeout is set to -1 the default timeout is used
+    /// If the timeout is set to -1 the default timeout is used
     /// </summary>
     internal int IdleTimeout
     {
@@ -119,7 +120,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// <summary>
     /// Gets or sets the time when the stream was started
     /// </summary>
-    internal DateTime StartTime { get; set; }
+    internal DateTime StartTimeUtc { get; set; }
 
     /// <summary>
     /// Gets or sets the IP of the Client, which started the stream
@@ -129,26 +130,39 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// <summary>
     /// Gets or sets whether a stream is currently in progress
     /// </summary>
-    internal bool IsActive { get; set; }
+    internal bool IsActive
+    {
+      get
+      {
+        if (StreamContext is TranscodeContext context)
+          return context.InUse;
+        if (StreamContext != null)
+          return true;
+        return false;
+      }
+    }
 
     /// <summary>
     /// Gets or sets the transcoding context used by this stream
     /// </summary>
-    internal TranscodeContext StreamContext { get; set; }
+    internal StreamContext StreamContext { get; set; }
 
-    internal bool RequestSegment(long Segment)
+    internal async Task<bool> RequestSegmentAsync(long segment)
     {
       lock (_requestLock)
       {
         if (_requestTime < DateTime.Now)
         {
           _requestTime = DateTime.Now;
-          _requestSegment = Segment;
+          _requestSegment = segment;
         }
       }
+
       //Allow multiple requests to die out so only the last request is used
-      Thread.Sleep(2000);
-      if (Segment == _requestSegment) return true;
+      await Task.Delay(2000);
+      if (segment == _requestSegment)
+        return true;
+
       return false;
     }
 
@@ -157,7 +171,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// </summary>
     internal StreamItem()
     {
-      StartTime = DateTime.Now;
+      StartTimeUtc = DateTime.UtcNow;
     }
   }
 }

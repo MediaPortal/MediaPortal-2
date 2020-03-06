@@ -32,18 +32,14 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
   public class VideoTranscoding : BaseTranscoding
   {
     //Source info
-    public Dictionary<int, VideoStream> SourceVideoStreams = new Dictionary<int, VideoStream>();
-    public Dictionary<int, List<AudioStream>> SourceAudioStreams = new Dictionary<int, List<AudioStream>>();
-    public Dictionary<int, VideoContainer> SourceVideoContainers = new Dictionary<int, VideoContainer>();
+    public VideoStream SourceVideoStream = new VideoStream();
+    public List<AudioStream> SourceAudioStreams = new List<AudioStream>();
+    public VideoContainer SourceVideoContainer = new VideoContainer();
     public Dictionary<int, List<SubtitleStream>> SourceSubtitles = new Dictionary<int, List<SubtitleStream>>();
     public Dictionary<int, List<SubtitleStream>> PreferredSourceSubtitles = new Dictionary<int, List<SubtitleStream>>();
-
-    public VideoStream FirstSourceVideoStream => SourceVideoStreams.FirstOrDefault().Value;
-    public List<AudioStream> FirstSourceVideoAudioStreams => SourceAudioStreams.FirstOrDefault().Value;
-    public AudioStream FirstSourceAudioStream => SourceAudioStreams.FirstOrDefault().Value?.FirstOrDefault();
-    public VideoContainer FirstSourceVideoContainer => SourceVideoContainers.FirstOrDefault().Value;
-    public int FirstAudioStreamIndex => SourceAudioStreams.Any() ? SourceAudioStreams.First().Key : -1;
-    public SubtitleStream FirstPreferredSourceSubtitle => PreferredSourceSubtitles?.FirstOrDefault().Value.FirstOrDefault();
+    public AudioStream FirstSourceAudioStream => SourceAudioStreams.FirstOrDefault();
+    public int FirstAudioStreamIndex => SourceAudioStreams.Any() ? SourceAudioStreams.First().StreamIndex : -1;
+    public SubtitleStream FirstPreferredSourceSubtitle => PreferredSourceSubtitles?.FirstOrDefault().Value?.FirstOrDefault();
 
     //Target info
     public VideoContainer TargetVideoContainer = VideoContainer.Unknown;

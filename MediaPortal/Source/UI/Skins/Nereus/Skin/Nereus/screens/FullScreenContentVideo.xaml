@@ -12,6 +12,7 @@
   <Grid x:Name="FullscreenLayoutGrid" Context="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}">
     <Grid.Resources>
       <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
+      <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
     </Grid.Resources>
     <Grid.Background>
       <VideoBrush Stream="0"/>
@@ -46,8 +47,116 @@
           </MultiBinding>
         </Image.Source>
       </Image>
-      <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="DefaultBold" Opacity="0.7" Margin="0,0,0,5"
+      <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="SegoeUIBold" Opacity="0.7" Margin="0,0,0,5"
              Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
+    </Grid>
+
+    <!--Skip Button overlay-->
+    <Grid Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding ElementName=PrimaryOSD}"
+          IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="110"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="110"/>
+      </Grid.ColumnDefinitions>
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Grid x:Name="LeftArea" Grid.Column="0" VerticalAlignment="Stretch" Opacity="0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
+        <Grid.Resources>
+          <Storyboard x:Key="FocusedLeftAreaStoryboard" FillBehavior="HoldEnd">
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" 
+                                           Storyboard.TargetName="LeftArea" Storyboard.TargetProperty="Opacity">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+          <Storyboard x:Key="NonFocusedLeftAreaStoryboard" FillBehavior="HoldEnd">
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" 
+                                           Storyboard.TargetName="LeftArea" Storyboard.TargetProperty="Opacity">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+        
+        <Grid.Triggers>
+          <Trigger Property="IsMouseOver" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Left_SlideIn_BeginStoryboard" Storyboard="{ThemeResource FocusedLeftAreaStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Left_SlideIn_BeginStoryboard"/>
+              <BeginStoryboard x:Name="Left_SlideOut_BeginStoryboard" Storyboard="{ThemeResource NonFocusedLeftAreaStoryboard}"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+        
+        <Button x:Name="ScrollDoubleBackwardButton" Style="{StaticResource ScrollDoubleLeftButtonStyle}" Grid.Column="0" Grid.Row="1" Margin="10,0,0,0"
+                Command="{Command Source={StaticResource ExtendedVideoSkip},Path=InstantSkipBackward}" VerticalAlignment="Center"/>
+        <Button x:Name="ScrollBackwardButton" Style="{StaticResource SubMenuRightButtonStyle}" Grid.Column="1" Grid.Row="1"
+                Command="{Command Source={StaticResource ExtendedVideoSkip},Path=SkipStepBackward}" VerticalAlignment="Center"/>
+      </Grid>
+
+      <Grid x:Name="RightArea" Grid.Column="2" VerticalAlignment="Stretch" Opacity="0">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="50"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid.Resources>
+          <Storyboard x:Key="FocusedRightAreaStoryboard" FillBehavior="HoldEnd">
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" 
+                                           Storyboard.TargetName="RightArea" Storyboard.TargetProperty="Opacity">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="1"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+          <Storyboard x:Key="NonFocusedRightAreaStoryboard" FillBehavior="HoldEnd">
+            <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" 
+                                           Storyboard.TargetName="RightArea" Storyboard.TargetProperty="Opacity">
+              <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
+              <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="0"/>
+            </DoubleAnimationUsingKeyFrames>
+          </Storyboard>
+        </Grid.Resources>
+
+        <Grid.Triggers>
+          <Trigger Property="IsMouseOver" Value="True">
+            <Trigger.EnterActions>
+              <BeginStoryboard x:Name="Right_SlideIn_BeginStoryboard" Storyboard="{ThemeResource FocusedRightAreaStoryboard}"/>
+            </Trigger.EnterActions>
+            <Trigger.ExitActions>
+              <StopStoryboard BeginStoryboardName="Right_SlideIn_BeginStoryboard"/>
+              <BeginStoryboard x:Name="Right_SlideOut_BeginStoryboard" Storyboard="{ThemeResource NonFocusedRightAreaStoryboard}"/>
+            </Trigger.ExitActions>
+          </Trigger>
+        </Grid.Triggers>
+
+        <Button x:Name="ScrollForwardButton" Style="{StaticResource SubMenuLeftButtonStyle}" Grid.Row="1" HorizontalAlignment="Right"
+                Command="{Command Source={StaticResource ExtendedVideoSkip},Path=SkipStepForward}" VerticalAlignment="Center"/>
+        <Button x:Name="ScrollDoubleForwardButton" Style="{StaticResource ScrollDoubleRightButtonStyle}" Margin="0,0,10,0" Grid.Column="1" Grid.Row="1"
+                Command="{Command Source={StaticResource ExtendedVideoSkip},Path=InstantSkipForward}" VerticalAlignment="Center"/>
+      </Grid>
     </Grid>
 
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 

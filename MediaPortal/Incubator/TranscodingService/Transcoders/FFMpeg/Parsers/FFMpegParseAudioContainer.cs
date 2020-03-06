@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
 {
   public class FFMpegParseAudioContainer
   {
-    internal static AudioContainer ParseAudioContainer(string token, ILocalFsResourceAccessor lfsra)
+    internal static AudioContainer ParseAudioContainer(string token, IResourceAccessor ra)
     {
       if (token != null)
       {
@@ -78,21 +78,22 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
       }
 
       //Try file extensions
-      if (lfsra?.LocalFileSystemPath != null)
+      var ext = ra?.ResourceName;
+      if (ext != null)
       {
-        if (lfsra.LocalFileSystemPath.EndsWith(".ac3", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".ac3", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Ac3;
-        if (lfsra.LocalFileSystemPath.EndsWith(".mp3", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".mp3", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Mp3;
-        if (lfsra.LocalFileSystemPath.EndsWith(".mp2", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".mp2", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Mp2;
-        if (lfsra.LocalFileSystemPath.EndsWith(".wma", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".wma", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Asf;
-        if (lfsra.LocalFileSystemPath.EndsWith(".mp4", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".mp4a", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".mp4", StringComparison.InvariantCultureIgnoreCase) || ext.EndsWith(".mp4a", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Mp4;
-        if (lfsra.LocalFileSystemPath.EndsWith(".flac", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".flac", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Flac;
-        if (lfsra.LocalFileSystemPath.EndsWith(".ogg", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".ogg", StringComparison.InvariantCultureIgnoreCase))
           return AudioContainer.Ogg;
       }
 

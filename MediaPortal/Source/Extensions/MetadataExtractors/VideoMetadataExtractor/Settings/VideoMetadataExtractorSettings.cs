@@ -68,6 +68,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
       SampleVideoRegex = new SerializableRegex(@"(sample)|(trailer)", RegexOptions.IgnoreCase);
       CacheOfflineFanArt = true;
       CacheLocalFanArt = false;
+      CacheOfflineMovieFanArt = true;
+      CacheLocalMovieFanArt = false;
+      CacheOfflineSeriesFanArt = true;
+      CacheLocalSeriesFanArt = false;
     }
 
     /// <summary>
@@ -105,15 +109,39 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
     public SerializableRegex SampleVideoRegex { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, a copy will be made of FanArt placed on network drives to allow browsing when they are offline.
+    /// If <c>true</c>, a copy will be made of video FanArt placed on network drives to allow browsing when they are offline.
     /// </summary>
     [Setting(SettingScope.Global, true)]
     public bool CacheOfflineFanArt { get; set; }
 
     /// <summary>
-    /// If <c>true</c>, a copy will be made of FanArt placed on local drives to allow browsing when they are asleep.
+    /// If <c>true</c>, a copy will be made of video FanArt placed on local drives to allow browsing when they are asleep.
     /// </summary>
     [Setting(SettingScope.Global, false)]
     public bool CacheLocalFanArt { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of movie FanArt placed on network drives to allow browsing when they are offline.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool CacheOfflineMovieFanArt { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of movie FanArt placed on local drives to allow browsing when they are asleep.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool CacheLocalMovieFanArt { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of series FanArt placed on network drives to allow browsing when they are offline.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool CacheOfflineSeriesFanArt { get; set; }
+
+    /// <summary>
+    /// If <c>true</c>, a copy will be made of series FanArt placed on local drives to allow browsing when they are asleep.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool CacheLocalSeriesFanArt { get; set; }
   }
 }

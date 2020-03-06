@@ -262,6 +262,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(SeriesInfo series)
+    {
+      if (series.TvMazeId > 0 || series.TvdbId > 0 || !string.IsNullOrWhiteSpace(series.ImdbId))
+          return true;
+
+      return base.HasSearchableIds(series);
+    }
+
     public override async Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, string language, bool cacheOnly)
     {
       try
@@ -310,9 +318,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         TvMazeEpisode episodeDetail = null;
         TvMazeSeries seriesDetail = null;
 
-        if (episode.SeriesTvMazeId > 0 && episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
+        if (episode.SeasonNumber.HasValue && episode.EpisodeNumbers.Count > 0)
         {
-          seriesDetail = await _tvMazeHandler.GetSeriesAsync(episode.SeriesTvMazeId, cacheOnly).ConfigureAwait(false);
+          if (episode.SeriesTvMazeId > 0)
+            seriesDetail = await _tvMazeHandler.GetSeriesAsync(episode.SeriesTvMazeId, cacheOnly).ConfigureAwait(false);
           if (seriesDetail == null && !string.IsNullOrEmpty(episode.SeriesImdbId))
             seriesDetail = await _tvMazeHandler.GetSeriesByImDbAsync(episode.SeriesImdbId, cacheOnly).ConfigureAwait(false);
           if (seriesDetail == null && episode.SeriesTvdbId > 0)
@@ -376,6 +385,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(EpisodeInfo episode)
+    {
+      if (episode.SeriesTvMazeId > 0 || episode.SeriesTvdbId > 0 || !string.IsNullOrWhiteSpace(episode.SeriesImdbId))
+        return true;
+
+      return base.HasSearchableIds(episode);
+    }
+
     public override async Task<bool> UpdateFromOnlineSeriesPersonAsync(SeriesInfo seriesInfo, PersonInfo person, string language, bool cacheOnly)
     {
       try
@@ -402,6 +419,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public override Task<bool> UpdateFromOnlineSeriesEpisodePersonAsync(EpisodeInfo episodeInfo, PersonInfo person, string language, bool cacheOnly)
     {
       return UpdateFromOnlineSeriesPersonAsync(episodeInfo.CloneBasicInstance<SeriesInfo>(), person, language, cacheOnly);
+    }
+
+    public override bool HasSearchableIds(PersonInfo person)
+    {
+      if (person.TvMazeId > 0)
+          return true;
+
+      return base.HasSearchableIds(person);
     }
 
     public override async Task<bool> UpdateFromOnlineSeriesCharacterAsync(SeriesInfo seriesInfo, CharacterInfo character, string language, bool cacheOnly)

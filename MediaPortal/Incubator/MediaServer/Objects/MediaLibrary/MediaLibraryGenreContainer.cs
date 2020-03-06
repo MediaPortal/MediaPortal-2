@@ -45,7 +45,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       _necessaryMIAs = necessaryMIAs;
     }
 
-    public HomogenousMap GetItems()
+    public HomogenousMap GetItems(string sortCriteria)
     {
       List<Guid> necessaryMias = new List<Guid>(_necessaryMIAs);
       if (necessaryMias.Contains(GenreAspect.ASPECT_ID)) necessaryMias.Remove(GenreAspect.ASPECT_ID); //Group MIA cannot be present
@@ -53,11 +53,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       return library.GetValueGroups(GenreAspect.ATTR_GENRE, null, ProjectionFunction.None, necessaryMias, AppendUserFilter(null, necessaryMias), true, false);
     }
 
-    public override void Initialise()
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
-      HomogenousMap items = GetItems();
+      base.Initialise(sortCriteria, offset, count);
 
-      foreach (var item in items)
+      HomogenousMap items = GetItems(sortCriteria);
+      foreach (var item in items.OrderBy(g => g.Key.ToString()))
       {
         try
         {
@@ -79,6 +80,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
           Logger.Error("Item '{0}' could not be added", ex, item.Key);
         }
       }
+    }
+
+    public override void InitialiseContainers()
+    {
+      base.InitialiseContainers();
+      Initialise(null);
     }
   }
 }

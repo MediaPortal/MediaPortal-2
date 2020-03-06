@@ -40,6 +40,7 @@ using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
@@ -60,6 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       MediaItem item;
       long duration = 0;
       string container = string.Empty;
+      MetadataContainer info;
       List<WebVideoStream> webVideoStreams = new List<WebVideoStream>();
       List<WebAudioStream> webAudioStreams = new List<WebAudioStream>();
       List<WebSubtitleStream> webSubtitleStreams = new List<WebSubtitleStream>();
@@ -70,7 +72,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
         if (int.TryParse(itemId, out channelIdInt))
         {
           item = new LiveTvMediaItem(Guid.Empty);
-          var info = MediaAnalyzer.ParseChannelStreamAsync(channelIdInt, (LiveTvMediaItem)item).Result;
+          info = MediaAnalyzer.ParseChannelStreamAsync(channelIdInt, (LiveTvMediaItem)item).Result;
           if (info == null)
           {
             throw new BadRequestException(String.Format("GetMediaInfo: Channel {0} stream not available", itemId));
@@ -106,55 +108,60 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
       }
 
       // decide which type of media item we have
-      var containers = await MediaAnalyzer.ParseMediaItemAsync(item);
+      info = await MediaAnalyzer.ParseMediaItemAsync(item);
       if (item.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
       {
         var videoAspect = item.GetAspect(VideoAspect.Metadata);
         var videoStreamAspect = item.GetAspect(VideoStreamAspect.Metadata);
-        duration = Convert.ToInt64(videoStreamAspect.GetAttributeValue(VideoStreamAspect.ATTR_DURATION) ?? 0);
+        duration = Convert.ToInt64(videoStreamAspect.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION) ?? 0);
+        bool interlaced = (videoStreamAspect.GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE) ?? "").ToLowerInvariant().Contains("interlaced");
 
-        foreach (var video in containers)
+        foreach (var data in info.Metadata)
         {
+          int edition = data.Key;
           int editionOffset = 0;
-          if (video.Key >= 0)
-            editionOffset = (video.Key + 1) * 1000;
+          if (edition >= 0)
+            editionOffset = (edition + 1) * ProfileMediaItem.EDITION_OFFSET;
 
-          MetadataContainer mc = video.Value.First();
-          if (mc.IsVideo)
+          if (info.IsVideo(edition))
           {
             // Video
             WebVideoStream webVideoStream = new WebVideoStream();
-            webVideoStream.Codec = Convert.ToString(mc.Video.Codec);
-            webVideoStream.DisplayAspectRatio = Convert.ToDecimal(mc.Video.AspectRatio ?? 0);
-            webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString(Convert.ToDecimal(mc.Video.AspectRatio ?? 0));
-            webVideoStream.Height = Convert.ToInt32(mc.Video.Height ?? 0);
-            webVideoStream.Width = Convert.ToInt32(mc.Video.Width ?? 0);
+            webVideoStream.Codec = Convert.ToString(info.Video[edition].Codec);
+            webVideoStream.DisplayAspectRatio = Convert.ToDecimal(info.Video[edition].AspectRatio ?? 0);
+            webVideoStream.DisplayAspectRatioString = AspectRatioHelper.AspectRatioToString(Convert.ToDecimal(info.Video[edition].AspectRatio ?? 0));
+            webVideoStream.Height = Convert.ToInt32(info.Video[edition].Height ?? 0);
+            webVideoStream.Width = Convert.ToInt32(info.Video[edition].Width ?? 0);
             webVideoStreams.Add(webVideoStream);
-            webVideoStream.ID = mc.Video.StreamIndex + editionOffset;
+            webVideoStream.ID = info.Video[edition].StreamIndex + editionOffset;
             webVideoStream.Index = 0;
-            //webVideoStream.Interlaced = transcodeVideoAspect[TranscodeItemVideoAspect.];
+            webVideoStream.Interlaced = interlaced;
 
-            container = mc.Metadata.VideoContainerType.ToString();
+            container = info.Metadata[edition].VideoContainerType.ToString();
 
             // Audio
-            for (int i = 0; i < mc.Audio.Count; i++)
+            for (int i = 0; i < info.Audio[edition].Count; i++)
             {
               WebAudioStream webAudioStream = new WebAudioStream();
-              if (mc.Audio[i].Channels != null)
-                webAudioStream.Channels = mc.Audio[i].Channels.Value;
+              if (info.Audio[edition][i].Channels != null)
+                webAudioStream.Channels = info.Audio[edition][i].Channels.Value;
 
-              webAudioStream.Codec = mc.Audio[i].Codec.ToString();
-              webAudioStream.ID = mc.Audio[i].StreamIndex + editionOffset;
+              webAudioStream.Codec = info.Audio[edition][i].Codec.ToString();
+              webAudioStream.ID = info.Audio[edition][i].StreamIndex + editionOffset;
               webAudioStream.Index = i;
-              if (mc.Audio[i].Language != null)
+              if (info.Audio[edition][i].Language != null)
               {
-                string language = mc.Audio[i].Language == string.Empty ? UNDEFINED : mc.Audio[i].Language;
+                string language = info.Audio[edition][i].Language == string.Empty ? UNDEFINED : info.Audio[edition][i].Language;
                 webAudioStream.Language = language;
                 if (language != UNDEFINED)
                 {
                   webAudioStream.LanguageFull = new CultureInfo(language).EnglishName;
-                  if (item.HasEditions)
-                    webAudioStream.Title = item.Editions.First(e => e.Key == video.Key).Value.Name;
+                  if (item.HasEditions && item.Editions.Any(e => e.Value.SetNo == edition))
+                    webAudioStream.Title = item.Editions.First(e => e.Key == edition).Value.Name;
+                  else if (item.GetPlayData(out var mime, out var mediaName))
+                    webAudioStream.Title = mediaName;
+                  else
+                    webAudioStream.Title = "?";
                   if (string.IsNullOrEmpty(webAudioStream.Codec) == false)
                     webAudioStream.Title += webAudioStream.Title?.Length > 0 ? $" ({webAudioStream.Codec.ToUpperInvariant()})" : webAudioStream.Codec.ToUpperInvariant();
                 }
@@ -163,40 +170,44 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
             }
 
             // Subtitles
-            for (int i = 0; i < mc.Subtitles.Count; i++)
+            if (info.Subtitles[edition].Any())
             {
-              WebSubtitleStream webSubtitleStream = new WebSubtitleStream();
-              webSubtitleStream.Filename = mc.Subtitles[i].IsEmbedded ? "Embedded" : mc.Subtitles[i].Source;
-              webSubtitleStream.ID = mc.Subtitles[i].StreamIndex + editionOffset;
-              webSubtitleStream.Index = i;
-              if (mc.Subtitles[i].Language != null)
+              int firstMediaIdx = info.Subtitles[edition].Keys.First();
+              for (int i = 0; i < info.Subtitles[edition][firstMediaIdx].Count; i++)
               {
-                string language = mc.Subtitles[i].Language == string.Empty ? UNDEFINED : mc.Subtitles[i].Language;
-                webSubtitleStream.Language = language;
-                webSubtitleStream.LanguageFull = language;
-                if (language != UNDEFINED)
-                  webSubtitleStream.LanguageFull = new CultureInfo(language).EnglishName;
+                WebSubtitleStream webSubtitleStream = new WebSubtitleStream();
+                webSubtitleStream.Filename = info.Subtitles[edition][firstMediaIdx][i].IsEmbedded ? "Embedded" : info.Subtitles[edition][firstMediaIdx][i].SourcePath;
+                webSubtitleStream.ID = info.Subtitles[edition][firstMediaIdx][i].StreamIndex + editionOffset;
+                webSubtitleStream.Index = i;
+                if (info.Subtitles[edition][firstMediaIdx][i].Language != null)
+                {
+                  string language = info.Subtitles[edition][firstMediaIdx][i].Language == string.Empty ? UNDEFINED : info.Subtitles[edition][firstMediaIdx][i].Language;
+                  webSubtitleStream.Language = language;
+                  webSubtitleStream.LanguageFull = language;
+                  if (language != UNDEFINED)
+                    webSubtitleStream.LanguageFull = new CultureInfo(language).EnglishName;
+                }
+                webSubtitleStreams.Add(webSubtitleStream);
               }
-              webSubtitleStreams.Add(webSubtitleStream);
             }
           }
         }
       }
       else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
       {
-        MetadataContainer mc = containers.Values.First().First();
-        if (mc.IsAudio)
+        int edition = info.Metadata.Min(d => d.Key);
+        if (info.IsAudio(edition))
         {
           var audioAspect = item.GetAspect(AudioAspect.Metadata);
           duration = (long)audioAspect[AudioAspect.ATTR_DURATION];
-          container = mc.Metadata.AudioContainerType.ToString();
+          container = info.Metadata[edition].AudioContainerType.ToString();
         }
       }
       else if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
       {
-        MetadataContainer mc = containers.Values.First().First();
-        if (mc.IsImage)
-          container = mc.Metadata.ImageContainerType.ToString();
+        int edition = info.Metadata.Min(d => d.Key);
+        if (info.IsImage(edition))
+          container = info.Metadata[edition].ImageContainerType.ToString();
       }
 
       WebMediaInfo webMediaInfo = new WebMediaInfo

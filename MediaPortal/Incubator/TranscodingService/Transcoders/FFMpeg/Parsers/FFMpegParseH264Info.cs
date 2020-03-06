@@ -24,37 +24,32 @@
 
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Diagnostics;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.FFMpegLib;
-using MediaPortal.Utilities.Process;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Analyzers;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using System.Text;
+using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseH264Info
   {
-    #region Protected fields and classes
-
-    protected static readonly object FFPROBE_THROTTLE_LOCK = new object();
-
-    #endregion
-
-    internal static void ParseH264Info(MetadataContainer info, IResourceAccessor res, Dictionary<float, long> h264MaxDpbMbs, int transcoderTimeout)
+    internal static void ParseH264Info(IResourceAccessor res, MetadataContainer info, Dictionary<float, long> h264MaxDpbMbs, int transcoderTimeout)
     {
-      if (info.Video.Codec == VideoCodec.H264)
+      if (info.Video[Editions.DEFAULT_EDITION].Codec == VideoCodec.H264)
       {
         if (res is ILocalFsResourceAccessor fileRes && !fileRes.IsFile)
           return;
-        if (!(res is INetworkResourceAccessor))
-          return;
+        //if (!(res is INetworkResourceAccessor))
+        //  return;
 
         //TODO: Remove this debug code when error found
         string debug = "";
@@ -82,73 +77,78 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           //data = File.ReadAllBytes(tempFileName);
 
           string arguments = string.Format("-i \"{0}\" -frames:v 1 -c:v copy -f h264", res);
-          if (info.Metadata.VideoContainerType != VideoContainer.Mpeg2Ts)
+          if (info.Metadata[Editions.DEFAULT_EDITION].VideoContainerType != VideoContainer.Mpeg2Ts)
           {
             arguments += " -bsf:v h264_mp4toannexb";
           }
           arguments += " -an -";
-          lock (FFPROBE_THROTTLE_LOCK)
-            data = ProbeResource(res, arguments);
+          data = ProbeResource(res, arguments, transcoderTimeout);
+          if (data == null)
+          {
+            Logger.Error("MediaAnalyzer: Timed out analyzing H264 information for resource '{0}'", res);
+            return;
+          }
 
-          debug = "Parse binary dump: " + tempFileName;
+          debug = "Parse binary dump";
           H264Analyzer avcAnalyzer = new H264Analyzer();
-          if (avcAnalyzer.Parse(File.ReadAllBytes(tempFileName)) == true)
+          if (avcAnalyzer.Parse(data) == true)
           {
             switch (avcAnalyzer.HeaderProfile)
             {
               case H264Analyzer.H264HeaderProfile.ConstrainedBaseline:
-                info.Video.ProfileType = EncodingProfile.Baseline;
+                info.Video[Editions.DEFAULT_EDITION].ProfileType = EncodingProfile.Baseline;
                 break;
               case H264Analyzer.H264HeaderProfile.Baseline:
-                info.Video.ProfileType = EncodingProfile.Baseline;
+                info.Video[Editions.DEFAULT_EDITION].ProfileType = EncodingProfile.Baseline;
                 break;
               case H264Analyzer.H264HeaderProfile.Main:
-                info.Video.ProfileType = EncodingProfile.Main;
+                info.Video[Editions.DEFAULT_EDITION].ProfileType = EncodingProfile.Main;
                 break;
               case H264Analyzer.H264HeaderProfile.Extended:
-                info.Video.ProfileType = EncodingProfile.Main;
+                info.Video[Editions.DEFAULT_EDITION].ProfileType = EncodingProfile.Main;
                 break;
               case H264Analyzer.H264HeaderProfile.High:
-                info.Video.ProfileType = EncodingProfile.High;
+                info.Video[Editions.DEFAULT_EDITION].ProfileType = EncodingProfile.High;
                 break;
               case H264Analyzer.H264HeaderProfile.High_10:
-                info.Video.ProfileType = EncodingProfile.High10;
+                info.Video[Editions.DEFAULT_EDITION].ProfileType = EncodingProfile.High10;
                 break;
               case H264Analyzer.H264HeaderProfile.High_422:
-                info.Video.ProfileType = EncodingProfile.High422;
+                info.Video[Editions.DEFAULT_EDITION].ProfileType = EncodingProfile.High422;
                 break;
               case H264Analyzer.H264HeaderProfile.High_444:
-                info.Video.ProfileType = EncodingProfile.High444;
+                info.Video[Editions.DEFAULT_EDITION].ProfileType = EncodingProfile.High444;
                 break;
             }
-            info.Video.HeaderLevel = avcAnalyzer.HeaderLevel;
+            info.Video[Editions.DEFAULT_EDITION].HeaderLevel = avcAnalyzer.HeaderLevel;
             int refFrames = avcAnalyzer.HeaderRefFrames;
 
             debug = "File parsed";
-            if (info.Video.Width > 0 && info.Video.Height > 0 && refFrames > 0 && refFrames <= 16)
+            if (info.Video[Editions.DEFAULT_EDITION].Width > 0 && info.Video[Editions.DEFAULT_EDITION].Height > 0 && refFrames > 0 && refFrames <= 16)
             {
-              long dpbMbs = Convert.ToInt64(((float)info.Video.Width * (float)info.Video.Height * (float)refFrames) / 256F);
+              long dpbMbs = Convert.ToInt64(((float)info.Video[Editions.DEFAULT_EDITION].Width * (float)info.Video[Editions.DEFAULT_EDITION].Height * (float)refFrames) / 256F);
               foreach (KeyValuePair<float, long> levelDbp in h264MaxDpbMbs)
               {
                 if (levelDbp.Value > dpbMbs)
                 {
-                  info.Video.RefLevel = levelDbp.Key;
+                  info.Video[Editions.DEFAULT_EDITION].RefLevel = levelDbp.Key;
                   break;
                 }
               }
             }
-            if (info.Video.HeaderLevel == 0 && info.Video.RefLevel == 0)
+            if (info.Video[Editions.DEFAULT_EDITION].HeaderLevel == 0 && info.Video[Editions.DEFAULT_EDITION].RefLevel == 0)
             {
-              if (Logger != null) Logger.Warn("MediaAnalyzer: Couldn't resolve H264 profile/level/reference frames for resource: '{0}'", info.Metadata.Source);
+              Logger.Warn("MediaAnalyzer: Couldn't resolve H264 profile/level/reference frames for resource: '{0}'", res);
             }
           }
-          if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully decoded H264 header: H264 profile {0}, level {1}/level {2}", info.Video.ProfileType, info.Video.HeaderLevel, info.Video.RefLevel);
+          Logger.Debug("MediaAnalyzer: Successfully decoded H264 header: H264 profile {0}, level {1}/level {2}", 
+            info.Video[Editions.DEFAULT_EDITION].ProfileType, info.Video[Editions.DEFAULT_EDITION].HeaderLevel, info.Video[Editions.DEFAULT_EDITION].RefLevel);
         }
         catch (Exception e)
         {
           if (Logger != null)
           {
-            Logger.Error("MediaAnalyzer: Failed to analyze H264 information for resource '{0}':\n{1}", info.Metadata.Source, e.Message);
+            Logger.Error("MediaAnalyzer: Failed to analyze H264 information for resource '{0}':\n{1}", res, e.Message);
             Logger.Error("MediaAnalyzer: Debug info: {0}", debug);
           }
         }
@@ -161,7 +161,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
       }
     }
 
-    private static byte[] ProbeResource(IResourceAccessor accessor, string arguments)
+    private static byte[] ProbeResource(IResourceAccessor accessor, string arguments, int transcoderTimeout)
     {
       ProcessStartInfo startInfo = new ProcessStartInfo()
       {
@@ -170,6 +170,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
         UseShellExecute = false,
         CreateNoWindow = true,
         RedirectStandardOutput = true,
+        RedirectStandardError = true,
         StandardOutputEncoding = Encoding.UTF8,
         StandardErrorEncoding = Encoding.UTF8
       };
@@ -195,18 +196,15 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           ffmpeg.BeginErrorReadLine();
 
           var stream = ffmpeg.StandardOutput.BaseStream;
-          ffmpeg.WaitForExit();
-          //ffmpeg.ExitCode;
-          //iExitCode = executionResult.Result.ExitCode;
-          //if (data.TranscodeData.InputResourceAccessor is FFMpegLiveAccessor)
-          //{
-          //  ffmpeg.StandardInput.Close();
-          //}
-          ffmpeg.Close();
+          if (!ffmpeg.WaitForExit(transcoderTimeout))
+          {
+            ffmpeg.Kill();
+            stream.Dispose();
+            return null;
+          }
 
-          byte[] data = new byte[stream.Length];
-          stream.Position = 0;
-          stream.Write(data, 0, data.Length);
+          ffmpeg.Close();
+          byte[] data = ReadToEnd(stream);
           stream.Dispose();
 #if !TRANSCODE_CONSOLE_TEST
           NativeMethods.CloseHandle(userToken);
@@ -214,6 +212,44 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           return data;
         }
       }
+    }
+
+    private static byte[] ReadToEnd(System.IO.Stream stream)
+    {
+      if (stream == null)
+        return null;
+
+      if (stream.CanSeek)
+        stream.Position = 0;
+
+      byte[] readBuffer = new byte[4096];
+      int totalBytesRead = 0;
+      int bytesRead;
+
+      while ((bytesRead = stream.Read(readBuffer, totalBytesRead, readBuffer.Length - totalBytesRead)) > 0)
+      {
+        totalBytesRead += bytesRead;
+        if (totalBytesRead == readBuffer.Length)
+        {
+          int nextByte = stream.ReadByte();
+          if (nextByte != -1)
+          {
+            byte[] temp = new byte[readBuffer.Length * 2];
+            Buffer.BlockCopy(readBuffer, 0, temp, 0, readBuffer.Length);
+            Buffer.SetByte(temp, totalBytesRead, (byte)nextByte);
+            readBuffer = temp;
+            totalBytesRead++;
+          }
+        }
+      }
+
+      byte[] buffer = readBuffer;
+      if (readBuffer.Length != totalBytesRead)
+      {
+        buffer = new byte[totalBytesRead];
+        Buffer.BlockCopy(readBuffer, 0, buffer, 0, totalBytesRead);
+      }
+      return buffer;
     }
 
     private static ILogger Logger

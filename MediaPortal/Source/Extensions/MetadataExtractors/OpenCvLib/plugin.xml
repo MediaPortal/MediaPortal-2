@@ -1,0 +1,17 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="OpenCvLib"
+    PluginId="{321CC4AA-6744-447E-8D4A-D94D304CD149}"
+    Author="Henso, Third party: shimat"
+    Copyright="GPL"
+    Description="Library plugin providing the OpenCV functionality needed for some metadata extractors">
+
+  <Version
+    PluginVersion="4.2.0.0"
+    ReleaseDate="2020-11-11 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+  
+  <Runtime>
+    <Assembly FileName="OpenCvSharp.dll"/>
+  </Runtime>
+</Plugin>

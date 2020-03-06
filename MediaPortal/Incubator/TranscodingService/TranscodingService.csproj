@@ -66,6 +66,11 @@
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="AnalysisDataflow\AnalysisActionBlock.cs" />
+    <Compile Include="AnalysisDataflow\AnalysisManagerAction.cs" />
+    <Compile Include="AnalysisLibraryManager.cs" />
+    <Compile Include="AnalysisDataflow\TimeoutBatchBlock.cs" />
+    <Compile Include="Settings\AnalysisActionSettings.cs" />
     <Compile Include="Transcoders\BaseMediaAnalyzer.cs" />
     <Compile Include="Transcoders\BaseMediaConverter.cs" />
     <Compile Include="Transcoders\TranscodeLiveAccessor.cs" />
@@ -112,6 +117,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
+      <Project>{5B27EB95-B829-40F4-B445-0225CA206F85}</Project>
+      <Name>MediaPortal.Backend</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>

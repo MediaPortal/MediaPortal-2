@@ -117,6 +117,13 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
         await LoadProfileLinksAsync();
       }
 
+      if (Guid.TryParse(request.Query["id"], out var clientId))
+      {
+        var idLink = ProfileLinks.FirstOrDefault(l => l.Value.ClientId == clientId);
+        if (idLink.Value != null)
+          return idLink.Value;
+      }
+
       if (request?.RemoteIpAddress == null)
       {
         Logger.Error("DetectProfile: Couldn't find remote address!");

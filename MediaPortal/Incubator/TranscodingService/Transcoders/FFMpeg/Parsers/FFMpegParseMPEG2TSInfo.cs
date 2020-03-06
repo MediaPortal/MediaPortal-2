@@ -33,11 +33,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
 {
   public class FFMpegParseMPEG2TSInfo
   {
-    internal static void ParseMPEG2TSInfo(MetadataContainer info, IResourceAccessor res)
+    internal static void ParseMPEG2TSInfo(IResourceAccessor res, MetadataContainer info)
     {
-      if (info.Metadata.VideoContainerType == VideoContainer.Mpeg2Ts || info.Metadata.VideoContainerType == VideoContainer.M2Ts)
+      if (info.Metadata[Editions.DEFAULT_EDITION].VideoContainerType == VideoContainer.Mpeg2Ts || info.Metadata[Editions.DEFAULT_EDITION].VideoContainerType == VideoContainer.M2Ts)
       {
-        info.Video.TimestampType = Timestamp.None;
+        info.Video[Editions.DEFAULT_EDITION].TimestampType = Timestamp.None;
         FileStream raf = null;
         if (!(res is ILocalFsResourceAccessor fileRes) || !fileRes.IsFile)
           return;
@@ -52,30 +52,30 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
             raf.Read(packetBuffer, 0, packetBuffer.Length);
             if (packetBuffer[0] == 0x47) //Sync byte (Standard MPEG2 TS)
             {
-              info.Video.TimestampType = Timestamp.None;
-              if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully found MPEG2TS timestamp in transport stream: {0}", info.Video.TimestampType);
+              info.Video[Editions.DEFAULT_EDITION].TimestampType = Timestamp.None;
+              Logger.Debug("MediaAnalyzer: Successfully found MPEG2TS timestamp in transport stream: {0}", info.Video[Editions.DEFAULT_EDITION].TimestampType);
             }
             else if (packetBuffer[4] == 0x47 && packetBuffer[192] == 0x47) //Sync bytes (BluRay MPEG2 TS)
             {
               if (packetBuffer[0] == 0x00 && packetBuffer[1] == 0x00 && packetBuffer[2] == 0x00 && packetBuffer[3] == 0x00)
               {
-                info.Video.TimestampType = Timestamp.Zeros;
+                info.Video[Editions.DEFAULT_EDITION].TimestampType = Timestamp.Zeros;
               }
               else
               {
-                info.Video.TimestampType = Timestamp.Valid;
+                info.Video[Editions.DEFAULT_EDITION].TimestampType = Timestamp.Valid;
               }
-              if (Logger != null) Logger.Debug("MediaAnalyzer: Successfully found MPEG2TS timestamp in transport stream: {0}", info.Video.TimestampType);
+              Logger.Debug("MediaAnalyzer: Successfully found MPEG2TS timestamp in transport stream: {0}", info.Video[Editions.DEFAULT_EDITION].TimestampType);
             }
             else
             {
-              info.Video.TimestampType = Timestamp.None;
-              if (Logger != null) Logger.Error("MediaAnalyzer: Failed to retreive MPEG2TS timestamp for resource '{0}'", info.Metadata.Source);
+              info.Video[Editions.DEFAULT_EDITION].TimestampType = Timestamp.None;
+              Logger.Error("MediaAnalyzer: Failed to retreive MPEG2TS timestamp for resource '{0}'", res);
             }
           }
           finally
           {
-            if (raf != null) raf.Close();
+            raf?.Close();
           }
         }
       }

@@ -27,6 +27,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
 using Microsoft.Owin;
@@ -46,8 +47,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
         Profile = streamItem.Value.Profile.Name, 
         Identifier = streamItem.Key, 
         StartPosition = streamItem.Value.StartPosition,
-        TranscodingInfo = new WebTranscodingInfo(streamItem.Value.StreamContext),
-        StartTime = streamItem.Value.StartTime,
+        TranscodingInfo = new WebTranscodingInfo(streamItem.Value.StreamContext as TranscodeContext),
+        StartTime = streamItem.Value.StartTimeUtc.ToLocalTime(),
         SourceId = streamItem.Value.RequestedMediaItem.MediaItemId.ToString(),
         ClientIPAddress = streamItem.Value.ClientIp,
         DisplayName = streamItem.Value.Title,

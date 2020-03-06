@@ -49,19 +49,21 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
     /// Base HTTP path for resource access, e.g. "/GetDlnaResource".
     /// </summary>
     public const string RESOURCE_ACCESS_PATH = "/GetDlnaResource";
+    public const string TV_CHANNEL_RESOURCE = "TV_CHANNEL_";
+    public const string RADIO_CHANNEL_RESOURCE = "RADIO_CHANNEL_";
 
     /// <summary>
     /// Argument name for the resource path argument, e.g. "MediaItem".
     /// </summary>
     public const string RESOURCE_PATH_ARGUMENT_NAME = "ResourcePath";
 
-    public const string SYNTAX = RESOURCE_ACCESS_PATH + "/[media item guid]";
+    public const string SYNTAX = RESOURCE_ACCESS_PATH + "/[media item id]";
 
     public const int DEFAULT_IMAGE_SIZE = 160;
 
-    public static string GetResourceUrl(string mediaItem)
+    public static string GetResourceUrl(string mediaItem, Guid clientId)
     {
-      return RESOURCE_ACCESS_PATH + "/" + mediaItem;
+      return RESOURCE_ACCESS_PATH + "/" + mediaItem + "?id=" + clientId.ToString();
     }
 
     public static bool ParseMediaItem(Uri resourceUri, out Guid mediaItemGuid)
@@ -93,8 +95,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       radioChannel = 0;
       try
       {
-
-        var r = Regex.Match(resourceUri.PathAndQuery, RESOURCE_ACCESS_PATH + @"\/5244494F-0000-0000-0000-([\w-]*)\/?");
+        var r = Regex.Match(resourceUri.PathAndQuery, RESOURCE_ACCESS_PATH + $@"\/{RADIO_CHANNEL_RESOURCE}([\w-]*)\/?");
         var channel = r.Groups[1].Value;
         if (int.TryParse(channel, out radioChannel))
         {
@@ -113,7 +114,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       tvChannel = 0;
       try
       {
-        var r = Regex.Match(resourceUri.PathAndQuery, RESOURCE_ACCESS_PATH + @"\/54560000-0000-0000-0000-([\w-]*)\/?");
+        var r = Regex.Match(resourceUri.PathAndQuery, RESOURCE_ACCESS_PATH + $@"\/{TV_CHANNEL_RESOURCE}([\w-]*)\/?");
         var channel = r.Groups[1].Value;
         if (int.TryParse(channel, out tvChannel))
         {
@@ -190,35 +191,41 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       if (dlnaItem.IsTranscoded && dlnaItem.IsVideo)
       {
         VideoTranscoding video = (VideoTranscoding)dlnaItem.TranscodingParameter;
-        return video.PreferredSourceSubtitles.Count > 0;
+        return video?.SourceSubtitles.Count > 0;
       }
       else if (dlnaItem.IsVideo)
       {
         VideoTranscoding subtitleVideo = (VideoTranscoding)dlnaItem.SubtitleTranscodingParameter;
-        return subtitleVideo.PreferredSourceSubtitles.Count > 0;
+        if (subtitleVideo?.SourceSubtitles.Count > 0)
+          return true;
+
+        return dlnaItem.Subtitles.Count > 0;
       }
       return false;
     }
 
-    public static string GetThumbnailBaseURL(MediaItem item, EndPointSettings client, string fanartType = null)
+    public static string GetFanArtMediaType(MediaItem item)
+    {
+      string mediaType = FanArtMediaTypes.Undefined;
+      if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Image;
+      else if (item.Aspects.ContainsKey(MovieAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Movie;
+      else if (item.Aspects.ContainsKey(MovieCollectionAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.MovieCollection;
+      else if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Series;
+      else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.SeriesSeason;
+      else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Audio;
+      else if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Album;
+      else if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Episode;
+      else if (item.Aspects.ContainsKey(CharacterAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Character;
+      return mediaType;
+    }
+
+    public static string GetThumbnailBaseURL(Guid mediaItemId, EndPointSettings client, string fanartType = null)
     {
       string mediaType = fanartType ?? FanArtMediaTypes.Undefined;
-      if (string.IsNullOrEmpty(fanartType))
-      {
-        if (item.Aspects.ContainsKey(ImageAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Image;
-        else if (item.Aspects.ContainsKey(MovieAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Movie;
-        else if (item.Aspects.ContainsKey(MovieCollectionAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.MovieCollection;
-        else if (item.Aspects.ContainsKey(SeriesAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Series;
-        else if (item.Aspects.ContainsKey(SeasonAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.SeriesSeason;
-        else if (item.Aspects.ContainsKey(AudioAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Audio;
-        else if (item.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Album;
-        else if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Episode;
-        else if (item.Aspects.ContainsKey(CharacterAspect.ASPECT_ID)) mediaType = FanArtMediaTypes.Character;
-      }
 
       // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
       string url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}&name={3}&width={4}&height={5}",
-        GetBaseResourceURL(), mediaType, FanArtTypes.Thumbnail, item.MediaItemId,
+        GetBaseResourceURL(), mediaType, FanArtTypes.Thumbnail, mediaItemId,
         client.Profile?.Settings.Thumbnails.MaxWidth ?? DEFAULT_IMAGE_SIZE, client.Profile?.Settings.Thumbnails.MaxHeight ?? DEFAULT_IMAGE_SIZE);
       return url;
     }
@@ -232,7 +239,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       return url;
     }
 
-    public static string GetSubtitleBaseURL(MediaItem item, EndPointSettings client, out string subMime, out string subExtension)
+    public static string GetSubtitleBaseURL(Guid mediaItemId, EndPointSettings client, out string subMime, out string subExtension)
     {
       SubtitleCodec codec = SubtitleCodec.Unknown;
       subMime = null;
@@ -243,8 +250,8 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         subExtension = SubtitleHelper.GetSubtitleExtension(codec);
         string subType = codec.ToString();
         return string.Format(GetBaseResourceURL()
-                    + GetResourceUrl(item.MediaItemId.ToString())
-                    + "?aspect=SUBTITLE&type={0}&file=subtitle.{1}", subType, subExtension);
+                    + GetResourceUrl(mediaItemId.ToString(), client.ClientId)
+                    + "&aspect=SUBTITLE&type={0}&file=subtitle.{1}", subType, subExtension);
       }
       return null;
     }

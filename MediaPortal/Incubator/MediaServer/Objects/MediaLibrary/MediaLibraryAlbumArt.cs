@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Profiles;
@@ -32,18 +34,41 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryAlbumArt : IDirectoryAlbumArt
   {
-    public MediaItem Item { get; private set; }
+    private readonly string _defaultFanArtMediaType;
+
     public EndPointSettings Client { get; private set; }
+    public Guid MediaItemId { get; private set; }
 
     public MediaLibraryAlbumArt(MediaItem item, EndPointSettings client)
     {
-      Item = item;
+      MediaItemId = item.MediaItemId;
       Client = client;
+      _defaultFanArtMediaType = DlnaResourceAccessUtils.GetFanArtMediaType(item);
+    }
+
+    public MediaLibraryAlbumArt(Guid mediaItemId, EndPointSettings client)
+    {
+      MediaItemId = mediaItemId;
+      Client = client;
+      _defaultFanArtMediaType = FanArtMediaTypes.Undefined;
+    }
+
+    public void Initialise(string channelName, bool isTv)
+    {
+      Uri = DlnaResourceAccessUtils.GetChannelLogoBaseURL(channelName, Client, isTv);
+
+      string profileId = "JPEG_TN";
+      string mimeType = "image/jpeg";
+      DlnaProfiles.TryFindCompatibleProfile(Client, DlnaProfiles.ResolveImageProfile(ImageContainer.Jpeg, Client.Profile.Settings.Thumbnails.MaxWidth, Client.Profile.Settings.Thumbnails.MaxHeight),
+        ref profileId, ref mimeType);
+
+      ProfileId = profileId;
+      MimeType = mimeType;
     }
 
     public void Initialise(string fanartType = null)
     {
-      Uri = DlnaResourceAccessUtils.GetThumbnailBaseURL(Item, Client, fanartType);
+      Uri = DlnaResourceAccessUtils.GetThumbnailBaseURL(MediaItemId, Client, fanartType ?? _defaultFanArtMediaType);
 
       string profileId = "JPEG_TN";
       string mimeType = "image/jpeg";

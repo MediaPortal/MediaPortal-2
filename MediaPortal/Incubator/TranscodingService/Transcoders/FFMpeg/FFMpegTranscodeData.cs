@@ -31,7 +31,10 @@ using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Encod
 using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
 using System;
 using System.Linq;
+using MediaPortal.Common.Services.ResourceAccess.RawUrlResourceProvider;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
+using MediaPortal.Common;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 {
@@ -39,6 +42,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
   {
     private static readonly string BIN_TRANSCODER = FFMpegBinary.FFMpegPath;
     protected string _overrideParams = null;
+    protected Dictionary<ResourcePath, string> _runtimeResourcePaths = new Dictionary<ResourcePath, string>();
 
     public FFMpegTranscodeData(string workPath)
     {
@@ -46,27 +50,28 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       WorkPath = workPath;
     }
 
-    public string ClientId;
-    public string TranscodeId;
-    public string TranscoderBinPath;
-    public List<string> GlobalArguments = new List<string>();
-    public Dictionary<int, List<string>> InputArguments = new Dictionary<int, List<string>>();
-    public Dictionary<int, Dictionary<int, List<string>>> InputSubtitleArguments = new Dictionary<int, Dictionary<int, List<string>>>();
-    public List<string> OutputArguments = new List<string>();
-    public List<string> OutputFilter = new List<string>();
-    public Dictionary<int, IResourceAccessor> InputResourceAccessor;
-    public Dictionary<int, List<string>> InputSubtitleFilePaths = new Dictionary<int, List<string>>();
-    public string OutputFilePath;
-    public bool IsLive = false;
-    public bool IsStream = false;
-    public Stream LiveStream = null;
-    public string WorkPath = null;
-    public string SegmentPlaylist = null;
-    public string SegmentBaseUrl = null;
-    public Stream SegmentManifestData = null;
-    public Stream SegmentPlaylistData = null;
-    public Stream SegmentSubsPlaylistData = null;
-    public FFMpegEncoderHandler.EncoderHandler Encoder = FFMpegEncoderHandler.EncoderHandler.Software;
+    public string ClientId { get; set; }
+    public string TranscodeId { get; set; }
+    public string TranscoderBinPath { get; set; }
+    public List<string> GlobalArguments { get; set; } = new List<string>();
+    public Dictionary<int, List<string>> InputArguments { get; set; } = new Dictionary<int, List<string>>();
+    public Dictionary<int, Dictionary<int, List<string>>> InputSubtitleArguments { get; set; } = new Dictionary<int, Dictionary<int, List<string>>>();
+    public List<string> OutputArguments { get; set; } = new List<string>();
+    public List<string> OutputFilter { get; set; } = new List<string>();
+    public Dictionary<int, string> InputMediaFilePaths { get; set; } = new Dictionary<int, string>();
+    public Dictionary<int, List<string>> InputSubtitleFilePaths { get; set; } = new Dictionary<int, List<string>>();
+    public string OutputFilePath { get; set; }
+    public bool IsLive { get; set; } = false;
+    public bool IsStream { get; set; } = false;
+    public bool ConcatedFileInput { get; set; } = false;
+    public Stream LiveStream { get; set; } = null;
+    public string WorkPath { get; set; } = null;
+    public string SegmentPlaylist { get; set; } = null;
+    public string SegmentBaseUrl { get; set; } = null;
+    public Stream SegmentManifestData { get; set; } = null;
+    public Stream SegmentPlaylistData { get; set; } = null;
+    public Stream SegmentSubsPlaylistData { get; set; } = null;
+    public FFMpegEncoderHandler.EncoderHandler Encoder { get; set; } = FFMpegEncoderHandler.EncoderHandler.Software;
 
     public void AddSubtitle(int mediaSourceIndex, string subtitle)
     {
@@ -87,9 +92,57 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       InputSubtitleArguments[mediaSourceIndex][subtitleIndex].Add(arg);
     }
 
-    public int FirstResourceIndex => InputResourceAccessor == null ? -1 : InputResourceAccessor.First().Key;
-    public IResourceAccessor FirstResourceAccessor => InputResourceAccessor?.FirstOrDefault().Value;
-    public string FirstSubtitleFilePath => InputSubtitleFilePaths.FirstOrDefault().Value.FirstOrDefault();
+    public int FirstResourceIndex => InputMediaFilePaths.Any() ? InputMediaFilePaths.First().Key : -1;
+
+    public IEnumerable<IResourceAccessor> GetResourceAccessors()
+    {
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      List<IResourceAccessor> resources = new List<IResourceAccessor>();
+      foreach (var res in InputMediaFilePaths)
+      {
+        var path = ResourcePath.Deserialize(res.Value);
+        if (TranscodeLiveAccessor.TRANSCODE_LIVE_PROVIDER_ID == path.BasePathSegment.ProviderId)
+        {
+          resources.Add(new TranscodeLiveAccessor(Convert.ToInt32(path.BasePathSegment.Path)));
+        }
+        else if (path.TryCreateLocalResourceAccessor(out var accessor))
+        {
+          resources.Add(accessor);
+        }
+      }
+      return resources;
+    }
+
+    public IResourceAccessor GetFirstResourceAccessor()
+    {
+      IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+      List<IResourceAccessor> resources = new List<IResourceAccessor>();
+      foreach (var res in InputMediaFilePaths)
+      {
+        var path = ResourcePath.Deserialize(res.Value);
+        if (TranscodeLiveAccessor.TRANSCODE_LIVE_PROVIDER_ID == path.BasePathSegment.ProviderId)
+        {
+          return new TranscodeLiveAccessor(Convert.ToInt32(path.BasePathSegment.Path));
+        }
+        else if (path.TryCreateLocalResourceAccessor(out var accessor))
+
+        {
+          return accessor;
+        }
+      }
+      return null;
+    }
+
+    public void ClearRuntimeResourcePaths()
+    {
+      _runtimeResourcePaths.Clear();
+    }
+
+    public void AddRuntimeResourcePath(ResourcePath resourcePath, string runtimePath)
+    {
+      if (!_runtimeResourcePaths.ContainsKey(resourcePath))
+        _runtimeResourcePaths.Add(resourcePath, runtimePath);
+    }
 
     public string TranscoderArguments
     {
@@ -106,43 +159,98 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           {
             result.Append(arg + " ");
           }
-          if (InputResourceAccessor != null && InputResourceAccessor.Count > 0)
+          if (InputMediaFilePaths?.Count > 0)
           {
-            foreach (int sourceMediaIndex in InputResourceAccessor.Keys)
+            if (ConcatedFileInput)
             {
-              foreach (string arg in InputArguments[sourceMediaIndex])
+              List<string> concatList = new List<string>();
+              foreach (int sourceMediaIndex in InputMediaFilePaths.Keys)
               {
-                result.Append(arg + " ");
+                var path = ResourcePath.Deserialize(InputMediaFilePaths[sourceMediaIndex]);
+                if (path.TryCreateLocalResourceAccessor(out var res))
+                {
+                  if (res is ILocalFsResourceAccessor fileRes)
+                    concatList.Add(fileRes.LocalFileSystemPath);
+                  else if (_runtimeResourcePaths.TryGetValue(path, out var runtimePath))
+                    concatList.Add(runtimePath);
+                }
               }
-              if (InputResourceAccessor[sourceMediaIndex] is ITranscodeLiveAccessor)
+              result.Append($"-i concat:\"{string.Join("|", concatList)}\" ");
+            }
+            else
+            {
+              foreach (int sourceMediaIndex in InputMediaFilePaths.Keys)
               {
-                result.Append("-i pipe: ");
-              }
-              else if (InputResourceAccessor[sourceMediaIndex] is ILocalFsResourceAccessor fileRes)
-              {
-                result.Append("-i \"" + fileRes.LocalFileSystemPath + "\" ");
-              }
-              else if (InputResourceAccessor[sourceMediaIndex] is INetworkResourceAccessor urlRes)
-              {
-                var resolvedUrl = UrlHelper.ResolveHostToIPv4Url(urlRes.URL);
-                result.Append("-i \"" + resolvedUrl + "\" ");
+                foreach (string arg in InputArguments[sourceMediaIndex])
+                {
+                  result.Append(arg + " ");
+                }
+
+                var path = ResourcePath.Deserialize(InputMediaFilePaths[sourceMediaIndex]);
+                if (TranscodeLiveAccessor.TRANSCODE_LIVE_PROVIDER_ID == path.BasePathSegment.ProviderId)
+                {
+                  if (_runtimeResourcePaths.TryGetValue(path, out var runtimePath))
+                  {
+                    var pathRuntitme = ResourcePath.Deserialize(runtimePath);
+                    if (SlimTvResourceProvider.SLIMTV_RESOURCE_PROVIDER_ID == pathRuntitme.BasePathSegment.ProviderId)
+                    {
+                      using (var slimTvAccessor = SlimTvResourceProvider.GetResourceAccessor(pathRuntitme.BasePathSegment.Path))
+                      {
+                        if (slimTvAccessor is INetworkResourceAccessor slimTvNet)
+                          result.Append("-i \"" + slimTvNet.URL + "\" ");
+                      }
+                    }
+                  }
+                  else
+                  {
+                    result.Append("-i pipe: ");
+                  }
+                }
+                else if (path.IsNetworkResource)
+                {
+                  var resolvedUrl = UrlHelper.ResolveHostToIPv4Url(path.BasePathSegment.Path);
+                  result.Append("-i \"" + resolvedUrl + "\" ");
+                }
+                else if (path.TryCreateLocalResourceAccessor(out var res))
+                {
+                  if (res is ILocalFsResourceAccessor fileRes)
+                    result.Append("-i \"" + fileRes.LocalFileSystemPath + "\" ");
+                  else if (_runtimeResourcePaths.TryGetValue(path, out var runtimePath))
+                    result.Append("-i \"" + runtimePath + "\" ");
+                }
               }
             }
           }
-          if (InputSubtitleFilePaths != null && InputSubtitleFilePaths.Count > 0)
+          if (InputSubtitleFilePaths?.Count > 0)
           {
             foreach (int sourceMediaIndex in InputSubtitleFilePaths.Keys)
             {
               for(int subIdx = 0; subIdx < InputSubtitleFilePaths[sourceMediaIndex].Count; subIdx++)
               {
-                string subtitle = InputSubtitleFilePaths[sourceMediaIndex][subIdx];
-                if (string.IsNullOrEmpty(subtitle) == false)
+                var path = ResourcePath.Deserialize(InputSubtitleFilePaths[sourceMediaIndex][subIdx]);
+                if (path.TryCreateLocalResourceAccessor(out var res))
                 {
-                  foreach (string arg in InputSubtitleArguments[sourceMediaIndex][subIdx])
+                  try
                   {
-                    result.Append(arg + " ");
+                    string filePath;
+                    if (res is ILocalFsResourceAccessor fileRes)
+                      filePath = fileRes.LocalFileSystemPath;
+                    else if (_runtimeResourcePaths.TryGetValue(path, out var runtimePath))
+                      filePath = runtimePath;
+                    else
+                      continue;
+
+                    foreach (string arg in InputSubtitleArguments[sourceMediaIndex][subIdx])
+                    {
+                      result.Append(arg + " ");
+                    }
+
+                    result.Append("-i \"" + filePath + "\" ");
                   }
-                  result.Append("-i \"" + subtitle + "\" ");
+                  finally
+                  {
+                    res.Dispose();
+                  }
                 }
               }
             }
@@ -174,13 +282,31 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         else
         {
           string arg = _overrideParams;
-          if (InputResourceAccessor != null && InputResourceAccessor.Count > 0)
+          if (InputMediaFilePaths?.Count > 0)
           {
-            arg = arg.Replace(TranscodeProfileManager.INPUT_FILE_TOKEN, "\"" + ((ILocalFsResourceAccessor)FirstResourceAccessor).LocalFileSystemPath + "\"");
+            var path = ResourcePath.Deserialize(InputMediaFilePaths.Values.First());
+            if (path.TryCreateLocalResourceAccessor(out var res))
+            {
+              if (res is ILocalFsResourceAccessor fileRes)
+                arg = arg.Replace(TranscodeProfileManager.INPUT_FILE_TOKEN, "\"" + fileRes.LocalFileSystemPath) + "\"";
+              else if (_runtimeResourcePaths.TryGetValue(path, out var runtimePath))
+                arg = arg.Replace(TranscodeProfileManager.INPUT_FILE_TOKEN, "\"" + runtimePath) + "\"";
+
+              res.Dispose();
+            }
           }
-          if (InputSubtitleFilePaths != null && InputSubtitleFilePaths.Count > 0  && string.IsNullOrEmpty(FirstSubtitleFilePath) == false)
+          if (InputSubtitleFilePaths?.Count > 0)
           {
-            arg = arg.Replace(TranscodeProfileManager.SUBTITLE_FILE_TOKEN, "\"" + FirstSubtitleFilePath) + "\"";
+            var path = ResourcePath.Deserialize(InputSubtitleFilePaths.Values.First().First());
+            if (path.TryCreateLocalResourceAccessor(out var res))
+            {
+              if (res is ILocalFsResourceAccessor fileRes)
+                arg = arg.Replace(TranscodeProfileManager.SUBTITLE_FILE_TOKEN, "\"" + fileRes.LocalFileSystemPath) + "\"";
+              else if (_runtimeResourcePaths.TryGetValue(path, out var runtimePath))
+                arg = arg.Replace(TranscodeProfileManager.SUBTITLE_FILE_TOKEN, "\"" + runtimePath) + "\"";
+
+              res.Dispose();
+            }
           }
           if (string.IsNullOrEmpty(OutputFilePath) == false)
           {

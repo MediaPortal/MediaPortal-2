@@ -40,14 +40,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
     private const string DEFAULT_PROFILE_ID = "WebDefault";
     private const string PROFILE_FILE_NAME = "StreamingProfiles.xml";
 
-    public  const string TRANSCODE_PROFILE_SECTION = "MP2EXT";
+    public const string TRANSCODE_PROFILE_SECTION = "MP2EXT";
 
     public static Dictionary<string, EndPointProfile> Profiles = new Dictionary<string, EndPointProfile>();
 
     public static IPAddress ResolveIpAddress(string address)
     {
       try
-      { 
+      {
         // Get host IP addresses
         IPAddress[] hostIPs = Dns.GetHostAddresses(address);
         // Get local IP addresses
@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
         foreach (IPAddress hostIP in hostIPs)
         {
           // Is localhost
-          if (IPAddress.IsLoopback(hostIP)) 
+          if (IPAddress.IsLoopback(hostIP))
             return IPAddress.Loopback;
           // Is local address
           foreach (IPAddress localIP in localIPs)
@@ -123,7 +123,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                   {
                     Logger.Info("ProfileManager: Profile: {0}, ParentProfile: {1}, ParentTargets: {2}", profile.Name, parentProfileId, string.Join(", ", Profiles[parentProfileId].Targets));
                     profile.Targets = new List<string>(Profiles[parentProfileId].Targets);
-                    
+
                     profile.Settings.Thumbnails.MaxHeight = Profiles[parentProfileId].Settings.Thumbnails.MaxHeight;
                     profile.Settings.Thumbnails.MaxWidth = Profiles[parentProfileId].Settings.Thumbnails.MaxWidth;
                     profile.Settings.Thumbnails.Delivery = Profiles[parentProfileId].Settings.Thumbnails.Delivery;
@@ -156,7 +156,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
               }
             }
             #endregion Targets
-            
+
             else if (nodeName == "WebMediaFormats" && reader.NodeType == XmlNodeType.Element)
             {
               while (reader.Read())
@@ -247,8 +247,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles
                     }
                   }
                 }
-                    }
-                  }
+              }
+            }
             else if (nodeName == "Profile" && reader.NodeType == XmlNodeType.EndElement)
             {
               if (Profiles.ContainsKey(profile.ID))

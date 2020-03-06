@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -51,7 +52,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
-    private const double DEFAULT_THUMBNAIL_OFFSET = 1.0 / 3.0;
+    protected const double DEFAULT_THUMBNAIL_OFFSET = 1.0 / 3.0;
+    protected const int MAX_CONCURRENT_OPENCV = 10;
 
     #endregion
 
@@ -59,6 +61,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
 
     protected static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
     protected MetadataExtractorMetadata _metadata;
+    protected static readonly SemaphoreSlim OPENCV_THROTTLE_LOCK = new SemaphoreSlim(MAX_CONCURRENT_OPENCV, MAX_CONCURRENT_OPENCV);
 
     #endregion
 
@@ -116,12 +119,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
       return false;
     }
 
-    private Task<bool> ExtractThumbnailAsync(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    private async Task<bool> ExtractThumbnailAsync(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // We can only work on files and make sure this file was detected by a lower MDE before (title is set then).
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!lfsra.IsFile || !extractedAspectData.ContainsKey(VideoStreamAspect.ASPECT_ID))
-        return Task.FromResult(false);
+        return false;
 
       //ServiceRegistration.Get<ILogger>().Info("OCVVideoThumbnailer: Evaluate {0}", lfsra.ResourceName);
 
@@ -145,7 +148,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
       }
 
       if (!isPrimaryResource) //Ignore subtitles
-        return Task.FromResult(false);
+        return false;
 
       // Check for a reasonable time offset
       int defaultVideoOffset = 720;
@@ -167,46 +170,56 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
         downscale = width / 256.0; //256 is max size of large thumbnail aspect
       }
 
-      using (lfsra.EnsureLocalFileSystemAccess())
+      await OPENCV_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
+      try
       {
-        using (VideoCapture capture = new VideoCapture())
+        using (lfsra.EnsureLocalFileSystemAccess())
         {
-          capture.Open(lfsra.LocalFileSystemPath);
-          int capturePos = defaultVideoOffset * 1000;
-          if (capture.FrameCount > 0 && capture.Fps > 0)
+          using (VideoCapture capture = new VideoCapture())
           {
-            var duration = capture.FrameCount / capture.Fps;
-            if (defaultVideoOffset > duration)
-              capturePos = Convert.ToInt32(duration * DEFAULT_THUMBNAIL_OFFSET * 1000);
-          }
-          if (capture.FrameWidth > 0 && width == 0)
-          {
-            width = capture.FrameWidth;
-            downscale = width / 256.0; //256 is max size of large thumbnail aspect
-          }
-          capture.PosMsec = capturePos;
-          using (var mat = capture.RetrieveMat())
-          {
-            if (mat.Height > 0 && mat.Width > 0)
+            capture.Open(lfsra.LocalFileSystemPath);
+            int capturePos = defaultVideoOffset * 1000;
+            if (capture.FrameCount > 0 && capture.Fps > 0)
             {
-              width = mat.Width;
-              height = mat.Height;
-              ServiceRegistration.Get<ILogger>().Debug("OCVVideoThumbnailer: Scaling thumbnail of size {1}x{2} for resource '{0}'", lfsra.LocalFileSystemPath, width, height);
-              using (var scaledMat = mat.Resize(new OpenCvSharp.Size(width / downscale, height / downscale)))
-              {
-                var binary = scaledMat.ToBytes();
-                MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
-                ServiceRegistration.Get<ILogger>().Info("OCVVideoThumbnailer: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
-              }
+              var duration = capture.FrameCount / capture.Fps;
+              if (defaultVideoOffset > duration)
+                capturePos = Convert.ToInt32(duration * DEFAULT_THUMBNAIL_OFFSET * 1000);
             }
-            else
+
+            if (capture.FrameWidth > 0 && width == 0)
             {
-              ServiceRegistration.Get<ILogger>().Warn("OCVVideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+              width = capture.FrameWidth;
+              downscale = width / 256.0; //256 is max size of large thumbnail aspect
+            }
+
+            capture.PosMsec = capturePos;
+            using (var mat = capture.RetrieveMat())
+            {
+              if (mat.Height > 0 && mat.Width > 0)
+              {
+                width = mat.Width;
+                height = mat.Height;
+                ServiceRegistration.Get<ILogger>().Debug("OCVVideoThumbnailer: Scaling thumbnail of size {1}x{2} for resource '{0}'", lfsra.LocalFileSystemPath, width, height);
+                using (var scaledMat = mat.Resize(new OpenCvSharp.Size(width / downscale, height / downscale)))
+                {
+                  var binary = scaledMat.ToBytes();
+                  MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, binary);
+                  ServiceRegistration.Get<ILogger>().Info("OCVVideoThumbnailer: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+                }
+              }
+              else
+              {
+                ServiceRegistration.Get<ILogger>().Warn("OCVVideoThumbnailer: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+              }
             }
           }
         }
       }
-      return Task.FromResult(true);
+      finally
+      {
+        OPENCV_THROTTLE_LOCK.Release();
+      }
+      return true;
     }
 
     public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)

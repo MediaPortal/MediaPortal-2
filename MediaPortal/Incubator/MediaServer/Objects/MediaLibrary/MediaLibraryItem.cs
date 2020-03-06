@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -32,14 +33,19 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryItem : BasicItem, IDirectoryItemThumbnail
   {
-    public MediaItem Item { get; protected set; }
+    public Guid MediaItemId { get; protected set; }
 
     public MediaLibraryItem(MediaItem item, EndPointSettings client)
-      : base(item.MediaItemId.ToString(), client)
+      : this(item.MediaItemId.ToString(), item, client)
     {
-      Item = item;
+    }
+
+    public MediaLibraryItem(string key, MediaItem item, EndPointSettings client)
+      : base(key, client)
+    {
+      MediaItemId = item.MediaItemId;
       SingleMediaItemAspect aspect;
-      if (MediaItemAspect.TryGetAspect(Item.Aspects, MediaAspect.Metadata, out aspect))
+      if (MediaItemAspect.TryGetAspect(item.Aspects, MediaAspect.Metadata, out aspect))
       {
         Title = aspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
       }

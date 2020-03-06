@@ -24,41 +24,43 @@
 
 using System.Collections.Generic;
 using System.Globalization;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseFFMpegOutputLines
   {
-    internal static void ParseFFMpegOutputLines(string[] input, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
+    internal static void ParseFFMpegOutputLines(IResourceAccessor file, IEnumerable<string> input, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
     {
       foreach (string inputLine in input)
       {
         string line = inputLine.Trim();
         if (line.IndexOf("Input #0") > -1)
         {
-          FFMpegParseInputLine.ParseInputLine(line, ref info);
+          FFMpegParseInputLine.ParseInputLine(file, line, ref info);
         }
         else if (line.IndexOf("major_brand") > -1)
         {
           string[] tokens = line.Split(':');
-          info.Metadata.MajorBrand = tokens[1].Trim();
+          info.Metadata[Editions.DEFAULT_EDITION].MajorBrand = tokens[1].Trim();
         }
         else if (line.IndexOf("Duration") > -1)
         {
-          FFMpegParseDurationLine.ParseDurationLine(line, ref info);
+          FFMpegParseDurationLine.ParseDurationLine(file, line, ref info);
         }
         else if (line.IndexOf("Stream #0") > -1 && line.IndexOf("Video:") > -1)
         {
-          FFMpegParseStreamVideoLine.ParseStreamVideoLine(line, ref info, countryCodesMapping);
+          FFMpegParseStreamVideoLine.ParseStreamVideoLine(file, line, ref info, countryCodesMapping);
         }
         else if (line.IndexOf("Stream #0") > -1 && line.IndexOf("Audio:") > -1)
         {
-          FFMpegParseStreamAudioLine.ParseStreamAudioLine(line, ref info, countryCodesMapping);
+          FFMpegParseStreamAudioLine.ParseStreamAudioLine(file, line, ref info, countryCodesMapping);
         }
         else if (line.IndexOf("Stream #0") > -1 && line.IndexOf("Subtitle:") > -1)
         {
-          FFMpegParseStreamSubtitleLine.ParseStreamSubtitleLine(line, ref info, countryCodesMapping);
+          FFMpegParseStreamSubtitleLine.ParseStreamSubtitleLine(file, line, ref info, countryCodesMapping);
         }
       }
     }

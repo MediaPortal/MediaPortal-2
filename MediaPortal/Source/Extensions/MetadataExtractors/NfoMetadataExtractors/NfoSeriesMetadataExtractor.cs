@@ -359,13 +359,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                 }
                 else
                 {
-                  EpisodeInfo episode = new EpisodeInfo();
+                  if (!string.IsNullOrEmpty(series.ShowTitle))
+                    MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME, series.ShowTitle);
                   if (series.Id.HasValue)
-                    episode.SeriesTvdbId = series.Id.Value;
-                  if (series.Premiered.HasValue)
-                    episode.SeriesFirstAired = series.Premiered.Value;
-                  episode.SeriesName = series.ShowTitle;
-                  episode.SetMetadata(extractedAspectData);
+                    MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, series.Id.Value.ToString());
                 }
               }
             }

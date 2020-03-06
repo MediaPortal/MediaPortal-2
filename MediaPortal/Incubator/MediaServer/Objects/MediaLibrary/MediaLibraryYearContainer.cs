@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
@@ -45,7 +46,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       _optionalMiaTypeIds = optionalMiaTypeIds;
     }
 
-    public HomogenousMap GetItems()
+    public HomogenousMap GetItems(string sortCriteria)
     {
       List<Guid> necessaryMias = new List<Guid>(_necessaryMiaTypeIds);
       if (necessaryMias.Contains(MediaAspect.ASPECT_ID)) necessaryMias.Remove(MediaAspect.ASPECT_ID); //Group MIA cannot be present
@@ -53,11 +54,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       return library.GetValueGroups(MediaAspect.ATTR_RECORDINGTIME, null, ProjectionFunction.DateToYear, necessaryMias, null, true, false);
     }
 
-    public override void Initialise()
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
-      HomogenousMap items = GetItems();
+      base.Initialise(sortCriteria, offset, count);
 
-      foreach (KeyValuePair<object, object> item in items)
+      HomogenousMap items = GetItems(sortCriteria);
+      foreach (KeyValuePair<object, object> item in items.OrderBy(y => y.Key.ToString()))
       {
         try
         {

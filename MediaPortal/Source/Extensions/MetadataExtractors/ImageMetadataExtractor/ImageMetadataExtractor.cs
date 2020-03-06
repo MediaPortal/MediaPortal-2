@@ -46,7 +46,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for image files. Supports several formats.
   /// </summary>
-  public class ImageMetadataExtractor : IMetadataExtractor
+  public class ImageMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -64,6 +64,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
     /// Default mimetype for not detected formats.
     /// </summary>
     public const string DEFAULT_MIMETYPE = "image/unknown";
+
+    public const int MAX_LARGE_THUMBNAIL_SIZE = 256;
 
     #endregion Constants
 
@@ -107,6 +109,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       _settingWatcher.SettingsChanged += SettingsChanged;
 
       LoadSettings();
+    }
+
+    public virtual void Dispose()
+    {
+      _settingWatcher.Dispose();
     }
 
     #endregion Ctor
@@ -158,9 +165,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
       if (DosPathHelper.GetFileNameWithoutExtension(fileName).ToLowerInvariant() == "folder")
         return false; //Ignore folder images
 
-      bool refresh = false;
-      if (extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID))
-        refresh = true;
+      bool refresh = extractedAspectData.ContainsKey(ImageAspect.ASPECT_ID);
 
       try
       {
@@ -246,7 +251,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, forceQuickMode, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, MAX_LARGE_THUMBNAIL_SIZE, MAX_LARGE_THUMBNAIL_SIZE, forceQuickMode, out thumbData, out imageType))
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
             }
           }
@@ -288,7 +293,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               // Thumbnail extraction
               IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
               ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, cachedOnly, out thumbData, out imageType))
+              if (generator.GetThumbnail(localFsResourcePath, MAX_LARGE_THUMBNAIL_SIZE, MAX_LARGE_THUMBNAIL_SIZE, cachedOnly, out thumbData, out imageType))
               {
                 MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
                 updated = true;

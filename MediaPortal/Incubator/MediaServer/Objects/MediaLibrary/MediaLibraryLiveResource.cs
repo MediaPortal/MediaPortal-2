@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
@@ -32,23 +31,21 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 {
   public class MediaLibraryLiveResource : IDirectoryResource
   {
-    public MediaItem Item { get; private set; }
+    public int ChannelId { get; private set; }
+    public string Key { get; private set; }
     public EndPointSettings Client { get; private set; }
 
-    public MediaLibraryLiveResource(MediaItem item, EndPointSettings client)
+    public MediaLibraryLiveResource(string key, int channelId, EndPointSettings client)
     {
-      Item = item;
+      Key = key;
+      ChannelId = channelId;
       Client = client;
     }
 
     public void Initialise()
     {
-      DlnaMediaItem dlnaItem = Client.GetDlnaItem(Item, true);
-      var url = DlnaResourceAccessUtils.GetBaseResourceURL() + DlnaResourceAccessUtils.GetResourceUrl(Item.MediaItemId.ToString());
-      if (dlnaItem.IsSegmented == true)
-      {
-        url += "/playlist.m3u8";
-      }
+      DlnaMediaItem dlnaItem = Client.GetLiveDlnaItem(ChannelId);
+      var url = DlnaResourceAccessUtils.GetBaseResourceURL() + DlnaResourceAccessUtils.GetResourceUrl(Key + (dlnaItem.IsSegmented ? "/playlist.m3u8" : ""), Client.ClientId);
 
       BitRate = null;
       SampleFrequency = null;
@@ -60,26 +57,26 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       var dlnaProtocolInfo = DlnaProtocolInfoFactory.GetProfileInfo(dlnaItem, Client.Profile.ProtocolInfo);
       if (dlnaProtocolInfo != null)
         ProtocolInfo = dlnaProtocolInfo.ToString();
-      if (dlnaItem.DlnaMetadata == null)
+      if (dlnaItem.Metadata == null)
       {
-        throw new DlnaAspectMissingException("No DLNA metadata found for MediaItem " + dlnaItem.MediaSource.MediaItemId);
+        throw new DlnaAspectMissingException("No DLNA metadata found for MediaItem " + dlnaItem.MediaItemId);
       }
       if (dlnaItem.IsImage == false)
       {
-        if (dlnaItem.DlnaMetadata.Metadata.Bitrate > 0)
-          BitRate = Convert.ToUInt32((double)dlnaItem.DlnaMetadata.Metadata.Bitrate / 8.0);
-        if (dlnaItem.DlnaMetadata.Audio[0].Frequency > 0)
-          SampleFrequency = Convert.ToUInt32(dlnaItem.DlnaMetadata.Audio[0].Frequency);
-        if (dlnaItem.DlnaMetadata.Audio[0].Channels > 0)
-          NumberOfAudioChannels = Convert.ToUInt32(dlnaItem.DlnaMetadata.Audio[0].Channels);
+        if (dlnaItem.Metadata.Bitrate > 0)
+          BitRate = Convert.ToUInt32((double)dlnaItem.Metadata.Bitrate / 8.0);
+        if (dlnaItem.Audio[0].Frequency > 0)
+          SampleFrequency = Convert.ToUInt32(dlnaItem.Audio[0].Frequency);
+        if (dlnaItem.Audio[0].Channels > 0)
+          NumberOfAudioChannels = Convert.ToUInt32(dlnaItem.Audio[0].Channels);
       }
       if(dlnaItem.IsVideo == true)
       {
-        Resolution = dlnaItem.DlnaMetadata.Video.Width + "x" + dlnaItem.DlnaMetadata.Video.Height;
+        Resolution = dlnaItem.Video.Width + "x" + dlnaItem.Video.Height;
       }
       else if (dlnaItem.IsImage == true)
       {
-        Resolution = dlnaItem.DlnaMetadata.Image.Width + "x" + dlnaItem.DlnaMetadata.Image.Height;
+        Resolution = dlnaItem.Image.Width + "x" + dlnaItem.Image.Height;
       }
 
       Uri = url;

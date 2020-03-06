@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
 {
   public class FFMpegParseImageContainer
   {
-    internal static ImageContainer ParseImageContainer(string token, ILocalFsResourceAccessor lfsra)
+    internal static ImageContainer ParseImageContainer(string token, IResourceAccessor ra)
     {
       if (token != null)
       {
@@ -47,17 +47,18 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
       }
 
       //Try file extensions
-      if (lfsra?.LocalFileSystemPath != null)
+      var ext = ra?.ResourceName;
+      if (ext != null)
       {
-        if (lfsra.LocalFileSystemPath.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".bmp", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Bmp;
-        if (lfsra.LocalFileSystemPath.EndsWith(".gif", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".gif", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Gif;
-        if (lfsra.LocalFileSystemPath.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".jpg", StringComparison.InvariantCultureIgnoreCase) || ext.EndsWith(".jpeg", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Jpeg;
-        if (lfsra.LocalFileSystemPath.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".png", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Png;
-        if (lfsra.LocalFileSystemPath.EndsWith(".raw", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".raw", StringComparison.InvariantCultureIgnoreCase))
           return ImageContainer.Raw;
       }
 

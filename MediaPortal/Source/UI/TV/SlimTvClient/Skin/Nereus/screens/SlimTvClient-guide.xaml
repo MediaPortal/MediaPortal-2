@@ -108,7 +108,7 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="Program" Grid.Column="0" FontFamily="DefaultBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+            <Label x:Name="Program" Grid.Column="0" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                    Content="{Binding Path=CurrentProgram.Title}"
                    Color="{ThemeResource TextColor}"/>
             <Label Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" Opacity="0.6"

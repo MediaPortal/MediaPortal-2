@@ -27,6 +27,8 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
 using System.Linq;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 
@@ -34,7 +36,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
 {
   public class FFMpegParseStreamAudioLine
   {
-    internal static void ParseStreamAudioLine(string streamAudioLine, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
+    internal static void ParseStreamAudioLine(IResourceAccessor file, string streamAudioLine, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
     {
       streamAudioLine = streamAudioLine.Trim();
       AudioStream audio = new AudioStream();
@@ -122,7 +124,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
         }
       }
       audio.Default = streamAudioLine.IndexOf("(default)", StringComparison.InvariantCultureIgnoreCase) > -1;
-      info.Audio.Add(audio);
+      info.Audio[Editions.DEFAULT_EDITION].Add(audio);
     }
   }
 }

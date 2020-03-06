@@ -38,13 +38,14 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 
     public BasicObject Parent { get; set; }
 
-    protected BasicObject(string key, EndPointSettings client)
+    protected BasicObject(string key, EndPointSettings client, bool placeholder = false)
     {
       Resources = new List<IDirectoryResource>();
 	  
       Key = key;
       Parent = null;
       Client = client;
+      Placeholder = placeholder;
     }
 
     public virtual string Id
@@ -59,6 +60,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       set { throw new IllegalCallException("Meaningless in this implementation"); }
     }
 
+    public bool Placeholder { get; }
+
     public virtual string Title { get; set; }
 
     public virtual string Creator { get; set; }
@@ -71,7 +74,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 
     public abstract string Class { get; set; }
 	
-    public abstract void Initialise();
+    public abstract void Initialise(string sortCriteria, uint? offset = null, uint? count = null);
 
     public bool Equals(BasicObject other)
     {

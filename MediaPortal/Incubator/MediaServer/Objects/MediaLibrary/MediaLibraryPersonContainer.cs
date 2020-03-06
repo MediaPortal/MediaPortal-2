@@ -49,20 +49,27 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       _necessaryMIAs = necessaryMIAs;
     }
 
-    private IList<MediaItem> GetItems()
+    private IList<MediaItem> GetItems(string sortCriteria)
     {
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       IFilter filter = new FilteredRelationshipFilter(_role, _linkedRole, AppendUserFilter(null, _necessaryMIAs));
       MediaItemQuery query = new MediaItemQuery(NECESSARY_PERSON_MIA_TYPE_IDS, filter)
       {
-         SortInformation = new List<ISortInformation> { new AttributeSortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending) }
+         SortInformation = new List<ISortInformation> { new AttributeSortInformation(PersonAspect.ATTR_PERSON_NAME, SortDirection.Ascending) },
       };
       return library.Search(query, true, UserId, false);
     }
 
-    public override void Initialise()
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
-      foreach (MediaItem item in GetItems())
+      if (offset > 0)
+        return; //Should already be initialized
+
+      base.Initialise(sortCriteria, offset, count);
+
+      _children.Clear();
+      IList<MediaItem> items = GetItems(sortCriteria);
+      foreach (MediaItem item in items)
       {
         try
         {

@@ -44,7 +44,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       if (Client.Profile.Settings.Metadata.Delivery == MetadataDelivery.All)
       {
         SingleMediaItemAspect seriesAspect;
-        if (MediaItemAspect.TryGetAspect(Item.Aspects, SeasonAspect.Metadata, out seriesAspect))
+        if (MediaItemAspect.TryGetAspect(item.Aspects, SeasonAspect.Metadata, out seriesAspect))
         {
           var descriptionObj = seriesAspect.GetAttributeValue(SeasonAspect.ATTR_DESCRIPTION);
           if (descriptionObj != null)
@@ -53,7 +53,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       }
 
       //Support alternative ways to get album art
-      var albumArt = new MediaLibraryAlbumArt(Item, Client);
+      var albumArt = new MediaLibraryAlbumArt(item, Client);
       if (albumArt != null)
       {
         albumArt.Initialise();

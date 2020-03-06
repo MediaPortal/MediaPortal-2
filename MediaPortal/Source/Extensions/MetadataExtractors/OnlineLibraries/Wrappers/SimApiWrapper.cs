@@ -141,6 +141,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(MovieInfo movie)
+    {
+      if (!string.IsNullOrWhiteSpace(movie.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(movie);
+    }
+
     public override async Task<bool> UpdateFromOnlineMoviePersonAsync(MovieInfo movieInfo, PersonInfo person, string language, bool cacheOnly)
     {
       try
@@ -167,6 +175,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Exception while processing person {0}", ex, person.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(PersonInfo person)
+    {
+      if (!string.IsNullOrWhiteSpace(person.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(person);
     }
 
     #endregion

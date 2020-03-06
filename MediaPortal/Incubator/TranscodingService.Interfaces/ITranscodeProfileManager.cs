@@ -43,27 +43,27 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces
     /// <summary>
     /// Get the video transcoding profile that best matches the source video.
     /// </summary>
-    VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, int audioStreamIndex, int? subtitleStreamIndex, bool liveStreaming, string transcodeId);
+    VideoTranscoding GetVideoTranscoding(string section, string profile, MetadataContainer info, int edition, int audioStreamIndex, int? subtitleStreamIndex, bool liveStreaming, string transcodeId);
 
     /// <summary>
     /// Get the video transcoding profile that best matches the source video.
     /// </summary>
-    VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, IEnumerable<string> preferedAudioLanguages, bool liveStreaming, string transcodeId);
+    VideoTranscoding GetVideoTranscoding(string section, string profile, MetadataContainer info, int edition, IEnumerable<string> preferedAudioLanguages, bool liveStreaming, string transcodeId);
 
     /// <summary>
     /// Get the audio transcoding profile that best matches the source audio.
     /// </summary>
-    AudioTranscoding GetAudioTranscoding(string section, string profile, MetadataContainer info, bool liveStreaming, string transcodeId);
+    AudioTranscoding GetAudioTranscoding(string section, string profile, MetadataContainer info, int edition, bool liveStreaming, string transcodeId);
 
     /// <summary>
     /// Get the image transcoding profile that best matches the source image.
     /// </summary>
-    ImageTranscoding GetImageTranscoding(string section, string profile, MetadataContainer info, string transcodeId);
+    ImageTranscoding GetImageTranscoding(string section, string profile, MetadataContainer info, int edition, string transcodeId);
 
     /// <summary>
     /// Get a video transcoding profile that adds subtitles the source video.
     /// </summary>
-    VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, bool live, string transcodeId);
+    VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, MetadataContainer info, int edition, bool live, string transcodeId);
 
     /// <summary>
     /// Get a video transcoding profile that streams the live source video.

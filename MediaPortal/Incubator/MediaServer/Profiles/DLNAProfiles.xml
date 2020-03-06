@@ -155,6 +155,16 @@
       <VideoTarget container="Mpeg2Ps" videoCodec="Mpeg2" audioCodec="Ac3" audioBitrate="384" />
     </GenericTranscoding>
     <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ps" forceInheritance="true">
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+      </VideoTarget>
+      <AudioTarget container="Mp3" forceInheritance="true">
+        <AudioSource container="Flv" />
+        <AudioSource container="Asf" />
+        <AudioSource container="Rtp" />
+        <AudioSource container="Rtsp" />
+      </AudioTarget>
       <ImageTarget container="Jpeg" forceInheritance="true">
         <ImageSource container="Raw" />
         <ImageSource container="Bmp" />
@@ -2369,6 +2379,10 @@
       </Subtitles>
     </Settings>
     <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ps">
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+      </VideoTarget>
       <VideoTarget audioCodec="Mp3">
         <VideoSource audioCodec="Dts" />
         <VideoSource audioCodec="DtsHd" />
@@ -2396,6 +2410,10 @@
       </Subtitles>
     </Settings>
     <MediaTranscoding>
+      <VideoTarget container="Mpeg2Ps">
+        <VideoSource container="Rtp" />
+        <VideoSource container="Rtsp" />
+      </VideoTarget>
       <VideoTarget audioCodec="Mp3">
         <VideoSource audioCodec="Dts" />
         <VideoSource audioCodec="DtsHd" />

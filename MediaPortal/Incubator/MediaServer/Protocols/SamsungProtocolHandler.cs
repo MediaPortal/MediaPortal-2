@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
           }
           string mime = "";
           string type = "";
-          context.Response.Headers["CaptionInfo.sec"] = DlnaResourceAccessUtils.GetSubtitleBaseURL(item.MediaSource, item.Client, out mime, out type);
+          context.Response.Headers["CaptionInfo.sec"] = DlnaResourceAccessUtils.GetSubtitleBaseURL(item.MediaItemId, item.Client, out mime, out type);
         }
       }
 
@@ -58,9 +58,9 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
         if (context.Request.Headers["getMediaInfo.sec"] == "1")
         {
           //TODO: How to handle multiple video streams?
-          if (MediaItemAspect.TryGetAttribute(item.MediaSource.Aspects, VideoStreamAspect.ATTR_DURATION, out List<long> durations))
+          if (item.Metadata.Duration.HasValue)
           {
-            context.Response.Headers["MediaInfo.sec"] = $"SEC_Duration={Convert.ToInt32(durations.First()) * 1000};";
+            context.Response.Headers["MediaInfo.sec"] = $"SEC_Duration={Convert.ToInt32(item.Metadata.Duration.Value * 1000.0)};";
           }
         }
       }

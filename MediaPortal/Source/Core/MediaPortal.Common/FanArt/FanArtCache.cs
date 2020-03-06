@@ -211,16 +211,17 @@ namespace MediaPortal.Common.FanArt
             {
               if (Directory.Exists(folderPath))
               {
-                //Make sure file permissions are correct
-                foreach(string cacheFile in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
+                Parallel.ForEach(Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories).AsParallel(), cacheFile =>
                 {
                   try
                   {
+                    //Make sure file permissions are correct
                     File.SetAttributes(cacheFile, FileAttributes.Normal);
+                    File.Delete(cacheFile);
                   }
                   catch
                   { }
-                }
+                });
                 Directory.Delete(folderPath, true);
               }
               return;

@@ -23,8 +23,10 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
@@ -39,6 +41,15 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
   internal class TVAccess
   {
+    private class ChannelInfo
+    {
+      public int ChannelId;
+      public int SlotIndex;
+      public MediaItem MediaItem;
+      public string UserName;
+    }
+    private static readonly ConcurrentDictionary<string, ChannelInfo> CLIENT_CHANNELS = new ConcurrentDictionary<string, ChannelInfo>();
+
     internal static async Task<IList<IChannelGroup>> GetGroupsAsync(IOwinContext context)
     {
       Guid? user = ResourceAccessUtils.GetUser(context);
@@ -230,16 +241,58 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       if (channel == null)
         return null;
 
-      var item = await TimeshiftControl.StartTimeshiftAsync(userName, id, channel);
+      var client = CLIENT_CHANNELS.FirstOrDefault(c => c.Value.ChannelId == id);
+      if (client.Value?.MediaItem != null)
+      {
+        //Check if already streaming
+        if (client.Key == userName)
+          return client.Value.MediaItem;
+
+        //Use same stream url as other channel
+        if (!CLIENT_CHANNELS.TryAdd(userName, client.Value))
+          return null;
+        else
+          return client.Value.MediaItem;
+      }
+
+      var freeSlot = GetFreeSlot();
+      if (freeSlot == null)
+        return null;
+
+      var item = await TimeshiftControl.StartTimeshiftAsync(userName, freeSlot.Value, channel);
       if (!item.Success)
         return null;
+
+      //Initiate channel cache
+      ChannelInfo newChannel = new ChannelInfo
+      {
+        SlotIndex = freeSlot.Value,
+        ChannelId = id,
+        MediaItem = item.Result,
+        UserName = userName
+      };
+      if (!CLIENT_CHANNELS.TryAdd(userName, newChannel))
+      {
+        await TimeshiftControl.StopTimeshiftAsync(userName, freeSlot.Value);
+        return null;
+      }
 
       return item.Result;
     }
 
     internal static async Task<bool> StopTimeshiftAsync(IOwinContext context, int id, string userName)
     {
-      return await TimeshiftControl.StopTimeshiftAsync(userName, id);
+      if (!CLIENT_CHANNELS.TryRemove(userName, out ChannelInfo channel))
+        return false;
+
+      if (channel != null && !CLIENT_CHANNELS.Any(c => c.Value?.ChannelId == channel.ChannelId))
+      {
+        if (!(await TimeshiftControl.StopTimeshiftAsync(channel.UserName, channel.SlotIndex).ConfigureAwait(false)))
+        {
+          return false;
+        }
+      }
+      return true;
     }
 
     internal static Task<IList<ICard>> GetTunerCardsAsync(IOwinContext context)
@@ -264,6 +317,16 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
         return channel.Success && channel.Result.ChannelId == channelId;
       }
       return false;
+    }
+
+    private static int? GetFreeSlot()
+    {
+      var availableIndexes = new int[] { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 };
+      var usedIndexes = CLIENT_CHANNELS.Select(c => c.Value.SlotIndex).Distinct();
+      var freeIndexes = availableIndexes.Except(usedIndexes);
+      if (!freeIndexes.Any())
+        return null;
+      return freeIndexes.First();
     }
 
     internal static ITunerInfo TunerInfo

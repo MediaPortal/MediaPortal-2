@@ -104,11 +104,11 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         }
       }
 
-      var resource = new MediaLibraryResource(item, client);
-      resource.Initialise();
+      var resource = new MediaLibraryResource(client);
+      resource.Initialise(item);
       Resources.Add(resource);
 
-      if (client.Profile.MediaTranscoding.SubtitleSettings.SubtitleMode == SubtitleSupport.SoftCoded)
+      if (client.Profile.MediaTranscoding?.SubtitleSettings?.SubtitleMode == SubtitleSupport.SoftCoded)
       {
         MediaLibrarySubtitle sub = new MediaLibrarySubtitle(item, client);
         sub.Initialise();

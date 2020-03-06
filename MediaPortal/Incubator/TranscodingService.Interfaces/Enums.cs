@@ -24,6 +24,11 @@
 
 namespace MediaPortal.Extensions.TranscodingService.Interfaces
 {
+  public class Editions
+  {
+    public const int DEFAULT_EDITION = 0;
+  }
+
   public enum QualityMode
   {
     Default,

@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -30,177 +31,209 @@ using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Profiles;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
   static class StreamControl
   {
-    private static readonly Dictionary<Guid, StreamItem> _streamItems = new Dictionary<Guid, StreamItem>();
+    private static readonly ConcurrentDictionary<Guid, StreamItem> STREAM_ITEMS = new ConcurrentDictionary<Guid, StreamItem>();
 
     /// <summary>
     /// Returns a DLNA media item based on the given client and request
     /// </summary>
     /// <returns>Returns the requested DLNA media item otherwise null</returns>
-    internal static DlnaMediaItem GetStreamMedia(EndPointSettings client, Uri uri)
+    internal static StreamItem GetNewStreamItem(EndPointSettings client, Uri uri)
     {
+      if (STREAM_ITEMS.TryGetValue(client.ClientId, out var currentStreamItem))
+      {
+        return currentStreamItem;
+      }
+
+      currentStreamItem = new StreamItem(uri.Host);
+
       Guid mediaItemGuid = Guid.Empty;
       DlnaMediaItem dlnaItem = null;
-      StreamItem stream = new StreamItem();
-      stream.ClientIp = uri.Host;
-      bool isTV = false;
       int channel = 0;
       if (DlnaResourceAccessUtils.ParseMediaItem(uri, out mediaItemGuid))
       {
-        isTV = true;
-        if (!DlnaResourceAccessUtils.ParseTVChannel(uri, out channel))
+        if (mediaItemGuid == Guid.Empty)
+          throw new InvalidOperationException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
+
+        if (!client.DlnaMediaItems.TryGetValue(mediaItemGuid, out dlnaItem))
         {
-          isTV = false;
-          DlnaResourceAccessUtils.ParseRadioChannel(uri, out channel);
+          // Attempt to grab the media item from the database.
+          MediaItem item = MediaLibraryHelper.GetMediaItem(mediaItemGuid);
+          if (item == null)
+            throw new Exception(string.Format("Media item '{0}' not found.", mediaItemGuid));
+
+          dlnaItem = client.GetDlnaItem(item);
         }
+
+        if (dlnaItem == null)
+          throw new Exception(string.Format("DLNA media item '{0}' not found.", mediaItemGuid));
+      }
+      else if (DlnaResourceAccessUtils.ParseTVChannel(uri, out channel))
+      {
+        dlnaItem = client.GetLiveDlnaItem(channel);
+
+        if (dlnaItem == null)
+          throw new Exception(string.Format("DLNA TV channel '{0}' was never tuned.", channel));
+      }
+      else if(DlnaResourceAccessUtils.ParseRadioChannel(uri, out channel))
+      {
+        dlnaItem = client.GetLiveDlnaItem(channel);
+
+        if (dlnaItem == null)
+          throw new Exception(string.Format("DLNA radio channel '{0}' was never tuned.", channel));
       }
 
-      if (mediaItemGuid == Guid.Empty)
-      {
-        lock (_streamItems)
-        {
-          if (_streamItems.ContainsKey(client.ClientId) == false)
-          {
-            throw new InvalidOperationException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
-          }
-          else
-          {
-            mediaItemGuid = _streamItems[client.ClientId].RequestedMediaItem;
-            if (mediaItemGuid == Guid.Empty)
-            {
-              throw new InvalidOperationException(string.Format("Illegal request syntax. Correct syntax is '{0}'", DlnaResourceAccessUtils.SYNTAX));
-            }
-            Logger.Debug("StreamControl: Attempting to reload last mediaitem {0}", mediaItemGuid.ToString());
-          }
-        }
-      }
+      currentStreamItem.RequestedMediaItem = mediaItemGuid;
+      currentStreamItem.TranscoderObject = dlnaItem;
+      currentStreamItem.Title = dlnaItem?.MediaItemTitle;
+      currentStreamItem.LiveChannelId = channel > 0 ? channel : 0;
 
-      if (client.DlnaMediaItems.ContainsKey(mediaItemGuid) == false)
-      {
-        // Attempt to grab the media item from the database.
-        MediaItem item = MediaLibraryHelper.GetMediaItem(mediaItemGuid);
-        if (item == null)
-          throw new Exception(string.Format("Media item '{0}' not found.", mediaItemGuid));
-
-        dlnaItem = client.GetDlnaItem(item, false);
-      }
-      else
-      {
-        dlnaItem = client.DlnaMediaItems[mediaItemGuid];
-      }
-
-      if (dlnaItem == null)
-        throw new Exception(string.Format("DLNA media item '{0}' not found.", mediaItemGuid));
-
-      if (channel > 0)
-      {
-        if (isTV == true) stream.Title = "Live TV";
-        else stream.Title = "Live Radio";
-        stream.IsLive = true;
-        stream.LiveChannelId = channel;
-      }
-      else
-      {
-        if (MediaItemAspect.TryGetAttribute(dlnaItem.MediaSource.Aspects, MediaAspect.ATTR_TITLE, out string title))
-          stream.Title = title;
-        stream.IsLive = false;
-        stream.LiveChannelId = 0;
-      }
-      stream.RequestedMediaItem = mediaItemGuid;
-      stream.TranscoderObject = dlnaItem;
-
-      lock (_streamItems)
-      {
-        if (_streamItems.ContainsKey(client.ClientId) == false)
-        {
-          _streamItems.Add(client.ClientId, null);
-        }
-        _streamItems[client.ClientId] = stream;
-      }
-      return dlnaItem;
+      return currentStreamItem;
     }
 
     /// <summary>
     /// Returns a stream item based on the given client
     /// </summary>
     /// <returns>Returns the requested stream item otherwise null</returns>
-    internal static StreamItem GetStreamItem(EndPointSettings client)
+    internal static StreamItem GetExistingStreamItem(EndPointSettings client)
     {
-      if (ValidateIdentifier(client))
-      {
-        return _streamItems[client.ClientId];
-      }
+      if (STREAM_ITEMS.TryGetValue(client.ClientId, out var currentStreamItem))
+        return currentStreamItem;
+
       return null;
     }
-
-    internal static bool ValidateIdentifier(EndPointSettings client)
+    
+    /// <summary>
+    /// Does the preparation to start a transcode stream
+    /// </summary>
+    internal static async Task<TranscodeContext> StartTranscodeStreamingAsync(EndPointSettings client, double startTime, double lengthTime, StreamItem newStreamItem)
     {
-      return _streamItems.ContainsKey(client.ClientId);
+      if (STREAM_ITEMS.TryAdd(client.ClientId, newStreamItem))
+      {
+        await newStreamItem.BusyLock.WaitAsync();
+        try
+        {
+          if (newStreamItem?.TranscoderObject?.TranscodingParameter == null)
+          {
+            STREAM_ITEMS.TryRemove(client.ClientId, out _);
+            return null;
+          }
+
+          if (!newStreamItem.TranscoderObject.StartTrancoding())
+          {
+            Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", newStreamItem.RequestedMediaItem);
+            return null;
+          }
+
+          if (newStreamItem.IsLive)
+            newStreamItem.StreamContext = await MediaConverter.GetLiveStreamAsync(client.ClientId.ToString(), newStreamItem.TranscoderObject.TranscodingParameter, newStreamItem.LiveChannelId, true);
+          else
+            newStreamItem.StreamContext = await MediaConverter.GetMediaStreamAsync(client.ClientId.ToString(), newStreamItem.TranscoderObject.TranscodingParameter, startTime, lengthTime, true);
+
+          if (newStreamItem.StreamContext is TranscodeContext context)
+          {
+            context.UpdateStreamUse(true);
+            return context;
+          }
+          else if (newStreamItem.StreamContext != null)
+          {
+            //We want a transcoded stream
+            newStreamItem.StreamContext.Dispose();
+            newStreamItem.StreamContext = null;
+          }
+
+          return null;
+        }
+        finally
+        {
+          newStreamItem.BusyLock.Release();
+        }
+      }
+
+      return null;
     }
 
     /// <summary>
     /// Does the preparation to start a stream
     /// </summary>
-    internal static void StartStreaming(EndPointSettings client, double startTime, double lengthTime)
+    internal static async Task<StreamContext> StartOriginalFileStreamingAsync(EndPointSettings client, StreamItem newStreamItem)
     {
-      if (ValidateIdentifier(client))
+      if (STREAM_ITEMS.TryAdd(client.ClientId, newStreamItem))
       {
-        lock (_streamItems[client.ClientId].BusyLock)
+        await newStreamItem.BusyLock.WaitAsync();
+        try
         {
-          if (_streamItems[client.ClientId].TranscoderObject == null) return;
-          if (_streamItems[client.ClientId].TranscoderObject.StartTrancoding() == false)
+          IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
+          List<IResourceAccessor> resources = new List<IResourceAccessor>();
+          foreach (var res in newStreamItem.TranscoderObject.Metadata.FilePaths)
           {
-            Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", _streamItems[client.ClientId].RequestedMediaItem);
-            return;
+            var path = ResourcePath.Deserialize(res.Value);
+            if (mediaAccessor.LocalResourceProviders.TryGetValue(path.BasePathSegment.ProviderId, out var resourceProvider) &&
+                     resourceProvider is IBaseResourceProvider baseProvider && baseProvider.TryCreateResourceAccessor(path.BasePathSegment.Path, out var accessor))
+            {
+              using (accessor)
+              {
+                if (accessor is IFileSystemResourceAccessor)
+                {
+                  newStreamItem.TranscoderObject.StartStreaming();
+                  newStreamItem.StreamContext = await MediaConverter.GetFileStreamAsync(path);
+                  return newStreamItem.StreamContext;
+                }
+              }
+            }
           }
-
-          _streamItems[client.ClientId].TranscoderObject.StartStreaming();
-          if (_streamItems[client.ClientId].IsLive == true)
-          {
-            _streamItems[client.ClientId].StreamContext = MediaConverter.GetLiveStreamAsync(client.ClientId.ToString(), _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, _streamItems[client.ClientId].LiveChannelId, true).Result;
-          }
-          else
-          {
-            _streamItems[client.ClientId].StreamContext = MediaConverter.GetMediaStreamAsync(client.ClientId.ToString(), _streamItems[client.ClientId].TranscoderObject.TranscodingParameter, startTime, lengthTime, true).Result;
-          }
-          _streamItems[client.ClientId].StreamContext.UpdateStreamUse(true);
-          _streamItems[client.ClientId].IsActive = true;
-          _streamItems[client.ClientId].TranscoderObject.TranscodingContext = _streamItems[client.ClientId].StreamContext;
+        }
+        finally
+        {
+          newStreamItem.BusyLock.Release();
         }
       }
+
+      return null;
     }
 
     /// <summary>
     /// Stops the streaming
     /// </summary>
-    internal static void StopStreaming(EndPointSettings client)
+    internal static async Task StopStreamingAsync(EndPointSettings client)
     {
-      if (ValidateIdentifier(client))
+      if (STREAM_ITEMS.TryRemove(client.ClientId, out var currentStreamItem))
       {
-        lock (_streamItems[client.ClientId].BusyLock)
+        await currentStreamItem.BusyLock.WaitAsync();
+        try
         {
-          _streamItems[client.ClientId].IsActive = false;
-          if (_streamItems[client.ClientId].TranscoderObject != null)
-            _streamItems[client.ClientId].TranscoderObject.StopStreaming();
-
-          if (_streamItems[client.ClientId].StreamContext != null)
-            _streamItems[client.ClientId].StreamContext.UpdateStreamUse(false);
+          currentStreamItem.TranscoderObject?.StopStreaming();
+          if (currentStreamItem.StreamContext is TranscodeContext context)
+          {
+            context.UpdateStreamUse(false);
+          }
+          else if (currentStreamItem.StreamContext != null)
+          {
+            currentStreamItem.StreamContext.Dispose();
+            currentStreamItem.StreamContext = null;
+          }
+        }
+        finally
+        {
+          currentStreamItem.BusyLock.Release();
         }
       }
     }
 
-    internal static IMediaConverter MediaConverter
+    private static IMediaConverter MediaConverter
     {
       get { return ServiceRegistration.Get<IMediaConverter>(); }
     }
 
-    internal static ILogger Logger
+    private static ILogger Logger
     {
       get { return ServiceRegistration.Get<ILogger>(); }
     }

@@ -259,6 +259,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public async Task<bool> SearchMovieUniqueAndUpdateAsync(MovieInfo movieSearch, TLang language)
     {
       language = language != null ? language : PreferredLanguage;
+
       List<MovieInfo> movies = await SearchMovieAsync(movieSearch, language).ConfigureAwait(false);
       if (movies == null)
         return false;
@@ -308,16 +309,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (movies.Count == 1)
       {
-        if (movieSearch.MovieName.IsEmpty || GetLevenshteinDistance(movies[0], movieSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (!movies[0].ReleaseDate.HasValue || !movieSearch.ReleaseDate.HasValue || movies[0].ReleaseDate?.Year == movieSearch.ReleaseDate?.Year)
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
-          return true;
+          if (movieSearch.MovieName.IsEmpty || GetLevenshteinDistance(movies[0], movieSearch) <= MAX_LEVENSHTEIN_DIST)
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
+            return true;
+          }
+          if (NamesAreMostlyEqual(movies[0], movieSearch))
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
+            return true;
+          }
         }
-        if (NamesAreMostlyEqual(movies[0], movieSearch))
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
-          return true;
-        }
+
         // No valid match, clear list to allow further detection ways
         movies.Clear();
         return false;
@@ -344,8 +349,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
         }
 
-        var exactMatches = movies.Where(s => !s.MovieName.IsEmpty && 
-          (s.MovieName.IsEmpty && s.MovieName.Text == movieSearch.MovieName.Text || s.OriginalName == movieSearch.MovieName.Text || GetLevenshteinDistance(s, movieSearch) == 0)).ToList();
+        var exactMatches = movies.Where(s => !s.MovieName.IsEmpty && (!s.ReleaseDate.HasValue || !movieSearch.ReleaseDate.HasValue) &&
+          (IsEqual(s.MovieName.Text, movieSearch.MovieName.Text) || IsEqual(s.OriginalName, movieSearch.MovieName.Text) || GetLevenshteinDistance(s, movieSearch) == 0)).ToList();
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
@@ -353,7 +358,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return true;
         }
 
-        exactMatches = movies.Where(s => NamesAreMostlyEqual(s, movieSearch)).ToList();
+        exactMatches = movies.Where(s => NamesAreMostlyEqual(s, movieSearch) && (!s.ReleaseDate.HasValue || !movieSearch.ReleaseDate.HasValue)).ToList();
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", movieSearch);
@@ -393,6 +398,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<bool> IsCacheChangedForOnlineMovieCollectionAsync(MovieCollectionInfo collection, TLang language)
     {
       return Task.FromResult(false);
+    }
+
+    public virtual bool HasSearchableIds(MovieInfo movie)
+    {
+      return false;
     }
 
     #endregion
@@ -545,7 +555,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (episodes.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", episodeSearch, episodes.Count);
-        var exactMatches = episodes.FindAll(e => !e.EpisodeName.IsEmpty && (e.EpisodeName.Text == episodeSearch.EpisodeName.Text || GetLevenshteinDistance(e, episodeSearch) == 0));
+        var exactMatches = episodes.FindAll(e => !e.EpisodeName.IsEmpty && (IsEqual(e.EpisodeName.Text, episodeSearch.EpisodeName.Text) || 
+          GetLevenshteinDistance(e, episodeSearch) == 0));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", episodeSearch);
@@ -680,16 +691,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
       if (series.Count == 1)
       {
-        if (seriesSearch.SeriesName.IsEmpty || GetLevenshteinDistance(series[0], seriesSearch) <= MAX_LEVENSHTEIN_DIST)
+        if (!series[0].FirstAired.HasValue || !seriesSearch.FirstAired.HasValue || series[0].FirstAired?.Year == seriesSearch.FirstAired?.Year)
         {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
-          return true;
+          if (seriesSearch.SeriesName.IsEmpty || GetLevenshteinDistance(series[0], seriesSearch) <= MAX_LEVENSHTEIN_DIST)
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
+            return true;
+          }
+          if (NamesAreMostlyEqual(series[0], seriesSearch))
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
+            return true;
+          }
         }
-        if (NamesAreMostlyEqual(series[0], seriesSearch))
-        {
-          ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
-          return true;
-        }
+
         // No valid match, clear list to allow further detection ways
         series.Clear();
         return false;
@@ -716,7 +731,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           }
         }
 
-        var exactMatches = series.FindAll(s => !s.SeriesName.IsEmpty && 
+        var exactMatches = series.FindAll(s => !s.SeriesName.IsEmpty && (!s.FirstAired.HasValue || !seriesSearch.FirstAired.HasValue) && 
           (s.SeriesName.Text == seriesSearch.SeriesName.Text || s.OriginalName == seriesSearch.SeriesName.Text || GetLevenshteinDistance(s, seriesSearch) == 0));
         if (exactMatches.Count == 1)
         {
@@ -725,7 +740,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           return true;
         }
 
-        exactMatches = series.FindAll(s => NamesAreMostlyEqual(s, seriesSearch));
+        exactMatches = series.FindAll(s => NamesAreMostlyEqual(s, seriesSearch) && (!s.FirstAired.HasValue || !seriesSearch.FirstAired.HasValue));
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", seriesSearch);
@@ -773,6 +788,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<bool> IsCacheChangedForOnlineSeriesEpisodeAsync(EpisodeInfo episode, TLang language)
     {
       return Task.FromResult(false);
+    }
+
+    public virtual bool HasSearchableIds(EpisodeInfo episode)
+    {
+      return false;
+    }
+
+    public virtual bool HasSearchableIds(SeriesInfo series)
+    {
+      return false;
     }
 
     protected virtual void SetMultiEpisodeDetails(EpisodeInfo episodeInfo, List<EpisodeInfo> episodeMatches)
@@ -929,7 +954,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (persons.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", personSearch, persons.Count);
-        var exactMatches = persons.FindAll(p => p.Name == personSearch.Name || GetLevenshteinDistance(p, personSearch) == 0);
+        var exactMatches = persons.FindAll(p => IsEqual(p.Name, personSearch.Name) || GetLevenshteinDistance(p, personSearch) == 0);
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", personSearch);
@@ -1011,6 +1036,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<bool> IsCacheChangedForOnlineMusicTrackPersonAsync(TrackInfo trackInfo, PersonInfo person, TLang language)
     {
       return Task.FromResult(false);
+    }
+
+    public virtual bool HasSearchableIds(PersonInfo person)
+    {
+      return false;
     }
 
     #endregion
@@ -1095,7 +1125,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (characters.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", characterSearch, characters.Count);
-        var exactMatches = characters.FindAll(p => p.Name == characterSearch.Name || GetLevenshteinDistance(p, characterSearch) <= MAX_LEVENSHTEIN_DIST);
+        var exactMatches = characters.FindAll(p => IsEqual(p.Name, characterSearch.Name) || GetLevenshteinDistance(p, characterSearch) <= MAX_LEVENSHTEIN_DIST);
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", characterSearch);
@@ -1145,6 +1175,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<bool> IsCacheChangedForOnlineSeriesEpisodeCharacterAsync(EpisodeInfo episodeInfo, CharacterInfo character, TLang language)
     {
       return Task.FromResult(false);
+    }
+
+    public virtual bool HasSearchableIds(CharacterInfo character)
+    {
+      return false;
     }
 
     #endregion
@@ -1230,7 +1265,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (companies.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", companySearch, companies.Count);
-        var exactMatches = companies.FindAll(c => c.Name == companySearch.Name || GetLevenshteinDistance(c, companySearch) == 0);
+        var exactMatches = companies.FindAll(c => IsEqual(companySearch.Name, c.Name) || GetLevenshteinDistance(c, companySearch) == 0);
         if (exactMatches.Count == 1)
         {
           ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", companySearch);
@@ -1280,6 +1315,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     public virtual Task<bool> IsCacheChangedForOnlineMusicTrackAlbumCompanyAsync(AlbumInfo albumInfo, CompanyInfo company, TLang language)
     {
       return Task.FromResult(false);
+    }
+
+    public virtual bool HasSearchableIds(CompanyInfo company)
+    {
+      return false;
     }
 
     #endregion
@@ -1370,7 +1410,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (tracks.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", trackSearch, tracks.Count);
-        var exactMatches = tracks.FindAll(t => !string.IsNullOrEmpty(t.TrackName) && (t.TrackName == trackSearch.TrackName || GetLevenshteinDistance(t, trackSearch) == 0));
+        var exactMatches = tracks.FindAll(t => !string.IsNullOrEmpty(t.TrackName) && (IsEqual(t.TrackName, trackSearch.TrackName) || 
+          GetLevenshteinDistance(t, trackSearch) == 0));
         if (exactMatches.Count > 0)
         {
           tracks = exactMatches;
@@ -1399,7 +1440,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               exactMatches = exactMatches.FindAll(t => CompareArtists(t.Artists, trackSearch.Artists, true));
 
             if (checkValue == AudioValueToCheck.AlbumStrict && !string.IsNullOrEmpty(trackSearch.Album))
-              exactMatches = exactMatches.FindAll(t => t.Album == trackSearch.Album || GetLevenshteinDistance(t.CloneBasicInstance<AlbumInfo>(), trackSearch.CloneBasicInstance<AlbumInfo>()) == 0);
+              exactMatches = exactMatches.FindAll(t => IsEqual(trackSearch.Album, t.Album) || 
+               GetLevenshteinDistance(t.CloneBasicInstance<AlbumInfo>(), trackSearch.CloneBasicInstance<AlbumInfo>()) == 0);
 
             if (checkValue == AudioValueToCheck.Year && trackSearch.ReleaseDate.HasValue)
               exactMatches = exactMatches.FindAll(t => t.ReleaseDate.HasValue && t.ReleaseDate.Value.Year == trackSearch.ReleaseDate.Value.Year);
@@ -1562,14 +1604,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     {
       if (albums.Count == 1)
       {
-        if (!string.IsNullOrEmpty(albumSearch.Album) && GetLevenshteinDistance(albums[0], albumSearch) > MAX_LEVENSHTEIN_DIST)
+        if (!albums[0].ReleaseDate.HasValue || !albumSearch.ReleaseDate.HasValue || albums[0].ReleaseDate?.Year == albumSearch.ReleaseDate?.Year)
         {
-          // No valid match, clear list to allow further detection ways
-          albums.Clear();
-          return false;
-        }
-        if (!NamesAreMostlyEqual(albums[0], albumSearch))
-        {
+          if (string.IsNullOrEmpty(albumSearch.Album) || GetLevenshteinDistance(albums[0], albumSearch) <= MAX_LEVENSHTEIN_DIST)
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
+            return true;
+          }
+          if (NamesAreMostlyEqual(albums[0], albumSearch))
+          {
+            ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Unique match found \"{0}\"!", albumSearch);
+            return true;
+          }
           // No valid match, clear list to allow further detection ways
           albums.Clear();
           return false;
@@ -1580,7 +1626,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       if (albums.Count > 1)
       {
         ServiceRegistration.Get<ILogger>().Debug(GetType().Name + ": Multiple matches for \"{0}\" ({1}). Try to find exact name match.", albumSearch, albums.Count);
-        var exactMatches = albums.FindAll(t => !string.IsNullOrEmpty(t.Album) && (t.Album == albumSearch.Album || GetLevenshteinDistance(t, albumSearch) == 0));
+        var exactMatches = albums.FindAll(t => !string.IsNullOrEmpty(t.Album) && (IsEqual(t.Album, albumSearch.Album) || GetLevenshteinDistance(t, albumSearch) == 0));
         if (exactMatches.Count > 0)
         {
           albums = exactMatches;
@@ -1610,7 +1656,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               exactMatches = exactMatches.FindAll(a => CompareArtists(a.Artists, albumSearch.Artists, true));
 
             if (checkValue == AudioValueToCheck.AlbumStrict && !string.IsNullOrEmpty(albumSearch.Album))
-              exactMatches = exactMatches.FindAll(a => a.Album == albumSearch.Album || GetLevenshteinDistance(a, albumSearch) == 0);
+              exactMatches = exactMatches.FindAll(a => IsEqual(albumSearch.Album, a.Album) || GetLevenshteinDistance(a, albumSearch) == 0);
 
             if (checkValue == AudioValueToCheck.Year && albumSearch.ReleaseDate.HasValue)
               exactMatches = exactMatches.FindAll(a => a.ReleaseDate.HasValue && a.ReleaseDate.Value.Year == albumSearch.ReleaseDate.Value.Year);
@@ -1723,6 +1769,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       return Task.FromResult(false);
     }
 
+    public virtual bool HasSearchableIds(TrackInfo track)
+    {
+      return false;
+    }
+
+    public virtual bool HasSearchableIds(AlbumInfo album)
+    {
+      return false;
+    }
+
     private bool CompareArtists(List<PersonInfo> trackArtists, List<PersonInfo> searchArtists, bool strict)
     {
       if (strict)
@@ -1731,8 +1787,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         {
           bool artistFound = false;
           foreach (PersonInfo searchArtist in searchArtists)
-            if (trackArtist.Name == searchArtist.Name || trackArtist.Name == searchArtist.AlternateName ||
-              trackArtist.AlternateName == searchArtist.Name || GetLevenshteinDistance(trackArtist, searchArtist) == 0)
+            if (IsEqual(trackArtist.Name, searchArtist.Name) || IsEqual(trackArtist.Name, searchArtist.AlternateName) || 
+                IsEqual(trackArtist.AlternateName, searchArtist.Name) || IsEqual(trackArtist.AlternateName, searchArtist.AlternateName) ||
+                GetLevenshteinDistance(trackArtist, searchArtist) == 0)
             {
               artistFound = true;
               break;
@@ -1782,7 +1839,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     /// <returns><c>true</c> if similar or equal</returns>
     public static bool IsSimilarOrEqual(string name1, string name2)
     {
-      return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2)) || StringUtils.GetLevenshteinDistance(name1, name2) <= MAX_LEVENSHTEIN_DIST;
+      return string.Equals(RemoveCharacters(name1), RemoveCharacters(name2), StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    public static bool IsEqual(string name1, string name2)
+    {
+      if (string.IsNullOrEmpty(name1) || string.IsNullOrEmpty(name2))
+        return false;
+      return name1.Equals(name2, StringComparison.CurrentCultureIgnoreCase);
     }
 
     public static int GetLevenshteinDistance(MovieInfo movieOnline, MovieInfo movieSearch)
