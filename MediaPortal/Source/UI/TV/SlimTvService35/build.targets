@@ -25,7 +25,9 @@
     </ItemGroup>
 
     <ItemGroup>
-      <SetupTvIntegration Include="$(ProjectDir)References\SetupTv\Defaults\**\*.*" />
+      <SetupTvIntegrationDefaults Include="$(SolutionDir)\Base\Server\Defaults\*.*" />
+    </ItemGroup>
+    <ItemGroup>
       <SetupTvIntegration Include="$(TargetDir)MediaPortal.Common.dll" />
       <SetupTvIntegration Include="$(TargetDir)MediaPortal.Utilities.dll" />
       <SetupTvIntegration Include="$(TargetDir)SlimTv.Interfaces.dll" />
@@ -33,8 +35,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <!-- TODO: Can be replaced by package variable -->
       <References Include="$(TvEngine35References)\**\*.*" />
-      <!--<References Include="$(TvEngine35SetupReferences)\**\*.*" />-->
     </ItemGroup>
 
     <ItemGroup>
@@ -46,6 +48,7 @@
     <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)Integration\%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)SetupTv\Integration\%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(SetupTvIntegrationDefaults)" DestinationFolder="$(PluginDestination)SetupTv\Defaults\" />
     <Copy SourceFiles="@(SetupIcon)" DestinationFolder="$(PluginDestination)SetupTv" />
   </Target>
 
