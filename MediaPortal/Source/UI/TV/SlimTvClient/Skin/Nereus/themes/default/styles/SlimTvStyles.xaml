@@ -102,10 +102,17 @@
                   <Image Source="PlayerControl\Time.Indicator.png" Stretch="Uniform" Margin="2,35,-2,0" Width="20"
                        VerticalAlignment="Top" HorizontalAlignment="Center" Opacity="0.9"/>
 
-                  <Label x:Name="ElapsedDurationLabel" Content="{Binding Path=CurrentProgram.StartTime, Converter={StaticResource ElapsedDurationConverter}}" Opacity="0.9"
+                  <Label x:Name="ElapsedDurationLabel" Opacity="0.9"
                          HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="SegoeUIBold"
-                         Color="Black" FontSize="{ThemeResource SmallerFontSize}"/>
-                  
+                         Color="Black" FontSize="{ThemeResource SmallerFontSize}">
+                    <Label.Content>
+                      <MultiBinding Converter="{StaticResource DurationMultiConverter}">
+                        <Binding Source="{StaticResource TimeModel}" Path="CurrentTimeRaw" />
+                        <Binding Path="CurrentProgram.StartTime" />
+                      </MultiBinding>
+                    </Label.Content>
+                  </Label>
+
                 </Grid>
               </Grid>
               <Rectangle Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
