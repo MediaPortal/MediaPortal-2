@@ -48,6 +48,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     public static void FormatDuration(TimeSpan delta, CultureInfo culture, ref object result)
     {
+      if (delta < TimeSpan.Zero)
+        delta = -delta;
       if (delta > TimeSpan.FromHours(1))
         result = delta.ToString("hh\\:mm\\:ss", culture);
       else if (delta > TimeSpan.Zero)
