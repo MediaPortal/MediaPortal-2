@@ -186,7 +186,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public static IChannel ToChannel(this Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
     {
-      return new Channel
+      return tvChannel == null ? null : new Channel
       {
         ChannelId = tvChannel.ChannelId,
         ChannelNumber = tvChannel.ChannelNumber,
@@ -199,7 +199,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         TimesWatched = tvChannel.TimesWatched,
         TotalTimeWatched = tvChannel.TotalTimeWatched,
         VisibleInGuide = tvChannel.VisibleInGuide,
-        GroupNames = tvChannel.GroupMaps.Select(group => group.ChannelGroup.GroupName).ToList()
+        GroupNames = tvChannel.GroupMaps?.Select(group => group.ChannelGroup?.GroupName).ToList()
       };
     }
 
