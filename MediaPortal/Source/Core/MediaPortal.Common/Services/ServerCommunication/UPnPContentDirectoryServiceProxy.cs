@@ -488,6 +488,20 @@ namespace MediaPortal.Common.Services.ServerCommunication
       return (PlaylistRawData) outParameters[0];
     }
 
+    /// <summary>
+    /// Load a playlist from a list of mediaItemIds.
+    /// *** WARNING ***
+    /// Big playlists cannot be loaded in one single step. We have several problems if we try to do so:
+    /// 1) Loading the playlist at once at the server results in one huge SQL IN statement which might break the SQL engine
+    /// 2) The time to load the playlist might lead the UPnP call to break because of the timeout when calling methods
+    /// 3) The resulting UPnP XML document might be too big to fit into memory
+    /// </summary>
+    /// <param name="mediaItemIds"></param>
+    /// <param name="necessaryMIATypes"></param>
+    /// <param name="optionalMIATypes"></param>
+    /// <param name="offset"></param>
+    /// <param name="limit"></param>
+    /// <returns></returns>
     public async Task<IList<MediaItem>> LoadCustomPlaylistAsync(IList<Guid> mediaItemIds,
       ICollection<Guid> necessaryMIATypes, ICollection<Guid> optionalMIATypes,
       uint? offset = null, uint? limit = null)
@@ -535,6 +549,18 @@ namespace MediaPortal.Common.Services.ServerCommunication
         };
       IList<object> outParameters = await action.InvokeAsync(inParameters);
       return MarshallingHelper.DeserializeGuid((string)outParameters[0]);
+    }
+
+    public async Task<bool> DownloadMetadataAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects)
+    {
+      CpAction action = GetAction("X_MediaPortal_DownloadMetadata");
+      IList<object> inParameters = new List<object>
+        {
+            MarshallingHelper.SerializeGuid(mediaItemId),
+            mediaItemAspects
+        };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
     }
 
     public async Task<IList<MediaItem>> ReconcileMediaItemRelationshipsAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,

@@ -29,10 +29,10 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
@@ -57,6 +57,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       _mediaNavigationRootState = SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE;
       _viewName = SlimTvConsts.RES_RECORDINGS_VIEW_NAME;
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
+      _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
     }
 
     protected override async Task PrepareAsync()
@@ -69,7 +70,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       _availableScreens = new List<AbstractScreenData>
         {
           _defaultScreen,
-          new RecordingFilterByNameScreenData(),
           new RecordingsFilterByChannelScreenData(),
           //new VideosFilterByActorScreenData(),
           //new VideosFilterByDirectorScreenData(),
@@ -103,7 +103,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         VideoAspect.ASPECT_ID,
         VideoStreamAspect.ASPECT_ID,
         VideoAudioStreamAspect.ASPECT_ID,
-        ImageAspect.ASPECT_ID
+        ImageAspect.ASPECT_ID,
+        GenreAspect.ASPECT_ID
       }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 
       _customRootViewSpecification = new StackingViewSpecification(_viewName, null, _necessaryMias, optionalMias, true)

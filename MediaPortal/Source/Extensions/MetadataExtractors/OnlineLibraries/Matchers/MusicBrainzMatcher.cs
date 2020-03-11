@@ -38,17 +38,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MusicBrainzMatcher : MusicMatcher<TrackImage, string>
   {
-    #region Static instance
-
-    public static MusicBrainzMatcher Instance
-    {
-      get { return ServiceRegistration.Get<MusicBrainzMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
+    public const string NAME = "MusicBrainz.org";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\MusicBrainz\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -57,7 +49,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public MusicBrainzMatcher() :
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
       //TODO: Disabled for now. Very slow response times (up to 30 seconds, maybe more).
       Enabled = false;
@@ -67,7 +59,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        MusicBrainzWrapper wrapper = new MusicBrainzWrapper();
+        MusicBrainzWrapper wrapper = new MusicBrainzWrapper(NAME);
         // Try to lookup online content in the configured language
         string lang = new RegionInfo(PreferredLanguageCulture).TwoLetterISORegionName;
         wrapper.SetPreferredLanguage(lang);

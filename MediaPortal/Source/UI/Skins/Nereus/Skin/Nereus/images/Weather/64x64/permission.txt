@@ -1,0 +1,37 @@
+Weather Images shiny 2004 rev.4 by JyriK
+These weather images are designed to provide the various weather
+conditions reported by internet weather services. These images
+were originally created for use with Serious Samurize.
+http://www.samurize.com
+And now are included in MediaPortal, an open source media centre software.
+http://www.team-mediaportal.com
+
+
+Changes:
+rev.1 Filenames changed.
+rev.2 Again, a few moonphase names were wrong.
+rev.3 Still, naming wrong.
+rev.4 Added 2 moonphases (really cloudy & fog), Sunny with thunderstorms and heavy thunderstorms.
+
+
+You are free:
+1. to copy, distribute and display these images as long as these are
+provided free of charge and are not connected to a commercial software
+product. You may use these images for skins, themes, and other content
+for freeware software as long as the copyright notices are included.
+2. to make derivative works
+
+Under the following conditions:
+Attribution. You must give the original author credit.
+Noncommercial. You may not use this work for commercial purposes.
+Share Alike. If you alter, transform, or build upon this work, you may distribute the resulting work only under a license identical to this one.
+ *For any reuse or distribution, you must make clear to others the license terms of this work.
+ *Any of these conditions can be waived if you get permission from the author.
+
+Your fair use and other rights are in no way affected by the above.
+
+My deviantART page:
+http://jyrik.deviantart.com
+My Email:
+<jyrik(at)koti.luukku.com>
+

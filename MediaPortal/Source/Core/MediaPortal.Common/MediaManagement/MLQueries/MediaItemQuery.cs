@@ -121,6 +121,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     public MediaItemQuery(MediaItemQuery other)
     {
       _filter = other.Filter;
+      _subqueryFilter = other.SubqueryFilter;
       _necessaryRequestedMIATypeIDs = new HashSet<Guid>(other._necessaryRequestedMIATypeIDs);
       _optionalRequestedMIATypeIDs = new HashSet<Guid>(other._optionalRequestedMIATypeIDs);
       _sortInformation = other._sortInformation;
@@ -345,6 +346,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlArray("Sorting")]
     [XmlArrayItem("AttributeSortInformation", typeof(AttributeSortInformation))]
     [XmlArrayItem("DataSortInformation", typeof(DataSortInformation))]
+    [XmlArrayItem("ChildAttributeSortInformation", typeof(ChildAggregateAttributeSortInformation))]
     public List<object> XML_SortInformation
     {
       get { return _sortInformation; }

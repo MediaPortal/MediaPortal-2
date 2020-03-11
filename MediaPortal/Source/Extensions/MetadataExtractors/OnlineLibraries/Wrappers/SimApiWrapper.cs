@@ -38,9 +38,15 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class SimApiWrapper : ApiWrapper<string, string>
+  class SimApiWrapper : ApiMediaWrapper<string, string>
   {
     protected SimApiV1 _simApiHandler;
+    protected readonly string _name;
+
+    public SimApiWrapper(string name)
+    {
+      _name = name;
+    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -64,6 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ImdbId = m.ImdbID,
         MovieName = new SimpleTitle(m.Title, true),
         ReleaseDate = m.Year.HasValue ? new DateTime(m.Year.Value, 1, 1) : default(DateTime?),
+        DataProviders = new List<string>() { _name }
       }).ToList();
     }
 
@@ -77,6 +84,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       {
         ImdbId = p.ImdbID,
         Name = p.Name,
+        DataProviders = new List<string>() { _name }
       }).ToList();
     }
 
@@ -121,6 +129,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         //if (movie.Directors.Count == 0)
         //  movie.Directors = ConvertToPersons(movieDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, movieDetail.Title);
 
+        if (!movie.DataProviders.Contains(_name))
+          movie.DataProviders.Add(_name);
+
         return true;
       }
       catch (Exception ex)
@@ -128,6 +139,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("SimApiWrapper: Exception while processing movie {0}", ex, movie.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(MovieInfo movie)
+    {
+      if (!string.IsNullOrWhiteSpace(movie.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(movie);
     }
 
     public override async Task<bool> UpdateFromOnlineMoviePersonAsync(MovieInfo movieInfo, PersonInfo person, string language, bool cacheOnly)
@@ -146,6 +165,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         person.DateOfBirth = personDetail.BirthYear.HasValue ? (DateTime?)new DateTime(personDetail.BirthYear.Value, 1, 1) : null;
         person.Orign = personDetail.BirthPlace;
 
+        if (!person.DataProviders.Contains(_name))
+          person.DataProviders.Add(_name);
+
         return true;
       }
       catch (Exception ex)
@@ -153,6 +175,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheMovieDbWrapper: Exception while processing person {0}", ex, person.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(PersonInfo person)
+    {
+      if (!string.IsNullOrWhiteSpace(person.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(person);
     }
 
     #endregion
@@ -167,7 +197,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int sortOrder = 0;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (string name in names)
-        retValue.Add(new PersonInfo() { Name = name, Occupation = occupation, Order = sortOrder++, MediaName = media, ParentMediaName = parentMedia });
+        retValue.Add(new PersonInfo()
+        {
+          Name = name,
+          Occupation = occupation,
+          Order = sortOrder++,
+          MediaName = media,
+          ParentMediaName = parentMedia,
+          DataProviders = new List<string>() { _name }
+        });
       return retValue;
     }
 

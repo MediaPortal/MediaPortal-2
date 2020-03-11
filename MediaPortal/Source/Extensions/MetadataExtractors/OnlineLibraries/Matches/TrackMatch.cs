@@ -27,7 +27,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// <summary>
   /// TrackMatch stores name matches for Tracks.
   /// </summary>
-  public class TrackMatch : BaseMatch<string>
+  public class TrackMatch : BaseMediaMatch<string>
   {
     /// <summary>
     /// Contains the name found in online library.

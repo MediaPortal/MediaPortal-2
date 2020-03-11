@@ -56,6 +56,7 @@ using MouseEventHandler = MediaPortal.UI.SkinEngine.MpfElements.Input.MouseEvent
 using Size2 = SharpDX.Size2;
 using Size2F = SharpDX.Size2F;
 using Vector2 = SharpDX.Vector2;
+using MediaPortal.UI.SkinEngine.MarkupExtensions;
 
 namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 {
@@ -1102,6 +1103,8 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
 
       EventManager.RegisterClassHandler(type, PreviewKeyPressEvent, new KeyEventHandler(OnPreviewKeyPressThunk), false);
       EventManager.RegisterClassHandler(type, KeyPressEvent, new KeyEventHandler(OnKeyPressThunk), false);
+      EventManager.RegisterClassHandler(type, BindingExtension.SourceUpdatedEvent, new DataTransferEventHandler(OnSourceUpdatedThunk), false);
+      EventManager.RegisterClassHandler(type, BindingExtension.TargetUpdatedEvent, new DataTransferEventHandler(OnTargetUpdatedThunk), false);
     }
 
 
@@ -1718,6 +1721,54 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       add { AddHandler(KeyPressEvent, value); }
       remove { RemoveHandler(KeyPressEvent, value); }
+    }
+
+    private static void OnSourceUpdatedThunk(object sender, DataTransferEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnSourceUpdated(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled SourceUpdated event reaches this element. This method is called before the SourceUpdated event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnSourceUpdated(DataTransferEventArgs e)
+    { }
+
+    // Provide CLR accessors for the event 
+    public event DataTransferEventHandler SourceUpdated
+    {
+      add { AddHandler(BindingExtension.SourceUpdatedEvent, value); }
+      remove { RemoveHandler(BindingExtension.SourceUpdatedEvent, value); }
+    }
+
+    private static void OnTargetUpdatedThunk(object sender, DataTransferEventArgs e)
+    {
+      var uiElement = sender as UIElement;
+      if (uiElement != null)
+      {
+        uiElement.OnTargetUpdated(e);
+      }
+    }
+
+    /// <summary>
+    /// Invoked when unhandled TargetUpdated event reaches this element. This method is called before the TargetUpdated event is fired.
+    /// </summary>
+    /// <param name="e">The event arguments for the event.</param>
+    /// <remarks>This base implementation is empty.</remarks>
+    protected virtual void OnTargetUpdated(DataTransferEventArgs e)
+    { }
+
+    // Provide CLR accessors for the event 
+    public event DataTransferEventHandler TargetUpdated
+    {
+      add { AddHandler(BindingExtension.TargetUpdatedEvent, value); }
+      remove { RemoveHandler(BindingExtension.TargetUpdatedEvent, value); }
     }
 
     #endregion

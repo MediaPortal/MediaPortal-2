@@ -1,0 +1,1270 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:bgm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Converter;assembly=BackgroundManager"
+    xmlns:wmc="clr-namespace:MediaPortal.UiComponents.Nereus.Controls;assembly=Nereus"
+    xmlns:wmcc="clr-namespace:MediaPortal.UiComponents.Nereus.Converters;assembly=Nereus"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    DependsOnStyleResources="Colors,Buttons,Consts,OtherControls,Animations"
+    >
+
+  <!-- BackgroundManager model -->
+  <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
+  <Model x:Key="GeneralPlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
+ 
+  <bgm:ListItemActionIdConverter x:Key="ListItemActionIdConverter"/>
+  <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
+  <StringFormatConverter x:Key="StringFormatConverter"/>
+  <wmcc:IncludeItemsListActionFilter x:Key="IncludeItemsListActionFilter"/>
+  <wmcc:ExcludeItemsListActionFilter x:Key="ExcludeItemsListActionFilter"/>
+  <fanart:MediaItemAspectToBoolConverter x:Key="MediaItemAspectToBoolConverter"/>
+  <fanart:InvertedMediaItemAspectToBoolConverter x:Key="InvertedMediaItemAspectToBoolConverter"/>
+
+  <!--
+  Workflow ActionIds that will be shown in MediaMenu by default. Other actions are excluded 
+  Format has to be a ";" delimited list of Guids
+  -->
+  <!--ResourceWrapper x:Key="ActionIdFilter">
+    bb49a591-7705-408f-8177-45d633fdfad0;
+    b4a9199f-6dd4-4bda-a077-de9c081f7703;
+    30f57cba-459c-4202-a587-09fff5098251;
+    80d2e2cc-baaa-4750-807b-f37714153751;
+    30715d73-4205-417f-80aa-e82f0834171f;
+    c33E39cc-910e-41c8-bffd-9eccd340b569;
+    55556593-9fe9-436c-a3b6-a971e10c9d44;
+    e34fdb62-1f3e-4aa9-8a61-d143e0af77b5;
+    a4df2df6-8d66-479a-9930-d7106525eb07;
+    a24958e2-538a-455e-a1db-a7bb241aF7ec;
+    2ded75c0-5eae-4e69-9913-6b50a9ab2956
+  </-->
+
+  <ResourceWrapper x:Key="ActionIdFilter">
+    93442DF7-186D-42e5-A0F5-CF1493E68F49;
+    F6255762-C52A-4231-9E67-14C28735216E
+  </ResourceWrapper>
+
+  <!-- default brush used to paint the background of a page/window -->
+  <ResourceWrapper x:Key="BackgroundBrush">
+    <ImageBrush x:Name="BackdropImageBackground" ImageSource="Background.png" />
+  </ResourceWrapper>
+
+  <Style x:Key="DefaultScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="100"
+                                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid x:Name="HorizontalScrollBar" IsVisible="{TemplateBinding ScrollBarXVisible}" Grid.Row="1" Grid.Column="0"
+                  Grid.ZIndex="0" Margin="2,10,2,2"
+                  RenderTransform="{DynamicResource ResourceKey=HorizontalScrollBarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="HorizontalScrollBarRenderTransform" -->
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarXBackground" Grid.Row="0" Grid.Column="0"
+                         Stroke="{ThemeResource ScrollBarStrokeColor}"
+                         Height="{ThemeResource ScrollBarWidth}"
+                         ActualWidth="{TemplateBinding Path=ScrollBarXSize,Mode=OneWayToSource}"
+                         Fill="{ThemeResource ScrollBarBackgroundColor}">
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
+                <StackPanel Width="{TemplateBinding ScrollBarXKnobPos}"/>
+                <Rectangle x:Name="ScrollBarXKnob" Width="{TemplateBinding ScrollBarXKnobWidth}" Height="{ThemeResource ScrollBarKnobWidth}"
+                           Stroke="{ThemeResource ScrollBarKnobStrokeColor}" 
+                           Fill="{ThemeResource ScrollBarKnobBackgroundColor}">
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+            <Grid x:Name="VerticalScrollBar" IsVisible="{TemplateBinding ScrollBarYVisible}" Grid.Row="0" Grid.Column="1"
+                  Grid.ZIndex="0" Margin="10,2,2,2"
+                  RenderTransform="{DynamicResource ResourceKey=VerticalScrollbarRenderTransform}">
+              <!-- RenderTransform can be applied by any ListView by defining a transform inside ResourceWrapper x:Key="VerticalScrollbarRenderTransform" -->
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <!-- Background -->
+              <Rectangle x:Name="ScrollBarYBackground" Grid.Row="0" Grid.Column="0"
+                         Stroke="{ThemeResource ScrollBarStrokeColor}" 
+                         Width="{ThemeResource ScrollBarWidth}"
+                         ActualHeight="{TemplateBinding Path=ScrollBarYSize,Mode=OneWayToSource}"
+                         Fill="{ThemeResource ScrollBarBackgroundColor}">  
+              </Rectangle>
+              <!-- Knob -->
+              <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+                <StackPanel Height="{TemplateBinding ScrollBarYKnobPos}"/>
+                <Rectangle x:Name="ScrollBarYKnob" Width="{ThemeResource ScrollBarKnobWidth}" Height="{TemplateBinding ScrollBarYKnobHeight}"
+                           Stroke="{ThemeResource ScrollBarKnobStrokeColor}" 
+                           Fill="{ThemeResource ScrollBarKnobBackgroundColor}">    
+                </Rectangle>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HorizontalMediaScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal" Margin="0,-50,0,-50"> 
+            <!--The negative margin is necessary and needs to be compensated in the 
+            ScrollContentPresenter to avoid graphic errors with grow effect-->
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="50" Margin="0,50,0,50"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                <GradientStop Color="Transparent" Offset="0" />
+                <GradientStop Color="Black" Offset="0.1" />
+                <GradientStop Color="Black" Offset="0.9" />
+                <GradientStop Color="Transparent" Offset="1" />
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HorizontalCoverScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal" Margin="0,-50,0,-50">
+            <!--The negative margin is necessary and needs to be compensated in the 
+            ScrollContentPresenter to avoid graphic errors with grow effect-->
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.ZIndex="50" Margin="0,50,0,50" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HorizontalTopMenuScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal" Margin="0,-50,0,-50">
+            <!--The negative margin is necessary and needs to be compensated in the 
+            ScrollContentPresenter to avoid graphic errors with grow effect-->
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="50" Margin="0,50,0,50"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                <GradientStop Color="Black" Offset="0" />
+                <GradientStop Color="Black" Offset="0.1" />
+                <GradientStop Color="Black" Offset="0.9" />
+                <GradientStop Color="Transparent" Offset="1" />
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="VerticalMediaScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="1"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="Transparent" Offset="0" />
+                <GradientStop Color="Black" Offset="0.12" />
+                <GradientStop Color="Black" Offset="0.88" />
+                <GradientStop Color="Transparent" Offset="1" />
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--++++++++++++++++++++++++ LOGIN BUTTON STYLE ++++++++++++++++++++++++-->
+  
+  <Style x:Key="LoginItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <DockPanel x:Name="ItemGroup" Width="320" Height="350" LastChildFill="False">
+            <Button Style="{ThemeResource LoginButtonWideStyle}" Margin="20,0,5,0" DockPanel.Dock="Top" 
+                    Command="{DynamicResource ResourceKey=Menu_Command}" Height="290"
+                    IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
+                  <Setter TargetName="Fallback" Property="Opacity" Value="1.3"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                  <Trigger.EnterActions>
+                    <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+                  </Trigger.EnterActions>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                  <Trigger.EnterActions>
+                    <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+                  </Trigger.EnterActions>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Label x:Name="ItemLabel" Content="{Binding Name}" DockPanel.Dock="Bottom" TextTrimming="CharacterEllipsis"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,15,0,0" Scroll="None"
+                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource NormalFontSize}"/>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="LoginItemDataTemplate">
+    <DockPanel LastChildFill="False">
+      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+             IsVisible="{Binding Path=Image,Converter={StaticResource ReferenceToBoolConverter}}"
+             Source="{Binding Path=Image}" Width="300" Height="300" Stretch="Uniform" x:Name="ItemControl">
+        <Image.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="4" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Image.OpacityMask>
+      </Image>
+      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+             Source="person.png" IsVisible="{Binding ElementName=ItemControl, Path=!HasImage}"
+             Width="300" Height="300" Stretch="Uniform" x:Name="Fallback">
+      </Image>
+    </DockPanel>
+  </DataTemplate>
+
+  <Style x:Key="LoginListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="0,0,0,0">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource LoginItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource LoginItemContainerStyle}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource HorizontalMediaScrollViewerStyle}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!--++++++++++++++++++++++++ SLIDEMENU BUTTON STYLE ++++++++++++++++++++++++-->
+
+  <DataTemplate x:Key="SlideMenuItemDataTemplate">
+    <DockPanel LastChildFill="False">
+      <Image DockPanel.Dock="Left" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="TopMenu\search.png"
+                   Width="28" Height="28" Stretch="Fill" Margin="0" Opacity="1" x:Name="ItemControl">
+        <Image.Source>
+          <Binding Path="AdditionalProperties[MenuModel: Item-Action].ActionId" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}TopMenu\{0}.png"/>
+        </Image.Source>
+      </Image>
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Center"
+             HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Opacity="0.6"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <Style x:Key="SlideMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <DockPanel x:Name="ItemGroup">
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="20,2,5,2" DockPanel.Dock="Center"
+                    Command="{DynamicResource ResourceKey=Menu_Command}" IsEnabled="{Binding Enabled}"
+                    SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <!-- Consider the item's enabled state -->
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="IsEnabled"/>
+                  <!-- In combination with the parent ListView's enabled state -->
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type ListView}}" Path="IsEnabled"/>
+                </MultiBinding>
+              </Button.IsEnabled>
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SlideMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <StackPanel Orientation="Vertical" x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SlideMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SlideMenuItemContainerStyle}"/>
+  </Style>
+
+  <ControlTemplate x:Key="StarReadOnlyTemplate">
+        <DockPanel LastChildFill="True" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid RenderTransformOrigin="0.5,0.5">
+                <!-- Star shape for background -->
+                <Control Template="{ThemeResource StarPolygonTemplate}" Width="18" Height="18"/>
+
+                <!-- Star shape for (partial) foreground -->
+                <Control Template="{ThemeResource StarPolygonSelectedTemplate}" Width="18" Height="18">
+                    <Control.OpacityMask>
+                        <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                            <GradientStop Color="#FF000000" Offset="0"/>
+                            <GradientStop Color="#FF000000" Offset="{Binding Value}"/>
+                            <GradientStop Color="#00000000" Offset="{Binding Value}"/>
+                            <GradientStop Color="#00000000" Offset="1"/>
+                        </LinearGradientBrush>
+                    </Control.OpacityMask>
+                </Control>
+            </Grid>
+        </DockPanel>
+    </ControlTemplate>
+
+  <!-- ListView style to be used for left main menu -->
+
+  <Style x:Key="LeftMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MenuItemContainerStyleWide" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource MenuButtonWideStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="LeftMenuItemDataTemplate">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,-2,0,0" Height="48"
+             Color="{ThemeResource WindowHeaderColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MenuItemContainerStyleWide}"/>
+  </Style>
+
+  <Style x:Key="LeftMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource LeftMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource LeftMenuItemContainerStyle}"/>
+  </Style>
+
+  <!--++++++++++++++++++++++++ HOMEMENU BUTTON STYLE ++++++++++++++++++++++++-->
+
+  <DataTemplate x:Key="HomeMenuItemDataTemplate">
+    <Grid x:Name="ItemControl" Margin="6">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="170"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="130"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Rectangle Fill="#222222" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Opacity="0.7">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
+            <Binding Source="HomeMenu\"/>
+            <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      
+      <Grid x:Name="ItemBandGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="0"/>
+          </TransformGroup>
+        </Grid.RenderTransform>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
+               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+      </Grid>
+      
+      <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
+                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!--++++++++++++++++++++++++ MEDIAMENU BUTTON STYLE ++++++++++++++++++++++++-->
+
+  <DataTemplate x:Key="MediaMenuCoverItemDataTemplate">
+    <Grid x:Name="ItemControl" Margin="6">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="170"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="170"/>
+      </Grid.RowDefinitions>
+
+      <Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="tile_background_focus.jpg"/>
+            <Binding Source="tile_background_nofocus.jpg"/>
+            <Binding Source="MediaMenu\"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
+            <Binding Source="MediaMenu\"/>
+            <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+
+      <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="0"/>
+          </TransformGroup>
+        </Grid.RenderTransform>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,5"
+               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+      </Grid>
+
+      <Rectangle Fill="#FFFFFF" Height="5" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
+                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
+  </DataTemplate>
+
+  <DataTemplate x:Key="MediaMenuItemDataTemplate">
+    <Grid x:Name="ItemControl" Margin="6">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="170"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="170"/>
+      </Grid.RowDefinitions>
+      
+      <Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="tile_background_focus.jpg"/>
+            <Binding Source="tile_background_nofocus.jpg"/>
+            <Binding Source="MediaMenu\"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
+            <Binding Source="MediaMenu\"/>
+            <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+
+      <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="0"/>
+          </TransformGroup>
+        </Grid.RenderTransform>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
+               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+      </Grid>
+      
+      <Rectangle Fill="#FFFFFF" Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
+                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="HomeItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource NereusListButtonStyle}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  ContextMenuCommand ="{DynamicResource ResourceKey=Context_Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <!--Setter TargetName="ItemFrame" Property="Opacity" Value="1"/-->
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="SlideOut">
+                    <BeginStoryboard.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.7" DecelerationRatio="1"
+                                         FillBehavior="HoldEnd" Storyboard.TargetName="ItemBandGrid" 
+                                         Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+                          <DoubleAnimation.EasingFunction>
+                            <BackEase Amplitude="0.6" EasingMode="EaseOut"/>
+                          </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                      </Storyboard>
+                    </BeginStoryboard.Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard x:Name="SlideBack">
+                    <BeginStoryboard.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimation
+                           Storyboard.TargetName="ItemBandGrid"
+                           Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
+                           From="1" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
+                           FillBehavior="HoldEnd"/>
+                      </Storyboard>
+                    </BeginStoryboard.Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter TargetName="GrowControl" Property="Margin" Value="-10,0"/>
+    <Setter TargetName="ButtonContentPresenter" Property="Margin" Value="20,0"/>
+  </Style>
+
+  <Style x:Key="OtherItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource OtherButtonStyle}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Trigger.EnterActions>
+                  <BeginStoryboard x:Name="SlideOut">
+                    <BeginStoryboard.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.7" DecelerationRatio="1"
+                                         FillBehavior="HoldEnd" Storyboard.TargetName="ItemBandGrid" 
+                                         Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+                          <DoubleAnimation.EasingFunction>
+                            <BackEase Amplitude="0.6" EasingMode="EaseOut"/>
+                          </DoubleAnimation.EasingFunction>
+                        </DoubleAnimation>
+                      </Storyboard>
+                    </BeginStoryboard.Storyboard>
+                  </BeginStoryboard>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <BeginStoryboard x:Name="SlideBack">
+                    <BeginStoryboard.Storyboard>
+                      <Storyboard>
+                        <DoubleAnimation
+                           Storyboard.TargetName="ItemBandGrid"
+                           Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
+                           From="1" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
+                           FillBehavior="HoldEnd"/>
+                      </Storyboard>
+                    </BeginStoryboard.Storyboard>
+                  </BeginStoryboard>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeItemContainerStyleHorizontal" BasedOn="{ThemeResource HomeItemContainerStyle}">
+    <Setter TargetName="GrowControl" Property="Margin" Value="0,-10"/>
+    <Setter TargetName="ButtonContentPresenter" Property="Margin" Value="0,20"/>
+    <Setter Property="HorizontalContentAlignment" Value="Center" />
+  </Style>
+
+  <Style x:Key="HomeMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource VerticalMediaScrollViewerStyle}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="190,190" Margin="0,-20,0,-20">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource HomeMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="MediaMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource VerticalMediaScrollViewerStyle}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="190,190" Margin="0,-20,0,-20">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource MediaMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="MediaMenuCoverViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource HorizontalMediaScrollViewerStyle}" Width="1920"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedStackPanel x:Name="ListItemsHost" Orientation="Horizontal" IsItemsHost="True" ScrollMargin="190,190" Margin="-20,0,-20,-0">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource MediaMenuCoverItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyleHorizontal}"/>
+  </Style>
+
+
+  <!-- ****************************** PlayerControl ********************************** -->
+
+  <Style x:Key="PipControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <mp_special_controls:PlayerControl x:Name="PiPControl" AutoVisibility="True" PlayerContext="SecondaryPlayer"
+                                             FixedImageWidth="{ThemeResource PiPVideoWidth}">
+            <mp_special_controls:PlayerControl.TemplateControl>
+              <Border x:Name="PiPControlBorder"
+                      DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
+                <Grid x:Name="PiPBackground" Background="{ThemeResource NereusColorMedium}">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Control x:Name="PiPVideo" IsVisible="{Binding IsVideoPlayerPresent}" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}">
+                    <Control.Background>
+                      <VideoBrush Stream="1"/>
+                    </Control.Background>
+                  </Control>
+                  <Image x:Name="PiPImage" IsVisible="{Binding IsImagePlayerPresent}" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" Stretch="Uniform">
+                    <Image.Source>
+                      <ImagePlayerImageSource Stream="1" TransitionInOut="False"
+                          Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"/>
+                    </Image.Source>
+                  </Image>
+                  <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Stretch="Uniform" Width="200" Height="200" FallbackSource="{Binding MediaItem}">
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                                fanart:MaxWidth="200" fanart:MaxHeight="200"/>
+                    </Image.Source>
+                  </Image>
+                  <Image Stretch="Uniform" Source="audio.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="160" Height="160" Margin="20">
+                    <Image.IsVisible>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}&amp;&amp;{1}">
+                        <Binding ElementName="PiPAudio" Path="!HasImage"/>
+                        <Binding Path="IsAudioPlayerPresent"/>
+                      </MultiBinding>
+                    </Image.IsVisible>
+                  </Image>
+                </Grid>
+              </Border>
+            </mp_special_controls:PlayerControl.TemplateControl>
+          </mp_special_controls:PlayerControl>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CPPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Context="{Model A2F24149-B44C-498b-AE93-288213B87A1A}">
+            <StackPanel Orientation="Horizontal">
+              <Button x:Name="CurrentlyPlaying" Style="{ThemeResource CPButtonStyle}" Command="{Command Source={StaticResource GeneralPlayerModel},Path=ToggleCurrentPlayer}">
+                <Button.Triggers>
+                  <Trigger Property="HasFocus" Value="True">
+                    <Setter TargetName="image2" Property="Opacity" Value="1"/>
+                  </Trigger>
+                </Button.Triggers>
+              </Button>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="NavigationScreenPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Bottom">
+
+            <Grid x:Name="MediaInfoPanel" IsVisible="{Binding IsCurrentPlayer}">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+
+              <StackPanel HorizontalAlignment="Stretch" Orientation="Horizontal">
+                <!-- Workaround to avoid layouting problems with LayoutTransform -->
+                <StackPanel x:Name="MouseControlsPanel" Orientation="Horizontal">
+                  <Button x:Name="ToogleFullScreen" Style="{ThemeResource ToogleFullscreenButtonStyle}" 
+                          Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=882C1142-8028-4112-A67D-370E6E483A33}"/>
+                  <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" IsVisible="{Binding CanStop}" Command="{Command Stop}" />
+                  <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
+                  <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" IsVisible="{Binding CanSkipBack}" Command="{Command Previous}" />
+                  <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" IsVisible="{Binding CanSeekBackward}" Command="{Command SeekBackward}" />
+                  <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" IsVisible="{Binding CanPlay}" Command="{Command Play}" />
+                  <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" IsVisible="{Binding CanPause}" Command="{Command Pause}" />
+                  <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" IsVisible="{Binding CanSeekForward}" Command="{Command SeekForward}" />
+                  <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}" Command="{Command Next}"/>
+                  <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
+                  <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" IsVisible="{Binding IsAudio}" Command="{Command AudioButtonPressed}"/>
+                  <StackPanel Orientation="Vertical" Margin="0,3,1,-3">
+                    <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}" Margin="0,0,0,-1"
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
+                    <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}" Margin="0,-1,0,0"
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}"/>
+                  </StackPanel>
+                </StackPanel>
+              </StackPanel>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="OSDProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid" UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="10" Opacity="0.5"
+                       Fill="{ThemeResource OSDProgressBarBackgroundColor}" RadiusX="5" RadiusY="5"/>
+
+            <Grid x:Name="ProgressBarIndicator" HorizontalAlignment="Left" VerticalAlignment="Center">
+              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-80,-45,-80,1" Width="160">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Grid HorizontalAlignment="Center" Grid.Column="1">
+                  <Grid.RowDefinitions>
+                  <RowDefinition Height="55"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Border Background="White" BorderThickness="0" CornerRadius="5" Opacity="0.9" VerticalAlignment="Top" Margin="-5,10,-5,0" Height="26"/>
+                
+                <Image Source="PlayerControl\Time.Indicator.png" Stretch="Uniform" Margin="2,35,-2,0" Width="20"
+                       VerticalAlignment="Top" HorizontalAlignment="Center" Opacity="0.9"/>
+                
+                <Label x:Name="CurrentTimeLabel" Grid.Row="0" Content="{Binding CurrentTime}" Opacity="0.9"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="SegoeUIBold"
+                       Color="Black" FontSize="{ThemeResource SmallerFontSize}"/>
+                </Grid>
+              </Grid>
+              <Rectangle Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                         RadiusX="5" RadiusY="5" Height="10" Fill="{ThemeResource ProgressBarFillColor}"/>
+            </Grid>
+
+            <StackPanel Orientation="Horizontal">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
+              <Image Source="PlayerControl\Current.Position.png" Width="35" Height="35" Stretch="Fill" Margin="-15,-15,10,-15"
+                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
+            </StackPanel>
+            
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="ShareOverview1ItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="250"/>
+        <ColumnDefinition Width="500"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <Rectangle Grid.Column="0" StrokeThickness="0" Fill="Black" Margin="4,4,1,1" Opacity="0.2"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="1" Grid.ColumnSpan="2" StrokeThickness="0" Fill="Black" Margin="4,4,1,1" Opacity="0.2"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="3" StrokeThickness="0" Fill="Black" Margin="4,4,1,1" Opacity="0.2"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+      <Rectangle Grid.Column="0" StrokeThickness="0" Fill="Black" Margin="5,5,3,3" Opacity="0.4"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="2" RadiusY="2"/>
+      <Rectangle Grid.Column="1" Grid.ColumnSpan="2" StrokeThickness="0" Fill="Black" Margin="5,5,3,3" Opacity="0.4"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="2" RadiusY="2"/>
+      <Rectangle Grid.Column="3" StrokeThickness="0" Fill="Black" Margin="5,5,3,3" Opacity="0.4"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="2" RadiusY="2"/>
+
+      <Rectangle Grid.Column="0" StrokeThickness="0" Fill="{ThemeResource NereusColorMedium}" Margin="5" 
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="1" Grid.ColumnSpan="2" StrokeThickness="0" Fill="{ThemeResource NereusColorMedium}" Margin="5" 
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="3" StrokeThickness="0" Fill="{ThemeResource NereusColorMedium}" Margin="5" 
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
+      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
+
+      <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" VerticalAlignment="Center">
+        <Label Content="[Shares.Importing]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               IsVisible="{Binding Path=AdditionalProperties[ImportingProgress],Converter={StaticResource ReferenceToBoolConverter}}">
+          <Label.Content>
+            <Binding Path="AdditionalProperties[ImportingProgress]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} {0:F0}%"/>
+          </Label.Content>
+        </Label>
+      </StackPanel>
+      <Button x:Name="ReImportButton" Grid.Column="3" Content="[Shares.ReImport]" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}" Command="{Binding Command}" Margin="4,4,4,3"/>
+
+      <!--Rectangle Grid.ColumnSpan="4" StrokeThickness="1" Fill="White" Height="2" HorizontalAlignment="Stretch" Margin="0,10,0,0" VerticalAlignment="Bottom" Opacity="0.4"/-->
+
+      <!-- Additionally available properties to show here:
+      <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}"
+          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
+-->
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="SystemShares1ListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ItemsPresenter/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource ShareOverview1ItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+  </Style>
+
+  <DataTemplate x:Key="SystemShares1ItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel Margin="5" LastChildFill="True">
+      <DockPanel DockPanel.Dock="Top">
+        <Label x:Name="SystemName" DockPanel.Dock="Left" Content="{Binding [Name]}">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label DockPanel.Dock="Left" Content=" (">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label DockPanel.Dock="Left" Content="{Binding AdditionalProperties[HostName]}">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label DockPanel.Dock="Left" Content=", ">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label x:Name="OnlineState" DockPanel.Dock="Left">
+          <Label.Content>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="[Shares.Online]"/>
+              <Binding Source="[Shares.Offline]"/>
+            </MultiBinding>
+          </Label.Content>
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+        <Label DockPanel.Dock="Left" Content=")">
+          <Label.Color>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Path="AdditionalProperties[IsConnected]"/>
+              <Binding Source="{ThemeResource TextColor}"/>
+              <Binding Source="{ThemeResource GrayedOutTextColor}"/>
+            </MultiBinding>
+          </Label.Color>
+        </Label>
+      </DockPanel>
+      <ListView x:Name="SystemSharesList" Margin="0,10,10,10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                DockPanel.Dock="Top" Style="{ThemeResource SystemShares1ListViewStyle}"
+                ItemsSource="{Binding Path=AdditionalProperties[SystemShares],Mode=OneTime}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- ListView style to be used for the shares overview list -->
+  <Style x:Key="SharesOverviewListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                          Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter x:Name="OverviewPresenter" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SystemShares1ItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+  </Style>
+
+  
+  <!-- ListView style to be used for menus which display an image with a label -->
+
+  <Style x:Key="ImageDialogContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_Grid}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <!--Button.ContextMenuCommand>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+            </Button.ContextMenuCommand-->
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="ImageDialogItemsDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" Margin="2">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="250"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="150"/>
+      </Grid.RowDefinitions>
+
+      <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Rectangle.Fill>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+          </MultiBinding>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Image x:Name="Image" Thumbnail="True" Stretch="Fill"
+             Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
+      <Rectangle VerticalAlignment="Bottom" Height="60">
+        <Rectangle.Fill>
+          <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+            <GradientStop Color="#D8000000" Offset="0"/>
+            <GradientStop Color="#00000000" Offset="1"/>
+          </LinearGradientBrush>
+        </Rectangle.Fill>
+      </Rectangle>
+      <Label x:Name="ItemLabel" Margin="10,5,10,0" Content="{Binding [Name]}"
+             Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}"
+             HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="ImageDialogListViewStyle" BasedOn="{ThemeResource MenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource ImageDialogItemsDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ImageDialogItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource ImageDialogContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <WrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="0" MaxWidth="1100" MaxHeight="500"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ****************************** Notification area ********************************** -->
+
+  <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
+
+  <Style x:Key="NotificationControlStyle" TargetType="{x:Type ContentPresenter}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ContentPresenter}">
+          <StackPanel Context="{StaticResource NotificationsModel}" IsVisible="{Binding IsNotificationsHintVisible}" Orientation="Horizontal">
+            <Button Style="{ThemeResource NotificationButtonStyle}" Command="{Command GoToNotification}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="icon" Property="Opacity" Value="1"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </StackPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

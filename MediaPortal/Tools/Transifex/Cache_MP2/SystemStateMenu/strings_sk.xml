@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">Hibernovať</string>
   <string name="SystemState.Shutdown">Vypnúť</string>
   <string name="SystemState.Suspend">Uspať</string>
-  <string name="SystemState.Restart">Reštart</string>
   <string name="SystemState.Logoff">Odhlásiť sa</string>
   <string name="SystemState.MinimizeMP">Minimalizujte MediaPortal</string>
   <string name="SystemState.ShutdownMP">Zatvoriť MediaPortal</string>

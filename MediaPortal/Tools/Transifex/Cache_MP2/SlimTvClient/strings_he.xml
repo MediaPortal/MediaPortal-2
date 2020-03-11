@@ -22,8 +22,8 @@
   <string name="SlimTvClient.DeleteSchedule">מחק תזמונים</string>
   <string name="SlimTvClient.CreateSchedule">תזמן הקלטה</string>
   <!--Extended recording features-->
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">הקלטות לפי שם</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">הקלטות לפי שם</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">שם</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">שם</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">אין ספק טלויזיה פנוי (בינתיים)</string>
   <!--Settings-->
@@ -35,10 +35,7 @@
   <string name="SlimTvClient.NoColor">ללא</string>
   <string name="SlimTvClient.RecordingsMenuItem">הקלטות</string>
   <string name="SlimTvClient.RecordingsRootViewName">הקלטות מטלויזיה</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">סנן לפי ערוץ</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">ערוץ</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">ערוץ: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">הקלטה לפי ערוץ</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">סנן לפי שם</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">הקלטות לפי שם</string>
 </resources>

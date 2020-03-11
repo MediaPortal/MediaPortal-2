@@ -142,6 +142,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DateOfBirth, person.DateOfBirth);
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref DateOfDeath, person.DateOfDeath);
 
+        MergeDataProviders(person);
         return true;
       }
       return false;

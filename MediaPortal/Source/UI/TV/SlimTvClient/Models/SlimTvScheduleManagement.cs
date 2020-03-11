@@ -51,6 +51,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected ISchedule _selectedSchedule;
     protected AbstractProperty _scheduleSeriesModeProperty = null;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelNumberProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
     protected AbstractProperty _scheduleNameProperty = null;
     protected AbstractProperty _scheduleTypeProperty = null;
@@ -129,6 +130,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ChannelLogoTypeProperty
     {
       get { return _channelLogoTypeProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_channelNumberProperty.GetValue(); }
+      set { _channelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _channelNumberProperty; }
     }
 
     /// <summary>
@@ -225,6 +243,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    public void RecordMenu()
+    {
+      ListItem item = SlimTvExtScheduleModel.CurrentItem;
+      if(item != null)
+        ShowActions(item.AdditionalProperties["SCHEDULE"] as ISchedule, item.AdditionalProperties["PROGRAM"] as IProgram);
+    }
+
     private async Task UpdateScheduleDetails(ISchedule schedule)
     {
       // Clear properties if no schedule is given
@@ -232,9 +257,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         StartTime = EndTime = DateTime.MinValue;
         ChannelName = ScheduleName = ScheduleType = string.Empty;
+        ChannelNumber = 0;
         return;
       }
-      string channelName = string.Empty;
+
       IChannel channel = null;
       if (_tvHandler.ChannelAndGroupInfo != null)
       {
@@ -242,13 +268,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (result.Success)
         {
           channel = result.Result;
-          channelName = channel.Name;
         }
       }
 
       StartTime = schedule.StartTime;
       EndTime = schedule.EndTime;
-      ChannelName = channelName;
+      ChannelName = channel?.Name ?? String.Empty;
+      ChannelNumber = channel?.ChannelNumber ?? 0;
       ChannelLogoType = channel.GetFanArtMediaType();
       ScheduleName = schedule.Name;
       ScheduleType = string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType);
@@ -285,8 +311,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         foreach (ISchedule schedule in schedules)
         {
           var progResult = await _tvHandler.ScheduleControl.GetProgramsForScheduleAsync(schedule);
-          if (!progResult.Success)
-            continue;
+          if (!progResult.Success || progResult.Result.Count == 0)
+          {
+            if(schedule.Name != "Manual" || schedule.EndTime < DateTime.Now)
+              continue;
+            // Make dummy program for manual schedule
+            MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Program program = new Interfaces.UPnP.Items.Program()
+            {
+              ChannelId = schedule.ChannelId,
+              Title = "[SlimTvClient.ManualRecordingTitle]",
+              StartTime = schedule.StartTime,
+              EndTime = schedule.EndTime,
+              RecordingStatus = RecordingStatus.Scheduled
+            };
+            if (program.StartTime <= DateTime.Now && program.EndTime >= DateTime.Now)
+              program.RecordingStatus |= RecordingStatus.Recording;
+            if (schedule.RecordingType != ScheduleRecordingType.Once)
+              program.RecordingStatus |= RecordingStatus.SeriesScheduled;
+            progResult.Result = new List<IProgram>();
+            progResult.Result.Add(program);
+          }
 
           IList<IProgram> schedulePrograms = progResult.Result;
 
@@ -376,7 +420,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private ListItem CreateScheduleItem(ISchedule schedule)
     {
       ISchedule currentSchedule = schedule;
-      ListItem item = new ListItem("Name", schedule.Name)
+      ListItem item = new ListItem("Name", schedule.Name == "Manual" ? "[SlimTvClient.ManualRecordingTitle]" : schedule.Name)
       {
         Command = new MethodDelegateCommand(() => ShowActions(currentSchedule))
       };
@@ -415,29 +459,26 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       DialogHeader = currentSchedule.Name;
       _dialogActionsList.Clear();
 
-      if (program != null)
+      if (program != null && currentSchedule.IsSeries)
       {
-        ListItem item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteSingle]")
+        // In program list, offer to delete single program of series
+        _dialogActionsList.Add(new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteSingle]")
         {
           Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(program))
-        };
-        _dialogActionsList.Add(item);
+        });
       }
-      else
+      // Always offer to delete schedule (prompt is same as single program if recording isn't a series)
+      _dialogActionsList.Add(new ListItem(Consts.KEY_NAME, currentSchedule.IsSeries ? "[SlimTvClient.DeleteFullSchedule]" : "[SlimTvClient.DeleteSingle]")
       {
-        ListItem item = new ListItem(Consts.KEY_NAME, currentSchedule.IsSeries ? "[SlimTvClient.DeleteFullSchedule]" : "[SlimTvClient.DeleteSingle]")
+        Command = new AsyncMethodDelegateCommand(() => DeleteSchedule(currentSchedule))
+      });
+      if (program == null && currentSchedule.IsSeries)
+      {
+        // In series list - offer to delete individual programs - will go to ExtSchedule to show all the programs
+        _dialogActionsList.Add(new ListItem(Consts.KEY_NAME, "[SlimTvClient.CancelProgramsOfSeriesSchedule]")
         {
-          Command = new AsyncMethodDelegateCommand(() => DeleteSchedule(currentSchedule))
-        };
-        _dialogActionsList.Add(item);
-        if (currentSchedule.IsSeries)
-        {
-          item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.CancelProgramsOfSeriesSchedule]")
-          {
-            Command = new MethodDelegateCommand(() => ShowAndEditPrograms(currentSchedule))
-          };
-          _dialogActionsList.Add(item);
-        }
+          Command = new MethodDelegateCommand(() => ShowAndEditPrograms(currentSchedule))
+        });
       }
       _dialogActionsList.FireChange();
 
@@ -472,6 +513,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _scheduleSeriesModeProperty = new WProperty(typeof(bool), false);
         _scheduleSeriesModeProperty.Attach(ToggleSeriesMode);
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelNumberProperty = new WProperty(typeof(int), 0);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _scheduleNameProperty = new WProperty(typeof(string), string.Empty);
         _scheduleTypeProperty = new WProperty(typeof(string), string.Empty);

@@ -931,7 +931,9 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       if (HasFocus)
         return true;
-      if (IsVisible && IsEnabled && Focusable)
+      if (!IsVisible || !IsEnabled)
+        return false;       // If container is invisible or disabled, it makes no sense to set focus to a child
+      if(Focusable)
       {
         Screen screen = Screen;
         if (screen == null)

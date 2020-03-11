@@ -8,6 +8,5 @@
   <string name="Settings.ServerSettings.Username">Użytkownik:</string>
   <string name="Settings.ServerSettings.Password">Hasło:</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Ustawienia automatycznego odświeżania udziałów</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Włącz automatyczne odświeżanie</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Uruchom o określonej godzinie dnia (notacja 24-ro godzinna)</string>
 </resources>

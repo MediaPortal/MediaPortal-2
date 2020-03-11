@@ -36,17 +36,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MovieTheMovieDbMatcher : MovieMatcher<ImageItem, string>
   {
-    #region Static instance
-
-    public static MovieTheMovieDbMatcher Instance
-    {
-      get { return ServiceRegistration.Get<MovieTheMovieDbMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
+    public const string NAME = "TheMovieDB.org";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");
     private static readonly TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -55,7 +47,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public MovieTheMovieDbMatcher() :
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, true)
     {
     }
 
@@ -63,7 +55,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        TheMovieDbWrapper wrapper = new TheMovieDbWrapper();
+        TheMovieDbWrapper wrapper = new TheMovieDbWrapper(NAME);
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = new CultureInfo(PreferredLanguageCulture);
         wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);

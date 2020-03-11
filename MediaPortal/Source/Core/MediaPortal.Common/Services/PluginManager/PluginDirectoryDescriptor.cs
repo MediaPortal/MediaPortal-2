@@ -206,6 +206,7 @@ namespace MediaPortal.Common.Services.PluginManager
               if (fileName.Length == 0)
                 throw new ArgumentException("'Assembly' element needs an attribute 'FileName'");
               string assemblyFilePath = Path.IsPathRooted(fileName) ? fileName : Path.Combine(pluginDirectory, fileName);
+              assemblyFilePath = ReplaceVariables(assemblyFilePath);
               if (!File.Exists(assemblyFilePath))
                 throw new ArgumentException(string.Format("Plugin '{0}': Assembly DLL file '{1}' does not exist", _name, assemblyFilePath));
               _assemblyFilePaths.Add(assemblyFilePath);
@@ -219,6 +220,20 @@ namespace MediaPortal.Common.Services.PluginManager
               throw new ArgumentException("'Runtime' element doesn't support a child element '" + childNav.Name + "'");
           }
         } while (childNav.MoveToNext(XPathNodeType.Element));
+    }
+
+    /// <summary>
+    /// Helper method to support variables inside assembly path references. Common use case is to support platform specific references (x86 vs. x64)
+    /// Supported variables:
+    /// $(Platform)
+    /// </summary>
+    /// <param name="assemblyFilePath"></param>
+    /// <returns></returns>
+    private string ReplaceVariables(string assemblyFilePath)
+    {
+      string platform = IntPtr.Size > 4 ? "x64" : "x86";
+      assemblyFilePath = assemblyFilePath.Replace("$(Platform)", platform);
+      return assemblyFilePath;
     }
 
     /// <summary>

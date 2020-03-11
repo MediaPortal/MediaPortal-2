@@ -931,8 +931,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].ShowTitle != null)
       {
-        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SERIES_NAME,
-          CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].ShowTitle));
+        MediaItemAspect.SetAttribute(extractedAspectData, SeriesAspect.ATTR_SERIES_NAME, _stubs[0].ShowTitle);
         return true;
       }
       return false;

@@ -36,9 +36,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected MatcherSetting[] _musicMatchers = new MatcherSetting[0];
     protected MatcherSetting[] _seriesMatchers = new MatcherSetting[0];
     protected MatcherSetting[] _movieMatchers = new MatcherSetting[0];
+    protected MatcherSetting[] _subtitleMatchers = new MatcherSetting[0];
     protected string _musicLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
     protected string _seriesLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
     protected string _movieLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
+    protected string _subtitleLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
+    protected bool _useMovieAudioIfUnmatched = false;
+    protected bool _useSeriesAudioIfUnmatched = false;
+    protected bool _useMusicAudioIfUnmatched = false;
 
     public OnlineLibrarySettings()
     {
@@ -48,6 +53,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
         _movieLanguageCulture = "en-US";
       if (string.IsNullOrEmpty(_seriesLanguageCulture))
         _seriesLanguageCulture = "en-US";
+      if (string.IsNullOrEmpty(_subtitleLanguageCulture))
+        _subtitleLanguageCulture = "en-US";
     }
 
     //Only download basic FanArt like backdrops, banners, posters and thumbnails
@@ -82,6 +89,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
       set { _musicLanguageCulture = value; }
     }
 
+    //Use main audio language of media if it has no audio language matching the preferred language
+    [Setting(SettingScope.Global)]
+    public bool UseMusicAudioLanguageIfUnmatched
+    {
+      get { return _useMusicAudioIfUnmatched; }
+      set { _useMusicAudioIfUnmatched = value; }
+    }
+
     //Series matcher settings
     [Setting(SettingScope.Global)]
     public MatcherSetting[] SeriesMatchers
@@ -97,6 +112,14 @@ namespace MediaPortal.Extensions.OnlineLibraries
       set { _seriesLanguageCulture = value; }
     }
 
+    //Use main audio language of media if it has no audio language matching the preferred language
+    [Setting(SettingScope.Global)]
+    public bool UseSeriesAudioLanguageIfUnmatched
+    {
+      get { return _useSeriesAudioIfUnmatched; }
+      set { _useSeriesAudioIfUnmatched = value; }
+    }
+
     //Movie matcher settings
     [Setting(SettingScope.Global)]
     public MatcherSetting[] MovieMatchers
@@ -110,6 +133,29 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       get { return _movieLanguageCulture; }
       set { _movieLanguageCulture = value; }
+    }
+
+    //Use main audio language of media if it has no audio language matching the preferred language
+    [Setting(SettingScope.Global)]
+    public bool UseMovieAudioLanguageIfUnmatched
+    {
+      get { return _useMovieAudioIfUnmatched; }
+      set { _useMovieAudioIfUnmatched = value; }
+    }
+
+    //Subtitle matcher settings
+    [Setting(SettingScope.Global)]
+    public MatcherSetting[] SubtitleMatchers
+    {
+      get { return _subtitleMatchers; }
+      set { _subtitleMatchers = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public string SubtitleLanguageCulture
+    {
+      get { return _subtitleLanguageCulture; }
+      set { _subtitleLanguageCulture = value; }
     }
   }
 }

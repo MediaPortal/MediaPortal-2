@@ -56,6 +56,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected bool _isScheduleMode = false;
     protected int _lastProgramId;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelNumberProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
     protected AbstractProperty _isSingleRecordingScheduledProperty = null;
     protected AbstractProperty _isSeriesRecordingScheduledProperty = null;
@@ -100,6 +101,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_channelNumberProperty.GetValue(); }
+      set { _channelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _channelNumberProperty; }
+    }
+
+    /// <summary>
     /// Indicates if the current program is scheduled as single recording.
     /// </summary>
     public bool IsSingleRecordingScheduled
@@ -125,6 +143,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty IsSeriesRecordingScheduledProperty
     {
       get { return _isSeriesRecordingScheduledProperty; }
+    }
+
+    /// <summary>
+    /// Used by the template xaml to keep track of the focused item (program, schedule, ChannelProgram or whatever)
+    /// </summary>
+    public void FocusToItem(ListItem item)
+    {
+      _selectedItem = item;
     }
 
     /// <summary>
@@ -154,6 +180,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       UpdateButtonStateForSchedule();
     }
 
+    public async Task RecordSeries(ScheduleRecordingType scheduleRecordingType)
+    {
+      await CreateSchedule(_selectedProgram, scheduleRecordingType);
+      _selectedSchedule = null;
+    }
+
     public void CancelSchedule()
     {
       InitDeleteChoicesList();
@@ -161,6 +193,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       screenManager.ShowDialog("DialogExtSchedule");
     }
 
+    public void RecordMenu()
+    {
+      ListItem item = SelectedItem;
+      if (item == null)
+        return;
+      if(_isScheduleMode)
+      {
+        item.Command.Execute();
+        return;
+      }
+      IProgram program = item.AdditionalProperties["PROGRAM"] as IProgram;
+      if (program == null || _tvHandler.ScheduleControl == null)
+        return;
+      var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
+      if (result.Success)
+      {
+        DialogHeader = "SlimTvClient.RecordActions";
+        _dialogActionsList.Clear();
+        AddRecordingOptions(_dialogActionsList, program, result.Result);
+        IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+        screenManager.ShowDialog("DialogExtSchedule");
+      }
+    }
+
+    #region Static methods fopr other models to call
     public static void Show(ISchedule schedule)
     {
       NavigationContextConfig navigationContextConfig = new NavigationContextConfig();
@@ -179,6 +236,44 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       Show(navigationContextConfig);
     }
 
+    /// <summary>
+    /// Put up the series type menu, and, if an item is selected, set up a series recording for the program
+    /// </summary>
+    /// <param name="program"></param>
+    public static void RecordSeries(IProgram program)
+    {
+      var wf = ServiceRegistration.Get<IWorkflowManager>();
+      SlimTvExtScheduleModel model = wf.GetModel(SlimTvExtScheduleModel.MODEL_ID) as SlimTvExtScheduleModel;
+      model.InitModel();
+      model._selectedProgram = program;
+      model.RecordSeries();
+    }
+
+    public static void ShowDialog(string title, ItemsList list)
+    {
+      var wf = ServiceRegistration.Get<IWorkflowManager>();
+      SlimTvExtScheduleModel model = wf.GetModel(SlimTvExtScheduleModel.MODEL_ID) as SlimTvExtScheduleModel;
+      model.InitModel();
+      model.DialogHeader = title;
+      model._dialogActionsList.Clear();
+      foreach (ListItem i in list)    // ItemsList doesn't have AddRange method :-(
+        model._dialogActionsList.Add(i);
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.ShowDialog("DialogExtSchedule");
+    }
+
+    /// <summary>
+    /// For other models to find out which ListItem has the focus
+    /// </summary>
+    public static ListItem CurrentItem
+    {
+      get
+      {
+        SlimTvExtScheduleModel model = ServiceRegistration.Get<IWorkflowManager>().GetModel(SlimTvExtScheduleModel.MODEL_ID) as SlimTvExtScheduleModel;
+        return model.SelectedItem;
+      }
+    }
+
     private static void Show(NavigationContextConfig context)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
@@ -190,6 +285,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     #endregion
+    #endregion
 
     #region Inits and Updates
 
@@ -198,6 +294,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_isInitialized)
       {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelNumberProperty = new WProperty(typeof(int), 0);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _isSingleRecordingScheduledProperty = new WProperty(typeof(bool), false);
         _isSeriesRecordingScheduledProperty = new WProperty(typeof(bool), false);
@@ -254,7 +351,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
       IChannel channel = result.Result;
-      ChannelName =  channel != null ? channel.Name : string.Empty;
+      ChannelName =  channel?.Name ?? string.Empty;
+      ChannelNumber =  channel?.ChannelNumber ?? 0;
       ChannelLogoType = channel.GetFanArtMediaType();
     }
 
@@ -348,6 +446,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (channel != null)
         {
           item.SetLabel("ChannelName", channel.Name);
+          item.SetLabel("ChannelNumber", channel.ChannelNumber.ToString());
           item.SetLabel("ChannelLogoType", channel.GetFanArtMediaType());
         }
 
@@ -368,6 +467,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       _lastProgramId = program.ProgramId;
       var newStatus = await base.CreateOrDeleteSchedule(program, recordingType);
+
+      UpdateButtonStateForSchedule();
+
+      if (!newStatus.HasValue)
+        return RecordingStatus.None;
+
+      UpdatePrograms(); // Reload all programs, as series scheduling will affect multiple programs
+      NotifyAllPrograms();
+      return newStatus.Value;
+    }
+
+    protected override async Task<RecordingStatus?> CreateSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
+    {
+      _lastProgramId = program.ProgramId;
+      var newStatus = await base.CreateSchedule(program, recordingType);
 
       UpdateButtonStateForSchedule();
 

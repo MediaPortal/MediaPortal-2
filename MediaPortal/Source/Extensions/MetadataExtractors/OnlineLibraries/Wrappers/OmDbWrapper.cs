@@ -38,9 +38,15 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class OmDbWrapper : ApiWrapper<object, string>
+  class OmDbWrapper : ApiMediaWrapper<object, string>
   {
     protected OmDbApiV1 _omDbHandler;
+    protected readonly string _name;
+
+    public OmDbWrapper(string name)
+    {
+      _name = name;
+    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -64,6 +70,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ImdbId = m.ImdbID,
         MovieName = new SimpleTitle(m.Title, true),
         ReleaseDate = m.Year.HasValue ? new DateTime(m.Year.Value, 1, 1) : default(DateTime?),
+        DataProviders = new List<string>() { _name }
       }).ToList();
     }
 
@@ -97,6 +104,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 SeriesName = new SimpleTitle(season.Title, true),
                 SeasonNumber = episodeSearch.SeasonNumber.Value,
                 EpisodeName = new SimpleTitle(episode.Title, false),
+                DataProviders = new List<string>() { _name }
               };
               if(episode.EpisodeNumber.HasValue)
                 info.EpisodeNumbers.Add(episode.EpisodeNumber.Value);
@@ -115,6 +123,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SeriesName = seriesSearch == null ? episodeSearch.SeriesName : seriesSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
+          DataProviders = new List<string>() { _name }
         };
         info.CopyIdsFrom(seriesSearch);
         info.EpisodeNumbers = info.EpisodeNumbers.Union(episodeSearch.EpisodeNumbers).ToList();
@@ -141,6 +150,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ImdbId = s.ImdbID,
         SeriesName = new SimpleTitle(s.Title, true),
         FirstAired = s.Year.HasValue ? new DateTime(s.Year.Value, 1, 1) : default(DateTime?),
+        DataProviders = new List<string>() { _name }
       }).ToList();
       return series;
     }
@@ -211,6 +221,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (movie.Directors.Count == 0)
           movie.Directors = ConvertToPersons(movieDetail.Directors, PersonAspect.OCCUPATION_DIRECTOR, movieDetail.Title);
 
+        if (!movie.DataProviders.Contains(_name))
+          movie.DataProviders.Add(_name);
+
         return true;
       }
       catch (Exception ex)
@@ -218,6 +231,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Exception while processing movie {0}", ex, movie.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(MovieInfo movie)
+    {
+      if (!string.IsNullOrWhiteSpace(movie.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(movie);
     }
 
     public override async Task<bool> UpdateFromOnlineSeriesAsync(SeriesInfo series, string language, bool cacheOnly)
@@ -337,6 +358,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         series.TotalSeasons = series.Seasons.Count;
         series.TotalEpisodes = series.Episodes.Count;
 
+        if (!series.DataProviders.Contains(_name))
+          series.DataProviders.Add(_name);
+
         return true;
       }
       catch (Exception ex)
@@ -344,6 +368,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("OmDbWrapper: Exception while processing series {0}", ex, series.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(SeriesInfo series)
+    {
+      if (!string.IsNullOrWhiteSpace(series.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(series);
     }
 
     public override async Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, string language, bool cacheOnly)
@@ -359,6 +391,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         season.FirstAired = seasonDetail.Episodes != null && seasonDetail.Episodes.Count > 0 ? seasonDetail.Episodes[0].Released : default(DateTime?);
         season.SeasonNumber = seasonDetail.SeasonNumber;
         season.TotalEpisodes = seasonDetail.Episodes.Count;
+
+        if (!season.DataProviders.Contains(_name))
+          season.DataProviders.Add(_name);
 
         return true;
       }
@@ -423,7 +458,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               info.Directors = ConvertToPersons(episodeDetail.Writers, PersonAspect.OCCUPATION_DIRECTOR, episodeDetail.Title, seasonDetail.Title);
             if (episode.Writers == null || episode.Writers.Count == 0)
               info.Writers = ConvertToPersons(episodeDetail.Directors, PersonAspect.OCCUPATION_WRITER, episodeDetail.Title, seasonDetail.Title);
-
+            info.DataProviders = new List<string>() { _name };
             episodeDetails.Add(info);
           }
         }
@@ -446,6 +481,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       }
     }
 
+    public override bool HasSearchableIds(EpisodeInfo episode)
+    {
+      if (!string.IsNullOrWhiteSpace(episode.SeriesImdbId))
+        return true;
+
+      return base.HasSearchableIds(episode);
+    }
+
     #endregion
 
     #region Convert
@@ -458,7 +501,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int sortOrder = 0;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (string name in names)
-        retValue.Add(new PersonInfo() { Name = name, Occupation = occupation, Order = sortOrder++, MediaName = media, ParentMediaName = parentMedia });
+        retValue.Add(new PersonInfo()
+        {
+          Name = name,
+          Occupation = occupation,
+          Order = sortOrder++,
+          MediaName = media,
+          ParentMediaName = parentMedia,
+          DataProviders = new List<string>() { _name }
+        });
       return retValue;
     }
 

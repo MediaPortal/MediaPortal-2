@@ -25,7 +25,6 @@
 using MediaPortal.Common.MediaManagement;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Serialization;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
@@ -38,14 +37,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
 
   public class FanArtManagerAction
   {
-    public FanArtManagerAction(ActionType actionType, Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    public FanArtManagerAction(ActionType actionType, Guid mediaItemId)
     {
       ActionId = Guid.NewGuid();
       Type = actionType;
       MediaItemId = mediaItemId;
-      Aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
-      foreach (var aspect in aspects) //Remove dependency on the media item list
-        Aspects.Add(aspect.Key, aspect.Value.ToList());
     }
 
     public Guid ActionId { get; set; }

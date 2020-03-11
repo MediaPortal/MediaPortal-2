@@ -124,6 +124,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
+      if (!NfoMovieMetadataExtractor.IncludeCharacterDetails)
+        return false;
+
       MovieInfo reimport = null;
       if (aspects.ContainsKey(ReimportAspect.ASPECT_ID))
       {
@@ -144,7 +147,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
 
       extractedLinkedAspects.Clear();
-      foreach (CharacterInfo character in characters)
+      foreach (CharacterInfo character in characters.Take(NfoMovieMetadataExtractor.MaximumCharacterCount))
       {
         if (character.SetLinkedMetadata() && character.LinkedAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
           extractedLinkedAspects.Add(character.LinkedAspects);

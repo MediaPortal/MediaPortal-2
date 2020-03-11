@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+﻿#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
     Copyright (C) 2007-2018 Team MediaPortal
@@ -23,21 +23,50 @@
 #endregion
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.UI.Players.Video.Settings.Configuration
 {
-  public class Subtitles : YesNo
+  public class Subtitles : MultipleSelectionList
   {
+    public Subtitles()
+    {
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableAtscClosedCaptions]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableDvbSubtitles]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableTeletextSubtitles]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableMpcHcEngineSubtitles]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableDvdSubtitles]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.Players.EnableDvdClosedCaptions]"));
+    }
+
     public override void Load()
     {
-      _yes = SettingsManager.Load<VideoSettings>().EnableSubtitles;
+      base.Load();
+      var settings = SettingsManager.Load<VideoSettings>();
+      if (settings.EnableAtscClosedCaptions)
+        _selected.Add(0);
+      if (settings.EnableDvbSubtitles)
+        _selected.Add(1);
+      if (settings.EnableTeletextSubtitles)
+        _selected.Add(2);
+      if (settings.EnableMpcSubtitlesEngine)
+        _selected.Add(3);
+      if (settings.EnableDvdSubtitles)
+        _selected.Add(4);
+      if (settings.EnableDvdClosedCaptions)
+        _selected.Add(5);
     }
 
     public override void Save()
     {
       base.Save();
-      VideoSettings settings = SettingsManager.Load<VideoSettings>();
-      settings.EnableSubtitles = _yes;
+      var settings = SettingsManager.Load<VideoSettings>();
+      settings.EnableAtscClosedCaptions = _selected.Contains(0);
+      settings.EnableDvbSubtitles = _selected.Contains(1);
+      settings.EnableTeletextSubtitles = _selected.Contains(2);
+      settings.EnableMpcSubtitlesEngine = _selected.Contains(3);
+      settings.EnableDvdSubtitles = _selected.Contains(4);
+      settings.EnableDvdClosedCaptions = _selected.Contains(5);
       SettingsManager.Save(settings);
     }
   }

@@ -195,16 +195,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         };
         return true;
       }
-      CompanyFilterItem companyItem = listItem as CompanyFilterItem;
-      if (companyItem != null)
-      {
-        fanartImageSource = new FanArtImageSource
-        {
-          FanArtMediaType = FanArtMediaTypes.Company,
-          FanArtName = fanArtName
-        };
-        return true;
-      }
       TVNetworkFilterItem tvNetworkItem = listItem as TVNetworkFilterItem;
       if (tvNetworkItem != null)
       {
@@ -215,6 +205,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         };
         return true;
       }
+      CompanyFilterItem companyItem = listItem as CompanyFilterItem;
+      if (companyItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Company,
+          FanArtName = fanArtName
+        };
+        return true;
+      }
+      
       ImageItem imgItem = listItem as ImageItem;
       if (imgItem != null)
       {

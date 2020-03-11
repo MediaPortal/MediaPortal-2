@@ -31,9 +31,9 @@ using System.Security.Principal;
 namespace MediaPortal.Utilities.Process
 {
   /// <summary>
-  /// InpterProcessCommunication server
+  /// InterProcessCommunication server
   /// </summary>
-  /// <remarks>Opens a named pipe to allow other processes to comunicate with this application.</remarks>
+  /// <remarks>Opens a named pipe to allow other processes to communicate with this application.</remarks>
   public class IpcServer : IDisposable
   {
     #region Private fields
@@ -81,6 +81,11 @@ namespace MediaPortal.Utilities.Process
     /// Gets or sets a custom shutdown callback
     /// </summary>
     public Func<bool> CustomShutdownCallback { get; set; }
+
+    /// <summary>
+    /// Gets or sets a custom restart callback
+    /// </summary>
+    public Func<bool> CustomRestartCallback { get; set; }
 
     #endregion
 
@@ -235,7 +240,7 @@ namespace MediaPortal.Utilities.Process
     }
 
     /// <summary>
-    /// Processes an incomming comand and prepares the response data
+    /// Processes an incoming command and prepares the response data
     /// </summary>
     /// <param name="commandId">Id of the command</param>
     /// <param name="data">Custom data of the command. The array might be larger then the actual data.
@@ -244,9 +249,9 @@ namespace MediaPortal.Utilities.Process
     /// <param name="dataLength">Number of valid bytes in <paramref name="data"/>.</param>
     /// <param name="response">Byte array to write the custom response data into. The 1st written byte must be at <paramref name="responseOffset"/>.
     /// At the end <paramref name="responseOffset"/> must be set to the 1st byte after the response.
-    /// The byte array can be replaced by a larger arrqay if needed. All data up to the current <paramref name="responseOffset"/> must be copied into this new array.</param>
-    /// <param name="responseOffset">Holds the 1st byte offset to write response data to <paramref name="response"/> when mthod is called.
-    /// The value must be updatet to the 1st byte offset after the valid response date before the method returns.</param>
+    /// The byte array can be replaced by a larger array if needed. All data up to the current <paramref name="responseOffset"/> must be copied into this new array.</param>
+    /// <param name="responseOffset">Holds the 1st byte offset to write response data to <paramref name="response"/> when method is called.
+    /// The value must be updated to the 1st byte offset after the valid response date before the method returns.</param>
     /// <returns>Returns the command response code.</returns>
     private Ipc.ResponseCode ProcessCommand(Ipc.Command commandId, byte[] data, int dataOffset, int dataLength, ref byte[] response, ref int responseOffset)
     {
@@ -262,6 +267,9 @@ namespace MediaPortal.Utilities.Process
 
         case Ipc.Command.Shutdown:
           return ShutdownApplication() ? Ipc.ResponseCode.Ok : Ipc.ResponseCode.False;
+
+        case Ipc.Command.Restart:
+          return RestartApplication() ? Ipc.ResponseCode.Ok : Ipc.ResponseCode.False;
       }
 
       return Ipc.ResponseCode.UnknownCommand;
@@ -277,6 +285,11 @@ namespace MediaPortal.Utilities.Process
       {
         return process.CloseMainWindow();
       }
+    }
+
+    private bool RestartApplication()
+    {
+      return CustomRestartCallback != null && CustomRestartCallback();
     }
 
     #endregion

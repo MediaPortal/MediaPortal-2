@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    DependsOnStyleResources="Colors,Buttons,NewsConsts"
+    >
+
+  <SolidColorBrush x:Key="NewsItemSeparatorBrush" Color="{ThemeResource HintTextColor}"/>
+
+  <!-- Default no transformation for scrollbars -->
+  <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+  </ResourceWrapper>
+
+  <Style x:Key="NewsItemButtonStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource MediaItemButtonCoverStyle}"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}" Margin="1">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+            <Button.ContextMenuCommand>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+            </Button.ContextMenuCommand>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  
+  <!-- Style for a single feed item -->
+  <DataTemplate x:Key="NewsFeedDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Margin="1" >
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="291"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="177"/>
+      </Grid.RowDefinitions>
+      <Border x:Name="BackgroundBorder" Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="#454545" Margin="0">
+        <Border.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="BackgroundBorder" Property="Background" Value="#003366"/>
+          </DataTrigger>
+        </Border.Triggers>
+      </Border>
+      <Image Grid.Column="0" Grid.Row="0" Stretch="Uniform" Source="{Binding Icon}" FallbackSource="RssIcon.png" Margin="20"
+             VerticalAlignment="Center" HorizontalAlignment="Center">
+      </Image>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Style for a single news item -->
+  <DataTemplate x:Key="NewsItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid Margin="1" Width="291" Height="177" >
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Border x:Name="BackgroundBorder" Grid.Column="0" Grid.Row="0" CornerRadius="0" Background="#454545" Margin="0">
+        <Border.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="BackgroundBorder" Property="Background" Value="#003366"/>
+          </DataTrigger>
+        </Border.Triggers>
+      </Border>
+      <DockPanel Grid.Row="0" Grid.Column="0">
+        <Grid DockPanel.Dock="Center">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Image Grid.Column="1" Grid.Row="1" x:Name="thumb" Stretch="Uniform" Source="{Binding Thumb}" Margin="8">
+            <Image.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.7"/>
+              </MultiBinding>
+            </Image.Opacity>
+          </Image>
+        </Grid>
+        <Image DockPanel.Dock="Top" Source="D675D9BA-A27B-44B9-BC6B-8CF2DC7D220F.png" Margin="20,10,10,10" Height="35" Width="35"
+               IsVisible="{Binding ElementName=thumb, Path=!HasImage}" HorizontalAlignment="Left" Stretch="Fill"/>
+        <Label DockPanel.Dock="Bottom" x:Name="ItemLabel" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+               VerticalAlignment="Center" Wrap="True" Margin="20,10,20,20" HorizontalAlignment="Left" TextTrimming="CharacterEllipsis" Scroll="None" ScrollDelay="0"
+               FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=Title}" Color="White">
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+              <Setter TargetName="ItemLabel" Property="TextTrimming" Value="None"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
+      </DockPanel>   
+    </Grid>
+  </DataTemplate>
+
+  <!-- Style for a single news feed bookmark item in the config list -->
+  <DataTemplate x:Key="NewsFeedBookmarkItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="30"/>
+        <ColumnDefinition Width="10"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Label Content="{Binding Name}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="10,2,0,2"
+             Width="{ResolutionResource NewsFeedTitleWidth}"/>
+      <Label Grid.Column="1" Content="{Binding Url}" FontSize="{ThemeResource TinyFontSize}"
+             Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
+      <Label Grid.Column="2" Content="X" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" IsVisible="{Binding Selected}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- ListView style for all news feeds -->
+  <Style x:Key="NewsFeedsContainerStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}" >
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewsFeedDataTemplate}" />
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource NewsItemButtonStyle}" />
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="False"
+                             Margin="0,0,0,-6">
+            <AnimatedWrapPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier"/>
+              </Storyboard>
+            </AnimatedWrapPanel.Resources>
+            <AnimatedWrapPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedWrapPanel.Triggers>
+          </AnimatedWrapPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style for all news items -->
+  <Style x:Key="NewsItemsContainerStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewsItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource NewsItemButtonStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="False"
+                             Margin="0,0,0,-6">
+            <AnimatedWrapPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier"/>
+              </Storyboard>
+            </AnimatedWrapPanel.Resources>
+            <AnimatedWrapPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedWrapPanel.Triggers>
+          </AnimatedWrapPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- An item list container represented by a standard "Button", scrolling its "ItemLabel" label when focused -->
+  <Style x:Key="NewsMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource MenuButtonWideStyle}" Margin="80,0,51,0" 
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for the list in the news feeds configuration dialog -->
+  <Style x:Key="NewsFeedsBookmarksListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource NewsFeedBookmarkItemDataTemplate}"/>
+    <Setter Property="Background" Value="{ThemeResource ItemsControlDialogShadowBackgroundColor}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource NewsMenuItemContainerStyle}"/>
+  </Style>
+
+</ResourceDictionary>

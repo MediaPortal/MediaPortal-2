@@ -34,17 +34,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MovieSimApiMatcher : MovieMatcher<string, string>
   {
-    #region Static instance
-
-    public static MovieSimApiMatcher Instance
-    {
-      get { return ServiceRegistration.Get<MovieSimApiMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
+    public const string NAME = "MoviesApi.com";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\SimApi\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -53,7 +45,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public MovieSimApiMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
       //TODO: Disabled for now. Very slow and timeouts at times.
       Enabled = false;
@@ -63,7 +55,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        SimApiWrapper wrapper = new SimApiWrapper();
+        SimApiWrapper wrapper = new SimApiWrapper(NAME);
         if (wrapper.Init(CACHE_PATH, useHttps))
         {
           _wrapper = wrapper;

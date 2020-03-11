@@ -12,6 +12,7 @@
     <References Include="$(TargetDir)Microsoft.Owin.dll"/>
     <References Include="$(TargetDir)Microsoft.Owin.Diagnostics.dll"/>
     <References Include="$(TargetDir)Microsoft.Owin.Host.HttpListener.dll"/>
+    <References Include="$(TargetDir)Newtonsoft.Json.dll"/>
   </ItemGroup>
 
   <Target Name="AfterBuild">

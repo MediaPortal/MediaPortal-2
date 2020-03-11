@@ -225,16 +225,22 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
         try
         {
           Display_ListBeingBuilt();
-          bool grouping = true;
           IFilter filter = currentVS.FilterTree.BuildFilter(_filterPath);
           ICollection<Guid> necessaryMIAs = _necessaryFilteredMIATypeIds ?? currentVS.NecessaryMIATypeIds;
-          ICollection<FilterValue> fv = _clusterFilter == null ?
-              await _filterCriterion.GroupValuesAsync(necessaryMIAs, _clusterFilter, filter) : null;
 
-          if (fv == null || fv.Count <= Consts.MAX_NUM_ITEMS_VISIBLE)
+          // If the number of values to create exceeds MAX_NUM_ITEMS_VISIBLE we need to try and group the items.
+          // We request all values first, rather than groups, on the assumption that most of the time the limit
+          // shouldn't be reached given that we are filtering the values.
+          bool grouping = false;
+          ICollection<FilterValue> fv = await _filterCriterion.GetAvailableValuesAsync(necessaryMIAs, _clusterFilter, filter).ConfigureAwait(false);
+          if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE && _clusterFilter == null)
           {
-            fv = await _filterCriterion.GetAvailableValuesAsync(necessaryMIAs, _clusterFilter, filter);
-            grouping = false;
+            ICollection<FilterValue> groupValues = await _filterCriterion.GroupValuesAsync(necessaryMIAs, _clusterFilter, filter).ConfigureAwait(false);
+            if (groupValues != null && groupValues.Count > 0)
+            {
+              fv = groupValues;
+              grouping = true;
+            }
           }
           if (fv.Count > Consts.MAX_NUM_ITEMS_VISIBLE)
             Display_TooManyItems(fv.Count);
@@ -265,6 +271,8 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
               _sortable &= filterValue.Item != null;
               string filterTitle = filterValue.Title;
               IFilter selectAttributeFilter = filterValue.SelectAttributeFilter;
+              MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle,
+                FilterTreePath.Combine(_filterPath, filterValue.RelativeFilterPath), filterValue.Filter, filterValue.LinkedId);
               T filterValueItem = new T
               {
                 // Support non-playable MediaItems (i.e. Series, Seasons)
@@ -274,13 +282,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
                 Id = filterValue.Id,
                 Command = new MethodDelegateCommand(() =>
                 {
-                  MediaLibraryQueryViewSpecification subVS = currentVS.CreateSubViewSpecification(filterTitle,
-                    FilterTreePath.Combine(_filterPath, filterValue.RelativeFilterPath), filterValue.Filter, filterValue.LinkedId);
                   if (grouping)
                     NavigateToGroup(subVS, selectAttributeFilter);
                   else
                     NavigateToSubView(subVS);
-                })
+                }),
+                View = subVS.BuildView()
               };
               itemsList.Add(filterValueItem);
               if (filterValue.NumItems.HasValue)

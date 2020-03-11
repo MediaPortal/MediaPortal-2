@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary xmlns="www.team-mediaportal.com/2008/mpf/directx"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:system="clr-namespace:System"
+                    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+                    DependsOnStyleResources="Colors,Buttons,OtherControls">
+
+  <Style x:Key="EditMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid x:Name="ParentPanel">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <ContentPresenter x:Name="EditItemData" Grid.Column="0" Grid.Row="0" Margin="0,0,10,0" Opacity="0.6"
+                              VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+            <Button x:Name="MoveUpButton" Grid.Column="1" Grid.Row="0" Margin="3,2,3,2" Width="54" Height="34"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{ThemeResource ChapterUpButtonStyle}" Context="{Binding}"
+                    Command="{DynamicResource ResourceKey=MoveUp_Command}"
+                    IsEnabled="{Binding Path=AdditionalProperties[IsUpButtonEnabled],Mode=OneTime}"
+                    SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="EditItemData" Property="Opacity" Value="1"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Button x:Name="MoveDownButton" Grid.Column="2" Grid.Row="0" Margin="3,2,3,1" Width="54" Height="34"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{ThemeResource ChapterDownButtonStyle}" Context="{Binding}"
+                    Command="{DynamicResource ResourceKey=MoveDown_Command}"
+                    IsEnabled="{Binding Path=AdditionalProperties[IsDownButtonEnabled],Mode=OneTime}"
+                    SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="EditItemData" Property="Opacity" Value="1"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Margin="3,2,13,2" Width="30" Height="30"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{ThemeResource RemoveEntryButtonStyle}" Context="{Binding}"
+                    Command="{DynamicResource ResourceKey=Remove_Command}"
+                    SetFocus="{Binding Path=AdditionalProperties[IsRemoveButtonFocused],Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="EditItemData" Property="Opacity" Value="1"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>              
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <DataTemplate x:Key="EditMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,3,0,3">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ItemNameLabel" Grid.Column="0" Grid.Row="0" Margin="10,0,10,0"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+             HorizontalAlignment="Left" VerticalAlignment="Center"
+             Content="{Binding [Name]}">
+        <Label.Triggers>
+          <DataTrigger Binding="Selected" Value="False">
+            <Setter TargetName="ItemNameLabel" Property="Opacity" Value="0.6"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
+    </Grid>
+  </DataTemplate>
+  
+  <Style x:Key="EditMenuListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource EditMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource EditMenuItemContainerStyle}"/>
+  </Style>
+
+</ResourceDictionary>

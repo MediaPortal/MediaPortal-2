@@ -22,6 +22,9 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+
 namespace MediaPortal.Common.FanArt
 {
   public static class FanArtMediaTypes
@@ -43,9 +46,68 @@ namespace MediaPortal.Common.FanArt
     public const string Director = "Director";
     public const string Writer = "Writer";
     public const string Composer = "Composer";
+    public const string Conductor = "Conductor";
     public const string Company = "Company";
     public const string TVNetwork = "TVNetwork";
     public const string MusicLabel = "MusicLabel";
+
+    public static bool TryGetMediaItemFanArtType(MediaItem mediItem, out string fanArtMediaType)
+    {
+      fanArtMediaType = null;
+
+      if (mediItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+        fanArtMediaType = FanArtMediaTypes.Audio;
+      else if (mediItem.Aspects.ContainsKey(AudioAlbumAspect.ASPECT_ID))
+        fanArtMediaType = FanArtMediaTypes.Album;
+      else if (mediItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID))
+        fanArtMediaType = FanArtMediaTypes.Movie;
+      else if (mediItem.Aspects.ContainsKey(MovieCollectionAspect.ASPECT_ID))
+        fanArtMediaType = FanArtMediaTypes.MovieCollection;
+      else if (mediItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+        fanArtMediaType = FanArtMediaTypes.Series;
+      else if (mediItem.Aspects.ContainsKey(SeasonAspect.ASPECT_ID))
+        fanArtMediaType = FanArtMediaTypes.SeriesSeason;
+      else if (mediItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        fanArtMediaType = FanArtMediaTypes.Episode;
+      else if (mediItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
+        fanArtMediaType = FanArtMediaTypes.Image;
+      else if (mediItem.Aspects.ContainsKey(CharacterAspect.ASPECT_ID))
+        fanArtMediaType = FanArtMediaTypes.Character;
+      else if (mediItem.Aspects.ContainsKey(PersonAspect.ASPECT_ID))
+      {
+        if (MediaItemAspect.TryGetAspect(mediItem.Aspects, PersonAspect.Metadata, out var aspect))
+        {
+          string occupation = (string)aspect[PersonAspect.ATTR_OCCUPATION];
+          if (occupation == PersonAspect.OCCUPATION_ACTOR)
+            fanArtMediaType = FanArtMediaTypes.Actor;
+          else if (occupation == PersonAspect.OCCUPATION_ARTIST)
+            fanArtMediaType = FanArtMediaTypes.Artist;
+          else if (occupation == PersonAspect.OCCUPATION_COMPOSER)
+            fanArtMediaType = FanArtMediaTypes.Composer;
+          else if (occupation == PersonAspect.OCCUPATION_CONDUCTOR)
+            fanArtMediaType = FanArtMediaTypes.Conductor;
+          else if (occupation == PersonAspect.OCCUPATION_DIRECTOR)
+            fanArtMediaType = FanArtMediaTypes.Director;
+          else if (occupation == PersonAspect.OCCUPATION_WRITER)
+            fanArtMediaType = FanArtMediaTypes.Writer;
+        }
+      }
+      else if (mediItem.Aspects.ContainsKey(CompanyAspect.ASPECT_ID))
+      {
+        if (MediaItemAspect.TryGetAspect(mediItem.Aspects, CompanyAspect.Metadata, out var aspect))
+        {
+          string type = (string)aspect[CompanyAspect.ATTR_COMPANY_TYPE];
+          if (type == CompanyAspect.COMPANY_MUSIC_LABEL)
+            fanArtMediaType = FanArtMediaTypes.MusicLabel;
+          else if (type == CompanyAspect.COMPANY_PRODUCTION)
+            fanArtMediaType = FanArtMediaTypes.Company;
+          else if (type == CompanyAspect.COMPANY_TV_NETWORK)
+            fanArtMediaType = FanArtMediaTypes.TVNetwork;
+        }
+      }
+
+      return !string.IsNullOrEmpty(fanArtMediaType);
+    }
   }
 
   public static class FanArtTypes

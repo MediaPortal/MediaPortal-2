@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Utilities.MainScreenTitle]"/>
+
+    <ResourceWrapper x:Key="WfStatePlaylistImport" Resource="FC8CB306-6EFD-476C-BFF1-DAD0254451A5"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel LastChildFill="True" Height="55">
+        <Button Style="{StaticResource ButtonWideStyle}" Content="[Utilities.PlaylistImport]"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Top"
+                Command="{Command Source={Service WorkflowManager},Path=NavigatePushAsync,Parameters={StaticResource WfStatePlaylistImport}}"/>
+        <Grid DockPanel.Dock="Bottom"/>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

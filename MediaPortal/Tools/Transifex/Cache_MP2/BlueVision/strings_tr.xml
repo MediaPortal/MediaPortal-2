@@ -2,19 +2,36 @@
 <resources>
   <string name="Menu.Audio">Ses</string>
   <string name="Menu.Image">Resimler</string>
+  <string name="Menu.MediaHub">video merkezi</string>
   <string name="Menu.TV">TV</string>
   <string name="Menu.News">Haberler</string>
   <string name="Menu.Weather">Hava durumu</string>
   <string name="Menu.Settings">Ayarlar</string>
   <string name="Menu.Others">Others</string>
   <string name="Menu.Home">Ev</string>
+  <string name="Menu.Main">Ana Menu</string>
   <string name="Movies.Title">Filmler</string>
   <string name="Series.Title">Dizi</string>
   <string name="Audio.Title">Ses</string>
   <string name="Recordings.Title">Kayıtlar</string>
   <string name="Images.Title">Resimler</string>
   <string name="Videos.Title">Videolar</string>
+  <string name="Video.Title">video</string>
+  <string name="Subtitle.Title">altyazı</string>
   <string name="News.Title">Haberler</string>
   <string name="Weather.Title">Hava durumu</string>
   <string name="General.Title">Genel</string>
+  <string name="CastCrew.Title">oyuncular +set ekibi</string>
+  <string name="MediaInfo.Title">medya bilgisi</string>
+  <string name="Media.AudioAlbumArtistsLabel">albüm sanatçıları</string>
+  <string name="Media.AudioTrackLabel">parça</string>
+  <string name="Media.AudioBitRateLabel">bithızı</string>
+  <string name="Media.AudioComposersLabel">besteciler</string>
+  <string name="Media.AudioMimeTypeLabel">tip</string>
+  <string name="BlueVision.Configuration">bluevision yapılandırması</string>
+  <string name="BlueVision.Configuration.Help">bluevision görünümünü özelleştirmeye izin ver</string>
+  <string name="BlueVision.DisableHomeTab"> \"Home\" sekmesini devredışı bırak</string>
+  <string name="BlueVision.DisableAutoSelection">otomatik sekme menüsü seçimini devredışı yap</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">bluevision splash screen kullan</string>
+  <string name="BlueVision.ResetMenuLayout">menü yerleşimini varsayılana döndür</string>
 </resources>

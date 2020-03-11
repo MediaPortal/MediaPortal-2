@@ -21,17 +21,12 @@
   <string name="SlimTvClient.DeleteSchedule">سڕینەوەی خشتە</string>
   <string name="SlimTvClient.CreateSchedule">خشتەی تۆمارکردن</string>
   <!--Extended recording features-->
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">تۆمارکردن بەپێی کات</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">تۆمارکردن بەپێی کات</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">(هێشتا) هیچ وەرگرێکی تەلەڤزیۆن نیە</string>
   <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">تۆمارکراوەکان</string>
   <string name="SlimTvClient.RecordingsRootViewName">تۆمارکراوەکانی تەلەڤزیۆن</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">ڕێگریکردن بەپێی کەناڵ</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">کەناڵ</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">کەناڵ: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">تۆمارکردن بەپێی کەناڵ</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">ڕێگریکردن بەپێی ناو</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">تۆمارکردن بەپێی کات</string>
 </resources>

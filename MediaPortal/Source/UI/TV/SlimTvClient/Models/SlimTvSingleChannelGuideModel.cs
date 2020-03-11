@@ -24,9 +24,12 @@
 
 using System;
 using System.Linq;
+using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Client.Settings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Presentation.DataObjects;
@@ -46,6 +49,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected AbstractProperty _channelNameProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
+    protected AbstractProperty _channelNumberProperty = null;
 
     #endregion
 
@@ -57,6 +61,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #endregion
 
     #region GUI properties and methods
+
+    /// <summary>
+    /// Gets the currently selected channel, or <c>null</c> if not initilalized.
+    /// </summary>
+    public IChannel Channel
+    {
+      get
+      {
+        return _channel;
+      }
+    }
 
     /// <summary>
     /// Exposes the current channel name to the skin.
@@ -93,6 +108,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_channelNumberProperty.GetValue(); }
+      set { _channelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _channelNumberProperty; }
+    }
+
+    /// <summary>
     /// Exposes the list of channels in current group.
     /// </summary>
     public ItemsList ProgramsList
@@ -112,6 +144,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
+        _channelNumberProperty = new WProperty(typeof(int), 0);
       }
 
       base.InitModel();
@@ -121,6 +154,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     #region Channel, groups and programs
 
+    public void RecordMenu()
+    {
+      ProgramListItem item = SlimTvExtScheduleModel.CurrentItem as ProgramListItem;
+      if (item == null)
+        return;
+      ShowProgramActions(item.AdditionalProperties["PROGRAM"] as IProgram);
+    }
+
     protected override void Update()
     { }
 
@@ -128,8 +169,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       base.UpdateGuiProperties();
 
-      ChannelName = CurrentChannel != null ? CurrentChannel.Name : string.Empty;
+      ChannelName = CurrentChannel?.Name ?? string.Empty;
       ChannelLogoType = CurrentChannel.GetFanArtMediaType();
+      ChannelNumber = CurrentChannel?.ChannelNumber ?? 0;
       _channel = CurrentChannel;
     }
 
@@ -144,7 +186,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return;
       }
 
-      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddHours(24));
+      var settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, DateTime.Now.AddHours(-2), DateTime.Now.AddDays(settings.SingleChannelGuideDays));
       if (result.Success)
       {
         _programs = result.Result;

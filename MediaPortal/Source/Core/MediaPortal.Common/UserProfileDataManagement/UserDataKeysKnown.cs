@@ -30,6 +30,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
   public class UserDataKeysKnown
   {
     public const string KEY_PLAY_COUNT = "PlayCount"; //Number of times a user played an media item
+    public const string KEY_PLAY_MAX_CHILD_COUNT = "PlayMaxChildCount"; //The maximum number of times a user played a child media item
     public const string KEY_PLAY_PERCENTAGE = "PlayPercentage"; //Percentage of media item played during last playback
     public const string KEY_PLAY_DATE = "PlayDate"; //Date the media item was last played
     public const string KEY_ALLOWED_SHARE = "AllowedShare"; //Share ID's to which a user has access
@@ -43,6 +44,10 @@ namespace MediaPortal.Common.UserProfileDataManagement
     public const string KEY_INCLUDE_UNRATED_CONTENT = "IncludeUnratedContent"; //Include media items for which a parent is required
     public const string KEY_CHANNEL_PLAY_COUNT = "ChannelPlayCount"; //Number of hours a user played a channel
     public const string KEY_CHANNEL_PLAY_DATE = "ChannelPlayDate"; //Date the channel was last played
+    public const string KEY_FEATURE_USAGE_STATS = "FeatureUsageStats"; //Structure with statistics for feature usage
+    public const string KEY_PREFERRED_AUDIO_LANGUAGE = "PreferredAudioLanguage"; //The preferred audio languages (2-letter ISO) in priority order
+    public const string KEY_PREFERRED_SUBTITLE_LANGUAGE = "PreferredSubtitleLanguage"; //The preferred subtitle languages (2-letter ISO) in priority order
+    public const string KEY_PREFERRED_MENU_LANGUAGE = "PreferredMenuLanguage"; //The preferred menu languages (2-letter ISO) in priority order
 
     public static string GetSortablePlayCountString(long value)
     {

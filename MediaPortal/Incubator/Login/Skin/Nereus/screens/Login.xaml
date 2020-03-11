@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Login.Title]"/-->
+
+    <!-- Login model -->
+    <Model x:Key="Model" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
+
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Image Stretch="Fill" Source="FIRSTRUN.PNG"/>
+      </Grid>
+    </ControlTemplate>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-430,0,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <!-- User profile list -->
+          <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Center" HorizontalContentAlignment="Center" SetFocus="True"
+                    Style="{ThemeResource LoginListViewStyle}" ItemsSource="{Binding Path=Users}" RestoreFocus="True">
+            <ListView.Resources>
+              <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectUser"
+                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+            </ListView.Resources>
+          </ListView>
+          <Button Grid.Row="1" x:Name="LogoutUserButton" Style="{ThemeResource WizardButtonStyle}" 
+                  HorizontalAlignment="Center" Width="300" Margin="-30,60,30,-60"
+                  Content="[Login.Logout]" IsVisible="{Binding IsUserLoggedIn}" Command="{Command LogoutUser}"/>
+          <!--Label Grid.Row="1" HorizontalAlignment="Left" DataContext="{Binding Source={StaticResource Model}, Path=CurrentUser}" Content="{Binding Path=Name}" Color="{ThemeResource TextColor}"/-->
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

@@ -29,8 +29,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.GenreConverter;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
@@ -100,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (episodeInfo.IsBaseInfoPresent)
         {
           if(!forceQuickMode)
-            await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
+            await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, MEDIA_CATEGORY_NAME_SERIES).ConfigureAwait(false);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
@@ -285,6 +285,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, recording.ProgramStartTime);
 
         MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, recording.ProgramStopTime);
+        RecordingUtils.CheckAndPrepareAspectRefresh(extractedAspectData);
 
         if (!string.IsNullOrWhiteSpace(recording.Director))
           MediaItemAspect.SetCollectionAttribute(extractedAspectData, VideoAspect.ATTR_DIRECTORS, recording.Director.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
@@ -345,6 +346,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
     }
 
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       return Task.FromResult(false);
     }

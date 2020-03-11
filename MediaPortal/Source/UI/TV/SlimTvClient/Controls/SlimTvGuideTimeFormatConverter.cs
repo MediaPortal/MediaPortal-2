@@ -25,11 +25,9 @@
 using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using MediaPortal.UI.SkinEngine.Xaml;
 using System;
-using System.Collections.Generic;
 using System.Globalization;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Controls
 {
@@ -44,7 +42,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         values.Length > 1 && values[1].Value is double)
         dtVal = dtVal.AddHours((double)values[1].Value * durationPerc);
 
-      result = dtVal.ToString("t", CultureInfo.CurrentUICulture);
+      result = dtVal.ToString("t", ServiceRegistration.Get<ILocalization>().CurrentCulture);
       return true;
     }
   }

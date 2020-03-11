@@ -138,6 +138,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected AbstractProperty _modeProperty = new SProperty(typeof(BindingMode), BindingMode.Default);
     protected AbstractProperty _updateSourceTriggerProperty =
         new SProperty(typeof(UpdateSourceTrigger), UpdateSourceTrigger.PropertyChanged);
+    protected AbstractProperty _notifyOnSourceUpdatedProperty = new SProperty(typeof(bool), false);
+    protected AbstractProperty _notifyOnTargetUpdatedProperty = new SProperty(typeof(bool), false);
     protected IValueConverter _valueConverter = null;
     protected object _converterParameter = null;
 
@@ -161,6 +163,11 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     #endregion
 
     #region Ctor
+
+    //MP2-522 this static constructor ensures that all static fields (notably RoutedEvent registrations) are initialized before an instance of this class is created
+    static BindingExtension()
+    {
+    }
 
     /// <summary>
     /// Creates a new <see cref="BindingExtension"/> for the use as
@@ -210,6 +217,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       _pathProperty.Attach(OnBindingPropertyChanged);
       _modeProperty.Attach(OnBindingPropertyChanged);
       _updateSourceTriggerProperty.Attach(OnBindingPropertyChanged);
+      _notifyOnSourceUpdatedProperty.Attach(OnBindingPropertyChanged);
+      _notifyOnTargetUpdatedProperty.Attach(OnBindingPropertyChanged);
 
       _evaluatedSourceValue.Attach(OnSourceValueChanged);
     }
@@ -222,6 +231,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       _pathProperty.Detach(OnBindingPropertyChanged);
       _modeProperty.Detach(OnBindingPropertyChanged);
       _updateSourceTriggerProperty.Detach(OnBindingPropertyChanged);
+      _notifyOnSourceUpdatedProperty.Detach(OnBindingPropertyChanged);
+      _notifyOnTargetUpdatedProperty.Detach(OnBindingPropertyChanged);
 
       _evaluatedSourceValue.Detach(OnSourceValueChanged);
     }
@@ -261,6 +272,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       Path = bme.Path;
       Mode = bme.Mode;
       UpdateSourceTrigger = bme.UpdateSourceTrigger;
+      NotifyOnSourceUpdated = bme.NotifyOnSourceUpdated;
+      NotifyOnTargetUpdated = bme.NotifyOnTargetUpdated;
       Converter = copyManager.GetCopy(bme.Converter);
       ConverterParameter = copyManager.GetCopy(bme.ConverterParameter);
 
@@ -397,6 +410,36 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       set { UpdateSourceTriggerProperty.SetValue(value); }
     }
 
+    public AbstractProperty NotifyOnSourceUpdatedProperty
+    {
+      get { return _notifyOnSourceUpdatedProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets a value to determine whether to raise a <see cref="SourceUpdatedEvent"/>
+    /// when the binding source is updated with a value from the binding target.
+    /// </summary>
+    public bool NotifyOnSourceUpdated
+    {
+      get { return (bool)_notifyOnSourceUpdatedProperty.GetValue(); }
+      set { _notifyOnSourceUpdatedProperty.SetValue(value); }
+    }
+
+    public AbstractProperty NotifyOnTargetUpdatedProperty
+    {
+      get { return _notifyOnTargetUpdatedProperty; }
+    }
+
+    /// <summary>
+    /// Gets or sets a value to determine whether to raise a <see cref="TargetUpdatedEvent"/>
+    /// when the binding target is updated with a value from the binding source.
+    /// </summary>
+    public bool NotifyOnTargetUpdated
+    {
+      get { return (bool)_notifyOnTargetUpdatedProperty.GetValue(); }
+      set { _notifyOnTargetUpdatedProperty.SetValue(value); }
+    }
+
     /// <summary>
     /// Gets or sets a custom type converter.
     /// </summary>
@@ -509,6 +552,16 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (_active && !_valueAssigned)
         UpdateBinding();
     }
+
+    #endregion
+
+    #region Events
+
+    public static readonly RoutedEvent SourceUpdatedEvent = EventManager.RegisterRoutedEvent(
+      "SourceUpdated", RoutingStrategy.Bubble, typeof(DataTransferEventHandler), typeof(BindingExtension));
+
+    public static readonly RoutedEvent TargetUpdatedEvent = EventManager.RegisterRoutedEvent(
+      "TargetUpdated", RoutingStrategy.Bubble, typeof(DataTransferEventHandler), typeof(BindingExtension));
 
     #endregion
 
@@ -1058,13 +1111,23 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             Dispose(true);
             return true; // In this case, we have finished with only assigning the value
         }
-        DependencyObject parent;
-        if (UpdateSourceTrigger != UpdateSourceTrigger.LostFocus ||
-            !FindAncestor(_contextObject, out parent, FindParentMode.HybridPreferVisualTree, -1, typeof(UIElement)))
-          parent = null;
+
+        DependencyObject parent = null;
+        // If we need to attach to the lost focus event or notify when our value changes,
+        // try and find the parent UI element that will trigger the events.
+        if (UpdateSourceTrigger == UpdateSourceTrigger.LostFocus || NotifyOnSourceUpdated || NotifyOnTargetUpdated)
+        {
+          // If we are attached directly to a UIElement use that
+          if (_contextObject is UIElement)
+            parent = _contextObject;
+          // else set parent to null if we can't find an ancestor UIElement
+          else if (!FindAncestor(_contextObject, out parent, FindParentMode.HybridPreferVisualTree, 1, typeof(UIElement)))
+            parent = null;
+        }
+
         _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, attachToSource,
             attachToTarget ? UpdateSourceTrigger : UpdateSourceTrigger.Explicit,
-            parent as UIElement, _valueConverter, _converterParameter);
+            parent as UIElement, _valueConverter, _converterParameter, NotifyOnSourceUpdated, NotifyOnTargetUpdated);
         _valueAssigned = true;
         return true;
       }

@@ -200,10 +200,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         MediaLibraryMessaging.MessageType messageType = (MediaLibraryMessaging.MessageType)message.MessageType;
         if (messageType == MediaLibraryMessaging.MessageType.MediaItemsAddedOrUpdated)
         {
-          IEnumerable<MediaItem> items = message.MessageData[MediaLibraryMessaging.PARAM] as IEnumerable<MediaItem>;
-          if (items != null)
-            foreach (MediaItem item in items)
-              ScheduleFanArtCollection(item.MediaItemId, item.Aspects);
+          IEnumerable<Guid> ids = message.MessageData[MediaLibraryMessaging.PARAM] as IEnumerable<Guid>;
+          if (ids != null)
+            foreach (Guid id in ids)
+              ScheduleFanArtCollection(id);
         }
         else if (messageType == MediaLibraryMessaging.MessageType.MediaItemsDeleted)
         {
@@ -217,17 +217,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     #region Public methods
 
     /// <summary>
-    /// Schedules the collection of fanart for the media item with the specified <paramref name="mediaItemId"/> and <paramref name="aspects"/>.
+    /// Schedules the collection of fanart for the media item with the specified <paramref name="mediaItemId"/>.
     /// </summary>
     /// <param name="mediaItemId">The media item id of the media item to collect fanart for.</param>
-    /// <param name="aspects">The media item aspects of the media item to collect fanart for.</param>
-    public void ScheduleFanArtCollection(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    public void ScheduleFanArtCollection(Guid mediaItemId)
     {
-      if (aspects == null)
-        throw new ArgumentNullException("aspects", "cannot be null");
-
-      ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart collection for {0}.", mediaItemId);
-      _fanartActionBlock.Post(new FanArtManagerAction(ActionType.Collect, mediaItemId, aspects));
+      if (mediaItemId != Guid.Empty)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart collection for {0}.", mediaItemId);
+        if (!_fanartActionBlock.Post(new FanArtManagerAction(ActionType.Collect, mediaItemId)))
+          ServiceRegistration.Get<ILogger>().Warn("FanArtManagement: Failed to scheduling fanart collection for {0}.", mediaItemId);
+      }
     }
 
     /// <summary>
@@ -236,8 +236,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
     /// <param name="mediaItemId">The media item id of the media item to delete fanart for.</param>
     public void ScheduleFanArtDeletion(Guid mediaItemId)
     {
-      ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart deletion for {0}.", mediaItemId);
-      _fanartActionBlock.Post(new FanArtManagerAction(ActionType.Delete, mediaItemId, null));
+      if (mediaItemId != Guid.Empty)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Scheduling fanart deletion for {0}.", mediaItemId);
+        if (!_fanartActionBlock.Post(new FanArtManagerAction(ActionType.Delete, mediaItemId)))
+          ServiceRegistration.Get<ILogger>().Warn("FanArtManagement: Failed to schedule delete fanart for {0}.", mediaItemId);
+      }
     }
     
     /// <summary>
@@ -291,9 +295,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
         sw.Stop();
         if(_cleanupTokenSource.IsCancellationRequested)
-          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up cancelled after {0}ms.", sw.ElapsedMilliseconds);
+          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up canceled after {0}ms.", sw.ElapsedMilliseconds);
         else
-          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up orphaned fanart for {0} non existant media items in {1}ms.", fanArtToDelete.Count, sw.ElapsedMilliseconds);
+          ServiceRegistration.Get<ILogger>().Debug("FanArtManagement: Cleaned up orphaned fanart for {0} non existent media items in {1}ms.", fanArtToDelete.Count, sw.ElapsedMilliseconds);
       }
       catch (Exception ex)
       {

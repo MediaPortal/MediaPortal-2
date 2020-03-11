@@ -5,11 +5,13 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers;assembly=SlimTv.Client"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   Grid.Column="2" Grid.Row="0" x:Name="MediaItemDetails"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
     <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="200"/>
@@ -104,25 +106,25 @@
     </tv:RecordingAspectWrapper>
     
     <Label x:Name="GenreLabel" Grid.Row="5" Grid.Column="0" Content="[SlimTvClient.GenreLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-    <media:VideoAspectWrapper Margin="0" Grid.Row="5" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:VideoAspectWrapper.Template>
-        <ControlTemplate>
-          <Label x:Name="Genre" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              Content="{Binding Genres}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
-        </ControlTemplate>
-      </media:VideoAspectWrapper.Template>
-    </media:VideoAspectWrapper>
+    <Label x:Name="Genre" Margin="0" Grid.Row="5" Grid.Column="1" TextTrimming="WordEllipsis" Color="{ThemeResource TextColor}">
+      <Label.Content>
+        <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+          <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+          <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+        </MultiBinding>
+      </Label.Content>
+    </Label>
 
     <!-- TODO: add all related episode information -->
     <Label x:Name="EpisodeLabel" Grid.Row="6" Grid.Column="0" Content="[SlimTvClient.EpisodeLabel]" Color="{ThemeResource EmphasisTextColor}"/>
-    <media:SeriesAspectWrapper Grid.Row="6" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:SeriesAspectWrapper.Template>
+    <media:EpisodeAspectWrapper Grid.Row="6" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:EpisodeAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="Episode" Margin="0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              Content="{Binding Series}" Color="{ThemeResource TextColor}" Scroll="Auto" />
+          <Label x:Name="Episode" Margin="0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" 
+              Content="{Binding Episode}" Color="{ThemeResource TextColor}" Scroll="Auto" />
         </ControlTemplate>
-      </media:SeriesAspectWrapper.Template>
-    </media:SeriesAspectWrapper>
+      </media:EpisodeAspectWrapper.Template>
+    </media:EpisodeAspectWrapper>
 
     <Label x:Name="DescriptionLabel" Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2" Content="[SlimTvClient.DescriptionLabel]" Color="{ThemeResource EmphasisTextColor}"/>
     <Label x:Name="Description" Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,35"

@@ -10,6 +10,7 @@
   <string name="Media.MoviesMenuItem">Filmek</string>
   <string name="Media.ImagesMenuItem">Képek</string>
   <!--General strings used in filter/sort/group menus-->
+  <string name="Media.NameMenuItem">Neve</string>
   <string name="Media.GenreMenuItem">Műfaj</string>
   <string name="Media.SystemMenuItem">Rendszer</string>
   <string name="Media.EpisodeMenuItem">Epizód</string>
@@ -208,6 +209,7 @@
   <string name="Media.LargeGrid">Rács</string>
   <string name="Media.SwitchSortingMenuItem">Rendezés</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Lejátszók</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Lejátszók bezárása amikor kész</string>

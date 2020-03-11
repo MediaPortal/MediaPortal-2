@@ -43,10 +43,17 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class TvDbWrapper : ApiWrapper<TvdbBanner, TvdbLanguage>
+  class TvDbWrapper : ApiMediaWrapper<TvdbBanner, TvdbLanguage>
   {
     protected TvdbHandler _tvdbHandler;
+    protected readonly string _name;
+
     private IdMapper _seriesToActorMap;
+
+    public TvDbWrapper(string name)
+    {
+      _name = name;
+    }
 
     /// <summary>
     /// Sets the preferred language in short format like: en, de, ...
@@ -137,6 +144,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               SeriesName = new SimpleTitle(seriesDetail.SeriesName, false),
               SeasonNumber = episode.SeasonNumber,
               EpisodeName = new SimpleTitle(episode.EpisodeName, false),
+              DataProviders = new List<string>() { _name }
             };
             info.EpisodeNumbers.Add(episode.EpisodeNumber);
             info.CopyIdsFrom(seriesSearch);
@@ -157,6 +165,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           SeriesName = seriesSearch.SeriesName,
           SeasonNumber = episodeSearch.SeasonNumber,
           EpisodeName = episodeSearch.EpisodeName,
+          DataProviders = new List<string>() { _name }
         };
         info.CopyIdsFrom(seriesSearch);
         info.EpisodeNumbers = info.EpisodeNumbers.Union(episodeSearch.EpisodeNumbers).ToList();
@@ -208,7 +217,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
                 ImdbId = found.ImdbId,
                 SeriesName = new SimpleTitle(found.SeriesName, false),
                 FirstAired = found.FirstAired,
-                Languages = new List<string>(new string[] { found.Language.Abbriviation })
+                Languages = new List<string>(new string[] { found.Language.Abbriviation }),
+                DataProviders = new List<string>() { _name }
               });
         }
       }
@@ -276,6 +286,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             SeriesImdbId = seriesDetail.ImdbId,
             SeriesName = new SimpleTitle(seriesDetail.SeriesName, false),
             SeasonNumber = episodeDetail.SeasonNumber,
+            DataProviders = new List<string>() { _name }
           };
           if (!series.Seasons.Contains(seasonInfo))
             series.Seasons.Add(seasonInfo);
@@ -297,6 +308,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             Summary = new SimpleTitle(episodeDetail.Overview, false),
             Genres = seriesDetail.Genre.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList(),
             Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
+            DataProviders = new List<string>() { _name }
           };
 
           if (episodeDetail.DvdEpisodeNumber > 0)
@@ -333,6 +345,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           series.NextEpisodeNumber = nextEpisode.EpisodeNumber;
         }
 
+        if (!series.DataProviders.Contains(_name))
+          series.DataProviders.Add(_name);
+
         return true;
       }
       catch (Exception ex)
@@ -340,6 +355,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Exception while processing series {0}", ex, series.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(SeriesInfo series)
+    {
+      if (series.TvdbId > 0 || !string.IsNullOrWhiteSpace(series.ImdbId))
+        return true;
+
+      return base.HasSearchableIds(series);
     }
 
     public override async Task<bool> UpdateFromOnlineSeriesSeasonAsync(SeasonInfo season, TvdbLanguage language, bool cacheOnly)
@@ -374,6 +397,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         season.SeasonNumber = season.SeasonNumber.Value;
         season.Description = new SimpleTitle(seriesDetail.Overview, false);
         season.TotalEpisodes = seriesDetail.Episodes.FindAll(e => e.SeasonNumber == season.SeasonNumber).Count;
+        if (!season.DataProviders.Contains(_name))
+          season.DataProviders.Add(_name);
 
         return true;
       }
@@ -432,6 +457,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
               Summary = new SimpleTitle(episodeDetail.Overview, false),
               Genres = seriesDetail.Genre.Where(s => !string.IsNullOrEmpty(s?.Trim())).Select(s => new GenreInfo { Name = s.Trim() }).ToList(),
               Rating = new SimpleRating(episodeDetail.Rating, episodeDetail.RatingCount),
+              DataProviders = new List<string>() { _name }
             };
 
             if (episodeDetail.DvdEpisodeNumber > 0)
@@ -444,13 +470,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             info.Writers = ConvertToPersons(episodeDetail.Writer, PersonAspect.OCCUPATION_WRITER, 0, episodeDetail.EpisodeName, seriesDetail.SeriesName);
             info.Languages.Add(episodeDetail.Language.Abbriviation);
 
-            if (isFirstEpisode && !episode.HasThumbnail && episodeDetail.Banner != null)
-              info.Thumbnail = await episodeDetail.Banner.LoadImageDataAsync().ConfigureAwait(false);
+            //Should be handled by the fanart collector instead
+            //if (isFirstEpisode && !episode.HasThumbnail && episodeDetail.Banner != null)
+            //  info.Thumbnail = await episodeDetail.Banner.LoadImageDataAsync().ConfigureAwait(false);
             
             episodeDetails.Add(info);
             isFirstEpisode = false;
           }
         }
+        if (!episode.DataProviders.Contains(_name))
+          episode.DataProviders.Add(_name);
 
         if (episodeDetails.Count > 1)
         {
@@ -469,6 +498,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TvDbWrapper: Exception while processing episode {0}", ex, episode.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(EpisodeInfo episode)
+    {
+      if (episode.SeriesTvdbId > 0 || !string.IsNullOrWhiteSpace(episode.SeriesImdbId))
+        return true;
+
+      return base.HasSearchableIds(episode);
     }
 
     public override async Task<bool> UpdateFromOnlineSeriesCharacterAsync(SeriesInfo seriesInfo, CharacterInfo character, TvdbLanguage language, bool cacheOnly)
@@ -499,6 +536,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           character.Name = characters[index].Name;
           character.Order = characters[index].Order;
           character.ParentMediaName = seriesDetail.SeriesName;
+          if (!character.DataProviders.Contains(_name))
+            character.DataProviders.Add(_name);
 
           return true;
         }
@@ -548,6 +587,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           person.Occupation = actors[index].Occupation;
           person.Order = actors[index].Order;
           person.ParentMediaName = seriesDetail.SeriesName;
+          if (!person.DataProviders.Contains(_name))
+            person.DataProviders.Add(_name);
 
           return true;
         }
@@ -596,6 +637,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           company.Name = companies[index].Name;
           company.Type = companies[index].Type;
           company.Order = companies[index].Order;
+          if (!company.DataProviders.Contains(_name))
+            company.DataProviders.Add(_name);
 
           return true;
         }
@@ -621,7 +664,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int sortOrder = 0;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (TvdbActor person in actors)
-        retValue.Add(new PersonInfo() { TvdbId = person.Id, Name = person.Name, Occupation = occupation, Order = sortOrder++, MediaName = episode, ParentMediaName = series });
+        retValue.Add(new PersonInfo()
+        {
+          TvdbId = person.Id,
+          Name = person.Name,
+          Occupation = occupation,
+          Order = sortOrder++,
+          MediaName = episode,
+          ParentMediaName = series,
+          DataProviders = new List<string>() { _name }
+        });
       return retValue;
     }
 
@@ -633,7 +685,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int sortOrder = offset;
       List<PersonInfo> retValue = new List<PersonInfo>();
       foreach (string person in actors)
-        retValue.Add(new PersonInfo() { Name = person, Occupation = occupation, Order = sortOrder++, MediaName = episode, ParentMediaName = series });
+        retValue.Add(new PersonInfo()
+        {
+          Name = person,
+          Occupation = occupation,
+          Order = sortOrder++,
+          MediaName = episode,
+          ParentMediaName = series,
+          DataProviders = new List<string>() { _name }
+        });
       return retValue;
     }
 
@@ -650,7 +710,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           TvdbId = companyID > 0 ? companyID : 0,
           Name = company,
           Type = type,
-          Order = sortOrder++
+          Order = sortOrder++,
+          DataProviders = new List<string>() { _name }
         }
       });
     }
@@ -670,7 +731,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Name = person.Role,
           Order = sortOrder++,
           MediaName = episode,
-          ParentMediaName = series
+          ParentMediaName = series,
+          DataProviders = new List<string>() { _name }
         });
       return retValue;
     }

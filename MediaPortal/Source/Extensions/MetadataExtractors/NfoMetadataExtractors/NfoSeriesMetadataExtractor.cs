@@ -132,11 +132,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public static bool IncludeActorDetails { get; private set; }
     public static bool IncludeCharacterDetails { get; private set; }
+    public static int MaximumActorCount { get; private set; }
+    public static int MaximumCharacterCount { get; private set; }
 
     protected override void LoadSettings()
     {
       IncludeActorDetails = _settingWatcher.Settings.IncludeActorDetails;
       IncludeCharacterDetails = _settingWatcher.Settings.IncludeCharacterDetails;
+      MaximumActorCount = _settingWatcher.Settings.MaximumActorCount;
+      MaximumCharacterCount = _settingWatcher.Settings.MaximumCharacterCount;
     }
 
     #endregion
@@ -355,13 +359,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                 }
                 else
                 {
-                  EpisodeInfo episode = new EpisodeInfo();
+                  if (!string.IsNullOrEmpty(series.ShowTitle))
+                    MediaItemAspect.SetAttribute(extractedAspectData, EpisodeAspect.ATTR_SERIES_NAME, series.ShowTitle);
                   if (series.Id.HasValue)
-                    episode.SeriesTvdbId = series.Id.Value;
-                  if (series.Premiered.HasValue)
-                    episode.SeriesFirstAired = series.Premiered.Value;
-                  episode.SeriesName = series.ShowTitle;
-                  episode.SetMetadata(extractedAspectData);
+                    MediaItemAspect.AddOrUpdateExternalIdentifier(extractedAspectData, ExternalIdentifierAspect.SOURCE_TVDB, ExternalIdentifierAspect.TYPE_SERIES, series.Id.Value.ToString());
                 }
               }
             }
@@ -503,6 +504,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
+      InitSettings();
       //if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
       //  return false;
 
@@ -530,6 +532,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       return Task.FromResult(false);
     }

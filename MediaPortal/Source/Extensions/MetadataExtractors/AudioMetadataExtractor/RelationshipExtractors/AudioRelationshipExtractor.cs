@@ -66,13 +66,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     {
       _extractors = new List<IRelationshipRoleExtractor>();
 
-      _extractors.Add(new TrackAlbumArtistRelationshipExtractor());
-      _extractors.Add(new TrackArtistRelationshipExtractor());
-      _extractors.Add(new TrackComposerRelationshipExtractor());
-      _extractors.Add(new TrackConductorRelationshipExtractor());
-      _extractors.Add(new TrackAlbumRelationshipExtractor());
-      _extractors.Add(new AlbumArtistRelationshipExtractor());
-      _extractors.Add(new AlbumLabelRelationshipExtractor());
+      _extractors.Add(new TrackAlbumArtistRelationshipExtractor(AudioMetadataExtractor.MEDIA_CATEGORY_NAME_ADUIO));
+      _extractors.Add(new TrackArtistRelationshipExtractor(AudioMetadataExtractor.MEDIA_CATEGORY_NAME_ADUIO));
+      _extractors.Add(new TrackComposerRelationshipExtractor(AudioMetadataExtractor.MEDIA_CATEGORY_NAME_ADUIO));
+      _extractors.Add(new TrackConductorRelationshipExtractor(AudioMetadataExtractor.MEDIA_CATEGORY_NAME_ADUIO));
+      _extractors.Add(new TrackAlbumRelationshipExtractor(AudioMetadataExtractor.MEDIA_CATEGORY_NAME_ADUIO));
+      _extractors.Add(new AlbumArtistRelationshipExtractor(AudioMetadataExtractor.MEDIA_CATEGORY_NAME_ADUIO));
+      _extractors.Add(new AlbumLabelRelationshipExtractor(AudioMetadataExtractor.MEDIA_CATEGORY_NAME_ADUIO));
     }
 
     /// <summary>
@@ -123,6 +123,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           ids.Add(ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, album.MusicBrainzId);
         if (!string.IsNullOrEmpty(album.UpcEanId))
           ids.Add(ExternalIdentifierAspect.SOURCE_UPCEAN, album.UpcEanId);
+        foreach(var customId in album.CustomIds)
+          ids.Add(customId.Key, customId.Value);
 
         IFilter albumChangedFilter = null;
         foreach (var id in ids)
@@ -169,6 +171,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           ids.Add(ExternalIdentifierAspect.SOURCE_MUSIC_IP, track.MusicIpId);
         if (track.MvDbId > 0)
           ids.Add(ExternalIdentifierAspect.SOURCE_MVDB, track.MvDbId.ToString());
+        foreach (var customId in track.CustomIds)
+          ids.Add(customId.Key, customId.Value);
 
         IFilter trackChangedFilter = null;
         foreach (var id in ids)

@@ -118,6 +118,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public async Task<bool> TryExtractRelationshipsAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> aspects, IList<IDictionary<Guid, IList<MediaItemAspect>>> extractedLinkedAspects)
     {
+      if (!NfoAudioMetadataExtractor.IncludeAlbumDetails)
+        return false;
+
       TrackInfo trackInfo = new TrackInfo();
       if (!trackInfo.FromMetadata(aspects))
         return false;

@@ -227,6 +227,14 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         return _underlayingResource.OpenWrite();
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      if (_underlayingResource == null)
+        return null;
+      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath))
+        return _underlayingResource.CreateOpenWrite(file, overwrite);
+    }
+
     public IResourceAccessor Clone()
     {
       return new NetworkNeighborhoodResourceAccessor(_parent, _path);
@@ -292,6 +300,14 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       return ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(CanonicalLocalResourcePath);
     }
 
+    private string FixSharePath(string path)
+    {
+      if (!path.EndsWith(@"\"))
+        path += @"\";
+
+      return path;
+    }
+
     /// <summary>
     /// Returns a UNC representation of the resource.
     /// </summary>
@@ -325,9 +341,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
         if (_underlayingResource != null)
         {
           LocalFsResourceProvider lfsProvider = _underlayingResource.ParentProvider as LocalFsResourceProvider;
-          string path = NetworkPath;
-          if (!path.EndsWith(@"\")) path += @"\";
-          lfsProvider.RegisterChangeTracker(PathChangedProxy, path, fileNameFilters, changeTypes);
+          lfsProvider.RegisterChangeTracker(PathChangedProxy, FixSharePath(LocalFileSystemPath), fileNameFilters, changeTypes);
         }
       }
     }
@@ -338,7 +352,7 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
       {
         _changeDelegateProxy = null;
         LocalFsResourceProvider lfsProvider = _underlayingResource.ParentProvider as LocalFsResourceProvider;
-        lfsProvider.UnregisterChangeTracker(PathChangedProxy, LocalFileSystemPath);
+        lfsProvider.UnregisterChangeTracker(PathChangedProxy, FixSharePath(LocalFileSystemPath));
       }
     }
 

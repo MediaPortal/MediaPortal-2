@@ -1,28 +1,46 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 
-  <PropertyGroup>
-    <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\</AppDestination>
-  </PropertyGroup>
-
   <Target Name="AfterBuild">
+    <PropertyGroup>
+      <ExeDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\</ExeDestination>
+    </PropertyGroup>
+
     <ItemGroup>
       <References Include="$(ProjectDir)MP2 Client Splashscreen.jpg" />
     </ItemGroup>
-  
+
+    <!--Points to MP2-Client.exe(.config) -->
+    <ItemGroup Condition="'$(PlatformName)' == 'x64'">
+      <Executable Include="$(TargetPath)" />
+      <ExecutableConfig Include="$(TargetPath).config" />
+    </ItemGroup>
+
+    <ItemGroup Condition="'$(PlatformName)' == 'x86'">
+      <TargetFiles Include="$(TargetPath)" />
+      <TargetFiles Include="$(TargetPath).config" />
+    </ItemGroup>
+
     <ItemGroup>
       <BaseFiles Include="$(SolutionDir)Base\Client\**\*.*" />
     </ItemGroup>
-  
-    <Copy SourceFiles="@(References)" DestinationFolder="$(AppDestination)" />
-    <Copy SourceFiles="@(BaseFiles)"
-          DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <ItemGroup>
-      <CleanupFiles Include="$(AppDestination)*.pdb" />
-      <CleanupFiles Include="$(AppDestination)*.xml" />
+      <TargetFiles Include="$(TargetDir)*.dll" />
     </ItemGroup>
-    <Delete Condition=" '$(Configuration)' == 'Release' " Files="@(CleanupFiles)" />
-  </Target>
 
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)*.pdb" />
+      <PluginFiles Include="$(TargetDir)*.xml" />
+    </ItemGroup>
+
+    <!-- Manual copy process to different target file name for x64 executable -->
+    <Copy SourceFiles="@(Executable)" DestinationFiles="$(ExeDestination)\MP2-Client (x64).exe"/>
+    <Copy SourceFiles="@(ExecutableConfig)" DestinationFiles="$(ExeDestination)\MP2-Client (x64).exe.config"/>
+
+    <Copy SourceFiles="@(References)" DestinationFolder="$(ExeDestination)" />
+    <Copy SourceFiles="@(TargetFiles)" DestinationFolder="$(ExeDestination)" />
+    <Copy SourceFiles="@(BaseFiles)" DestinationFiles="@(BaseFiles->'$(ExeDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+
+  </Target>
 </Project>

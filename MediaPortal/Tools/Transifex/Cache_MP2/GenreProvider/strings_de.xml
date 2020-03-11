@@ -13,7 +13,7 @@
   <string name="Match.Audio.Pop">Pop|Beat</string>
   <string name="Match.Audio.Dance">Dance|Club|House|Step|Garage|Trance|NRG|Core|Techno</string>
   <string name="Match.Audio.Electronic">Electronic|Electro|Experimental|8bit|Chiptune|Downtempo|Industrial</string>
-  <string name="Match.Audio.Comedy">Komödie|Roman|Parodie</string>
+  <string name="Match.Audio.Comedy">Komödie|Parodie</string>
   <string name="Match.Audio.Folk">Folk</string>
   <string name="Match.Audio.EasyListening">Easy|Lounge|Background|Swing|Bop|Ambiente</string>
   <string name="Match.Audio.Holiday">Urlaub|Weihnachten|Ostern|Halloween</string>
@@ -32,7 +32,7 @@
   <string name="Match.Video.Biography">Biographie</string>
   <string name="Match.Video.Drama">Drama</string>
   <string name="Match.Video.Family">Familie</string>
-  <string name="Match.Video.Fantasy">Fantasie</string>
+  <string name="Match.Video.Fantasy">Fantasy</string>
   <string name="Match.Video.History">Geschichte</string>
   <string name="Match.Video.Horror">Horror</string>
   <string name="Match.Video.Music">Musik</string>

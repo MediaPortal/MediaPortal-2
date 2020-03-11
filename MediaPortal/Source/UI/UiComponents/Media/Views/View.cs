@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UiComponents.Media.Views
@@ -129,6 +131,17 @@ namespace MediaPortal.UiComponents.Media.Views
         if (!IsLoaded)
           RefreshItemsAndSubViews();
         return _subViews;
+      }
+    }
+
+    /// <summary>
+    /// Returns all media item in this view and subviews
+    /// </summary>
+    public IEnumerable<MediaItem> AllMediaItems
+    {
+      get
+      {
+        return _viewSpecification.GetAllMediaItems().Result;
       }
     }
 

@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Déconnexion du serveur</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Serveur local</string>
   <string name="ServerConnection.AttachedText.Before">Ce client MediaPortal 2 est connecté au serveur local</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Ce client MediaPortal 2 est déconnecté du serveur local</string>
   <string name="ServerConnection.HomeServerIsConnected">Le serveur local est ouvert</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Le serveur local est fermé</string>
@@ -63,6 +62,7 @@
   <string name="Notifications.NMoreNotifications">({0} de plus)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notifications</string>
   <string name="Notifications.Handle">Manipuler</string>
+  <string name="Notifications.Upgrading">Mise à niveau...</string>
   <string name="ImporterMessages.ImportStartedTitle">L\'importation a débuté</string>
   <string name="ImporterMessages.ImportStartedText">L\'importation de \'{0}\' a débuté</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importation terminée</string>
@@ -218,7 +218,7 @@
   <string name="SharesConfig.Relocate">Déplacer</string>
   <string name="SharesConfig.ReImport">Ré-importer</string>
   <string name="SharesConfig.ManualPathInput">Saisie manuelle</string>
-  <string name="SharesConfig.UseShareWatcher">Visualisation partagée:</string>
+  <string name="SharesConfig.UseShareWatcher">Surveillance du partage:</string>
   <string name="SharesConfig.UseShareWatcher.Help">Surveiller la source et mettre à jour la médiathèque automatiquement en cas de changements. </string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Client MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>

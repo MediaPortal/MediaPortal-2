@@ -30,6 +30,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Utilities.FileSystem;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -44,6 +45,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     #region Constants
 
     private static readonly Guid[] FANART_ASPECTS = { AudioAspect.ASPECT_ID, PersonAspect.ASPECT_ID, CompanyAspect.ASPECT_ID };
+    private const string ARTIST_INFO_FOLDER = "ArtistInfo";
 
     /// <summary>
     /// GUID string for the audio FanArt handler.
@@ -180,7 +182,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
       catch (Exception ex)
       {
-        Logger.Warn("VideoFanArtHandler: Exception while reading MKV tag images for '{0}'", ex, mediaItemLocator.NativeResourcePath);
+        Logger.Warn("AudioFanArtHandler: Exception while reading MKV tag images for '{0}'", ex, mediaItemLocator.NativeResourcePath);
       }
     }
 
@@ -204,8 +206,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         if (pics.Length > 0)
         {
           string filename = Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath);
-          await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail,
-            p => TrySaveFileImage(pics[0].Data.Data, p, filename)).ConfigureAwait(false);
+          bool imageFound = false;
+          foreach (var pic in pics)
+          {
+            if (pic.Type == PictureType.FrontCover || pic.Type == PictureType.Other)
+            {
+              imageFound = true;
+              await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(pic.Data.Data, p, filename)).ConfigureAwait(false);
+            }
+          }
+          if (!imageFound) //If no matching image type found, use first image
+          {
+            await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(pics[0].Data.Data, p, filename)).ConfigureAwait(false);
+          }
         }
       }
     }
@@ -260,10 +273,72 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           await SaveFolderImagesToCache(nativeSystemId, paths, albumMediaItemId, title).ConfigureAwait(false);
         if (potentialArtistImages != null)
           await SavePersonFolderImages(nativeSystemId, potentialArtistImages, artists).ConfigureAwait(false);
+
+        if (artists != null && artists.Count > 0)
+        {
+          //Find central artist information folder
+          ResourcePath centralArtistFolderPath = null;
+          for (int level = 1; level <= 3; level++) //Look for central artist folder
+          {
+            // First get the ResourcePath of the central directory for the current level
+            var centralArtistNfoDirectoryResourcePath = albumDirectory;
+            for (int addLevel = 0; addLevel < level; addLevel++)
+              centralArtistNfoDirectoryResourcePath = ResourcePathHelper.Combine(centralArtistNfoDirectoryResourcePath, "../");
+            if (centralArtistNfoDirectoryResourcePath.BasePathSegment.Path.Length < 3)
+              break; //Path no longer valid
+            centralArtistNfoDirectoryResourcePath = ResourcePathHelper.Combine(centralArtistNfoDirectoryResourcePath, $"{ARTIST_INFO_FOLDER}/");
+
+            // Then try to create an IFileSystemResourceAccessor for this directory
+            centralArtistNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out var artistNfoDirectoryRa);
+            var artistNfoDirectoryFsra = artistNfoDirectoryRa as IFileSystemResourceAccessor;
+            if (artistNfoDirectoryFsra != null)
+            {
+              using (artistNfoDirectoryFsra)
+              {
+                centralArtistFolderPath = centralArtistNfoDirectoryResourcePath;
+                break;
+              }
+            }
+          }
+
+          if (centralArtistFolderPath != null)
+          {
+            foreach (var artist in artists)
+            {
+              var artistName = artist.Item2;
+              FanArtPathCollection artistsPaths = new FanArtPathCollection();
+
+              // First get the ResourcePath of the central directory
+              var artistFolderPath = ResourcePathHelper.Combine(centralArtistFolderPath, $"{FileUtils.GetSafeFilename(artistName, '¤').Replace("¤", "")}/");
+
+              // Then try to create an IFileSystemResourceAccessor for this directory
+              artistFolderPath.TryCreateLocalResourceAccessor(out var artistNfoDirectoryRa);
+              var directoryFsra = artistNfoDirectoryRa as IFileSystemResourceAccessor;
+              if (directoryFsra != null)
+              {
+                var potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryFsra);
+
+                artistsPaths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.ARTIST_FILENAMES));
+                artistsPaths.AddRange(FanArtTypes.Poster, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.POSTER_FILENAMES));
+                artistsPaths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.THUMB_FILENAMES));
+                artistsPaths.AddRange(FanArtTypes.Banner, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.BANNER_FILENAMES));
+                artistsPaths.AddRange(FanArtTypes.Logo, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.LOGO_FILENAMES));
+                artistsPaths.AddRange(FanArtTypes.ClearArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.CLEARART_FILENAMES));
+                artistsPaths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.BACKDROP_FILENAMES));
+
+                if (directoryFsra.ResourceExists("ExtraFanArt/"))
+                  using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
+                    artistsPaths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
+              }
+
+              await SaveFolderImagesToCache(nativeSystemId, paths, artist.Item1, title).ConfigureAwait(false);
+            }
+          }
+        }
       }
       catch (Exception ex)
       {
-        Logger.Warn("MovieFanArtHandler: Exception while reading folder images for '{0}'", ex, albumDirectory);
+        Logger.Warn("AudioFanArtHandler: Exception while reading folder images for '{0}'", ex, albumDirectory);
       }
     }
 
@@ -335,7 +410,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       }
       catch (Exception ex)
       {
-        Logger.Warn("MovieFanArtHandler: Exception while reading folder images for '{0}'", ex, artistDirectory);
+        Logger.Warn("AudioFanArtHandler: Exception while reading folder images for '{0}'", ex, artistDirectory);
       }
     }
 
@@ -364,7 +439,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
 
     public override void DeleteFanArt(Guid mediaItemId)
     {
-      //base method emoves the id from the cache
+      //base method removes the id from the cache
       base.DeleteFanArt(mediaItemId);
       ServiceRegistration.Get<IFanArtCache>().DeleteFanArtFiles(mediaItemId);
     }

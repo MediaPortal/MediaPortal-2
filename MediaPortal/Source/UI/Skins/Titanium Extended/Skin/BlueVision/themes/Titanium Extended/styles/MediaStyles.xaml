@@ -47,7 +47,7 @@
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Cover_Template">
-                <Grid x:Name="PlayerGrid" Margin="10,10,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid x:Name="PlayerGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
@@ -55,7 +55,15 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
 
-                  <media:MovieAspectWrapper MediaItem="{Binding Path=MediaItem}" HorizontalAlignment="Left" Margin="0,10,0,0">
+                  <Grid.OpacityMask>
+                    <VisualBrush>
+                      <VisualBrush.Visual>
+                        <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+                      </VisualBrush.Visual>
+                    </VisualBrush>
+                  </Grid.OpacityMask>
+
+                  <media:MovieAspectWrapper MediaItem="{Binding Path=MediaItem}" HorizontalAlignment="Left">
                     <media:MovieAspectWrapper.IsVisible>
                       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
                         <Binding Path="MediaItem" />
@@ -70,7 +78,7 @@
                     </media:MovieAspectWrapper.Template>
                   </media:MovieAspectWrapper>
 
-                  <media:MovieAspectWrapper MediaItem="{Binding Path=MediaItem}" HorizontalAlignment="Left" Margin="0,10,0,0">
+                  <media:MovieAspectWrapper MediaItem="{Binding Path=MediaItem}" HorizontalAlignment="Left">
                     <media:MovieAspectWrapper.IsVisible>
                       <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
                         <Binding Path="MediaItem" />
@@ -119,20 +127,15 @@
                       <RowDefinition Height="Auto"/>
                     </Grid.RowDefinitions>
 
-                    <!--Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Center"
-                        Content="{Binding PlayerStateText}" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}"
-                        Color="{ThemeResource TextColor}" /-->
-
                     <Label x:Name="CurrentTimeLabel" Grid.Column="1" Grid.Row="1"  Content="{Binding CurrentTime}" FontSize="{ThemeResource SmallFontSize}"
-                        Color="{ThemeResource TextColor}"  Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                           Color="{ThemeResource TextColor}"  Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
                     <ProgressBar x:Name="ProgressBar" Grid.Row="1" Grid.Column="2" Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15,5,15,0"
-                        Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
+                                 Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
 
                     <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="0,0,0,0"
-                        Content="{Binding Duration}"  FontSize="{ThemeResource SmallFontSize}"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
-                        Color="{ThemeResource TextColor}"/>
+                           Content="{Binding Duration}"  FontSize="{ThemeResource SmallFontSize}"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
                   </Grid>
                   <!-- PlayerGrid -->
               </ControlTemplate>
@@ -171,9 +174,11 @@
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
                   <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>       
-                  <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" IsVisible="{Binding IsAudio}"
-                          Command="{Command AudioButtonPressed}"/>
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                  <Grid x:Name="AudioPanel" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                  </Grid>
                   <Image Source="topbar_devider.png" Height="60" Width="80" Stretch="Fill" Margin="-5,5,-5,5"/>
                   <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" 
                           Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
@@ -262,8 +267,12 @@
                   <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}"
                           Command="{Command Next}"/>
                   <Image Source="topbar_devider.png" Height="60" Width="80" Stretch="Fill" Margin="-5,5,-5,5"/>
-                  <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" IsVisible="{Binding IsAudio}"
-                          Command="{Command AudioButtonPressed}"/>
+                  
+                  <Grid x:Name="AudioPanel" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                  </Grid>
+                  
                   <Image Source="topbar_devider.png" Height="60" Width="80" Stretch="Fill" Margin="-5,5,-5,5"/>
                   <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}"
                           Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
@@ -301,68 +310,61 @@
 
           <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
-              <ControlTemplate x:Key="OSD_InfoArea_Template">
 
-                <Grid x:Name="PlayerGrid" Margin="10,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <ControlTemplate x:Key="OSD_Background_Template">
+                <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
                   <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="180"/>
                     <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="180"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Image Source="OSD_background.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                </Grid>
+              </ControlTemplate>
+
+              <ControlTemplate x:Key="OSD_InfoArea_Template">
+                <Grid x:Name="PlayerGrid" Margin="10,10,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
 
-                  <DockPanel Grid.Column="1" Grid.Row="0" LastChildFill="true" Margin="3">
-                    <Grid DockPanel.Dock="Center">
-                      <Grid.ColumnDefinitions>
-                        <ColumnDefinition Width="*"/>
-                      </Grid.ColumnDefinitions>
-                      <Grid.RowDefinitions>
-                        <RowDefinition Height="*"/>
-                      </Grid.RowDefinitions>
-                      <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                          FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold"
-                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
-                    </Grid>
-                  </DockPanel>
-                  <!--Rectangle Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" RadiusX="20" RadiusY="20" Fill="#80000000" /-->
-                  <Label x:Name="TimeLabel" Color="#FF66b1d8" FontSize="{ThemeResource BigFontSize}"
-                        HorizontalAlignment="Right" VerticalAlignment="Center" Grid.Column="2" Grid.Row="0" Grid.RowSpan="2" 
-                        Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
+                  <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
+                         FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold" Margin="-10,0,50,0"
+                         Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                  <Label x:Name="TimeLabel" HorizontalAlignment="Right" VerticalAlignment="Center" 
+                         Color="{ThemeResource FooterShapeFillColor}" FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold"
+                         Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
                 </Grid>
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Progress_Template">
-                <DockPanel LastChildFill="true" Margin="10,-5,10,-5">
-                  <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
-                    <Grid.ColumnDefinitions>
-                      <ColumnDefinition Width="Auto"/>
-                      <ColumnDefinition Width="Auto"/>
-                      <ColumnDefinition Width="*"/>
-                      <ColumnDefinition Width="Auto"/>
-                    </Grid.ColumnDefinitions>
-                    <Grid.RowDefinitions>
-                      <RowDefinition Height="15"/>
-                      <RowDefinition Height="Auto"/>
-                    </Grid.RowDefinitions>
+                <Grid HorizontalAlignment="Stretch" Margin="0,-5,0,-5">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20"/>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="15"/>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
 
-                    <Label x:Name="CurrentTimeLabel" Grid.Column="1" Grid.Row="1"  Content="{Binding CurrentTime}" FontSize="{ThemeResource SmallFontSize}"
-                        Color="{ThemeResource TextColor}"  Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
+                  <Label x:Name="CurrentTimeLabel" Grid.Column="1" Grid.Row="1"  Content="{Binding CurrentTime}" FontSize="{ThemeResource SmallFontSize}"
+                           Color="{ThemeResource TextColor}"  Margin="0,0,0,0" HorizontalAlignment="Right" VerticalAlignment="Center"/>
 
-                    <ProgressBar x:Name="ProgressBar" Grid.Row="1" Grid.Column="2" Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15,5,15,0"
-                        Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
+                  <ProgressBar x:Name="ProgressBar" Grid.Row="1" Grid.Column="2" Height="12" HorizontalAlignment="Stretch" VerticalAlignment="Center" Margin="15,5,15,0"
+                                 Value="{Binding Path=PercentPlayed, Mode=TwoWay}" />
 
-                    <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="0,0,0,0"
-                        Content="{Binding Duration}"  FontSize="{ThemeResource SmallFontSize}"
-                        HorizontalAlignment="Left" VerticalAlignment="Center"
-                        Color="{ThemeResource TextColor}"/>
-                  </Grid>
-                  <!-- PlayerGrid -->
-                </DockPanel>
+                  <Label x:Name="VideoDurationLabel" Grid.Column="3" Grid.Row="1" Margin="0,0,0,0"
+                           Content="{Binding Duration}"  FontSize="{ThemeResource SmallFontSize}"
+                           HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
+                </Grid>
+                <!-- PlayerGrid -->
               </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_Controls_Template">
@@ -382,32 +384,36 @@
                           Command="{Command SeekForward}"/>
                   <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}"
                           Command="{Command Next}"/>
-                  <Image Source="topbar_devider.png" Margin="15,0,15,0"/>
+                  <Button x:Name="EjectDiscButton" Style="{ThemeResource EjectDiscButtonStyle}"
+                          Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9EE2C4A6-70FD-4947-9418-A40012925DA6}"/>
+                  <Image Source="topbar_devider.png" Height="60" Width="80" Stretch="Fill" Margin="-5,5,-5,5"/>
+                  <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}"
+                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}"/>
                   <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
-                  <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="0,9,0,-9"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}"/>
-                  <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="0,0,0,0"
+                  <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
-                  <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="0,0,0,0"
+                  <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
-                  <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="0,0,0,0"
+                  <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
-                  <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="0,0,0,0"
+                  <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
-                  <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="0,0,0,0"
+                  <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}"
                           IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
                           Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
-                  <Button x:Name="Audio" Style="{ThemeResource AudioActiveButtonStyle}" Margin="0,0,0,0" IsVisible="{Binding IsAudio}"
-                          Command="{Command AudioButtonPressed}"/>
-                  <Image Source="topbar_devider.png" Margin="15,0,15,0"/>
-                  <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="0,0,0,0"
+                  <Grid x:Name="AudioPanel" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                  </Grid>
+                  <Image Source="topbar_devider.png" Height="60" Width="80" Stretch="Fill" Margin="-5,5,-5,5"/>
+                  <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" 
                           Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
-                  <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" Margin="0,0,0,0"
+                  <Button x:Name="PowerButton" Style="{ThemeResource PowerButtonStyle}" 
                           Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
                 </StackPanel>
 
@@ -466,8 +472,11 @@
                   <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}"/>
 
-                  <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
+                  <Grid x:Name="AudioPanel" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                  </Grid>
+
                 </StackPanel>
                 <!-- PlayControlsPanel -->
               </ControlTemplate>
@@ -531,31 +540,14 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               <DockPanel x:Name="PiPHeaderPanel" Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
-                <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0" IsVisible="{Binding HasAudio}">
-                  <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}" VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <!-- Must be located the same as Audio_Mouse -->
-                    <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
-                    <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                      <Control.IsVisible>
-                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                          <Binding Path="IsAudio"/>
-                          <Binding Path="IsMuted"/>
-                        </MultiBinding>
-                      </Control.IsVisible>
-                    </Control>
-                  </Grid>
-                  <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
+                  <Grid x:Name="Audio_Mouse" VerticalAlignment="Center" HorizontalAlignment="Center">
                     <!-- Must be located the same as Audio_NoMouse -->
                     <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                      Command="{Command AudioButtonPressed}"/>
+                            Command="{Command AudioButtonPressed}"/>
                     <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                      Command="{Command AudioButtonPressed}"/>
+                            Command="{Command AudioButtonPressed}"/>
                   </Grid>
-                  <Grid.LayoutTransform>
-                    <TransformGroup>
-                      <ScaleTransform ScaleX="0.6" ScaleY="0.6"/>
-                    </TransformGroup>
-                  </Grid.LayoutTransform>
                 </Grid>
                 <Grid DockPanel.Dock="Center">
                   <!-- Has to be last control in DockPanel, LastChildFill! -->
@@ -2131,7 +2123,7 @@
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Stretch="UniformToFill" Margin="1">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.Opacity>
@@ -2188,7 +2180,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" FallbackSource="person.png" Margin="-18,0,0,0"
             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -2201,7 +2193,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform" FallbackSource="person.png" Margin="-35,0,0,0"
             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -2229,7 +2221,7 @@
       </Grid.RowDefinitions>
       <Image x:Name="thumb" Stretch="UniformToFill" Grid.Row="1">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.OpacityMask >
@@ -3064,7 +3056,7 @@
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
           </Button>
         </ControlTemplate>
@@ -3087,7 +3079,7 @@
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
           </Button>
         </ControlTemplate>
@@ -3110,7 +3102,7 @@
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
           </Button>
         </ControlTemplate>

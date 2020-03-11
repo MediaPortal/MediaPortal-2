@@ -62,12 +62,12 @@
               <Image Source="details_arrow_left.png" HorizontalAlignment="Center" VerticalAlignment="Center"
                      Height="20" Stretch="Uniform" Margin="5"/>
             </Button>
-            <Button x:Name="CurrentGroupNameButton" Style="{StaticResource SmallButtonStyle}" Margin="1,0,0,0"
-                    Content="{Binding CurrentGroupName}" Command="{Command SelectGroup}"/>
             <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; " Command="{Command NextGroup}" Margin="1,0,0,0">
               <Image Source="details_arrow_right.png" HorizontalAlignment="Center" VerticalAlignment="Center"
                      Height="20" Stretch="Uniform" Margin="5"/>
             </Button>
+            <Button x:Name="CurrentGroupNameButton" Style="{StaticResource SmallButtonStyle}" Margin="1,0,0,0" Focusable="False"
+                    Content="{Binding CurrentGroupName}" Command="{Command SelectGroup}"/>
           </StackPanel>  
         </StackPanel>
 
@@ -149,6 +149,7 @@
         <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
         <KeyBinding Key="Right" Command="{Command Path=NextGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Left"  Command="{Command Path=PrevGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
+        <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
       </Grid>
     </ControlTemplate>
   </Include.Resources>

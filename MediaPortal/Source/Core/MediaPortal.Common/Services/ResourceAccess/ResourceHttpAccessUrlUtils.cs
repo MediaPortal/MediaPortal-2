@@ -26,6 +26,7 @@ using System;
 using System.Collections.Specialized;
 using System.Web;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
@@ -39,10 +40,14 @@ namespace MediaPortal.Common.Services.ResourceAccess
     /// </summary>
     public const string RESOURCE_ACCESS_PATH = "/GetResource";
 
+    private const string RESOURCE_SERVER_BASE_PATH_COMMON = "/MediaPortal";
     /// <summary>
     /// Base HTTP path for resource server.
     /// </summary>
-    public const string RESOURCE_SERVER_BASE_PATH = "/MediaPortal/ResourceServer_";
+    public static string RESOURCE_SERVER_BASE_PATH
+    {
+      get { return RESOURCE_SERVER_BASE_PATH_COMMON + (ServiceRegistration.Get<ISystemResolver>().SystemType == SystemType.Server ? "/Server" : "/Client"); }
+    }
 
     /// <summary>
     /// Argument name for the resource path argument, e.g. "ResourcePath".
@@ -59,7 +64,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public static bool ParseResourceURI(Uri resourceURI, out ResourcePath relativeResourcePath)
     {
-      NameValueCollection query =  HttpUtility.ParseQueryString(resourceURI.Query);
+      NameValueCollection query = HttpUtility.ParseQueryString(resourceURI.Query);
       string resourcePathStr = query[RESOURCE_PATH_ARGUMENT_NAME];
       try
       {

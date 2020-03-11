@@ -241,6 +241,11 @@ namespace MediaPortal.Extensions.ResourceProviders.IsoResourceProvider
       return null;
     }
 
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      return null;
+    }
+
     public bool ResourceExists(string path)
     {
       lock(_isoProxy.SyncObj)

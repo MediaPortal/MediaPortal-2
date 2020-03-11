@@ -139,7 +139,7 @@ namespace MediaPortal.Common.FanArt
       paths.AddRange(FanArtTypes.ClearArt, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.CLEARART_FILENAMES));
       paths.AddRange(FanArtTypes.DiscArt, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.DISCART_FILENAMES));
       paths.AddRange(FanArtTypes.Banner, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.BANNER_FILENAMES));
-      paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.BACKDROP_FILENAMES));
+      paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.BACKDROP_FILENAMES));
     }
 
     /// <summary>
@@ -173,7 +173,7 @@ namespace MediaPortal.Common.FanArt
       
       paths.AddRange(FanArtTypes.Banner, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
         LocalFanartHelper.BANNER_FILENAMES, LocalFanartHelper.BANNER_FILENAMES.Select(f => filename + "-" + f)));
-      
+
       paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByNameOrPrefix(potentialFanArtFiles,
         LocalFanartHelper.BACKDROP_FILENAMES, LocalFanartHelper.BACKDROP_FILENAMES.Select(f => filename + "-" + f)));
     }

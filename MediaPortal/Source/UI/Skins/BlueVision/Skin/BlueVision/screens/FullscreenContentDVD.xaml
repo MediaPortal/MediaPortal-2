@@ -57,16 +57,16 @@
              Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
     </Grid>
 
-    <Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
+    <!--Control x:Name="WindowButtons" Grid.Column="2" Grid.Row="0">
       <Control.TemplateControl>
         <Include Source="screens\FSCWindowButtons.inc"/>
       </Control.TemplateControl>
-    </Control>
+    </-->
 
     <Control x:Name="PiP" Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" Style="{ThemeResource PipControlStyle}" 
-          IsVisible="{Binding !IsOSDVisible}"/>
+             IsVisible="{Binding !IsOSDVisible}"  Margin="0,0,40,0"/>
 
-    <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false">
+    <DockPanel x:Name="OSD_RightPanel"  Grid.Column="1" Grid.ColumnSpan="2" Grid.Row="1" LastChildFill="false" Margin="0,0,40,0">
       <mp_special_controls:PlayerControl x:Name="SecondaryOSD"
             Style="{ThemeResource SecondaryMediaOSDStyle}"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"

@@ -33,8 +33,11 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
   {
     // TODO: Put this somewhere else?
     public static readonly string TYPE_SD = "SD";
+    public static readonly string TYPE_SD_INTERLACED = "SD INTERLACED";
     public static readonly string TYPE_HD = "HD";
+    public static readonly string TYPE_HD_INTERLACED = "HD INTERLACED";
     public static readonly string TYPE_UHD = "UHD";
+    public static readonly string TYPE_UHD_HDR = "UHD HDR";
     public static readonly string TYPE_HSBS = "HSBS";
     public static readonly string TYPE_SBS = "SBS";
     public static readonly string TYPE_HTAB = "HTAB";
@@ -160,8 +163,11 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         }
         );
 
-    public static string GetVideoType(string stereoscopicMode, string stereoscopicType, double? videoHeight, double? videoWidth)
+    public static string GetVideoType(string stereoscopicMode, string stereoscopicType, string scanType, string commercialFormat, double? videoHeight, double? videoWidth)
     {
+      bool interlaced = (scanType ?? "").ToLowerInvariant().Contains("interlaced");
+      bool hdr = (commercialFormat ?? "").Contains("HDR");
+
       if (!string.IsNullOrWhiteSpace(stereoscopicMode) && !string.IsNullOrWhiteSpace(stereoscopicType))
       {
         if (stereoscopicMode.StartsWith("H", StringComparison.InvariantCultureIgnoreCase))
@@ -273,15 +279,24 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
         }
         else if (videoWidth > 3800 && videoHeight > 1500)
         {
-          videoType = TYPE_UHD;
+          if (hdr)
+            videoType = TYPE_UHD_HDR;
+          else
+            videoType = TYPE_UHD;
         }
         else if (videoWidth > 1250 && videoHeight > 500)
         {
-          videoType = TYPE_HD;
+          if (interlaced)
+            videoType = TYPE_HD_INTERLACED;
+          else
+            videoType = TYPE_HD;
         }
         else
         {
-          videoType = TYPE_SD;
+          if (interlaced)
+            videoType = TYPE_SD_INTERLACED;
+          else
+            videoType = TYPE_SD;
         }
       }
       else if (!string.IsNullOrWhiteSpace(stereoscopicType))
@@ -292,30 +307,48 @@ namespace MediaPortal.Common.MediaManagement.DefaultItemAspects
       {
         if (videoWidth > 3800)
         {
-          videoType = TYPE_UHD;
+          if (hdr)
+            videoType = TYPE_UHD_HDR;
+          else
+            videoType = TYPE_UHD;
         }
         else if (videoWidth > 1250)
         {
-          videoType = TYPE_HD;
+          if (interlaced)
+            videoType = TYPE_HD_INTERLACED;
+          else
+            videoType = TYPE_HD;
         }
         else
         {
-          videoType = TYPE_SD;
+          if (interlaced)
+            videoType = TYPE_SD_INTERLACED;
+          else
+            videoType = TYPE_SD;
         }
       }
       else if (videoHeight.HasValue)
       {
         if (videoHeight > 1570)
         {
-          videoType = TYPE_UHD;
+          if (hdr)
+            videoType = TYPE_UHD_HDR;
+          else
+            videoType = TYPE_UHD;
         }
         else if (videoHeight > 580)
         {
-          videoType = TYPE_HD;
+          if (interlaced)
+            videoType = TYPE_HD_INTERLACED;
+          else
+            videoType = TYPE_HD;
         }
         else
         {
-          videoType = TYPE_SD;
+          if (interlaced)
+            videoType = TYPE_SD_INTERLACED;
+          else
+            videoType = TYPE_SD;
         }
       }
       return videoType;

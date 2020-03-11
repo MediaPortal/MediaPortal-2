@@ -1,0 +1,506 @@
+﻿<ScriptableScraper>
+  <details>
+    <!-- These details are for display purposes only. -->
+    <name>Kinopoisk.ru</name>
+    <author>LRFalk01, vnizzz, John Conrad (fforde)</author>
+    <description>This script pulls data from Kinopoisk.ru.</description>
+    
+    <!-- 
+    These fields uniquely identify the script. The ID should never 
+    change and should be unique (no other script should use this ID). With
+    new versions of the script the version numbers should change. EVEN FOR 
+    MINOR CHANGES, you should change the version number if you are going to
+    disribute it to anyone but internal testers. The point number 
+    is for minor bug fix releases. Use it.
+    -->
+    <id>141522</id>
+    <version major="1" minor="5" point="2"/>
+    <published month="01" day="16" year="2020"/>
+    
+    <!--
+    These fields are used for categorization purposes. Seperate multiple 
+    types with a pipe | character.
+    -->
+    <type>MovieDetailsFetcher|MovieCoverFetcher</type>
+    <language>ru</language>
+
+   </details>
+  
+  
+  <action name="search">
+    
+    <set name="offset" value="0" />
+    
+    <!-- Regular Expressions -->
+
+    <set name="rx_search_results">
+      <![CDATA[
+href=[^\d]+\d+/film/(?<movieID>[\d]+)[^>]+>(?<movieTitle>[^>]+)</a>\s[^>]+>(?<movieYear>[^<]+)(?:[^>]+>){3}(?<movieAlternateAndTime>[^<]*)
+      ]]>
+    </set>
+
+	<set name="rx_aka">
+      <![CDATA[
+      #666[^>]+>(?<alternateTitle>[^<]+)
+      ]]>
+    </set>
+
+	<set name="rx_title">
+      <![CDATA[
+      moviename[^>]+>(?<movieTitle>[^<]+)
+      ]]>
+    </set>
+	
+	<set name="rx_year">
+      <![CDATA[
+      год</td><[^>]+><[^>]+>(?<movieYear>[^<]+)
+      ]]>
+    </set>
+
+	<set name="rx_year1">
+      <![CDATA[
+      год</td>[^<]+<[^>]+>[^<]+<[^>]+>[^<]+<a[^>]+>(?<movieYear>[^<]+)
+      ]]>
+    </set>
+
+	<set name="rx_year2">
+      <![CDATA[
+      год</td>[^<]+<[^>]+><a[^>]+>(?<movieYear>[^<]+)
+      ]]>
+    </set>
+
+	<set name="rx_altername">
+      <![CDATA[
+      (?<alternateTitle>[^.]*),\s[\d]
+      ]]>
+    </set>	
+
+	<set name="rx_site_id">
+      <![CDATA[
+      id_film\s=\s(?<site_id>[^;]+)
+      ]]>
+  </set>	
+
+  <!-- attempt to retrieve results using Title -->
+  <retrieve name="search_page" url="http://www.kinopoisk.ru/index.php?level=7&amp;from=forma&amp;result=adv&amp;m_act%5Bfrom%5D=forma&amp;m_act%5Bwhat%5D=content&amp;m_act%5Bfind%5D=${search.title:safe(windows-1251)}&amp;m_act%5Byear%5D=${search.year:safe}" retries="10" timeout="10000" timeout_increment="4000" />
+
+    <!-- Check if it's Details Page  -->
+	<parse name="title" input="${search_page}" regex="${rx_title}"/>
+	<!-- makes sure a title was found on this page. If not there is no reason to add anything else. -->
+	<if test="${title[0][0]:htmldecode}!=">
+		<set name="movie[0].title" value="${title[0][0]:htmldecode}" />
+		<!-- search for site_id-->
+		<parse name="site_id" input="${search_page}" regex="${rx_site_id}"/>
+		<set name="movie[0].site_id" value="${site_id[0][0]}"/>
+		<set name="movie[0].details_url" value="http://www.kinopoisk.ru/film/${site_id[0][0]}"/>
+		<parse name="year" input="${search_page}" regex="${rx_year1}"/>
+		<!-- tests the existance of a year before trying to put on in the movie info -->
+		<if test="${year[0][0]}=">
+			<parse name="year" input="${search_page}" regex="${rx_year2}"/>
+		</if>
+		<if test="${year[0][0]}!=">
+			<set name="movie[0].year" value="${year[0][0]}" />
+		</if>
+		<parse name="aka" input="${search_page}" regex="${rx_aka}" />
+		<!-- If there is no aka title, this will not run. -->
+		<if test="aka[0][0]!=">
+			<set name="movie[0].alternate_titles" value="${aka[0][0]:htmldecode}" />
+		</if>
+	</if>
+ 
+	<!-- if no movie were found the first go around, check if it's Seacrh Page -->
+	<if test="${movie[0].title}=">
+		<!-- if we got a Search page, this is used. if not, regex does not match so we dont process the loop-->
+		<parse name="details_page_block" input="${search_page}" regex="${rx_search_results}"/>
+		<if test="details_page_block[0][0]!=">
+			<loop name="item_return" on="details_page_block">
+			<add name="counter" value1="${count}" value2="${offset}" />
+			<set name="movie[${counter}].title" value="${item_return[1]:htmldecode}"/>
+			<parse name = "alernatetitles" input="${item_return[3]:htmldecode}" regex="${rx_altername}"/> 
+			<set name="movie[${counter}].alternate_titles" value="${alernatetitles[0][0]:htmldecode}" />
+			<!-- tests the existance of a year before trying to put on in the movie info -->
+			<if test="${item_return[2]}!=">
+				<set name="movie[${counter}].year" value="${item_return[2]:htmldecode}"/>
+			</if>
+			<set name="movie[${counter}].site_id" value="${item_return[0]}"/>
+			<set name="movie[${counter}].details_url" value="http://www.kinopoisk.ru/film/${item_return[0]}"/>
+			<subtract name="movie[${counter}].popularity" value1="100" value2="${counter}"/>
+			</loop>
+		</if>
+	</if>	
+	
+	<!-- Last chance. This is ran if no movies were found the first and second attempts.
+		 The intention here is to let the user use the Kinopoisk.RU ID to find a movie. -->
+	<if test="${movie[0].title}=">
+		<parse name="searchTest" input="${search.title:safe(windows-1251)}" regex="(\d{5})"/>
+		<if test="${searchTest[0][0]}!=">
+  			<retrieve name="home_page" url="http://www.kinopoisk.ru" retries="10" timeout="10000" timeout_increment="4000" /> 
+			<retrieve name="search_page" url="http://www.kinopoisk.ru/film/${search.title:safe(windows-1251)}" retries="10" timeout="10000" timeout_increment="4000" />
+			<parse name="title" input="${search_page}" regex="${rx_title}"/>
+			<!-- makes sure a title was found on this page. If not there is no reason to ad anything else. -->
+			<if test="${title[0][0]:htmldecode}!=">
+				<set name="movie[0].title" value="${title[0][0]:htmldecode}" />
+				<set name="movie[0].site_id" value="${search.title:safe(windows-1251)}"/>
+				<set name="movie[0].details_url" value="http://www.kinopoisk.ru/film/${search.title:safe(windows-1251)}"/>
+				<parse name="year" input="${search_page}" regex="${rx_year}"/>
+				<!-- tests the existance of a year before trying to put on in the movie info -->
+				<if test="${year[0][0]}!=">
+					<set name="movie[0].year" value="${year[0][0]}" />
+				</if>
+				<parse name="aka" input="${search_page}" regex="${rx_aka}" />
+				<!-- If there is no aka title, this will not run. -->
+				<if test="aka[0][0]!=">
+					<set name="movie[0].alternate_titles" value="${aka[0][0]:htmldecode}" />
+				</if>
+			</if>
+		</if>
+	</if>
+	
+  </action>
+
+  <action name="get_details">
+    
+    <set name="rx_writer_block">
+      <![CDATA[
+      сценарий</td><[^>]+>(?<movieDirector>[^\n]+)
+       ]]>
+    </set>
+	
+    <set name="rx_writers">
+      <![CDATA[
+      <a[^>]+>(?<movieGenre>[^\.][^<]+)</a>
+       ]]>
+    </set>
+	
+	  <set name="rx_director_block">
+      <![CDATA[
+      режиссер</td><[^>]+>(?<movieDirector>[^\n]+)
+       ]]>
+    </set>
+	
+    <set name="rx_director">
+      <![CDATA[
+      <a[^>]+>(?<movieGenre>[^\.][^<]+)</a>
+       ]]>
+    </set>
+	
+	<set name="rx_certification">
+      <![CDATA[
+	  src="http://st\.kinopoisk\.ru/images/mpaa/(?<movieRating>[^\.]+).gif"
+      ]]>
+    </set>
+	
+	<set name="rx_genre_block">
+      <![CDATA[
+      жанр</td><[^>]+>(?<movieDirector>[^\n]+)
+      ]]>
+    </set>
+	
+	<set name="rx_genres">
+      <![CDATA[
+      <a[^>]+>(?<movieGenre>[^..][^<]+)</a>
+      ]]>
+    </set>
+
+
+    <set name="rx_score_votes">
+      <![CDATA[
+          <span class="rating_ball">(?<MovieScore>[\d.]+)</span>\s*<span class="ratingCount"[^>]+>(?<movieVotes>[^<]+)</span>
+      ]]>
+    </set>
+	
+	<set name="rx_actor">
+      <![CDATA[
+      <span itemprop="actors"[^>]+><a[^>]+>(?<movieActor>[^<]+)
+      ]]>
+    </set>
+	
+	<set name="rx_language1">
+      <![CDATA[
+      страна</td>[^>]+><[^>]+>(?<language>[^<]+)
+      ]]>
+      </set>	
+	
+	<set name="rx_language2">
+      <![CDATA[
+      страна</td>[^>]+>[^<]+<[^>]+>[^<]+<[^>]+>(?<language>[^<]+)
+      ]]>
+      </set>	
+
+	<set name="rx_language3">
+      <![CDATA[
+      страна</td>(?<language>.+?)</div>
+      ]]>
+      </set>	
+
+	<set name="rx_aka">
+      <![CDATA[
+      #666[^>]+>(?<alternateTitle>[^<]+)
+      ]]>
+    </set>
+
+	<set name="rx_title">
+      <![CDATA[
+      moviename[^>]+>(?<movieTitle>[^<]+)
+      ]]>
+    </set>
+	
+	<set name="rx_year">
+      <![CDATA[
+      год</td><[^>]+><[^>]+>(?<movieYear>[^<]+)
+      ]]>
+    </set>
+	
+	<set name="rx_year1">
+      <![CDATA[
+      год</td>[^<]+<[^>]+>[^<]+<[^>]+>[^<]+<a[^>]+>(?<movieYear>[^<]+)
+      ]]>
+    </set>
+
+	<set name="rx_year2">
+      <![CDATA[
+      год</td>[^<]+<[^>]+><a[^>]+>(?<movieYear>[^<]+)
+      ]]>
+    </set>
+
+	<set name="rx_description">
+      <![CDATA[
+      <tr><td\scolspan=3[^c]+class="news">\n\s+<span[^>]+>(?:<div[^>]+>)?(?<summery>.+?)(?:</div>)?</span>
+      ]]>
+    </set>
+	
+	<set name="rx_runtime">
+      <![CDATA[
+      время</td><[^>]+>(?<movieYear>[\d]+)
+      ]]>
+    </set>
+	
+	<set name="rx_imdb_titlepage">
+      <![CDATA[
+      <link\srel="canonical"\shref="http://www.imdb.com/title/(tt\d+)/"\s/>
+      ]]>
+    </set>
+
+	<set name="rx_tagline">
+      <![CDATA[
+		слоган[^#]+#555">(?:&laquo;)*(?<TagLine>[^<]+?)(?:&raquo;)*</td>
+      ]]>
+    </set>
+
+	<set name="rx_cut_aka">
+      <![CDATA[
+      [^\|](?<cut_aka>[^\|]+)
+      ]]>
+    </set>
+
+	<set name="long_dash">
+      <![CDATA[
+      &#151;
+      ]]>
+    </set>
+
+	<set name="m_dots">
+      <![CDATA[
+      &#133;
+      ]]>
+    </set>
+
+	<set name="l_k">
+      <![CDATA[
+      &#171;
+      ]]>
+    </set>
+
+	<set name="r_k">
+      <![CDATA[
+      &#187;
+      ]]>
+    </set>
+
+	<set name="s_dash">
+      <![CDATA[
+      &#150;
+      ]]>
+    </set>
+
+	<set name="sps">
+      <![CDATA[
+      &#160;
+      ]]>
+    </set>
+
+
+    <retrieve name="dummy_pull" url="http://www.kinopoisk.ru" use_caching="false"/> <!-- needed for cookies -->
+    <retrieve name="details_page" url="http://www.kinopoisk.ru/film/${movie.site_id}" retries="10" timeout="10000" timeout_increment="4000" />
+	<set name="movie.site_id" value="${movie.site_id}"/>
+	
+    <!-- Title and Year -->
+    <parse name="title" input="${details_page}" regex="${rx_title}"/>
+    <set name="movie.title" value="${title[0][0]:htmldecode}"/>
+    <parse name="year" input="${details_page}" regex="${rx_year1}"/>
+    <if test="${year[0][0]}=">
+	<parse name="year" input="${details_page}" regex="${rx_year2}"/>
+    </if>
+    <if test="${year[0][0]}!=">
+	<set name="movie.year" value="${year[0][0]:htmldecode}" />
+    </if>
+ 	
+    <!-- Alternate title -->
+    <parse name="aka" input="${details_page}" regex="${rx_aka}" />
+    <!-- If there is no aka title, this will not run. -->
+    <if test="aka[0][0]!=">
+	<set name="movie.alternate_titles" value="${aka[0][0]:htmldecode}" />
+    </if>
+
+    <!-- Directors -->
+    <parse name="director_block" input="${details_page}" regex="${rx_director_block}"/>
+	<set name="directorList" value="${director_block[0][0]}," />
+	<parse name="director" input="${directorList}" regex="${rx_director}"/>
+    <set name='movie.directors' value=''/>
+    <loop name='currDirector' on='director'>
+      <set name='movie.directors' value='${movie.directors}|${currDirector[0]:htmldecode}'/>
+    </loop>
+    
+
+    <!-- Writers -->
+    <parse name="writer_block" input="${details_page}" regex="${rx_writer_block}"/>
+	<set name="writersList" value="${writer_block[0][0]}," />
+	<parse name="writer" input="${writersList}" regex="${rx_writers}"/>
+    <set name='movie.writers' value=''/>
+    <loop name='currWriter' on='writer'>
+      <set name='movie.writers' value='${movie.writers}|${currWriter[0]:htmldecode}'/>
+    </loop>
+    
+    <!-- Actors -->
+    <parse name='actors' input='"${details_page}' regex="${rx_actor}"/>
+    <set name='movie.actors' value=''/>
+    <loop name='currActor' on='actors'>
+      <set name='movie.actors' value='${movie.actors}|${currActor[0]:htmldecode}'/>
+    </loop>
+
+    <!-- Genres -->
+    <parse name="genres" input="${details_page}" regex="${rx_genre_block}"/>
+	<set name="genresList" value="${genres[0][0]}," />
+	<parse name="genre" input="${genresList}" regex="${rx_genres}"/>
+    <set name='movie.genres' value=''/>
+    <loop name='currGenre' on='genre'>
+      <set name='movie.genres' value='${movie.genres}|${currGenre[0]:htmldecode}'/>
+    </loop>
+
+    <!-- Certification -->
+    <parse name="cert" input="${details_page}" regex="${rx_certification}"/>
+	<set name="movie.certification" value="${cert[0][0]}" />
+
+    <!-- TagLine -->
+    <parse name="tagline" input="${details_page}" regex="${rx_tagline}"/>
+	<set name="movie.tagline" value="${tagline[0][0]:htmldecode}" />
+	
+    <!-- Runtime -->
+    <parse name="runtime" input="${details_page}" regex="${rx_runtime}"/>
+    <set name='movie.runtime' value='${runtime[0][0]:htmldecode}'/>
+
+    
+    <!-- Score/Popularity -->
+    <parse name="score_Votes" input="${details_page}" regex="${rx_score_votes}"/>
+    <set name='movie.score' value='${score_Votes[0][0]:htmldecode}'/>
+    <set name='movie.popularity' value='${score_Votes[0][1]:htmldecode}'/>
+
+
+    <!-- Language -->
+    <parse name="language" input="${details_page}" regex='${rx_language3}'/>
+    <set name='lang1' value="${language[0][0]:striptags}" />
+	<replace name="lang2" input="${lang1}" pattern="${sps}" with=" " />
+	<replace name="lang3" input="${lang2}" pattern=", " with="/" />
+     <set name='movie.language' value='${lang3:htmldecode}'/>
+
+    
+    <!-- Plot Summary -->
+    <parse name="summary" input="${details_page}" regex="${rx_description}"/>
+	<if test="${summary[0][0]!=">
+	    <set name="summery_clean" value="${summary[0][0]:striptags}" />
+		<replace name="summery1" input="${summery_clean}" pattern="${long_dash}" with="—" />
+		<replace name="summery2" input="${summery1}" pattern="${m_dots}" with="…" />
+		<replace name="summery3" input="${summery2}" pattern="${l_k}" with="«" />
+		<replace name="summery4" input="${summery3}" pattern="${r_k}" with="»" />
+		<replace name="summery5" input="${summery4}" pattern="${s_dash}" with="-" />
+		<replace name="summery6" input="${summery5}" pattern="${sps}" with=" " />
+	    <set name="movie.summary" value="${summery6:htmldecode}" />
+	</if>
+
+	<!-- IMDB ID -->
+
+	<if test="${movie.alternate_titles}!=">
+		<!-- Kinopoisk.ru doesn't provide IMDB_ID. Try to retrieve IMDB_ID from IMDB.com using Alternate Title -->
+
+		<!-- cut "|" from alternate_titles and use only first Altenate Title for IMDB search -->
+		<parse name="cut_aka" input="${movie.alternate_titles}" regex="${rx_cut_aka}"/>
+		<retrieve name="imdb_page" url="http://akas.imdb.com/find?s=tt;q=${cut_aka[0]:safe}" retries="10" timeout="10000" timeout_increment="4000" />
+
+		<!-- if we got a Details page, this is used -->
+		<parse name="imdb" input="${imdb_page}" regex="${rx_imdb_titlepage}"/>
+		<if test="${imdb[0][0]}!=">
+			<set name="movie.imdb_id" value="${imdb[0][0]}"/>
+		</if>
+					
+		<!-- if we got a Search result page, this is used -->
+		<if test="${imdb[0][0]}=">
+			<parse name="imdb_det" input="${imdb_page}" regex='title_(popular|exact)/images/b.gif\?link=/title/(tt\d+)'/>
+			<!-- if we got Search result page, use first match of RegEx -->
+			<set name="movie.imdb_id" value="${imdb_det[0][1]}"/>
+		</if>
+	</if>
+	
+</action>
+  
+  <action name="get_cover_art">
+
+	<set name="rx_covers">
+	  <![CDATA[
+	  /images/poster/sm_(?<posterID>[\d]+)
+	  ]]>
+	</set>
+	
+	<set name="rx_cover_verify">
+	  <![CDATA[
+	  (Информация\so\sфильме)
+	  ]]>
+	</set>
+	
+	<set name='next_free' value='0'/> 
+	
+	<!-- Verify that Kinopoisk was used with site_id -->
+	<if test="${movie.site_id}!=">
+		<!-- First check the cover-art page -->
+		<retrieve name="cover_page" url="http://www.kinopoisk.ru/level/17/film/${movie.site_id}/adv_type/cover" retries="10" timeout="10000" timeout_increment="4000" />
+		<!-- Make sure we are not getting the generic cover-art page. -->
+		<parse name="posterverify" input="${cover_page}" regex="${rx_cover_verify}"/>
+		<if test="${posterverify[0][0]}!=">
+			<!-- Then get cover arts from cover-art pages -->
+			<parse name="posterLinks" input="${cover_page}" regex="${rx_covers}"/>
+			<loop name='cover_url' on='posterLinks'>
+		        <set name='cover_art[${count}].url' value='http://www.kinopoisk.ru/images/poster/${cover_url[0]}.jpg'/>
+				<add name='next_free' value1='${next_free}' value2='1' />
+		    </loop>
+		</if>
+				
+		<!-- Second, check the posters page -->
+		<retrieve name="cover_page" url="http://www.kinopoisk.ru/level/17/film/${movie.site_id}" retries="10" timeout="10000" timeout_increment="4000" />
+		<!-- Make sure we are not getting the generic poster page. -->
+		<parse name="posterverify" input="${cover_page}" regex="${rx_cover_verify}"/>
+		<if test="${posterverify[0][0]}!=">
+			<!-- Then get cover arts from POSTERS pages -->
+			<parse name="posterLinks" input="${cover_page}" regex="${rx_covers}"/>
+			<loop name='cover_url' on='posterLinks'>
+				<set name='cover_art[${next_free}].url' value='http://www.kinopoisk.ru/images/poster/${cover_url[0]}.jpg'/>
+				<add name='next_free' value1='${next_free}' value2='1' />
+			</loop>
+		</if>
+		<!-- Third, get picture from main page -->
+		<set name='cover_art[${next_free}].url' 						value='http://www.kinopoisk.ru/images/film/${movie.site_id}.jpg'/>
+			<add name='next_free' value1='${next_free}' value2='1' />
+
+	</if>
+
+</action>
+  
+</ScriptableScraper>

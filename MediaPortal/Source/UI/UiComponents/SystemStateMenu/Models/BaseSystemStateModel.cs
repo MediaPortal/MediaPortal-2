@@ -118,6 +118,9 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
         case SystemStateAction.MinimizeMP:
           ServiceRegistration.Get<IScreenControl>().Minimize();
           return;
+        case SystemStateAction.RestartMP:
+          ServiceRegistration.Get<IScreenControl>().Restart();
+          return;
         case SystemStateAction.SleepTimer:
           SleepTimerModel stm = ServiceRegistration.Get<IWorkflowManager>().GetModel(Consts.WF_STATE_ID_SLEEP_TIMER_MODEL) as SleepTimerModel;
           if (stm == null || stm.IsSleepTimerActive == false)

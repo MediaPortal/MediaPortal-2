@@ -31,6 +31,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries
     Task<bool> InitAsync();
     bool Enabled { get; set; }
     string Id { get; }
+    string Name { get; }
     string PreferredLanguageCulture { get; set; }
+    bool UseMediaAudioIfUnmatched { get; set; }
   }
 }

@@ -41,6 +41,8 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UI.Services.UserManagement;
+using MediaPortal.UiComponents.Media.Models.Navigation;
+using MediaPortal.Common.Async;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
@@ -57,14 +59,140 @@ namespace MediaPortal.UiComponents.Media.Models
     #endregion
 
     #region Protected fields
+    protected abstract class ListItemAction
+    {
+      public string Caption;
+
+      public string Sort;
+
+      public IUserRestriction Restriction;
+
+      abstract public string ConfirmationMessage(ListItem item);
+
+      public bool Deferred;
+
+      /// <summary>
+      /// Checks if this action is available for the given <paramref name="mediaItem"/>.
+      /// </summary>
+      /// <param name="item">ListItem</param>
+      /// <returns><c>true</c> if available</returns>
+      abstract public Task<bool> IsAvailableAsync(ListItem item);
+
+      /// <summary>
+      /// Executes the action for the given MediaItem.
+      /// </summary>
+      /// <param name="item">ListItem</param>
+      /// <returns>
+      /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if successful.
+      /// <see cref="AsyncResult{T}.Result"/> returns what kind of changes was done on MediaItem.
+      /// </returns>
+      abstract public Task<bool> ProcessAsync(ListItem item);
+    }
+
+    protected class MediaListItemAction : ListItemAction
+    {
+      IMediaItemAction _action;
+
+      public MediaListItemAction(MediaItemActionExtension extension)
+      {
+        Caption = extension.Caption;
+        Sort = extension.Sort;
+        _action = extension.Action;
+        Restriction = _action as IUserRestriction;
+        if (Restriction != null)
+          Restriction.RestrictionGroup = extension.RestrictionGroup;
+        Deferred = _action is IDeferredMediaItemAction;
+      }
+
+      public override string ConfirmationMessage(ListItem item)
+      {
+        IMediaItemActionConfirmation confirmation = _action as IMediaItemActionConfirmation;
+        return confirmation?.ConfirmationMessage;
+      }
+
+      public async override Task<bool> IsAvailableAsync(ListItem item)
+      {
+        IMediaItemListItem mediaItem = item as IMediaItemListItem;
+        if (mediaItem != null)
+          return await _action.IsAvailableAsync(mediaItem.MediaItem);
+        return false;
+      }
+
+      public async override Task<bool> ProcessAsync(ListItem item)
+      {
+        IMediaItemListItem mediaItem = item as IMediaItemListItem;
+        if (mediaItem != null)
+        {
+          var result = await _action.ProcessAsync(mediaItem.MediaItem);
+          if (result.Success)
+          {
+            if(result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
+              ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem.MediaItem, result.Result);
+            return true;
+          }
+        }
+        return false;
+      }
+
+    }
+
+    protected class MediaViewItemAction : ListItemAction
+    {
+      IMediaViewAction _action;
+
+      public MediaViewItemAction(MediaViewActionExtension extension)
+      {
+        Caption = extension.Caption;
+        Sort = extension.Sort;
+        _action = extension.Action;
+        Restriction = _action as IUserRestriction;
+        if (Restriction != null)
+          Restriction.RestrictionGroup = extension.RestrictionGroup;
+        Deferred = _action is IDeferredMediaViewAction;
+      }
+
+      public override string ConfirmationMessage(ListItem item)
+      {
+        IViewListItem viewItem = item as IViewListItem;
+        IMediaViewActionConfirmation confirmation = _action as IMediaViewActionConfirmation;
+        return confirmation == null || viewItem == null ? null : confirmation.ConfirmationMessage(viewItem.View);
+      }
+
+      public async override Task<bool> IsAvailableAsync(ListItem item)
+      {
+        IViewListItem viewItem = item as IViewListItem;
+        if (viewItem != null)
+          return await _action.IsAvailableAsync(viewItem.View);
+        return false;
+      }
+
+      public async override Task<bool> ProcessAsync(ListItem item)
+      {
+        IViewListItem viewItem = item as IViewListItem;
+        if (viewItem != null)
+          return await _action.ProcessAsync(viewItem.View);
+        return false;
+      }
+
+    }
+
+    protected class DummyListItem : ListItem, IMediaItemListItem
+    {
+      public DummyListItem(MediaItem mediaItem)
+      {
+        MediaItem = mediaItem;
+      }
+
+      public MediaItem MediaItem { get; private set; }
+    }
 
     // Action menu
     protected ItemsList _mediaItemActionItems = new ItemsList();
-    private readonly List<MediaItemActionExtension> _actions = new List<MediaItemActionExtension>();
+    private readonly List<ListItemAction> _actions = new List<ListItemAction>();
     private IPluginItemStateTracker _mediaActionPluginItemStateTracker; // Lazy initialized
     private DialogCloseWatcher _dialogCloseWatcher;
-    private IDeferredMediaItemAction _deferredAction;
-    private MediaItem _deferredMediaItem;
+    private ListItemAction _deferredAction;
+    private ListItem _deferredItem;
 
     #endregion
 
@@ -76,6 +204,22 @@ namespace MediaPortal.UiComponents.Media.Models
     public ItemsList MediaItemActionItems
     {
       get { return _mediaItemActionItems; }
+    }
+
+    /// <summary>
+    /// Tries to show actions for the given <paramref name="listItem"/>.
+    /// </summary>
+    /// <param name="item">ListItem</param>
+    public void ShowMediaItemActionsEx(ListItem item)
+    {
+      if (item is IMediaItemListItem || item is IViewListItem)
+      {
+        IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+        workflowManager.NavigatePush(Consts.WF_STATE_ID_CHECK_MEDIA_ITEM_ACTION, new NavigationContextConfig
+        {
+          AdditionalContextVariables = new Dictionary<string, object> { { KEY_MEDIA_ITEM, item } }
+        });
+      }
     }
 
     /// <summary>
@@ -100,63 +244,57 @@ namespace MediaPortal.UiComponents.Media.Models
       if (!item.AdditionalProperties.TryGetValue(Consts.KEY_MEDIA_ITEM_ACTION, out actionObj) || !item.AdditionalProperties.TryGetValue(Consts.KEY_MEDIA_ITEM, out mediaItemObj))
         return;
 
-      IMediaItemActionConfirmation confirmation = actionObj as IMediaItemActionConfirmation;
-      IMediaItemAction action = actionObj as IMediaItemAction;
-      MediaItem mediaItem = mediaItemObj as MediaItem;
-      if (action == null || mediaItem == null)
+      ListItemAction action = actionObj as ListItemAction;
+      item = mediaItemObj as ListItem;
+      if (action == null || item == null)
         return;
 
-      if (confirmation != null)
-        ShowConfirmation(confirmation, mediaItem);
+      if (action.ConfirmationMessage(item) != null)
+        ShowConfirmation(action, item);
       else
-        _ = InvokeAction(action, mediaItem);
+        _ = InvokeAction(action, item);
     }
 
-    protected void ShowConfirmation(IMediaItemActionConfirmation confirmation, MediaItem mediaItem)
+    protected void ShowConfirmation(ListItemAction action, ListItem item)
     {
       IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
       string header = LocalizationHelper.Translate(Consts.RES_CONFIRM_HEADER);
-      string text = LocalizationHelper.Translate(confirmation.ConfirmationMessage);
+      string text = LocalizationHelper.Translate(action.ConfirmationMessage(item));
       Guid handle = dialogManager.ShowDialog(header, text, DialogType.YesNoDialog, false, DialogButtonType.No);
       _dialogCloseWatcher = new DialogCloseWatcher(this, handle,
         async dialogResult =>
         {
           if (dialogResult == DialogResult.Yes)
           {
-            await InvokeAction(confirmation, mediaItem);
+            await InvokeAction(action, item);
           }
           _dialogCloseWatcher?.Dispose();
         });
     }
 
-    protected async Task InvokeAction(IMediaItemAction action, MediaItem mediaItem)
+    protected async Task InvokeAction(ListItemAction action, ListItem item)
     {
-      IDeferredMediaItemAction dmi = action as IDeferredMediaItemAction;
-      if (dmi != null)
+      if (action.Deferred)
       {
         // Will be called when context is left
-        _deferredAction = dmi;
-        _deferredMediaItem = mediaItem;
+        _deferredAction = action;
+        _deferredItem = item;
         return;
       }
-      await InvokeInternal(action, mediaItem);
+      await InvokeInternal(action, item);
     }
 
     private async Task InvokeDeferred()
     {
-      if (_deferredAction != null && _deferredMediaItem != null)
-        await InvokeInternal(_deferredAction, _deferredMediaItem);
+      if (_deferredAction != null && _deferredItem != null)
+        await InvokeInternal(_deferredAction, _deferredItem);
     }
 
-    private async Task InvokeInternal(IMediaItemAction action, MediaItem mediaItem)
+    private async Task InvokeInternal(ListItemAction action, ListItem item)
     {
       try
       {
-        var result = await action.ProcessAsync(mediaItem);
-        if (result.Success && result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
-        {
-          ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem, result.Result);
-        }
+        await action.ProcessAsync(item);
       }
       catch (Exception ex)
       {
@@ -194,7 +332,7 @@ namespace MediaPortal.UiComponents.Media.Models
               throw new PluginInvalidStateException("Could not create IMediaItemAction instance of class {0}", extensionClass);
 
             mediaExtension.Action = action;
-            _actions.Add(mediaExtension);
+            _actions.Add(new MediaListItemAction(mediaExtension));
           }
         }
         catch (PluginInvalidStateException e)
@@ -202,27 +340,51 @@ namespace MediaPortal.UiComponents.Media.Models
           ServiceRegistration.Get<ILogger>().Warn("Cannot add Media extension with id '{0}'", e, itemMetadata.Id);
         }
       }
+      foreach (PluginItemMetadata itemMetadata in pluginManager.GetAllPluginItemMetadata(MediaViewActionBuilder.MEDIA_EXTENSION_PATH))
+      {
+        try
+        {
+          MediaViewActionExtension mediaExtension = pluginManager.RequestPluginItem<MediaViewActionExtension>(
+            MediaViewActionBuilder.MEDIA_EXTENSION_PATH, itemMetadata.Id, _mediaActionPluginItemStateTracker);
+          if (mediaExtension == null)
+            ServiceRegistration.Get<ILogger>().Warn("Could not instantiate MediaView extension with id '{0}'", itemMetadata.Id);
+          else
+          {
+            Type extensionClass = mediaExtension.ExtensionClass;
+            if (extensionClass == null)
+              throw new PluginInvalidStateException("Could not find class type for extension {0}", mediaExtension.Caption);
+            IMediaViewAction action = Activator.CreateInstance(extensionClass) as IMediaViewAction;
+            if (action == null)
+              throw new PluginInvalidStateException("Could not create IMediaViewAction instance of class {0}", extensionClass);
+
+            mediaExtension.Action = action;
+            _actions.Add(new MediaViewItemAction(mediaExtension));
+          }
+        } catch (PluginInvalidStateException e)
+        {
+          ServiceRegistration.Get<ILogger>().Warn("Cannot add MediaView extension with id '{0}'", e, itemMetadata.Id);
+        }
+      }
     }
 
-    protected async Task<bool> FillItemsList(MediaItem mediaItem)
+    protected async Task<bool> FillItemsList(ListItem selectedItem)
     {
       _mediaItemActionItems.Clear();
-      foreach (MediaItemActionExtension action in _actions.OrderBy(a => a.Sort))
+      foreach (ListItemAction action in _actions.OrderBy(a => a.Sort))
       {
-        if (!await action.Action.IsAvailableAsync(mediaItem))
+        if (!await action.IsAvailableAsync(selectedItem))
           continue;
 
         // Some actions can be restricted to users.
-        IUserRestriction restriction = action.Action as IUserRestriction;
-        if (restriction != null)
+        if (action.Restriction != null)
         {
-          if (!ServiceRegistration.Get<IUserManagement>().CheckUserAccess(restriction))
+          if (!ServiceRegistration.Get<IUserManagement>().CheckUserAccess(action.Restriction))
             continue;
         }
 
         ListItem item = new ListItem(Consts.KEY_NAME, action.Caption);
-        item.AdditionalProperties[Consts.KEY_MEDIA_ITEM] = mediaItem;
-        item.AdditionalProperties[Consts.KEY_MEDIA_ITEM_ACTION] = action.Action;
+        item.AdditionalProperties[Consts.KEY_MEDIA_ITEM] = selectedItem;
+        item.AdditionalProperties[Consts.KEY_MEDIA_ITEM_ACTION] = action;
         _mediaItemActionItems.Add(item);
       }
       _mediaItemActionItems.FireChange();
@@ -231,8 +393,10 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected async Task<bool> PrepareState(NavigationContext context)
     {
-      MediaItem item = (MediaItem)context.GetContextVariable(KEY_MEDIA_ITEM, false);
-      return item != null && await FillItemsList(item);
+      object item = context.GetContextVariable(KEY_MEDIA_ITEM, false);
+      if (item is MediaItem)
+        item = new DummyListItem(item as MediaItem);
+      return item != null && await FillItemsList(item as ListItem);
     }
 
     protected void LeaveMediaItemActionState()
@@ -259,7 +423,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       _deferredAction = null;
-      _deferredMediaItem = null;
+      _deferredItem = null;
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
       screenManager.ShowDialog(Consts.DIALOG_MEDIAITEM_ACTION_MENU, (dialogName, dialogInstanceId) => LeaveMediaItemActionState());
     }

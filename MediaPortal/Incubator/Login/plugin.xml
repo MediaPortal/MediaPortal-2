@@ -28,6 +28,7 @@
   <Register Location="/Models">
     <Model Id="82582433-FD64-41bd-9059-7F662DBDA713" Name="LoginModel" ClassName="MediaPortal.UiComponents.Login.Models.LoginModel"/>
     <Model Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D" Name="UserConfigModel" ClassName="MediaPortal.UiComponents.Login.Models.UserConfigModel"/>
+    <Model Id="E26A7613-4B9C-4B84-A982-A7B69D83DC3A" Name="UserLanguageModel" ClassName="MediaPortal.UiComponents.Login.Models.UserLanguageModel"/>
     <Model Id="D5CA9E6F-8639-4D2F-B94A-FEE7A69A87C4" Name="UserLoginContributorModel" ClassName="MediaPortal.UiComponents.Login.Actions.UserLoginAction"/>
   </Register>
 
@@ -39,10 +40,17 @@
         MainScreen="UserManagement"
         WorkflowModel="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/> <!-- User config model -->
 
+    <WorkflowState Id="756B2512-0B2A-4D79-B981-0D45FB9125C1"
+        Name="UserLanguages"
+        DisplayLabel="[UserConfig.UserLanguagewWorkflowNavigationContextDisplayLabel]"
+        MainScreen="UserLanguages"
+        WorkflowModel="E26A7613-4B9C-4B84-A982-A7B69D83DC3A"/> <!-- User language model -->
+
     <WorkflowState Id="2529B0F0-8415-4A4E-971B-38D6CDD2406A"
         Name="Login"
         MainScreen="Login"
         DisplayLabel="[Login.Title]"
+        HideGroups="Global"
         WorkflowModel="82582433-FD64-41bd-9059-7F662DBDA713"/> <!-- Login model -->/>
 
     <WorkflowState Id="D3C5EC78-F901-4851-8DB8-83CF27E80EA8"
@@ -114,5 +122,13 @@
         HelpText="[Settings.Users.Config.UserManagement.Help]"
         ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserManagementSetting"
         AdditionalData="WorkflowState=75488A94-7BEC-44FF-836D-7A2A8C7AFEF0,ConfAppPanel=..."/>
+
+    <CustomConfigSetting
+        Id="UserLanguage"
+        RestrictionGroup="Settings.UserProfile,Settings.UserProfile.ManageOwn"
+        Text="[Settings.Users.Config.UserLanguage]"
+        HelpText="[Settings.Users.Config.UserLanguage.Help]"
+        ClassName="MediaPortal.UiComponents.Login.Settings.Configuration.UserLanguageSetting"
+        AdditionalData="WorkflowState=756B2512-0B2A-4D79-B981-0D45FB9125C1,ConfAppPanel=..."/>
   </Register>
 </Plugin>

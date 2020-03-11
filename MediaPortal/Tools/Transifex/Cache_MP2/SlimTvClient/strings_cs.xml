@@ -45,8 +45,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">O víkendech</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">V pracovní dny</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Týdně ve stejnou dobu na tomto kanále</string>
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nahrávky podle názvu</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nahrávky podle názvu</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Název</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Název</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Detaily plánovaného nahrávání</string>
   <string name="SlimTvClient.ScheduleName">Název plánovaného nahrávání</string>
@@ -64,10 +64,7 @@
   <string name="SlimTvClient.NoColor">Žádný</string>
   <string name="SlimTvClient.RecordingsMenuItem">Nahrávky</string>
   <string name="SlimTvClient.RecordingsRootViewName">Televizní nahrávky</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Filtrovat podle kanálu</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Kanál</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Kanál: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Nahrávky podle kanálu</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtrovat podle názvu</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Nahrávky podle názvu</string>
 </resources>

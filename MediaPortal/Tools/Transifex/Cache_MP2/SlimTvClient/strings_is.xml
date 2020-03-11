@@ -21,9 +21,11 @@
   <string name="SlimTvClient.DeleteSchedule">Eyða áætlun</string>
   <string name="SlimTvClient.CreateSchedule">Upptökuáætlun</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nafn</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nafn</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Tilkynningar</string>
   <string name="SlimTvClient.NoColor">Ekkert</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Rás</string>
 </resources>

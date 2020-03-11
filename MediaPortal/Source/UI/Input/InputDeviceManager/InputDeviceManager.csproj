@@ -78,39 +78,76 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="InputDevices.cs" />
     <Compile Include="InputDeviceManager.cs" />
     <Compile Include="InputManagerSettings.cs" />
+    <Compile Include="KeyCode.cs" />
     <Compile Include="MappedKeyCode.cs" />
     <Compile Include="Models\InputDeviceModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RawInput\DataStructures.cs" />
-    <Compile Include="RawInput\Enumerations.cs" />
     <Compile Include="RawInput\KeyMapper.cs" />
-    <Compile Include="RawInput\KeyPressEvent.cs" />
-    <Compile Include="RawInput\PreMessageFilter.cs" />
-    <Compile Include="RawInput\RawInputHandler.cs" />
-    <Compile Include="RawInput\RawInputEventArg.cs" />
-    <Compile Include="RawInput\RawKeyboard.cs" />
-    <Compile Include="RawInput\RegistryAccess.cs" />
-    <Compile Include="RawInput\Win32.cs" />
+    <Compile Include="Settings\ConfigScreenActions.cs" />
     <Compile Include="Settings\ConfigScreenKeys.cs" />
+    <Compile Include="Settings\HomeScreenScreens.cs" />
     <Compile Include="Settings\ConfigScreenScreens.cs" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="DefaultRemoteMap.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Language\strings_en.xml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="plugin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ConfigScreenKeyMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ConfigScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\HomeScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\ConfigScreenKeyMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\ConfigScreenActionMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\default\screens\HomeScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\default\screens\ConfigScreenScreenMapping.inc">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\default\screens\ConfigScreenSelectDevice.inc" />
+    <Content Include="Skin\Nereus\screens\ConfigScreenKeyMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\ConfigScreenKeyMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\ConfigScreenActionMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\ConfigScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\HomeScreenScreenMapping.inc">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -157,6 +194,51 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\themes\default\styles\InputManagerStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SharpLibHid">
+      <Version>1.4.4</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ConfigScreenAddDefaultKeys.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\HomeScreenScreens.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\ConfigScreenAddDefaultKeys.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\InputManagerStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\InputManagerStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ConfigScreenAddDefaultKeys.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\styles\InputManagerStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ConfigScreenActions.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

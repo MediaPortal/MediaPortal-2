@@ -40,6 +40,7 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       ConnectionMonitor.Instance.RegisterConfiguration(this);
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEFilter.Artists]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEFilter.Composers]"));
+      _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEFilter.Conductors]"));
       _items.Add(LocalizationHelper.CreateResourceString("[Settings.ServerSettings.MDESettings.MDEFilter.MusicLabels]"));
     }
 
@@ -53,8 +54,10 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
         _selected.Add(0);
       if (settings.IncludeComposerDetails)
         _selected.Add(1);
-      if (settings.IncludeMusicLabelDetails)
+      if (settings.IncludeConductorDetails)
         _selected.Add(2);
+      if (settings.IncludeMusicLabelDetails)
+        _selected.Add(3);
     }
 
     public override void Save()
@@ -70,7 +73,8 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       AudioMetadataExtractorSettings settings = serverSettings.Load<AudioMetadataExtractorSettings>();
       settings.IncludeArtistDetails = _selected.Contains(0);
       settings.IncludeComposerDetails = _selected.Contains(1);
-      settings.IncludeMusicLabelDetails = _selected.Contains(2);
+      settings.IncludeConductorDetails = _selected.Contains(2);
+      settings.IncludeMusicLabelDetails = _selected.Contains(3);
       serverSettings.Save(settings);
       localSettings.Save(settings);
 

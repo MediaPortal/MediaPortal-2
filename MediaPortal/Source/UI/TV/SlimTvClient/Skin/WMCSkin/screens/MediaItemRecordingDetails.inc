@@ -105,19 +105,33 @@
     <Label x:Name="MediaItemName" Wrap="True" Margin="0,0,0,0" FontSize="{ThemeResource SmallFontSize}"
            HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"/>
-    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:SeriesAspectWrapper.Template>
+    <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:EpisodeAspectWrapper>
         <ControlTemplate>
           <Label x:Name="Episode" Margin="10,0,10,0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                  TextTrimming="WordEllipsis" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Content="{Binding Series}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" />
+                 Content="{Binding Episode}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" />
         </ControlTemplate>
-      </media:SeriesAspectWrapper.Template>
-    </media:SeriesAspectWrapper>
+      </media:EpisodeAspectWrapper>
+    </media:EpisodeAspectWrapper>
   </Grid>
    
+  <!-- Description for TV Recordings-->
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
          TextTrimming="WordEllipsis" HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Margin="0,0,10,25"/>
+
+  <!-- Description for Radio Recordings-->
+  <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                            Grid.Column="1" Grid.Row="1" Margin="0,0,10,25" HorizontalAlignment="Stretch" >
+    <media:MediaAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Label x:Name="Comment" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}"
+                 Content="{Binding Comment}" Wrap="True" HorizontalAlignment="Stretch" TextTrimming="WordEllipsis"/>
+        </Grid>
+      </ControlTemplate>
+    </media:MediaAspectWrapper.Template>
+  </media:MediaAspectWrapper>
 
 </Grid>

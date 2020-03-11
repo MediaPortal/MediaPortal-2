@@ -43,6 +43,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
 
+    private string _category;
+
+    public MovieProductionRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       get { return true; }
@@ -97,7 +104,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         return false;
 
       if (MovieMetadataExtractor.IncludeProductionCompanyDetails && !MovieMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateCompaniesAsync(movieInfo, CompanyAspect.COMPANY_PRODUCTION).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateCompaniesAsync(movieInfo, CompanyAspect.COMPANY_PRODUCTION, _category).ConfigureAwait(false);
 
       foreach (CompanyInfo company in movieInfo.ProductionCompanies)
       {

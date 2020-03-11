@@ -1,10 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.GenreLabel">Gênero</string>
   <string name="SlimTvClient.Progress">Processo</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nome</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nome</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.RecordingsMenuItem">Gravações</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
 </resources>

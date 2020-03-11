@@ -33,26 +33,32 @@
         <ColumnDefinition Width="50"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="150"/>
         <RowDefinition Height="Auto"/>
-        <RowDefinition Height="50"/>
+        <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
+      
+      <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.RowSpan="3"  Grid.Column="1" Grid.ColumnSpan="2" LastChildFill="false"
+                 VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+
+        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom" IsVisible="{Binding IsOSDVisible}"
+                                           Style="{ThemeResource PrimarySlimTvOSDStyle}"
+                                           VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+      </DockPanel>
+
       <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
-        IsVisible="{Binding !IsOSDVisible}"/>
+               IsVisible="{Binding !IsOSDVisible}"/>
+
+      <DockPanel x:Name="OSD_PiPPanel" Grid.Column="1" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}" Margin="0,0,20,0">
+        <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Right"
+            Style="{ThemeResource SecondaryMediaOSDStyle}" AutoVisibility="true"/>
+      </DockPanel>
+
     </Grid>
 
     <Image Width="250" Stretch="Uniform" Source="pause.png" Opacity="0.7"
            HorizontalAlignment="Center" VerticalAlignment="Center" Grid.ColumnSpan="3" Grid.RowSpan="3"
            IsVisible="{Binding ElementName=PrimaryOSD, Path=IsPaused}" />
-
-    <!-- BackgroundPipLayoutGrid -->
-    <DockPanel x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" LastChildFill="false"
-               VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-
-      <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom" IsVisible="{Binding IsOSDVisible}"
-                                         Style="{ThemeResource PrimarySlimTvOSDStyle}"
-                                         VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-    </DockPanel>
 
     <Grid Height="90" VerticalAlignment="Top" HorizontalAlignment="Left" Margin="30,5,0,0">
       <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
@@ -62,23 +68,6 @@
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=7F702D9C-F2DD-42da-9ED8-0BA92F07787F}"/>
       </StackPanel>
     </Grid>
-
-    <!--Grid x:Name="TimeGrid" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,20,30,0" 
-          Height="105" IsVisible="{Binding IsOSDVisible}">
-      <Grid.Resources>
-        <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-      </Grid.Resources>
-      <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Panel.ZIndex="101"
-             FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <Image Source="PlayerControl\Time.shadow.PNG" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" 
-             Margin="0,0,0,-10" Panel.ZIndex="100">
-        <Image.Width>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+60">
-            <Binding Source="{Binding ElementName=TimeLabel, Path=ActualWidth}"/>
-          </MultiBinding>
-        </Image.Width>
-      </Image>
-    </Grid-->
 
     <!-- Mouse control buttons -->
     <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,0,5,0">

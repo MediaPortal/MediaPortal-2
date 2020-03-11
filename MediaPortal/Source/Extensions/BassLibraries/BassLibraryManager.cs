@@ -25,8 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.FileSystem;
+using MediaPortal.Utilities.SystemAPI;
 using Un4seen.Bass;
 
 namespace MediaPortal.Extensions.BassLibraries
@@ -39,7 +41,7 @@ namespace MediaPortal.Extensions.BassLibraries
     #region Static members
 
     private static readonly object _syncObj = new object();
-    private static volatile BassLibraryManager _bassLibraryManager = null;
+    private static volatile int _refCount = 0;
     private readonly ICollection<int> _decoderPluginHandles = new List<int>();
 
     [Obsolete("Player plugins are now located in BassLibraries plugin. Setting other folder is no longer supported.")]
@@ -56,12 +58,13 @@ namespace MediaPortal.Extensions.BassLibraries
     {
       lock (_syncObj)
       {
-        if (_bassLibraryManager != null)
-          return _bassLibraryManager;
-        string playerPluginsDirectory = FileUtils.BuildAssemblyRelativePath("Plugins");
-        _bassLibraryManager = new BassLibraryManager();
-        _bassLibraryManager.Initialize(playerPluginsDirectory);
-        return _bassLibraryManager;
+        string absolutePlatformDir;
+        if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+          throw new Exception("Error adding dll probe path");
+        string playerPluginsDirectory = Path.Combine(absolutePlatformDir, "Plugins");
+        var bassLibraryManager = new BassLibraryManager();
+        bassLibraryManager.Initialize(playerPluginsDirectory);
+        return bassLibraryManager;
       }
     }
 
@@ -75,6 +78,10 @@ namespace MediaPortal.Extensions.BassLibraries
 
     private void Initialize(string playerPluginsDirectory)
     {
+      Interlocked.Increment(ref _refCount);
+      if (_refCount > 1)
+        return;
+
       // Register BASS.Net, necessary to avoid splash screen
       BassRegistration.BassRegistration.Register();
 
@@ -109,8 +116,9 @@ namespace MediaPortal.Extensions.BassLibraries
       Directory.SetCurrentDirectory(playerPluginsDirectory);
 
       IDictionary<int, string> plugins = Bass.BASS_PluginLoadDirectory(playerPluginsDirectory);
-      foreach (string pluginFile in plugins.Values)
-        Log.Debug("Loaded plugin '{0}'", pluginFile);
+      if (plugins != null)
+        foreach (string pluginFile in plugins.Values)
+          Log.Debug("Loaded plugin '{0}'", pluginFile);
       CollectionUtils.AddAll(_decoderPluginHandles, plugins.Keys);
 
       if (plugins.Count == 0)
@@ -130,6 +138,9 @@ namespace MediaPortal.Extensions.BassLibraries
       lock (_syncObj)
       {
         Log.Debug("BassLibraryManager.Dispose()");
+        Interlocked.Decrement(ref _refCount);
+        if (_refCount > 0)
+          return;
 
         Log.Debug("Unloading all BASS player plugins");
         foreach (int pluginHandle in _decoderPluginHandles)
@@ -142,8 +153,6 @@ namespace MediaPortal.Extensions.BassLibraries
 
         if (!Bass.BASS_Free())
           throw new BassLibraryException("BASS_Free");
-
-        _bassLibraryManager = null;
       }
     }
 

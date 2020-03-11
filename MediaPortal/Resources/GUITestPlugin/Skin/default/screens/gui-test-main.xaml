@@ -9,6 +9,9 @@
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="GUI tests"/>
 
+    <!-- ViewMode model -->
+    <Model x:Key="GenericViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
+
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="True">
@@ -17,6 +20,7 @@
             <Model x:Key="Model" Id="F4FC1599-F412-40d0-82BF-46FC352E93BE"/> <!-- GUI-Test-Model -->
           </UniformGrid.Resources>
           <StackPanel Orientation="Vertical" Margin="0,0,5,0">
+            <Label Content="{Binding Source={StaticResource GenericViewModeModel}, Path=LayoutType}" />
             <Button Style="{StaticResource ButtonWideStyle}" Content="Brushes/transforms test 1"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-brushes-transforms1}"/>
@@ -47,6 +51,9 @@
             <Button Style="{StaticResource ButtonWideStyle}" Content="ListView grouping test"
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 Command="{Command Source={StaticResource Model},Path=ShowScreenInTransientState,Parameters=test-listviewgrouping}"/>
+            <Button Style="{StaticResource ButtonWideStyle}" Content="{Binding Source={StaticResource Model}, Path=ToggleBusyScreenLabel}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                Command="{Command Source={StaticResource Model},Path=ToggleBusyScreen}"/>
           </StackPanel>
           <StackPanel Orientation="Vertical" Margin="5,0,0,0">
             <Button Style="{StaticResource ButtonWideStyle}" Content="Border test"

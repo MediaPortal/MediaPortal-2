@@ -34,11 +34,14 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Utilities.SystemAPI;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -65,16 +68,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// MediaCategories this MetadataExtractor is applied to
     /// </summary>
     private const string MEDIA_CATEGORY_NAME_AUDIO = "Audio";
-    private readonly static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
+    private static readonly ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
 
-    #endregion
+    internal const string ARTIST_INFO_FOLDER = "ArtistInfo";
+    internal static readonly ConcurrentDictionary<ResourcePath, ResourcePath> CentralArtistFolderCache = new ConcurrentDictionary<ResourcePath, ResourcePath>();
 
-    #region Private fields
+      #endregion
+
+    #region Private/Protected fields
 
     /// <summary>
     /// Metadata of this MetadataExtractor
     /// </summary>
     private readonly MetadataExtractorMetadata _metadata;
+
+    protected AsynchronousMessageQueue _messageQueue;
 
     #endregion
 
@@ -116,6 +124,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           AudioAspect.Metadata,
           ThumbnailLargeAspect.Metadata
         });
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+      {
+        ImporterWorkerMessaging.CHANNEL,
+      });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
+    }
+
+    public override void Dispose()
+    {
+      base.Dispose();
+      _messageQueue.Shutdown();
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+            CentralArtistFolderCache.TryAdd((ResourcePath)message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH], null);
+            break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            CentralArtistFolderCache.TryRemove((ResourcePath)message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH], out _);
+            break;
+        }
+      }
     }
 
     #endregion
@@ -377,6 +415,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
+      InitSettings();
       //if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
       //  return false;
 
@@ -404,6 +443,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       return Task.FromResult(false);
     }

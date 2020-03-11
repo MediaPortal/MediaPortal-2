@@ -75,7 +75,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected List<string> _connectedClients = new List<string>();
     protected SettingsChangeWatcher<SlimTvGenreColorSettings> _settingWatcher;
     protected SlimTvGenreColorSettings _epgColorSettings = null;
-    protected readonly ConcurrentDictionary<EpgGenre, IEnumerable<string>> _tvGenres = new ConcurrentDictionary<EpgGenre, IEnumerable<string>>();
+    protected readonly ConcurrentDictionary<EpgGenre, ICollection<string>> _tvGenres = new ConcurrentDictionary<EpgGenre, ICollection<string>>();
     protected bool _tvGenresInited = false;
     protected TaskCompletionSource<bool> _initComplete = new TaskCompletionSource<bool>();
 
@@ -316,7 +316,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       //Map genre color if possible
       if (_tvGenres.Count > 0 && !string.IsNullOrEmpty(prog.Genre))
       {
-        var genre = _tvGenres.FirstOrDefault(g => g.Value.Any(e => prog.Genre.Equals(e, StringComparison.InvariantCultureIgnoreCase)));
+        var genre = _tvGenres.FirstOrDefault(g => g.Value.Contains(prog.Genre));
         if (genre.Key != EpgGenre.Unknown)
         {
           prog.EpgGenreId = (int)genre.Key;
@@ -665,9 +665,17 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public abstract Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType);
 
+    public abstract Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType);
+
+    public abstract Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority);
+
+    public abstract Task<bool> EditScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null);
+
     public abstract Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType);
 
     public abstract Task<bool> RemoveScheduleAsync(ISchedule schedule);
+
+	public abstract Task<bool> UnCancelScheduleAsync(IProgram program);
 
     public abstract Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program);
 
@@ -680,6 +688,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       return string.Format("{0}-{1}", clientName, slotIndex);
     }
+
+	public abstract Task<AsyncResult<List<ICard>>> GetCardsAsync();
+
+    public abstract Task<AsyncResult<List<IVirtualCard>>> GetActiveVirtualCardsAsync();
 
     #endregion
   }

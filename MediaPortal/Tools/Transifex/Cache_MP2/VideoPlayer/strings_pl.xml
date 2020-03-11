@@ -14,8 +14,7 @@
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Ustaw kodek audio dla:  AAC</string>
   <string name="Settings.Players.VideoPlayer">Odtwarzacz wideo</string>
   <string name="Settings.Players.DVDPlayer">Odtwarzacz DVD</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles">Napisy</string>
-  <string name="Settings.Players.DVDPlayer.EnableSubtitles.Help">Zaznacz jeżeli napisy maja być włączone domyślnie</string>
+  <string name="Settings.Players.Subtitles">Napisy</string>
   <string name="Playback.Chapter">Rozdział {0}</string>
   <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Tytuł {0}</string>

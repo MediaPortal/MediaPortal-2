@@ -82,147 +82,160 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     public static Key MapSpecialKey(Keys keycode, bool alt, bool shift, bool control)
     {
-      switch (keycode)
+      if (alt && !(shift || control))
       {
-        case Keys.Add:
-          if (alt)
+        switch (keycode)
+        {
+          case Keys.Add:
             return Key.VolumeUp;
-          break;
-        case Keys.Subtract:
-          if (alt)
+          case Keys.Subtract:
             return Key.VolumeDown;
-          break;
-        case Keys.Cancel:
-          return Key.Escape;
-        case Keys.Clear:
-          return Key.Clear;
-        case Keys.Delete:
-          return Key.Delete;
-        case Keys.Insert:
-          return Key.Insert;
-        case Keys.Enter:
-          if (!Keyboard.IsKeyDown(Keys.LWin))
-          {
-            if (alt)
+          case Keys.Enter:
+            if (!Keyboard.IsKeyDown(Keys.LWin))
+            {
               return Key.Fullscreen;
-            return Key.Ok;
-          }
-          break;
-        case Keys.Back:
-          return Key.BackSpace;
-        case Keys.Escape:
-          return Key.Escape;
-
-        case Keys.MediaNextTrack:
-          return Key.Next;
-        case Keys.MediaPlayPause:
-          return Key.PlayPause;
-        case Keys.MediaPreviousTrack:
-          return Key.Previous;
-        case Keys.MediaStop:
-          return Key.Stop;
-        case Keys.Pause:
-          return Key.Pause;
-        case Keys.Play:
-          return Key.Play;
-
-        case Keys.VolumeMute:
-          return Key.Mute;
-        case Keys.VolumeDown:
-          return Key.VolumeDown;
-        case Keys.VolumeUp:
-          return Key.VolumeUp;
-
-        case Keys.Up:
-          return Key.Up;
-        case Keys.Down:
-          return Key.Down;
-        case Keys.Left:
-          return Key.Left;
-        case Keys.Right:
-          return Key.Right;
-
-        case Keys.PageUp:
-          return Key.PageUp;
-        case Keys.PageDown:
-          return Key.PageDown;
-
-        case Keys.Home:
-          return Key.Home;
-        case Keys.End:
-          return Key.End;
-
-        case Keys.Apps:
-          return Key.ContextMenu;
-        case Keys.Zoom:
-          return Key.ZoomMode;
-
-        case Keys.Sleep:
-          return Key.Power;
-
-        case Keys.F1:
-          return Key.F1;
-        case Keys.F2:
-          return Key.F2;
-        case Keys.F3:
-          return Key.F3;
-        case Keys.F4:
-          if (alt)
+            }
+            break;
+          case Keys.F4:
             return Key.Close;
-          return Key.F4;
-        case Keys.F5:
-          return Key.F5;
-        case Keys.F6:
-          return Key.F6;
-        case Keys.F7:
-          return Key.F7;
-        case Keys.F8:
-          return Key.F8;
-        case Keys.F9:
-          return Key.F9;
-        case Keys.F10:
-          return Key.F10;
-        case Keys.F11:
-          return Key.F11;
-        case Keys.F12:
-          return Key.F12;
-        case Keys.F13:
-          return Key.F13;
-        case Keys.F14:
-          return Key.F14;
-        case Keys.F15:
-          return Key.F15;
-        case Keys.F16:
-          return Key.F16;
-        case Keys.F17:
-          return Key.F17;
-        case Keys.F18:
-          return Key.F18;
-        case Keys.F19:
-          return Key.F19;
-        case Keys.F20:
-          return Key.F20;
-        case Keys.F21:
-          return Key.F21;
-        case Keys.F22:
-          return Key.F22;
-        case Keys.F23:
-          return Key.F23;
-        case Keys.F24:
-          return Key.F24;
-
-        case Keys.X:
-          if (control)
+        }
+      } else if (control && !(shift || alt))
+      {
+        switch (keycode)
+        {
+          case Keys.X:
             return Key.Cut;
-          break;
-        case Keys.C:
-          if (control)
+          case Keys.C:
             return Key.Copy;
-          break;
-        case Keys.V:
-          if (control)
+          case Keys.V:
             return Key.Paste;
-          break;
+        }
+      } else if (shift && !(alt || control))
+      {
+        switch (keycode)
+        {
+          case Keys.F10:
+            return Key.ContextMenu;
+        }
+      } else if (!shift && !alt && !control)
+      {
+        switch (keycode)
+        {
+          case Keys.Cancel:
+            return Key.Escape;
+          case Keys.Clear:
+            return Key.Clear;
+          case Keys.Delete:
+            return Key.Delete;
+          case Keys.Insert:
+            return Key.Insert;
+          case Keys.Enter:
+            if (!Keyboard.IsKeyDown(Keys.LWin))
+            {
+              return Key.Ok;
+            }
+            break;
+          case Keys.Back:
+            return Key.BackSpace;
+          case Keys.Escape:
+            return Key.Escape;
+
+          case Keys.MediaNextTrack:
+            return Key.Next;
+          case Keys.MediaPlayPause:
+            return Key.PlayPause;
+          case Keys.MediaPreviousTrack:
+            return Key.Previous;
+          case Keys.MediaStop:
+            return Key.Stop;
+          case Keys.Pause:
+            return Key.Pause;
+          case Keys.Play:
+            return Key.Play;
+
+          case Keys.VolumeMute:
+            return Key.Mute;
+          case Keys.VolumeDown:
+            return Key.VolumeDown;
+          case Keys.VolumeUp:
+            return Key.VolumeUp;
+
+          case Keys.Up:
+            return Key.Up;
+          case Keys.Down:
+            return Key.Down;
+          case Keys.Left:
+            return Key.Left;
+          case Keys.Right:
+            return Key.Right;
+
+          case Keys.PageUp:
+            return Key.PageUp;
+          case Keys.PageDown:
+            return Key.PageDown;
+
+          case Keys.Home:
+            return Key.Home;
+          case Keys.End:
+            return Key.End;
+
+          case Keys.Apps:
+            return Key.ContextMenu;
+          case Keys.Zoom:
+            return Key.ZoomMode;
+
+          case Keys.Sleep:
+            return Key.Power;
+
+          case Keys.F1:
+            return Key.F1;
+          case Keys.F2:
+            return Key.F2;
+          case Keys.F3:
+            return Key.F3;
+          case Keys.F4:
+            return Key.F4;
+          case Keys.F5:
+            return Key.F5;
+          case Keys.F6:
+            return Key.F6;
+          case Keys.F7:
+            return Key.F7;
+          case Keys.F8:
+            return Key.F8;
+          case Keys.F9:
+            return Key.F9;
+          case Keys.F10:
+            return Key.F10;
+          case Keys.F11:
+            return Key.F11;
+          case Keys.F12:
+            return Key.F12;
+          case Keys.F13:
+            return Key.F13;
+          case Keys.F14:
+            return Key.F14;
+          case Keys.F15:
+            return Key.F15;
+          case Keys.F16:
+            return Key.F16;
+          case Keys.F17:
+            return Key.F17;
+          case Keys.F18:
+            return Key.F18;
+          case Keys.F19:
+            return Key.F19;
+          case Keys.F20:
+            return Key.F20;
+          case Keys.F21:
+            return Key.F21;
+          case Keys.F22:
+            return Key.F22;
+          case Keys.F23:
+            return Key.F23;
+          case Keys.F24:
+            return Key.F24;
+        }
       }
       return Key.None;
     }

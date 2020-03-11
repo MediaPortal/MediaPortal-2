@@ -420,17 +420,15 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                       Height="1"
-                       Fill="{ThemeResource ScrollBarBackgroundXColor}"/>
-            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left"
-                       Height="1"
-                       Fill="{ThemeResource OSDProgressBarFillColor}"/>
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="10"
+                       Fill="{ThemeResource OSDProgressBarBackgroundColor}" RadiusX="5" RadiusY="5"/>
+            <Rectangle x:Name="ProgressBarIndicator" Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" Height="10"
+                       Fill="{ThemeResource ProgressBarFillColor}" RadiusX="5" RadiusY="5"/>
             <StackPanel Orientation="Horizontal">
               <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
-              <Rectangle x:Name="ScrollBarYKnob" Width="18" Height="18"
-                    Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="9" RadiusY="9"
-                    Fill="{ThemeResource ScrollBarKnobBackgroundColor}"/>
+              <Rectangle x:Name="ScrollBarYKnob" Width="20" Height="20" Margin="-5,-5,5,-5"
+                         Stroke="{ThemeResource ScrollBarKnobStrokeColor}" RadiusX="10" RadiusY="10"
+                         Fill="{ThemeResource ScrollBarKnobBackgroundColor}"/>
             </StackPanel>
           </Grid>
         </ControlTemplate>

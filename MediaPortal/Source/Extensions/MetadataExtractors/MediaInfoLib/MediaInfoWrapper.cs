@@ -284,14 +284,17 @@ namespace MediaInfoLib
     }
 
     /// <summary>
-    /// Returns the duration of the video in the specified video <paramref name="stream"/>.
+    /// Returns the duration of the video in the specified video or audio <paramref name="stream"/>.
     /// </summary>
-    /// <param name="stream">Number of video stream to examine.</param>
-    /// <returns>Duration of the video in milliseconds or <c>null</c>, if the specified video
+    /// <param name="stream">Number of video/audio stream to examine.</param>
+    /// <returns>Duration of the video/audio in milliseconds or <c>null</c>, if the specified video/audio
     /// stream doesn't exist.</returns>
     public long? GetPlaytime(int stream)
     {
-      return GetLongOrNull(_mediaInfo.Get(StreamKind.Video, stream, "PlayTime"));
+      if (GetVideoCount() > 0)
+        return GetLongOrNull(_mediaInfo.Get(StreamKind.Video, stream, "PlayTime"));
+      else
+        return GetLongOrNull(_mediaInfo.Get(StreamKind.Audio, stream, "PlayTime"));
     }
 
     /// <summary>
@@ -316,6 +319,39 @@ namespace MediaInfoLib
     public float? GetFramerate(int stream)
     {
       return GetFloatOrNull(_mediaInfo.Get(StreamKind.Video, stream, "FrameRate"));
+    }
+
+    /// <summary>
+    /// Returns the MVC 3D count of the video in the specified video <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>MVC 3D count of the stream (if more than 1 it is probably 3D) or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public int? GetMultiviewCount(int stream)
+    {
+      return GetIntOrNull(_mediaInfo.Get(StreamKind.Video, stream, "MultiView_Count"));
+    }
+
+    /// <summary>
+    /// Returns the commercial format of the video in the specified video <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Commercial format of the stream (for example HDR10) or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public string GetCommercialVideoFormat(int stream)
+    {
+      return _mediaInfo.Get(StreamKind.Video, stream, "Format_Commercial_IfAny");
+    }
+
+    /// <summary>
+    /// Returns the scan type of the video in the specified video <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Scan type of the stream (progressive or interlaced) or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public string GetScanType(int stream)
+    {
+      return _mediaInfo.Get(StreamKind.Video, stream, "ScanType");
     }
 
     /// <summary>

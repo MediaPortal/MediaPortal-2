@@ -43,12 +43,13 @@ namespace MediaPortal.Common.MediaManagement
   /// </remarks>
   public class MediaItem : IEquatable<MediaItem>, IXmlSerializable
   {
+    public static readonly string[] OPTICAL_DISC_MIMES = new string[] { "video/dvd", "video/bluray" };
+
     #region Protected fields
 
     protected Guid _id;
     protected readonly IDictionary<Guid, IList<MediaItemAspect>> _aspects;
     protected readonly IDictionary<string, string> _userData = new Dictionary<string, string>();
-    protected readonly string[] _opticalDiscMimes = new string[] { "video/dvd", "video/bluray" };
 
     #endregion
 
@@ -218,14 +219,20 @@ namespace MediaPortal.Common.MediaManagement
         if (!MediaItemAspect.TryGetAspects(_aspects, VideoStreamAspect.Metadata, out videoStreamAspects))
           return false;
 
+        IList<MultipleMediaItemAspect> providerAspects;
+        if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
+        {
+          //Only primary resources can be editions
+          if (providerAspects.Count(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY) < 2)
+            return false;
+
+          //Special case for optical discs
+          if (providerAspects.Count(pra => OPTICAL_DISC_MIMES.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))) > 1)
+            return true;
+        }
+
         if (videoStreamAspects.Select(pra => pra.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET)).Distinct().Count() > 1)
           return true;
-
-        //Special case for optical discs
-        IList<MultipleMediaItemAspect> providerAspects;
-        if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
-          providerAspects.Where(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))).Count() > 1)
-            return true;
 
         return false;
       }
@@ -254,10 +261,19 @@ namespace MediaPortal.Common.MediaManagement
           var videoStreams = videoStreamAspects.Where(v => v.GetAttributeValue<int>(VideoStreamAspect.ATTR_VIDEO_PART_SET) == setNo);
 
           bool isOpticalDisc = false;
+          bool isPrimary = true;
           IList<MultipleMediaItemAspect> providerAspects;
           if (MediaItemAspect.TryGetAspects(_aspects, ProviderResourceAspect.Metadata, out providerAspects))
-            isOpticalDisc = providerAspects.Any(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)) &&
-            videoStreams.Any(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)));
+          {
+            isPrimary = providerAspects.Any(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY &&
+              videoStreams.Any(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)));
+
+            isOpticalDisc = providerAspects.Any(pra => OPTICAL_DISC_MIMES.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)) &&
+              videoStreams.Any(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)));
+          }
+
+          if (!isPrimary) //Only primary resources can be editions
+            continue;
 
           if (usedSets.Contains(setNo) && !isOpticalDisc)
             continue;
@@ -272,7 +288,7 @@ namespace MediaPortal.Common.MediaManagement
           if (isOpticalDisc)
           {
             long? durSecs = stream.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION);
-            if (durSecs.HasValue)
+            if (durSecs > 0)
               edition.Duration = edition.Duration.Add(TimeSpan.FromSeconds(durSecs.Value));
             else
               durationIsValid = false;
@@ -283,7 +299,7 @@ namespace MediaPortal.Common.MediaManagement
             foreach (var res in videoStreams)
             {
               long? durSecs = res.GetAttributeValue<long?>(VideoStreamAspect.ATTR_DURATION);
-              if (durSecs.HasValue)
+              if (durSecs > 0)
                 edition.Duration = edition.Duration.Add(TimeSpan.FromSeconds(durSecs.Value));
               else
                 durationIsValid = false;
@@ -366,8 +382,8 @@ namespace MediaPortal.Common.MediaManagement
         if (ActiveEditionIndex <= MaximumEditionIndex)
         {
           var currentEdition = Editions[ActiveEditionIndex];
-          var resourceIndex = Editions[ActiveEditionIndex].PrimaryResourceIndexes.First();
-          if (resourceIndex < providerAspects.Count)
+          var resourceIndex = currentEdition.PrimaryResourceIndexes.First();
+          if (resourceIndex <= providerAspects.Count)
             aspect = providerAspects.First(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == resourceIndex);
         }
       }

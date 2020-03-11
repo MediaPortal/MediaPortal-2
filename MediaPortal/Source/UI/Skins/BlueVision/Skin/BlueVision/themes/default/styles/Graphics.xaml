@@ -50,6 +50,14 @@
     <Image Source="PlayerControls.Large\SkipBackButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
   </ControlTemplate>
 
+  <ControlTemplate x:Key="OSDBackControlTemplate">
+    <Image Source="PlayerControls.Large\BackButton.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="OSDCloseControlTemplate">
+    <Image Source="PlayerControls.Large\Close.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />
+  </ControlTemplate>
+
   <!-- Dark version -->
   <ControlTemplate x:Key="AudioActiveDarkControlTemplate">
     <Image Source="PlayerControls.Large.Dark\Audio.png" Stretch="Uniform" Height="{ThemeResource PlayerControlHeight}" />

@@ -210,6 +210,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
       return Task.FromResult(false);
     }
 
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      return Task.FromResult(false);
+    }
+
     public bool IsStubResource(IResourceAccessor mediaItemAccessor)
     {
       if (IsDvd(mediaItemAccessor))
@@ -284,6 +289,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 576);
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, "VHS Stub");
 
               MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
               audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
@@ -304,6 +310,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, 1080);
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, "TV Stub");
 
               MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
               audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
@@ -325,6 +332,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, "MPEG-2 Video");
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, "DVD Stub");
 
               MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
               audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
@@ -348,6 +356,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, "AVC");
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, "Bluray Stub");
 
               MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
               audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);
@@ -371,6 +380,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.StubMetadataExtractors
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, "VC1");
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, 1);
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, 1);
+              videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, "HDDVD Stub");
 
               MultipleMediaItemAspect audioAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoAudioStreamAspect.Metadata);
               audioAspect.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, 0);

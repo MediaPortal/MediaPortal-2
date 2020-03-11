@@ -1,6 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="WMC.Configuration.EnableFanart">Ativar Fanart</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity">Visibilidade FanArt</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView"> Vista em lista</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Vista de grelha</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Vista por capas</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos">Ativar logotipos de verificação de idades</string>
+  <string name="WMC.Configuration.GridViewType.Poster">Posters</string>
+  <string name="WMC.Configuration.GridViewType.Banner">Faixas</string>
+  <string name="WMC.Configuration.GridViewType.Thumbnail">Miniaturas</string>  
   <string name="WMC.Home.LatestPlayed">Visto pela última vez</string>
+  <string name="WMC.Home.ContinuePlayed">Continuar Reprodução</string>
+  <string name="WMC.Home.CurrentPrograms">Programas Atuais</string>
   <string name="WMC.Home.CurrentSchedules">Agendamentos</string>
   <string name="WMC.Home.Favorites">Favoritos</string>
   <string name="WMC.Home.Unplayed">Não visto</string>

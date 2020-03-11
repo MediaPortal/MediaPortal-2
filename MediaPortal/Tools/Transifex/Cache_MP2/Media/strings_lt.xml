@@ -295,6 +295,7 @@
   <string name="Media.SortByDate">Data</string>
   <string name="Media.GroupingBrowseDefault">Standartinis</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Grotuvai</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Baigus uždaryti grotuvus</string>

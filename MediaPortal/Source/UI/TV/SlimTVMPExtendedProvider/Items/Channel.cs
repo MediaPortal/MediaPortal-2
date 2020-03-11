@@ -22,6 +22,8 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.Items
@@ -39,6 +41,22 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Items
     public string Name { get; set; }
 
     public MediaType MediaType { get; set; }
+
+    public bool EpgHasGaps { get; set; }
+
+    public String ExternalId { get; set; }
+
+    public bool GrapEpg { get; set; }
+
+    public DateTime? LastGrabTime { get; set; }
+
+    public int TimesWatched { get; set; }
+
+    public DateTime? TotalTimeWatched { get; set; }
+
+    public bool VisibleInGuide { get; set; }
+
+    public List<string> GroupNames { get; set; }
 
     #endregion
   }

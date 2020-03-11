@@ -36,17 +36,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class MusicTheAudioDbMatcher : MusicMatcher<string, string>
   {
-    #region Static instance
-
-    public static MusicTheAudioDbMatcher Instance
-    {
-      get { return ServiceRegistration.Get<MusicTheAudioDbMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
+    public const string NAME = "TheAudioDB.com";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheAudioDB\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -55,9 +47,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public MusicTheAudioDbMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
-      //Will be overridden if the user enables it in setttings
+      //Will be overridden if the user enables it in settings
       Enabled = false;
     }
 
@@ -65,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        TheAudioDbWrapper wrapper = new TheAudioDbWrapper();
+        TheAudioDbWrapper wrapper = new TheAudioDbWrapper(NAME);
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = new CultureInfo(PreferredLanguageCulture);
         string lang = new RegionInfo(currentCulture.Name).TwoLetterISORegionName;

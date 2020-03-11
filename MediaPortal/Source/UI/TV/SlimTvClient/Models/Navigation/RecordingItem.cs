@@ -24,8 +24,8 @@
 
 using System;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models.Navigation

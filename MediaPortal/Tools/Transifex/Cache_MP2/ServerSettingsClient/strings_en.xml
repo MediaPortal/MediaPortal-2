@@ -9,7 +9,8 @@
   <string name="Settings.ServerSettings.Password">Password:</string>
   <string name="Settings.ServerSettings.ImporterWorker">Automatic share refresh</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configure automatic refreshes of shares</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Enable automatic refresh</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Enable automatic server refresh</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableClientAutoRefresh">Enable automatic client refresh</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Run at hour of day (24h base)</string>
 
   <string name="Settings.ServerSettings.AudioMDESettings">Audio import settings</string>
@@ -17,6 +18,7 @@
   <string name="Settings.ServerSettings.SeriesMDESettings">Series import settings</string>
   <string name="Settings.ServerSettings.VideoMDESettings">Video import settings</string>
   <string name="Settings.ServerSettings.ImageMDESettings">Image import settings</string>
+  <string name="Settings.ServerSettings.SubtitleMDESettings">Subtitle import settings</string>
   <string name="Settings.ServerSettings.FanArtSettings">FanArt settings</string>
 
   <string name="Settings.ServerSettings.MDESettings.MDESourceEnable">Online sources to allow during import</string>
@@ -36,6 +38,7 @@
   
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Artists">Populate artist filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Composers">Populate composer filter</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Conductors">Populate conductor filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.MusicLabels">Populate music label filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Actors">Populate actor filter</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Characters">Populate character filter</string>
@@ -76,4 +79,6 @@
   <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help">The preferred language of online movie details.</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage">Preferred online series language</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help">The preferred language of online series details.</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage">Preferred online subtitle language</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage.Help">The preferred language of online subtitles.</string>
 </resources>

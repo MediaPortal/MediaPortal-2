@@ -73,6 +73,13 @@
         SortOrder="g"
         SourceStates="*"
         ContributorModelId="E6E42CDB-07F7-4055-8EF9-0AA35904FAB5"/> <!-- AddToPlaylist action -->
+    <WorkflowContributorAction Id="9EE2C4A6-70FD-4947-9418-A40012925DA6"
+        Name="*->EjectOpticalDisc"
+        DisplayCategory="a-Media"
+        SortOrder="x"
+        Group="Global"
+        SourceStates="*"
+        ContributorModelId="5D67150A-3B09-43C1-8618-FFE3C763AFD1"/> <!-- EjectOpticalDiscAction action -->
     <WorkflowContributorAction Id="985AD907-0EDB-4feb-AA99-2B52DDEADE6F"
         Name="*->ShowPlaylist"
         DisplayCategory="z-WorkflowContributors"

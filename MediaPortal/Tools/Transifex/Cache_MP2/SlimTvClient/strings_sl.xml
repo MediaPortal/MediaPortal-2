@@ -45,8 +45,8 @@
   <string name="SlimTvClient.ScheduleRecordingType_Weekends">Vikendi</string>
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Delovni dnevi</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Tedensko vsakič na tem kanalu</string>
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Posnetki po imenu</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Posnetki po imenu</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Ime</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Ime</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ScheduleDetails">Podrobnosti urnika</string>
   <string name="SlimTvClient.ScheduleName">Ime urnika</string>
@@ -64,10 +64,7 @@
   <string name="SlimTvClient.NoColor">Brez</string>
   <string name="SlimTvClient.RecordingsMenuItem">Posnetki</string>
   <string name="SlimTvClient.RecordingsRootViewName">TV posnetki</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Omeji po kanalu</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Kanal</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Kanal: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Posnetki po kanalu</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Omeji po imenu</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Posnetki po imenu</string>
 </resources>

@@ -32,7 +32,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   public class ImdbIdMatcher
   {
     public static string GROUP_IMDBID = "imdbid";
-    public static Regex REGEXP_IMDBID = new Regex(@"(?<imdbid>tt\d{7})", RegexOptions.IgnoreCase);
+    public static Regex REGEXP_IMDBID = new Regex(@"(?<imdbid>tt\d+)", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Tries to match IMDB ids from a given <param name="textOrfolderOrFileName">string</param> using regular expressions.

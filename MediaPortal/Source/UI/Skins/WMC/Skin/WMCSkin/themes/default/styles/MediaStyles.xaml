@@ -21,7 +21,12 @@
   <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   <wmc_converters:RoundingFormatConverter x:Key="RoundingFormatConverter"/>
 
-  <!-- ***************************************** OSD ************************************************** -->
+  <!--
+		############################################################################################################################################################
+		######################################################################## OSD STYLES ########################################################################
+		############################################################################################################################################################
+	-->
+  
   <Storyboard x:Key="OSDCurrentPlayerControlStoryboard" FillBehavior="Stop">
     <!-- TODO: nicer background cycle effect -->
     <ColorAnimationUsingKeyFrames RepeatBehavior="Forever" AutoReverse="true" BeginTime="00:00:00"
@@ -323,6 +328,8 @@
                       <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="5,0,5,0" 
                               Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}"/>
                       <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
+                      <Button x:Name="EjectDisc" Style="{ThemeResource EjectDiscButtonStyle}" Margin="0"
+                              Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9EE2C4A6-70FD-4947-9418-A40012925DA6}"/>
                       <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}"
                               Command="{Command Stop}"/>
                       <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}"
@@ -467,15 +474,15 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-          <Border x:Name="OSD_Background" BorderBrush="{ThemeResource DialogBorderColor}"
+          <Border x:Name="OSD_Background" BorderBrush="{ThemeResource DialogBorderColor}" Background="#D8000000"
                   CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Border.Background>
+            <!--Border.Background>
               <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
                 <GradientStop Color="{ThemeResource DialogBackgroundGradient1Color}" Offset="0"/>
                 <GradientStop Color="{ThemeResource DialogBackgroundGradient2Color}" Offset="1"/>
               </LinearGradientBrush>
-            </Border.Background>
+            </Border.Background-->
             <Grid x:Name="PlayerGrid" Margin="10,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -487,7 +494,7 @@
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
               
-              <DockPanel x:Name="PiPHeaderPanel" Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
+              <DockPanel x:Name="PiPHeaderPanel" LastChildFill="true" Margin="3">
                 <Grid DockPanel.Dock="Center">
                   <!-- Has to be last control in DockPanel, LastChildFill! -->
                   <Grid.ColumnDefinitions>
@@ -497,7 +504,7 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
-                         HorizontalAlignment="Left" VerticalAlignment="Center" MaxWidth="500"/>
+                         HorizontalAlignment="Left" VerticalAlignment="Center" MaxWidth="400" FontSize="{ThemeResource SmallerFontSize}" />
                 </Grid>
               </DockPanel>
               
@@ -523,7 +530,7 @@
                           VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}">
                 <StackPanel.LayoutTransform>
                   <TransformGroup>
-                    <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
+                    <ScaleTransform ScaleX="1" ScaleY="1"/>
                   </TransformGroup>
                 </StackPanel.LayoutTransform>
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
@@ -566,7 +573,11 @@
     <Setter Property="PlayerContext" Value="SecondaryPlayer"/>
   </Style>
 
-  <!-- ************************************** Playlist ************************************************ -->
+  <!--
+		############################################################################################################################################################
+		################################################################### PLAYLIST STYLES ########################################################################
+		############################################################################################################################################################
+	-->
 
   <Style x:Key="RemoveButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
@@ -798,7 +809,13 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MultiMarkableShareContainerStyle}"/>
   </Style>
 
-  <!--MediaItem view styles-->
+  <!--
+		############################################################################################################################################################
+		################################################################## MEDIAITEM STYLES ########################################################################
+		############################################################################################################################################################
+	-->
+
+  <!--Watched flags-->
   <Model x:Key="MediaItemsActionModel" Id="970649B2-CAE8-4830-A985-E5E78F3CB24F"/>
 
   <ControlTemplate x:Key="List_WatchedFlag_Template">
@@ -809,7 +826,6 @@
           <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
         </Image.IsVisible>
       </Image>
-
       <Image x:Name="WatchedLabel" Height="33" Margin="0,4,5,0" Stretch="Uniform" Opacity="0.7"
                Source="watched.png">
         <Image.IsVisible>
@@ -872,7 +888,7 @@
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -882,7 +898,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" FallbackSource="FilterSmall.png"
             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -892,7 +908,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform" FallbackSource="FilterLarge.png"
             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -925,7 +941,7 @@
       </Border>
       <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Margin="7">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
@@ -968,8 +984,14 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
         </Grid>
+        <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          </Image.Source>
+        </Image>
         <Image Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
-               Source="folder.png" Margin="20"/>
+               Source="folder.png" Margin="20" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"/>
       </Grid>
       <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"
                  RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-3,-2,-3,-3"
@@ -1208,23 +1230,27 @@
           </LinearGradientBrush>
         </Border.Background>
       </Border>
+      <Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Margin="7">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        </Image.Source>
+      </Image>
       <!--Image x:Name="ItemTypeImage" Grid.Row="0" Stretch="Uniform" Source="NavigationLarge.png"/-->
       <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Stretch" Wrap="True" TextTrimming="CharacterEllipsis"
+             IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
              Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,5,5,45"/>
-      <Label x:Name="NumItems" Content="{Binding NumItems}"
+      <Label x:Name="NumItems" Content="{Binding NumItems}" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
              HorizontalAlignment="Right" VerticalAlignment="Bottom"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="10,0,5,5"/>
     </Grid>
   </ControlTemplate>
 
   <ControlTemplate x:Key="CoverViewContainerItemTemplate">
-    <Grid x:Name="ItemControl">
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="{StaticResource POSTER_COVER_WIDTH}"/>
-      </Grid.ColumnDefinitions>
+    <Grid x:Name="ItemControl" Width="{StaticResource POSTER_COVER_WIDTH}" >
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
-        <RowDefinition Height="{StaticResource POSTER_COVER_WIDTH}"/>
+        <RowDefinition Height="Auto"/>
         <RowDefinition Height="72"/>
       </Grid.RowDefinitions>
 
@@ -1242,13 +1268,14 @@
             <GradientStop Color="{ThemeResource MediaItemBackgroundColor2}" Offset="1"/>
           </LinearGradientBrush>
         </Grid.Background>
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-        </Grid>
-        <Image Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
-               Source="folder.png" Margin="20"/>
+        <Image x:Name="ItemTypeImage" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Center" >
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Poster" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+             fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+          </Image.Source>
+        </Image>
+        <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform"
+               Source="folder.png" Margin="20" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"/>
       </Grid>
       <Rectangle Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Row="1"
                  RadiusX="4" RadiusY="4" StrokeThickness="3" Margin="-3,-2,-3,-3"
@@ -3467,7 +3494,7 @@
       </Grid.OpacityMask>
       <Image x:Name="ItemTypeImage" Stretch="UniformToFill" Margin="0,1.5,0,0">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
@@ -3504,7 +3531,7 @@
         <Image x:Name="ItemTypeSmall" Stretch="Uniform"
             Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -3514,7 +3541,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" FallbackSource="person.png"
             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -3524,7 +3551,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform" FallbackSource="person.png"
             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -3564,7 +3591,7 @@
 
       <Image x:Name="thumb" Grid.Row="1" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Fill">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
         <Image.OpacityMask>
@@ -4394,7 +4421,7 @@
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
           </Button>
         </ControlTemplate>
@@ -4434,7 +4461,7 @@
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
           </Button>
         </ControlTemplate>

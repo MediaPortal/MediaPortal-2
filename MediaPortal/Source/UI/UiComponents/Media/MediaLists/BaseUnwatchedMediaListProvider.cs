@@ -25,6 +25,7 @@
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.ContentLists;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -55,7 +56,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
     protected override bool ShouldUpdate(UpdateReason updateReason)
     {
-      return updateReason.HasFlag(UpdateReason.PlaybackComplete) || updateReason.HasFlag(UpdateReason.ImportComplete) || base.ShouldUpdate(updateReason);
+      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || updateReason.HasFlag(UpdateReason.ImportComplete) || base.ShouldUpdate(updateReason);
     }
   }
 }

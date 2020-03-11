@@ -65,6 +65,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     protected HttpClient _httpClient;
 
     protected SettingsChangeWatcher<TSettings> _settingWatcher;
+    protected bool _settingsInited = false;
 
     #endregion
 
@@ -82,10 +83,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
       _settings = _settingWatcher.Settings;
 
       if (_settings.EnableDebugLogging)
-      {
         _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\" + _name + "Debug.log"), LogLevel.Debug, false, true);
-        LogSettings();
-      }
       else
         _debugLogger = new NoLogger();
 
@@ -104,6 +102,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     }
 
     #endregion
+
+    protected void InitSettings()
+    {
+      if (!_settingsInited)
+      {
+        _settingsInited = true;
+        if (_settings.EnableDebugLogging)
+          LogSettings();
+        LoadSettings();
+      }
+    }
 
     #region Virtual methods
 

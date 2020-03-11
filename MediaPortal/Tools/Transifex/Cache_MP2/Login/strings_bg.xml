@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   
+  <string name="Login.Logout">Излез от профила си</string>
+
   <string name="UserConfig.DeleteUser">Изтрий</string>
   </resources>

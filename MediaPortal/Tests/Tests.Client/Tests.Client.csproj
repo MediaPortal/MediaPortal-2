@@ -80,9 +80,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.Device" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Common\TestAsync.cs" />
     <Compile Include="Common\TestGenres.cs" />
     <Compile Include="Common\TestHelpers.cs" />
     <Compile Include="Common\TestMediaItem.cs" />
@@ -96,6 +98,11 @@
     <Compile Include="VideoPlayers\ComSkip\ComSkipChaptersTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="VideoPlayers\ComSkip\VideoPlayerForComSkipTests.cs" />
+    <Compile Include="VideoPlayers\Subtitles\FakeVideoSettings.cs" />
+    <Compile Include="VideoPlayers\Subtitles\MockedTsVideoPlayer.cs" />
+    <Compile Include="VideoPlayers\Subtitles\AddSubtitleFilterTests.cs" />
+    <Compile Include="VideoPlayers\Subtitles\TsReaderStub.cs" />
+    <Compile Include="WifiRemote\TestWifiRemote.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="VideoPlayers\ComSkip\TestData\Video.With.Invalid.ComSkip.Chapters.zip">
@@ -109,6 +116,10 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Incubator\WifiRemote\WifiRemote.csproj">
+      <Project>{8d67f134-c122-46b3-b393-329b06981045}</Project>
+      <Name>WifiRemote</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
       <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
       <Name>MediaPortal.Common</Name>
@@ -129,6 +140,10 @@
       <Project>{1973ad5b-ef7e-41da-a668-58ac37e1154e}</Project>
       <Name>GenreProvider</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>
+      <Name>OnlineLibraries</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj">
       <Project>{7f790d8d-3a5a-499f-b9d3-8d9a1ef4f73a}</Project>
       <Name>WICThumbnailProvider</Name>
@@ -148,6 +163,10 @@
     <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7e943389-3589-40c9-b481-2e223554cc49}</Project>
       <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
+      <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
       <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>

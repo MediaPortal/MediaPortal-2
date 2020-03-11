@@ -37,30 +37,35 @@
         Name="HomeEditorConfig"
         MainScreen="home_editor_config"
         DisplayLabel="[HomeEditor.Configuration.Header]"
+        HideGroups="Global"
         WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
     
     <WorkflowState Id="BE8E74DE-2008-4398-831A-626A5DC074AA"
         Name="GroupEdit"
         MainScreen="home_editor_group_edit"
         DisplayLabel="[HomeEditor.Configuration.GroupEdit.Header]"
+        HideGroups="Global"
         WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
 
     <WorkflowState Id="0D4B781F-700D-4F23-BEE5-816D0FE2E3CB"
         Name="GroupRemove"
         MainScreen="home_editor_group_remove"
         DisplayLabel="[HomeEditor.Configuration.GroupRemove.Header]"
+        HideGroups="Global"
         WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
     
     <WorkflowState Id="08673705-C9E8-4E82-AFC0-AC7A94A95F32"
         Name="ActionEdit"
         MainScreen="home_editor_action_edit"
         DisplayLabel="[HomeEditor.Configuration.ActionEdit.Header]"
+        HideGroups="Global"
         WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
     
     <WorkflowState Id="94D9D1D3-6E96-46AC-BD9B-25D58C50913D"
         Name="ActionRemove"
         MainScreen="home_editor_action_remove"
         DisplayLabel="[HomeEditor.Configuration.ActionRemove.Header]"
+        HideGroups="Global"
         WorkflowModel="31D0D607-4610-43C9-B9F1-F7E384C74EBA"/>    <!-- Group Editor Model -->
   </Register>
   

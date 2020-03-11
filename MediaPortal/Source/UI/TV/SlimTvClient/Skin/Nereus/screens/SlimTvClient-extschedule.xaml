@@ -1,0 +1,225 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_mediamenu.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+
+    <!-- SlimTvClient model -->
+    <Model x:Key="SlimTvExtScheduleGuide" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
+
+    <!-- Top and Bottom Fades -->
+    <ControlTemplate x:Key="TopGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,0,0" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#E6000000" Offset="0" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="BottomGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,0" Height="100" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#00000000" Offset="0" />
+            <GradientStop Color="#E6000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
+    <!-- Background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Image Stretch="Fill" Opacity="1">
+        <Image.Source>
+          <Binding Source="Background_GridView.png"/>
+        </Image.Source>
+      </Image>
+    </ControlTemplate>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,-90,0,-270"
+            DataContext="{Binding Source={StaticResource SlimTvExtScheduleGuide}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="740"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="45,0,-20,0" Height="1200">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Grid.Resources>
+            <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+            <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+          </Grid.Resources>
+
+          <Image x:Name="FanArtImageBackground" Stretch="Fill" VerticalAlignment="Top" Source="schedule-background.jpg" HorizontalAlignment="Stretch" Height="600"
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}"/>
+          <Image Grid.RowSpan="2" Stretch="Fill" Source="List_overlay.png"/>
+          <Image Grid.RowSpan="2" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
+
+          <Border Grid.RowSpan="2" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
+                <GradientStop Color="#44000000" Offset="0.0"/>
+                <GradientStop Color="#77000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
+        </Grid>
+
+        <!-- Content -->
+        <ListView x:Name="ExtScheduleList" Margin="20,-20,-15,-20"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Style="{ThemeResource ExtScheduleListViewStyle}"
+                  ItemsSource="{Binding Path=ProgramsList}"
+                  SelectionChanged="{CommandStencil UpdateProgram}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <!-- Details -->
+        <Grid Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,50,0,80">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0,0,0,100">
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="10"
+                    Content="[SlimTvClient.DontRecordProgram]" Command="{Command CancelSchedule}">
+              <Button.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                  <Binding Path="IsSingleRecordingScheduled"/>
+                  <Binding Path="IsSeriesRecordingScheduled"/>
+                </MultiBinding>
+              </Button.IsVisible>
+            </Button>
+
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="0,10,10,5"
+                    Content="[SlimTvClient.RecordProgram]" Command="{Command RecordSingleProgram}">
+              <Button.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
+                  <Binding Path="IsSingleRecordingScheduled"/>
+                  <Binding Path="IsSeriesRecordingScheduled"/>
+                </MultiBinding>
+              </Button.IsVisible>
+            </Button>
+
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="0,5,10,10"
+                    Content="[SlimTvClient.RecordSeries]" 
+                    Command="{Command RecordSeries}">
+              <Button.IsEnabled>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
+                  <Binding Path="IsSingleRecordingScheduled"/>
+                  <Binding Path="IsSeriesRecordingScheduled"/>
+                </MultiBinding>
+              </Button.IsEnabled>
+            </Button>
+          </StackPanel>
+
+          <!-- Common control for program duration formatting -->
+          <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
+                 IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}" Grid.Row="1"/>
+          <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="1"
+                 Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
+                                        fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+            </Image.Source>
+          </Image>
+          <Label x:Name="Program" Grid.Row="2" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+                 Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+
+          <Grid Grid.Row="3" IsVisible="{Binding ElementName=ScheduleTypeLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="ScheduleTypeLabel" Content="{Binding ScheduleType}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+          </Grid>
+
+          <Grid Grid.Row="4" DataContext="{Binding Path=CurrentProgram}"
+                IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\duration.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="40,0,0,0" >
+              <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColorForeground}"
+                     Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
+              <Label x:Name="Delimiter" Margin="10,0,10,0"  Color="{ThemeResource TextColorForeground}" Content="-"
+                     IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+              <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                     Color="{ThemeResource TextColorForeground}"/>
+            </StackPanel>
+          </Grid>
+
+          <Grid Grid.Row="5" Grid.ColumnSpan="2" IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\series.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label HorizontalAlignment="Stretch" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" x:Name="SeriesLabel" >
+              <Label.Content>
+                <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+              </Label.Content>
+            </Label>
+          </Grid>
+
+          <Label x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Wrap="True" Scroll="Auto" ScrollDelay="5" ScrollSpeed="10" Opacity="0.6" Grid.Row="6"
+                 Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}" Margin="0,0,0,50" />
+        </Grid>
+
+        <!-- Actual Item / Total items -->
+          <DockPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" IsVisible="{Binding IsItemsValid}">
+            <StackPanel DockPanel.Dock="Right" Margin="65,-80,25,90" Orientation="Horizontal">
+              <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                    <Binding ElementName="ExtScheduleList" Path="CurrentItem"/>
+                    <Binding ElementName="ExtScheduleList" Path="ItemsSource"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+              <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+                <Label.Content>
+                  <Binding ElementName="ExtScheduleList" Path="ItemsCount" />
+                </Label.Content>
+              </Label>
+            </StackPanel>
+          </DockPanel>
+
+          <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+          <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+
+        </Grid>
+    </ControlTemplate>
+      
+  </Include.Resources>
+</Include>

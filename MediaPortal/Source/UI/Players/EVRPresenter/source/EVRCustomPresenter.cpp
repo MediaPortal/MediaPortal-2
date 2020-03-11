@@ -82,7 +82,7 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, IDirect3DDevice9Ex* dw
     return hr;
   }
 
-  EVRCustomPresenter* presenter = new EVRCustomPresenter(callback, (IDirect3DDevice9Ex*)dwD3DDevice, hwnd, hr);
+  EVRCustomPresenter* presenter = new EVRCustomPresenter(callback, dwD3DDevice, hwnd, hr);
   if (FAILED(hr))
   {
     Log("EvrInit EVRCustomPresenter() failed");

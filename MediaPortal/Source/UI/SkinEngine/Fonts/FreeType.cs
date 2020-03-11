@@ -51,6 +51,7 @@ SOFTWARE.
 // However IntPtr's have been used for now. 
 #endregion
 
+using MediaPortal.Utilities.SystemAPI;
 using System;
 using System.Collections;
 using System.Runtime.InteropServices;
@@ -624,7 +625,7 @@ namespace Tao.FreeType
     /// the ".config" file mechanism.  Kudos to the Mono team for this
     /// simple yet elegant solution.
     /// </remarks>
-    private const string FT_NATIVE_LIBRARY = "freetype6.dll";
+    private const string FT_NATIVE_LIBRARY = "freetype.dll";
     #endregion string FT_NATIVE_LIBRARY
 
     #region CallingConvention CALLING_CONVENTION
@@ -641,6 +642,10 @@ namespace Tao.FreeType
     public static Hashtable ErrorStrings;
     static FT()
     {
+      string absolutePlatformDir;
+      if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+        throw new Exception("Error adding dll probe path");
+
       ErrorStrings = new Hashtable();
       ErrorStrings[0x00] = "no error";
 

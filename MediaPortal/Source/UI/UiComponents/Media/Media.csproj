@@ -131,6 +131,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Actions\EjectOpticalDiscAction.cs" />
     <Compile Include="Actions\AddViewToPlaylistAction.cs" />
     <Compile Include="Actions\BrowseMediaAction.cs" />
     <Compile Include="Actions\BaseTrackServerConnectionAction.cs" />
@@ -153,9 +154,12 @@
     <Compile Include="Actions\VisibilityDependsOnServerConnectStateAction.cs" />
     <Compile Include="Actions\BrowseLocalMediaAction.cs" />
     <Compile Include="Controls\AudioSpectrumAnalyzer.cs" />
+    <Compile Include="Extensions\BaseActionBuilder.cs" />
     <Compile Include="Extensions\IMediaItemAction.cs" />
+    <Compile Include="Extensions\IMediaViewAction.cs" />
     <Compile Include="Extensions\MediaItemActionBuilder.cs" />
     <Compile Include="Extensions\MediaNavigationFilterBuilder.cs" />
+    <Compile Include="Extensions\MediaViewActionBuilder.cs" />
     <Compile Include="FilterCriteria\FilterByPersonCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumArtistCriterion.cs" />
     <Compile Include="FilterCriteria\FilterByAlbumCompilationCriterion.cs" />
@@ -190,10 +194,12 @@
     <Compile Include="General\Consts.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
     <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />
-    <Compile Include="MediaItemActions\AddAllToPlaylist.cs" />
+    <Compile Include="MediaItemActions\EjectMediaItem.cs" />
+    <Compile Include="MediaViewActions\AddAllToPlaylist.cs" />
     <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
     <Compile Include="MediaItemActions\AbstractWatchedAction.cs" />
     <Compile Include="MediaItemActions\AbstractRefeshMediaItemAction.cs" />
+    <Compile Include="MediaItemActions\SearchForSubtitles.cs" />
     <Compile Include="MediaItemActions\ReimportMediaItem.cs" />
     <Compile Include="MediaItemActions\RefreshMediaItem.cs" />
     <Compile Include="MediaItemActions\SetWatched.cs" />
@@ -219,7 +225,6 @@
     <Compile Include="MediaLists\FavoriteRecordingMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteAlbumMediaListProvider.cs" />
     <Compile Include="MediaLists\FavoriteVideoMediaListProvider.cs" />
-    <Compile Include="MediaLists\IMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchSeriesMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchAlbumMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchAudioMediaListProvider.cs" />
@@ -228,6 +233,8 @@
     <Compile Include="MediaLists\ContinueWatchMovieMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchRecordingMediaListProvider.cs" />
     <Compile Include="MediaLists\ContinueWatchVideoMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestAlbumMediaListProvider.cs" />
+    <Compile Include="MediaLists\LatestSeriesMediaListProvider.cs" />
     <Compile Include="MediaLists\UnwatchedSeriesMediaListProvider.cs" />
     <Compile Include="MediaLists\UnwatchedAudioMediaListProvider.cs" />
     <Compile Include="MediaLists\UnwatchedEpisodeMediaListProvider.cs" />
@@ -242,7 +249,6 @@
     <Compile Include="MediaLists\LatestMovieMediaListProvider.cs" />
     <Compile Include="MediaLists\LatestRecordingMediaListProvider.cs" />
     <Compile Include="MediaLists\LatestVideoMediaListProvider.cs" />
-    <Compile Include="MediaLists\MediaListProviderBuilder.cs" />
     <Compile Include="Models\AspectWrappers\AudioAlbumAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\AudioAspectWrapper.cs" />
     <Compile Include="Models\AspectWrappers\CharacterAspectWrapper.cs" />
@@ -268,6 +274,7 @@
     <Compile Include="Models\LatestMediaModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaGroupingModel.cs" />
+    <Compile Include="Models\SubtitleMatchModel.cs" />
     <Compile Include="Models\MediaListModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
     <Compile Include="Models\DefaultAudioPlayerUIContributor.cs" />
@@ -578,7 +585,9 @@
     <Content Include="Skin\default\workflow\filter-actions.xml" />
     <Content Include="Skin\default\workflow\grouping-actions.xml" />
     <Content Include="Skin\default\workflow\sorting-actions.xml" />
-    <Content Include="Skin\default\workflow\media-actions.xml" />
+    <Content Include="Skin\default\workflow\media-actions.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\workflow\viewmode-actions.xml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingImage.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentImage.xaml" />
@@ -774,6 +783,31 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\DialogChooseMatch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogChooseSubtitleMatch.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogChooseSubtitleEdition.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\PlaylistsOverview.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\RemovePlaylists.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\PlaylistInfo.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

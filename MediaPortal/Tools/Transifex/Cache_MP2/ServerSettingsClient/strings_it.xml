@@ -9,7 +9,6 @@
   <string name="Settings.ServerSettings.Password">Password:</string>
   <string name="Settings.ServerSettings.ImporterWorker">Aggiornamento automatico condivisioni</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configura l\'aggiornamento automatico delle condivisioni</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Abilita l\'aggiornamento automatico</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Attivazione alle ore (in formato 24h)</string>
   <string name="Settings.ServerSettings.AudioMDESettings">Importazione impostazioni audio</string>
   <string name="Settings.ServerSettings.MovieMDESettings">Impostazioni importazione Film</string>

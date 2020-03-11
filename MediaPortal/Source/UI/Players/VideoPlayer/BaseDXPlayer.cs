@@ -248,6 +248,8 @@ namespace MediaPortal.UI.Players.Video
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding source filter", PlayerTitle);
         AddSourceFilter();
 
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Set subtitle renderer", PlayerTitle);
+        SetSubtitleRenderer();
         ServiceRegistration.Get<ILogger>().Debug("{0}: Adding subtitle filter", PlayerTitle);
         AddSubtitleFilter(true);
 
@@ -492,6 +494,10 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     /// <param name="isSourceFilterPresent">Indicates if the source filter already has been added to graph.</param>
     protected virtual void AddSubtitleFilter(bool isSourceFilterPresent)
+    {
+    }
+
+    protected virtual void SetSubtitleRenderer()
     {
     }
 
@@ -843,9 +849,8 @@ namespace MediaPortal.UI.Players.Video
         return;
 
       ServiceRegistration.Get<ILogger>().Debug("{0}: Pause", PlayerTitle);
-      IMediaControl mc = _graphBuilder as IMediaControl;
-      if (mc != null)
-        mc.Pause();
+      if (_mc != null)
+        _mc.Pause();
       StopSeeking();
       _isPaused = true;
       _state = PlayerState.Active;
@@ -858,10 +863,9 @@ namespace MediaPortal.UI.Players.Video
         return;
 
       ServiceRegistration.Get<ILogger>().Debug("{0}: Resume", PlayerTitle);
-      IMediaControl mc = _graphBuilder as IMediaControl;
-      if (mc != null)
+      if (_mc != null)
       {
-        int hr = mc.Run();
+        int hr = _mc.Run();
         if (hr != 0 && hr != 1)
         {
           ServiceRegistration.Get<ILogger>().Error("{0}: Resume Failed to start: {0:X}", PlayerTitle, hr);

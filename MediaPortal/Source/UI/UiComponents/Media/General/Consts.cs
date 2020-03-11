@@ -199,6 +199,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_ADD_TO_PLAYLIST_RES = "[Media.AddAllToPlaylist]";
     public const string RES_NO_ITEMS_TO_ADD_HEADER = "[Media.NoItemsToAddHeader]";
     public const string RES_NO_ITEMS_TO_ADD_TEXT = "[Media.NoItemsToAddText]";
+    public const string RES_EJECT_OPTICAL_DISC_RES = "[Media.EjectOpticalDisc]";
 
     public const string RES_ADD_ALL_AUDIO = "[Media.AddAllAudio]";
     public const string RES_ADD_ALL_VIDEOS = "[Media.AddAllVideo]";
@@ -518,6 +519,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string KEY_MEDIA_ITEM = "MediaItem";
     public const string KEY_MEDIA_ITEM_ACTION = "MediaItemAction";
+    public const string KEY_VIEW_ITEM = "View";
     public const string KEY_NUM_ITEMS = "NumItems";
     public const string KEY_DURATION = "Duration";
     public const string KEY_WATCH_PERCENTAGE = "WatchPercentage";

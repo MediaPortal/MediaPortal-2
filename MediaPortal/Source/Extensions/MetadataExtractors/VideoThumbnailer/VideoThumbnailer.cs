@@ -160,7 +160,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
       // Check for a reasonable time offset
       long defaultVideoOffset = 720;
       long videoDuration;
-      string downscale = ",scale=iw/2:-1"; // Reduces the video frame size to a half of original
+      string downscale = ",scale='min(256,iw)':-1"; // 256 is max size of large thumbnail aspect
       IList<MultipleMediaItemAspect> videoAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoAspects))
       {
@@ -169,11 +169,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
           if (defaultVideoOffset > videoDuration * 1 / 3)
             defaultVideoOffset = videoDuration * 1 / 3;
         }
-
-        int videoWidth = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_WIDTH);
-        // Don't downscale SD video frames, quality is already quite low.
-        if (videoWidth > 0 && videoWidth <= 720)
-          downscale = "";
       }
 
       string tempFileName = FileUtils.GetTempFileName(".jpg");
@@ -243,6 +238,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoThumbnailer
     }
 
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       return Task.FromResult(false);
     }

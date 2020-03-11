@@ -122,6 +122,11 @@ namespace MediaPortal.UI.Presentation.Screens
     void Shutdown();
 
     /// <summary>
+    /// Restarts MediaPortal.
+    /// </summary>
+    void Restart();
+
+    /// <summary>
     /// Minimizes the MediaPortal application.
     /// </summary>
     void Minimize();

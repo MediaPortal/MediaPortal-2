@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       var request = context.Request;
       var response = context.Response;
       Uri uri = request.Uri;
-      if (!uri.AbsolutePath.StartsWith(ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH) || !uri.AbsolutePath.Contains("/FanartService"))
+      if (!uri.AbsolutePath.Contains("/FanartService"))
       {
         await Next.Invoke(context);
         return;

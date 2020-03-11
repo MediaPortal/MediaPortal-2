@@ -11,7 +11,7 @@
     xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
     x:Name="FullscreenContentAudioScreen">
 
-  <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <mp_special_controls:PlayerControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <mp_special_controls:PlayerControl.TemplateControl>
       <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
         <Grid.Resources>
@@ -102,7 +102,7 @@
                  FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
                  VerticalAlignment="Bottom" Width="290" Height="290" Margin="0,0,150,25">
             <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
                                         fanart:MaxWidth="290" fanart:MaxHeight="290"/>
             </Image.Source>
 
@@ -152,9 +152,13 @@
             <Image Stretch="Uniform" Source="1190A648-90F3-413D-88AC-DA89684E9766.png" HorizontalAlignment="Center" VerticalAlignment="Center" 
                    IsVisible="{Binding ElementName=Thumb, Path=!HasImage}" Margin="50">
             </Image>
-            <Image x:Name="Thumb" Stretch="Fill" 
-                   Source="{Binding MediaItem}" HorizontalAlignment="Stretch"
-                   VerticalAlignment="Stretch" Width="300" Height="300" Margin="0,0,0,0">
+            <Image x:Name="Thumb" Stretch="Fill"
+                  HorizontalAlignment="Stretch" FallbackSource="{Binding MediaItem}"
+                  VerticalAlignment="Stretch" Width="300" Height="300" Margin="0,0,0,0">
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
+                                         fanart:MaxWidth="300" fanart:MaxHeight="300"/>
+              </Image.Source>
             </Image>
           </Grid>
           

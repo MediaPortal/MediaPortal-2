@@ -35,29 +35,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Utilities;
+using MediaPortal.UI.ContentLists;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
   public class SlimTvSchedulesMediaListProvider : SlimTvMediaListProviderBase
   {
-    ICollection<Tuple<ISchedule, IChannel>> _currentSchedules = new List<Tuple<ISchedule, IChannel>>();
+    ICollection<Tuple<ISchedule, ProgramProperties>> _currentSchedules = new List<Tuple<ISchedule, ProgramProperties>>();
 
-    private async Task<ListItem> CreateScheduleItem(ISchedule schedule, IChannel channel)
+    private ListItem CreateScheduleItem(ISchedule schedule, ProgramProperties program)
     {
       ListItem item = null;
-      if (channel != null)
+      DateTime start = schedule.StartTime;
+      DateTime end = schedule.EndTime;
+      if (program != null)
       {
-        var programResult = await _tvHandler.ProgramInfo.GetProgramsAsync(channel, schedule.StartTime, schedule.EndTime);
-        if (programResult.Success)
+        item = new ProgramListItem(program)
         {
-          ProgramProperties programProperties = new ProgramProperties();
-          programProperties.SetProgram(programResult.Result.First(), channel);
-          item = new ProgramListItem(programProperties)
-          {
-            Command = new MethodDelegateCommand(() => ShowSchedules()),
-          };
-          item.SetLabel("Name", schedule.Name);
-        }
+          Command = new MethodDelegateCommand(() => ShowSchedules()),
+        };
+        item.SetLabel("Name", schedule.Name);
+        start = program.StartTime;
+        end = program.EndTime;
       }
       if (item == null)
       {
@@ -66,16 +65,20 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
           Command = new MethodDelegateCommand(() => ShowSchedules()),
         };
       }
-      item.SetLabel("ChannelName", channel?.Name ?? "");
-      item.SetLabel("StartTime", schedule.StartTime.FormatProgramStartTime());
-      item.SetLabel("EndTime", schedule.EndTime.FormatProgramEndTime());
+      item.SetLabel("ChannelName", program?.ChannelName ?? "");
+      item.SetLabel("StartTime", start.FormatProgramStartTime());
+      item.SetLabel("EndTime", end.FormatProgramEndTime());
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
       item.AdditionalProperties["SCHEDULE"] = schedule;
       return item;
     }
 
-    private int ChannelAndProgramStartTimeComparison(Tuple<ISchedule, IChannel> p1, Tuple<ISchedule, IChannel> p2)
+    private int ChannelAndProgramStartTimeComparison(Tuple<ISchedule, ProgramProperties> p1, Tuple<ISchedule, ProgramProperties> p2)
     {
+      double timeDiff = (p1.Item2.StartTime - p2.Item2.StartTime).TotalSeconds;
+      if (timeDiff != 0)
+        return timeDiff > 0 ? 1 : -1;
+
       var schedule1 = p1.Item1;
       var schedule2 = p2.Item1;
 
@@ -97,8 +100,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       if (res != 0)
         return res;
 
-      string channel1Name = p1.Item2 != null ? p1.Item2.Name : string.Empty;
-      string channel2Name = p2.Item2 != null ? p2.Item2.Name : string.Empty;
+      string channel1Name = p1.Item2 != null ? p1.Item2.ChannelName : string.Empty;
+      string channel2Name = p2.Item2 != null ? p2.Item2.ChannelName : string.Empty;
       return String.Compare(channel1Name, channel2Name, StringComparison.InvariantCultureIgnoreCase);
     }
 
@@ -122,22 +125,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
         return false;
 
       var schedules = scheduleResult.Result;
-      var scheduleSortList = new List<Tuple<ISchedule, IChannel>>();
-      foreach (ISchedule schedule in schedules.Take(maxItems))
+      var scheduleSortList = new List<Tuple<ISchedule, ProgramProperties>>();
+      foreach (ISchedule schedule in schedules)
       {
-        var channelResult = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(schedule.ChannelId);
-        var channel = channelResult.Success ? channelResult.Result : null;
-        scheduleSortList.Add(new Tuple<ISchedule, IChannel>(schedule, channel));
+        var programResult = await _tvHandler.ScheduleControl.GetProgramsForScheduleAsync(schedule);
+        if (!programResult.Success || programResult.Result.Count == 0)
+          continue;
+        ProgramProperties programProperties = new ProgramProperties();
+        programProperties.SetProgram(programResult.Result.OrderBy(p => p.StartTime).First());
+        scheduleSortList.Add(new Tuple<ISchedule, ProgramProperties>(schedule, programProperties));
       }
       scheduleSortList.Sort(ChannelAndProgramStartTimeComparison);
 
-      var scheduleList = new List<Tuple<ISchedule, IChannel>>(scheduleSortList.Take(maxItems));
+      var scheduleList = new List<Tuple<ISchedule, ProgramProperties>>(scheduleSortList.Take(maxItems));
 
       if (_currentSchedules.Select(s => s.Item1.ScheduleId).SequenceEqual(scheduleList.Select(s => s.Item1.ScheduleId)))
         return true;
 
-      // Async calls need to be outside of locks
-      ListItem[]  items = await Task.WhenAll(scheduleList.Select(s => CreateScheduleItem(s.Item1, s.Item2)));
+      ListItem[]  items = scheduleList.Select(s => CreateScheduleItem(s.Item1, s.Item2)).ToArray();
       lock (_allItems.SyncRoot)
       {
         _currentSchedules = scheduleList;

@@ -102,8 +102,8 @@
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MediaInfo">
-      <Version>0.7.95</Version>
+    <PackageReference Include="MediaInfo.Combined">
+      <Version>19.9.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

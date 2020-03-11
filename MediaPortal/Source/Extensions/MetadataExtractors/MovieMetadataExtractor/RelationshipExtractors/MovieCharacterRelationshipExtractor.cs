@@ -43,6 +43,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CharacterAspect.ASPECT_ID };
 
+    private string _category;
+
+    public MovieCharacterRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       get { return true; }
@@ -106,9 +113,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         movieInfo.Characters = characters;
 
       if (MovieMetadataExtractor.IncludeCharacterDetails && !MovieMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateCharactersAsync(movieInfo).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateCharactersAsync(movieInfo, _category).ConfigureAwait(false);
       
-      foreach (CharacterInfo character in movieInfo.Characters)
+      foreach (CharacterInfo character in movieInfo.Characters.Take(MovieMetadataExtractor.MaximumCharacterCount))
       {
         if (character.LinkedAspects != null)
           character.SetLinkedMetadata();

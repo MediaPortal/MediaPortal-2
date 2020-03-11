@@ -2,7 +2,10 @@
 <resources>
   <string name="SlimTvClient.Title">Tv műsorújság</string>
   <string name="SlimTvClient.Main">TV</string>
+  <string name="SlimTvClient.Main.Help">Itt tudod nézni a kedvenc TV és rádió adóidat és válthatsz a csatornák között.</string>
   <string name="SlimTvClient.TvGuide">Tv műsorújság</string>
+  <string name="SlimTvClient.TvGuide.Help">Olvasd át az elektronikus programkalauzt ás válaszd ki mit szeretnél nézni vagy ütemezz be időt felvételhez.</string>
+  <string name="SlimTvClient.SingleChannelGuide">Csatorna kalauz</string>
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Programinformáció</string>
   <string name="SlimTvClient.ChannelLabel">Csatorna</string>
   <string name="SlimTvClient.ProgramLabel">Műsor</string>
@@ -11,19 +14,51 @@
   <string name="SlimTvClient.ProgramStartLabel">Kezdet</string>
   <string name="SlimTvClient.ProgramEndLabel">Vége</string>
   <string name="SlimTvClient.EpisodeLabel">Epizód</string>
+  <string name="SlimTvClient.CurrentProgram">Jelenlegi műsor</string>
+  <string name="SlimTvClient.NextProgram">Következő műsor</string>
   <string name="SlimTvClient.Progress">Folyamat</string>
   <string name="SlimTvClient.Guide">Tv műsorújság</string>
   <string name="SlimTvClient.NoProgram">Nincs adat a műsorról.</string>
   <string name="SlimTvClient.ChooseProgramAction">Tevékenység kiválasztása</string>
+  <string name="SlimTvClient.ChooseChannelGroup">Válassz csatorna csoportot...</string>
+  <string name="SlimTvClient.ChannelGroupButton">Csatorna csoport</string>
   <string name="SlimTvClient.ProgramOver">Már vége a műsornak</string>
   <string name="SlimTvClient.WatchNow">Műsor megnézése most</string>
+  <string name="SlimTvClient.WatchFromBeginning">Nézz felvételt a kezdéstől</string>
   <string name="SlimTvClient.RecordNow">Felvétel indítása</string>
   <string name="SlimTvClient.DeleteSchedule">Ütemezés törlése</string>
   <string name="SlimTvClient.CreateSchedule">Rögzítés ütemezése</string>
+  <string name="SlimTvClient.CreateManualSchedule">Ütemezz felvételt manuálisan</string>
+  <string name="SlimTvClient.DeleteRecording.Confirmation">Biztos vagy benne, hogy visszalépsz és törlöd a felvételt? Ezt nem lehet visszacsinálni.</string>
+  <string name="SlimTvClient.ProgramSearch">Keress műsort</string>
+  <string name="SlimTvClient.ProgramSearch.Help">Keress műsor címeket az EPG-ben és találd meg a kívánt előadást</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.RecordActions">Felvételi intézkedések</string>
+  <string name="SlimTvClient.StopCurrentRecording">Jelenlegi felvétel megállítása \'{0}\'</string>
+  <string name="SlimTvClient.RecordCurrentProgram">Műsor felvétel \'{0}\'</string>
+  <string name="SlimTvClient.RecordManual">Felvétel manuális megállításig</string>
+  <string name="SlimTvClient.ManualRecordingTitle">Manuális felvétel</string>
+  <string name="SlimTvClient.RecordProgram">Műsor felvétel</string>
+  <string name="SlimTvClient.DontRecordProgram">Ne vedd fel</string>
+  <string name="SlimTvClient.RecordSeries">Felvétel sorozatok</string>
+  <string name="SlimTvClient.ChooseScheduleType">Válassz felvételi ütemezés típust</string>
+  <string name="SlimTvClient.DeleteScheduleType">Hogyan törölj ütemezést?</string>
+  <string name="SlimTvClient.DeleteSingle">Egy műsor törlése</string>
+  <string name="SlimTvClient.DeleteFullSchedule">Teljes ütemezett sorozat törlése</string>
+  <string name="SlimTvClient.CancelProgramsOfSeriesSchedule">Ütemezett műsorok törlése</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Once">Egyszer</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Naponta ebben az időben</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Hetente ebben az időben</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnThisChannel">Mindig ezen a csatornán</string>
+  <string name="SlimTvClient.ScheduleRecordingType_EveryTimeOnEveryChannel">Mindig minden csatornán</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekends">Hétvégenként ebben az időben</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Munkanapokon ebben az időben</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Hetente mindig ezen a csatornán</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Neve</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Neve</string>
   <!--Schedule management-->
   <!--Settings-->
   <string name="SlimTvClient.Notifications">Értesítések</string>
   <string name="SlimTvClient.NoColor">Nincs</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Csatorna</string>
 </resources>

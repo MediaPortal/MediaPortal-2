@@ -120,6 +120,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateString(ref Name, company.Name, overwriteShorterStrings);
         HasChanged |= MetadataUpdater.SetOrUpdateString(ref Description, company.Description, overwriteShorterStrings);
 
+        MergeDataProviders(company);
         return true;
       }
       return false;

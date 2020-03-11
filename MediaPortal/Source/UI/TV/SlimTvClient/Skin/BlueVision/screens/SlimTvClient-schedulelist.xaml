@@ -20,7 +20,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,40,-23,-205"
-              DataContext="{Binding Source={StaticResource SlimTvScheduleManagement}}">
+            DataContext="{Binding Source={StaticResource SlimTvScheduleManagement}}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
           <ColumnDefinition Width="*"/>
@@ -33,8 +33,7 @@
         
         <StackPanel Orientation="Horizontal" Grid.Row="0" VerticalAlignment="Center">
           <CheckBox x:Name="EnableSeriesModeCheckbox" Margin="10,10,5,5" Style="{ThemeResource DefaultCheckBoxStyle}"
-              IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}"
-              Content="{Binding}" />
+                    IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}" Content="{Binding}" />
           <Label Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource TextColor}" Margin="5"/>
         </StackPanel>
 
@@ -90,6 +89,7 @@
                 <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
               </Label.Content>
             </Label>
+            <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
           </Grid>
 
           <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

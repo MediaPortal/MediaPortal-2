@@ -14,6 +14,12 @@
     </Style.Resources>
   </Style>
 
+  <Style x:Key="EjectDiscButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource EjectDiscControlTemplate}" />
+    </Style.Resources>
+  </Style>
+
   <Style x:Key="SelectContextMenuButtonStyle" BasedOn="{ThemeResource BasePlayerControlButtonStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="ContentControlTemplate" Resource="{ThemeResource SelectContextMenuControlTemplate}" />

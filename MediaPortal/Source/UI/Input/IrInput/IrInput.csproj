@@ -102,6 +102,8 @@
     <Content Include="plugin.xml">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="References\IrssComms.dll" />
+    <Content Include="References\IrssUtils.dll" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">

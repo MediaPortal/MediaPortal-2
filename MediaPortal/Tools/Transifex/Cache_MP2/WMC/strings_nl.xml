@@ -8,8 +8,13 @@
   <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Bekijk cover</string>
   <string name="WMC.Configuration.EnableAgeCertificationLogos">Activeer leeftijd logo\'s </string>
   <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Wel of niet tonen van leeftijd logo\'s in mediaschermen</string>  
+  <string name="WMC.Configuration.MovieGridViewType">Film grid lay-out</string>
+  <string name="WMC.Configuration.GridViewType.Poster">Posters</string>
+  <string name="WMC.Configuration.GridViewType.Banner">Banners</string>
+  <string name="WMC.Configuration.GridViewType.Thumbnail">Thumbnails</string>  
   <string name="WMC.Home.LatestAdded">Laatst gezien</string>
   <string name="WMC.Home.LatestPlayed">Laatst afgespeeld</string>
+  <string name="WMC.Home.ContinuePlayed">Blijf Spelen</string>
   <string name="WMC.Home.CurrentPrograms">Huidige programma\'s</string>
   <string name="WMC.Home.CurrentSchedules">Huidige opnames</string>
   <string name="WMC.Home.Favorites">Favorieten</string>

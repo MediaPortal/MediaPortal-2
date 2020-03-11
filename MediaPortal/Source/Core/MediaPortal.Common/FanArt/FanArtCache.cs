@@ -31,6 +31,7 @@ using MediaPortal.Utilities.Threading;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -69,9 +70,13 @@ namespace MediaPortal.Common.FanArt
 
     protected void Init()
     {
+      if (!Directory.Exists(FANART_CACHE_PATH))
+        Directory.CreateDirectory(FANART_CACHE_PATH);
+
       _fanArtSync = new KeyedAsyncReaderWriterLock<Guid>();
       _fanArtCounts = new AsyncStaticTimeoutCache<string, FanArtCount>(FANART_COUNT_TIMEOUT);
       _maxFanArtCounts = new Dictionary<string, int>();
+
       _settingsChangeWatcher = new SettingsChangeWatcher<FanArtSettings>();
       _settingsChangeWatcher.SettingsChanged += SettingsChanged;
       LoadSettings();
@@ -173,11 +178,15 @@ namespace MediaPortal.Common.FanArt
       List<Guid> mediaItemIds = new List<Guid>();
       try
       {
-        foreach (DirectoryInfo fanartDirectory in new DirectoryInfo(FANART_CACHE_PATH).EnumerateDirectories())
+        var fanartDir = new DirectoryInfo(FANART_CACHE_PATH);
+        if (fanartDir.Exists)
         {
-          Guid mediaItemId;
-          if (Guid.TryParse(fanartDirectory.Name, out mediaItemId))
-            mediaItemIds.Add(mediaItemId);
+          foreach (DirectoryInfo fanartDirectory in fanartDir.EnumerateDirectories().AsParallel())
+          {
+            Guid mediaItemId;
+            if (Guid.TryParse(fanartDirectory.Name, out mediaItemId))
+              mediaItemIds.Add(mediaItemId);
+          }
         }
       }
       catch (Exception ex)
@@ -202,16 +211,17 @@ namespace MediaPortal.Common.FanArt
             {
               if (Directory.Exists(folderPath))
               {
-                //Make sure file permissions are correct
-                foreach(string cacheFile in Directory.GetFiles(folderPath, "*.*", SearchOption.AllDirectories))
+                Parallel.ForEach(Directory.EnumerateFiles(folderPath, "*.*", SearchOption.AllDirectories).AsParallel(), cacheFile =>
                 {
                   try
                   {
+                    //Make sure file permissions are correct
                     File.SetAttributes(cacheFile, FileAttributes.Normal);
+                    File.Delete(cacheFile);
                   }
                   catch
                   { }
-                }
+                });
                 Directory.Delete(folderPath, true);
               }
               return;

@@ -54,6 +54,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public AbstractProperty SeriesProperty { get; set; }
     public AbstractProperty ChannelNameProperty { get; set; }
     public AbstractProperty ChannelLogoTypeProperty { get; set; }
+    public AbstractProperty ChannelNumberProperty { get; set; }
 
     /// <summary>
     /// Gets or Sets the Title.
@@ -209,6 +210,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       set { ChannelLogoTypeProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)ChannelNumberProperty.GetValue(); }
+      set { ChannelNumberProperty.SetValue(value); }
+    }
+
     public ProgramProperties()
     {
       ProgramIdProperty = new WProperty(typeof(int), 0);
@@ -228,6 +238,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       SeriesProperty = new WProperty(typeof(String), String.Empty);
       ChannelNameProperty = new WProperty(typeof(String), String.Empty);
       ChannelLogoTypeProperty = new WProperty(typeof(String), String.Empty);
+      ChannelNumberProperty = new WProperty(typeof(int), 0);
       Attach();
     }
 
@@ -258,9 +269,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       }
       try
       {
-        if (channel != null)
-          ChannelName = channel.Name;
-        else if (program != null)
+        if (channel == null && program != null)
         {
           IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
           if (channelAndGroupInfo != null)
@@ -269,10 +278,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
             if (result.Success)
             {
               channel = result.Result;
-              ChannelName = channel.Name;
             }
           }
         }
+
+        ChannelName = channel?.Name ?? "";
+        ChannelNumber = channel?.ChannelNumber ?? 0;
         ChannelLogoType = channel.GetFanArtMediaType();
         _settingProgram = true;
         IProgramSeries series = program as IProgramSeries;

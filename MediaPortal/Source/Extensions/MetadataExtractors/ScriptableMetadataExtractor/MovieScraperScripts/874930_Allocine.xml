@@ -1,0 +1,282 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ScriptableScraper>
+    <details>
+        <!-- These details are for display purposes only. -->
+        <name>allocine.fr</name>
+        <author>Armand Pondman (armandp), John Conrad (fforde) and Titof, updated by Antoine VANDER MEULEN (Tarkin)</author>
+        <description>This script pulls data from allocine.fr</description>
+
+        <!-- 
+    These two fields uniquely identify the script. The ID should never 
+    change and should be unique (no other script should use this ID). With
+    new versions of the script the version numbers should change. EVEN FOR 
+    MINOR CHANGES, you should change the version number if you are going to
+    disribute it to anyone but internal testers. The point number 
+    is for minor bug fix releases. Use it.
+    -->
+        <id>874930</id>
+        <version major="2" minor="1" point="1"/>
+        <published month="12" day="30" year="2011"/>
+
+        <!--
+    These fields are used for categorization purposes. Seperate multiple 
+    types with a pipe | character.
+    -->
+        <type>MovieDetailsFetcher</type> <!-- temporarily removed "MovieCoverFetcher". was returning screenshots rather than covers-->
+        <language>fr</language>
+
+    </details>
+
+    <action name="search">
+        <!-- Variables -->
+        <set name="site" value="http://www.allocine.fr/" />
+
+        <!-- Regular Expressions -->
+        <set name="rx_results">
+            <![CDATA[
+      résultats?</p>.+?<div class="morezone">
+      ]]>
+        </set>
+        <set name="rx_verify">
+            <![CDATA[
+      <tr><td.*?>.+?<a href='/film/fichefilm_gen_cfilm=(\d+).html'.*?alt='(.+?)'.*?<a href.*?>(.+?)</a.*?">(.+?)<
+      ]]>
+        </set>
+<!---->
+        <!-- Make the search request -->
+        <retrieve name="search_page" url="${site}recherche/1/?q=${search.title:safe}" retries="10" timeout="10000" timeout_increment="4000"/>
+
+        <!-- if we got a search result page, this is used. if not, regex does not match so we dont process the outer loop.-->
+        <parse name="search_results_block" input="${search_page}" regex="${rx_results}"/>
+        <loop name="search_results_verified" on="search_results_block">
+            <parse name="movie_details" input="${search_results_verified}" regex="${rx_verify}" />
+            <loop name="curr_details" on="movie_details">
+                <set name="title" value="${curr_details[2]:htmldecode}"/>
+                <set name="aka" value="${curr_details[1]:htmldecode}"/>
+                <set name="movie[${count}].title" value="${title:striptags}"/>
+                <set name="movie[${count}].alternate_titles" value="|${aka:striptags}|"/>
+                <set name="movie[${count}].year" value="${curr_details[3]:htmldecode}"/>
+                <set name="movie[${count}].site_id" value="${curr_details[0]}"/>
+                <set name="movie[${count}].details_url" value="${site}film/fichefilm_gen_cfilm=${curr_details[0]}.html"/>
+                <subtract name="movie[${count}].popularity" value1="100" value2="${count}"/>
+            </loop>
+        </loop>
+    </action>
+
+    <action name="get_details">
+
+        <if test="${movie.site_id}!=">
+
+            <!-- Variables -->
+            <set name="site" value="http://www.allocine.fr/" />
+
+            <!-- Regular Expressions -->
+            <set name="rx_details">
+                <![CDATA[
+        <table[^>]+>.+?<h4>Genre.+?</table> 
+      ]]>
+            </set>
+
+            <set name="rx_title">
+                <![CDATA[
+        <h1 itemprop=\"name\">(?<titre>.*?)</h1>
+        ]]>
+            </set>
+
+            <set name="rx_plot">
+                <![CDATA[
+        <p itemprop=\"description\">(?<summary>.*?)</p>
+      ]]>
+            </set>
+
+            <set name="rx_year">
+                <![CDATA[
+        <span itemprop=\"datePublished\" content=\"(?<year>.*?)-
+      ]]>
+            </set>
+
+            <set name="rx_director_block">
+                <![CDATA[
+        <span itemprop=\"director\" itemscope itemtype=\"http://schema.org/Person\"><a title=\"[^<]*\" href=\"/personne/fichepersonne_gen_cpersonne=[0-9]*.html\" class=\"underline\" itemprop=\"url\" ><span itemprop=\"name\">(?<director>[^<]*)</span>
+      ]]>
+            </set>
+
+            <set name="rx_actor_block">
+                <![CDATA[
+      Acteurs et actrices(.*?)Haut de page</span>
+      ]]>
+            </set>
+
+            <set name="rx_voice_block">
+                <![CDATA[
+      Acteurs de doublage \(Voix locales\)(.*)Haut de page</span>
+      ]]>
+            </set>
+            <set name="rx_voice2_block">
+                <![CDATA[
+      Acteurs de doublage \(Voix originales\)(.*)Haut de page</span>
+      ]]>
+            </set>
+            
+            <set name="rx_get_person_from_anchor_text">
+                <![CDATA[
+      <span itemprop=\"name\">(?<nom>.*?)</span>
+      ]]>
+            </set>
+
+            <set name="rx_genre_block">
+                <![CDATA[
+      <span class=\"film_info lighten fl\">Genre</span>(.*?)</div>
+      ]]>
+            </set>
+
+            <set name="rx_get_genre_from_anchor_text">
+                <![CDATA[
+      <span itemprop=\"genre\">(?<genre>.*?)</span>
+      ]]>
+            </set>
+
+            <set name="rx_runtime">
+                <![CDATA[
+      <span itemprop=\"duration\" content=\".*?\">(?<heure>[0-9]?)h (?<minutes>[0-9]{2})min</span>
+      ]]>
+            </set>
+
+            <set name="rx_score_block">
+                <![CDATA[
+      >Spectateurs</span>(.*?)</div>
+      ]]>
+            </set>
+
+            <set name="rx_score">
+                <![CDATA[
+      <span class=\"note\">(?<score>.*?)</span>
+      ]]>
+            </set>
+
+            <set name="movie.details_url" value="${site}film/fichefilm_gen_cfilm=${movie.site_id}.html"/>
+
+            <retrieve name="details_page" url="${movie.details_url}" retries="10" timeout="10000" timeout_increment="4000"/>
+
+            <!-- Title -->
+            <parse name="title" input="${details_page}" regex="${rx_title}"/>
+            <set name="movie.title" value="${title[0][0]:htmldecode}"/>
+
+            <!-- Plot/Summary -->
+            <parse name="plot" input="${details_page}" regex="${rx_plot}"/>
+            <set name="movie.summary" value="${plot[0][0]:htmldecode}"/>
+            <set name="movie.summary" value="${movie.summary:striptags}"/>
+
+            <!-- Year -->
+            <parse name="year" input="${details_page}" regex="${rx_year}"/>
+            <set name="movie.year" value="${year[0][0]}"/>
+
+            <!-- Directors -->
+            <parse name="directors" input="${details_page}" regex="${rx_director_block}"/>
+            <!--parse name="directors" input="${director_block}" regex="${rx_get_person_from_anchor_text}"/-->
+            <set name='movie.directors' value=''/>
+            <loop name='currDirector' on='directors'>
+                <set name="movie.directors" value="${movie.directors}|${currDirector[0]:htmldecode}"/>
+            </loop>
+
+            <!-- Actors -->
+            <set name="actors_page_url" value="${site}film/casting_gen_cfilm=${movie.site_id}.html"/>
+            <retrieve name="actors_page" url="${actors_page_url}" retries="10" timeout="10000" timeout_increment="10000"/>
+            <!--<parse name="actor_block" input="${details_page}" regex="${rx_actor_block}"/>-->
+            <parse name="actor_block" input="${actors_page}" regex="${rx_actor_block}"/>
+            <parse name="actors" input="${actor_block[0]}" regex="${rx_get_person_from_anchor_text}"/>
+            <set name='movie.actors' value=''/>
+            <loop name='currActor' on='actors'>
+                <set name="movie.actors" value="${movie.actors}|${currActor[0]:htmldecode}"/>
+            </loop>
+            <if test="${movie.actors}=">
+                <parse name="actor_block" input="${actors_page}" regex="${rx_voice_block}"/>
+                <parse name="actors" input="${actor_block[0]}" regex="${rx_get_person_from_anchor_text}"/>
+                <set name='movie.actors' value=''/>
+                <loop name='currActor' on='actors'>
+                    <set name="movie.actors" value="${movie.actors}|${currActor[0]:htmldecode}"/>
+                </loop>
+                <if test="${movie.actors}=">
+                    <parse name="actor_block" input="${actors_page}" regex="${rx_voice2_block}"/>
+                    <parse name="actors" input="${actor_block[0]}" regex="${rx_get_person_from_anchor_text}"/>
+                    <loop name='currActor' on='actors'>
+                        <set name="movie.actors" value="${movie.actors}|${currActor[0]:htmldecode}"/>
+                    </loop>
+                </if>
+            </if>
+
+            <!-- Genres -->
+            <parse name="genre_block" input="${details_page}" regex="${rx_genre_block}"/>
+            <parse name="genres" input="${genre_block}" regex="${rx_get_genre_from_anchor_text}"/>
+            <set name='movie.genres' value=''/>
+            <loop name='currGenre' on='genres'>
+                <set name="movie.genres" value="${movie.genres}|${currGenre[0]:htmldecode}"/>
+            </loop>
+
+            <!-- Runtime -->
+            <parse name="runtime" input="${details_page}" regex="${rx_runtime}"/>
+            <multiply name="movie.runtime" value1="60" value2="${runtime[0][0]}"/>
+            <if test="${runtime[0][1]}!=">
+                <add name="movie.runtime" value1="${movie.runtime}" value2="${runtime[0][1]}"/>
+            </if>
+
+            <!-- Score -->
+            <parse name="score_block" input="${details_page}" regex="${rx_score_block}"/>
+            <parse name="score" input="${score_block}" regex="${rx_score}"/>
+            <if test="${score[0][0]}!=">
+                <multiply name="score" value1="${score[0][0]}" value2="2" />
+                <divide name="movie.score" value1="${score}" value2="10" />
+            </if>
+
+
+            <!-- IMDB id -->
+            <!-- Use Google to find the right imdb id by using title + year + directors or il nothing was find use alternet alternate_titles + year  directors.-->
+            <retrieve name="imdb_find" url="http://www.google.fr/search?hl=fr&amp;q=${movie.title}+(${movie.year})+${movie.directors}+site:imdb.com" retries="10" timeout="10000" timeout_increment="10000"/>
+           <parse name="imdb_parser" input="${imdb_find}" regex='www\.imdb\.com/title/(tt\d*)/?"?' />
+            <set name="movie.imdb_id" value="${imdb_parser[0][0]}"/>
+            <if test="${movie.imdb_id}=">
+                <retrieve name="imdb_find" url="http://www.google.fr/search?hl=fr&amp;q=${movie.alternate_titles}+(${movie.year})+${movie.directors}+site:imdb.com" retries="10" timeout="10000" timeout_increment="10000"/>
+                <parse name="imdb_parser" input="${imdb_find}" regex='www\.imdb\.com/title/(tt\d*)/?"?' />
+                <set name="movie.imdb_id" value="${imdb_parser[0][0]}"/>
+            </if>
+        </if>
+
+    </action>
+
+    <action name="get_cover_art">
+        <!-- Get All cover-->
+       <set name="rx_mediasurl">
+            <![CDATA[
+      <div class="morezone">.*?<a href="(.+?)"
+      ]]>
+        </set>
+
+        <set name="rx_coverurl">
+            <![CDATA[
+      <div id="imgToShow".*?<img src="(.+?)"
+      ]]>
+        </set>
+
+        <set name="rx_coverdirecturl">
+            <![CDATA["http://images\.allocine\.fr/c_80_80/(.+?)\.jpg"]]>
+        </set>
+        <set name="rx_firstcoverdirecturl">
+            <![CDATA["http://images\.allocine\.fr/r_160_214/(.+?)\.jpg"]]>
+        </set>
+        
+        <set name="index" value="0" />
+        <retrieve name="direct_result" url="http://www.allocine.fr/film/fichefilm-${movie.site_id}/affiches/" retries="10" timeout="10000" timeout_increment="10000"/>
+
+        <parse name="medias_url" input="${direct_result}" regex="${rx_coverdirecturl}" />
+        <loop name="curr_cover_url" on="medias_url">
+            <set name='cover_art[${count}].url' value="http://images.allocine.fr/r_760_x/${curr_cover_url[0]}.jpg" />
+        </loop>
+        <if test="${cover_art[0].url}=">
+            <parse name="first_url" input="${direct_result}" regex="${rx_firstcoverdirecturl}" />
+            <set name='cover_art[${index}].url' value="http://images.allocine.fr/r_760_x/${first_url[0][0]}.jpg" />
+        </if>
+
+       
+    </action>
+    
+</ScriptableScraper>

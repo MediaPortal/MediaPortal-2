@@ -30,7 +30,11 @@ using System.Threading;
 using DirectShow;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.Settings;
+using MediaPortal.UI.Players.Video.Settings;
+using MediaPortal.UI.Players.Video.Teletext;
 using MediaPortal.UI.Players.Video.Tools;
+using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.UI.SkinEngine.DirectX11;
@@ -40,7 +44,9 @@ using SharpDX;
 using SharpDX.Direct2D1;
 using SharpDX.DirectWrite;
 using SharpDX.DXGI;
+using NativeMethods = MediaPortal.Utilities.SystemAPI.NativeMethods;
 using AlphaMode = SharpDX.Direct2D1.AlphaMode;
+using RectangleF = SharpDX.RectangleF;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
 {
@@ -126,40 +132,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public string Language;
   }
 
-  public class Subtitle : IDisposable
-  {
-    public static int IdCount = 0;
-
-    public Subtitle()
-    {
-      Id = IdCount++;
-    }
-
-    public uint Width;
-    public uint Height;
-    public double PresentTime;  // NOTE: in seconds
-    public double TimeOut;      // NOTE: in seconds
-    public int FirstScanLine;
-    public long Id = 0;
-    public bool ShouldDraw;
-    public Int32 ScreenHeight; // Required for aspect ratio correction
-    public Int32 ScreenWidth; // Required for aspect ratio correction
-    public Int32 HorizontalPosition;
-    public Bitmap1 SubTexture;
-
-    public override string ToString()
-    {
-      return "Subtitle " + Id + " meta data: Timeout=" + TimeOut + " timestamp=" + PresentTime;
-    }
-
-    public void Dispose()
-    {
-      if (SubTexture != null)
-        SubTexture.Dispose();
-      SubTexture = null;
-    }
-  }
-
   #endregion
 
   #region DVBSub2(3) interfaces
@@ -188,13 +160,18 @@ namespace MediaPortal.UI.Players.Video.Subtitles
   /// SubtitleRenderer uses the DVBSub2 direct show filter in the video graph to retrieve subtitles.
   /// The subtitles are handled by drawing bitmap to the video frame (<see cref="DrawOverlay"/>).
   /// </summary>
-  public class SubtitleRenderer : IDisposable
+  public class SubtitleRenderer : ISubtitleRenderer, IDisposable
   {
     #region Constants
 
     private const int MAX_SUBTITLES_IN_QUEUE = 20;
     public static Guid CLSID_DVBSUB2 = new Guid("{1CF3606B-6F89-4813-9D05-F9CA324CF2EA}");
     public static Guid CLSID_DVBSUB3 = new Guid("{3B4C4F66-739F-452c-AFC4-1C039BED3299}");
+
+    // ClosedCaptions parser
+    private const string CCFILTER_CLSID = "{6F0B7D9C-7548-49A9-AC4C-1DA1927E6C15}";
+    private const string CCFILTER_NAME = "Core CC Parser";
+    private const string CCFILTER_FILENAME = "cccp.ax";
 
     #endregion
 
@@ -218,6 +195,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     protected SubtitleCallback _callBack;
     protected readonly ResetCallback _resetCallBack;
     protected readonly UpdateTimeoutCallback _updateTimeoutCallBack;
+    protected TeletextReceiver _ttxtReceiver = null;
 
     // Timestamp offset in MILLISECONDS
     protected double _startPos = 0;
@@ -231,7 +209,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     protected bool _clearOnNextRender = false;
     protected bool _renderSubtitles = true;
     protected int _activeSubPage; // If use teletext, what page
-    protected int _drawCount = 0;
 
     protected readonly Action _onTextureInvalidated;
     protected Thread _subtitleSyncThread;
@@ -239,6 +216,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     // Morpheus, 2014-05-08: TODO: this is a special workaround for a strange DVBSub3 behavior: the very first subtitle is a black rectangle that covers nearly full screen.
     // Remove this when the DirectShow filter has been fixed!
     protected bool _firstCallback = true;
+    private int _drawCount;
 
     #endregion
 
@@ -272,6 +250,10 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// </summary>
     public SubtitleRenderer(Action onTextureInvalidated)
     {
+      string absolutePlatformDir;
+      if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+        throw new Exception("Error adding dll probe path");
+
       _onTextureInvalidated = onTextureInvalidated;
       _subtitles = new LinkedList<Subtitle>();
       //instance.textCallBack = new TextSubtitleCallback(instance.OnTextSubtitle);
@@ -400,26 +382,26 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     }
 
     // Currently unused, teletext subtitles are not yet (re-)implemented!
-    public void OnTextSubtitle(ref TextSubtitle sub)
+    public void OnTextSubtitle(TextSubtitle sub)
     {
       ServiceRegistration.Get<ILogger>().Debug("On TextSubtitle called");
       try
       {
-        if (sub.Page == _activeSubPage)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("Page: " + sub.Page);
-          ServiceRegistration.Get<ILogger>().Debug("Character table: " + sub.Encoding);
-          ServiceRegistration.Get<ILogger>().Debug("Timeout: " + sub.TimeOut);
-          ServiceRegistration.Get<ILogger>().Debug("Timestamp" + sub.TimeStamp);
-          ServiceRegistration.Get<ILogger>().Debug("Language: " + sub.Language);
+        // if (sub.Page == _activeSubPage)
+        // {
+        ServiceRegistration.Get<ILogger>().Debug("Page: " + sub.Page);
+        ServiceRegistration.Get<ILogger>().Debug("Character table: " + sub.Encoding);
+        ServiceRegistration.Get<ILogger>().Debug("Timeout: " + sub.TimeOut);
+        ServiceRegistration.Get<ILogger>().Debug("Timestamp" + sub.TimeStamp);
+        ServiceRegistration.Get<ILogger>().Debug("Language: " + sub.Language);
 
-          String content = sub.Text;
-          if (content == null)
-          {
-            ServiceRegistration.Get<ILogger>().Error("OnTextSubtitle: sub.txt == null!");
-            return;
-          }
+        String content = sub.Text;
+        if (content == null)
+        {
+          ServiceRegistration.Get<ILogger>().Error("OnTextSubtitle: sub.txt == null!");
+          return;
         }
+        // }
       }
       catch (Exception e)
       {
@@ -430,7 +412,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       try
       {
         // if we dont need the subtitle
-        if (!_renderSubtitles || _useBitmap || (_activeSubPage != sub.Page))
+        if (!_renderSubtitles /*|| _useBitmap || (_activeSubPage != sub.Page)*/)
         {
           ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) discarded: useBitmap is {1} and activeSubPage is {2}", sub.Page, _useBitmap, _activeSubPage);
           return;
@@ -438,11 +420,11 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         ServiceRegistration.Get<ILogger>().Debug("Text subtitle (page {0}) ACCEPTED: useBitmap is {1} and activeSubPage is {2}", sub.Page, _useBitmap, _activeSubPage);
 
         Subtitle subtitle = new Subtitle
-                              {
-                                SubTexture = RenderText(sub.LineContents),
-                                TimeOut = sub.TimeOut,
-                                PresentTime = sub.TimeStamp / 90000.0f + _startPos,
-                              };
+        {
+          SubTexture = RenderText(sub.LineContents),
+          TimeOut = sub.TimeOut,
+          PresentTime = sub.TimeStamp / 90000.0f + _startPos,
+        };
 
         if (subtitle.SubTexture != null)
         {
@@ -481,12 +463,13 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// </summary>
     /// <param name="graphBuilder">The IGraphBuilder</param>
     /// <returns>DvbSub2(3) filter instance</returns>
-    public IBaseFilter AddSubtitleFilter(IGraphBuilder graphBuilder)
+    public IBaseFilter AddDvbSubtitleFilter(IGraphBuilder graphBuilder)
     {
       IBaseFilter baseFilter = null;
       try
       {
-        _filter = FilterLoader.LoadFilterFromDll("DVBSub3.ax", CLSID_DVBSUB3, true);
+        var platform = IntPtr.Size > 4 ? "x64" : "x86";
+        _filter = FilterLoader.LoadFilterFromDll($"{platform}\\DVBSub3.ax", CLSID_DVBSUB3, true);
         baseFilter = _filter.GetFilter();
         _subFilter = baseFilter as IDVBSubtitleSource;
         ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (_filter != null) + " & " + (_subFilter != null));
@@ -513,6 +496,31 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _subFilter.SetUpdateTimeoutCallback(pUpdateTimeoutCallBack);
       }
       return baseFilter;
+    }
+
+    public IBaseFilter AddClosedCaptionsFilter(IGraphBuilder graphBuilder)
+    {
+      // ClosedCaptions filter
+      var platform = IntPtr.Size > 4 ? "x64" : "x86";
+      FilterFileWrapper ccFilter = FilterLoader.LoadFilterFromDll($"{platform}\\{CCFILTER_FILENAME}", new Guid(CCFILTER_CLSID), true);
+      IBaseFilter baseFilter = ccFilter.GetFilter();
+      if (baseFilter != null)
+      {
+        graphBuilder.AddFilter(baseFilter, CCFILTER_NAME);
+      }
+      else
+      {
+        ccFilter.Dispose();
+        ServiceRegistration.Get<ILogger>().Warn("SubtitleRenderer: Failed to add {1} to graph", CCFILTER_FILENAME);
+      }
+      return baseFilter;
+    }
+
+
+    public void AddTeletextSubtitleDecoder(ITeletextSource teletextSource)
+    {
+      TeletextSubtitleDecoder ttxtDecoder = new TeletextSubtitleDecoder(this);
+      _ttxtReceiver = new TeletextReceiver(teletextSource, ttxtDecoder);
     }
 
     protected virtual void EnableSubtitleHandling()
@@ -626,7 +634,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         var desc = targetSurface.Bitmap.Size;
         Matrix3x2 transform = Matrix.Identity;
 
-          // Position subtitle and scale it to match video frame size, if required
+        // Position subtitle and scale it to match video frame size, if required
         transform *= Matrix.Translation(currentSubtitle.HorizontalPosition, currentSubtitle.FirstScanLine, 0);
 
         // TODO: Check scaling requirements for SD and HD sources

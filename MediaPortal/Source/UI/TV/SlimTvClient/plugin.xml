@@ -4,6 +4,7 @@
     PluginId="{63040BB4-4638-49b7-A82F-F4530D4D43B9}"
     Author="Morpheus_xx"
     Copyright="GPL"
+    AutoActivate="true"
     Description="The SlimTvClient plugin provides the GUI and Player for basic TV capabilities.">
 
   <Version
@@ -19,7 +20,7 @@
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
-    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="3" />
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/> <!-- SkinBase -->
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
@@ -28,6 +29,7 @@
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
     <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}" CompatibleAPI="1"/> <!-- VideoPlayers -->
+    <PluginReference PluginId="{952BF8BC-04A3-4B6D-A25E-1ED6080278F6}" CompatibleAPI="1"/> <!-- ServerSettings -->
   </DependsOn>
 
   <Register Location="/Players/Builders">
@@ -116,6 +118,10 @@
     <MediaItemActionBuilder Id="{E4B962BE-13DA-4256-A27D-7E0C5759794A}" Caption="[Media.DeleteFromStorage]" Sort="D.2" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaItemActions.DeleteRecordingFromStorage" RestrictionGroup="SlimTvClient.DeleteRecording"/>
   </Register>
 
+  <Register Location="/MediaView/Extensions">
+    <MediaViewActionBuilder Id="{53CDEF4B-2E44-408E-99AF-4C8B540908CF}" Caption="[SlimTvClient.DeleteAllRecordings.Text]" Sort="D.3" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaViewActions.DeleteAllRecordingsAction" RestrictionGroup="SlimTvClient.DeleteRecording"/>
+  </Register>
+
   <!-- MediaNavigationFilter -->
   <Register Location="/Media/Filters">
     <MediaNavigationFilterBuilder Id="{DD6FC152-0A98-4E4B-B3F4-643A68364470}" ClassName="VideosNavigationInitializer"
@@ -137,33 +143,35 @@
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
     <Model Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375" Name="ChannelZapModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.ChannelZapModel" />
     <Model Id="7F283468-27E9-46B9-8B3B-17E3143AFEEB" Name="SlimTvNotificationModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvNotificationModel" />
+    <Model Id="3E826CA9-5C0B-4B16-9025-FA8273A5B7E4" Name="DeleteAllRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.Actions.DeleteAllRecordings"/>'
+    <Model Id="F5D4AA07-8469-46A7-8FD0-E1CD1E8F5898" Name="SlimTvSettings" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvSettingsModel"/>
   </Register>
 
-  <Register Location="/Media/MediaListProviders">
+  <Register Location="/Content/MediaListProviders">
     <!--Favorite media lists-->
-    <MediaListProviderBuilder Id="{CA352306-B1EA-4E72-BF68-BF219C405A65}" Key="FavoriteRadio" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRadioMediaListProvider"/>
-    <MediaListProviderBuilder Id="{994927E6-691E-432D-BB2C-5F06DC5A7FCF}" Key="FavoriteTV" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteTVMediaListProvider"/>
-    <MediaListProviderBuilder Id="{53211093-E181-4D16-AB4A-7F9D3B560D25}" Key="FavoriteRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRecordingsMediaListProvider"/>
+    <ContentList Id="{CA352306-B1EA-4E72-BF68-BF219C405A65}" Key="FavoriteRadio" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRadioMediaListProvider"/>
+    <ContentList Id="{994927E6-691E-432D-BB2C-5F06DC5A7FCF}" Key="FavoriteTV" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteTVMediaListProvider"/>
+    <ContentList Id="{53211093-E181-4D16-AB4A-7F9D3B560D25}" Key="FavoriteRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRecordingsMediaListProvider"/>
 
     <!--Latest media lists-->
-    <MediaListProviderBuilder Id="{2D43CC5B-10A1-48CA-8A56-9F266934189C}" Key="LatestRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLatestRecordingsMediaListProvider"/>
+    <ContentList Id="{2D43CC5B-10A1-48CA-8A56-9F266934189C}" Key="LatestRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLatestRecordingsMediaListProvider"/>
 
     <!--Latest watched media lists-->
-    <MediaListProviderBuilder Id="{D53AD53E-2AFE-4A49-80C2-2079EC468329}" Key="LastPlayRadio" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRadioMediaListProvider"/>
-    <MediaListProviderBuilder Id="{C9DE8D8D-5F58-4E8D-B172-23CC98AD7D76}" Key="LastPlayTV" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedTVMediaListProvider"/>
-    <MediaListProviderBuilder Id="{B08EE0CD-7074-4C34-9D7A-650543FCBBDB}" Key="LastPlayRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRecordingsMediaListProvider"/>
+    <ContentList Id="{D53AD53E-2AFE-4A49-80C2-2079EC468329}" Key="LastPlayRadio" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRadioMediaListProvider"/>
+    <ContentList Id="{C9DE8D8D-5F58-4E8D-B172-23CC98AD7D76}" Key="LastPlayTV" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedTVMediaListProvider"/>
+    <ContentList Id="{B08EE0CD-7074-4C34-9D7A-650543FCBBDB}" Key="LastPlayRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRecordingsMediaListProvider"/>
 
     <!--Continue watch media lists-->
-    <MediaListProviderBuilder Id="{9FCD4E71-3330-4AED-9CAF-8C5D3D6932BF}" Key="ContinuePlayRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvContinueWatchRecordingsMediaListProvider"/>
+    <ContentList Id="{9FCD4E71-3330-4AED-9CAF-8C5D3D6932BF}" Key="ContinuePlayRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvContinueWatchRecordingsMediaListProvider"/>
 
     <!--Unwatched media lists-->
-    <MediaListProviderBuilder Id="{598EFAFB-C5D3-46F8-B2BF-D4F7CB35CB38}" Key="UnplayedRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvUnwatchedRecordingsMediaListProvider"/>
+    <ContentList Id="{598EFAFB-C5D3-46F8-B2BF-D4F7CB35CB38}" Key="UnplayedRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvUnwatchedRecordingsMediaListProvider"/>
 
     <!--Current schedules-->
-    <MediaListProviderBuilder Id="{E401E030-1717-486E-9206-AE9BD61E2F97}" Key="CurrentSchedules" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvSchedulesMediaListProvider"/>
+    <ContentList Id="{E401E030-1717-486E-9206-AE9BD61E2F97}" Key="CurrentSchedules" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvSchedulesMediaListProvider"/>
 
     <!--Current programs-->
-    <MediaListProviderBuilder Id="{220D10D9-25D5-4A98-B491-C52F199C86A8}" Key="CurrentPrograms" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvProgramsMediaListProvider"/>
+    <ContentList Id="{220D10D9-25D5-4A98-B491-C52F199C86A8}" Key="CurrentPrograms" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvProgramsMediaListProvider"/>
   </Register>
 
   <Register Location="/Resources/Skin">

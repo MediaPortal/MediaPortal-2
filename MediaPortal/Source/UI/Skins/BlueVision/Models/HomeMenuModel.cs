@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Windows;
 using System.Windows.Forms;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
@@ -45,6 +46,7 @@ using MediaPortal.Utilities;
 using MediaPortal.Utilities.Events;
 using MediaPortal.Utilities.Xml;
 using MediaPortal.Common.Runtime;
+using MediaPortal.UI.ServerCommunication;
 
 namespace MediaPortal.UiComponents.BlueVision.Models
 {
@@ -71,7 +73,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     readonly ItemsList _mainMenuGroupList = new ItemsList();
     readonly ItemsList _positionedItems = new ItemsList();
     readonly ItemsList _nextPageItems = new ItemsList();
-    protected SettingsChangeWatcher<MenuSettings> _menuSettings;
+    protected SynchronousSettingsChangeWatcher<MenuSettings> _menuSettings;
     protected AbstractProperty _lastSelectedItemNameProperty;
     protected AbstractProperty _isHomeProperty;
     protected AbstractProperty _isHomeScreenProperty;
@@ -325,22 +327,22 @@ namespace MediaPortal.UiComponents.BlueVision.Models
     /// <summary>
     /// Sets the initial state of the home screen
     /// </summary>
-    private void InitMenu()
+    private void InitMenu(bool force = false)
     {
-      if (_menuSettings != null)
+      if (!force && _menuSettings != null)
         return;
 
-      UpdateMenu(true);
+      UpdateMenu(true, force);
       IsHomeScreen = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("7F702D9C-F2DD-42da-9ED8-0BA92F07787F", StringComparison.OrdinalIgnoreCase);
       if (!string.Equals(_menuSettings.Settings.DefaultMenuGroupId, MenuSettings.MENU_ID_PLAYING, StringComparison.OrdinalIgnoreCase))
         _lastActiveGroup = _menuSettings.Settings.DefaultMenuGroupId;
       UpdateSelectedGroup();
     }
 
-    private void UpdateMenu(bool firstTimeOnly = false)
+    private void UpdateMenu(bool firstTimeOnly = false, bool force = false)
     {
       var doUpdate = !firstTimeOnly || _menuSettings == null;
-      if (!doUpdate)
+      if (!force && !doUpdate)
         return;
       ReadPositions();
       CreateMenuGroupItems();
@@ -858,6 +860,7 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       if (_messageQueue == null)
         return;
       _messageQueue.SubscribeToMessageChannel(SystemMessaging.CHANNEL);
+      _messageQueue.SubscribeToMessageChannel(ServerConnectionMessaging.CHANNEL);
       _messageQueue.MessageReceived += OnMessageReceived;
     }
 
@@ -866,7 +869,22 @@ namespace MediaPortal.UiComponents.BlueVision.Models
       if (!IsSystemActive())
         return;
 
-      InitMenu();
+      bool forceMenuUpdate = false;
+      if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
+      {
+        ServerConnectionMessaging.MessageType messageType = (ServerConnectionMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ServerConnectionMessaging.MessageType.HomeServerConnected:
+          case ServerConnectionMessaging.MessageType.HomeServerDisconnected:
+          case ServerConnectionMessaging.MessageType.HomeServerAttached:
+          case ServerConnectionMessaging.MessageType.HomeServerDetached:
+            forceMenuUpdate = true;
+            break;
+        }
+      }
+
+      InitMenu(force: forceMenuUpdate);
 
       if (message.ChannelName == MenuModelMessaging.CHANNEL)
       {

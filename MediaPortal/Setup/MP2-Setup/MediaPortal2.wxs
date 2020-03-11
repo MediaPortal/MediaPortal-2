@@ -127,7 +127,7 @@
 
     <!-- User Interface -->
     <WixVariable Id="WixUILicenseRtf"
-                 Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\$(var.Configuration)\Docs\MediaPortal License.rtf" />
+                 Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\$(var.Configuration)\Docs\MediaPortal License.rtf" />
     <WixVariable Id="WixUIBannerBmp"
                  Value="Resources\MPBanner.jpg" />
     <WixVariable Id="WixUIDialogBmp"
@@ -156,9 +156,10 @@
         <![CDATA[(REINSTALL OR NOT Installed) AND &LAVFilters>=3]]>
       </Custom>
 
-      <RemoveExistingProducts After="InstallInitialize" />
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="You cannot downgrade to [ProductName]" Schedule="afterInstallInitialize" />
 
   </Product>
 </Wix>

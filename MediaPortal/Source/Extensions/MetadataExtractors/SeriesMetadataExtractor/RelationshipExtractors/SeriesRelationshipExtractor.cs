@@ -65,21 +65,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       _extractors = new List<IRelationshipRoleExtractor>();
 
-      _extractors.Add(new EpisodeSeriesRelationshipExtractor());
-      _extractors.Add(new EpisodeSeasonRelationshipExtractor());
-      _extractors.Add(new SeasonSeriesRelationshipExtractor());
+      _extractors.Add(new EpisodeSeriesRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
+      _extractors.Add(new EpisodeSeasonRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
+      _extractors.Add(new SeasonSeriesRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
 
-      _extractors.Add(new EpisodeActorRelationshipExtractor());
-      _extractors.Add(new EpisodeDirectorRelationshipExtractor());
-      _extractors.Add(new EpisodeWriterRelationshipExtractor());
-      _extractors.Add(new EpisodeCharacterRelationshipExtractor());
+      _extractors.Add(new EpisodeActorRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
+      _extractors.Add(new EpisodeDirectorRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
+      _extractors.Add(new EpisodeWriterRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
+      _extractors.Add(new EpisodeCharacterRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
 
-      _extractors.Add(new SeriesActorRelationshipExtractor());
-      _extractors.Add(new SeriesCharacterRelationshipExtractor());
-      _extractors.Add(new SeriesNetworkRelationshipExtractor());
-      _extractors.Add(new SeriesProductionRelationshipExtractor());
+      _extractors.Add(new SeriesActorRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
+      _extractors.Add(new SeriesCharacterRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
+      _extractors.Add(new SeriesNetworkRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
+      _extractors.Add(new SeriesProductionRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
 
-      _extractors.Add(new SeriesEpisodeRelationshipExtractor());
+      _extractors.Add(new SeriesEpisodeRelationshipExtractor(SeriesMetadataExtractor.MEDIA_CATEGORY_NAME_SERIES));
     }
 
     /// <summary>
@@ -137,6 +137,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           ids.Add(ExternalIdentifierAspect.SOURCE_TVMAZE, series.TvMazeId.ToString());
         if (series.TvRageId > 0)
           ids.Add(ExternalIdentifierAspect.SOURCE_TVRAGE, series.TvRageId.ToString());
+        foreach (var customId in series.CustomIds)
+          ids.Add(customId.Key, customId.Value);
 
         IFilter seriesChangedFilter = null;
         foreach (var id in ids)
@@ -193,6 +195,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           ids.Add(ExternalIdentifierAspect.SOURCE_TVMAZE, episode.TvMazeId.ToString());
         if (episode.TvRageId > 0)
           ids.Add(ExternalIdentifierAspect.SOURCE_TVRAGE, episode.TvRageId.ToString());
+        foreach (var customId in episode.CustomIds)
+          ids.Add(customId.Key, customId.Value);
 
         IFilter episodesChangedFilter = null;
         foreach (var id in ids)

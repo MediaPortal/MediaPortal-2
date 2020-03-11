@@ -42,9 +42,12 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected DependencyObject _sourceObject;
     protected IValueConverter _valueConverter;
     protected object _converterParameter;
+    protected bool _notifyOnSourceUpdated;
+    protected bool _notifyOnTargetUpdated;
     protected bool _attachedToSource = false;
     protected bool _attachedToTarget = false;
-    protected UIElement _attachedToLostFocus = null;
+    protected bool _attachedToLostFocus = false;
+    protected UIElement _parentUiElement = null;
 
     /// <summary>
     /// Creates a new <see cref="BindingDependency"/> object.
@@ -64,15 +67,24 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     /// If set to <see cref="UpdateSourceTrigger.Explicit"/>, the new binding dependency won't attach to
     /// the target at all.</param>
     /// <param name="parentUiElement">The parent <see cref="UIElement"/> of the specified <paramref name="targetDd"/>
-    /// data descriptor. This parameter is only used to attach to the lost focus event if
-    /// <paramref name="updateSourceTrigger"/> is set to <see cref="UpdateSourceTrigger.LostFocus"/>.</param>
+    /// data descriptor. This parameter is used to raise the source/target updated events if
+    /// <paramref name="notifyOnSourceUpdated"/> or <paramref name="notifyOntargetUpdated"/> are set to <c>true</c>
+    /// and attach to the lost focus event if <paramref name="updateSourceTrigger"/> is set to
+    /// <see cref="UpdateSourceTrigger.LostFocus"/>.</param>
     /// <param name="customValueConverter">Set a custom value converter with this parameter. If this parameter
     /// is set to <c>null</c>, the default <see cref="TypeConverter"/> will be used.</param>
     /// <param name="customValueConverterParameter">Parameter to be used in the custom value converter, if one is
     /// set.</param>
+    /// <param name="notifyOnSourceUpdated">If set to <c>true</c>, the new dependency object will raise a
+    /// <see cref="BindingExtension.SourceUpdatedEvent"/></param> on the <paramref name="parentUiElement"/>
+    /// when the <paramref name="sourceDd"/> is updated with a value from the <paramref name="targetDd"/>.
+    /// <param name="notifyOntargetUpdated">If set to <c>true</c>, the new dependency object will raise a
+    /// <see cref="BindingExtension.TargetUpdatedEvent"/></param> on the <paramref name="parentUiElement"/>
+    /// when the <paramref name="targetDd"/> is updated with a value from the <paramref name="sourceDd"/>.
     public BindingDependency(IDataDescriptor sourceDd, IDataDescriptor targetDd, bool autoAttachToSource,
         UpdateSourceTrigger updateSourceTrigger, UIElement parentUiElement,
-        IValueConverter customValueConverter, object customValueConverterParameter)
+        IValueConverter customValueConverter, object customValueConverterParameter,
+        bool notifyOnSourceUpdated, bool notifyOntargetUpdated)
     {
       _sourceDd = sourceDd;
       _targetDd = targetDd;
@@ -80,6 +92,9 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       _sourceObject = _sourceDd.TargetObject as DependencyObject;
       _valueConverter = customValueConverter;
       _converterParameter = customValueConverterParameter;
+      _notifyOnSourceUpdated = notifyOnSourceUpdated;
+      _notifyOnTargetUpdated = notifyOntargetUpdated;
+      _parentUiElement = parentUiElement;
       if (autoAttachToSource && sourceDd.SupportsChangeNotification)
       {
         sourceDd.Attach(OnSourceChanged);
@@ -96,7 +111,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         {
           if (parentUiElement != null)
             parentUiElement.EventOccured += OnTargetElementEventOccured;
-          _attachedToLostFocus = parentUiElement;
+          _attachedToLostFocus = true;
         }
       }
       // Initially update endpoints
@@ -163,8 +178,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
       if (_attachedToTarget)
         _targetDd.Detach(OnTargetChanged);
       _attachedToTarget = false;
-      if (_attachedToLostFocus != null)
-        _attachedToLostFocus.EventOccured -= OnTargetElementEventOccured;
+      if (_attachedToLostFocus && _parentUiElement != null)
+        _parentUiElement.EventOccured -= OnTargetElementEventOccured;
     }
 
     public void UpdateSource()
@@ -178,6 +193,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         _sourceObject.SetBindingValue(_sourceDd, convertedValue);
       else
       _sourceDd.Value = convertedValue;
+      if (_notifyOnSourceUpdated && _parentUiElement != null)
+        _parentUiElement.RaiseEvent(new DataTransferEventArgs(BindingExtension.SourceUpdatedEvent, _parentUiElement, _targetDd));
     }
 
     public void UpdateTarget()
@@ -191,6 +208,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
         _targetObject.SetBindingValue(_targetDd, convertedValue);
       else
         _targetDd.Value = convertedValue;
+      if (_notifyOnTargetUpdated && _parentUiElement != null)
+        _parentUiElement.RaiseEvent(new DataTransferEventArgs(BindingExtension.TargetUpdatedEvent, _parentUiElement, _targetDd));
     }
   }
 }

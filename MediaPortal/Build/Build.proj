@@ -18,7 +18,7 @@
 
     <!-- Build Configuration -->
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <Platform Condition=" '$(Platform)' == '' ">Any CPU</Platform>
 
     <!-- Build Steps
     If OneStepOnly == true, it is assumed that only one solution should be build, i.e. Client only.
@@ -69,9 +69,11 @@
   <!-- This item group holds the MP2 solutions that should actually being built. -->
   <ItemGroup>
     <ProjectsToBuildNative Include="$(ProjectRoot)\Source\UI\Players\EVRPresenter\EVRPresenter.sln" Condition="$(BuildClient) == 'true'" />
+    <ProjectsToBuildX64 Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Server.sln" Condition="$(BuildServer) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-ServiceMonitor.sln" Condition="$(BuildServiceMonitor) == 'true'" />
+    <ProjectsToBuildX64 Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\Setup\MP2-Setup.sln" Condition="$(BuildSetup) == 'true'" />
   </ItemGroup>
@@ -124,6 +126,10 @@
     <MSBuild Projects="@(ProjectsToBuild)"
              Properties="Configuration=$(Configuration);Platform=$(Platform)"
              Targets="Rebuild" />
+
+    <MSBuild Projects="@(ProjectsToBuildX64)"
+             Properties="Configuration=$(Configuration);Platform=x64"
+             Targets="Build" />
   </Target>
 
 </Project>

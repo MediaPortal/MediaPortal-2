@@ -3,7 +3,9 @@
   <!--Headlines for HomeContent-->
   <string name="Media.Favorites">पसंदीदा</string>
   <!--Menu items for the five Media navigation parts-->
+  <string name="Media.AudioMenuItem">ऑडियो</string>
   <string name="Media.VideosMenuItem">वीडियो</string>
+  <string name="Media.ImagesMenuItem">इमेजिस</string>
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.NameMenuItem">नाम</string>
   <string name="Media.TitleMenuItem">शीर्षक</string>
@@ -29,13 +31,16 @@
   <string name="Media.ChooseActorHeader">अभिनेताओं</string>
   <string name="Media.ChooseDirectorHeader">निदेशक</string>
   <string name="Media.ChooseWriterHeader">लेखकों</string>
+  <string name="Media.ChooseImageHeader">इमेजिस</string>
   <string name="Media.ChooseVideoHeader">वीडियो</string>
   <string name="Media.PlaylistsOverviewHeader">गीत-सूचियाँ</string>
   <!--View occupation names-->
   <string name="Media.ArtistOccupationName">कलाकार</string>
   <!--View names (names for the view instances)-->
+  <string name="Media.AudioRootViewName">ऑडियो</string>
   <string name="Media.VideosRootViewName">वीडियो</string>
   <string name="Media.EpisodeRootViewName">एपिसोड</string>
+  <string name="Media.ImagesRootViewName">इमेजिस</string>
   <!--General strings used in views-->
   <!--Shown in the header of an items list-->
   <!--Shown in the header of an items list-->
@@ -53,6 +58,7 @@
   <string name="Media.ReimportMediaItem.Description">विवरण</string>
   <!--Play items dialog-->
   <!--Player context names-->
+  <string name="Media.AudioContextName">ऑडियो</string>
   <!--Video currently playing-->
   <!--Person currently playing-->
   <!--Series currently playing-->
@@ -66,6 +72,7 @@
   <string name="Media.SortByDate">तारीख़</string>
   <string name="Media.GroupingBrowseDefault">तयशुदा</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">प्लेयर</string>
   <!--Secondary filters-->

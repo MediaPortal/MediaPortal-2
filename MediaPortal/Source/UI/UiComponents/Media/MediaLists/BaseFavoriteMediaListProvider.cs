@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.ContentLists;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
@@ -44,13 +45,41 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
       return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
       {
-        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending), new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
+        SortInformation = new List<ISortInformation>
+        {
+          new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending),
+          new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending)
+        }
       };
     }
 
     protected override bool ShouldUpdate(UpdateReason updateReason)
     {
-      return updateReason.HasFlag(UpdateReason.PlaybackComplete) || updateReason.HasFlag(UpdateReason.ImportComplete) || base.ShouldUpdate(updateReason);
+      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || updateReason.HasFlag(UpdateReason.ImportComplete) || base.ShouldUpdate(updateReason);
+    }
+  }
+
+  public abstract class BaseFavoriteRelationshipMediaListProvider : BaseFavoriteMediaListProvider
+  {
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
+    {
+      Guid? userProfile = CurrentUserProfile?.ProfileId;
+      IFilter filter = userProfile.HasValue ? await AppendUserFilterAsync(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT)),
+            _necessaryMias) : null;
+
+      IFilter navigationFilter = GetNavigationFilter(_navigationInitializerType);
+      if (navigationFilter != null)
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, navigationFilter);
+
+      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
+      {
+        SortInformation = new List<ISortInformation>
+        {
+          new DataSortInformation(UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT, SortDirection.Descending),
+          new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending),
+          new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending)
+        }
+      };
     }
   }
 }

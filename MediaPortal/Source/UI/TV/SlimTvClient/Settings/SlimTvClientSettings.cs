@@ -31,7 +31,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// <summary>
     /// Defines the number of rows to be visible in EPG.
     /// </summary>
-    [Setting(SettingScope.User, DefaultValue = 7)]
+    [Setting(SettingScope.User, DefaultValue = 9)]
     public int EpgNumberOfRows { get; set; }
 
     /// <summary>
@@ -119,5 +119,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = 5)]
     public int RecordingNotificationDuration { get; set; }
+
+    /// <summary>
+    /// The number of days of EPG data to load when viewing the single channel guide.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = 14)]
+    public int SingleChannelGuideDays { get; set; }
   }
 }

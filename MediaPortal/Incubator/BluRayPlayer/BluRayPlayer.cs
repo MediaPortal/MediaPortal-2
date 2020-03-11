@@ -34,6 +34,8 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
@@ -59,7 +61,7 @@ namespace MediaPortal.UI.Players.Video
 
     protected readonly string[] _emptyStringArray = new string[0];
     protected FilterFileWrapper _fileSource;
-    protected SubtitleRenderer _subtitleRenderer;
+    protected ISubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
     protected IBDReader _bdReader;
     protected BluRayOSDRenderer _osdRenderer;
@@ -167,15 +169,15 @@ namespace MediaPortal.UI.Players.Video
       _bdReader.SetBDReaderCallback(this);
 
       _graphBuilder.AddFilter(baseFilter, BluRayAPI.BDREADER_FILTER_NAME);
-
-      _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
+      // TODO: add the correct subtitle filter
+   /*   _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
       _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
       if (_subtitleFilter != null)
       {
         _subtitleRenderer.RenderSubtitles = true;
         _subtitleRenderer.SetPlayer(this);
       }
-
+      */
       // Prepare event handling
       _eventThread = new Thread(HandleBDEvent);
       _eventThread.Start();
@@ -296,6 +298,21 @@ namespace MediaPortal.UI.Players.Video
           SubtitleLanguage = new CultureInfo(videoSettings.PreferredSubtitleLanguage).ThreeLetterISOLanguageName,
           MenuLanguage = new CultureInfo(videoSettings.PreferredMenuLanguage).ThreeLetterISOLanguageName,
         };
+
+        IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+        if (userManagement?.CurrentUser != null)
+        {
+          if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE, 0, out string audioLang))
+            bdsettings.AudioLanguage = audioLang;
+          if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 0, out string subtitleLang))
+            bdsettings.SubtitleLanguage = subtitleLang;
+          if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE, 0, out string menuLang))
+          {
+            bdsettings.CountryCode = menuLang;
+            bdsettings.MenuLanguage = menuLang;
+          }
+        }
+
         switch (settings.RegionCode)
         {
           case "A":
@@ -546,7 +563,8 @@ namespace MediaPortal.UI.Players.Video
     protected override void PostProcessTexture(IBitmapAsset2D targetSurface)
     {
       //_osdRenderer.DrawOverlay(targetSurface);
-      _subtitleRenderer.DrawOverlay(targetSurface);
+      // TODO: disabled until the right subtitle filter has been chosen  
+      // _subtitleRenderer.DrawOverlay(targetTexture);
     }
 
     public Texture[] TexturePlanes

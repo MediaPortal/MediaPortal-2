@@ -24,19 +24,24 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.InteropServices;
 using DirectShow;
 using DirectShow.Helper;
 using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Players.Video.Interfaces;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.UI.Players.Video.Subtitles;
+using MediaPortal.UI.Players.Video.Teletext;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.SkinEngine.ContentManagement;
 using MediaPortal.Utilities.Exceptions;
@@ -58,14 +63,13 @@ namespace MediaPortal.UI.Players.Video
 
     public const string TSREADER_CLSID = "b9559486-E1BB-45D3-A2A2-9A7AFE49B23F";
     private const string TSREADER_FILTER_NAME = "TsReader";
-    private const int NO_STREAM_INDEX = -1;
 
     #endregion
 
     #region Variables
 
     protected FilterFileWrapper _sourceFilter = null;
-    protected SubtitleRenderer _subtitleRenderer;
+    protected ISubtitleRenderer _subtitleRenderer;
     protected IBaseFilter _subtitleFilter;
     protected ITsReader _tsReader;
     protected ChangedMediaType _changedMediaType;
@@ -110,9 +114,8 @@ namespace MediaPortal.UI.Players.Video
     /// </summary>
     protected override void AddSourceFilter()
     {
-      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
-      // Render the file
-      _sourceFilter = FilterLoader.LoadFilterFromDll("TsReader.ax", typeof(TsReader).GUID, true);
+      var platform = IntPtr.Size > 4 ? "x64" : "x86";
+      _sourceFilter = FilterLoader.LoadFilterFromDll($"{platform}\\TsReader.ax", typeof(TsReader).GUID, true);
       var baseFilter = _sourceFilter.GetFilter();
 
       IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;
@@ -122,14 +125,6 @@ namespace MediaPortal.UI.Players.Video
       _tsReader.SetRequestAudioChangeCallback(this);
 
       _graphBuilder.AddFilter(baseFilter, TSREADER_FILTER_NAME);
-
-      _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
-      _subtitleFilter = _subtitleRenderer.AddSubtitleFilter(_graphBuilder);
-      if (_subtitleFilter != null)
-      {
-        _subtitleRenderer.RenderSubtitles = settings.EnableSubtitles;
-        _subtitleRenderer.SetPlayer(this);
-      }
 
       if (_resourceLocator.NativeResourcePath.IsNetworkResource)
       {
@@ -168,6 +163,51 @@ namespace MediaPortal.UI.Players.Video
       }
       // Init GraphRebuilder
       _graphRebuilder = new GraphRebuilder(_graphBuilder, baseFilter, OnAfterGraphRebuild) { PlayerName = PlayerTitle };
+    }
+
+    protected override void AddSubtitleFilter(bool isSourceFilterPresent)
+    {
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+
+      ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
+      int subtitleStreamCount = 0;
+      subtitleStream?.GetSubtitleStreamCount(ref subtitleStreamCount);
+
+      ITeletextSource teletextSource = _tsReader as ITeletextSource;
+      int teletextStreamCount = 0;
+      teletextSource?.GetTeletextStreamCount(ref teletextStreamCount);
+
+      bool shouldAddDvbFilter = isSourceFilterPresent && subtitleStreamCount >= 1 && settings.EnableDvbSubtitles;
+      bool shouldRenderTeletextSubtitles = isSourceFilterPresent && teletextStreamCount >= 1 && settings.EnableTeletextSubtitles;
+      bool shouldAddClosedCaptionsFilter = settings.EnableAtscClosedCaptions && (subtitleStreamCount == 0 && teletextStreamCount == 0);
+      if (shouldAddDvbFilter)
+      {
+        _subtitleRenderer.SetPlayer(this);
+        _subtitleFilter = _subtitleRenderer.AddDvbSubtitleFilter(_graphBuilder);
+        if (_subtitleFilter != null)
+        {
+          _subtitleRenderer.RenderSubtitles = true;
+        }
+      }
+      else if (shouldRenderTeletextSubtitles)
+      {
+        _subtitleRenderer.AddTeletextSubtitleDecoder(teletextSource);
+        _subtitleRenderer.SetPlayer(this);
+        _subtitleRenderer.RenderSubtitles = true;
+      }
+      else if (shouldAddClosedCaptionsFilter)
+      {
+        _subtitleRenderer.AddClosedCaptionsFilter(_graphBuilder);
+      }
+      ServiceRegistration.Get<ILogger>().Debug("TsVideoPlayer.AddSubtitleFilter: shouldAddDvbFilter: {0},  shouldRenderTeletextSubtitles: {1}, " +
+                                               "shouldAddClosedCaptionsFilter: {2}, RenderSubtitles is: {3}, subtitleStreamCount: {4}, teletextStreamCount: {5}",
+        shouldAddDvbFilter.ToString(), shouldRenderTeletextSubtitles.ToString(), shouldAddClosedCaptionsFilter.ToString(), _subtitleRenderer.RenderSubtitles.ToString(),
+        subtitleStreamCount.ToString(), teletextStreamCount.ToString());
+    }
+
+    protected override void SetSubtitleRenderer()
+    {
+      _subtitleRenderer = new SubtitleRenderer(OnTextureInvalidated);
     }
 
     protected override void OnBeforeGraphRunning()
@@ -292,51 +332,143 @@ namespace MediaPortal.UI.Players.Video
 
     protected override bool EnumerateStreams(bool forceRefresh)
     {
-      //FIXME: TSReader only offers Audio in IAMStreamSelect, it would be cleaner to expose subs as well.
       bool refreshed = base.EnumerateStreams(forceRefresh);
       if (refreshed)
       {
-        // If base class has refreshed the stream infos, then update the subtitle streams.
         ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
-        if (subtitleStream != null)
+        int subtitleStreamCount = 0;
+        subtitleStream?.GetSubtitleStreamCount(ref subtitleStreamCount);
+
+        if (subtitleStreamCount >= 1)
+        {
           _streamInfoSubtitles = new TsReaderStreamInfoHandler(subtitleStream);
+          SetPreferredSubtitle();
+          return true;
+        }
+        ITeletextSource teletextSource = _tsReader as ITeletextSource;
+        int teletextStreamCount = 0;
+        teletextSource?.GetTeletextStreamCount(ref teletextStreamCount);
+        if (teletextStreamCount >= 1)
+        {
+          _streamInfoSubtitles = new TsReaderTeletextInfoHandler(teletextSource);
+          SetPreferredSubtitle();
+          return true;
+        }
       }
-      return refreshed;
+      return false;
     }
 
     public override void SetSubtitle(string subtitle)
     {
+      ServiceRegistration.Get<ILogger>().Debug("SetSubtitle called for subtitle: {0}", subtitle);
       EnumerateStreams();
-      TsReaderStreamInfoHandler tsStreamInfoHandler = _streamInfoSubtitles as TsReaderStreamInfoHandler;
-      if (tsStreamInfoHandler == null)
-        return;
-
-      if (tsStreamInfoHandler.EnableStream(subtitle))
+      if (_streamInfoSubtitles is TsReaderStreamInfoHandler tsStreamInfoHandler)
       {
+        _streamInfoSubtitles.EnableStream(subtitle);
         _subtitleRenderer.RenderSubtitles = !tsStreamInfoHandler.DisableSubs;
         SaveSubtitlePreference();
       }
+      else if (_streamInfoSubtitles is TsReaderTeletextInfoHandler tsTeletextInfoHandler)
+      {
+        _streamInfoSubtitles.EnableStream(subtitle);
+        _subtitleRenderer.RenderSubtitles = !tsTeletextInfoHandler.DisableSubs;
+        SaveSubtitlePreference();
+      }
+      ServiceRegistration.Get<ILogger>().Debug("SetSubtitle: set RenderSubtitles to {0}.", _subtitleRenderer.RenderSubtitles.ToString());
+    }
+
+    protected override void SaveSubtitlePreference()
+    {
+      BaseStreamInfoHandler subtitleStreams;
+      lock (SyncObj)
+      {
+        subtitleStreams = _streamInfoSubtitles;
+      }
+      if (subtitleStreams == null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SaveSubtitlePreference: no valid subtitle streams.");
+        return;
+      }
+
+      VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
+      settings.PreferredSubtitleStreamName = subtitleStreams.CurrentStreamName;
+      // if the subtitle stream has proper LCID, remember it.
+      int lcid = subtitleStreams.CurrentStream.IsAutoSubtitle ? 0 : subtitleStreams.CurrentStream.LCID;
+      if (lcid != 0)
+      {
+        settings.PreferredSubtitleLanguage = lcid;
+      }
+
+      if (subtitleStreams is TsReaderStreamInfoHandler)
+      {
+        // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
+        settings.EnableDvbSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(GetNoSubsName().ToLowerInvariant()) == false &&
+                                      subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
+      }
+      else if(subtitleStreams is TsReaderTeletextInfoHandler)
+      {
+        // if selected stream is "No subtitles" or "forced subtitle", we disable the setting
+        settings.EnableTeletextSubtitles = subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(GetNoSubsName().ToLowerInvariant()) == false &&
+                                      subtitleStreams.CurrentStreamName.ToLowerInvariant().Contains(FORCED_SUBTITLES.ToLowerInvariant()) == false;
+      }
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      ServiceRegistration.Get<ILogger>().Debug("SaveSubtitlePreference: PreferredSubtitleStreamName: {0}, PreferredSubtitleLanguage lcid: {1}, " +
+                                               "EnableDvbSubtitles is set to {2}, EnableTeletextSubtitles is set to {3}", 
+        settings.PreferredSubtitleStreamName, settings.PreferredSubtitleLanguage, settings.EnableDvbSubtitles.ToString(), settings.EnableTeletextSubtitles.ToString());
     }
 
     protected override void SetPreferredSubtitle()
     {
-      EnumerateStreams();
       ISubtitleStream subtitleStream = _tsReader as ISubtitleStream;
-      if (_streamInfoSubtitles == null || subtitleStream == null)
+      ITeletextSource teletextSource = _tsReader as ITeletextSource;
+      if (_streamInfoSubtitles == null || (subtitleStream == null && teletextSource == null))
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SetPreferredSubtitle: no valid subtitles stream.");
         return;
+      }
 
       VideoSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<VideoSettings>() ?? new VideoSettings();
 
       // first try to find a stream by it's exact LCID.
-      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(settings.PreferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
-      if (streamInfo == null || !settings.EnableSubtitles)
+      int preferredSubtitleLanguage = settings.PreferredSubtitleLanguage;
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userManagement?.CurrentUser != null)
+      {
+        preferredSubtitleLanguage = 0;
+        var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+        if (userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 0, out string subLang))
+        {
+          int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang)?.LCID ?? 0;
+          if (_streamInfoSubtitles.Any(s => s.LCID == langId))
+            preferredSubtitleLanguage = langId;
+        }
+        if (preferredSubtitleLanguage == 0 && userManagement.CurrentUser.TryGetAdditionalData(UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE, 1, out string subLang2))
+        {
+          int langId = cultures?.FirstOrDefault(c => c.TwoLetterISOLanguageName == subLang2)?.LCID ?? 0;
+          if (_streamInfoSubtitles.Any(s => s.LCID == langId))
+            preferredSubtitleLanguage = langId;
+        }
+        if (preferredSubtitleLanguage == 0)
+        {
+          preferredSubtitleLanguage = settings.PreferredSubtitleLanguage;
+        }
+      }
+
+      StreamInfo streamInfo = _streamInfoSubtitles.FindStream(preferredSubtitleLanguage) ?? _streamInfoSubtitles.FindSimilarStream(settings.PreferredSubtitleStreamName);
+      if (streamInfo == null || !settings.EnableDvbSubtitles || !settings.EnableTeletextSubtitles)
       {
         // Tell the renderer it should not render subtitles
         if (_subtitleRenderer != null)
+        {
           _subtitleRenderer.RenderSubtitles = false;
+          ServiceRegistration.Get<ILogger>().Debug("SetPreferredSubtitle: set RenderSubtitles to false.");
+        }
       }
       else
+      {
+        ServiceRegistration.Get<ILogger>().Debug("SetPreferredSubtitle: enable stream for {0}", streamInfo.Name);
         _streamInfoSubtitles.EnableStream(streamInfo.Name);
+      }
     }
 
     #endregion

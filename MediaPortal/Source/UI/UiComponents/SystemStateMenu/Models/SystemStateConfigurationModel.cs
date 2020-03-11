@@ -91,18 +91,18 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
     {
       SystemStateDialogSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SystemStateDialogSettings>();
       _shutdownItemList = settings.ShutdownItemList;
-      
+
       // Add the SleepTimer, if the Element is missing in the current configuration
       bool foundSleepTimer = false;
-      foreach(SystemStateItem item in _shutdownItemList)
+      foreach (SystemStateItem item in _shutdownItemList)
       {
-        if(item.Action == SystemStateAction.SleepTimer)
+        if (item.Action == SystemStateAction.SleepTimer)
         {
           foundSleepTimer = true;
           break;
         }
       }
-      if(foundSleepTimer == false)
+      if (foundSleepTimer == false)
       {
         // Add the SleepTimerItem after "Shutdown"
         SystemStateItem sleepTimerItem = new SystemStateItem(SystemStateAction.SleepTimer, true);
@@ -115,11 +115,19 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
         }
         _shutdownItemList.Insert(index, sleepTimerItem);
       }
+
+      // Check if there were new items added and append them to list
+      var allShutdownItems = SystemStateDialogSettings.CreateDefaultShutdownMenu();
+      foreach (SystemStateItem item in allShutdownItems)
+      {
+        if (!_shutdownItemList.Exists(i => i.Action == item.Action))
+          _shutdownItemList.Add(item);
+      }
     }
 
     private bool ItemCheckedChanged(int index, ListItem item)
     {
-      bool isChecked = (bool) item.AdditionalProperties[Consts.KEY_IS_CHECKED];
+      bool isChecked = (bool)item.AdditionalProperties[Consts.KEY_IS_CHECKED];
 
       _shutdownItemList[index].Enabled = isChecked;
 
@@ -219,7 +227,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
 
       // Test the SleepTimer-MaxMinutes
       int _maxMinutes = 0;
-      if(Int32.TryParse(MaxMinutes, out _maxMinutes))
+      if (Int32.TryParse(MaxMinutes, out _maxMinutes))
       {
         if (_maxMinutes > 0)
           settings.MaxSleepTimeout = _maxMinutes;

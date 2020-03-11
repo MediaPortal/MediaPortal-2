@@ -89,6 +89,7 @@
     </Compile>
     <Compile Include="Extensions\IProgramAction.cs" />
     <Compile Include="Extensions\SlimTvExtensionBuilder.cs" />
+    <Compile Include="Items\ICard.cs" />
     <Compile Include="Items\IChannelGroup.cs" />
     <Compile Include="Items\IChannel.cs" />
     <Compile Include="Items\IProgram.cs" />
@@ -98,10 +99,13 @@
     <Compile Include="IScheduleControl.cs" />
     <Compile Include="Items\IScheduleRule.cs" />
     <Compile Include="Items\ITimeshiftContext.cs" />
+    <Compile Include="Items\IUser.cs" />
+    <Compile Include="Items\IVirtualCard.cs" />
     <Compile Include="Items\KeepMethodType.cs" />
     <Compile Include="Items\PriorityType.cs" />
     <Compile Include="Items\TvServerState.cs" />
     <Compile Include="ITimeshiftControl.cs" />
+    <Compile Include="ITunerInfo.cs" />
     <Compile Include="ITvHandler.cs" />
     <Compile Include="ITvProvider.cs" />
     <Compile Include="IChannelAndGroupInfo.cs" />
@@ -109,6 +113,7 @@
     <Compile Include="ITimeshiftControlEx.cs" />
     <Compile Include="LiveTvMediaItem\LiveTvMediaItem.cs" />
     <Compile Include="LiveTvMediaItem\SerializeHelper.cs" />
+    <Compile Include="Metadata\RecordingAspect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ResourceProvider\SlimTvMediaItemBuilder.cs" />
     <Compile Include="ResourceProvider\SlimTvFsResourceAccessor.cs" />
@@ -124,11 +129,14 @@
     <Compile Include="UPnP\DataTypes\UPnPDtSchedule.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtProgram.cs" />
     <Compile Include="UPnP\DataTypes\UPnPDtProgramList.cs" />
+    <Compile Include="UPnP\Items\Card.cs" />
     <Compile Include="UPnP\Items\Channel.cs" />
     <Compile Include="UPnP\Items\ChannelGroup.cs" />
     <Compile Include="UPnP\Items\Dictionary.cs" />
     <Compile Include="UPnP\Items\Schedule.cs" />
     <Compile Include="UPnP\Items\Program.cs" />
+    <Compile Include="UPnP\Items\User.cs" />
+    <Compile Include="UPnP\Items\VirtualCard.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">

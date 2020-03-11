@@ -44,7 +44,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class MusicMatcher<TImg, TLang> : BaseMatcher<TrackMatch, string, TImg, TLang>, IMusicMatcher
+  public abstract class MusicMatcher<TImg, TLang> : BaseMediaMatcher<TrackMatch, string, TImg, TLang>, IAudioMatcher
   {
     public class MusicMatcherSettings
     {
@@ -60,12 +60,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public MusicMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
+    public MusicMatcher(string name, string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
     {
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "MusicMatches.xml");
       _maxCacheDuration = maxCacheDuration;
       _id = GetType().Name;
+      _name = name;
       _cacheRefreshable = cacheRefreshable;
 
       _artistMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ArtistMatches.xml"));
@@ -127,10 +128,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
+    public override bool Equals(object obj)
+    {
+      if (obj is MusicMatcher<TImg, TLang> m)
+        return Id.Equals(m.Id);
+      return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return Id.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return Name;
+    }
+
     #endregion
 
     #region Constants
-    
+
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
 
     protected override string MatchesSettingsFile
@@ -154,6 +172,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     private DateTime? _lastCacheRefresh;
     private DateTime _lastCacheCheck = DateTime.MinValue;
     private string _preferredLanguageCulture = "en-US";
+    private bool _useMediaAudioIfUnmatched = false;
 
     private SimpleNameMatcher _artistMatcher;
     private SimpleNameMatcher _composerMatcher;
@@ -180,6 +199,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       get { return _preferredLanguageCulture; }
       set { _preferredLanguageCulture = value; }
+    }
+
+    public bool UseMediaAudioIfUnmatched
+    {
+      get { return _useMediaAudioIfUnmatched; }
+      set { _useMediaAudioIfUnmatched = value; }
     }
 
     #endregion
@@ -386,12 +411,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update track information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMusicTrackAsync(trackMatch, language, false).ConfigureAwait(false))
             {
-              //Search for the track online and update the Ids if a match is found
-              if (await _wrapper.SearchTrackUniqueAndUpdateAsync(trackMatch, language).ConfigureAwait(false))
+              //If track had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(trackMatch))
               {
-                //Ids were updated now try to update track information from online source
-                if (await _wrapper.UpdateFromOnlineMusicTrackAsync(trackMatch, language, false).ConfigureAwait(false))
-                  matchFound = true;
+                //Search for the track online and update the Ids if a match is found
+                if (await _wrapper.SearchTrackUniqueAndUpdateAsync(trackMatch, language).ConfigureAwait(false))
+                {
+                  //Ids were updated now try to update track information from online source
+                  if (await _wrapper.UpdateFromOnlineMusicTrackAsync(trackMatch, language, false).ConfigureAwait(false))
+                    matchFound = true;
+                }
               }
             }
             else
@@ -572,15 +601,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update person information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, false).ConfigureAwait(false))
             {
-              //Search for the person online and update the Ids if a match is found
-              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
-              {
-                //Ids were updated now try to fetch the online person info
-                if (await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, false).ConfigureAwait(false))
+              //If person had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(person))
+              { 
+                //Search for the person online and update the Ids if a match is found
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  trackInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online person info
+                  if (await _wrapper.UpdateFromOnlineMusicTrackPersonAsync(trackMatch, person, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    trackInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -747,15 +780,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update person information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, false).ConfigureAwait(false))
             {
-              //Search for the person online and update the Ids if a match is found
-              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
+              //If person had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(person))
               {
-                //Ids were updated now try to fetch the online person info
-                if (await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, false).ConfigureAwait(false))
+                //Search for the person online and update the Ids if a match is found
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  albumInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online person info
+                  if (await _wrapper.UpdateFromOnlineMusicTrackAlbumPersonAsync(albumMatch, person, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    albumInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -853,15 +890,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update company information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, false).ConfigureAwait(false))
             {
-              //Search for the company online and update the Ids if a match is found
-              if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
+              //If company had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(company))
               {
-                //Ids were updated now try to fetch the online company info
-                if (await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, false).ConfigureAwait(false))
+                //Search for the company online and update the Ids if a match is found
+                if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
                 {
-                  //Set track as changed because cache has changed and might contain new/updated data
-                  albumInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online company info
+                  if (await _wrapper.UpdateFromOnlineMusicTrackAlbumCompanyAsync(albumMatch, company, language, false).ConfigureAwait(false))
+                  {
+                    //Set track as changed because cache has changed and might contain new/updated data
+                    albumInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -946,15 +987,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           Logger.Debug(_id + ": Search for album {0} online", albumInfo.ToString());
 
-          //Try to update company information from online source if online Ids are present
+          //Try to update album information from online source if online Ids are present
           if (!await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumMatch, language, false).ConfigureAwait(false))
           {
-            //Search for the company online and update the Ids if a match is found
-            if (await _wrapper.SearchTrackAlbumUniqueAndUpdateAsync(albumMatch, language).ConfigureAwait(false))
+            //If album had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+            if (!_wrapper.HasSearchableIds(albumMatch))
             {
-              //Ids were updated now try to fetch the online company info
-              if (await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumMatch, language, false).ConfigureAwait(false))
-                updated = true;
+              //Search for the album online and update the Ids if a match is found
+              if (await _wrapper.SearchTrackAlbumUniqueAndUpdateAsync(albumMatch, language).ConfigureAwait(false))
+              {
+                //Ids were updated now try to fetch the online album info
+                if (await _wrapper.UpdateFromOnlineMusicTrackAlbumAsync(albumMatch, language, false).ConfigureAwait(false))
+                  updated = true;
+              }
             }
           }
           else
@@ -1076,12 +1121,12 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (typeof(TLang) == typeof(string))
       {
         CultureInfo mpLocal = new CultureInfo(_preferredLanguageCulture);
-        // If we don't have movie languages available, or the MP2 setting language is available, prefer it.
+        // If we don't have media languages available, or the MP2 setting language is available, prefer it.
         if (mediaLanguages.Count == 0 || mediaLanguages.Contains(mpLocal.TwoLetterISOLanguageName))
           return (TLang)Convert.ChangeType(mpLocal.TwoLetterISOLanguageName, typeof(TLang));
 
-        // If there is only one language available, use this one.
-        if (mediaLanguages.Count == 1)
+        // If there is one language available, use this one.
+        if (_useMediaAudioIfUnmatched && mediaLanguages.Count > 0)
           return (TLang)Convert.ChangeType(mediaLanguages[0], typeof(TLang));
 
         // If there are multiple languages, that are different to MP2 setting, we cannot guess which one is the "best".
@@ -1197,16 +1242,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       }
     }
 
-    private void CacheUpdateFinished(ApiWrapper<TImg, TLang>.UpdateFinishedEventArgs _event)
+    private void CacheUpdateFinished(UpdateFinishedEventArgs _event)
     {
       try
       {
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.AudioAlbum)
+        if (_event.UpdatedItemType == UpdateType.AudioAlbum)
         {
           _config.LastUpdatedAlbums.AddRange(_event.UpdatedItems);
           SaveConfig();
         }
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Audio)
+        if (_event.UpdatedItemType == UpdateType.Audio)
         {
           _config.LastUpdatedTracks.AddRange(_event.UpdatedItems);
           SaveConfig();

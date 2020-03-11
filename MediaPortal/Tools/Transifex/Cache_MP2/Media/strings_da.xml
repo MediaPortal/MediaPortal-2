@@ -292,6 +292,7 @@
   <string name="Media.SortByDate">Dato</string>
   <string name="Media.GroupingBrowseDefault">normal</string>
   <!--Stubs-->
+  <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Afspillere</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Luk afspillere når slut</string>

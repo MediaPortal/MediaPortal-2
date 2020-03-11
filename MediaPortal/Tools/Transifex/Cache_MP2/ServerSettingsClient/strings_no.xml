@@ -8,6 +8,5 @@
   <string name="Settings.ServerSettings.Username">Brukernavn:</string>
   <string name="Settings.ServerSettings.Password">Passord:</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Konfigurer automatisk oppdatering av delte ressurser</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Skru på automatisk oppdatering</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Kjør følgende time i døgnet (0-24)</string>
 </resources>

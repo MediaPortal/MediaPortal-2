@@ -39,6 +39,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { AudioAlbumAspect.ASPECT_ID };
 
+    private string _category;
+
+    public TrackAlbumRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       get { return true; }
@@ -93,7 +100,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       AudioMetadataExtractor.TryUpdateAlbum(mediaItemAccessor, albumInfo);
 
       if (!AudioMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateAlbumAsync(albumInfo, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateAlbumAsync(albumInfo, false, _category).ConfigureAwait(false);
       
       IDictionary<Guid, IList<MediaItemAspect>> albumAspects = new Dictionary<Guid, IList<MediaItemAspect>>();
       albumInfo.SetMetadata(albumAspects);
@@ -101,16 +108,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       bool trackVirtual = true;
       if (MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false, out trackVirtual))
         MediaItemAspect.SetAttribute(albumAspects, MediaAspect.ATTR_ISVIRTUAL, trackVirtual);
-
-      if (!aspects.ContainsKey(ReimportAspect.ASPECT_ID)) //Ignore for reimports because the image might be wrong
-      {
-        byte[] data;
-        if (MediaItemAspect.TryGetAttribute(aspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
-        {
-          //Use image from track as image
-          MediaItemAspect.SetAttribute(albumAspects, ThumbnailLargeAspect.ATTR_THUMBNAIL, data);
-        }
-      }
 
       if (!albumAspects.ContainsKey(ExternalIdentifierAspect.ASPECT_ID))
         return false;

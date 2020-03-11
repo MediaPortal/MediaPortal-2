@@ -154,6 +154,7 @@ namespace MediaPortal.Media.MetadataExtractors
                   BDInfoExt bdinfo = new BDInfoExt(rah.LocalFsResourceAccessor.LocalFileSystemPath);
                   string title = bdinfo.GetTitle();
                   mediaAspect.SetAttribute(MediaAspect.ATTR_TITLE, title ?? bdinfo.VolumeLabel);
+                  videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, bdinfo.VolumeLabel);
 
                   // Check for BD disc thumbs
                   FileInfo thumbnail = bdinfo.GetBiggestThumb();
@@ -225,6 +226,11 @@ namespace MediaPortal.Media.MetadataExtractors
     }
 
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       return Task.FromResult(false);
     }

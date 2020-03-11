@@ -38,6 +38,8 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Globalization;
+using System.Security;
+using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
@@ -206,7 +208,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           _debugLogger.Debug("[#{0}]: Nfo-file (Encoding: {1}):{2}{3}", _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
           nfoFileWrittenToDebugLog = true;
         }
-      
+
       try
       {
         // ReSharper disable once AssignNullToNotNullAttribute
@@ -220,25 +222,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       }
       catch (Exception e)
       {
-        // ReSharper disable once AssignNullToNotNullAttribute
-        // TryReadNfoFileAsync makes sure that _nfoBytes is not null
-        using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
-        using (var nfoReader = new StreamReader(nfoMemoryStream, true))
+        try
         {
-          try
+          // ReSharper disable once AssignNullToNotNullAttribute
+          // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+          var nfoDocument = GetFixedNfoDocument();
+          return await TryReadNfoDocumentAsync(nfoDocument, nfoFsra).ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+          // ReSharper disable once AssignNullToNotNullAttribute
+          // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+          using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
+          using (var nfoReader = new StreamReader(nfoMemoryStream, true))
           {
-            if (!nfoFileWrittenToDebugLog)
+            try
             {
-              var nfoString = nfoReader.ReadToEnd();
-              _debugLogger.Warn("[#{0}]: Cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+              if (!nfoFileWrittenToDebugLog)
+              {
+                var nfoString = nfoReader.ReadToEnd();
+                _debugLogger.Warn("[#{0}]: Cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+              }
+            }
+            catch (Exception ex)
+            {
+              _debugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", ex, _miNumber);
             }
           }
-          catch (Exception ex)
-          {
-            _debugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", ex, _miNumber);
-          }
+          return false;
         }
-        return false;
       }
     }
 
@@ -360,6 +372,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     #endregion
 
     #region Private methods
+
+    private XDocument GetFixedNfoDocument()
+    {
+      using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
+      using (var nfoReader = new StreamReader(nfoMemoryStream, true))
+      {
+        var nfoString = nfoReader.ReadToEnd();
+        var fixedNfoString = Regex.Replace(nfoString, @"(?<start><[^/<>]+>)(?<value>[^<>]+)(?<end></[^<>]+>)", m => 
+          m.Groups["start"].Value + SecurityElement.Escape(m.Groups["value"].Value) + m.Groups["end"].Value);
+        XDocument rootedDoc = new XDocument(new XElement("root", XDocument.Parse(fixedNfoString).Root));
+        return rootedDoc;
+      }
+    }
 
     /// <summary>
     /// Calls the appropriate <see cref="TryReadElementDelegate"/> or <see cref="TryReadElementAsyncDelegate"/>for each element of root

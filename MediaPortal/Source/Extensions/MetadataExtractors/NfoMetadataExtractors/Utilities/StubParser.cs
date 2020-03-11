@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilit
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamId++);
 
-            string videoType = VideoStreamAspect.GetVideoType(null, video.StereoMode, video.Height, video.Width);
+            string videoType = VideoStreamAspect.GetVideoType(null, video.StereoMode,  video.ScanType, null, video.Height, video.Width);
             if (!string.IsNullOrEmpty(videoType))
               videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, videoType);
             if (videoType == VideoStreamAspect.TYPE_SBS || videoType == VideoStreamAspect.TYPE_HSBS)

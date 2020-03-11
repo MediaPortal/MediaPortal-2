@@ -51,6 +51,25 @@
         </ControlTemplate>
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>
+
+    <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:AudioAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label x:Name="Duration" Color="{ThemeResource TextColor}" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                  <Binding Path="Duration"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            <Label Content="[Media.Minutes]" Color="{ThemeResource TextColor}" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          </StackPanel>
+        </ControlTemplate>
+      </media:AudioAspectWrapper.Template>
+    </media:AudioAspectWrapper>
+
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
@@ -88,15 +107,15 @@
     <Label x:Name="MediaItemName" Wrap="True" Margin="0,0,0,0" 
            HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"/>
-    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:SeriesAspectWrapper.Template>
+    <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:EpisodeAspectWrapper.Template>
         <ControlTemplate>
           <Label x:Name="Episode" Margin="10,0,10,0" Grid.Column="1"
                  TextTrimming="WordEllipsis" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Content="{Binding Series}" Opacity="1.3" Color="{ThemeResource TextColor}" />
+                 Content="{Binding Episode}" Opacity="1.3" Color="{ThemeResource TextColor}" />
         </ControlTemplate>
-      </media:SeriesAspectWrapper.Template>
-    </media:SeriesAspectWrapper>
+      </media:EpisodeAspectWrapper.Template>
+    </media:EpisodeAspectWrapper>
   </Grid>
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="1" Grid.Row="1" Opacity="0.6" Color="{ThemeResource TextColor}"

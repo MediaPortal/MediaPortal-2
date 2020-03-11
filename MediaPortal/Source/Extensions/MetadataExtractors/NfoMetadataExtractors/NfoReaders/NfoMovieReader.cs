@@ -32,7 +32,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -71,6 +71,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// The name of the root element in a valid nfo-file for movies
     /// </summary>
     private const string MOVIE_ROOT_ELEMENT_NAME = "movie";
+    private const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
 
     #endregion
 
@@ -153,7 +154,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
             _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' found when parsing the nfo-file as plain text.", _miNumber, imdbId);
 
             // Returns true, if the found IMDB-ID represents a movie (not a series)
-            if (await MovieTheMovieDbMatcher.Instance.FindAndUpdateMovieAsync(new MovieInfo { ImdbId = imdbId }).ConfigureAwait(false))
+            if (await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(new MovieInfo { ImdbId = imdbId }, MEDIA_CATEGORY_NAME_MOVIE).ConfigureAwait(false))
             {
               _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' confirmed online to represent a movie. Storing only Imdb-ID.", _miNumber, imdbId);
               var stub = new MovieStub { Id = imdbId };
@@ -1283,7 +1284,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Title != null)
       {
-        string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].Title);
+        string title = _stubs[0].Title;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
         return true;
       }
@@ -1299,7 +1300,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].SortTitle != null)
       {
-        string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].SortTitle);
+        string title = _stubs[0].SortTitle;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, title);
         return true;
       }
@@ -1501,7 +1502,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     {
       if (_stubs[0].Title != null)
       {
-        string title = CultureInfo.InvariantCulture.TextInfo.ToTitleCase(_stubs[0].Title);
+        string title = _stubs[0].Title;
         MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_MOVIE_NAME, title);
         return true;
       }

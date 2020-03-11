@@ -1,14 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Settings.InputDeviceManager.Section">Gestor de mapeamento</string>
-  <string name="Settings.InputDeviceManager.EnterKeyConfig">Gestor de mapeamento de teclas</string>
-  <string name="Settings.InputDeviceManager.EnterScreenConfig">Gestor de mapeamento de ecrã</string>
-  <string name="InputDeviceManager.SelectDevice.Header">Pressione o botão que deseja configurar.</string>
-  <string name="InputDeviceManager.AddKey.Header">Pressiona a combinação de teclas desejada no dispositivo de entrada!</string>
+  <string name="Settings.InputDeviceManager.Section">Dispositivos de Entrada</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Atalhos de Função</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Permite atribuir funções MediaPortal a teclas ou botões em dispositivos de entrada. Pode por exemplo atribuir Subir/Descer volume ás teclas '+' e '-' no teclado caso não possua teclas de volume no teclado.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Atalhos de configuração</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Permite atribuir o ecrã de configuração e definições do MediaPortal a teclas ou botões do dispositivo de entrada para  acesso rápido.  </string>
+  <string name="Settings.InputDeviceManager.EnterScreenHome">Atalhos de Ecrã</string>
+  <string name="Settings.InputDeviceManager.EnterScreenHomeHelp">Permite atribuir regras de menu MediaPortal a teclas ou botões no dispositivo de entrada para acesso rápido. Pode por exemplo começar a utilizar 'F2' no teclado para  abrir o menu 'Notícias'.</string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Pressione a tecla ou botão no dispositivo de entrada que pretende configurar</string>
+  <string name="InputDeviceManager.FocusItem">Ver as atribuições de acesso rápido a teclas atuais e escolher o que alterar</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Pressione a combinação de teclas ou botões no dispositivo de entrada!</string>
   <string name="InputDeviceManager.Screen">Ecrã</string>
-  <string name="InputDeviceManager.Key">Chave</string>
+  <string name="InputDeviceManager.Key">Tecla/Botão</string>
 
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Limpar</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Eliminar mapeamento?</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Adicionar mapeamento?</string>
+
+  <string name="InputDeviceManager.DefaultConfig.Title">Definições de fábrica </string>
+  <string name="InputDeviceManager.DefaultConfig.Description">As alterações realizadas irão substituir as configurações presentes!</string>
+  <string name="InputDeviceManager.DefaultConfig.Keyboard">Teclado Predefinido</string>
+  <string name="InputDeviceManager.DefaultConfig.Remote">Remoto Predefinido</string>
 </resources>

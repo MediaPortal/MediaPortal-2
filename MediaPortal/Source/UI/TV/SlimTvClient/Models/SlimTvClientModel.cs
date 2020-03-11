@@ -89,6 +89,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _selectedCurrentProgramProperty = null;
     protected AbstractProperty _selectedNextProgramProperty = null;
     protected AbstractProperty _selectedChannelNameProperty = null;
+    protected AbstractProperty _selectedChannelNumberProperty = null;
     protected AbstractProperty _selectedChannelLogoTypeProperty = null;
     protected AbstractProperty _selectedProgramProgressProperty = null;
 
@@ -99,17 +100,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _timeshiftProgressProperty = null;
     protected AbstractProperty _currentChannelNameProperty = null;
     protected AbstractProperty _currentChannelLogoTypeProperty = null;
+    protected AbstractProperty _currentChannelNumberProperty = null;
 
     // PiP Control properties
     protected AbstractProperty _piPAvailableProperty = null;
     protected AbstractProperty _piPEnabledProperty = null;
 
     // Channel zapping
+    private AbstractProperty _isZappingProperty;
     protected DelayedEvent _zapTimer;
     protected int _zapChannelIndex;
 
     // Contains the channel that was tuned the last time. Used for selecting channels in group list.
     protected IChannel _lastTunedChannel;
+    // Contains the channel that was tuned before the _lastTunedChannel. Used for ZapBack.
+    protected IChannel _previousTunedChannel;
 
     // Counter for updates
     protected int _updateCounter = 0;
@@ -189,6 +194,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_currentChannelNumberProperty.GetValue(); }
+      set { _currentChannelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _currentChannelNumberProperty; }
+    }
+
+    /// <summary>
     /// Exposes the current channel logo type to the skin.
     /// </summary>
     public string ChannelLogoType
@@ -237,6 +259,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty SelectedChannelLogoTypeProperty
     {
       get { return _selectedChannelLogoTypeProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the selected channel number to the skin.
+    /// </summary>
+    public int SelectedChannelNumber
+    {
+      get { return (int)_selectedChannelNumberProperty.GetValue(); }
+      set { _selectedChannelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the selected channel number to the skin.
+    /// </summary>
+    public AbstractProperty SelectedChannelNumberProperty
+    {
+      get { return _selectedChannelNumberProperty; }
     }
 
     /// <summary>
@@ -404,6 +443,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               nextProgram = channelItem.Programs[1].AdditionalProperties["PROGRAM"] as IProgram;
             }
           SelectedChannelName = channelItem.Channel.Name;
+          SelectedChannelNumber = channelItem.Channel.ChannelNumber;
           SelectedChannelLogoType = channelItem.Channel.GetFanArtMediaType();
           SelectedCurrentProgram.SetProgram(currentProgram, channelItem.Channel);
           SelectedNextProgram.SetProgram(nextProgram, channelItem.Channel);
@@ -424,20 +464,31 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       PiPEnabled = !PiPEnabled;
     }
 
+    public AbstractProperty IsZappingProperty
+    {
+      get { return _isZappingProperty; }
+    }
+
+    public bool IsZapping
+    {
+      get { return (bool)_isZappingProperty.GetValue(); }
+      set { _isZappingProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Members
 
     #region TV control methods
 
-    protected LiveTvPlayer SlotPlayer
+    protected ILivePlayer SlotPlayer
     {
       get
       {
         IPlayerContextManager pcm = ServiceRegistration.Get<IPlayerContextManager>();
         if (pcm == null)
           return null;
-        LiveTvPlayer player = pcm[SlotIndex] as LiveTvPlayer;
+        ILivePlayer player = pcm[SlotIndex] as ILivePlayer;
         return player;
       }
     }
@@ -468,7 +519,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         return false;
 
       // Invoke event handler before pausing to avoid flashing of pause symbol
-      SlotPlayer?.OnBeginZap?.Invoke(this, EventArgs.Empty);
+      SlotPlayer?.NotifyBeginZap(this);
       SlotPlayer?.Pause();
 
       // Set the current index of the tuned channel
@@ -484,6 +535,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (await _tvHandler.StartTimeshiftAsync(SlotIndex, channel))
       {
         _watchStart[channel] = DateTime.UtcNow;
+        _previousTunedChannel = _lastTunedChannel;
         _lastTunedChannel = channel;
         EndZap();
         Update();
@@ -491,7 +543,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       // Notify end of zapping
-      SlotPlayer?.OnEndZap?.Invoke(this, EventArgs.Empty);
+      SlotPlayer?.NotifyEndZap(this);
       return true;
     }
 
@@ -527,12 +579,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void BeginZap()
     {
+      IsZapping = true;
       SlotPlayer?.BeginZap();
     }
 
     private void EndZap()
     {
       SlotPlayer?.EndZap();
+      IsZapping = false;
     }
 
     /// <summary>
@@ -560,6 +614,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Zaps back to the previously tuned channel.
+    /// </summary>
+    /// <returns></returns>
+    public async Task ZapBack()
+    {
+      if (_previousTunedChannel != null && _lastTunedChannel != _previousTunedChannel)
+        await Tune(_previousTunedChannel);
+    }
+
+    /// <summary>
     /// Presents a dialog with recording options.
     /// </summary>
     public async void RecordDialog()
@@ -571,10 +635,36 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
     }
 
+    /// <summary>
+    /// Presents a dialog with recording options for the currently selected program/channel.
+    /// </summary>
+    public async void RecordMenu()
+    {
+      if (SlimTvExtScheduleModel.CurrentItem == null)
+        return;
+      ChannelProgramListItem item = SlimTvExtScheduleModel.CurrentItem as ChannelProgramListItem;
+      if (item == null || item.Programs == null)
+        return;
+      IProgram program = null;
+      IChannel channel = null;
+      lock (item.Programs.SyncRoot)
+        if (item.Programs.Count == 2)
+        {
+          program = item.Programs[0].AdditionalProperties["PROGRAM"] as IProgram;
+          channel = item.AdditionalProperties["CHANNEL"] as IChannel;
+        }
+      if (program != null && channel != null && await InitActionsList(program, channel))
+      {
+        IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+        screenManager.ShowDialog("DialogClientModel");
+      }
+    }
+
     private void ShowOSD()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      VideoPlayerModel model = workflowManager.GetModel(VideoPlayerModel.MODEL_ID) as VideoPlayerModel;
+      BaseOSDPlayerModel model = workflowManager.GetModel(_tvHandler.GetChannel(SlotIndex).MediaType == MediaType.Radio ?
+        AudioPlayerModel.MODEL_ID : VideoPlayerModel.MODEL_ID) as BaseOSDPlayerModel;
       if (model == null)
         return;
 
@@ -585,7 +675,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void CloseOSD()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      VideoPlayerModel model = workflowManager.GetModel(VideoPlayerModel.MODEL_ID) as VideoPlayerModel;
+      BaseOSDPlayerModel model = workflowManager.GetModel(_tvHandler.GetChannel(SlotIndex).MediaType == MediaType.Radio ?
+        AudioPlayerModel.MODEL_ID : VideoPlayerModel.MODEL_ID) as BaseOSDPlayerModel;
       if (model == null)
         return;
 
@@ -595,43 +686,33 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private async Task<bool> InitActionsList()
     {
-      _dialogActionsList.Clear();
-      DialogHeader = "[SlimTvClient.RecordActions]";
       IPlayerContextManager playerContextManager = ServiceRegistration.Get<IPlayerContextManager>();
       IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
       if (playerContext == null)
         return false;
       LiveTvMediaItem liveTvMediaItem = playerContext.CurrentMediaItem as LiveTvMediaItem;
-      LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
+      ILivePlayer player = playerContext.CurrentPlayer as ILivePlayer;
       if (liveTvMediaItem == null || player == null)
         return false;
 
-      ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
+      ITimeshiftContext context = liveTvMediaItem.TimeshiftContexes.LastOrDefault();
       if (context == null || context.Channel == null)
         return false;
 
-      ListItem item;
       ILocalization localization = ServiceRegistration.Get<ILocalization>();
-      bool isRecording = false;
       var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(context.Channel);
-      if (result.Success)
+      return await InitActionsList(result.Success ? result.Result[0] : null, context.Channel);
+    }
+
+    private async Task<bool> InitActionsList(IProgram program, IChannel channel)
+    {
+      _dialogActionsList.Clear();
+      DialogHeader = "[SlimTvClient.RecordActions]";
+      if (program != null)
       {
-        IProgram programNow = result.Result[0];
-        var recStatus = await GetRecordingStatusAsync(programNow);
-        isRecording = recStatus.HasValue && recStatus.Value.HasFlag(RecordingStatus.Scheduled | RecordingStatus.Recording);
-        item = new ListItem(Consts.KEY_NAME, localization.ToString(isRecording ? "[SlimTvClient.StopCurrentRecording]" : "[SlimTvClient.RecordCurrentProgram]", programNow.Title))
-        {
-          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(programNow))
-        };
-        _dialogActionsList.Add(item);
-      }
-      if (!isRecording)
-      {
-        item = new ListItem(Consts.KEY_NAME, "[SlimTvClient.RecordManual]")
-        {
-          Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteScheduleByTimeAsync(context.Channel, DateTime.Now, DateTime.Now.AddDays(1)))
-        };
-        _dialogActionsList.Add(item);
+        var recStatus = await GetRecordingStatusAsync(program);
+        if (recStatus.HasValue)
+          AddRecordingOptions(_dialogActionsList, program, recStatus.Value);
       }
       _dialogActionsList.FireChange();
       return true;
@@ -690,20 +771,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected async Task UpdateSelectedChannelPrograms(IChannel channel)
     {
-      await UpdateForChannel(channel, SelectedCurrentProgram, SelectedNextProgram, SelectedChannelNameProperty, SelectedProgramProgressProperty);
+      await UpdateForChannel(channel, SelectedCurrentProgram, SelectedNextProgram, SelectedChannelNameProperty, SelectedChannelNumberProperty, SelectedProgramProgressProperty);
     }
 
     protected async Task UpdateRunningChannelPrograms(IChannel channel)
     {
-      await UpdateForChannel(channel, CurrentProgram, NextProgram, ChannelNameProperty, ProgramProgressProperty);
+      await UpdateForChannel(channel, CurrentProgram, NextProgram, ChannelNameProperty, ChannelNumberProperty, ProgramProgressProperty);
     }
 
-    protected async Task UpdateForChannel(IChannel channel, ProgramProperties current, ProgramProperties next, AbstractProperty channelNameProperty, AbstractProperty progressProperty)
+    protected async Task UpdateForChannel(IChannel channel, ProgramProperties current, ProgramProperties next, AbstractProperty channelNameProperty, AbstractProperty channelNumberProperty, AbstractProperty progressProperty)
     {
       bool success = channel != null;
       if (success)
       {
         channelNameProperty.SetValue(channel.Name);
+        channelNumberProperty.SetValue(channel.ChannelNumber);
         var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(channel);
         success = result.Success;
         if (success)
@@ -736,12 +818,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _currentGroupNameProperty = new WProperty(typeof(string), string.Empty);
 
         _selectedChannelNameProperty = new WProperty(typeof(string), string.Empty);
+        _selectedChannelNumberProperty = new WProperty(typeof(int), 0);
         _selectedChannelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _selectedCurrentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _selectedNextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _selectedProgramProgressProperty = new WProperty(typeof(double), 0d);
 
         _currentChannelNameProperty = new WProperty(typeof(string), string.Empty);
+        _currentChannelNumberProperty = new WProperty(typeof(int), 0);
         _currentChannelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
         _nextProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
@@ -750,6 +834,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
         _piPAvailableProperty = new WProperty(typeof(bool), false);
         _piPEnabledProperty = new WProperty(typeof(bool), false);
+
+        _isZappingProperty = new WProperty(typeof(bool), false);
 
         //Get current Tv Server state
         var ssm = ServiceRegistration.Get<IServerStateManager>();
@@ -874,10 +960,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       IPlayerContext playerContext = playerContextManager.GetPlayerContext(PlayerChoice.PrimaryPlayer);
       if (playerContext != null)
       {
-        LiveTvPlayer player = playerContext.CurrentPlayer as LiveTvPlayer;
+        ILivePlayer player = playerContext.CurrentPlayer as ILivePlayer;
         if (player != null)
         {
-          ITimeshiftContext context = player.TimeshiftContexes.LastOrDefault();
+          LiveTvMediaItem item = player.CurrentItem;
+          ITimeshiftContext context = item == null ? null : item.TimeshiftContexes.LastOrDefault();
           IProgram currentProgram = null;
           IProgram nextProgram = null;
           IChannel channel = null;
@@ -885,6 +972,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           {
             channel = context.Channel;
             ChannelName = channel.Name;
+            ChannelNumber = channel.ChannelNumber;
             ChannelLogoType = channel.GetFanArtMediaType();
             if (_tvHandler.ProgramInfo != null)
             {

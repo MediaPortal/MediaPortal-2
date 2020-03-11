@@ -101,11 +101,11 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="BaseDXPlayer.cs" />
+    <Compile Include="Native\EvrPresenterWrapper.cs" />
     <Compile Include="PlayerRegistration.cs" />
     <Compile Include="Settings\Configuration\AudioCodecAAC.cs" />
     <Compile Include="Settings\Configuration\GenericCodecSelection.cs" />
     <Compile Include="Settings\Configuration\AudioCodec.cs" />
-    <Compile Include="Settings\Configuration\ClosedCaptions.cs" />
     <Compile Include="Settings\Configuration\AudioRenderer.cs" />
     <Compile Include="Settings\Configuration\AudioCodecLATMAAC.cs" />
     <Compile Include="Settings\Configuration\AudioPreferMultiChannel.cs" />
@@ -115,9 +115,18 @@
     <Compile Include="Settings\Configuration\VideoAVCCodec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG4Codec.cs" />
     <Compile Include="Settings\Configuration\VideoMPEG2Codec.cs" />
+    <Compile Include="Subtitles\ISubtitleRenderer.cs" />
     <Compile Include="Subtitles\MpcEngine.cs" />
     <Compile Include="Settings\MpcSubsSettings.cs" />
     <Compile Include="Subtitles\MpcSubsRenderer.cs" />
+    <Compile Include="Subtitles\Subtitle.cs" />
+    <Compile Include="Teletext_v2\TeletextHeaderPacket.cs" />
+    <Compile Include="Teletext_v2\TeletextMagazine.cs" />
+    <Compile Include="Teletext_v2\TeletextPacket.cs" />
+    <Compile Include="Teletext_v2\TeletextPage.cs" />
+    <Compile Include="Teletext_v2\TeletextRow.cs" />
+    <Compile Include="Teletext_v2\TeletextService.cs" />
+    <Compile Include="Teletext_v2\Utils.cs" />
     <Compile Include="Tools\COMHelper.cs" />
     <Compile Include="Tools\FilterLoader.cs" />
     <Compile Include="Tools\GraphRebuilder.cs" />
@@ -181,29 +190,34 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
-    <Content Include="plugin.xml" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.CCCP">
-      <Version>3.0.0.1001</Version>
+      <Version>4.0.0</Version>
     </PackageReference>
     <PackageReference Include="MediaPortal.DVBSub">
-      <Version>1.16.1</Version>
+      <Version>1.19.1</Version>
     </PackageReference>
     <PackageReference Include="MediaPortal.MpcSubs">
-      <Version>1.0.0</Version>
+      <Version>2.0.0.1</Version>
     </PackageReference>
     <PackageReference Include="MediaPortal.TsReader">
-      <Version>4.2.2.39</Version>
+      <Version>5.2.3.45</Version>
     </PackageReference>
     <PackageReference Include="SharpDX">
       <Version>4.2.0</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>

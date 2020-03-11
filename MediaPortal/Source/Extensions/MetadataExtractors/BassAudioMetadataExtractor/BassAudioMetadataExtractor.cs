@@ -235,29 +235,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
               trackInfo.ReleaseDate = new DateTime(year, 1, 1);
           }
 
-          if (!trackInfo.HasThumbnail)
-          {
-            // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
-            if (tags.PictureCount > 0)
-            {
-              try
-              {
-                using (Image cover = tags.PictureGetImage(0))
-                using (MemoryStream result = new MemoryStream())
-                {
-                  cover.Save(result, ImageFormat.Jpeg);
-                  trackInfo.Thumbnail = result.ToArray();
-                  trackInfo.HasChanged = true;
-                }
-              }
-              // Decoding of invalid image data can fail, but main MediaItem is correct.
-              catch { }
-            }
-          }
+          //Should be handled by the fanart collector instead
+          //if (!trackInfo.HasThumbnail)
+          //{
+          //  // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
+          //  if (tags.PictureCount > 0)
+          //  {
+          //    try
+          //    {
+          //      using (Image cover = tags.PictureGetImage(0))
+          //      using (MemoryStream result = new MemoryStream())
+          //      {
+          //        cover.Save(result, ImageFormat.Jpeg);
+          //        trackInfo.Thumbnail = result.ToArray();
+          //        trackInfo.HasChanged = true;
+          //      }
+          //    }
+          //    // Decoding of invalid image data can fail, but main MediaItem is correct.
+          //    catch { }
+          //  }
+          //}
         }
 
         if(!SkipOnlineSearches && !forceQuickMode)
-          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo).ConfigureAwait(false);
+          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
 
         if (!trackInfo.HasChanged)
           return false;

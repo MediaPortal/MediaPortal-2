@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desconectar do servidor</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor Local</string>
   <string name="ServerConnection.AttachedText.Before">Este cliente MediaPortal 2 está conectado ao servidor local</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Este cliente MediaPortal 2 não está conectado ao servidor local.</string>
   <string name="ServerConnection.HomeServerIsConnected">O servidor local está conectado.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">O servidor local está desconectado.</string>
@@ -62,14 +61,18 @@
   <string name="Notifications.NMoreNotifications">(mais {0})</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notificações</string>
   <string name="Notifications.Handle">Gerenciador</string>
+  <string name="Notifications.Upgrading">A atualizar...</string>
   <string name="ImporterMessages.ImportStartedTitle">Importação iniciada</string>
   <string name="ImporterMessages.ImportStartedText">A importação de \'{0}\' iniciou.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importação completa</string>
   <string name="ImporterMessages.ImportCompletedText">A importação de \'{0}\' foi concluída.</string>
   <string name="LocalFsResourceProvider.Description">Acessar o sistema de arquivos local</string>
+  <string name="RemoteResourceProvider.Name">Recursos remotos</string>
   <string name="RemoteResourceProvider.Description">Acessar recursos localizados em outro sistema MediaPortal 2</string>
   <string name="RawUrlResourceProvider.Name">Url bruta</string>
   <string name="RawUrlResourceProvider.Description">Aceder às fontes dos URI brutos</string>
+  <string name="VirtualResourceProvider.Name">Recursos virtuais</string>
+  <string name="VirtualResourceProvider.Description">Aceder recursos virtuais</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Sem reprodutor</string>
@@ -114,17 +117,28 @@
   <string name="Settings.General.Connectivity.ServerListener.Help">Habilitar notificação de estado desconectado quando o MediaPortal 2 estiver disponível na rede</string>
   <string name="Settings.General.Connectivity.ClientName">Nome do cliente</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Configure o nome deste cliente MediaPortal 2</string>
+  <string name="Settings.General.Connectivity.HttpServerPort">Porta do servidor HTTP</string>
+  <string name="Settings.General.Connectivity.UseIPv4">Utilizar IPv4</string>
+  <string name="Settings.General.Connectivity.UseIPv6">Utilizar IPv6</string>
   <string name="Settings.Regional">Região</string>
   <string name="Settings.Regional.Language">Linguagem</string>
   <string name="Settings.Regional.Language.Main">Linguagem</string>
   <string name="Settings.Regional.Language.Main.Help">Configure a linguagem principal utilizada na aplicação</string>
+  <string name="Settings.Shares">Fontes de multimédia</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">Configurar fontes de multimédia</string>
   <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Configuração das fontes de multimédia</string>
   <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Configurar todas as fontes de multimédia</string>
   <string name="Settings.Shares.Overview">Resumo</string>
   <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Resumo das fontes de multimédia</string>
   <!--Setting-->
   <string name="Settings.Plugins">Plugins</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Resumo das fontes de multimédia</string>
+  <string name="SharesOverview.Title">Resumo das fontes de multimédia</string>
+  <string name="Shares.NoSharesInThisView">- Sem fontes de multimédia nesta visualização-</string>
   <string name="Shares.InvalidPath">CAMINHO INVÁLIDO: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Online</string>
@@ -132,22 +146,47 @@
   <string name="Shares.ReImport">Reimportar</string>
   <string name="Shares.Importing">Importando...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Configuração das fontes de multimédia</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Remover fontes de multimédia</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Informação das fontes de multimédia</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Escolha o provedor de recursos</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Editar caminho</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Escolher caminho</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Editar nome</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Escolher categorias</string>
+  <string name="SharesConfig.CannotAddSharesTitle">Não é possível adicionar fontes de multimédia</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Configuração das fontes de multimédia</string>
+  <string name="SharesConfig.NoSharesAvailable">Sem fontes de multimédia disponíveis</string>
+  <string name="SharesConfig.ShareInformationHeader">Informação das fontes de multimédia</string>
   <string name="SharesConfig.ShareNameInfo">Nome:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Provedor de recursos base:</string>
   <string name="SharesConfig.ShareSystem">Sistema:</string>
   <string name="SharesConfig.SharePathInfo">Caminho:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Caminho técnico:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Categorias de mídia:</string>
+  <string name="SharesConfig.SetupDefaultShares">Configurar fontes predefinidas</string>
+  <string name="SharesConfig.RemoveShares">Remover fontes de multimédia</string>
+  <string name="SharesConfig.EditShare">Editar fontes de multimédia</string>
   <string name="SharesConfig.ChooseSystem">Escolher sistema</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Por favor, selecione as fontes de multimédia a remover</string>
+  <string name="SharesConfig.ChooseSystemForShare">Escolher fontes de multimédia</string>
+  <string name="SharesConfig.LocalShare">Fonte de multimédia do cliente</string>
+  <string name="SharesConfig.LocalShares">Fontes de multimédia do cliente</string>
+  <string name="SharesConfig.GlobalShare">Fonte de multimédia do servidor</string>
+  <string name="SharesConfig.GlobalShares">Fontes de multimédia do servidor</string>
+  <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">O servidor não se encontra ligado e por isso as fontes do servidor de midia não podem ser geridas</string>
+  <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">O servidor está localizado nesta máquina, apenas pode configurar outros servidores. </string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Editar um caminho válido no provedor de recursos escolhido. Você pode editar um simples caminho que seja compreendido pelo provedor de recursos. Você pode tamém editar um caminho complexo no formato {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.MenuAddShare">Adicionar fonte de multimédia</string>
   <string name="SharesConfig.MenuEditShares">Editar</string>
+  <string name="SharesConfig.MenuRemoveShares">Remover fontes de multimédia</string>
+  <string name="SharesConfig.AddServerShare">Adicionar fonte de multimédia do servidor</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.EditServerShare">Editar fonte de multimédia do servidor</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.AddLocalShare">Adicionar fonte de multimédia do cliente</string>
+  <string name="SharesConfig.EditLocalShare">Editar fonte de multimédia do cliente</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Atualizar fonte de multimédia</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Você quer realocar ou limpar e reimportar?</string>
   <string name="SharesConfig.Relocate">Realocar</string>
   <string name="SharesConfig.ReImport">Reimportar</string>

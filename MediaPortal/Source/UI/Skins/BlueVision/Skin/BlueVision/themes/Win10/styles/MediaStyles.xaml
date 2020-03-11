@@ -1397,7 +1397,7 @@
       </Grid.RowDefinitions>
       <Image x:Name="ItemTypeImage" Stretch="UniformToFill" >
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
@@ -1431,7 +1431,7 @@
         <Image x:Name="ItemTypeMedium" Stretch="Uniform" FallbackSource="person.png" Margin="-18,0,-10,0"
             Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -1441,7 +1441,7 @@
         <Image x:Name="ItemTypeLarge" Stretch="Uniform" FallbackSource="person.png" Margin="-30,0,-15,0"
             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
              fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
           <Image.IsVisible>
@@ -1473,7 +1473,7 @@
       </Grid.RowDefinitions>
       <Image x:Name="thumb" Stretch="UniformToFill" Grid.Row="1">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Undefined" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
         </Image.Source>
       </Image>
@@ -2105,7 +2105,7 @@
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
           </Button>
         </ControlTemplate>
@@ -2128,7 +2128,7 @@
               </Trigger>
             </Button.Triggers>
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActions" Parameters="{LateBoundValue BindingValue={Binding MediaItem}}"/>
+              <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
           </Button>
         </ControlTemplate>
@@ -2352,12 +2352,10 @@
                 Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
         <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                 Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
-        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="5,8,0,-7">
-          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-        </Grid>
+        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" Margin="{ThemeResource PlayerControlButtonMargins}" VerticalAlignment="Top"/>
+        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" Margin="{ThemeResource PlayerControlButtonMargins}" VerticalAlignment="Top"/>
       </StackPanel>
 
       <DockPanel LastChildFill="False" Margin="80,0,80,0">
@@ -2384,6 +2382,8 @@
           </DockPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
+          <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}"  Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}" IsVisible="{Binding IsDVD}"/>
           <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
@@ -2423,12 +2423,10 @@
                 Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
         <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                 Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
-        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="5,8,0,-7">
-          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-        </Grid>
+        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" Margin="{ThemeResource PlayerControlButtonMargins}" VerticalAlignment="Top"/>
+        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" Margin="{ThemeResource PlayerControlButtonMargins}" VerticalAlignment="Top"/>
       </StackPanel>
 
       <DockPanel LastChildFill="False" Margin="80,0,80,0">
@@ -2447,6 +2445,8 @@
                   Command="{Command SeekForward}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
                   Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
+          <Button x:Name="EjectDisc" Style="{ThemeResource EjectDiscButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9EE2C4A6-70FD-4947-9418-A40012925DA6}"/>
           <DockPanel LastChildFill="False">
             <Label DockPanel.Dock="Top" x:Name="DurationLabel" Content="{Binding Duration}" Margin="10,10,20,0"
                    Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold"/>
@@ -2455,10 +2455,10 @@
           </DockPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
-          <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}"  Margin="{ThemeResource PlayerControlButtonMargins}"
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ShowDvdMenu}"/>
+          <Button x:Name="SelectMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                  Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                   IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}" IsEnabled="{Binding IsEnabled}"/>
@@ -2476,9 +2476,9 @@
                   Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}" IsEnabled="{Binding IsEnabled}"/>
         </StackPanel>
       </DockPanel>
+      
     </DockPanel>
   </ControlTemplate>
-
 
   <ControlTemplate x:Key="GenericAudioOSDControlsControl">
     <DockPanel x:Name="PlayControlsPanel" VerticalAlignment="Top" HorizontalAlignment="Stretch" LastChildFill="True">
@@ -2499,12 +2499,10 @@
         <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                 Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top"
                 IsEnabled="{Binding IsEnabled}"/>
-        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="5,8,0,-7">
-          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-        </Grid>
+        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" Margin="{ThemeResource PlayerControlButtonMargins}" VerticalAlignment="Top"/>
+        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" Margin="{ThemeResource PlayerControlButtonMargins}" VerticalAlignment="Top"/>
       </StackPanel>
 
       <DockPanel LastChildFill="False" Margin="80,0,80,0">
@@ -2551,12 +2549,10 @@
                 Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
         <Button x:Name="VolDownButton" Style="{ThemeResource VolDownButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                 Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}" VerticalAlignment="Top" IsEnabled="{Binding IsEnabled}"/>
-        <Grid x:Name="AudioPanel" VerticalAlignment="Top" Margin="4,9,0,-8">
-          <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-          <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
-                  IsEnabled="{Binding IsEnabled}"/>
-        </Grid>
+        <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" Margin="{ThemeResource PlayerControlButtonMargins}" VerticalAlignment="Top"/>
+        <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Command="{Command AudioButtonPressed}"
+                IsEnabled="{Binding IsEnabled}" Margin="{ThemeResource PlayerControlButtonMargins}" VerticalAlignment="Top"/>
       </StackPanel>
 
       <DockPanel LastChildFill="False" Margin="80,0,80,0">
@@ -2576,6 +2572,7 @@
                  HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </StackPanel>
       </DockPanel>
+      
     </DockPanel>
   </ControlTemplate>
 
@@ -2690,8 +2687,6 @@
           <Control Style="{ThemeResource OSDContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
-              <ControlTemplate x:Key="OSD_Cover_Template">
-              </ControlTemplate>
 
               <ControlTemplate x:Key="OSD_InfoArea_Template">
                 <Grid x:Name="InfoGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -2706,6 +2701,18 @@
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Margin="0,10,0,0"
                          FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
+
+                  <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,0"
+                                            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <media:VideoAspectWrapper.Template>
+                      <ControlTemplate>
+                        <Label x:Name="StoryPlot" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                               TextTrimming="WordEllipsis" Opacity="0.6" Wrap="True"
+                               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                               Content="{Binding Path=StoryPlot}" Color="{ThemeResource TextColor}" />
+                      </ControlTemplate>
+                    </media:VideoAspectWrapper.Template>
+                  </media:VideoAspectWrapper>
 
                 </Grid>
               </ControlTemplate>
@@ -2781,14 +2788,14 @@
       <SplineColorKeyFrame KeyTime="00:00:00" Value="{ThemeResource PipBorderColor}"/>
       <SplineColorKeyFrame KeyTime="{ThemeResource PressedPiPOSDButtonAnimationTime2}" Value="{ThemeResource OSDPipBorderFocusColor}"/>
     </ColorAnimationUsingKeyFrames>
-    <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PiPButton" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
+    <!--DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PiPButton" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleX">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource PressedPiPOSDButtonAnimationTime1}" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
-    </DoubleAnimationUsingKeyFrames>
+    </>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="PiPButton" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="{ThemeResource PressedPiPOSDButtonAnimationTime1}" Value="{ThemeResource SquareButtonZoomCoefficient}"/>
-    </DoubleAnimationUsingKeyFrames>
+    </DoubleAnimationUsingKeyFrames-->
   </Storyboard>
 
   <Style x:Key="SecondaryMediaOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
@@ -2796,20 +2803,11 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-          <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
-              BorderThickness="0" Margin="0,0,38,0"
-              DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <LinearGradientBrush.GradientStops>
-                  <GradientStop Color="#CC000000" Offset="0"  />
-                  <GradientStop Color="#CC000000" Offset="0.95"  />
-                  <GradientStop Color="#00000000" Offset="1"  />
-                </LinearGradientBrush.GradientStops>
-              </LinearGradientBrush>
-            </Border.Background>
+          <Border x:Name="OSD_Background" BorderBrush="#80FFFFFF" Background="#D8000000"
+                  BorderThickness="2" Margin="0,0,40,0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            
             <Grid x:Name="PlayerGrid" Grid.Column="2" Grid.Row="0" Margin="10,0,10,0"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -2819,43 +2817,8 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
+
               <DockPanel x:Name="PiPHeaderPanel" Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
-                <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0" Height="30"
-                    IsVisible="{Binding HasAudio}">
-                  <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <!-- Must be located the same as Audio_Mouse -->
-                    <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveDarkControlTemplate}"/>
-                    <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
-                      <Control.IsVisible>
-                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                          <Binding Path="IsAudio"/>
-                          <Binding Path="IsMuted"/>
-                        </MultiBinding>
-                      </Control.IsVisible>
-                    </Control>
-                  </Grid>
-                  <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
-                    <!-- Must be located the same as Audio_NoMouse -->
-                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveDarkButtonStyle}" RenderTransformOrigin="0.5,0.5"
-                        Command="{Command AudioButtonPressed}">
-                      <Button.RenderTransform>
-                        <TransformGroup>
-                          <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
-                        </TransformGroup>
-                      </Button.RenderTransform>
-                    </Button>
-                    <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveDarkButtonStyle}" RenderTransformOrigin="0.5,0.5"
-                        Command="{Command AudioButtonPressed}">
-                      <Button.RenderTransform>
-                        <TransformGroup>
-                          <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
-                        </TransformGroup>
-                      </Button.RenderTransform>
-                    </Button>
-                  </Grid>
-                </Grid>
                 <Grid DockPanel.Dock="Center">
                   <!-- Has to be last control in DockPanel, LastChildFill! -->
                   <Grid.ColumnDefinitions>
@@ -2864,17 +2827,15 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="#333333" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}"
-                      MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+                  <Label x:Name="MediaName" Content="{Binding Path=MediaItemTitle}" Color="#D9FFFFFF" Scroll="Auto"
+                         HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}"
+                         MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
                 </Grid>
               </DockPanel>
               
-              <!-- PiPHeaderPanel -->
               <Button x:Name="PiPButton" Grid.Column="0" Grid.Row="1" Margin="5"
-                  Style="{ThemeResource PipControlStyle}" RenderTransformOrigin="0.5,0.5"
-                  VerticalAlignment="Center" HorizontalAlignment="Center"
-                  Command="{Command SwitchPip}" IsVisible="{Binding IsPip}">
+                      Style="{ThemeResource PipControlStyle}" RenderTransformOrigin="0.5,0.5"
+                      VerticalAlignment="Center" HorizontalAlignment="Center" Command="{Command SwitchPip}" >
                 <Button.RenderTransform>
                   <TransformGroup>
                     <ScaleTransform ScaleX="1" ScaleY="1"/>
@@ -2891,41 +2852,35 @@
                   </Trigger>
                 </Button.Triggers>
               </Button>
-              <!-- PiPButton -->
-              <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" Color="#333333" FontSize="{ThemeResource SmallerFontSize}"
-                  Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/>
+
+              <!--Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="2" HorizontalAlignment="Center" Color="#333333" FontSize="{ThemeResource SmallerFontSize}"
+                     Content="{Binding PlayerStateText}" Scroll="Auto" MaxWidth="{ThemeResource FullScreenContentVideoSecondaryPlayerOSDTextMaxWidth}"/-->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
-                  VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" Height="30">
-                <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackDarkButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
-                    Command="{Command Previous}"/>
-                <Button x:Name="RewindButton" Style="{ThemeResource RewindDarkButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
-                    Command="{Command SeekBackward}"/>
-                <Button x:Name="PlayButton" Style="{ThemeResource PlayDarkButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                    Command="{Command Play}"/>
-                <Button x:Name="PauseButton" Style="{ThemeResource PauseDarkButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                    Command="{Command Pause}"/>
-                <Button x:Name="StopButton" Style="{ThemeResource StopDarkButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
-                    Command="{Command Stop}"/>
-                <Button x:Name="ForwardButton" Style="{ThemeResource ForwardDarkButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
-                    Command="{Command SeekForward}"/>
-                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardDarkButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
-                    Command="{Command Next}"/>
+                          VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" Height="60">
+                <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        IsVisible="{Binding CanSkipBack}" Command="{Command Previous}" Width="60"/>
+                <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        IsVisible="{Binding CanSeekBackward}" Command="{Command SeekBackward}" Width="60"/>
+                <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" 
+                        IsVisible="{Binding CanPlay}" Command="{Command Play}" Width="60"/>
+                <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        IsVisible="{Binding CanPause}" Command="{Command Pause}" Width="60"/>
+                <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        IsVisible="{Binding CanStop}" Command="{Command Stop}" Width="60"/>
+                <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        IsVisible="{Binding CanSeekForward}" Command="{Command SeekForward}" Width="60"/>
+                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        IsVisible="{Binding CanSkipForward}" Command="{Command Next}" Width="60"/>
+                <Button x:Name="AudioActiveButton" Style="{ThemeResource AudioActiveButtonStyle}" IsVisible="{Binding IsAudio}" 
+                        Command="{Command AudioButtonPressed}" Margin="{ThemeResource PlayerControlButtonMargins}" Width="60"/>
+                <Button x:Name="AudioInactiveButton" Style="{ThemeResource AudioInactiveButtonStyle}" IsVisible="{Binding !IsAudio}" 
+                        Command="{Command AudioButtonPressed}" Margin="{ThemeResource PlayerControlButtonMargins}" Width="60"/>
               </StackPanel>
               <!-- PlayControlsPanel -->
             </Grid>
             <!-- PlayerGrid -->
           </Border>
           <!-- OSD_Background -->
-          <ControlTemplate.Triggers>
-            <!--<Trigger Property="IsCurrentPlayer" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="CurrentPlayer_BeginStoryboard" Storyboard="{ThemeResource OSDCurrentPlayerControlStoryboard}"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="CurrentPlayer_BeginStoryboard"/>
-              </Trigger.ExitActions>
-            </Trigger>-->
-          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>

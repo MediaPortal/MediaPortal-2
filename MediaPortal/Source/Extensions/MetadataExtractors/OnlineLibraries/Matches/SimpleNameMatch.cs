@@ -24,7 +24,7 @@
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matches
 {
-  public class SimpleNameMatch : BaseMatch<string>
+  public class SimpleNameMatch : BaseMediaMatch<string>
   {
     /// <summary>
     /// Online name

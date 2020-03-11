@@ -99,10 +99,10 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Argus\Recording.cs" />
-    <Compile Include="Metadata\RecordingAspect.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ArgusRecordingMetadataExtractor.cs" />
     <Compile Include="RadioRecordingMetadataExtractor.cs" />
+    <Compile Include="RecordingUtils.cs" />
     <Compile Include="WTVRecordingMetadataExtractor.cs" />
     <Compile Include="Tve3RecordingMetadataExtractor.cs" />
     <Compile Include="WTV\MCRecMetadataEditor.cs" />
@@ -121,6 +121,10 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
       <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
       <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
+      <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\MediaInfoLib\MediaInfoLib.csproj">
       <Project>{7280c551-dce2-46b7-943e-8c0d90cdc22c}</Project>

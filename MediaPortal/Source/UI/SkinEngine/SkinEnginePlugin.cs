@@ -125,6 +125,10 @@ namespace MediaPortal.UI.SkinEngine
     {
       ILogger logger = ServiceRegistration.Get<ILogger>();
       logger.Info("SkinEnginePlugin: Startup");
+      logger.Info("SkinEnginePlugin: Setting platform specific paths");
+      string absolutePlatformDir;
+      if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+        throw new Exception("Error adding dll probe path");
 #if DEBUG
       // Enable object tracking only in debug builds, as it adds overhead to each object creation.
       // Commented out for newer SharpDX versions, as the performance impact is too high. Enable only for DX debugging.

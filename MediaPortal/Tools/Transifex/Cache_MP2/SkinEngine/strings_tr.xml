@@ -18,8 +18,10 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">MediaPortal 2 görünümünü değiştir</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Temayı değiştir</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Kullanılak skinin gösterimini değiştir</string>
-  <string name="Settings.Players">Çalıcılar</string>
-  <string name="Settings.Players.Rendering">Oynatma şekli</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Skin müziklerini etkinleştir</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">skin sesleri çalınacaksa düzenle</string>
+  <string name="Settings.Players">oynatıcı</string>
+  <string name="Settings.Players.Rendering">yorumlama</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Varsayılan yaklaştırma modu</string>
   <string name="Settings.Players.Rendering.DefaultGeometry.Help">Video oynatıcılar tarafından varsayılan olarak kullanılacak yaklaştırma modunu seç</string>
   <string name="Settings.General.System.ApplicationSuspendLevel">Windows enerji tasarruf modunu ayarla</string>

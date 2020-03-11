@@ -37,8 +37,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
     public SlimTvUnwatchedRecordingsMediaListProvider()
     {
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
-      //Needed for calculating play percentage
-      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID };
+      _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
       _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
     }
   }

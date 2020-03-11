@@ -412,6 +412,15 @@ namespace MediaPortal.Common.SystemCommunication
     /// <returns>Collection of share ids.</returns>
     Task<ICollection<Guid>> GetCurrentlyImportingSharesAsync();
 
+    /// <summary>
+    /// Downloads metadata based on aspect data <paramref name="mediaItemAspects"/>.
+    /// The downloads from various sources like files, online data etc.
+    /// </summary>
+    /// <param name="mediaItemId">The media item the aspect data comes from.</param>
+    /// <param name="mediaItemAspects">A dictionary containing all the current aspects from which the needed metadata should be found.</param>
+    /// <returns><c>true</c> if metadata was downloaded, else <c>false</c>.
+    Task<bool> DownloadMetadataAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects);
+
     #endregion
 
     #region Playback

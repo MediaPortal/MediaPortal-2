@@ -21,8 +21,8 @@
   <string name="SlimTvClient.DeleteSchedule">Suprimeix la planificació</string>
   <string name="SlimTvClient.CreateSchedule">Planificació d\'enregistraments</string>
   <!--Extended recording features-->
-  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Enregistraments per nom</string>
-  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Enregistraments per nom</string>
+  <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Nom</string>
+  <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Nom</string>
   <!--Schedule management-->
   <string name="SlimTvClient.ErrorNoTvProvider">Ni hi ha cap proveïdor disponible (encara)</string>
   <!--Settings-->
@@ -30,10 +30,7 @@
   <string name="SlimTvClient.NoColor">Cpa</string>
   <string name="SlimTvClient.RecordingsMenuItem">Enregistraments</string>
   <string name="SlimTvClient.RecordingsRootViewName">Enregistraments de TV</string>
-  <string name="SlimTvClient.ChannelMenuItemLabel">Filtra per canal</string>
+  <string name="SlimTvClient.ChannelMenuItemLabel">Canal</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Canal: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Enregistraments per canal</string>
-  <string name="SlimTvClient.NameFilterMenuItemLabel">Filtra per nom</string>
-  <string name="SlimTvClient.NameFilterNavBarItemLabel">{0}</string>
-  <string name="SlimTvClient.RecordingsByNameHeader">Enregistraments per nom</string>
 </resources>

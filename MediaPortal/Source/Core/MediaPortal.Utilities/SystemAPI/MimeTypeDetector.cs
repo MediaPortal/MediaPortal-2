@@ -1032,17 +1032,16 @@ namespace MediaPortal.Utilities.SystemAPI
 
     #region Imports
 
-    [DllImport(@"urlmon.dll", CharSet = CharSet.Auto)]
-    private extern static UInt32 FindMimeFromData(
-        UInt32 pBC,
-        [MarshalAs(UnmanagedType.LPStr)] String pwzUrl,
-        [MarshalAs(UnmanagedType.LPArray)] byte[] pBuffer,
-        UInt32 cbSize,
-        [MarshalAs(UnmanagedType.LPStr)] String pwzMimeProposed,
-        UInt32 dwMimeFlags,
-        out UInt32 ppwzMimeOut,
-        UInt32 dwReserverd
-        );
+    [DllImport("urlmon.dll", CharSet = CharSet.Unicode, ExactSpelling = true, SetLastError = false)]
+    static extern int FindMimeFromData(IntPtr pBC,
+      [MarshalAs(UnmanagedType.LPWStr)] string pwzUrl,
+      [MarshalAs(UnmanagedType.LPArray, ArraySubType=UnmanagedType.I1, SizeParamIndex=3)]
+      byte[] pBuffer,
+      int cbSize,
+      [MarshalAs(UnmanagedType.LPWStr)]  string pwzMimeProposed,
+      int dwMimeFlags,
+      out IntPtr ppwzMimeOut,
+      int dwReserved);
 
     #endregion
 
@@ -1166,9 +1165,7 @@ namespace MediaPortal.Utilities.SystemAPI
         else
           fs.Read(buffer, 0, (int)fs.Length);
 
-        UInt32 mimetype;
-        FindMimeFromData(0, null, buffer, 256, null, 0, out mimetype, 0);
-        IntPtr mimeTypePtr = new IntPtr(mimetype);
+        FindMimeFromData(IntPtr.Zero, null, buffer, 256, null, 0, out var mimeTypePtr, 0);
         string mime = Marshal.PtrToStringUni(mimeTypePtr);
         Marshal.FreeCoTaskMem(mimeTypePtr);
         return mime;

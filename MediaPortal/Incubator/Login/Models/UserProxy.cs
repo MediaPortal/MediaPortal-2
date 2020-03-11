@@ -31,6 +31,10 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.UiComponents.Login.General;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.Common.Localization;
+using System.Globalization;
+using MediaPortal.Common.Settings;
+using MediaPortal.Common;
 
 namespace MediaPortal.UiComponents.Login.Models
 {
@@ -59,6 +63,12 @@ namespace MediaPortal.UiComponents.Login.Models
     protected AbstractProperty _imageProperty;
     protected AbstractProperty _idProperty;
     protected AbstractProperty _templateIdProperty;
+    protected AbstractProperty _langAudioMainProperty;
+    protected AbstractProperty _langAudioSecondaryProperty;
+    protected AbstractProperty _langSubtitleMainProperty;
+    protected AbstractProperty _langSubtitleSecondaryProperty;
+    protected AbstractProperty _langMenuMainProperty;
+    protected AbstractProperty _langMenuSecondaryProperty;
 
     protected Timer _inputTimer;
     protected readonly object _syncObj = new object();
@@ -84,6 +94,12 @@ namespace MediaPortal.UiComponents.Login.Models
       _includeUnratedProperty = new WProperty(typeof(bool), false);
       _lastLoginProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
       _imageProperty = new WProperty(typeof(byte[]), null);
+      _langAudioMainProperty = new WProperty(typeof(string), string.Empty);
+      _langAudioSecondaryProperty = new WProperty(typeof(string), string.Empty);
+      _langSubtitleMainProperty = new WProperty(typeof(string), string.Empty);
+      _langSubtitleSecondaryProperty = new WProperty(typeof(string), string.Empty);
+      _langMenuMainProperty = new WProperty(typeof(string), string.Empty);
+      _langMenuSecondaryProperty = new WProperty(typeof(string), string.Empty);
 
       _userNameProperty.Attach(OnUserChanged);
       _profileTypeProperty.Attach(OnUserChanged);
@@ -107,8 +123,18 @@ namespace MediaPortal.UiComponents.Login.Models
       EnableRestrictionGroups = userProfile.EnableRestrictionGroups;
       RestrictionGroups = userProfile.RestrictionGroups;
 
-      SelectedShares.Clear();
+      string defaultText = LocalizationHelper.CreateResourceString("[UserConfig.Default]").Evaluate();
+      RegionSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<RegionSettings>();
+      LanguageAudioMain = settings.Culture;
+      LanguageMenuMain = settings.Culture;
+      LanguageSubtitleMain = settings.Culture;
+      LanguageAudioSecondary = defaultText;
+      LanguageMenuSecondary = defaultText;
+      LanguageSubtitleSecondary = defaultText;
 
+      var cultures = CultureInfo.GetCultures(CultureTypes.SpecificCultures);
+
+      SelectedShares.Clear();
       foreach (var data in userProfile.AdditionalData)
       {
         foreach (var val in data.Value)
@@ -119,6 +145,27 @@ namespace MediaPortal.UiComponents.Login.Models
             if (localSharesList != null && localSharesList.Any(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId) ||
                 serverSharesList != null && serverSharesList.Any(i => ((Share)i.AdditionalProperties[Consts.KEY_SHARE]).ShareId == shareId))
               SelectedShares.Add(shareId);
+          }
+          else if (data.Key == UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE)
+          {
+            if (val.Key == 0)
+              LanguageAudioMain = cultures.FirstOrDefault(c => c.TwoLetterISOLanguageName == val.Value)?.DisplayName ?? LanguageAudioMain;
+            else if (val.Key == 1)
+              LanguageAudioSecondary = cultures.FirstOrDefault(c => c.TwoLetterISOLanguageName == val.Value)?.DisplayName ?? LanguageAudioSecondary;
+          }
+          else if (data.Key == UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE)
+          {
+            if (val.Key == 0)
+              LanguageSubtitleMain = cultures.FirstOrDefault(c => c.TwoLetterISOLanguageName == val.Value)?.DisplayName ?? LanguageSubtitleMain;
+            else if (val.Key == 1)
+              LanguageSubtitleSecondary = cultures.FirstOrDefault(c => c.TwoLetterISOLanguageName == val.Value)?.DisplayName ?? LanguageSubtitleSecondary;
+          }
+          else if (data.Key == UserDataKeysKnown.KEY_PREFERRED_MENU_LANGUAGE)
+          {
+            if (val.Key == 0)
+              LanguageMenuMain = cultures.FirstOrDefault(c => c.TwoLetterISOLanguageName == val.Value)?.DisplayName ?? LanguageMenuMain;
+            else if (val.Key == 1)
+              LanguageMenuSecondary = cultures.FirstOrDefault(c => c.TwoLetterISOLanguageName == val.Value)?.DisplayName ?? LanguageMenuSecondary;
           }
         }
       }
@@ -337,6 +384,72 @@ namespace MediaPortal.UiComponents.Login.Models
       {
         return _originalPassword != null ? !_originalPassword.Equals(Password) : Password != null;
       }
+    }
+
+    public AbstractProperty LanguageAudioMainProperty
+    {
+      get { return _langAudioMainProperty; }
+    }
+
+    public string LanguageAudioMain
+    {
+      get { return (string)_langAudioMainProperty.GetValue(); }
+      set { _langAudioMainProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LanguageAudioSecondaryProperty
+    {
+      get { return _langAudioSecondaryProperty; }
+    }
+
+    public string LanguageAudioSecondary
+    {
+      get { return (string)_langAudioSecondaryProperty.GetValue(); }
+      set { _langAudioSecondaryProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LanguageSubtitleMainProperty
+    {
+      get { return _langSubtitleMainProperty; }
+    }
+
+    public string LanguageSubtitleMain
+    {
+      get { return (string)_langSubtitleMainProperty.GetValue(); }
+      set { _langSubtitleMainProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LanguageSubtitleSecondaryProperty
+    {
+      get { return _langSubtitleSecondaryProperty; }
+    }
+
+    public string LanguageSubtitleSecondary
+    {
+      get { return (string)_langSubtitleSecondaryProperty.GetValue(); }
+      set { _langSubtitleSecondaryProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LanguageMenuMainProperty
+    {
+      get { return _langMenuMainProperty; }
+    }
+
+    public string LanguageMenuMain
+    {
+      get { return (string)_langMenuMainProperty.GetValue(); }
+      set { _langMenuMainProperty.SetValue(value); }
+    }
+
+    public AbstractProperty LanguageMenuSecondaryProperty
+    {
+      get { return _langMenuSecondaryProperty; }
+    }
+
+    public string LanguageMenuSecondary
+    {
+      get { return (string)_langMenuSecondaryProperty.GetValue(); }
+      set { _langMenuSecondaryProperty.SetValue(value); }
     }
 
     public void Dispose()
