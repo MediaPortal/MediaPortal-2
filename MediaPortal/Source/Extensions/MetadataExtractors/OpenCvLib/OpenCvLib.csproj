@@ -65,11 +65,13 @@
     <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="OpenCvSharp4.Windows">
-      <Version>4.2.0.20200108</Version>
+      <Version>4.2.0.20200208</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
