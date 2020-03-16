@@ -34,6 +34,7 @@ using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.SystemResolver;
+using MediaPortal.Common.UI;
 
 namespace MediaPortal.Server
 {
@@ -61,6 +62,7 @@ namespace MediaPortal.Server
     public MainForm()
     {
       InitializeComponent();
+      this.ScaleByDpi();
       Icon = Icon.ExtractAssociatedIcon(ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
       serverTrayIcon.Icon = Icon;
       UpdateClientsList();

@@ -39,6 +39,7 @@ using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.View;
 using System.ServiceProcess;
+using MediaPortal.Common.UI;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -97,7 +98,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
         try
         {
           // Use -m to start ServiceMonitor minimized
-          string applicationPath = string.Format("\"{0}\" -m" , ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
+          string applicationPath = string.Format("\"{0}\" -m", ServiceRegistration.Get<IPathManager>().GetPath("<APPLICATION_PATH>"));
 #if DEBUG
           applicationPath = applicationPath.Replace(".vshost", "");
 #endif
@@ -149,6 +150,8 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     public void StartUp(CommandLineOptions mpArgs)
     {
       ServiceRegistration.Get<ILogger>().Debug("StartUp ({0})", mpArgs.IsMinimized);
+      //FormDpiAwarenessExtension.TryEnableDPIAwareness();
+
       InitMainWindow(mpArgs.IsMinimized);
 
       InitSystemTray();
@@ -181,12 +184,12 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       ServiceRegistration.Get<ILogger>().Debug("InitMainWindow");
       Window mainWindow = new MainWindow
-        {
-          ShowActivated = false,
-          ShowInTaskbar = false,
-          Visibility = Visibility.Collapsed,
-          WindowState =  isMinimized ? WindowState.Minimized : WindowState.Normal
-        };
+      {
+        ShowActivated = false,
+        ShowInTaskbar = false,
+        Visibility = Visibility.Collapsed,
+        WindowState = isMinimized ? WindowState.Minimized : WindowState.Normal
+      };
       mainWindow.Closed += OnMainWindowClosed;
       mainWindow.SourceInitialized += OnMainWindowSourceInitialized;
       mainWindow.StateChanged += OnMainWindowStateChanged;
@@ -241,7 +244,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     private void OnMainWindowSourceInitialized(object sender, EventArgs e)
     {
       ServiceRegistration.Get<ILogger>().Debug("OnMainWindowSourceInitialized");
-      ((Window) sender).SourceInitialized -= OnMainWindowSourceInitialized;
+      ((Window)sender).SourceInitialized -= OnMainWindowSourceInitialized;
 
       _messageSink = new WindowMessageSink();
       _messageSink.OnWinProc += WndProc;
@@ -255,7 +258,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       if (msg == WM_POWERBROADCAST)
       {
         ServiceRegistration.Get<ILogger>().Debug("WndProc: [{0}]", wParam);
-        var serverConnectionManager = (ServerConnectionManager) ServiceRegistration.Get<IServerConnectionManager>();
+        var serverConnectionManager = (ServerConnectionManager)ServiceRegistration.Get<IServerConnectionManager>();
         switch (wParam)
         {
           case PBT_APMSUSPEND:
@@ -309,7 +312,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     public void InitSystemTray()
     {
       ServiceRegistration.Get<ILogger>().Debug("InitSystemTray");
-      _taskbarIcon = (TaskbarIcon) Application.Current.FindResource("TrayIcon");
+      _taskbarIcon = (TaskbarIcon)Application.Current.FindResource("TrayIcon");
       if (_taskbarIcon != null)
       {
         _taskbarIcon.DataContext = this;
@@ -433,7 +436,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
     {
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
-        var connectionType = (ServerConnectionMessaging.MessageType) message.MessageType;
+        var connectionType = (ServerConnectionMessaging.MessageType)message.MessageType;
         switch (connectionType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
@@ -446,7 +449,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
         UpdateServerStatus();
       }
       else if (message.ChannelName == LocalizationMessaging.CHANNEL)
-        if (((LocalizationMessaging.MessageType) message.MessageType) ==
+        if (((LocalizationMessaging.MessageType)message.MessageType) ==
             LocalizationMessaging.MessageType.LanguageChanged)
         {
           UpdateServerStatus();
@@ -505,11 +508,11 @@ namespace MediaPortal.ServiceMonitor.ViewModel
         foreach (var attachedClient in serverControler.GetAttachedClients().Where(attachedClient => !string.IsNullOrEmpty(attachedClient.LastClientName)))
         {
           Clients.Add(new ClientData
-            {
-              IsConnected = connectedClientSystemIDs != null && connectedClientSystemIDs.Contains(attachedClient.SystemId),
-              Name = attachedClient.LastClientName,
-              System = attachedClient.LastSystem == null ? string.Empty : attachedClient.LastSystem.HostName
-            });
+          {
+            IsConnected = connectedClientSystemIDs != null && connectedClientSystemIDs.Contains(attachedClient.SystemId),
+            Name = attachedClient.LastClientName,
+            System = attachedClient.LastSystem == null ? string.Empty : attachedClient.LastSystem.HostName
+          });
         }
       }
       catch (Exception ex)

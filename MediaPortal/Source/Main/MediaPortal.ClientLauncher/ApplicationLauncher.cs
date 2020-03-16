@@ -35,6 +35,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UI;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.SystemAPI;
 
@@ -97,6 +98,8 @@ namespace MediaPortal.Client.Launcher
       ILogger logger = null;
       try
       {
+        FormDpiAwarenessExtension.TryEnableDPIAwareness();
+
         // Check if user wants to override the default Application Data location.
         ApplicationCore.RegisterVitalCoreServices(true, mpOptions.DataDirectory);
 
