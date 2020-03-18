@@ -5,10 +5,10 @@ using System.Reflection;
 // be deleted.
 [assembly: AssemblyCompany("Team MediaPortal")]
 [assembly: AssemblyProduct("MediaPortal 2")]
-[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007 - 2019")]
+[assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007 - 2020")]
 // Note: Following two line will be modified by AssemblyInfoHelper in build process:
 // The version number will have format: 2.YY.MM.{BuildNumber}
-[assembly: AssemblyVersion("2.2.1904.12030")]
-[assembly: AssemblyFileVersion("2.2.1904.12030")]
+[assembly: AssemblyVersion("2.2.2003.11997")]
+[assembly: AssemblyFileVersion("2.2.2003.11997")]
 // Note: This line will be filled by AssemblyInfoHelper in build process.
-[assembly: AssemblyInformationalVersion("EXP_MergedAll-31abd0")]
+[assembly: AssemblyInformationalVersion("morpheusxx/FEAT_D2D_2.2_64Bit-733d21")]

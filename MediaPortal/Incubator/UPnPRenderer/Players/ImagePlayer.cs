@@ -36,6 +36,7 @@ using MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;
 using MediaPortal.UI.SkinEngine.Players;
 using MediaPortal.UPnPRenderer.UPnP;
 using SharpDX;
+using SharpDX.Direct2D1;
 using SharpDX.Direct3D9;
 
 namespace MediaPortal.UPnPRenderer.Players
@@ -47,7 +48,7 @@ namespace MediaPortal.UPnPRenderer.Players
     protected static readonly IImageAnimator STILL_IMAGE_ANIMATION = new StillImageAnimator();
 
     readonly object _imageSync = new object();
-    TextureAsset _texture;
+    protected BitmapAsset _texture = null;
     protected SizeF _textureMaxUv = new SizeF(1, 1);
 
     // Image animation effect
@@ -56,9 +57,13 @@ namespace MediaPortal.UPnPRenderer.Players
     string _itemTitle;
     PlayerState _state = PlayerState.Stopped;
 
-    public Texture CurrentImage
+    public Bitmap1 CurrentImage
     {
-      get { return _texture != null ? _texture.Texture : null; }
+      get
+      {
+        lock (_imageSync)
+          return _texture != null ? _texture.Bitmap : null;
+      }
     }
 
     public SharpDX.RectangleF GetTextureClip(Size2 outputSize)
@@ -145,7 +150,7 @@ namespace MediaPortal.UPnPRenderer.Players
       lock (_imageSync)
       {
         var imageData = Utils.DownloadImage(url);
-        _texture = ContentManager.Instance.GetTexture(imageData, _itemTitle);
+        _texture = ContentManager.Instance.GetBitmap(imageData, _itemTitle);
         if (_texture == null)
           return;
         if (!_texture.IsAllocated)
@@ -155,7 +160,7 @@ namespace MediaPortal.UPnPRenderer.Players
 
         //ImagePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ImagePlayerSettings>() ?? new ImagePlayerSettings();
         _animator = STILL_IMAGE_ANIMATION; //settings.UseKenBurns ? new KenBurnsAnimator() : STILL_IMAGE_ANIMATION;
-        SurfaceDescription desc = _texture.Texture.GetLevelDescription(0);
+        var desc = _texture.Bitmap.PixelSize;
         _textureMaxUv = new SizeF(_texture.Width / (float)desc.Width, _texture.Height / (float)desc.Height);
 
         // Reset animation
