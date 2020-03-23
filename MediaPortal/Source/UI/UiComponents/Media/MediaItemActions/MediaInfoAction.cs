@@ -77,12 +77,10 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
         {
           if (mediaItem.Aspects.ContainsKey(aspectScreen.Key))
           {
-            var sm = ServiceRegistration.Get<IScreenManager>();
-            sm.CloseTopmostDialog();
-
             var wf = ServiceRegistration.Get<IWorkflowManager>();
             var contextConfig = new NavigationContextConfig { AdditionalContextVariables = new Dictionary<string, object> { { Consts.KEY_MEDIA_ITEM, mediaItem } } };
             wf.NavigatePush(aspectScreen.Value, contextConfig);
+            await Task.Delay(500);
             result = true;
             break;
           }
