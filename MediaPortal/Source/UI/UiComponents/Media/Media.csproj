@@ -175,6 +175,7 @@
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
     <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />
     <Compile Include="MediaItemActions\EjectMediaItem.cs" />
+    <Compile Include="MediaItemActions\MediaInfoAction.cs" />
     <Compile Include="MediaViewActions\AddAllToPlaylist.cs" />
     <Compile Include="MediaItemActions\DeleteFromStorage.cs" />
     <Compile Include="MediaItemActions\AbstractWatchedAction.cs" />
@@ -252,6 +253,7 @@
     <Compile Include="Models\BasePlayerModel.cs" />
     <Compile Include="Models\BaseVideoPlayerUIContributor.cs" />
     <Compile Include="Models\LatestMediaModel.cs" />
+    <Compile Include="Models\MediaInfoModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaGroupingModel.cs" />
     <Compile Include="Models\SubtitleMatchModel.cs" />
@@ -788,6 +790,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Nereus\screens\PlaylistInfo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MediaInfoVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MediaInfoAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\MediaInfoImage.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
