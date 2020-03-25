@@ -31,7 +31,7 @@
     <Image x:Name="EpisodePoster" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill"
            Margin="8" Width="440" Height="300">
       <Image.Source>
-        <fanart:FanArtImageSource fanart:FanArtMediaType="Other" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+        <fanart:FanArtImageSource fanart:FanArtMediaType="Episode" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                   fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
       </Image.Source>
     </Image>
