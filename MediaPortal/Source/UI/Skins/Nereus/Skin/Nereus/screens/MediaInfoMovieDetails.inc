@@ -76,7 +76,7 @@
     </media:VideoAspectWrapper.Template>
   </media:VideoAspectWrapper>
 
-  <StackPanel Grid.ColumnSpan="2" Grid.Row="0" Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
+  <StackPanel Grid.Row="0" Margin="0,0,-70,0" VerticalAlignment="Stretch" Orientation="Vertical">
 
     <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch">
       <media:MovieAspectWrapper.Template>
@@ -203,7 +203,7 @@
     </StackPanel>
   </StackPanel>
 
-  <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Uniform" Width="200" Height="200"
-         Grid.Column="1" Source="playback.png" Margin="0,-60,60,0" Opacity="0.8" />
+  <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Uniform" Width="190" Height="190"
+         Grid.Column="1" Source="playback.png" Margin="0,-60,50,0" Opacity="0.8" />
 
 </Grid>

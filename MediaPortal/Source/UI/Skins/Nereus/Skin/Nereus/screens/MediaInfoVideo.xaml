@@ -256,7 +256,7 @@
           </Grid>
         </Grid>
 
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-140,0,0,-300">
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-140,-20,0,-300">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -267,14 +267,14 @@
           <!-- AUDIO INFO TAB-->
           <Grid HorizontalAlignment="Stretch">
             <Grid.RowDefinitions>
-              <RowDefinition Height="45"/>
-              <RowDefinition Height="180"/>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="175"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Margin="200,15,0,-2">
+            <Grid Margin="200,10,0,-5">
               <Image Source="HomeContentIcons\track.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Audio tracks" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
@@ -295,14 +295,14 @@
           <!-- SUBTITLE INFO TAB-->
           <Grid HorizontalAlignment="Stretch" Grid.Row="1">
             <Grid.RowDefinitions>
-              <RowDefinition Height="45"/>
-              <RowDefinition Height="180"/>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="175"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Margin="200,15,0,-2">
+            <Grid Margin="200,10,0,-5">
               <Image Source="HomeContentIcons\language.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Subtitles" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
@@ -323,14 +323,14 @@
           <!-- Actors -->
           <Grid HorizontalAlignment="Stretch" Grid.Row="2">
             <Grid.RowDefinitions>
-              <RowDefinition Height="45"/>
+              <RowDefinition Height="40"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Margin="200,15,0,-2">
+            <Grid Margin="200,10,0,-5">
               <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Actors" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
@@ -352,14 +352,14 @@
           <!-- Director -->
           <Grid HorizontalAlignment="Stretch" Grid.Row="3">
             <Grid.RowDefinitions>
-              <RowDefinition Height="45"/>
+              <RowDefinition Height="40"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Margin="200,15,0,-2">
+            <Grid Margin="200,10,0,-5">
               <Image Source="HomeContentIcons\director.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Director" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
@@ -381,8 +381,8 @@
           <!-- Collection -->
           <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="400,0,0,0">
             <Grid.RowDefinitions>
-              <RowDefinition Height="45"/>
-              <RowDefinition Height="180"/>
+              <RowDefinition Height="40"/>
+              <RowDefinition Height="175"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="300"/>
@@ -394,7 +394,7 @@
               </DataTrigger>
             </Grid.Triggers>
 
-            <Grid Margin="10,15,0,-2">
+            <Grid Margin="10,10,0,-5">
               <Image Source="HomeContentIcons\Category.png" Height="25" Width="25" Stretch="Uniform" Margin="0,1,5,-1" 
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Collection" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
