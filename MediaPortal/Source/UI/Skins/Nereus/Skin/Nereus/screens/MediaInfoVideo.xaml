@@ -285,8 +285,8 @@
               <media:VideoAspectWrapper.Template>
                 <ControlTemplate>
                   <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
-                                Style="{ThemeResource VideoAudioStreamCPListViewStyle}"
-                                ItemsSource="{TemplateBinding VideoAudioStreams}"/>
+                            Style="{ThemeResource VideoAudioStreamCPListViewStyle}"
+                            ItemsSource="{TemplateBinding VideoAudioStreams}"/>
                 </ControlTemplate>
               </media:VideoAspectWrapper.Template>
             </media:VideoAspectWrapper>
