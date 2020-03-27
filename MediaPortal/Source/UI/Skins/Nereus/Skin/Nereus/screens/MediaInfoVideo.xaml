@@ -57,7 +57,7 @@
           <Image.IsVisible>
             <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
               <Binding Path="MediaItem"  />
-              <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+              <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
             </MultiBinding>
           </Image.IsVisible>
           <Image.Source>

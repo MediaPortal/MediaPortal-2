@@ -124,19 +124,19 @@
     </StackPanel>
 
     <media:MediaAspectWrapper MediaItem="{Binding MediaItem}">
-        <media:MediaAspectWrapper.Template>
-          <ControlTemplate>
-            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                  IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-              <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
-                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
-              <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" 
-                     Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center" Margin="40,0,0,0"
-                     Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" />
-            </Grid>
-          </ControlTemplate>
-        </media:MediaAspectWrapper.Template>
-      </media:MediaAspectWrapper>
+      <media:MediaAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" 
+                   Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center" Margin="40,0,0,0"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" />
+          </Grid>
+        </ControlTemplate>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
 
     <Grid IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
       <Image Source="HomeContentIcons\genre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" 
@@ -152,8 +152,7 @@
       </Label>
     </Grid>
 
-    <media:MovieAspectWrapper MediaItem="{Binding MediaItem}"
-                              VerticalAlignment="Center" >
+    <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Center" >
       <media:MovieAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" 
@@ -201,6 +200,7 @@
         </Image.Source>
       </Image>
     </StackPanel>
+
   </StackPanel>
 
   <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Uniform" Width="190" Height="190"

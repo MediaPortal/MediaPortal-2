@@ -143,26 +143,35 @@
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>
 
-    <media:UserDataWrapper MediaItem="{Binding MediaItem}">
-      <media:UserDataWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
-            <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" >
-              <Image.Source>
-                <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}.png"/>
-              </Image.Source>
-            </Image>
-            <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Color="White" FontFamily="SegoeUIBold"
-                   Width="95" Height="95" Margin="0,0,40,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-              <Label.Content>
-                <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
-              </Label.Content>
-            </Label>
-          </Grid>
-        </ControlTemplate>
-      </media:UserDataWrapper.Template>
-    </media:UserDataWrapper>
+    <StackPanel Orientation="Horizontal">
+      <media:UserDataWrapper MediaItem="{Binding MediaItem}">
+        <media:UserDataWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                  IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
+              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" >
+                <Image.Source>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}.png"/>
+                </Image.Source>
+              </Image>
+              <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Color="White" FontFamily="SegoeUIBold"
+                     Width="95" Height="95" Margin="0,0,40,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                <Label.Content>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
+                </Label.Content>
+              </Label>
+            </Grid>
+          </ControlTemplate>
+        </media:UserDataWrapper.Template>
+      </media:UserDataWrapper>
+      <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-30,-280,-40" >
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Episode" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="240" fanart:MaxHeight="140"/>
+        </Image.Source>
+      </Image>
+    </StackPanel>
+
   </StackPanel>
 
   <media:EpisodeAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="2" Margin="0,30,10,0">
@@ -179,13 +188,17 @@
               <Binding Path="EpisodeName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
             </Label.Content>
           </Label>
-           <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" Grid.Row="1" Margin="0,5,5,50">
-              <mp_special_controls:PlayerControl.TemplateControl>
-                <Label x:Name="StoryPlot" Wrap="True" TextTrimming="WordEllipsis" Color="{ThemeResource MenuTextBackground}"
-                       HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" 
-                       Content="{Binding VideoStoryPlot}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
-              </mp_special_controls:PlayerControl.TemplateControl>
-           </mp_special_controls:PlayerControl>
+          <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,5,50">
+            <media:VideoAspectWrapper.Template>
+              <ControlTemplate>
+                <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  <Label x:Name="StoryPlot" Wrap="True" Margin="0,10,10,20" TextTrimming="WordEllipsis" Color="{ThemeResource MenuTextBackground}"
+                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Height="350"
+                         Content="{Binding StoryPlot}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+                </Grid>
+              </ControlTemplate>
+            </media:VideoAspectWrapper.Template>
+          </media:VideoAspectWrapper>
         </Grid>
       </ControlTemplate>
     </media:EpisodeAspectWrapper.Template>
