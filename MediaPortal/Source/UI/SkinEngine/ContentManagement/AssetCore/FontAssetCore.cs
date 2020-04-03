@@ -209,7 +209,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     /// <summary>
     /// Get the height of a text block containing the specified number of lines. In order to get correct vertical 
-    /// centering we add an additonal value of the font face descender above the text to compensate for the space required
+    /// centering we add an additional value of the font face descender above the text to compensate for the space required
     /// under the font's base line for the last text line.
     /// </summary>
     /// <param name="fontSize">The actual font size.</param>
@@ -289,7 +289,6 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       lock (_syncObj)
       {
         float pointSize = _charSet.RenderedSize * 72.0f / _resolution;
-        //float pointSize = _charSet.RenderedSize;
 
         _family.Face.SetCharSize(0, pointSize, _resolution, _resolution);
 
@@ -302,43 +301,46 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
         _family.Face.Glyph.RenderGlyph(RenderMode.Normal);
 
-        BitmapGlyph glyph = (BitmapGlyph)_family.Face.Glyph.GetGlyph();
-
-        // Width/height of char
-        int cwidth = glyph.Bitmap.Width;
-        int cheight = glyph.Bitmap.Rows;
-
-        // Width/height of char including padding
-        int pwidth = cwidth + 3 * PAD;
-        int pheight = cheight + 3 * PAD;
-
-        // Check glyph index is in the character set range.
-        if (!_charSet.IsInRange(glyphIndex))
-          return false;
-
-        // Check glyph fits in our texture
-        if (_currentX + pwidth > MAX_WIDTH)
+        using (BitmapGlyph glyph = (BitmapGlyph)_family.Face.Glyph.GetGlyph())
         {
-          _currentX = 0;
-          _currentY += _rowHeight;
-          _rowHeight = 0;
+
+          // Width/height of char
+          int cwidth = glyph.Bitmap.Width;
+          int cheight = glyph.Bitmap.Rows;
+
+          // Width/height of char including padding
+          int pwidth = cwidth + 3 * PAD;
+          int pheight = cheight + 3 * PAD;
+
+          // Check glyph index is in the character set range.
+          if (!_charSet.IsInRange(glyphIndex))
+            return false;
+
+          // Check glyph fits in our texture
+          if (_currentX + pwidth > MAX_WIDTH)
+          {
+            _currentX = 0;
+            _currentY += _rowHeight;
+            _rowHeight = 0;
+          }
+
+          if (_currentY + pheight > MAX_HEIGHT)
+            return false;
+
+          // Create and store a BitmapCharacter for this glyph
+          _charSet.SetCharacter(glyphIndex, CreateCharacter(glyph));
+
+          // Copy the glyph bitmap to our local array
+          Byte[] bitmapBuffer = new Byte[cwidth * cheight];
+          if (glyph.Bitmap.Buffer != IntPtr.Zero)
+            Marshal.Copy(glyph.Bitmap.Buffer, bitmapBuffer, 0, cwidth * cheight);
+
+          // Write glyph bitmap to our texture
+          WriteGlyphToTexture(glyph, pwidth, pheight, bitmapBuffer);
+
+          _currentX += pwidth;
+          _rowHeight = Math.Max(_rowHeight, pheight);
         }
-        if (_currentY + pheight > MAX_HEIGHT)
-          return false;
-
-        // Create and store a BitmapCharacter for this glyph
-        _charSet.SetCharacter(glyphIndex, CreateCharacter(glyph));
-
-        // Copy the glyph bitmap to our local array
-        Byte[] bitmapBuffer = new Byte[cwidth * cheight];
-        if (glyph.Bitmap.Buffer != IntPtr.Zero)
-          Marshal.Copy(glyph.Bitmap.Buffer, bitmapBuffer, 0, cwidth * cheight);
-
-        // Write glyph bitmap to our texture
-        WriteGlyphToTexture(glyph, pwidth, pheight, bitmapBuffer);
-
-        _currentX += pwidth;
-        _rowHeight = Math.Max(_rowHeight, pheight);
       }
       return true;
     }
@@ -407,7 +409,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     /// <summary>
     /// Creates an array of <see cref="PositionColoredTextured"/> objects representing the character positions of the
-    /// given <paramref name="text"/> for the given parameters in the underlaying <see cref="Texture"/>.
+    /// given <paramref name="text"/> for the given parameters in the underlying <see cref="Texture"/>.
     /// </summary>
     /// <param name="text">Text to render.</param>
     /// <param name="size">Font size.</param>
@@ -441,7 +443,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
       textSize = new SizeF(0.0f, verts[verts.Count - 1].Y);
 
-      // Stores the line widths as the Z coordinate of the verices. This means alignment
+      // Stores the line widths as the Z coordinate of the vertices. This means alignment
       // can be performed by a vertex shader during rendering
       PositionColoredTextured[] vertArray = verts.ToArray();
       for (int i = 0; i < lineIndex.Length; ++i)
