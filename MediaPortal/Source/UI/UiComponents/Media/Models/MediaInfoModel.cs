@@ -71,6 +71,12 @@ namespace MediaPortal.UiComponents.Media.Models
       set { _mediaItemProperty.SetValue(value); }
     }
 
+    public void Play()
+    {
+      if (MediaItem != null)
+        PlayItemsModel.CheckQueryPlayAction(MediaItem);
+    }
+
     #endregion
 
     public Guid ModelId  => MODEL_ID; 
