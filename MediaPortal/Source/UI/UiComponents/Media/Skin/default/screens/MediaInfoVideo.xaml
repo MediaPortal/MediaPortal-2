@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    Context="{Model Id=E71C7104-4398-41BF-A019-5C92904DE7E7}"
+    x:Name="FullscreenContentRadioScreen">
+
+  <!-- Test only. Please add content similar to CurrentlyPlaying screen as base for all skins -->
+  <media:MediaAspectWrapper MediaItem="{Binding MediaItem}">
+    <media:MediaAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,10">
+          <Label x:Name="Title" Scroll="Auto" ScrollDelay="0"
+                     Content="{Binding Title}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
+        </Grid>
+      </ControlTemplate>
+    </media:MediaAspectWrapper.Template>
+  </media:MediaAspectWrapper>
+
+</Screen>

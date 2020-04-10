@@ -45,6 +45,7 @@
     <Model Id="3871146E-AFF4-4B7F-90E5-091764E4F45A" Name="MediaSortingModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaSortingModel"/>
     <Model Id="68A966B6-6EAC-415E-89A4-7C486F9B5A3B" Name="MediaGroupingModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaGroupingModel"/>
     <Model Id="52DFDB33-5D94-41AC-BBB7-2B070473FB48" Name="MediaFilterModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaFilterModel"/>
+    <Model Id="E71C7104-4398-41BF-A019-5C92904DE7E7" Name="MediaInfoModel" ClassName="MediaPortal.UiComponents.Media.Models.MediaInfoModel"/>
 
     <Model Id="6455D863-CCF2-403d-8C36-754299B61319" Name="BrowseLocalMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.BrowseLocalMediaAction"/>
     <Model Id="92F6CE34-CB28-40f7-9136-AB576F479F94" Name="BrowseMediaContributorModel" ClassName="MediaPortal.UiComponents.Media.Actions.BrowseMediaAction"/>
@@ -188,6 +189,29 @@
         Temporary="true"
         WorkflowModel="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/> <!-- Workflow model = Audio player model -->
 
+    <!-- Media info states -->
+
+    <WorkflowState Id="3947E401-F744-4CA9-8522-A5C4E85CA2D2"
+        Name="MediaInfoImage"
+        MainScreen="MediaInfoImage"
+        DisplayLabel="[Media.Info.Image]"
+        Temporary="true"
+        WorkflowModel="E71C7104-4398-41BF-A019-5C92904DE7E7"/> <!-- Workflow model = Media info model -->
+
+    <WorkflowState Id="1FB7B965-0104-497B-A9BD-15C5E2B8AA14"
+        Name="MediaInfoVideo"
+        MainScreen="MediaInfoVideo"
+        DisplayLabel="[Media.Info.Video]"
+        Temporary="true"
+        WorkflowModel="E71C7104-4398-41BF-A019-5C92904DE7E7"/> <!-- Workflow model = Media info model -->
+
+    <WorkflowState Id="FB8BA593-8818-47F1-82A2-F4F3AE9D6932"
+        Name="MediaInfoAudio"
+        MainScreen="MediaInfoAudio"
+        DisplayLabel="[Media.Info.Audio]"
+        Temporary="true"
+        WorkflowModel="E71C7104-4398-41BF-A019-5C92904DE7E7"/> <!-- Workflow model = Media info model -->
+
     <!-- Playlists -->
 
     <DialogState Id="95E38A80-234C-4494-9F7A-006D8E4D6FDA"
@@ -252,6 +276,7 @@
   <!-- MediaItemActions -->
   <Builder Name="MediaItemActionBuilder" ClassName="MediaPortal.UiComponents.Media.Extensions.MediaItemActionBuilder"/>
   <Register Location="/Media/Extensions">
+    <MediaItemActionBuilder Id="{863E652E-146C-4939-B125-41B2A472B16B}" Caption="[Media.Info]" Sort="A.0" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.MediaInfoAction"/>
     <MediaItemActionBuilder Id="{23BB0F41-CF41-4C42-9F0A-D6B84F3C364E}" Caption="[Media.AddSingleToPlaylist]" Sort="A.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.AddSingleToPlaylist"/>
     <MediaItemActionBuilder Id="{A6DC6A3C-3F90-493A-84C5-0E4400E7A949}" Caption="[Media.SetUnplayed]" Sort="C.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.SetUnwatched"/>
     <MediaItemActionBuilder Id="{6840E4DB-3787-421F-910E-7450BD5A408C}" Caption="[Media.SetPlayed]" Sort="C.1" ClassName="MediaPortal.UiComponents.Media.MediaItemActions.SetWatched"/>

@@ -174,7 +174,7 @@
                     </MultiBinding>
                   </Control.IsVisible>
                   <Control.TemplateControl>
-                    <Include Source="screens\InfoAudioGeneral.inc"/>
+                    <Include Source="screens\CurrentlyPlayingAudioDetails.inc"/>
                   </Control.TemplateControl>
                 </Control>
 

@@ -284,21 +284,23 @@ namespace MediaPortal.UiComponents.Media.Models
       await InvokeInternal(action, item);
     }
 
-    private async Task InvokeDeferred()
+    private async Task<bool> InvokeDeferred()
     {
       if (_deferredAction != null && _deferredItem != null)
-        await InvokeInternal(_deferredAction, _deferredItem);
+        return await InvokeInternal(_deferredAction, _deferredItem);
+      return true;
     }
 
-    private async Task InvokeInternal(ListItemAction action, ListItem item)
+    private async Task<bool> InvokeInternal(ListItemAction action, ListItem item)
     {
       try
       {
-        await action.ProcessAsync(item);
+        return await action.ProcessAsync(item);
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("Error executing MediaItemAction '{0}':", ex, action.GetType());
+        return false;
       }
     }
 
@@ -431,7 +433,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       // Check for pending actions that need to be invoked in former context
-      _ = InvokeDeferred();
+      InvokeDeferred().Wait();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

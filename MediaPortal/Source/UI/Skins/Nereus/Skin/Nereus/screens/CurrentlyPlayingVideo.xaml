@@ -223,7 +223,7 @@
                     </MultiBinding>
                   </Control.IsVisible>
                   <Control.TemplateControl>
-                    <Include Source="screens\InfoMovieGeneral.inc"/>
+                    <Include Source="screens\CurrentlyPlayingMovieDetails.inc"/>
                   </Control.TemplateControl>
                 </Control>
 
@@ -235,7 +235,7 @@
                     </MultiBinding>
                   </Control.IsVisible>
                   <Control.TemplateControl>
-                    <Include Source="screens\InfoSeriesGeneral.inc"/>
+                    <Include Source="screens\CurrentlyPlayingSeriesDetails.inc"/>
                   </Control.TemplateControl>
                 </Control>
 

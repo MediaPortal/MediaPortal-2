@@ -30,7 +30,7 @@
     </Image>
     <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="278" Height="412">
       <Image.Source>
-        <fanart:FanArtImageSource fanart:FanArtMediaType="Other" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+        <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                   fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
       </Image.Source>
     </Image>
@@ -193,7 +193,7 @@
       </media:UserDataWrapper>
       <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-30,-280,-40">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Other" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="240" fanart:MaxHeight="140"/>
         </Image.Source>
       </Image>

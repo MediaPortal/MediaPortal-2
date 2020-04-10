@@ -23,11 +23,9 @@
 #endregion
 
 using MediaPortal.UI.SkinEngine.ContentManagement.AssetCore;
-using SharpDX.Direct3D9;
 using MediaPortal.UI.SkinEngine.DirectX;
-using Size = SharpDX.Size2;
+using SharpDX.Direct3D9;
 using SizeF = SharpDX.Size2F;
-using PointF = SharpDX.Vector2;
 
 namespace MediaPortal.UI.SkinEngine.ContentManagement
 {
@@ -39,7 +37,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     public delegate void DeallocationHandler();
 
     /// <summary>
-    /// Event for notifying this assets clients that the underlying texture has been deallocated, as that will required text to be re-generated.
+    /// Event for notifying this assets clients that the underlying texture has been de-allocated, as that will required text to be re-generated.
     /// </summary>
     public event DeallocationHandler Deallocated;
 
@@ -127,7 +125,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
     /// <param name="text">The string containing the character to measure.</param>
     /// <param name="charIndex">The index of the character in the string.</param>
     /// <param name="fontSize">The size of font to use for measurement.</param>
-    /// <returns>The additonal width required for the specified character.</returns>
+    /// <returns>The additional width required for the specified character.</returns>
     public float CharWidthExtension(string text, int charIndex, float fontSize)
     {
       return _assetCore.CharWidthExtension(text, charIndex, fontSize);
@@ -135,7 +133,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement
 
     /// <summary>
     /// Get the height of a text block containing the specified number of lines. In order to get correct vertical 
-    /// centering we add an additonal value to compensate for the space required under the font's base line.
+    /// centering we add an additional value to compensate for the space required under the font's base line.
     /// </summary>
     /// <param name="fontSize">The actual font size.</param>
     /// <param name="lineCount">The number of lines.</param>
