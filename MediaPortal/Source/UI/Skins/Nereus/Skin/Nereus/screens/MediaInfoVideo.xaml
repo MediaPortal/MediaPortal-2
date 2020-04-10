@@ -301,6 +301,12 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem" />
+                <Binding Source="{x:Static aspect:SubtitleAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Grid.IsVisible>
 
             <Grid Margin="200,10,0,-5">
               <Image Source="HomeContentIcons\language.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
