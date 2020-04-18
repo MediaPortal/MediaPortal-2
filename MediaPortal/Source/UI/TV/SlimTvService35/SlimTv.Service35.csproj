@@ -143,7 +143,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Core" GeneratePathProperty="true">
-      <Version>1.1.1.7</Version>
+      <Version>1.1.1.10</Version>
     </PackageReference>
     <PackageReference Include="NCode.ReparsePoints">
       <Version>1.0.2</Version>

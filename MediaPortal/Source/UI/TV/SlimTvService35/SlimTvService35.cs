@@ -87,7 +87,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override void PrepareIntegrationProvider()
     {
-      IntegrationProviderHelper.Register(@"Plugins\" + _serviceName, "none");
+      IntegrationProviderHelper.Register(@"Plugins\" + _serviceName);
       // This access is intended to force an initialization of PathManager service!
       var pm = GlobalServiceProvider.Instance.Get<IIntegrationProvider>().PathManager;
     }
