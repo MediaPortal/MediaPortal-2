@@ -97,11 +97,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       try
       {
         var mediaItemPath = mediaIteamLocator.NativeResourcePath;
-        var mediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+        var seriesDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
         var mediaItemFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(mediaItemPath.ToString()).ToLowerInvariant();
         var mediaItemExtension = ResourcePathHelper.GetExtension(mediaItemPath.ToString());
 
-        using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, mediaItemDirectoryPath).CreateAccessor())
+        //Series FanArt
+        using (var directoryRa = new ResourceLocator(mediaIteamLocator.NativeSystemId, seriesDirectoryPath).CreateAccessor())
         {
           var directoryFsra = directoryRa as IFileSystemResourceAccessor;
           if (directoryFsra != null)
@@ -133,6 +134,44 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             }
 
             files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
+
+            //Season FanArt fallback
+            if (!files.Any())
+            {
+              foreach (var seasonDirectoryFsra in directoryFsra.GetChildDirectories())
+              {
+                potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(seasonDirectoryFsra);
+
+                if (fanArtType == FanArtTypes.Undefined || fanArtType == FanArtTypes.Thumbnail)
+                  fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.THUMB_FILENAMES));
+
+                if (fanArtType == FanArtTypes.Poster)
+                  fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.POSTER_FILENAMES));
+
+                if (fanArtType == FanArtTypes.Banner)
+                  fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.BANNER_FILENAMES));
+
+                if (fanArtType == FanArtTypes.Logo)
+                  fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.LOGO_FILENAMES));
+
+                if (fanArtType == FanArtTypes.ClearArt)
+                  fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.CLEARART_FILENAMES));
+
+                if (fanArtType == FanArtTypes.FanArt)
+                {
+                  fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.BACKDROP_FILENAMES));
+
+                  if (directoryFsra.ResourceExists("ExtraFanArt/"))
+                    using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
+                      fanArtPaths.AddRange(LocalFanartHelper.GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
+                }
+
+                files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
+
+                if (files.Any())
+                  break;
+              }
+            }
           }
         }
       }
