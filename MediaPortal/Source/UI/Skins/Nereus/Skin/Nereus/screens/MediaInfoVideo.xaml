@@ -61,7 +61,7 @@
             </MultiBinding>
           </Image.IsVisible>
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Episode" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                       fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
           </Image.Source>
         </Image>
