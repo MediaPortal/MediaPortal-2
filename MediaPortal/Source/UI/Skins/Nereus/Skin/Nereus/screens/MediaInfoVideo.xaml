@@ -95,10 +95,28 @@
             <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
           </Grid.Resources>
 
-          <Image x:Name="FanArtImageBackgroundOverlay" Stretch="Uniform" VerticalAlignment="Top">
+          <Image Stretch="Uniform" VerticalAlignment="Top">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"  />
+                <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                             fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
+            </Image.Source>
+          </Image>
+          <Image Stretch="Uniform" VerticalAlignment="Top">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"  />
+                <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Episode" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                      fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
             </Image.Source>
           </Image>
           <Image Stretch="Fill" Source="List_overlay.png"/>
