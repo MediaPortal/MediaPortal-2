@@ -54,53 +54,31 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
       if (profileName == null)
         throw new BadRequestException("InitStream: profileName is null");
 
-      EndPointProfile profile = null;
-      List<EndPointProfile> namedProfiles = ProfileManager.Profiles.Where(x => x.Value.Name == profileName).Select(namedProfile => namedProfile.Value).ToList();
-      if (namedProfiles.Count > 0)
-      {
-        profile = namedProfiles[0];
-      }
-      else if (ProfileManager.Profiles.ContainsKey(profileName))
-      {
-        profile = ProfileManager.Profiles[profileName];
-      }
-
-      if (profile == null)
-        throw new BadRequestException(string.Format("StartStream: Unknown profile: {0}", profileName));
-
       StreamItem streamItem = await StreamControl.GetStreamItemAsync(identifier);
       if (streamItem == null)
         throw new BadRequestException(string.Format("StartStream: Unknown identifier: {0}", identifier));
 
+      // Prefer getting profile by name
+      EndPointProfile profile = ProfileManager.Profiles.Values.FirstOrDefault(p => p.Name == profileName);
+      // If no ptofile with the specified name, see if there's one with a matching id
+      if (profile == null && !ProfileManager.Profiles.TryGetValue(profileName, out profile))
+        throw new BadRequestException(string.Format("StartStream: Unknown profile: {0}", profileName));
+
       streamItem.Profile = profile;
-      streamItem.StartPosition = startPosition;
-      if (streamItem.RequestedMediaItem is LiveTvMediaItem)
-      {
-        streamItem.StartPosition = 0;
-      }
+      // Seeking is not supported in live streams
+      streamItem.StartPosition = streamItem.RequestedMediaItem is LiveTvMediaItem ? 0 : startPosition;
 
       Guid? userId = ResourceAccessUtils.GetUser(context);
       streamItem.TranscoderObject = new ProfileMediaItem(identifier, profile, streamItem.IsLive);
       await streamItem.TranscoderObject.Initialize(userId, streamItem.RequestedMediaItem, null);
       if (streamItem.TranscoderObject.TranscodingParameter is VideoTranscoding vt)
-      {
         vt.HlsBaseUrl = string.Format("RetrieveStream?identifier={0}&hls=", identifier);
-      }
 
       await StreamControl.StartStreamingAsync(identifier, startPosition);
 
       string filePostFix = "&file=media.ts";
-      if (profile.MediaTranscoding != null && profile.MediaTranscoding.VideoTargets != null)
-      {
-        foreach (var target in profile.MediaTranscoding.VideoTargets)
-        {
-          if (target.Target.VideoContainerType == VideoContainer.Hls)
-          {
-            filePostFix = "&file=manifest.m3u8"; //Must be added for some clients to work (Android mostly)
-            break;
-          }
-        }
-      }
+      if (profile.MediaTranscoding?.VideoTargets?.Any(t => t.Target.VideoContainerType == VideoContainer.Hls) ?? false)
+        filePostFix = "&file=manifest.m3u8"; //Must be added for some clients to work (Android mostly)
 
       string url = GetBaseStreamUrl.GetBaseStreamURL(context) + "/MPExtended/StreamingService/stream/RetrieveStream?identifier=" + identifier + filePostFix;
       return new WebStringResult { Result = url };

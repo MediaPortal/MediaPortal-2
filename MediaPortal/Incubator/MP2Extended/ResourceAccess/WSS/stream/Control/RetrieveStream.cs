@@ -62,28 +62,29 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       if (streamItem == null)
         throw new BadRequestException("RetrieveStream: Identifier is not valid");
 
+      if (!streamItem.IsActive)
+      {
+        Logger.Debug("RetrieveStream: Stream for {0} is no longer active", identifier);
+        SetErrorStatus(context, "Stream is no longer active");
+        return true;
+      }
+
       long startPosition = streamItem.StartPosition;
-      if (streamItem.IsActive && hls != null)
+      if (hls != null)
       {
         #region Handle segment/playlist request
 
-        if (await SendSegmentAsync(hls, null, streamItem) == true)
-        {
+        if (await SendSegmentAsync(hls, context, streamItem))
           return true;
-        }
-        else if (streamItem.ItemType != Common.WebMediaType.TV && streamItem.ItemType != Common.WebMediaType.Radio &&
-          MediaConverter.GetSegmentSequence(hls) > 0)
+
+        if (streamItem.ItemType != Common.WebMediaType.TV && streamItem.ItemType != Common.WebMediaType.Radio &&
+          MediaConverter.GetSegmentSequence(hls) >= 0)
         {
           long segmentRequest = MediaConverter.GetSegmentSequence(hls);
           if (await streamItem.RequestSegmentAsync(segmentRequest) == false)
           {
             Logger.Error("RetrieveStream: Request for segment file {0} canceled", hls);
-
-            context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-            context.Response.ReasonPhrase = "Request for segment file canceled";
-            context.Response.ContentLength = 0;
-            context.Response.ContentType = null;
-
+            SetErrorStatus(context, "Request for segment file canceled");
             return true;
           }
           startPosition = segmentRequest * MediaConverter.HLSSegmentTimeInSeconds;
@@ -91,28 +92,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         else
         {
           Logger.Error("RetrieveStream: Unable to find segment file {0}", hls);
-
-          context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-          context.Response.ReasonPhrase = "Unable to find segment file";
-          context.Response.ContentLength = 0;
-          context.Response.ContentType = null;
-
+          SetErrorStatus(context, "Unable to find segment file");
           return true;
         }
 
         #endregion
-      }
-
-      if (streamItem.IsActive == false)
-      {
-        Logger.Debug("RetrieveStream: Stream for {0} is no longer active", identifier);
-
-        context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Response.ReasonPhrase = "Stream is no longer active";
-        context.Response.ContentLength = 0;
-        context.Response.ContentType = null;
-
-        return true;
       }
 
       #region Init response
@@ -124,9 +108,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
       TransferMode mediaTransferMode = TransferMode.Interactive;
       if (streamItem.TranscoderObject.IsVideo || streamItem.TranscoderObject.IsAudio)
-      {
         mediaTransferMode = TransferMode.Streaming;
-      }
 
       StreamMode requestedStreamingMode = StreamMode.Normal;
       string byteRangesSpecifier = context.Request.Headers["Range"];
@@ -191,14 +173,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
       #region Handle ready file request
 
-      if (resourceStream == null && (streamItem.StartPosition == timeRange.From || file != null))
-      {
-        //The initial request
-        if (streamItem.StreamContext != null)
-        {
-          resourceStream = streamItem.StreamContext.Stream;
-        }
-      }
+      // The initial request?
+      if (resourceStream == null && streamItem.StreamContext != null && (streamItem.StartPosition == timeRange.From || file != null))
+        resourceStream = streamItem.StreamContext.Stream;
 
       if (resourceStream == null && streamItem.TranscoderObject.IsTranscoded == false)
       {
@@ -218,20 +195,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         partialResource = transcode?.Partial ?? false;
         resourceStream = transcode?.Stream;
 
-        if (hls != null)
-        {
-          //Send HLS file originally requested
-          if (await SendSegmentAsync(hls, context, streamItem) == true)
-          {
-            return true;
-          }
-        }
+        //Send any HLS file originally requested
+        if (hls != null && await SendSegmentAsync(hls, context, streamItem))
+          return true;
       }
 
       if (!streamItem.TranscoderObject.IsStreamable)
-      {
         Logger.Debug("RetrieveStream: Live transcoding of mediaitem {0} is not possible because of media container", streamItem.RequestedMediaItem.MediaItemId);
-      }
 
       #endregion
 
@@ -282,7 +252,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
       #endregion
 
-        return true;
+      return true;
     }
 
     private static async Task<bool> SendSegmentAsync(string fileName, IOwinContext context, StreamItem streamItem)
@@ -322,6 +292,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         }
       }
       return false;
+    }
+
+    protected static void SetErrorStatus(IOwinContext context, string message)
+    {
+      context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
+      context.Response.ReasonPhrase = message;
+      context.Response.ContentLength = 0;
+      context.Response.ContentType = null;
     }
 
     internal static IMediaConverter MediaConverter

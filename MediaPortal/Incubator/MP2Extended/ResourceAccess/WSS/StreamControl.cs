@@ -116,65 +116,61 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <param name="context">Transcoder context</param>
     internal static async Task<TranscodeContext> StartStreamingAsync(string identifier, double startTime)
     {
-      if (STREAM_ITEMS.TryGetValue(identifier, out var currentStreamItem))
+      if (!STREAM_ITEMS.TryGetValue(identifier, out StreamItem currentStreamItem))
+        return null;
+
+      await currentStreamItem.BusyLock.WaitAsync();
+      try
       {
-        await currentStreamItem.BusyLock.WaitAsync();
-        try
+        if (currentStreamItem.TranscoderObject == null)
         {
-          if (currentStreamItem.TranscoderObject == null)
-          {
-            STREAM_ITEMS.TryRemove(identifier, out _);
-            return null;
-          }
+          STREAM_ITEMS.TryRemove(identifier, out _);
+          return null;
+        }
 
-          if (currentStreamItem.IsActive)
+        if (currentStreamItem.IsActive)
+        {
+          currentStreamItem.TranscoderObject.StopStreaming();
+          if (currentStreamItem.StreamContext != null)
           {
-            currentStreamItem.TranscoderObject?.StopStreaming();
-            if (currentStreamItem.StreamContext is TranscodeContext existingContext)
-            {
-              existingContext.UpdateStreamUse(false);
-            }
-            else if (currentStreamItem.StreamContext != null)
-            {
-              currentStreamItem.StreamContext.Dispose();
-              currentStreamItem.StreamContext = null;
-            }
-          }
-
-          if (currentStreamItem.TranscoderObject.StartTrancoding() == false)
-          {
-            Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", currentStreamItem.RequestedMediaItem.MediaItemId);
-            return null;
-          }
-
-          currentStreamItem.TranscoderObject.StartStreaming();
-          if (currentStreamItem.IsLive)
-            currentStreamItem.StreamContext = await MediaConverter.GetLiveStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, currentStreamItem.LiveChannelId, true);
-          else
-            currentStreamItem.StreamContext = await MediaConverter.GetMediaStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, startTime, 0, true);
-
-          if (currentStreamItem.StreamContext is TranscodeContext context)
-          {
-            context.UpdateStreamUse(true);
-            currentStreamItem.TranscoderObject.SegmentDir = context.SegmentDir;
-            return context;
-          }
-          else if (currentStreamItem.StreamContext != null)
-          {
-            //We want a transcoded stream
+            if (currentStreamItem.StreamContext is TranscodeContext transcodeContext)
+              transcodeContext.UpdateStreamUse(false);
             currentStreamItem.StreamContext.Dispose();
             currentStreamItem.StreamContext = null;
           }
+        }
 
+        if (!currentStreamItem.TranscoderObject.StartTrancoding())
+        {
+          Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", currentStreamItem.RequestedMediaItem.MediaItemId);
           return null;
         }
-        finally
-        {
-          currentStreamItem.BusyLock.Release();
-        }
-      }
 
-      return null;
+        currentStreamItem.TranscoderObject.StartStreaming();
+        if (currentStreamItem.IsLive)
+          currentStreamItem.StreamContext = await MediaConverter.GetLiveStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, currentStreamItem.LiveChannelId, true);
+        else
+          currentStreamItem.StreamContext = await MediaConverter.GetMediaStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, startTime, 0, true);
+
+        if (currentStreamItem.StreamContext is TranscodeContext context)
+        {
+          context.UpdateStreamUse(true);
+          currentStreamItem.TranscoderObject.SegmentDir = context.SegmentDir;
+          return context;
+        }
+        else if (currentStreamItem.StreamContext != null)
+        {
+          //We want a transcoded stream
+          currentStreamItem.StreamContext.Dispose();
+          currentStreamItem.StreamContext = null;
+        }
+
+        return null;
+      }
+      finally
+      {
+        currentStreamItem.BusyLock.Release();
+      }
     }
 
     /// <summary>
