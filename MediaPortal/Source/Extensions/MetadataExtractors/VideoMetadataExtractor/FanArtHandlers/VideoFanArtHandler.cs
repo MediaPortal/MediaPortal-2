@@ -124,7 +124,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       if (shouldCacheFanart)
       {
         //Fanart files in the local directory
-        await ExtractFolderFanArt(mediaItemLocator, mediaItemId, title).ConfigureAwait(false);
+        //Fanart for movies and episodes is handled in other MDE's
+        if (!aspects.ContainsKey(EpisodeAspect.ASPECT_ID) && !aspects.ContainsKey(MovieAspect.ASPECT_ID))
+          await ExtractFolderFanArt(mediaItemLocator, mediaItemId, title, aspects).ConfigureAwait(false);
 
         //Fanart in tags and media
         await ExtractFanArt(mediaItemLocator, mediaItemId, title, aspects).ConfigureAwait(false);
@@ -342,7 +344,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// <param name="mediaItemId">Id of the media item.</param>
     /// <param name="title">Title of the media item.</param>
     /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
-    protected async Task ExtractFolderFanArt(IResourceLocator mediaItemLocator, Guid mediaItemId, string title)
+    protected async Task ExtractFolderFanArt(IResourceLocator mediaItemLocator, Guid mediaItemId, string title, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       //Get the file's directory
       var videoDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../");
@@ -353,7 +355,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         //Get all fanart paths in the current directory 
         FanArtPathCollection paths;
         using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, videoDirectory).CreateAccessor())
-          paths = GetFolderFanArt(accessor as IFileSystemResourceAccessor, mediaItemFileName);
+          paths = GetFolderFanArt(accessor as IFileSystemResourceAccessor, mediaItemFileName, aspects);
 
         //Save the fanrt to the IFanArtCache service
         await SaveFolderImagesToCache(mediaItemLocator.NativeSystemId, paths, mediaItemId, title).ConfigureAwait(false);
@@ -370,7 +372,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// <param name="videoDirectory"><see cref="IFileSystemResourceAccessor"/> that points to the episode directory.</param>
     /// <param name="filename">The file name of the media item to extract images for.</param>
     /// <returns><see cref="FanArtPathCollection"/> containing all matching paths.</returns>
-    protected FanArtPathCollection GetFolderFanArt(IFileSystemResourceAccessor videoDirectory, string filename)
+    protected FanArtPathCollection GetFolderFanArt(IFileSystemResourceAccessor videoDirectory, string filename, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       FanArtPathCollection paths = new FanArtPathCollection();
       if (videoDirectory == null)
@@ -378,6 +380,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
       //Get all fanart in the current directory
       List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(videoDirectory);
+
       ExtractAllFanArtImages(potentialFanArtFiles, paths, filename);
 
       //Add extra backdrops in ExtraFanArt directory

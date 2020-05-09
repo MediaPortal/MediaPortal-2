@@ -52,6 +52,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
 
     [XmlIgnore]
     public IDictionary<Guid, IList<MediaItemAspect>> Aspects { get; set; }
+    [XmlIgnore]
+    public bool InProgress { get; set; }
 
     #region Additional members for the XML serialization
 

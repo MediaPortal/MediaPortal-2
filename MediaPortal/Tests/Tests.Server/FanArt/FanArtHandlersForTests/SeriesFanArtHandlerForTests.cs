@@ -43,7 +43,7 @@ namespace Tests.Server.FanArt.FanArtHandlersForTests
     public Task TestExtractSeriesFolderFanArt(Guid mediaItemId, ResourcePath path, IList<Tuple<Guid,string>> actors = null)
     {
       IResourceLocator locator = new ResourceLocator("test", path);
-      return ExtractSeriesFolderFanArt(locator, mediaItemId, "series", actors);
+      return ExtractSeriesFolderFanArt(locator, mediaItemId, "series", null, actors);
     }
 
     public Task TestExtractSeasonFolderFanArt(Guid mediaItemId, ResourcePath path, int? seasonNumber, IList<Tuple<Guid, string>> actors = null)
