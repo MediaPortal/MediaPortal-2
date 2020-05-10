@@ -256,7 +256,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       var seriesDirectoryPath = ResourcePathHelper.Combine(episodePath, "../../");
       using (var seriesRa = new ResourceLocator(systemId, seriesDirectoryPath).CreateAccessor())
       {
-        if (IsSeriesFolder(seriesRa as IFileSystemResourceAccessor))
+        if (IsSeriesFolder(seriesRa as IFileSystemResourceAccessor, knownSeasonNo))
           return seriesDirectoryPath;
       }
 
