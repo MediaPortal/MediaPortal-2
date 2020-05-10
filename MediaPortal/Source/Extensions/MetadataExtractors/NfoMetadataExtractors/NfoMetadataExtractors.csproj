@@ -84,6 +84,9 @@
     <Compile Include="Extractors\NfoAudioExtractorBase.cs" />
     <Compile Include="Extractors\NfoMovieExtractorBase.cs" />
     <Compile Include="Extractors\NfoSeriesExtractorBase.cs" />
+    <Compile Include="FanArtHandlers\AudioFanArtHandler.cs" />
+    <Compile Include="FanArtHandlers\MovieFanArtHandler.cs" />
+    <Compile Include="FanArtHandlers\SeriesFanArtHandler.cs" />
     <Compile Include="NfoAudioMetadataExtractor.cs" />
     <Compile Include="NfoReaders\NfoArtistReader.cs" />
     <Compile Include="NfoReaders\NfoAlbumReader.cs" />

@@ -47,7 +47,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to create an NfoMovieReader</param>
     /// <returns>An NfoMovieReader if an nfo file was found, else <c>null</c></returns>
-    protected async Task<NfoMovieReader> TryGetNfoMovieReaderAsync(IResourceAccessor mediaItemAccessor)
+    protected async Task<NfoMovieReader> TryGetNfoMovieReaderAsync(IResourceAccessor mediaItemAccessor, bool includeFanart)
     {      
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -74,7 +74,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
         // Now we (asynchronously) extract the metadata into a stub object.
         // If there is an error parsing the nfo-file with XmlNfoReader, we at least try to parse for a valid IMDB-ID.
         // If no metadata was found, nothing can be stored in the MediaItemAspects.
-        NfoMovieReader nfoReader = new NfoMovieReader(_debugLogger, miNumber, false, false, false, _httpClient, _settings);
+        NfoMovieReader nfoReader = new NfoMovieReader(_debugLogger, miNumber, false, false, false, _httpClient, _settings, includeFanart);
         using (nfoFsra)
         {
           if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&

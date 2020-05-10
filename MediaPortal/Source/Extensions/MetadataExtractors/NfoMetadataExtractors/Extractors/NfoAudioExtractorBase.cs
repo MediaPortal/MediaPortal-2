@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
     /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
     /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    protected async Task<NfoAlbumReader> TryGetNfoAlbumReaderAsync(IResourceAccessor mediaItemAccessor)
+    protected async Task<NfoAlbumReader> TryGetNfoAlbumReaderAsync(IResourceAccessor mediaItemAccessor, bool includeFanart)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -72,7 +72,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
         if (TryGetAlbumNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out albumNfoFsra))
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object
-          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, false, false, _httpClient, _settings);
+          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, false, false, _httpClient, _settings, includeFanart);
           using (albumNfoFsra)
           {
             if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
@@ -119,7 +119,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
     /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
     /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    protected async Task<NfoArtistReader> TryGetNfoArtistReaderAsync(IResourceAccessor mediaItemAccessor, string artistName)
+    protected async Task<NfoArtistReader> TryGetNfoArtistReaderAsync(IResourceAccessor mediaItemAccessor, string artistName, bool includeFanart)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -142,7 +142,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
         if (TryGetArtistNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, artistName, out artistNfoFsra))
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object
-          var artistNfoReader = new NfoArtistReader(_debugLogger, miNumber, false, _httpClient, _settings);
+          var artistNfoReader = new NfoArtistReader(_debugLogger, miNumber, false, _httpClient, _settings, includeFanart);
           using (artistNfoFsra)
           {
             if (await artistNfoReader.TryReadMetadataAsync(artistNfoFsra).ConfigureAwait(false))

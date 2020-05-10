@@ -42,6 +42,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MediaPortal.Utilities.Cache;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -56,11 +57,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// For performance reasons, the following long lasting operations have been temporarily disabled:
   /// - We do parse "set" (and therefore also "sets" elements); however, parsing and downloading
   ///   "setimage" child elements has been disabled. Reenable in <see cref="TryReadSetAsync"/>
-  /// - We do parse "actor" and "procuder" elements, however, parsing and downloading "thumb"
-  ///   child elements has been disabled. Reenable in <see cref="NfoReaderBase{T}.ParsePerson"/>
-  /// - The following elements are completely ignored:
-  ///   "fanart", "discart", "logo", "clearart", "banner", "Banner" and "Landscape"
-  ///   Reenable in <see cref="InitializeSupportedElements"/>
   /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
   public class NfoMovieReader : NfoReaderBase<MovieStub>
@@ -73,6 +69,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     private const string MOVIE_ROOT_ELEMENT_NAME = "movie";
     private const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
 
+    /// <summary>
+    /// Default timeout for the cache is 5 minutes
+    /// </summary>
+    private static readonly TimeSpan CACHE_TIMEOUT = new TimeSpan(0, 5, 0);
+
+    /// <summary>
+    /// Cache used to temporarily store <see cref="SeriesStub"/> objects so that the same tvshow.nfo file
+    /// doesn't have to be parsed once for every episode
+    /// </summary>
+    private static readonly AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<MovieStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<MovieStub>)>(CACHE_TIMEOUT);
+
     #endregion
 
     #region Private fields
@@ -80,9 +87,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <summary>
     /// If true, file details will also be read from the nfo-file
     /// </summary>
-    private bool _readFileDetails;
+    private readonly bool _readFileDetails;
 
-    private NfoMovieMetadataExtractorSettings _movieSettings;
+    private readonly NfoMovieMetadataExtractorSettings _movieSettings;
+
+    private readonly bool _includeFanart;
 
     #endregion
 
@@ -98,12 +107,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="readFileDetails">If true, file details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
-    public NfoMovieReader(ILogger debugLogger, long miNumber, bool videoOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
+    public NfoMovieReader(ILogger debugLogger, long miNumber, bool videoOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings, bool includeFanart)
       : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {
+      _includeFanart = includeFanart;
       _movieSettings = settings;
       _readFileDetails = readFileDetails;
-      InitializeSupportedElements();
+      InitializeSupportedElements(includeFanart);
       InitializeSupportedAttributes(videoOnly);
     }
 
@@ -223,7 +233,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <summary>
     /// Adds a delegate for each xml element in a movie nfo-file that is understood by this MetadataExtractor to NfoReaderBase._supportedElements
     /// </summary>
-    private void InitializeSupportedElements()
+    private void InitializeSupportedElements(bool includeFanart)
     {
       _supportedElements.Add("id", new TryReadElementDelegate(TryReadId));
       _supportedElements.Add("imdb", new TryReadElementDelegate(TryReadImdb));
@@ -260,14 +270,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
       _supportedElements.Add("language", new TryReadElementDelegate(TryReadLanguage));
       _supportedElements.Add("languages", new TryReadElementDelegate(TryReadLanguage)); // Synonym for <language>
-      _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
-      _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
-      _supportedElements.Add("discart", new TryReadElementAsyncDelegate(TryReadDiscArtAsync));
-      _supportedElements.Add("logo", new TryReadElementAsyncDelegate(TryReadLogoAsync));
-      _supportedElements.Add("clearart", new TryReadElementAsyncDelegate(TryReadClearArtAsync));
-      _supportedElements.Add("banner", new TryReadElementAsyncDelegate(TryReadBannerAsync));
-      _supportedElements.Add("Banner", new TryReadElementAsyncDelegate(TryReadBannerAsync)); // Used wrongly by XBNE instead of <banner>
-      _supportedElements.Add("Landscape", new TryReadElementAsyncDelegate(TryReadLandscapeAsync)); // Used by XBNE (capital letter in the beginning correct, but not according to spec)
+      if (includeFanart)
+      {
+        _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
+        _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
+        _supportedElements.Add("discart", new TryReadElementAsyncDelegate(TryReadDiscArtAsync));
+        _supportedElements.Add("logo", new TryReadElementAsyncDelegate(TryReadLogoAsync));
+        _supportedElements.Add("clearart", new TryReadElementAsyncDelegate(TryReadClearArtAsync));
+        _supportedElements.Add("banner", new TryReadElementAsyncDelegate(TryReadBannerAsync));
+        _supportedElements.Add("Banner", new TryReadElementAsyncDelegate(TryReadBannerAsync)); // Used wrongly by XBNE instead of <banner>
+        _supportedElements.Add("Landscape", new TryReadElementAsyncDelegate(TryReadLandscapeAsync)); // Used by XBNE (capital letter in the beginning correct, but not according to spec)
+      }
+      else
+      {
+        _supportedElements["thumb"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["discart"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["logo"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["clearart"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["banner"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["Banner"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["Landscape"] = new TryReadElementDelegate(Ignore);
+      }
       _supportedElements.Add("certification", new TryReadElementDelegate(TryReadCertification));
       _supportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
@@ -285,16 +309,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("lastplayed", new TryReadElementDelegate(TryReadLastPlayed));
       _supportedElements.Add("dateadded", new TryReadElementDelegate(TryReadDateAdded));
       _supportedElements.Add("resume", new TryReadElementDelegate(TryReadResume));
-
-      // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
-      // ToDo: Reenable the below once we can store the information in the MediaLibrary
-      _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["discart"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["logo"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["clearart"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["banner"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["Banner"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["Landscape"] = new TryReadElementDelegate(Ignore);
 
       // The following elements are contained in many movie.nfo files, but have no meaning
       // in the context of a movie. We add them here to avoid them being logged as
@@ -325,7 +339,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteVideoAspectWriters);
       _supportedAttributes.Add(TryWriteVideoAspectGenres);
 
-      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+      //Handled by FanArt collector now
+      //_supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
 
       if (!videoOnly)
       {
@@ -686,7 +701,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     private async Task<bool> TryReadActorAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra).ConfigureAwait(false);
+      var person = await ParsePerson(element, nfoDirectoryFsra, _includeFanart).ConfigureAwait(false);
       if (person == null)
         return false;
       if (_currentStub.Actors == null)
@@ -704,7 +719,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     private async Task<bool> TryReadProducerAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra).ConfigureAwait(false);
+      // We don't use this for anything currently, so don't get fanart
+      var person = await ParsePerson(element, nfoDirectoryFsra, false).ConfigureAwait(false);
       if (person == null)
         return false;
       if (_currentStub.Producers == null)
@@ -1855,6 +1871,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return true;
       _debugLogger.Warn("[#{0}]: Cannot extract metadata; name of the item root element is {1} instead of {2}", _miNumber, itemRootElementName, MOVIE_ROOT_ELEMENT_NAME);
       return false;
+    }
+
+    /// <summary>
+    /// Tries to read a movie nfo-file into <see cref="SeriesStub"/> objects (or gets them from cache)
+    /// </summary>
+    /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
+    /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
+    public override async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
+    {
+      var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path => await ReadMetadataAsync(path, nfoFsra)).ConfigureAwait(false);
+      if (!stubs.HasFanart && _includeFanart)
+        await CACHE.UpdateValue(nfoFsra.CanonicalLocalResourcePath, async path => stubs = await ReadMetadataAsync(path, nfoFsra)).ConfigureAwait(false);
+
+      if (stubs.Stubs == null)
+        return false;
+      _stubs = stubs.Stubs;
+      return true;
+    }
+
+    protected async Task<(bool HasFanart, List<MovieStub> Stubs)> ReadMetadataAsync(ResourcePath path, IFileSystemResourceAccessor nfoFsra)
+    {
+      _debugLogger.Info("[#{0}]: MovieStub object for movie nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
+      if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
+      {
+        if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
+          LogStubObjects();
+        return (_includeFanart, _stubs);
+      }
+      return (_includeFanart, null);
     }
 
     #endregion

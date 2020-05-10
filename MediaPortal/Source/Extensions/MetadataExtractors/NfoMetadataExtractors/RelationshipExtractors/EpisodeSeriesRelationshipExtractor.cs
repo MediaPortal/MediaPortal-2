@@ -58,7 +58,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// <returns><c>true</c> if metadata was found and stored into the <paramref name="extractedAspectData"/>, else <c>false</c></returns>
     protected async Task<bool> TryExtractSeriesMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, SeriesInfo reimport)
     {
-      NfoSeriesReader seriesNfoReader = await TryGetNfoSeriesReaderAsync(mediaItemAccessor).ConfigureAwait(false);
+      NfoSeriesReader seriesNfoReader = await TryGetNfoSeriesReaderAsync(mediaItemAccessor, false).ConfigureAwait(false);
       if (seriesNfoReader != null)
       {
         if (reimport != null && !VerifySeriesReimport(seriesNfoReader, reimport))
