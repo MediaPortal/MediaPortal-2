@@ -359,6 +359,7 @@
   <string name="Media.AudioContextName">Audio</string>
 
   <!-- Video currently playing -->
+  <string name="Media.Info">Media information</string>
   <string name="Media.VideoCurrentlyPlayingHeader">Current video information</string>
   <string name="Media.Rating">Rating: </string>
   <string name="Media.VideoTitleLabel">Title: </string>
