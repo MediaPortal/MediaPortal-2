@@ -53,7 +53,7 @@ namespace Tests.Server.NfoMetadataExtractor
 
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      NfoArtistReader reader = new NfoArtistReader(new ConsoleLogger(LogLevel.All, true), 1, false, null, new NfoAudioMetadataExtractorSettings());
+      NfoArtistReader reader = new NfoArtistReader(new ConsoleLogger(LogLevel.All, true), 1, false, null, new NfoAudioMetadataExtractorSettings(), false);
       reader.GetArtistStubs().Add(artistStub);
       reader.TryWriteMetadata(aspects);
 
@@ -84,7 +84,7 @@ namespace Tests.Server.NfoMetadataExtractor
       artistStub.Birthdate = null;
       artistStub.Deathdate = null;
 
-      reader = new NfoArtistReader(new ConsoleLogger(LogLevel.All, true), 1, false, null, new NfoAudioMetadataExtractorSettings());
+      reader = new NfoArtistReader(new ConsoleLogger(LogLevel.All, true), 1, false, null, new NfoAudioMetadataExtractorSettings(), false);
       reader.GetArtistStubs().Add(artistStub);
       reader.TryWriteMetadata(aspects);
 

@@ -83,6 +83,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
+    /// <param name="includeFanart">Include fanart</param>
     public NfoArtistReader(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoAudioMetadataExtractorSettings settings, bool includeFanart)
       : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {

@@ -343,6 +343,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// <param name="mediaItemLocator"><see cref="IResourceLocator>"/> that points to the file.</param>
     /// <param name="mediaItemId">Id of the media item.</param>
     /// <param name="title">Title of the media item.</param>
+    /// <param name="aspects">Extracted media item aspects</param>
     /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
     protected async Task ExtractFolderFanArt(IResourceLocator mediaItemLocator, Guid mediaItemId, string title, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {

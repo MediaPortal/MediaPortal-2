@@ -116,9 +116,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     /// Asynchronously tries to get an <see cref="NfoArtistReader"/> for the given <param name="mediaItemAccessor"></param>
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
-    /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
-    /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
+    /// <param name="artistName"></param>
+    /// <param name="includeFanart"></param>
+    /// <returns>NfoArtistReader</returns>
     protected async Task<NfoArtistReader> TryGetNfoArtistReaderAsync(IResourceAccessor mediaItemAccessor, string artistName, bool includeFanart)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.

@@ -71,7 +71,7 @@ namespace Tests.Server.NfoMetadataExtractor
       mockRA.Setup(r => r.OpenReadAsync()).Returns(Task.FromResult(
         Assembly.GetExecutingAssembly().GetManifestResourceStream("Tests.Server.NfoMetadataExtractor.TestData.MovieNfo.movie.nfo")));
       mockRA.SetupGet(t => t.CanonicalLocalResourcePath).Returns(ResourcePath.BuildBaseProviderPath(LocalFsResourceProviderBase.LOCAL_FS_RESOURCE_PROVIDER_ID, @"TestData\MovieNfo\movie.nfo"));
-      NfoMovieReader reader = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, false, false, false, null, new NfoMovieMetadataExtractorSettings());
+      NfoMovieReader reader = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, false, false, false, null, new NfoMovieMetadataExtractorSettings(), false);
 
       //Act
       reader.TryReadMetadataAsync(mockRA.Object).Wait();
@@ -110,9 +110,9 @@ namespace Tests.Server.NfoMetadataExtractor
     {
       //Arrange
       MovieStub movieStub = CreateTestMovieStub(CreateTestActors());
-      NfoMovieReader readerVideoOnly = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, true, false, false, null, new NfoMovieMetadataExtractorSettings());
+      NfoMovieReader readerVideoOnly = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, true, false, false, null, new NfoMovieMetadataExtractorSettings(), false);
       readerVideoOnly.GetMovieStubs().Add(movieStub);
-      NfoMovieReader readerMovieOnly = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, false, false, false, null, new NfoMovieMetadataExtractorSettings());
+      NfoMovieReader readerMovieOnly = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, false, false, false, null, new NfoMovieMetadataExtractorSettings(), false);
       readerMovieOnly.GetMovieStubs().Add(movieStub);
 
       //Act
@@ -176,7 +176,7 @@ namespace Tests.Server.NfoMetadataExtractor
       //Arrange
       IList<PersonStub> actors = CreateTestActors();
       MovieStub movieStub = CreateTestMovieStub(actors);
-      NfoMovieReader reader = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, true, false, false, null, new NfoMovieMetadataExtractorSettings());
+      NfoMovieReader reader = new NfoMovieReader(new ConsoleLogger(LogLevel.All, true), 1, true, false, false, null, new NfoMovieMetadataExtractorSettings(), false);
       reader.GetMovieStubs().Add(movieStub);
 
       //Act
