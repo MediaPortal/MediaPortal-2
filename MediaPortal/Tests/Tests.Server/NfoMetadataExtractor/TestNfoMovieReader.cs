@@ -144,9 +144,10 @@ namespace Tests.Server.NfoMetadataExtractor
       //Assert.IsTrue(aspects.TryGetValue(GenreAspect.ASPECT_ID, out genreAspects));
       //CollectionAssert.AreEqual(movieStub.Genres, genreAspects.Select(g => g.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)));
 
-      MediaItemAspect thumbnailAspect = MediaItemAspect.GetAspect(aspectsVideoOnly, ThumbnailLargeAspect.Metadata);
-      Assert.NotNull(thumbnailAspect);
-      CollectionAssert.AreEqual(movieStub.Thumb, thumbnailAspect.GetAttributeValue<byte[]>(ThumbnailLargeAspect.ATTR_THUMBNAIL));
+      //Thumbnail aspect no longer used. FanArt cache used instead because of expanded FanArt support
+      //MediaItemAspect thumbnailAspect = MediaItemAspect.GetAspect(aspectsVideoOnly, ThumbnailLargeAspect.Metadata);
+      //Assert.NotNull(thumbnailAspect);
+      //CollectionAssert.AreEqual(movieStub.Thumb, thumbnailAspect.GetAttributeValue<byte[]>(ThumbnailLargeAspect.ATTR_THUMBNAIL));
 
       //Movie aspects only
       MediaItemAspect movieAspect = MediaItemAspect.GetAspect(aspectsMovieOnly, MovieAspect.Metadata);

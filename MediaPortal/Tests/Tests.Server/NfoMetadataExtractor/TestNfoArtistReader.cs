@@ -75,9 +75,10 @@ namespace Tests.Server.NfoMetadataExtractor
       Assert.IsTrue(TestUtils.HasExternalId(externalIdentifiers, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_PERSON, artistStub.AudioDbId.ToString()));
       Assert.IsTrue(TestUtils.HasExternalId(externalIdentifiers, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_PERSON, artistStub.MusicBrainzArtistId));
 
-      MediaItemAspect thumbnailAspect = MediaItemAspect.GetAspect(aspects, ThumbnailLargeAspect.Metadata);
-      Assert.NotNull(thumbnailAspect);
-      CollectionAssert.AreEqual(artistStub.Thumb, thumbnailAspect.GetAttributeValue<byte[]>(ThumbnailLargeAspect.ATTR_THUMBNAIL));
+      //Thumbnail aspect no longer used. FanArt cache used instead because of expanded FanArt support
+      //MediaItemAspect thumbnailAspect = MediaItemAspect.GetAspect(aspects, ThumbnailLargeAspect.Metadata);
+      //Assert.NotNull(thumbnailAspect);
+      //CollectionAssert.AreEqual(artistStub.Thumb, thumbnailAspect.GetAttributeValue<byte[]>(ThumbnailLargeAspect.ATTR_THUMBNAIL));
 
       //Test Group
       aspects.Clear();
