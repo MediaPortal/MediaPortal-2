@@ -94,26 +94,25 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       // Virtual resources won't have any local fanart
       if (mediaItem.IsVirtual)
         return false;
-      var mediaIteamLocator = mediaItem.GetResourceLocator();
+      var mediaItemLocator = mediaItem.GetResourceLocator();
       var fanArtPaths = new List<ResourcePath>();
-      var files = new List<IResourceLocator>();
       // File based access
       try
       {
-        var mediaItemPath = mediaIteamLocator.NativeResourcePath;
+        var mediaItemPath = mediaItemLocator.NativeResourcePath;
         int seasonNo = -1;
         MediaItemAspect.TryGetAttribute(mediaItem.Aspects, EpisodeAspect.ATTR_SEASON, out seasonNo);
         var seasonFolderPath = ResourcePathHelper.Combine(mediaItemPath, "../");
-        var seriesFolderPath = GetSeriesFolderFromEpisodePath(mediaIteamLocator.NativeSystemId, mediaItemPath, seasonNo);
+        var seriesFolderPath = GetSeriesFolderFromEpisodePath(mediaItemLocator.NativeSystemId, mediaItemPath, seasonNo);
         bool hasSeasonFolders = seasonFolderPath != seriesFolderPath;
 
         //Episode FanArt
         if (mediaType == FanArtMediaTypes.Episode)
         {
           if (fanArtType == FanArtTypes.Undefined || fanArtType == FanArtTypes.Thumbnail)
-            AddEpisodeFanArt(fanArtPaths, fanArtType, mediaIteamLocator.NativeSystemId, mediaItemPath);
+            AddEpisodeFanArt(fanArtPaths, fanArtType, mediaItemLocator.NativeSystemId, mediaItemPath);
           else
-            AddSeriesFanArt(fanArtPaths, fanArtType, mediaIteamLocator.NativeSystemId, seriesFolderPath);
+            AddSeriesFanArt(fanArtPaths, fanArtType, mediaItemLocator.NativeSystemId, seriesFolderPath);
         }
 
         //Season FanArt
@@ -121,35 +120,35 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         {
           if (hasSeasonFolders)
           {
-            AddSeriesFanArt(fanArtPaths, fanArtType, mediaIteamLocator.NativeSystemId, seasonFolderPath);
-            AddSpecialSeasonFolderFanArt(fanArtPaths, fanArtType, mediaIteamLocator.NativeSystemId, seasonFolderPath, seasonNo);
+            AddSeriesFanArt(fanArtPaths, fanArtType, mediaItemLocator.NativeSystemId, seasonFolderPath);
+            AddSpecialSeasonFolderFanArt(fanArtPaths, fanArtType, mediaItemLocator.NativeSystemId, seasonFolderPath, seasonNo);
           }
           else
           {
-            AddSpecialSeasonFolderFanArt(fanArtPaths, fanArtType, mediaIteamLocator.NativeSystemId, seasonFolderPath, seasonNo);
+            AddSpecialSeasonFolderFanArt(fanArtPaths, fanArtType, mediaItemLocator.NativeSystemId, seasonFolderPath, seasonNo);
           }
 
           if (hasSeasonFolders && fanArtPaths.Count == 0)
           {
             //Series fallback
-            AddSeriesFanArt(fanArtPaths, fanArtType, mediaIteamLocator.NativeSystemId, seriesFolderPath);
+            AddSeriesFanArt(fanArtPaths, fanArtType, mediaItemLocator.NativeSystemId, seriesFolderPath);
           }
         }
 
         //Series FanArt
         if (mediaType == FanArtMediaTypes.Series)
         {
-          AddSeriesFanArt(fanArtPaths, fanArtType, mediaIteamLocator.NativeSystemId, seriesFolderPath);
+          AddSeriesFanArt(fanArtPaths, fanArtType, mediaItemLocator.NativeSystemId, seriesFolderPath);
         }
       }
       catch (Exception ex)
       {
 #if DEBUG
-        ServiceRegistration.Get<ILogger>().Warn("LocalSeriesFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaIteamLocator);
+        ServiceRegistration.Get<ILogger>().Warn("LocalSeriesFanArtProvider: Error while searching fanart of type '{0}' for '{1}'", ex, fanArtType, mediaItemLocator);
 #endif
       }
-      result = files;
-      return files.Count > 0;
+      result = fanArtPaths.Select(p => (IResourceLocator)new ResourceLocator(mediaItemLocator.NativeSystemId, p)).ToList();
+      return result.Count > 0;
     }
 
     private void AddEpisodeFanArt(List<ResourcePath> fanArtPaths, string fanArtType, string systemId, ResourcePath mediaItemPath)
