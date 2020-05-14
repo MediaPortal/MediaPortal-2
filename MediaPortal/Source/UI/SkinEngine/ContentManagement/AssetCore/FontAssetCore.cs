@@ -548,17 +548,28 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public bool IsAllocated
     {
-      get { return _texture != null; }
+      get
+      {
+        lock (_syncObj)
+        {
+          return _texture != null;
+        }
+      }
     }
 
     public void Free()
     {
-      if (_texture != null)
+      Texture texture;
+      lock (_syncObj)
       {
-        if (AllocationChanged != null)
-          AllocationChanged(-AllocationSize);
-        _texture.Dispose();
+        texture = _texture;
         _texture = null;
+      }
+
+      if (texture != null)
+      {
+        AllocationChanged?.Invoke(-AllocationSize);
+        texture.Dispose();
         _charSet.Clear();
         _currentX = 0;
         _rowHeight = 0;
