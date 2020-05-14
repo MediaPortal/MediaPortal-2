@@ -14,10 +14,6 @@
     <Dlls Include="$(TargetDir)dll\**\*.*" />
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-    <References Include="$(TargetDir)OpenCvSharp.pdb" />
-  </ItemGroup>
-
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
