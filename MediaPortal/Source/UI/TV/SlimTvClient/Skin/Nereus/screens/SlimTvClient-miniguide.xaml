@@ -22,11 +22,11 @@
         </Grid.Background>
 
         <Grid.Triggers>
-        <EventTrigger RoutedEvent="Screen.Show">
-         <TriggerCommand Command="{Command Source={StaticResource SlimTvClient}, Path=UpdateChannelsMiniGuide}"/>
-         </EventTrigger>
-       </Grid.Triggers>
-        
+          <EventTrigger RoutedEvent="Screen.Show">
+            <TriggerCommand Command="{Command Source={StaticResource SlimTvClient}, Path=UpdateChannelsMiniGuide}"/>
+          </EventTrigger>
+        </Grid.Triggers>
+
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="90"/>
           <ColumnDefinition Width="Auto"/>
@@ -53,7 +53,7 @@
               <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
               <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
               <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
-            </MultiBinding>            
+            </MultiBinding>
           </Grid.Width>
         </Grid>
 
@@ -61,7 +61,7 @@
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,30,10,5"/>
         <Label x:Name="NextProgramLabel" Grid.Column="3" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="-5,30,10,5"/>
-       
+
         <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
                 VerticalAlignment="Stretch" Grid.Row="1" Margin="25,0,5,25">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
@@ -139,9 +139,10 @@
                  Wrap="True" Scroll="Auto" ScrollDelay="5" ScrollSpeed="10" Color="{ThemeResource TextColor}" Margin="0,0,10,-25" 
                  Content="{Binding Path=SelectedCurrentProgram.Description}" Opacity="0.6"/>
         </Grid>
-        
+
         <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
         <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <KeyBinding Key="Red" Command="{Command Source={Service ScreenManager}, Path=CloseTopmostDialog}"/>
         <KeyBinding Key="Right" Command="{Command Path=NextGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Left"  Command="{Command Path=PrevGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
