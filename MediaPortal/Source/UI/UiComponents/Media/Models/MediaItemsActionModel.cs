@@ -67,16 +67,18 @@ namespace MediaPortal.UiComponents.Media.Models
 
       public IUserRestriction Restriction;
 
-      abstract public string ConfirmationMessage(ListItem item);
+      public abstract string ConfirmationMessage(ListItem item);
 
       public bool Deferred;
 
+      public abstract bool DoesChangeWorkflow  { get; }
+
       /// <summary>
-      /// Checks if this action is available for the given <paramref name="mediaItem"/>.
+      /// Checks if this action is available for the given <paramref name="item"/>.
       /// </summary>
       /// <param name="item">ListItem</param>
       /// <returns><c>true</c> if available</returns>
-      abstract public Task<bool> IsAvailableAsync(ListItem item);
+      public abstract Task<bool> IsAvailableAsync(ListItem item);
 
       /// <summary>
       /// Executes the action for the given MediaItem.
@@ -86,7 +88,7 @@ namespace MediaPortal.UiComponents.Media.Models
       /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if successful.
       /// <see cref="AsyncResult{T}.Result"/> returns what kind of changes was done on MediaItem.
       /// </returns>
-      abstract public Task<bool> ProcessAsync(ListItem item);
+      public abstract Task<bool> ProcessAsync(ListItem item);
     }
 
     protected class MediaListItemAction : ListItemAction
@@ -104,13 +106,15 @@ namespace MediaPortal.UiComponents.Media.Models
         Deferred = _action is IDeferredMediaItemAction;
       }
 
+      public override bool DoesChangeWorkflow => (_action as IDeferredMediaItemAction)?.DoesChangeWorkflow ?? false;
+
       public override string ConfirmationMessage(ListItem item)
       {
         IMediaItemActionConfirmation confirmation = _action as IMediaItemActionConfirmation;
         return confirmation?.ConfirmationMessage;
       }
 
-      public async override Task<bool> IsAvailableAsync(ListItem item)
+      public override async Task<bool> IsAvailableAsync(ListItem item)
       {
         IMediaItemListItem mediaItem = item as IMediaItemListItem;
         if (mediaItem != null)
@@ -118,7 +122,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return false;
       }
 
-      public async override Task<bool> ProcessAsync(ListItem item)
+      public override async Task<bool> ProcessAsync(ListItem item)
       {
         IMediaItemListItem mediaItem = item as IMediaItemListItem;
         if (mediaItem != null)
@@ -126,7 +130,7 @@ namespace MediaPortal.UiComponents.Media.Models
           var result = await _action.ProcessAsync(mediaItem.MediaItem);
           if (result.Success)
           {
-            if(result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
+            if (result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
               ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem.MediaItem, result.Result);
             return true;
           }
@@ -150,6 +154,7 @@ namespace MediaPortal.UiComponents.Media.Models
           Restriction.RestrictionGroup = extension.RestrictionGroup;
         Deferred = _action is IDeferredMediaViewAction;
       }
+      public override bool DoesChangeWorkflow => false;
 
       public override string ConfirmationMessage(ListItem item)
       {
@@ -158,7 +163,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return confirmation == null || viewItem == null ? null : confirmation.ConfirmationMessage(viewItem.View);
       }
 
-      public async override Task<bool> IsAvailableAsync(ListItem item)
+      public override async Task<bool> IsAvailableAsync(ListItem item)
       {
         IViewListItem viewItem = item as IViewListItem;
         if (viewItem != null)
@@ -166,14 +171,13 @@ namespace MediaPortal.UiComponents.Media.Models
         return false;
       }
 
-      public async override Task<bool> ProcessAsync(ListItem item)
+      public override async Task<bool> ProcessAsync(ListItem item)
       {
         IViewListItem viewItem = item as IViewListItem;
         if (viewItem != null)
           return await _action.ProcessAsync(viewItem.View);
         return false;
       }
-
     }
 
     protected class DummyListItem : ListItem, IMediaItemListItem
@@ -207,7 +211,7 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
-    /// Tries to show actions for the given <paramref name="listItem"/>.
+    /// Tries to show actions for the given <paramref name="item"/>.
     /// </summary>
     /// <param name="item">ListItem</param>
     public void ShowMediaItemActionsEx(ListItem item)
@@ -295,7 +299,14 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       try
       {
-        return await action.ProcessAsync(item);
+        var result = await action.ProcessAsync(item);
+        if (_deferredAction?.DoesChangeWorkflow ?? false)
+        {
+          IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+          workflowManager.EndBatchUpdate();
+        }
+
+        return result;
       }
       catch (Exception ex)
       {
@@ -362,7 +373,8 @@ namespace MediaPortal.UiComponents.Media.Models
             mediaExtension.Action = action;
             _actions.Add(new MediaViewItemAction(mediaExtension));
           }
-        } catch (PluginInvalidStateException e)
+        }
+        catch (PluginInvalidStateException e)
         {
           ServiceRegistration.Get<ILogger>().Warn("Cannot add MediaView extension with id '{0}'", e, itemMetadata.Id);
         }
@@ -404,6 +416,10 @@ namespace MediaPortal.UiComponents.Media.Models
     protected void LeaveMediaItemActionState()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
+      if (_deferredAction?.DoesChangeWorkflow ?? false)
+      {
+        workflowManager.StartBatchUpdate();
+      }
       workflowManager.NavigatePop(1);
     }
 

@@ -80,7 +80,6 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
             var wf = ServiceRegistration.Get<IWorkflowManager>();
             var contextConfig = new NavigationContextConfig { AdditionalContextVariables = new Dictionary<string, object> { { Consts.KEY_MEDIA_ITEM, mediaItem } } };
             wf.NavigatePush(aspectScreen.Value, contextConfig);
-            await Task.Delay(500);
             result = true;
             break;
           }
@@ -88,5 +87,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       }
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(result, ContentDirectoryMessaging.MediaItemChangeType.None);
     }
+
+    public bool DoesChangeWorkflow { get; set; } = true;
   }
 }
