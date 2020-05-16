@@ -281,6 +281,9 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
 
           <!-- AUDIO INFO TAB-->
           <Grid HorizontalAlignment="Stretch">
@@ -403,79 +406,78 @@
           </Grid>
 
           <!-- Collection -->
-          <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="400,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="40"/>
-              <RowDefinition Height="175"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="300"/>
-            </Grid.ColumnDefinitions>
+          <media:MovieAspectWrapper Grid.Row="3" Margin="400,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}">
+            <media:MovieAspectWrapper.Template>
+              <ControlTemplate>
+                <Grid HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      IsVisible="{Binding Path=CollectionName, Converter={StaticResource EmptyStringToFalseConverter}}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="175"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                  </Grid.ColumnDefinitions>
 
-            <Grid.Triggers>
-              <DataTrigger Binding="{Binding ElementName=CollectionLabel, Path=Visibility}" Value="Hidden">
-                <Setter Property="Visibility" Value="Hidden"/>
-              </DataTrigger>
-            </Grid.Triggers>
+                  <Grid Margin="10,10,0,-5">
+                    <Image Source="HomeContentIcons\Category.png" Height="25" Width="25" Stretch="Uniform" Margin="0,1,5,-1" 
+                           VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <Label x:Name="Collection" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                           Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Collection"/>
+                  </Grid>
 
-            <Grid Margin="10,10,0,-5">
-              <Image Source="HomeContentIcons\Category.png" Height="25" Width="25" Stretch="Uniform" Margin="0,1,5,-1" 
-                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
-              <Label x:Name="Collection" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Collection"/>
-            </Grid>
+                  <Button Style="{ThemeResource NereusFrameButtonStyle}" Grid.Row="1" Margin="10,11,10,11">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Margin="1">
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                      </Grid.RowDefinitions>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
 
-            <Button Style="{ThemeResource NereusFrameButtonStyle}" Grid.Row="1" Margin="10,11,10,11">
-              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Margin="1">
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                      <Image Margin="-8" Source="Thumbnail_small.png" Stretch="Fill"/>
 
-                <Image Margin="-8" Source="Thumbnail_small.png" Stretch="Fill"/>
+                      <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <DockPanel.Background>
+                          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+                            <Binding Source="{ThemeResource NereusColorMedium}"/>
+                            <Binding Source="{ThemeResource NereusColorLight}"/>
+                          </MultiBinding>
+                        </DockPanel.Background>
 
-                <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                  <DockPanel.Background>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                      <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
-                      <Binding Source="{ThemeResource NereusColorMedium}"/>
-                      <Binding Source="{ThemeResource NereusColorLight}"/>
-                    </MultiBinding>
-                  </DockPanel.Background>
-
-                  <media:MovieCollectionAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                                      MediaItem="{Binding MediaItem}" DockPanel.Dock="Left">
-                    <media:MovieCollectionAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Image x:Name="MovieCollectionPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                               Height="150" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                          <Image.Source>
-                            <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                        <media:MovieCollectionAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                            MediaItem="{Binding MediaItem}" DockPanel.Dock="Left">
+                          <media:MovieCollectionAspectWrapper.Template>
+                            <ControlTemplate>
+                              <Image x:Name="MovieCollectionPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                                     Height="150" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                                <Image.Source>
+                                  <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-                          </Image.Source>
-                        </Image>
-                      </ControlTemplate>
-                    </media:MovieCollectionAspectWrapper.Template>
-                  </media:MovieCollectionAspectWrapper>
+                                </Image.Source>
+                              </Image>
+                            </ControlTemplate>
+                          </media:MovieCollectionAspectWrapper.Template>
+                        </media:MovieCollectionAspectWrapper>
 
-                  <media:MovieAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                            MediaItem="{Binding MediaItem}" DockPanel.Dock="Right">
-                    <media:MovieAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Label x:Name="CollectionLabel" Content="{Binding CollectionName}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                               IsVisible="{Binding Path=CollectionName, Converter={StaticResource EmptyStringToFalseConverter}}"
-                               Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="5" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
-                      </ControlTemplate>
-                    </media:MovieAspectWrapper.Template>
-                  </media:MovieAspectWrapper>
-                </DockPanel>
-              </Grid>
-            </Button>
-
-          </Grid>
-
+                        <media:MovieAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                  MediaItem="{Binding MediaItem}" DockPanel.Dock="Right">
+                          <media:MovieAspectWrapper.Template>
+                            <ControlTemplate>
+                              <Label x:Name="CollectionLabel" Content="{Binding CollectionName}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                     IsVisible="{Binding Path=CollectionName, Converter={StaticResource EmptyStringToFalseConverter}}"
+                                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="5" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+                            </ControlTemplate>
+                          </media:MovieAspectWrapper.Template>
+                        </media:MovieAspectWrapper>
+                      </DockPanel>
+                    </Grid>
+                  </Button>
+                </Grid>
+              </ControlTemplate>
+            </media:MovieAspectWrapper.Template>
+          </media:MovieAspectWrapper>
         </Grid>
       </Grid>
     </ControlTemplate>
