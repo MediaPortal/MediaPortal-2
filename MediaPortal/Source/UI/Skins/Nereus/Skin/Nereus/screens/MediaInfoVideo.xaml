@@ -61,7 +61,7 @@
             </MultiBinding>
           </Image.IsVisible>
           <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Episode" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                       fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
           </Image.Source>
         </Image>
@@ -95,10 +95,28 @@
             <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
           </Grid.Resources>
 
-          <Image x:Name="FanArtImageBackgroundOverlay" Stretch="Uniform" VerticalAlignment="Top">
+          <Image Stretch="Uniform" VerticalAlignment="Top">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"  />
+                <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                            fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
+                                        fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
+            </Image.Source>
+          </Image>
+          <Image Stretch="Uniform" VerticalAlignment="Top">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem"  />
+                <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Image.IsVisible>
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Episode" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                        fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
             </Image.Source>
           </Image>
           <Image Stretch="Fill" Source="List_overlay.png"/>
@@ -131,7 +149,7 @@
                         <ControlTemplate>
                           <Grid>
                             <Image DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="15"
-                                       HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                                   HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
                               <Image.Source>
                                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 1 ? {1} : {2}">
                                   <Binding Path="AspectCount"/>
@@ -158,7 +176,7 @@
 
                       <Image Source="Medialogos\video\3d.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="23"/>
                       <Label HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,30" Content="{Binding VideoType}"
-                                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"/>
+                             Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"/>
                     </Grid>
 
                     <Grid IsVisible="{Binding ElementName=Encoding, Path=Source, Converter={StaticResource EmptyStringToFalseConverter}}">
@@ -189,13 +207,13 @@
                     <Grid HorizontalAlignment="Center">
                       <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Source="Medialogos\aspectratio\aspectratio.png"/>
                       <Label Margin="8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
-                               HorizontalAlignment="Center" VerticalAlignment="Bottom">
+                             HorizontalAlignment="Center" VerticalAlignment="Bottom">
                         <Label.Content>
                           <Binding Path="AspectRatio" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F2}:1" />
                         </Label.Content>
                       </Label>
                       <Label Margin="8,13,8,8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
-                                 HorizontalAlignment="Center" VerticalAlignment="Top">
+                             HorizontalAlignment="Center" VerticalAlignment="Top">
                         <Label.Content>
                           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 1.4 ? {1} : ({0} &lt; 1.8 ? {2} : {3})">
                             <Binding Path="AspectHeight"/>
@@ -209,15 +227,15 @@
 
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
                       <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
-                                 IsVisible="{Binding Path=VideoBitRate,Converter={StaticResource ReferenceToBoolConverter}}"
-                                 HorizontalAlignment="Center" VerticalAlignment="Center">
+                             IsVisible="{Binding Path=VideoBitRate,Converter={StaticResource ReferenceToBoolConverter}}"
+                             HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Label.Content>
                           <Binding Path="VideoBitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kbps"/>
                         </Label.Content>
                       </Label>
                       <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
-                                 IsVisible="{Binding Path=FPS,Converter={StaticResource ReferenceToBoolConverter}}"
-                                 HorizontalAlignment="Center" VerticalAlignment="Center">
+                             IsVisible="{Binding Path=FPS,Converter={StaticResource ReferenceToBoolConverter}}"
+                             HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Label.Content>
                           <Binding Path="FPS" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F3} fps"/>
                         </Label.Content>
@@ -263,6 +281,9 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
 
           <!-- AUDIO INFO TAB-->
           <Grid HorizontalAlignment="Stretch">
@@ -276,9 +297,9 @@
 
             <Grid Margin="200,10,0,-5">
               <Image Source="HomeContentIcons\track.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
-                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Audio tracks" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Audio tracks"/>
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Audio tracks"/>
             </Grid>
 
             <media:VideoAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}" Grid.Row="1">
@@ -301,20 +322,26 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Path="MediaItem" />
+                <Binding Source="{x:Static aspect:SubtitleAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Grid.IsVisible>
 
             <Grid Margin="200,10,0,-5">
               <Image Source="HomeContentIcons\language.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
-                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Subtitles" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Subtitles"/>
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Subtitles"/>
             </Grid>
 
             <media:VideoAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}" Grid.Row="1">
               <media:VideoAspectWrapper.Template>
                 <ControlTemplate>
                   <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
-                                Style="{ThemeResource SubtitleCPListViewStyle}"
-                                ItemsSource="{TemplateBinding Subtitles}"/>
+                            Style="{ThemeResource SubtitleCPListViewStyle}"
+                            ItemsSource="{TemplateBinding Subtitles}"/>
                 </ControlTemplate>
               </media:VideoAspectWrapper.Template>
             </media:VideoAspectWrapper>
@@ -332,9 +359,9 @@
 
             <Grid Margin="200,10,0,-5">
               <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
-                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Actors" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Actors"/>
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Actors"/>
             </Grid>
 
             <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
@@ -361,9 +388,9 @@
 
             <Grid Margin="200,10,0,-5">
               <Image Source="HomeContentIcons\director.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
-                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Director" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Director"/>
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Director"/>
             </Grid>
 
             <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
@@ -379,79 +406,78 @@
           </Grid>
 
           <!-- Collection -->
-          <Grid HorizontalAlignment="Stretch" Grid.Row="3" Margin="400,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="40"/>
-              <RowDefinition Height="175"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="300"/>
-            </Grid.ColumnDefinitions>
+          <media:MovieAspectWrapper Grid.Row="3" Margin="400,0,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}">
+            <media:MovieAspectWrapper.Template>
+              <ControlTemplate>
+                <Grid HorizontalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      IsVisible="{Binding Path=CollectionName, Converter={StaticResource EmptyStringToFalseConverter}}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                    <RowDefinition Height="175"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="300"/>
+                  </Grid.ColumnDefinitions>
 
-            <Grid.Triggers>
-              <DataTrigger Binding="{Binding ElementName=CollectionLabel, Path=Visibility}" Value="Hidden">
-                <Setter Property="Visibility" Value="Hidden"/>
-              </DataTrigger>
-            </Grid.Triggers>
+                  <Grid Margin="10,10,0,-5">
+                    <Image Source="HomeContentIcons\Category.png" Height="25" Width="25" Stretch="Uniform" Margin="0,1,5,-1" 
+                           VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                    <Label x:Name="Collection" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                           Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Collection"/>
+                  </Grid>
 
-            <Grid Margin="10,10,0,-5">
-              <Image Source="HomeContentIcons\Category.png" Height="25" Width="25" Stretch="Uniform" Margin="0,1,5,-1" 
-                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
-              <Label x:Name="Collection" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Collection"/>
-            </Grid>
+                  <Button Style="{ThemeResource NereusFrameButtonStyle}" Grid.Row="1" Margin="10,11,10,11">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Margin="1">
+                      <Grid.RowDefinitions>
+                        <RowDefinition Height="*"/>
+                      </Grid.RowDefinitions>
+                      <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="*"/>
+                      </Grid.ColumnDefinitions>
 
-            <Button Style="{ThemeResource NereusFrameButtonStyle}" Grid.Row="1" Margin="10,11,10,11">
-              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Margin="1">
-                <Grid.RowDefinitions>
-                  <RowDefinition Height="*"/>
-                </Grid.RowDefinitions>
-                <Grid.ColumnDefinitions>
-                  <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+                      <Image Margin="-8" Source="Thumbnail_small.png" Stretch="Fill"/>
 
-                <Image Margin="-8" Source="Thumbnail_small.png" Stretch="Fill"/>
+                      <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                        <DockPanel.Background>
+                          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+                            <Binding Source="{ThemeResource NereusColorMedium}"/>
+                            <Binding Source="{ThemeResource NereusColorLight}"/>
+                          </MultiBinding>
+                        </DockPanel.Background>
 
-                <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                  <DockPanel.Background>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                      <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
-                      <Binding Source="{ThemeResource NereusColorMedium}"/>
-                      <Binding Source="{ThemeResource NereusColorLight}"/>
-                    </MultiBinding>
-                  </DockPanel.Background>
-
-                  <media:MovieCollectionAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                                          MediaItem="{Binding MediaItem}" DockPanel.Dock="Left">
-                    <media:MovieCollectionAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Image x:Name="MovieCollectionPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
-                                   Height="150" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                          <Image.Source>
-                            <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                        <media:MovieCollectionAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                            MediaItem="{Binding MediaItem}" DockPanel.Dock="Left">
+                          <media:MovieCollectionAspectWrapper.Template>
+                            <ControlTemplate>
+                              <Image x:Name="MovieCollectionPoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" 
+                                     Height="150" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                                <Image.Source>
+                                  <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-                          </Image.Source>
-                        </Image>
-                      </ControlTemplate>
-                    </media:MovieCollectionAspectWrapper.Template>
-                  </media:MovieCollectionAspectWrapper>
+                                </Image.Source>
+                              </Image>
+                            </ControlTemplate>
+                          </media:MovieCollectionAspectWrapper.Template>
+                        </media:MovieCollectionAspectWrapper>
 
-                  <media:MovieAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-                                                MediaItem="{Binding MediaItem}" DockPanel.Dock="Right">
-                    <media:MovieAspectWrapper.Template>
-                      <ControlTemplate>
-                        <Label x:Name="CollectionLabel" Content="{Binding CollectionName}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                                   IsVisible="{Binding Path=CollectionName, Converter={StaticResource EmptyStringToFalseConverter}}"
-                                   Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="5" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
-                      </ControlTemplate>
-                    </media:MovieAspectWrapper.Template>
-                  </media:MovieAspectWrapper>
-                </DockPanel>
-              </Grid>
-            </Button>
-
-          </Grid>
-
+                        <media:MovieAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                                                  MediaItem="{Binding MediaItem}" DockPanel.Dock="Right">
+                          <media:MovieAspectWrapper.Template>
+                            <ControlTemplate>
+                              <Label x:Name="CollectionLabel" Content="{Binding CollectionName}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                                     IsVisible="{Binding Path=CollectionName, Converter={StaticResource EmptyStringToFalseConverter}}"
+                                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="5" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+                            </ControlTemplate>
+                          </media:MovieAspectWrapper.Template>
+                        </media:MovieAspectWrapper>
+                      </DockPanel>
+                    </Grid>
+                  </Button>
+                </Grid>
+              </ControlTemplate>
+            </media:MovieAspectWrapper.Template>
+          </media:MovieAspectWrapper>
         </Grid>
       </Grid>
     </ControlTemplate>

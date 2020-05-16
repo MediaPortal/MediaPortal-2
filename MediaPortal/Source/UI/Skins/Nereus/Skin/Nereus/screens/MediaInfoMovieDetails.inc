@@ -203,7 +203,13 @@
 
   </StackPanel>
 
-  <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Uniform" Width="190" Height="190"
-         Grid.Column="1" Source="playback.png" Margin="0,-60,50,0" Opacity="0.8" />
-
+  <Button x:Name="PlayButton" Grid.Column="1" Margin="0,-60,50,0" Command="{Command Play}" Style="{ThemeResource EmptyButtonStyle}"
+          HorizontalAlignment="Right" VerticalAlignment="Top" Width="190" Height="190">
+    <Grid>
+      <Image Stretch="Uniform" Width="190" Height="190"
+             Source="playback.png" Opacity="0.8" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}" />
+      <Image Stretch="Uniform" Width="190" Height="190"
+             Source="playback_focus.png" Opacity="1" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}" />
+    </Grid>
+  </Button>
 </Grid>

@@ -104,7 +104,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       if (fanArtFiles.Count == 0 &&
         (mediaType == FanArtMediaTypes.Series || mediaType == FanArtMediaTypes.SeriesSeason ||
         mediaType == FanArtMediaTypes.Character ||
-        (mediaType == FanArtMediaTypes.Episode && fanArtType == FanArtTypes.FanArt)))
+        (mediaType == FanArtMediaTypes.Episode && (fanArtType == FanArtTypes.FanArt || fanArtType == FanArtTypes.ClearArt))))
       {
         IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
         if (mediaLibrary == null)
@@ -117,7 +117,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
         MediaItem mediaItem = items.First();
 
-        if (mediaType == FanArtMediaTypes.Episode && fanArtType == FanArtTypes.FanArt)
+        if (mediaType == FanArtMediaTypes.Episode && (fanArtType == FanArtTypes.FanArt || fanArtType == FanArtTypes.ClearArt))
         {
           if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
           {
