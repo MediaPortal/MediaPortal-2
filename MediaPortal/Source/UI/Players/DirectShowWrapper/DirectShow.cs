@@ -3,6 +3,7 @@ using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.ComTypes;
 using DirectShow.Helper;
+using DirectShowWrapper;
 
 namespace DirectShow
 {
@@ -1605,7 +1606,7 @@ namespace DirectShow
             if (_size > 0)
             {
                 _data = new byte[_size];
-                IntPtr _ptr = new IntPtr(formatPtr.ToInt32() + (formatSize - _size));
+                IntPtr _ptr = formatPtr.Add(formatSize - _size);
                 Marshal.Copy(_ptr, _data, 0, _size);
             }
             return _data;
@@ -1631,7 +1632,7 @@ namespace DirectShow
                     COMHelper.API.CopyMemory(_ptr, formatPtr, formatSize);
                     Marshal.FreeCoTaskMem(formatPtr);
                     formatPtr = _ptr;
-                    _ptr = new IntPtr(_ptr.ToInt32() + formatSize);
+                    _ptr = _ptr.Add(formatSize);
                     Marshal.Copy(_data, 0, _ptr, _size);
                     formatSize += _size;
                 }

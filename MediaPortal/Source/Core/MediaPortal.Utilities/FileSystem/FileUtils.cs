@@ -291,7 +291,7 @@ namespace MediaPortal.Utilities.FileSystem
     /// Gets a temporary filename with the given <paramref name="extension"/>.
     /// </summary>
     /// <param name="extension">File extension including "."</param>
-    /// <returns>Tempf file</returns>
+    /// <returns>Temp file</returns>
     public static string GetTempFileName(string extension)
     {
       return Path.Combine(Path.GetTempPath(), Guid.NewGuid() + extension);

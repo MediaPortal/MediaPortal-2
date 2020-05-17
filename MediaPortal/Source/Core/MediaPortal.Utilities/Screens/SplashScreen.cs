@@ -48,8 +48,8 @@ namespace MediaPortal.Utilities.Screens
     private delegate void UpdateLabel();
     private delegate void CloseSplash();
 
-    private static TimeSpan _fadeInDuration = TimeSpan.Zero;
-    private static TimeSpan _fadeOutDuration = TimeSpan.Zero;
+    private TimeSpan _fadeInDuration = TimeSpan.Zero;
+    private TimeSpan _fadeOutDuration = TimeSpan.Zero;
 
     private double _opacityDecrement;
     private double _opacityIncrement;
@@ -123,6 +123,11 @@ namespace MediaPortal.Utilities.Screens
       get { return BackgroundImage; }
       set { _backgroundImage = value; }
     }
+
+    /// <summary>
+    /// Allows to use a PictureBox control which also supports animations for GIF.
+    /// </summary>
+    public bool UsePictureBox { get; set; }
 
     /// <summary>
     /// Sets the color of the background image which will be presented transparent.
@@ -264,12 +269,29 @@ namespace MediaPortal.Utilities.Screens
       Rectangle screenBounds = preferredScreen.Bounds;
       Size screen = screenBounds.Size;
 
-      if (ScaleToFullscreen && (screen.Width != backgroundImage.Width || screen.Height != backgroundImage.Height))
-        backgroundImage = ImageUtilities.ResizeImageExact(backgroundImage, screen.Width, screen.Height);
+      if (UsePictureBox)
+      {
+        var picture = new PictureBox
+        {
+          Image = backgroundImage,
+          Dock = DockStyle.Fill,
+          SizeMode = PictureBoxSizeMode.CenterImage,
+          BackColor = Color.Black
+        };
+        Controls.Add(picture);
+        _statusLabel.Visible = false;
+        _programInfoLabel.Visible = false;
+        Bounds = preferredScreen.Bounds;
+      }
+      else
+      {
+        if (ScaleToFullscreen && (screen.Width != backgroundImage.Width || screen.Height != backgroundImage.Height))
+          backgroundImage = ImageUtilities.ResizeImageExact(backgroundImage, screen.Width, screen.Height);
 
-      BackgroundImage = backgroundImage;
-      Location = screenBounds.Location;
-      ClientSize = backgroundImage.Size;
+        BackgroundImage = backgroundImage;
+        Location = screenBounds.Location;
+        ClientSize = backgroundImage.Size;
+      }
     }
 
     private void ShowForm()
@@ -325,7 +347,6 @@ namespace MediaPortal.Utilities.Screens
       ResumeLayout(false);
       Load += SplashScreenLoad;
       _splashTimer.Tick += SplashTimerTick;
-
     }
 
     #endregion

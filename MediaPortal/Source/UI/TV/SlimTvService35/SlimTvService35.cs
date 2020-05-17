@@ -269,7 +269,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
-      var programs = programService.GetProgramsByTitleAndStartEndTimes(title, from, to)
+      // TVE3.5 does a "equal" comparision by default, while TVE3 did use "starts with". To emulate old behavior, we add a trailing %
+      var programs = programService.GetProgramsByTitleAndStartEndTimes(title + "%", from, to)
         .Select(tvProgram => GetProgram(tvProgram, true))
         .Distinct(ProgramComparer.Instance)
         .ToList();
