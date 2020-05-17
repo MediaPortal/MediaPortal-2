@@ -66,7 +66,7 @@
                   <Image Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="400" Height="400">
                     <Image.Source>
                       <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                            fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                                                fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
                     </Image.Source>
                   </Image>
                 </Grid>
@@ -86,7 +86,7 @@
       <ControlTemplate>
         <StackPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
 
-          <Label x:Name="Title" FontSize="{ThemeResource NormalFontSize}" Wrap="True" TextTrimming="WordEllipsis" Margin="0,0,-300,0"
+          <Label x:Name="Title" FontSize="{ThemeResource NormalFontSize}" Wrap="True" TextTrimming="WordEllipsis" Margin="0,0,-150,0"
                  Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
 
           <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}"
@@ -222,5 +222,15 @@
       </ControlTemplate>
     </media:AudioAspectWrapper.Template>
   </media:AudioAspectWrapper>
+
+  <Button x:Name="PlayButton" Grid.Column="1" Margin="0,-60,50,0" Command="{Command Play}" Style="{ThemeResource EmptyButtonStyle}"
+          HorizontalAlignment="Right" VerticalAlignment="Top" Width="190" Height="190">
+    <Grid>
+      <Image Stretch="Uniform" Width="190" Height="190"
+             Source="playback.png" Opacity="0.8" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}" />
+      <Image Stretch="Uniform" Width="190" Height="190"
+             Source="playback_focus.png" Opacity="1" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}" />
+    </Grid>
+  </Button>
 
 </Grid>
