@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
       if (items.Count == 0)
         throw new BadRequestException("No Movies found");
 
-      var output = items.Select(item => MovieDetailed(item))
+      var output = items.Select(item => MovieDetailed(item)).ToList()
         .Filter(filter);
 
       // sort and filter
