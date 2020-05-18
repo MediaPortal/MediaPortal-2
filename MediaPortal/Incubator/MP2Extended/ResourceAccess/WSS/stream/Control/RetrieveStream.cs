@@ -228,8 +228,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         return true;
       }
 
-      await streamItem.BusyLock.WaitAsync(SendDataCancellation.Token);
-      try
+      using (await streamItem.RequestBusyLockAsync(SendDataCancellation.Token))
       {
         // TODO: fix method
         onlyHeaders = context.Request.Method == "HEAD" || context.Response.StatusCode == (int)HttpStatusCode.NotModified;
@@ -245,10 +244,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
         Logger.Debug("RetrieveStream: Sending file header only: {0}", onlyHeaders.ToString());
         await SendWholeFileAsync(context, resourceStream, streamItem.TranscoderObject, streamItem.Profile, onlyHeaders, partialResource, mediaTransferMode);
       }
-      finally
-      {
-        streamItem.BusyLock.Release();
-      }
 
       #endregion
 
@@ -259,8 +254,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
     {
       if (!string.IsNullOrEmpty(fileName) && streamItem.StreamContext is TranscodeContext tc)
       {
-        await streamItem.BusyLock.WaitAsync(SendDataCancellation.Token);
-        try
+        using (await streamItem.RequestBusyLockAsync(SendDataCancellation.Token))
         {
           var segment = await MediaConverter.GetSegmentFileAsync((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter, tc, fileName);
           if (segment != null)
@@ -285,10 +279,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
             segment.Value.FileData.Dispose();
             return true;
           }
-        }
-        finally
-        {
-          streamItem.BusyLock.Release();
         }
       }
       return false;
