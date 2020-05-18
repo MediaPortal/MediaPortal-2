@@ -1118,8 +1118,9 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         {
           if (timeStart < dur.Value.TotalSeconds)
           {
-            foreach(var subKey in data.InputSubtitleArguments[dur.Key].Keys)
-              data.InputSubtitleArguments[dur.Key][subKey].Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
+            if (data.InputSubtitleArguments.TryGetValue(dur.Key, out var subtitleArguments))
+              foreach (var subtitleArgumentsList in subtitleArguments.Values)
+                subtitleArgumentsList.Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
             data.InputArguments[dur.Key].Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
             break;
           }
