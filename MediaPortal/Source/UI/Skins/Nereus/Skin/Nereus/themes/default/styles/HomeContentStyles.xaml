@@ -714,6 +714,8 @@
     </Setter>
   </Style>
 
+  <Model x:Key="MediaItemsActionModel" Id="970649B2-CAE8-4830-A985-E5E78F3CB24F"/>
+
   <ControlTemplate x:Key="TileButtonTemplate">
     <Button Style="{ThemeResource HomeTileButtonStyle}" Margin="{ThemeResource TileMargin}"
             HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -725,6 +727,9 @@
           </Trigger.EnterActions>
         </Trigger>
       </Button.Triggers>
+      <Button.ContextMenuCommand>
+        <Command Source="{StaticResource MediaItemsActionModel}" Path="ShowMediaItemActionsEx" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+      </Button.ContextMenuCommand>
     </Button>
   </ControlTemplate>
 
