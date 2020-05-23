@@ -79,6 +79,7 @@
     <Compile Include="Actions\SkinSettingsAction.cs" />
     <Compile Include="Controls\HomeTilesScrollContentPresenter.cs" />
     <Compile Include="Controls\ItemsListFilter.cs" />
+    <Compile Include="Controls\NereusHomeListView.cs" />
     <Compile Include="Controls\NereusTileControl.cs" />
     <Compile Include="Converters\StringCaseConverter.cs" />
     <Compile Include="Converters\ListToGridConverter.cs" />

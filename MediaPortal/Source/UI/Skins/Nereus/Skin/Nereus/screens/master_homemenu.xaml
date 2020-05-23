@@ -33,6 +33,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     Source="screens\master_home.xaml"
     xmlns:imagesources="clr-namespace:MediaPortal.UI.SkinEngine.Controls.ImageSources;assembly=SkinEngine"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:nc="clr-namespace:MediaPortal.UiComponents.Nereus.Controls;assembly=Nereus"
     >
   <Include.Resources>
 
@@ -281,11 +282,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Image Source="LeftMenuIndicator.PNG" HorizontalAlignment="Right" Stretch="Fill" Width="25" Height="45" 
                  Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,0"/>
 
-          <ListView x:Name="MainMenu" Style="{ThemeResource HomeMenuListViewStyle}" RestoreFocus="True" Height="1200"
+          <nc:NereusHomeListView x:Name="MainMenu" Style="{ThemeResource HomeMenuListViewStyle}" Height="1200"
                     HorizontalAlignment="Center" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh"
                     ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MainMenuItems, Mode=OneTime}"
-                    SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}">
-            <ListView.Resources>
+                    SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}"
+                    RestoreFocusItem="{Binding Source={StaticResource HomeMenuModel}, Path=SelectedItem}">
+            <nc:NereusHomeListView.Resources>
 
               <!--Main command-->
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
@@ -293,8 +295,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <!--Context menu command-->
               <Command x:Key="Context_Menu_Command" Source="{StaticResource HomeMenuModel}" Path="BeginMenuEdit" />
               
-            </ListView.Resources>
-          </ListView>
+            </nc:NereusHomeListView.Resources>
+          </nc:NereusHomeListView>
         </Grid>
 
         <Control Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="50,0,0,-81" Width="950">
