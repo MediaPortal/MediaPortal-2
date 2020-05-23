@@ -1842,7 +1842,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
         state[prefix + "/Focused"] = true;
       // MP2-837: If a dialog caused the screen to close it might not have a focused element,
       // save the last focused element instead as a sensible fallback to restore focus to.
-      else if (Screen.FocusedElement == null && Screen.LastFocusedElement == this)
+      else if (Screen != null && Screen.FocusedElement == null && Screen.LastFocusedElement == this)
         state[prefix + "/Focused"] = true;
     }
 
@@ -1852,7 +1852,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
       object focused;
       bool? bFocused;
       if (state.TryGetValue(prefix + "/Focused", out focused) && (bFocused = focused as bool?).HasValue && bFocused.Value)
-        SetFocusPrio = SetFocusPriority.RestoreState;      
+        SetFocusPrio = SetFocusPriority.RestoreState;
     }
 
     #endregion
