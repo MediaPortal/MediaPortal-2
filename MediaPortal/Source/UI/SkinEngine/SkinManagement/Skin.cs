@@ -25,9 +25,11 @@
 using System;
 using System.IO;
 using System.Collections.Generic;
+using System.Windows.Forms;
 using System.Xml.XPath;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.SkinResources;
 using MediaPortal.Utilities;
 
@@ -44,7 +46,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
   /// The meta information will be read from a file <i>skin.xml</i> located in one of the
   /// skin resource directories.
   /// </remarks>
-  public class Skin: SkinResources, ISkin
+  public class Skin : SkinResources, ISkin
   {
     public const string SKIN_META_FILE = "skin.xml";
     public const string THEMES_DIRECTORY = "themes";
@@ -62,6 +64,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     // Meta information of the skin
     protected bool _metadataInitialized = false;
+    protected bool _flexibleAspectRatio = false;
     protected int _nativeWidth = -1;
     protected int _nativeHeight = -1;
     protected string _author = null;
@@ -77,7 +80,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     #endregion
 
-    public Skin(string name): base(name) { }
+    public Skin(string name) : base(name) { }
 
     public string BasedOnSkin
     {
@@ -139,7 +142,15 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
 
     public override int SkinWidth
     {
-      get { return NativeWidth; }
+      get
+      {
+        if (FlexibleAspectRatio)
+        {
+          double screenAR = GetCurrentMonitorAspectRatio();
+          return (int)(screenAR * NativeHeight);
+        }
+        return NativeWidth;
+      }
     }
 
     public override int SkinHeight
@@ -150,6 +161,18 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public override string SkinName
     {
       get { return _name; }
+    }
+
+    /// <summary>
+    /// Indicates if the skin is able to scale to different aspect ratios like 21:9 or 16:10.
+    /// </summary>
+    public override bool FlexibleAspectRatio
+    {
+      get
+      {
+        CheckMetadataInitialized();
+        return _flexibleAspectRatio;
+      }
     }
 
     /// <summary>
@@ -224,6 +247,15 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         }
     }
 
+    protected double GetCurrentMonitorAspectRatio()
+    {
+      // return 16d / 10d; // TEST
+      // return 21d / 9d; // TEST
+      Screen screen = ServiceRegistration.Get<IScreenControl>(false) is Form mainForm ?
+        Screen.FromControl(mainForm) :
+        Screen.PrimaryScreen;
+      return (double)screen.Bounds.Width / screen.Bounds.Height;
+    }
     /// <summary>
     /// Will trigger the lazy metadata initialization on request.
     /// </summary>
@@ -254,10 +286,10 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
         if (_basedOnTheme != null && basedOnSkin.Themes.TryGetValue(_basedOnTheme, out basedOnTheme))
           InheritedSkinResources = basedOnTheme;
         else
-          InheritedSkinResources = basedOnSkin.DefaultTheme ?? (SkinResources) basedOnSkin;
+          InheritedSkinResources = basedOnSkin.DefaultTheme ?? (SkinResources)basedOnSkin;
       }
       else
-        InheritedSkinResources = this == defaultSkin ? null : defaultSkin.DefaultTheme ?? (SkinResources) defaultSkin;
+        InheritedSkinResources = this == defaultSkin ? null : defaultSkin.DefaultTheme ?? (SkinResources)defaultSkin;
       if (_inheritedSkinResources != null)
         _inheritedSkinResources.SetupResourceChain(skins, defaultSkin);
     }
@@ -319,6 +351,9 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
                 break;
               case "SkinEngine":
                 _skinEngineVersion = childNav.Value;
+                break;
+              case "FlexibleAspectRatio":
+                _flexibleAspectRatio = bool.Parse(childNav.Value);
                 break;
               case "NativeWidth":
                 _nativeWidth = Int32.Parse(childNav.Value);

@@ -120,6 +120,14 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
       get { return _parentSkin; }
     }
 
+    public override bool FlexibleAspectRatio
+    {
+      get
+      {
+        return _parentSkin.FlexibleAspectRatio;
+      }
+    }
+
     public override int SkinWidth
     {
       get { return _parentSkin.SkinWidth; }
