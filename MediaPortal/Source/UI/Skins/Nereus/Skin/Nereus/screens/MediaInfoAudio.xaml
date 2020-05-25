@@ -44,7 +44,7 @@
         <Image x:Name="FanArtImageBackground" Stretch="UniformToFill">
           <Image.Source>
             <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                          fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
+                                          fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
           </Image.Source>
         </Image>
         <Image Stretch="Fill" Source="Background_ListView.png"/>
@@ -80,7 +80,7 @@
           <Image x:Name="FanArtImageBackgroundOverlay" Stretch="Uniform" VerticalAlignment="Top">
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                            fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
+                                            fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
             </Image.Source>
           </Image>
           <Image Stretch="Fill" Source="List_overlay.png"/>
