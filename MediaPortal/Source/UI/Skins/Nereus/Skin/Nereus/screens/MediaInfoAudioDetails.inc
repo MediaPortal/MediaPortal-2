@@ -23,10 +23,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-        <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" Grid.Row="1" Grid.Column="1" Margin="-250,-100,20,30"
-                                           VerticalAlignment="Bottom" HorizontalAlignment="Right">
-           <mp_special_controls:PlayerControl.TemplateControl>
-              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0">
+              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1" Grid.Column="1" Margin="-250,-100,20,30">
 
                 <Image x:Name="CDImage" Stretch="Fill"
                        FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
@@ -71,8 +68,6 @@
                   </Image>
                 </Grid>
               </Grid>
-           </mp_special_controls:PlayerControl.TemplateControl>
-      </mp_special_controls:PlayerControl>
 
       <Image Grid.Row="1" Grid.Column="1" Margin="-200,-230,10,0" HorizontalAlignment="Center" VerticalAlignment="Top" Stretch="Uniform" Height="140">
         <Image.Source>
@@ -165,27 +160,10 @@
             <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
               <Label x:Name="TrackLabel" Content="{Binding Track}" Color="{ThemeResource TextColorForeground}" 
                      VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
-               <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer">
-                 <mp_special_controls:PlayerControl.TemplateControl>
-              <media:AudioAlbumAspectWrapper DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                <media:AudioAlbumAspectWrapper.MediaItem>
-                  <RelationshipQuery NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_ALBUM_MIAS}"
-                                     OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_ALBUM_MIAS}"
-                                     Role="{x:Static aspect:AudioAlbumAspect.ROLE_ALBUM}"
-                                     LinkedRole="{x:Static aspect:AudioAspect.ROLE_TRACK}"
-                                     LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
-                </media:AudioAlbumAspectWrapper.MediaItem>
-                <media:AudioAlbumAspectWrapper.Template>
-                  <ControlTemplate>
-                    <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+
                       <Label Content="|" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
                       <Label x:Name="NumTracks" Content="{Binding NumTracks}" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
-                    </StackPanel>
-                  </ControlTemplate>
-                </media:AudioAlbumAspectWrapper.Template>
-              </media:AudioAlbumAspectWrapper>
-                  </mp_special_controls:PlayerControl.TemplateControl>
-                </mp_special_controls:PlayerControl>
+
             </StackPanel>
           </Grid>
 
