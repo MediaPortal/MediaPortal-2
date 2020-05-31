@@ -442,7 +442,8 @@
       <Label x:Name="ProgramLabel" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,10,10,10" Content="{Binding Program.Title}" 
              TextTrimming="CharacterEllipsis" Wrap="True" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7" />
       
-      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Margin="20,10,10,10" Content="{Binding Program.StartTime}"
+      <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Margin="20,10,10,10"
+             Content="{Binding Path=Program.StartTime, Converter={StaticResource DateFormatConverter}}"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" />
 
       <Grid Grid.Column="1" Margin="10,15,10,15" Grid.RowSpan="2">
