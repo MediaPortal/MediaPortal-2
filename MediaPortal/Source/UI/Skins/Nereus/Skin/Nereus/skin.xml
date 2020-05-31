@@ -6,6 +6,8 @@
   <Author>ge2301</Author>
   <SkinVersion>1.0</SkinVersion>
   <SkinEngine>1.0</SkinEngine>
+  <!-- Skin is able to scale to different aspect ratios like 21:9 or 16:10 -->
+  <FlexibleAspectRatio>true</FlexibleAspectRatio>
   <NativeWidth>1920</NativeWidth>
   <NativeHeight>1080</NativeHeight>
   <DefaultTheme>default</DefaultTheme>

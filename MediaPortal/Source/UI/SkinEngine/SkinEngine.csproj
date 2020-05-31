@@ -315,6 +315,8 @@
     <Compile Include="MarkupExtensions\IValueConverter.cs" />
     <Compile Include="MarkupExtensions\MultiBindingExtension.cs" />
     <Compile Include="MarkupExtensions\RelationshipQueryExtension.cs" />
+    <Compile Include="MarkupExtensions\SkinHeightExtension.cs" />
+    <Compile Include="MarkupExtensions\SkinWidthExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ResolutionResourceExtension.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceExtension.cs" />
