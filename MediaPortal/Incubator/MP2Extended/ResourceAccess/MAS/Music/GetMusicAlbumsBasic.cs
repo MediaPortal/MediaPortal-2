@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 
       // sort and filter
       if (sort != null && order != null)
-        output = output.Filter(filter).SortWebMusicAlbumBasic(sort, order);
+        output = output.SortWebMusicAlbumBasic(sort, order);
 
       return System.Threading.Tasks.Task.FromResult<IList<WebMusicAlbumBasic>>(output.ToList());
     }

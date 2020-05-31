@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
       MediaItemAspect mediaAspect = item.GetAspect(MediaAspect.Metadata);
       MediaItemAspect albumAspect = item.GetAspect(AudioAlbumAspect.Metadata);
 
-      var artists = (HashSet<object>)albumAspect[AudioAlbumAspect.ATTR_ARTISTS];
+      var artists = albumAspect.GetCollectionAttribute<string>(AudioAlbumAspect.ATTR_ARTISTS);
 
       IList<MultipleMediaItemAspect> genres;
       if (!MediaItemAspect.TryGetAspects(item.Aspects, GenreAspect.Metadata, out genres))
@@ -68,11 +68,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
       return new WebMusicAlbumBasic
       {
         Id = item.MediaItemId.ToString(),
-        Artists = artists?.Cast<string>().ToList(),
+        Artists = artists?.ToList(),
         ArtistsId = artistIds?.ToList(),
-        AlbumArtist = artists.FirstOrDefault()?.ToString(),
-        AlbumArtistId = artistIds.FirstOrDefault()?.ToString(),
-        Genres = genres.Select(a => a.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)).ToList(),
+        AlbumArtist = artists?.FirstOrDefault()?.ToString(),
+        AlbumArtistId = artistIds?.FirstOrDefault()?.ToString(),
+        Genres = genres?.Select(a => a.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)).ToList(),
         Title = albumAspect.GetAttributeValue<string>(AudioAlbumAspect.ATTR_ALBUM),
         Year = mediaAspect.GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME).Year,
         DateAdded = importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED),
