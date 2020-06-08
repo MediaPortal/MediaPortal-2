@@ -64,7 +64,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaType != FanArtMediaTypes.Actor || (fanArtType != FanArtTypes.Undefined && fanArtType != FanArtTypes.Thumbnail))
         return false;
 
-      // Don't try to load "fanart" for images
       if (!Guid.TryParse(name, out mediaItemId))
         return false;
 

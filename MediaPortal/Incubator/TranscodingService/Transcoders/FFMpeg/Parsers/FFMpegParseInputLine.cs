@@ -24,39 +24,35 @@
 
 using System;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.Parsers
 {
   public class FFMpegParseInputLine
   {
-    internal static void ParseInputLine(string inputLine, ref MetadataContainer info)
+    internal static void ParseInputLine(IResourceAccessor file, string inputLine, ref MetadataContainer info)
     {
       inputLine = inputLine.Trim();
       int inputPos = inputLine.IndexOf("Input #0", StringComparison.InvariantCultureIgnoreCase);
       string ffmContainer = inputLine.Substring(inputPos + 10, inputLine.IndexOf(",", inputPos + 11) - 10).Trim();
-      ILocalFsResourceAccessor lfra = null;
-      if (info.Metadata.Source is ILocalFsResourceAccessor)
+      if (info.IsAudio(Editions.DEFAULT_EDITION))
       {
-        lfra = (ILocalFsResourceAccessor)info.Metadata.Source;
+        info.Metadata[Editions.DEFAULT_EDITION].AudioContainerType = FFMpegParseAudioContainer.ParseAudioContainer(ffmContainer, file);
       }
-      if (info.IsAudio)
+      else if (info.IsVideo(Editions.DEFAULT_EDITION))
       {
-        info.Metadata.AudioContainerType = FFMpegParseAudioContainer.ParseAudioContainer(ffmContainer, lfra);
+        info.Metadata[Editions.DEFAULT_EDITION].VideoContainerType = FFMpegParseVideoContainer.ParseVideoContainer(ffmContainer, file);
       }
-      else if (info.IsVideo)
+      else if (info.IsImage(Editions.DEFAULT_EDITION))
       {
-        info.Metadata.VideoContainerType = FFMpegParseVideoContainer.ParseVideoContainer(ffmContainer, lfra);
-      }
-      else if (info.IsImage)
-      {
-        info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(ffmContainer, lfra);
+        info.Metadata[Editions.DEFAULT_EDITION].ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(ffmContainer, file);
       }
       else
       {
-        info.Metadata.VideoContainerType = FFMpegParseVideoContainer.ParseVideoContainer(ffmContainer, lfra);
-        info.Metadata.AudioContainerType = FFMpegParseAudioContainer.ParseAudioContainer(ffmContainer, lfra);
-        info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(ffmContainer, lfra);
+        info.Metadata[Editions.DEFAULT_EDITION].VideoContainerType = FFMpegParseVideoContainer.ParseVideoContainer(ffmContainer, file);
+        info.Metadata[Editions.DEFAULT_EDITION].AudioContainerType = FFMpegParseAudioContainer.ParseAudioContainer(ffmContainer, file);
+        info.Metadata[Editions.DEFAULT_EDITION].ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(ffmContainer, file);
       }
     }
   }

@@ -5,7 +5,7 @@
   <string name="Network.Connect">Conectar</string>
   <string name="Network.Disconnect">Desconectar</string>
   <string name="Network.EnterWifiPassword">Introduza a password do Wifi</string>
-  <string name="Network.DeleteProfile">Apagar o perfil do Wifi</string>
+  <string name="Network.DeleteProfile">Eliminar Perfil de Wi-fi</string>
   <string name="Settings.General.Connectivity.WifiConnection">Conexão do Wifi</string>
   <string name="Settings.General.Connectivity.WifiConnection.Help">Conectar a uma rede sem fios</string>
 </resources>

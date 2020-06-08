@@ -26,7 +26,6 @@
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)SlimTv.Interfaces.dll"/>
       <PluginFiles Include="$(TargetDir)OnlineVideos.dll" />
-      <PluginFiles Include="$(TargetDir)TranscodingService.Interfaces.dll" />
       <PluginFiles Include="$(TargetDir)FanArtService.Interfaces.dll" />
     </ItemGroup>
 

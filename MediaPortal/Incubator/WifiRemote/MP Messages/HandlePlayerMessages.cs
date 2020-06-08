@@ -43,29 +43,29 @@ namespace MediaPortal.Plugins.WifiRemote.MP_Messages
       switch (messageType)
       {
         case PlayerManagerMessaging.MessageType.PlayerResumeState:
-          Logger.Debug("WifiRemote Status: Player Resume");
+          Logger.Debug("WifiRemote: Player Resume");
           //Resume();
           break;
         case PlayerManagerMessaging.MessageType.PlaybackStateChanged:
-          Logger.Debug("WifiRemote Status: Playback State Changed");
+          Logger.Debug("WifiRemote: Playback State Changed");
           SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
           break;
         case PlayerManagerMessaging.MessageType.PlayerError:
-          Logger.Error("WifiRemote Status: Player Error");
+          Logger.Error("WifiRemote: Player Error");
           break;
         case PlayerManagerMessaging.MessageType.PlayerEnded:
         case PlayerManagerMessaging.MessageType.PlayerStopped:
-          Logger.Debug("WifiRemote Status: Player Stopped or Ended");
+          Logger.Debug("WifiRemote: Player Stopped or Ended");
           SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
           NowPlayingUpdater.Stop();
           break;
         case PlayerManagerMessaging.MessageType.PlayerStarted:
-          Logger.Debug("WifiRemote Status: Player Started");
+          Logger.Debug("WifiRemote: Player Started");
           SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
           NowPlayingUpdater.Start();
           break;
         case PlayerManagerMessaging.MessageType.VolumeChanged:
-          Logger.Debug("WifiRemote Status: Volume changed");
+          Logger.Debug("WifiRemote: Volume changed");
           SendMessageToAllClients.Send(new MessageVolume(), ref SocketServer.Instance.connectedSockets);
           break;
       }

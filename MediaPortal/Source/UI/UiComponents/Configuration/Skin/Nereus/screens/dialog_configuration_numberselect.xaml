@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_entry.xaml"
+    >
+  <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <ControlTemplate x:Key="Config_Entry_Template">
+      <Grid x:Name="ContentsGrid">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1">
+          <TextBox x:Name="NumberSelectContent" Margin="10,0,10,0" PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigController.DisplayLength}"
+                   Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsUpEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Up}"/>
+            <Button Style="{ThemeResource ChapterDownButtonStyle}" Height="30"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsDownEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Down}"/>
+          </StackPanel>
+        </StackPanel>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     /// <param name="season">Season number of the episode to create an NfoSeriesEpisodeReader for</param>
     /// <param name="episode">Episode number of the episode to create an NfoSeriesEpisodeReader for</param>
     /// <returns>An NfoSeriesEpisodeReader if an nfo file was found, else <c>null</c></returns>
-    protected async Task<NfoSeriesEpisodeReader> TryGetNfoSeriesEpisodeReaderAsync(IResourceAccessor mediaItemAccessor, int? season, int? episode)
+    protected async Task<NfoSeriesEpisodeReader> TryGetNfoSeriesEpisodeReaderAsync(IResourceAccessor mediaItemAccessor, int? season, int? episode, bool includeFanart)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -77,7 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
           episodeDetailsFound = true;
           // Now we (asynchronously) extract the metadata into a stub object.
           // If no metadata was found, nothing can be stored in the MediaItemAspects.
-          episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, false, false, _httpClient, _settings);
+          episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, false, false, _httpClient, _settings, includeFanart);
           using (episodeNfoFsra)
           {
             if (!await episodeNfoReader.TryReadMetadataAsync(episodeNfoFsra).ConfigureAwait(false))
@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
-          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, false, !episodeDetailsFound, false, _httpClient, _settings);
+          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, false, !episodeDetailsFound, false, _httpClient, _settings, includeFanart);
           using (seriesNfoFsra)
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
@@ -105,11 +105,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
                 if (!episodeDetailsFound && series.Episodes != null && season.HasValue && episode.HasValue)
                 {
                   Stubs.SeriesEpisodeStub episodeStub = series.Episodes.FirstOrDefault(e => e.Season == season && e.Episodes != null && e.Episodes.Contains(episode.Value));
-                  if (episode != null)
-                  {
-                    episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, false, false, _httpClient, _settings);
-                    episodeNfoReader.SetEpisodeStubs(new List<Stubs.SeriesEpisodeStub>(new[] { episodeStub }));
-                  }
+                  episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, false, false, _httpClient, _settings, includeFanart);
+                  episodeNfoReader.SetEpisodeStubs(new List<Stubs.SeriesEpisodeStub>(new[] { episodeStub }));
                 }
 
                 if (episodeNfoReader != null)
@@ -161,7 +158,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to create an NfoSeriesReader</param>
     /// <returns>An NfoSeriesReader if an nfo file was found, else <c>null</c></returns>
-    protected async Task<NfoSeriesReader> TryGetNfoSeriesReaderAsync(IResourceAccessor mediaItemAccessor)
+    protected async Task<NfoSeriesReader> TryGetNfoSeriesReaderAsync(IResourceAccessor mediaItemAccessor, bool includeFanart)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -185,7 +182,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
-          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, false, false, false, _httpClient, _settings);
+          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, false, false, false, _httpClient, _settings, includeFanart);
           using (seriesNfoFsra)
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))

@@ -193,6 +193,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public abstract string ShortDescription { get; }
 
     public abstract string PreviewResourceKey { get; }
+    public abstract bool FlexibleAspectRatio { get; }
 
     public abstract int SkinWidth { get; }
 

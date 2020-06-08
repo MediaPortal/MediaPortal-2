@@ -38,6 +38,8 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System.Globalization;
+using System.Security;
+using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
@@ -49,10 +51,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// We have a separate reader for the different nfo-files of all possible MediaItem types (in particular movies and series).
   /// This abstract base class contains common functionality that can be used for all types of nfo-files.
   /// This class can parse much more information than we can currently store in our MediaLibrary.
-  /// For performance reasons, the following long lasting operations have been temporarily disabled:
-  /// - We do parse elements containing information on persons, however, parsing and downloading "thumb"
-  ///   child elements for persons has been disabled. Reenable in <see cref="ParsePerson"/>
-  /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
   public abstract class NfoReaderBase<TStub> where TStub : new()
   {
@@ -206,7 +204,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           _debugLogger.Debug("[#{0}]: Nfo-file (Encoding: {1}):{2}{3}", _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
           nfoFileWrittenToDebugLog = true;
         }
-      
+
       try
       {
         // ReSharper disable once AssignNullToNotNullAttribute
@@ -220,25 +218,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       }
       catch (Exception e)
       {
-        // ReSharper disable once AssignNullToNotNullAttribute
-        // TryReadNfoFileAsync makes sure that _nfoBytes is not null
-        using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
-        using (var nfoReader = new StreamReader(nfoMemoryStream, true))
+        try
         {
-          try
+          // ReSharper disable once AssignNullToNotNullAttribute
+          // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+          var nfoDocument = GetFixedNfoDocument();
+          return await TryReadNfoDocumentAsync(nfoDocument, nfoFsra).ConfigureAwait(false);
+        }
+        catch (Exception exception)
+        {
+          // ReSharper disable once AssignNullToNotNullAttribute
+          // TryReadNfoFileAsync makes sure that _nfoBytes is not null
+          using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
+          using (var nfoReader = new StreamReader(nfoMemoryStream, true))
           {
-            if (!nfoFileWrittenToDebugLog)
+            try
             {
-              var nfoString = nfoReader.ReadToEnd();
-              _debugLogger.Warn("[#{0}]: Cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+              if (!nfoFileWrittenToDebugLog)
+              {
+                var nfoString = nfoReader.ReadToEnd();
+                _debugLogger.Warn("[#{0}]: Cannot parse nfo-file with XMLReader (Encoding: {1}):{2}{3}", e, _miNumber, nfoReader.CurrentEncoding, Environment.NewLine, nfoString);
+              }
+            }
+            catch (Exception ex)
+            {
+              _debugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", ex, _miNumber);
             }
           }
-          catch (Exception ex)
-          {
-            _debugLogger.Error("[#{0}]: Cannot extract metadata; neither XMLReader can parse nor StreamReader can read the bytes read from the nfo-file", ex, _miNumber);
-          }
+          return false;
         }
-        return false;
       }
     }
 
@@ -360,6 +368,19 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     #endregion
 
     #region Private methods
+
+    private XDocument GetFixedNfoDocument()
+    {
+      using (var nfoMemoryStream = new MemoryStream(_nfoBytes))
+      using (var nfoReader = new StreamReader(nfoMemoryStream, true))
+      {
+        var nfoString = nfoReader.ReadToEnd();
+        var fixedNfoString = Regex.Replace(nfoString, @"(?<start><[^/<>]+>)(?<value>[^<>]+)(?<end></[^<>]+>)", m => 
+          m.Groups["start"].Value + SecurityElement.Escape(m.Groups["value"].Value) + m.Groups["end"].Value);
+        XDocument rootedDoc = new XDocument(new XElement("root", XDocument.Parse(fixedNfoString).Root));
+        return rootedDoc;
+      }
+    }
 
     /// <summary>
     /// Calls the appropriate <see cref="TryReadElementDelegate"/> or <see cref="TryReadElementAsyncDelegate"/>for each element of root
@@ -1171,7 +1192,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// - element does not contain child elements
     /// - element does not contain a child element with the name "name" or such child element is empty or contains a value from _settings.IgnoreStrings
     /// </returns>
-    protected async Task<PersonStub> ParsePerson(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
+    protected async Task<PersonStub> ParsePerson(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra, bool includeFanart)
     {
       // Example of a valid element:
       // <[ElementName]>
@@ -1200,8 +1221,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return null;
       value.Role = ParseSimpleString(element.Element("role"));
       value.Order = ParseSimpleInt(element.Element("order"));
-      //ToDo: Reenable parsing <thumb> child elements once we can store them in the MediaLibrary
-      value.Thumb = await Task.FromResult<byte[]>(null); //ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra).ConfigureAwait(false);
+      if (includeFanart)
+        value.Thumb = await ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra).ConfigureAwait(false);
+      else
+        value.Thumb = await Task.FromResult<byte[]>(null);
       value.ImdbId = ParseSimpleString(element.Element("imdb"));
       value.Birthdate = ParseSimpleDateTime(element.Element("birthdate"));
       value.Birthplace = ParseSimpleString(element.Element("birthplace"));

@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">Hibernate</string>
   <string name="SystemState.Shutdown">Afsluiten</string>
   <string name="SystemState.Suspend">Suspend</string>
-  <string name="SystemState.Restart">Herstarten</string>
   <string name="SystemState.Logoff">Uitloggen</string>
   <string name="SystemState.MinimizeMP">Mediaportal minimaliseren</string>
   <string name="SystemState.ShutdownMP">Mediaportal afsluiten</string>

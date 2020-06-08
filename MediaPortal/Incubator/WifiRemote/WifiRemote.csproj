@@ -62,6 +62,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
+      <Link>Properties\VersionInfo.cs</Link>
+    </Compile>
     <Compile Include="AsyncSocket.cs" />
     <Compile Include="AsyncSocketExtension.cs" />
     <Compile Include="AuthMethod.cs" />
@@ -208,11 +211,11 @@
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Arkane.Zeroconf">
+      <Version>1.2.18</Version>
+    </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>10.0.3</Version>
-    </PackageReference>
-    <PackageReference Include="ZeroconfService">
-      <Version>0.6.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

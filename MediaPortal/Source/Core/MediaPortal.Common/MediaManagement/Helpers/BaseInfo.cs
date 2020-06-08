@@ -56,7 +56,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// <summary>
     /// Binary data for the thumbnail image.
     /// </summary>
-    public byte[] Thumbnail = null;
+    public byte[] Thumbnail { get; set; } = null;
     private bool _hasThumbnail = false;
 
     public IDictionary<Guid, IList<MediaItemAspect>> LinkedAspects { get; private set; }

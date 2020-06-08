@@ -7,7 +7,7 @@
   <string name="SystemState.Hibernate">Hazırda Bekle</string>
   <string name="SystemState.Shutdown">Kapat</string>
   <string name="SystemState.Suspend">Askıya Al</string>
-  <string name="SystemState.Restart">Yeniden Başlat</string>
+  <string name="SystemState.RestartMP">mediaportalı yeniden başlat</string>
   <string name="SystemState.Logoff">Çıkış</string>
   <string name="SystemState.SleepTimerConfig">Uyku zamanlayıcıyı ayarla</string>
   <string name="SystemState.SleepTimerStop">Uyku zamanlayıcıyı durdur</string>
@@ -18,8 +18,12 @@
   <string name="SleepTimer.Title">Uyku Zamanlayıcı</string>
   <string name="SleepTimer.Start">Başlangıç</string>
   <string name="SleepTimer.Stop">Dur</string>
+  <string name="SleepTimer.Action">Action</string>
   <string name="SleepTimer.TimeStr">Süre:</string>
+  <string name="SleepTimer.Minutes">dakika</string>
   <string name="SleepTimer.MediaItem">Mevcut öğeden sonra</string>
   <string name="SleepTimer.Playlist">Mevcut çalma listesinden sonra</string>
   <string name="SleepTimer.ShutdownTextSingle">{0} bir dakikadan az bir süre içinde</string>
+  <string name="SleepTimer.ShutdownTextMulti"> {1} dakika içinde {0} </string>
+  <string name="SleepTimer.MaxMinutes">uyku zamanlayıcı azami dakika :</string>
 </resources>

@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaInfo;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.MediaMatch;
@@ -47,18 +48,20 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup
     public List<AudioTranscodingTarget> AudioTargets = new List<AudioTranscodingTarget>();
     public List<ImageTranscodingTarget> ImageTargets = new List<ImageTranscodingTarget>();
 
-    public VideoTranscodingTarget GetMatchingVideoTranscoding(MetadataContainer info, int matchedAudioStream, out VideoMatch matchedSource)
+    public VideoTranscodingTarget GetMatchingVideoTranscoding(MetadataContainer info, int edition, int matchedAudioStream, out VideoMatch matchedSource)
     {
       matchedSource = null;
 
       if (info == null)
-        return null;
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
+      if (!info.HasEdition(edition))
+        throw new ArgumentException("Parameter is invalid", nameof(edition));
 
       foreach (VideoTranscodingTarget tDef in VideoTargets)
       {
         foreach (VideoInfo src in tDef.Sources)
         {
-          if (src.Matches(info, matchedAudioStream, VideoSettings.H264LevelCheckMethod))
+          if (src.Matches(info, edition, matchedAudioStream, VideoSettings.H264LevelCheckMethod))
           {
             matchedSource = new VideoMatch();
             matchedSource.MatchedAudioStream = matchedAudioStream;
@@ -70,17 +73,21 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup
       return null;
     }
 
-    public AudioTranscodingTarget GetMatchingAudioTranscoding(MetadataContainer info, out AudioMatch matchedSource)
+    public AudioTranscodingTarget GetMatchingAudioTranscoding(MetadataContainer info, int edition, out AudioMatch matchedSource)
     {
       matchedSource = null;
-      if (info == null) return null;
 
-      int matchedAudioStream = info.FirstAudioStream.StreamIndex;
+      if (info == null)
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
+      if (!info.HasEdition(edition))
+        throw new ArgumentException("Parameter is invalid", nameof(edition));
+
+      int matchedAudioStream = info.Audio[edition].First().StreamIndex;
       foreach (AudioTranscodingTarget tDef in AudioTargets)
       {
         foreach (AudioInfo src in tDef.Sources)
         {
-          if (src.Matches(info, matchedAudioStream))
+          if (src.Matches(info, edition, matchedAudioStream))
           {
             matchedSource = new AudioMatch();
             matchedSource.MatchedAudioStream = matchedAudioStream;
@@ -92,16 +99,20 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup
       return null;
     }
 
-    public ImageTranscodingTarget GetMatchingImageTranscoding(MetadataContainer info, out ImageMatch matchedSource)
+    public ImageTranscodingTarget GetMatchingImageTranscoding(MetadataContainer info, int edition, out ImageMatch matchedSource)
     {
       matchedSource = null;
-      if (info == null) return null;
+
+      if (info == null)
+        throw new ArgumentException("Parameter cannot be empty", nameof(info));
+      if (!info.HasEdition(edition))
+        throw new ArgumentException("Parameter is invalid", nameof(edition));
 
       foreach (ImageTranscodingTarget tDef in ImageTargets)
       {
         foreach (ImageInfo src in tDef.Sources)
         {
-          if (src.Matches(info))
+          if (src.Matches(info, edition))
           {
             matchedSource = new ImageMatch();
             matchedSource.MatchedImageSource = src;
@@ -109,17 +120,17 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Profiles.Setup
           }
         }
       }
-      if (info.Image.Height > ImageSettings.MaxHeight ||
-        info.Image.Width > ImageSettings.MaxWidth ||
-        (info.Image.Orientation > 1 && ImageSettings.AutoRotate == true))
+      if (info.Image[edition].Height > ImageSettings.MaxHeight ||
+        info.Image[edition].Width > ImageSettings.MaxWidth ||
+        (info.Image[edition].Orientation > 1 && ImageSettings.AutoRotate == true))
       {
         matchedSource = new ImageMatch();
         matchedSource.MatchedImageSource = new ImageInfo();
 
         ImageTranscodingTarget tDef = new ImageTranscodingTarget();
         tDef.Target = new ImageInfo();
-        tDef.Target.ImageContainerType = info.Metadata.ImageContainerType;
-        tDef.Target.PixelFormatType = info.Image.PixelFormatType;
+        tDef.Target.ImageContainerType = info.Metadata[edition].ImageContainerType;
+        tDef.Target.PixelFormatType = info.Image[edition].PixelFormatType;
         tDef.Target.QualityType = ImageSettings.Quality;
         return tDef;
       }

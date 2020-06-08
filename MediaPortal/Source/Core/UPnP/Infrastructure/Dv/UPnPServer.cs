@@ -462,7 +462,7 @@ namespace UPnP.Infrastructure.Dv
       DeviceTreeURLGenerator.GenerateObjectURLs(this, config);
     }
 
-    protected Int32 GenerateConfigId(EndpointConfiguration config)
+    protected UInt32 GenerateConfigId(EndpointConfiguration config)
     {
       Int64 result = config.RootDeviceDescriptionPathsToRootDevices.Values.Select(
           rootDevice => rootDevice.BuildRootDeviceDescription(
@@ -473,7 +473,7 @@ namespace UPnP.Infrastructure.Dv
       result += HashGenerator.CalculateHash(0, NetworkHelper.IPAddrToString(config.EndPointIPAddress));
       //result += HashGenerator.CalculateHash(0, config.ServicePrefix);
       result += HashGenerator.CalculateHash(0, config.ControlPathBase + config.DescriptionPathBase + config.EventSubPathBase);
-      return (int)result;
+      return (UInt32)result;
     }
 
     protected void UpdateInterfaceConfiguration()

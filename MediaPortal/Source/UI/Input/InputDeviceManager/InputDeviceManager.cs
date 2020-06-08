@@ -373,7 +373,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         str += ", UsagePage: " + hidEvent.UsagePageNameAndValue() + ", UsageCollection: " + hidEvent.UsageCollectionNameAndValue() + ", Input Report: 0x" + hidEvent.InputReportString();
         if (hidEvent.Device?.IsGamePad ?? false)
         {
-          str += ", GamePad, DirectionState: " + hidEvent.GetDirectionPadState();
+          str += ", GamePad, DirectionState: " + GetDirectionPadState(hidEvent);
         }
         else if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl)
         {
@@ -972,24 +972,21 @@ namespace MediaPortal.Plugins.InputDeviceManager
               keyHandled = true;
             }
           }
-          else if (!externalHandling) //Don't interfere with external handlers by executing screen changes
+          else if (!externalHandling) //Don't interfere with external handlers by executing actions
           {
-            if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            if (keyMapping.Key.StartsWith(InputDeviceModel.ACTION_PREFIX, StringComparison.InvariantCultureIgnoreCase))
             {
-              if (handleKeyPressIfFound && !isRepeat)
-              {
-                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing home action: " + actionArray[1]);
-                NavigateToScreen(actionArray[1], InputDeviceModel.HOME_STATE_ID);
-              }
+              HandleAction(handleKeyPressIfFound, isRepeat, actionArray[1]);
+              keyHandled = true;
+            }
+            else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            {
+              HandleAction(handleKeyPressIfFound, isRepeat, actionArray[1], InputDeviceModel.HOME_STATE_ID);
               keyHandled = true;
             }
             else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
             {
-              if (handleKeyPressIfFound && !isRepeat)
-              {
-                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing config action: " + actionArray[1]);
-                NavigateToScreen(actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID);
-              }
+              HandleAction(handleKeyPressIfFound, isRepeat, actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID);
               keyHandled = true;
             }
           }
@@ -998,7 +995,23 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return keyHandled;
     }
 
-    private static bool NavigateToScreen(string name, Guid? requiredState = null)
+    private static bool HandleAction(bool handleKeyPressIfFound, bool isRepeat, string actionName, Guid? requiredState = null)
+    {
+      if (handleKeyPressIfFound && !isRepeat)
+      {
+        string actionType = "global";
+        if (requiredState == InputDeviceModel.HOME_STATE_ID)
+          actionType = "home";
+        else if (requiredState == InputDeviceModel.CONFIGURATION_STATE_ID)
+          actionType = "config";
+
+        ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing {0} action: {1}", actionType, actionName);
+        return ExecuteAction(actionName, requiredState);
+      }
+      return false;
+    }
+
+    private static bool ExecuteAction(string name, Guid? requiredState = null)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       if (workflowManager != null)

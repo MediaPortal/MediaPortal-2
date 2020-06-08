@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.MediaServer
       catch { }
       if (string.IsNullOrEmpty(result))
       {
-        result = "Media Server";
+        result = "MP2 Media Server";
       }
       result += " (" + Dns.GetHostName() + ")";
       return result;
@@ -217,8 +217,7 @@ namespace MediaPortal.Extensions.MediaServer
 
     private string GetIconUrl(int size, string type)
     {
-      return string.Format("{1}/{2}?aspect=ICON&size={3}&type={4}", DlnaResourceAccessUtils.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty, size, type);
-      //return string.Format("{0}{1}/{2}?aspect=ICON&size={3}&type={4}", DlnaResourceAccessUtils.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty, size, type);
+      return string.Format("{0}{1}/{2}?aspect=ICON&size={3}&type={4}", DlnaResourceAccessUtils.GetBaseResourceURL(), DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH, Guid.Empty, size, type);
     }
   }
 }

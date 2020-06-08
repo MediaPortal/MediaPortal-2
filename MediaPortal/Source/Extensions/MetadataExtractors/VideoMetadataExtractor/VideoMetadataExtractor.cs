@@ -48,7 +48,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for video files. Supports several formats.
   /// </summary>
-  public class VideoMetadataExtractor : IMetadataExtractor
+  public class VideoMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -140,17 +140,30 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       LoadSettings();
     }
 
+    public void Dispose()
+    {
+      _settingWatcher.Dispose();
+    }
+
     #endregion
 
     #region Settings
 
     public static bool CacheOfflineFanArt { get; private set; }
     public static bool CacheLocalFanArt { get; private set; }
+    public static bool CacheOfflineMovieFanArt { get; private set; }
+    public static bool CacheLocalMovieFanArt { get; private set; }
+    public static bool CacheOfflineSeriesFanArt { get; private set; }
+    public static bool CacheLocalSeriesFanArt { get; private set; }
 
     private void LoadSettings()
     {
       CacheOfflineFanArt = _settingWatcher.Settings.CacheOfflineFanArt;
       CacheLocalFanArt = _settingWatcher.Settings.CacheLocalFanArt;
+      CacheOfflineMovieFanArt = _settingWatcher.Settings.CacheOfflineMovieFanArt;
+      CacheLocalMovieFanArt = _settingWatcher.Settings.CacheLocalMovieFanArt;
+      CacheOfflineSeriesFanArt = _settingWatcher.Settings.CacheOfflineSeriesFanArt;
+      CacheLocalSeriesFanArt = _settingWatcher.Settings.CacheLocalSeriesFanArt;
     }
 
     private void SettingsChanged(object sender, EventArgs e)
@@ -172,6 +185,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     {
       string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
       return VIDEO_FILE_EXTENSIONS.Contains(ext);
+    }
+
+    protected static string CleanupTitle(string title)
+    {
+      foreach (Regex regex in REGEXP_CLEANUPS)
+        title = regex.Replace(title, "");
+      while (title.Contains(".."))
+        title = title.Replace("..", "."); //Remove leftover periods
+      return BaseInfo.CleanupWhiteSpaces(title);
     }
 
     protected MediaInfoWrapper ReadMediaInfo(IFileSystemResourceAccessor mediaItemAccessor)
@@ -217,6 +239,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       protected int? _height;
       protected long? _playTime;
       protected long? _vidBitRate;
+      protected int? _multiViewCount;
+      protected string _scanType;
+      protected string _commercialFormat;
       protected int _audioStreamCount;
       protected int _subStreamCount;
       protected long _fileSize;
@@ -250,15 +275,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         return new VideoResult(CleanupTitle(fileName), fileInfo);
       }
 
-      protected static string CleanupTitle(string title)
-      {
-        foreach (Regex regex in REGEXP_CLEANUPS)
-          title = regex.Replace(title, "");
-        while (title.Contains(".."))
-          title = title.Replace("..", "."); //Remove leftover periods
-        return BaseInfo.CleanupWhiteSpaces(title);
-      }
-
       public void AddMediaInfo(MediaInfoWrapper mediaInfo)
       {
         // This method will be called at least one time, for video DVDs it will be called multiple times for the different
@@ -278,6 +294,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             _width = mediaInfo.GetWidth(i);
           if (!_height.HasValue)
             _height = mediaInfo.GetHeight(i);
+          if (!_multiViewCount.HasValue)
+            _multiViewCount = mediaInfo.GetMultiviewCount(i);
+          if (string.IsNullOrEmpty(_commercialFormat))
+            _commercialFormat = mediaInfo.GetCommercialVideoFormat(i);
+          if (string.IsNullOrEmpty(_scanType))
+            _scanType = mediaInfo.GetScanType(i);
           if (!_playTime.HasValue)
           {
             long? time = mediaInfo.GetPlaytime(i);
@@ -417,7 +439,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, streamId++);
 
           Match match = REGEXP_STEREOSCOPICFILE.Match(lfsra.LocalFileSystemPath);
-          string videoType = VideoStreamAspect.GetVideoType(match.Groups[GROUP_STEREO_MODE].Value, match.Groups[GROUP_STEREO].Value, _height, _width);
+          string steroscopicType = match.Groups[GROUP_STEREO].Value;
+          if (_multiViewCount > 1)
+            steroscopicType = "MVC";
+          string videoType = VideoStreamAspect.GetVideoType(match.Groups[GROUP_STEREO_MODE].Value, steroscopicType, _scanType, _commercialFormat, _height, _width);
           if (!string.IsNullOrWhiteSpace(videoType))
             videoStreamAspects.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, videoType);
           if (videoType == VideoStreamAspect.TYPE_SBS || videoType == VideoStreamAspect.TYPE_HSBS)
@@ -723,9 +748,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       IList<MultipleMediaItemAspect> videoStreamAspects;
       if (MediaItemAspect.TryGetAspects(extractedAspectData, VideoStreamAspect.Metadata, out videoStreamAspects))
       {
-        string title = null;
-        if (!MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title))
-          title = ProviderPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName);
+        string title = DosPathHelper.GetFileNameWithoutExtension(lfsra.ResourceName);
+        title = CleanupTitle(title);
 
         string stereoType = videoStreamAspects[0].GetAttributeValue<string>(VideoStreamAspect.ATTR_VIDEO_TYPE);
         int? height = videoStreamAspects[0].GetAttributeValue<int?>(VideoStreamAspect.ATTR_HEIGHT);
@@ -850,11 +874,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
               result = VideoResult.CreateFileInfo(mediaTitle, fileInfo);
             }
 
-            using (Stream stream = fsra.OpenRead())
-              result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
-
             if (result != null)
             {
+              using (Stream stream = fsra.OpenRead())
+                result.MimeType = MimeTypeDetector.GetMimeType(stream, DEFAULT_MIMETYPE);
+
               using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
               {
                 ILocalFsResourceAccessor lfsra = rah.LocalFsResourceAccessor;

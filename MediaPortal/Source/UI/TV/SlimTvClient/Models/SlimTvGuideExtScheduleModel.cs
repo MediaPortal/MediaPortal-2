@@ -56,6 +56,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected bool _isScheduleMode = false;
     protected int _lastProgramId;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelNumberProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
     protected AbstractProperty _isSingleRecordingScheduledProperty = null;
     protected AbstractProperty _isSeriesRecordingScheduledProperty = null;
@@ -97,6 +98,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ChannelLogoTypeProperty
     {
       get { return _channelLogoTypeProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_channelNumberProperty.GetValue(); }
+      set { _channelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _channelNumberProperty; }
     }
 
     /// <summary>
@@ -276,6 +294,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_isInitialized)
       {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelNumberProperty = new WProperty(typeof(int), 0);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _isSingleRecordingScheduledProperty = new WProperty(typeof(bool), false);
         _isSeriesRecordingScheduledProperty = new WProperty(typeof(bool), false);
@@ -332,7 +351,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
       IChannel channel = result.Result;
-      ChannelName =  channel != null ? channel.Name : string.Empty;
+      ChannelName =  channel?.Name ?? string.Empty;
+      ChannelNumber =  channel?.ChannelNumber ?? 0;
       ChannelLogoType = channel.GetFanArtMediaType();
     }
 
@@ -426,6 +446,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (channel != null)
         {
           item.SetLabel("ChannelName", channel.Name);
+          item.SetLabel("ChannelNumber", channel.ChannelNumber.ToString());
           item.SetLabel("ChannelLogoType", channel.GetFanArtMediaType());
         }
 

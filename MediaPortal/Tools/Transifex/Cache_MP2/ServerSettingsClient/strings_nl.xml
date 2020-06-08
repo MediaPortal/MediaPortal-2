@@ -8,6 +8,8 @@
   <string name="Settings.ServerSettings.Username">Gebruikersnaam:</string>
   <string name="Settings.ServerSettings.Password">Wachtwoord:</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Automatisch verversen van gedeelde mappen configureren</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Automatisch verversen inschakelen</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Uitvoeren op uur van de dag (op 24 uurs basis)</string>
+  <string name="Settings.ServerSettings.LanguageSettings">Taal instellingen</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage">Voorkeurs- standaard taal</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage.Help">De voorkeurs- taal voor de server gerelateerde strings.</string>
 </resources>

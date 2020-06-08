@@ -30,6 +30,8 @@
   <string name="SlimTvClient.CreateSchedule">Planera inspelning</string>
   <string name="SlimTvClient.CreateManualSchedule">Planera inspelning</string>
   <string name="SlimTvClient.DeleteRecording.Confirmation">Är du säker på att du vill avbryta inspelningen och ta bort filen? Du kan inte ångra borttagningen.</string>
+  <string name="SlimTvClient.DeleteAllRecordings.Text">Ta bort dessa inspelningar från disk</string>
+  <string name="SlimTvClient.DeleteAllRecordings.Confirmation">Är du säker på att du vill ta bort {0} inspelningar? Du kan inte ångra borttagningen.</string>
   <string name="SlimTvClient.ProgramSearch">Sök program</string>
   <string name="SlimTvClient.ProgramSearch.Help">Sök efter program i TV-tablån</string>
   <!--Extended recording features-->

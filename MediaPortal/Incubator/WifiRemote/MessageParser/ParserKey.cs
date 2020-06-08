@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
     {
       string key = GetMessageValue<string>(message, "Key");
       string modifier = GetMessageValue<string>(message, "Modifier");
-      ServiceRegistration.Get<ILogger>().Debug("WifiRemote Parser Key: Key: {0}", key);
+      ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Parser Key: Key: {0}", key);
 
       if (key == "{DONE}")
       {

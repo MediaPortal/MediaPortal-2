@@ -40,9 +40,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public SubtitleMatcher(string id)
+    public SubtitleMatcher(string name)
     {
-      _id = id;
+      _id = GetType().Name;
+      _name = name;
     }
 
     public override async Task<bool> InitAsync()
@@ -71,12 +72,28 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
+    public override bool Equals(object obj)
+    {
+      if (obj is SubtitleMatcher<TId> m)
+        return Id.Equals(m.Id);
+      return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return Id.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return Name;
+    }
+
     #endregion
 
     #region Fields
 
     private bool _enabled = true;
-    private bool _useHttps = true;
     private string _preferredLanguageCulture = "en-US";
     private bool _useMediaAudioIfUnmatched = false;
 

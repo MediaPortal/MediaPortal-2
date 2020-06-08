@@ -42,7 +42,7 @@ namespace MediaPortal.UiComponents.Media.MediaViewActions
 
     public Task<bool> IsAvailableAsync(View view)
     {
-      return Task.FromResult(!view.IsEmpty);
+      return Task.FromResult(view != null && !view.IsEmpty);
     }
 
     public async Task<bool> ProcessAsync(View view)

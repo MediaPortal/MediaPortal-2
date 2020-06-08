@@ -28,6 +28,9 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using System.Linq;
 using System;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.Common.Commands;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.News.Models
 {
@@ -92,6 +95,16 @@ namespace MediaPortal.UiComponents.News.Models
       _inited = false;
     }
 
+    protected Task ShowNews(ListItem item)
+    {
+      var model = ServiceRegistration.Get<IWorkflowManager>().GetModel(NewsModel.NEWS_MODEL_ID) as NewsModel;
+      if (model != null)
+      {
+        model.Select(item);
+      }
+      return Task.CompletedTask;
+    }
+
     protected override void Update()
     {
       INewsCollector newsCollector = ServiceRegistration.Get<INewsCollector>(false);
@@ -109,6 +122,7 @@ namespace MediaPortal.UiComponents.News.Models
             _currentFeedItems.Clear();
             foreach (var feed in feeds)
             {
+              feed.Command = new AsyncMethodDelegateCommand(() => ShowNews(feed));
               _currentFeedItems.Add(feed);
             }
             _currentFeedItems.FireChange();
@@ -122,6 +136,7 @@ namespace MediaPortal.UiComponents.News.Models
             _currentTopNewsItems.Clear();
             foreach (var newsItem in items)
             {
+              newsItem.Command = new AsyncMethodDelegateCommand(() => ShowNews(newsItem));
               _currentNewsItems.Add(newsItem);
               if (_currentTopNewsItems.Count < NEWSITEM_TOP_COUNT)
                 _currentTopNewsItems.Add(newsItem);

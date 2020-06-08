@@ -105,7 +105,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
       return info;
     }
 
-    private static void ConfigureProfile(DlnaForthField dlnaField, DlnaMediaItem item, ProtocolInfoFormat infoLevel, bool live)
+    private static void ConfigureProfile(DlnaForthField dlnaField, DlnaMediaItem dlnaItem, ProtocolInfoFormat infoLevel, bool live)
     {
       if (infoLevel == ProtocolInfoFormat.Simple)
       {
@@ -114,12 +114,12 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         dlnaField.FlagsParameter.Show = false;
         dlnaField.PlaySpeedParameter.Show = false;
 
-        dlnaField.ProfileParameter.ProfileName = item.DlnaProfile;
+        dlnaField.ProfileParameter.ProfileName = dlnaItem.DlnaProfile;
       }
       else
       {
         dlnaField.ConversionParameter.Show = true;
-        if (item.IsTranscoded)
+        if (dlnaItem.IsTranscoded)
         {
           dlnaField.ConversionParameter.ConvertedContent = true;
         }
@@ -129,9 +129,9 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
         }
 
         dlnaField.ProfileParameter.Show = true;
-        dlnaField.ProfileParameter.ProfileName = item.DlnaProfile;
+        dlnaField.ProfileParameter.ProfileName = dlnaItem.DlnaProfile;
 
-        if (item.IsImage)
+        if (dlnaItem.IsImage)
         {
           dlnaField.OperationsParameter.Show = true;
           dlnaField.OperationsParameter.TimeSeekRangeSupport = false;
@@ -156,10 +156,10 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
 
           dlnaField.PlaySpeedParameter.Show = false;
         }
-        else if (item.IsVideo || item.IsAudio)
+        else if (dlnaItem.IsVideo || dlnaItem.IsAudio)
         {
           dlnaField.OperationsParameter.Show = true;
-          double duration = item?.DlnaMetadata?.Metadata?.Duration ?? 0;
+          double duration = dlnaItem?.Metadata?.Duration ?? 0;
           if (duration > 0 && live == false)
           {
             dlnaField.OperationsParameter.TimeSeekRangeSupport = true;
@@ -181,7 +181,7 @@ namespace MediaPortal.Extensions.MediaServer.DLNA
           dlnaField.FlagsParameter.SenderPaced = false;
           dlnaField.FlagsParameter.PlayerContainer = false;
           dlnaField.FlagsParameter.UcdamS0Increasing = false;
-          if (item.IsTranscoded == true)
+          if (dlnaItem.IsTranscoded == true)
           {
             dlnaField.FlagsParameter.UcdamSnIncreasing = true;
           }

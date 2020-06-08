@@ -83,13 +83,17 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <StackPanel Orientation=" Horizontal">
+              <Button x:Name="ScrollDoubleBackwardButton" Style="{StaticResource ScrollDoubleLeftButtonStyle}" 
+                      Command="{Command ScrollBackward}" VerticalAlignment="Center" Margin="0,0,1,0"/>
               <Button x:Name="ScrollBackwardButton" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
-                      Command="{Command ScrollBackward}" VerticalAlignment="Center"/>
+                      Command="{Command ScrollBackwardHalfScreen}" VerticalAlignment="Center"/>
               <Label Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                 VerticalAlignment="Center" Margin="1,0,1,0"/>
+                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+                     VerticalAlignment="Center" Margin="1,0,1,0"/>
               <Button x:Name="ScrollForwardButton" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
-                      Command="{Command ScrollForward}" VerticalAlignment="Center"/>
+                      Command="{Command ScrollForwardHalfScreen}" VerticalAlignment="Center"/>
+              <Button x:Name="ScrollDoubleForwardButton" Style="{StaticResource ScrollDoubleRightButtonStyle}" 
+                      Command="{Command ScrollForward}" VerticalAlignment="Center" Margin="1,0,0,0"/>
             </StackPanel>
           </Grid>
 

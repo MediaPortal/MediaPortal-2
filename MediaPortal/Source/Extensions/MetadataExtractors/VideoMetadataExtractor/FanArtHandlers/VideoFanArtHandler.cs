@@ -30,9 +30,12 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
+using OpenCvSharp;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Threading.Tasks;
 using TagLib;
 
@@ -73,6 +76,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       new Tuple<string, string>("clearlogo.", FanArtTypes.Logo),
     };
 
+    private const double DEFAULT_OPENCV_THUMBNAIL_OFFSET = 1.0 / 3.0;
+
     #endregion
 
     #region Constructor
@@ -98,18 +103,34 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       IResourceLocator mediaItemLocator = GetResourceLocator(aspects);
       if (mediaItemLocator == null)
         return;
-      
+
       //Only needed for the name used in the fanart cache
-      MovieInfo movieInfo = new MovieInfo();
-      movieInfo.FromMetadata(aspects);
-      string title = movieInfo.ToString();
+      string title = "";
+      if (aspects.ContainsKey(MovieAspect.ASPECT_ID))
+        MediaItemAspect.TryGetAttribute(aspects, MovieAspect.ATTR_MOVIE_NAME, out title);
+      else if (aspects.ContainsKey(VideoAspect.ASPECT_ID))
+        MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_TITLE, out title);
+      else if (aspects.ContainsKey(MediaAspect.ASPECT_ID))
+        MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_TITLE, out title);
 
-      //Fanart files in the local directory
-      if (ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath, VideoMetadataExtractor.CacheLocalFanArt, VideoMetadataExtractor.CacheOfflineFanArt))
-        await ExtractFolderFanArt(mediaItemLocator, mediaItemId, title).ConfigureAwait(false);
+      bool shouldCacheFanart = false;
+      if (aspects.ContainsKey(MovieAspect.ASPECT_ID))
+        shouldCacheFanart = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath, VideoMetadataExtractor.CacheLocalMovieFanArt, VideoMetadataExtractor.CacheOfflineMovieFanArt);
+      else if (aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
+        shouldCacheFanart = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath, VideoMetadataExtractor.CacheLocalSeriesFanArt, VideoMetadataExtractor.CacheOfflineSeriesFanArt);
+      else if (aspects.ContainsKey(VideoAspect.ASPECT_ID))
+        shouldCacheFanart = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath, VideoMetadataExtractor.CacheLocalFanArt, VideoMetadataExtractor.CacheOfflineFanArt);
 
-      //Fanart in tags
-      await ExtractFanArt(mediaItemLocator, mediaItemId, title).ConfigureAwait(false);
+      if (shouldCacheFanart)
+      {
+        //Fanart files in the local directory
+        //Fanart for movies and episodes is handled in other MDE's
+        if (!aspects.ContainsKey(EpisodeAspect.ASPECT_ID) && !aspects.ContainsKey(MovieAspect.ASPECT_ID))
+          await ExtractFolderFanArt(mediaItemLocator, mediaItemId, title, aspects).ConfigureAwait(false);
+
+        //Fanart in tags and media
+        await ExtractFanArt(mediaItemLocator, mediaItemId, title, aspects).ConfigureAwait(false);
+      }
     }
 
     public override void DeleteFanArt(Guid mediaItemId)
@@ -130,7 +151,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// <param name="mediaItemId">Id of the media item.</param>
     /// <param name="title">Title of the media item.</param>
     /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
-    protected async Task ExtractFanArt(IResourceLocator mediaItemLocator, Guid mediaItemId, string title)
+    protected async Task ExtractFanArt(IResourceLocator mediaItemLocator, Guid mediaItemId, string title, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       try
       {
@@ -143,6 +164,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
             await ExtractMkvFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
           if (MP4_EXTENSIONS.Contains(ResourcePathHelper.GetExtension(mediaItemLocator.NativeResourcePath.FileName)))
             await ExtractTagFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
+
+          //Don't create thumbs if they already exist or if it is a movie (they use posters)
+          var thumbs = ServiceRegistration.Get<IFanArtCache>().GetFanArtFiles(mediaItemId, FanArtTypes.Thumbnail);
+          if (!thumbs.Any() && !aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID) && !aspects.ContainsKey(MovieAspect.ASPECT_ID))
+            await ExtractThumbnailFanArt(rah.LocalFsResourceAccessor, mediaItemId, title, aspects);
         }
       }
       catch (Exception ex)
@@ -242,13 +268,84 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     }
 
     /// <summary>
+    /// Extracts a frame image and caches them in the <see cref="IFanArtCache"/> service.
+    /// </summary>
+    /// <param name="lfsra"><see cref="ILocalFsResourceAccessor>"/> for the file.</param>
+    /// <param name="mediaItemId">Id of the media item.</param>
+    /// <param name="title">Title of the media item.</param>
+    /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
+    protected async Task ExtractThumbnailFanArt(ILocalFsResourceAccessor lfsra, Guid mediaItemId, string title, IDictionary<Guid, IList<MediaItemAspect>> aspects)
+    {
+      IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
+      string filename = $"OpenCv.{Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath)}";
+
+      // Check for a reasonable time offset
+      int defaultVideoOffset = 720;
+      long videoDuration;
+      double width = 0;
+      double height = 0;
+      double downscale = 7.5; // Reduces the HD video frame size to a quarter size to around 256
+      IList<MultipleMediaItemAspect> videoAspects;
+      if (MediaItemAspect.TryGetAspects(aspects, VideoStreamAspect.Metadata, out videoAspects))
+      {
+        if ((videoDuration = videoAspects[0].GetAttributeValue<long>(VideoStreamAspect.ATTR_DURATION)) > 0)
+        {
+          if (defaultVideoOffset > videoDuration * DEFAULT_OPENCV_THUMBNAIL_OFFSET)
+            defaultVideoOffset = Convert.ToInt32(videoDuration * DEFAULT_OPENCV_THUMBNAIL_OFFSET);
+        }
+
+        width = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_WIDTH);
+        height = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_HEIGHT);
+        downscale = width / 256.0; //256 is max size of large thumbnail aspect
+      }
+
+      var sw = Stopwatch.StartNew();
+      using (VideoCapture capture = new VideoCapture())
+      {
+        capture.Open(lfsra.LocalFileSystemPath);
+        int capturePos = defaultVideoOffset * 1000;
+        if (capture.FrameCount > 0 && capture.Fps > 0)
+        {
+          var duration = capture.FrameCount / capture.Fps;
+          if (defaultVideoOffset > duration)
+            capturePos = Convert.ToInt32(duration * DEFAULT_OPENCV_THUMBNAIL_OFFSET * 1000);
+        }
+
+        if (capture.FrameWidth > 0)
+          downscale = capture.FrameWidth / 256.0; //256 is max size of large thumbnail aspect
+
+        capture.PosMsec = capturePos;
+        using (var mat = capture.RetrieveMat())
+        {
+          if (mat.Height > 0 && mat.Width > 0)
+          {
+            width = mat.Width;
+            height = mat.Height;
+            Logger.Debug("VideoFanArtHandler: Scaling thumbnail of size {1}x{2} for resource '{0}'", lfsra.LocalFileSystemPath, width, height);
+            using (var scaledMat = mat.Resize(new OpenCvSharp.Size(width / downscale, height / downscale)))
+            {
+              var binary = scaledMat.ToBytes();
+              await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(binary, p, filename)).ConfigureAwait(false);
+              Logger.Debug("VideoFanArtHandler: Successfully created thumbnail for resource '{0}' ({1} ms)", lfsra.LocalFileSystemPath, sw.ElapsedMilliseconds);
+            }
+          }
+          else
+          {
+            Logger.Warn("VideoFanArtHandler: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+          }
+        }
+      }
+    }
+
+    /// <summary>
     /// Gets all folder images and caches them in the <see cref="IFanArtCache"/> service.
     /// </summary>
     /// <param name="mediaItemLocator"><see cref="IResourceLocator>"/> that points to the file.</param>
     /// <param name="mediaItemId">Id of the media item.</param>
     /// <param name="title">Title of the media item.</param>
+    /// <param name="aspects">Extracted media item aspects</param>
     /// <returns><see cref="Task"/> that completes when the images have been cached.</returns>
-    protected async Task ExtractFolderFanArt(IResourceLocator mediaItemLocator, Guid mediaItemId, string title)
+    protected async Task ExtractFolderFanArt(IResourceLocator mediaItemLocator, Guid mediaItemId, string title, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       //Get the file's directory
       var videoDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../");
@@ -259,7 +356,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         //Get all fanart paths in the current directory 
         FanArtPathCollection paths;
         using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, videoDirectory).CreateAccessor())
-          paths = GetFolderFanArt(accessor as IFileSystemResourceAccessor, mediaItemFileName);
+          paths = GetFolderFanArt(accessor as IFileSystemResourceAccessor, mediaItemFileName, aspects);
 
         //Save the fanrt to the IFanArtCache service
         await SaveFolderImagesToCache(mediaItemLocator.NativeSystemId, paths, mediaItemId, title).ConfigureAwait(false);
@@ -276,7 +373,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
     /// <param name="videoDirectory"><see cref="IFileSystemResourceAccessor"/> that points to the episode directory.</param>
     /// <param name="filename">The file name of the media item to extract images for.</param>
     /// <returns><see cref="FanArtPathCollection"/> containing all matching paths.</returns>
-    protected FanArtPathCollection GetFolderFanArt(IFileSystemResourceAccessor videoDirectory, string filename)
+    protected FanArtPathCollection GetFolderFanArt(IFileSystemResourceAccessor videoDirectory, string filename, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
       FanArtPathCollection paths = new FanArtPathCollection();
       if (videoDirectory == null)
@@ -284,6 +381,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
       //Get all fanart in the current directory
       List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(videoDirectory);
+
       ExtractAllFanArtImages(potentialFanArtFiles, paths, filename);
 
       //Add extra backdrops in ExtraFanArt directory

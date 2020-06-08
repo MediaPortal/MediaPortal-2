@@ -6,7 +6,8 @@
   xmlns:wrh="clr-namespace:AppLauncher.Models"
   DependsOnStyleResources="OtherControls,OtherControlsOverrides,MediaConsts,MediaStyles">
 
-  <Model x:Key="ViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
+  <Model x:Key="GenericViewModeModel" Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF"/>
+  <Model x:Key="AppManagerModel" Id="488A54AF-8EE5-4E9E-8C91-DE637DDB650C"/>
 
   <DataTemplate x:Key="AppLauncherListDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
@@ -137,7 +138,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <Binding Source="{ThemeResource AppLauncherListDataTemplate}"/>
               <Binding Source="{ThemeResource AppLauncherGridDataTemplate}"/>
             </MultiBinding>
@@ -151,7 +152,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <Binding Source="{ThemeResource AppLauncherListContainerStyle}"/>
               <Binding Source="{ThemeResource AppLauncherGridContainerStyle}"/>
             </MultiBinding>
@@ -177,7 +178,7 @@
         <BindingWrapper>
           <BindingWrapper.Binding>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
-              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
               <!-- List layout -->
               <Binding>
                 <Binding.Source>
@@ -263,6 +264,69 @@
 
   <Style x:Key="AppLauncherContentListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="ItemTemplate" Value="{ThemeResource AppLauncherContentItemDataTemplate}"/>
+  </Style>
+
+  <!-- App Menu Setting Styles -->
+  
+  <DataTemplate x:Key="AppLauncherMenuItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Image Source="{Binding [ImageSrc]}" Thumbnail="True" Stretch="Uniform" Height="32" Width="32" Margin="20,0,10,0" VerticalAlignment="Center" FallbackSource="keys\fallback.png"/>
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" Grid.Column="1"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel2" Content="{Binding [App]}" Grid.Column="2"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <Style x:Key="AppLauncherMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid x:Name="ItemControl">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Button Grid.Column="0" Style="{ThemeResource ButtonWideStyle}" Command="{DynamicResource ResourceKey=Menu_Command}"
+                    IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel2" Property="Scroll" Value="Auto"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+            <Button Grid.Column="1" Content="[AppLauncher.Menu.Clear]" FontSize="{ThemeResource SmallFontSize}" Margin="40,0,10,0"
+                    Style="{ThemeResource ButtonWideStyle}" HorizontalAlignment="Right" VerticalAlignment="Stretch" VerticalContentAlignment="Center"
+                    Command="{Command Source={StaticResource AppManagerModel}, Path=DeleteSelectedMenuMapping}"
+                    IsVisible="{Binding Path=[App],Converter={StaticResource EmptyStringToFalseConverter}}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="AppLauncherMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource AppLauncherMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource AppLauncherMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
 </ResourceDictionary>

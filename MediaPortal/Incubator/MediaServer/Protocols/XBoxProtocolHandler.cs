@@ -40,7 +40,7 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
       if (context.Request.Uri.AbsolutePath.EndsWith(ALBUM_ART_TRUE, StringComparison.InvariantCultureIgnoreCase))
       {
         // Get album art from FanArt
-        MediaLibraryAlbumArt albumArt = new MediaLibraryAlbumArt(item.MediaSource, item.Client);
+        MediaLibraryAlbumArt albumArt = new MediaLibraryAlbumArt(item.MediaItemId, item.Client);
         albumArt.Initialise();
         WebRequest imageRequest = WebRequest.Create(albumArt.Uri);
         WebResponse imageResponse = imageRequest.GetResponse();

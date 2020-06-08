@@ -52,8 +52,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected int _lastProgramId;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelNumberProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
     protected AbstractProperty _programSearchTextProperty = null;
+    protected AbstractProperty _useContainsQueryProperty = null;
     protected readonly ItemsList _programsList = new ItemsList();
 
     #endregion
@@ -95,6 +97,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_channelNumberProperty.GetValue(); }
+      set { _channelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _channelNumberProperty; }
+    }
+
+    /// <summary>
     /// Exposes the current search text.
     /// </summary>
     public string ProgramSearchText
@@ -109,6 +128,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ProgramSearchTextProperty
     {
       get { return _programSearchTextProperty; }
+    }
+
+    /// <summary>
+    /// Indicates if the entered search term should be a "contains" query. By default, the search does a "starts with" query.
+    /// </summary>
+    public bool UseContainsQuery
+    {
+      get { return (bool)_useContainsQueryProperty.GetValue(); }
+      set { _useContainsQueryProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Indicates if the entered search term should be a "contains" query. By default, the search does a "starts with" query.
+    /// </summary>
+    public AbstractProperty UseContainsQueryProperty
+    {
+      get { return _useContainsQueryProperty; }
     }
 
     /// <summary>
@@ -159,9 +195,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (!_isInitialized)
       {
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelNumberProperty = new WProperty(typeof(int), 0);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _programSearchTextProperty = new WProperty(typeof(string), string.Empty);
         _programSearchTextProperty.Attach(ProgramSearchTextChanged);
+        _useContainsQueryProperty = new WProperty(typeof(bool), false);
+        _useContainsQueryProperty.Attach(ProgramSearchTextChanged);
       }
       base.InitModel();
     }
@@ -230,6 +269,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
 
       ChannelName = result.Success ? result.Result.Name : string.Empty;
+      ChannelNumber = result.Success ? result.Result.ChannelNumber : 0;
       ChannelLogoType = result.Result.GetFanArtMediaType();
     }
 
@@ -259,7 +299,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       DateTime dtDay = DateTime.Now;
-      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(ProgramSearchText, dtDay, dtDay.AddDays(28));
+      var result = await _tvHandler.ProgramInfo.GetProgramsAsync(GetSearchTerm(), dtDay, dtDay.AddDays(28));
       if (!result.Success)
       {
         SetEmptyPrograms();
@@ -267,6 +307,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
       _programs = result.Result;
       FillProgramsList();
+    }
+
+    private string GetSearchTerm()
+    {
+      var text = ProgramSearchText.Trim('%', ' ');
+      if (UseContainsQuery)
+      {
+        text = "%" + text;
+      }
+      return text;
     }
 
     private void SetEmptyPrograms()

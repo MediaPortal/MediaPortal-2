@@ -29,6 +29,7 @@ using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -50,32 +51,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Clear();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
-      foreach(MatcherSetting setting in settings.MusicMatchers)
+      foreach(MatcherSetting setting in settings.MusicMatchers.OrderBy(m => m.Name))
       {
-        if (setting.Id.Equals("MusicBrainzMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("MusicBrainz.org"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("MusicFreeDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("FreeDB.org"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("MusicFanArtTvMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("Fanart.tv"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("MusicTheAudioDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("TheAudioDB.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
+        _items.Add(LocalizationHelper.CreateStaticString(setting.Name));
+        if (setting.Enabled)
+          _selected.Add(_items.Count - 1);
+
         _dictionary[setting.Id] = _items.Count - 1;
       }
     }

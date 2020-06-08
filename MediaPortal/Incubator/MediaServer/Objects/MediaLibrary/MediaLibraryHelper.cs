@@ -59,7 +59,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         AudioAspect.ASPECT_ID,
         ImageAspect.ASPECT_ID,
         VideoAspect.ASPECT_ID,
+        VideoStreamAspect.ASPECT_ID,  //For detecting editions
         GenreAspect.ASPECT_ID,
+        SubtitleAspect.ASPECT_ID
       };
 
       return library.GetMediaItem(id, necessaryMIATypeIDs, optionalMIATypeIDs);

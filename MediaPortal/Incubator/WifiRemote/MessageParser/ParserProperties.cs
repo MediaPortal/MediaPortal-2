@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         foreach (JValue v in array)
         {
           String propString = (string)v.Value;
-          ServiceRegistration.Get<ILogger>().Info("WifiRemote Properties: Property: {0}", propString);
+          ServiceRegistration.Get<ILogger>().Info("WifiRemote: Property: {0}", propString);
           client.Properties.Add(propString);
         }
 

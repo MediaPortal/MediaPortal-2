@@ -29,6 +29,7 @@ using System.Drawing;
 using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Localization;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.AppLauncher.General;
 using MediaPortal.Plugins.AppLauncher.Settings;
@@ -205,9 +206,8 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     private void Init()
     {
-      _apps = Helper.LoadApps();
-
-      Clear();
+      Clear(true);
+      _apps = Helper.LoadApps(true);
       InitInstalledApps();
       InitGroups();
 
@@ -221,11 +221,14 @@ namespace MediaPortal.Plugins.AppLauncher.Models
         IconPath = AppLauncherSettingsEditModel.CurrentApp.IconPath;
         Password = AppLauncherSettingsEditModel.CurrentApp.Password;
         Username = AppLauncherSettingsEditModel.CurrentApp.Username;
-        WindowStyle = AppLauncherSettingsEditModel.CurrentApp.WindowStyle.ToString();
+        _windowStyle = AppLauncherSettingsEditModel.CurrentApp.WindowStyle;
+        WindowStyle = GetWindowStyleString(_windowStyle);
         Group = AppLauncherSettingsEditModel.CurrentApp.Group;
       }
-
-      Maximum();
+      else
+      {
+        Maximum();
+      }
     }
 
     private void InitInstalledApps()
@@ -377,28 +380,44 @@ namespace MediaPortal.Plugins.AppLauncher.Models
       _pathBrowserCloseWatcher = new PathBrowserCloseWatcher(this, dialogHandle, choosenPath => { IconPath = LocalFsResourceProviderBase.ToDosPath(choosenPath); }, null);
     }
 
+    private string GetWindowStyleString(ProcessWindowStyle style)
+    {
+      switch (style)
+      {
+        case ProcessWindowStyle.Normal:
+          return LocalizationHelper.Translate("[AppLauncher.Settings.Add.Normal]");
+        case ProcessWindowStyle.Hidden:
+          return LocalizationHelper.Translate("[AppLauncher.Settings.Add.NoWindow]");
+        case ProcessWindowStyle.Minimized:
+          return LocalizationHelper.Translate("[AppLauncher.Settings.Add.Minimum]");
+        case ProcessWindowStyle.Maximized:
+          return LocalizationHelper.Translate("[AppLauncher.Settings.Add.Maximum]");
+      }
+      return style.ToString();
+    }
+
     public void NoWindow()
     {
       _windowStyle = ProcessWindowStyle.Hidden;
-      WindowStyle = _windowStyle.ToString();
+      WindowStyle = GetWindowStyleString(_windowStyle);
     }
 
     public void Minimum()
     {
       _windowStyle = ProcessWindowStyle.Minimized;
-      WindowStyle = _windowStyle.ToString();
+      WindowStyle = GetWindowStyleString(_windowStyle);
     }
 
     public void Normal()
     {
       _windowStyle = ProcessWindowStyle.Normal;
-      WindowStyle = _windowStyle.ToString();
+      WindowStyle = GetWindowStyleString(_windowStyle);
     }
 
     public void Maximum()
     {
       _windowStyle = ProcessWindowStyle.Maximized;
-      WindowStyle = _windowStyle.ToString();
+      WindowStyle = GetWindowStyleString(_windowStyle);
     }
 
     public void Add()
@@ -426,16 +445,20 @@ namespace MediaPortal.Plugins.AppLauncher.Models
       }
       Helper.SaveApps(_apps);
       Clear();
+      AppLauncherHomeModel.AnyAppWasChangedToggle = true;
     }
 
     /// <summary>
     /// Clear all Fields in Screen
     /// </summary>
-    private void Clear()
+    private void Clear(bool includeInitData = false)
     {
-      _groupItems.Clear();
-      _appItems.Clear();
-      _apps?.AppsList?.Clear();
+      if (includeInitData)
+      {
+        _appItems.Clear();
+        _apps = null;
+        _groupItems.Clear();
+      }
 
       ShortName = "";
       Arguments = "";
@@ -467,7 +490,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      Clear();
+      Clear(true);
       AppLauncherSettingsEditModel.CurrentApp = null;
     }
 

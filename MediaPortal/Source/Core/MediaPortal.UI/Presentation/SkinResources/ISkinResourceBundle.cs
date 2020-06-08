@@ -31,12 +31,21 @@ namespace MediaPortal.UI.Presentation.SkinResources
     /// </summary>
     string Name { get; }
 
+    /// <summary>
+    /// Gets a short description of the resource bundle.
+    /// </summary>
     string ShortDescription { get; }
 
     string PreviewResourceKey { get; }
 
     /// <summary>
-    /// Gets the native width of the skin this resource bundle belongs to.
+    /// Indicates if the skin is able to scale to different aspect ratios like 21:9 or 16:10.
+    /// </summary>
+    bool FlexibleAspectRatio { get; }
+
+    /// <summary>
+    /// Gets the native width of the skin this resource bundle belongs to. There is a special case when the <see cref="FlexibleAspectRatio"/> is <c>true</c>,
+    /// then the SkinWidth is calculated by the current screen's aspect ratio in relation to the unchanged <see cref="SkinHeight"/>.
     /// </summary>
     int SkinWidth { get; }
 

@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.UI.ContentLists;
 using MediaPortal.UiComponents.Media.MediaLists;
 using System.Collections.Generic;
 using System.Linq;

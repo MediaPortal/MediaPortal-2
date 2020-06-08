@@ -20,12 +20,12 @@ namespace Tests.Server.MediaServer
     {
     }
 
-    public AudioTranscoding GetAudioTranscoding(string section, string profile, MetadataContainer info, bool liveStreaming, string transcodeId)
+    public AudioTranscoding GetAudioTranscoding(string section, string profile, MetadataContainer info, int edition, bool liveStreaming, string transcodeId)
     {
       return null;
     }
 
-    public ImageTranscoding GetImageTranscoding(string section, string profile, MetadataContainer info, string transcodeId)
+    public ImageTranscoding GetImageTranscoding(string section, string profile, MetadataContainer info, int edition, string transcodeId)
     {
       return null;
     }
@@ -50,17 +50,17 @@ namespace Tests.Server.MediaServer
       return null;
     }
 
-    public VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, bool live, string transcodeId)
+    public VideoTranscoding GetVideoSubtitleTranscoding(string section, string profile, MetadataContainer info, int edition, bool live, string transcodeId)
     {
       return null;
     }
 
-    public VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, int audioStreamIndex, int? subtitleStreamIndex, bool liveStreaming, string transcodeId)
+    public VideoTranscoding GetVideoTranscoding(string section, string profile, MetadataContainer info, int edition, int audioStreamIndex, int? subtitleStreamIndex, bool liveStreaming, string transcodeId)
     {
       return null;
     }
 
-    public VideoTranscoding GetVideoTranscoding(string section, string profile, IEnumerable<MetadataContainer> infos, IEnumerable<string> preferedAudioLanguages, bool liveStreaming, string transcodeId)
+    public VideoTranscoding GetVideoTranscoding(string section, string profile, MetadataContainer info, int edition, IEnumerable<string> preferedAudioLanguages, bool liveStreaming, string transcodeId)
     {
       return null;
     }

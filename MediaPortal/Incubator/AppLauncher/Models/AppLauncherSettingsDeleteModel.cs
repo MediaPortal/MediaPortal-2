@@ -62,7 +62,9 @@ namespace MediaPortal.Plugins.AppLauncher.Models
         _apps.AppsList.Remove(a);
         break;
       }
+      Helper.SaveApps(_apps);
       FillItems();
+      AppLauncherHomeModel.AnyAppWasChangedToggle = true;
     }
 
     /// <summary>
@@ -71,7 +73,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private void Init()
     {
       Clear();
-      _apps = Helper.LoadApps();
+      _apps = Helper.LoadApps(true);
       FillItems();
     }
 
@@ -95,7 +97,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private void Clear()
     {
       _items.Clear();
-      _apps?.AppsList?.Clear();
+      _apps = null;
     }
 
     #region IWorkflowModel implementation
@@ -117,7 +119,6 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      Helper.SaveApps(_apps);
       Clear();
     }
 

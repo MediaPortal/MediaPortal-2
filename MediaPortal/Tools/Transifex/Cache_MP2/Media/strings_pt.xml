@@ -5,6 +5,7 @@
   <string name="Media.ContinueWatching">Continuar a ver</string>
   <string name="Media.Favorites">Favoritos</string>
   <string name="Media.Unplayed">Não visto</string>
+  <string name="Media.CurrentPrograms">Programas Atuais</string>
   <string name="Media.CurrentSchedules">Agendamentos</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">Explorar conteúdos</string>
@@ -18,6 +19,10 @@
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.NameMenuItem">Nome</string>
   <string name="Media.TitleMenuItem">Título</string>
+  <string name="Media.SortTitleMenuItem">Ordenar título</string>
+  <string name="Media.AlbumMenuItem">Álbum e título</string>
+  <string name="Media.AlbumTrackMenuItem">Álbum e faixa</string>
+  <string name="Media.AlbumArtistMenuItem">Artista do álbum</string>
   <string name="Media.AlbumLabelMenuItem">Editora</string>
   <string name="Media.TrackMenuItem">Pista</string>
   <string name="Media.ArtistMenuItem">Artista</string>
@@ -38,6 +43,7 @@
   <string name="Media.RecordingDateMenuItem">Gravado a</string>
   <string name="Media.AddedDateMenuItem">Adicionado em</string>
   <string name="Media.EpisodeMenuItem">Episódio</string>
+  <string name="Media.DVDEpisodeMenuItem">Episódio de DVD</string>
   <string name="Media.TVNetworkMenuItem">Canal de TV</string>
   <string name="Media.MusicLabelMenuItem">Editora</string>
   <string name="Media.CompanyMenuItem">Estúdio de produção</string>
@@ -52,6 +58,7 @@
   <string name="Media.SeriesSeasonMenuItem">Temporada</string>
   <string name="Media.ConductorMenuItem">Maestro</string>
   <string name="Media.CompilationMenuItem">Compilação</string>
+  <string name="Media.AlbumCompilationMenuItem">Compilação de álbuns</string>
   <string name="Media.CertificationMenuItem">Certificação</string>
   <string name="Media.SimpleSearchFilterMenuItem">Procurar</string>
   <!--Filter titles-->
@@ -264,11 +271,13 @@
   <string name="Media.SetUnplayed">Marcar como não visto</string>
   <string name="Media.Refresh">Actualizar</string>
   <string name="Media.Reimport">Reimportar</string>
+  <string name="Media.DeleteFromStorage">Eliminar do armazenamento</string>
   <string name="Media.ConfirmAction">Confirmção ação</string>
   <string name="Media.ReimportMediaItem.Id">Id</string>
   <string name="Media.ReimportMediaItem.Done">Feito</string>
   <string name="Media.ReimportMediaItem.SearchResultHeader">Resultados da procura</string>
   <string name="Media.ReimportMediaItem.SearchTypeHeader">Tipo de procura</string>
+  <string name="Media.ReimportMediaItem.AutoMatch">Corresponder Automaticamente</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Procura manual</string>
   <string name="Media.ReimportMediaItem.Description">Descrição</string>
   <!--Play items dialog-->
@@ -400,6 +409,7 @@
   <string name="Media.Stub.Title">Inserir disco</string>
   <string name="Media.Stub.Message">Por favor insira o disco</string>
   <!--Virtual-->
+  <string name="Media.Virtual.Message">Não é possível reproduzir multimédia porque é virtual.</string>
   <!--Settings-->
   <string name="Settings.Players">Reprodutores</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Fechar reprodutores quando terminados</string>
@@ -412,6 +422,11 @@
   <string name="Settings.Players.SkipStepList.Help">Entre os pulos em segundos separados por ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Abrir estratégia de reprodutor</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estratégia, como novos leitores serão posicionados entre leitores já abertos</string>
+  <string name="Settings.Media">Mediateca</string>
+  <string name="Settings.Media.ShowVirtual.Audio">Mostrar todas as faixas de álbum conhecidas</string>
+  <string name="Settings.Media.ShowVirtual.Movie">Mostrar todas as coleções de filmes conhecidas</string>
+  <string name="Settings.Media.ShowVirtual.Series">Mostrar todos os episódios e temporadas conhecidos</string>
+  <string name="Settings.Media.Certification">Certificação de países</string>
   <string name="Settings.Media.Certification.None">Original (como importado)</string>
   <!--Secondary filters-->
   <string name="Filter.RemoteNumericAlphabet0"></string>

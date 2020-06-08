@@ -2,7 +2,7 @@
 <resources>
   
   <!--Login-->
-  <string name="Login.Title">Entdada de utilizador</string>
+  <string name="Login.Title">Entrada de utilizador</string>
   <string name="Login.Title.Help">Entrar com um utilizador específico</string>
   <string name="Login.IncorrectPassword">Palavra-passe incorreta, por favor tente de novo</string>
   <string name="Login.PasswordOk">OK</string>
@@ -12,30 +12,69 @@
   <!--User Settings-->
   <string name="Settings.Users">Utilizadores</string> <!-- Section name -->
   <string name="Settings.Users.Config">Gestão de utilizadores</string> <!-- Group name -->
-  <string name="Settings.Users.Config.UserManagement">Gestão de utilizadores</string> <string name="Settings.Users.Config.UserEnableScreen">Ativar ecrã de entrada</string> <string name="Settings.Users.Config.AutoLogout">Entrar automáticamente</string> <string name="Settings.Users.Config.AutoLoginUser">Entrada automática</string> <string name="Settings.Users.Config.SystemDefault">Valor padão</string>
+  <string name="Settings.Users.Config.UserManagement">Gestão de utilizadores</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserManagement.Help">Gerir os utilizadores no servidor local</string>
+  <string name="Settings.Users.Config.UserEnable">Ativar inícios de sessão do utilizador e restrições</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">Ativar utilizadores para iniciar sessão, alterar o utilizador atual e aplicar as definições específicas do utilizador</string>
+  <string name="Settings.Users.Config.UserEnableScreen">Ativar ecrã de entrada</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Mostrar a janela de Login quando não tem nenhum utilizador iniciado</string>
+  <string name="Settings.Users.Config.AutoLogout">Entrar automáticamente</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogout.Help">Ativar o terminar sessão automático de um utilizador depois de um período de tempo inativo</string>
+  <string name="Settings.Users.Config.AutoLogoutTimeout">Tempo de sessão excedeu</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogoutTimeout.Help">O período de inatividade permitido antes que o usuário seja desconectado</string>
+  <string name="Settings.Users.Config.AutoLoginUser">Entrada automática</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLoginUser.Help">O utilizador para utilizar o início de sessão automático</string>
+  <string name="Settings.Users.Config.SystemDefault">Valor padão</string>
+  <string name="Settings.Users.Config.AutoLoginUser.Title">Utilizador do início de sessão automático</string>
+
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestão de utilizadores</string>
   <string name="UserConfig.UserConfiguration.Title">Gestão de utilizadores</string>
   <string name="UserConfig.Users">Utilizadores</string>
+  <string name="UserConfig.NoConfigUserHomeServerNotConnected">Os utilizadores do servidor não podem ser geridos no momento porque servidor inicial não está conectado</string>
   <string name="UserConfig.UserName">Utilizador</string>
   <string name="UserConfig.Password">Palavra-passe</string>
   <string name="UserConfig.ProfileType">Tipo de perfil</string>
   <string name="UserConfig.AgeFilter">Ativar fitro por idade</string>
+  <string name="UserConfig.ShareRestrictions">Limite no acesso de partilha</string>
+  <string name="UserConfig.IncludePGContent">Incluir conteúdos que poderão não ser aconselhados a crianças</string>
+  <string name="UserConfig.IncludeUnratedContent">Incluir conteúdo não classificado</string>
   <string name="UserConfig.LastLogin">Última entrada</string>
   <string name="UserConfig.NewUserText">Novo Utilizador</string>
   <string name="UserConfig.AddUser">Adicionar</string>
   <string name="UserConfig.CopyUser">Copiar</string>
   <string name="UserConfig.DeleteUser">Eliminar</string>
   <string name="UserConfig.SaveUser">Guardar</string>
+  <string name="UserConfig.SelectImage">Selecione imagem para o utilizador</string>
   <string name="UserConfig.DeleteConfirmation.Title">Confirmação de eliminação</string>
-  <string name="UserConfig.DeleteConfirmation">Tem a certeza que quer eliminar este utilizador?</string>
+  <string name="UserConfig.DeleteConfirmation">Tem a certeza que deseja eliminar o utilizador selecionado?</string>
   <string name="UserConfig.Yes">Sim</string>
   <string name="UserConfig.No">Não</string>
   <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Disable">Desativar</string>
+
+  <string name="UserConfig.SelectProfileTemplate">Selecionar modelo de perfil</string>
+  <string name="UserConfig.ClientProfile">Perfil do cliente</string>
+  <string name="UserConfig.UserProfile">Perfil do utilizador</string>
+
+  <string name="UserConfig.RestrictionGroups">Restringir ações </string>
   <string name="UserConfig.RestrictedAll">Permitir todos</string>
   <string name="UserConfig.RestrictedNone">Não permitir nenhum</string>
   <string name="UserConfig.RestrictedNumbers">{0} / {1} permitidos</string>
+  <string name="UserConfig.SelectRestrictions">Selecionar as funcionalidades permitidas para o utilizador</string>
+
   <string name="UserConfig.SharesText">Compartilhamentos</string>
+  <string name="UserConfig.SelectShares">Selecionar acesso de partilha</string>
+  <string name="UserConfig.LocalShare">Fonte de multimédia do cliente</string>
+  <string name="UserConfig.LocalShares">Fontes de multimédia do cliente</string>
+  <string name="UserConfig.GlobalShare">Fonte de multimédia do servidor</string>
+  <string name="UserConfig.GlobalShares">Fontes de multimédia do servidor</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">O servidor não se encontra ligado e por isso as fontes do servidor de midia não podem ser geridas</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">O servidor está localizado nesta máquina, apenas pode configurar outros servidores. </string>
+
+  <string name="RestrictionGroup.Settings.UserProfile">Definições: Gerir todos os perfis</string>
+  <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Definições: Gerir o seu Perfil</string>
+
   <string name="UserProfileTemplate.Admin">Administrador</string>
   <string name="UserProfileTemplate.Teenager">Jovem</string>
   <string name="UserProfileTemplate.Child">Criança</string>

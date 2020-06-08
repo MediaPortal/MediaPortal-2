@@ -27,8 +27,8 @@ using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Threading;
-using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Profiles;
@@ -40,14 +40,56 @@ namespace MediaPortal.Extensions.TranscodingService.Service
   {
     public static TranscodingServiceSettings Settings = new TranscodingServiceSettings();
     private readonly TimeSpan CACHE_CLEANUP_INTERVAL = TimeSpan.FromMinutes(5);
-    
+
+    private SettingsChangeWatcher<TranscodingServiceSettings> _settings;
     private IntervalWork _tidyUpCacheWork;
+    private AnalysisLibraryManager _analysisLibraryManager;
+    private TranscodeProfileManager _profileManager;
+    private Transcoder _currenTranscoder = Transcoder.None;
+    private IMediaConverter _converter;
+    private IMediaAnalyzer _analyzer;
 
     public TranscodingServicePlugin()
     {
+      _profileManager = new TranscodeProfileManager();
+      ServiceRegistration.Set<ITranscodeProfileManager>(_profileManager);
+      Logger.Debug("TranscodingService: Registered TranscodeProfileManager.");
+
+      _analysisLibraryManager = new AnalysisLibraryManager();
+
+      _settings = new SettingsChangeWatcher<TranscodingServiceSettings>();
+      _settings.SettingsChanged = OnSettingsChanged;
+      _settings.Refresh();
+
       _tidyUpCacheWork = new IntervalWork(TidyUpCache, CACHE_CLEANUP_INTERVAL);
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
       threadPool.AddIntervalWork(_tidyUpCacheWork, false);
+    }
+
+    private void OnSettingsChanged(object sender, EventArgs e)
+    {
+      Settings = _settings.Settings;
+
+      _profileManager.SubtitleFont = Settings.SubtitleFont;
+      _profileManager.SubtitleFontSize = Settings.SubtitleFontSize;
+      _profileManager.SubtitleColor = Settings.SubtitleColor;
+      _profileManager.SubtitleBox = Settings.SubtitleBox;
+      _profileManager.ForceSubtitles = Settings.ForceSubtitles;
+
+      _analysisLibraryManager.UpdateAnalysisCleanupIntervalWork(_settings.Settings);
+
+      if (_currenTranscoder != _settings.Settings.Transcoder && _settings.Settings.Transcoder == Transcoder.FFMpeg)
+      {
+        _currenTranscoder = _settings.Settings.Transcoder;
+
+        _converter = new FFMpegMediaConverter();
+        ServiceRegistration.Set<IMediaConverter>(_converter);
+        Logger.Debug("TranscodingService: Registered FFMpeg MediaConverter.");
+
+        _analyzer = new FFMpegMediaAnalyzer();
+        ServiceRegistration.Set<IMediaAnalyzer>(_analyzer);
+        Logger.Debug("TranscodingService: Registered FFMpeg MediaAnalyzer.");
+      }
     }
 
     public async void Activated(PluginRuntime pluginRuntime)
@@ -55,51 +97,16 @@ namespace MediaPortal.Extensions.TranscodingService.Service
       var meta = pluginRuntime.Metadata;
       Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
 
-      LoadTranscodeSettings();
+      if (Directory.Exists(Settings.CachePath) == false)
+        Directory.CreateDirectory(Settings.CachePath);
 
-      var profileManager = new TranscodeProfileManager();
-      profileManager.SubtitleFont = Settings.SubtitleFont;
-      profileManager.SubtitleFontSize = Settings.SubtitleFontSize;
-      profileManager.SubtitleColor = Settings.SubtitleColor;
-      profileManager.SubtitleBox = Settings.SubtitleBox;
-      profileManager.ForceSubtitles = Settings.ForceSubtitles;
-      ServiceRegistration.Set<ITranscodeProfileManager>(profileManager);
-      Logger.Debug("TranscodingService: Registered TranscodeProfileManager.");
-
-      if (Settings.Transcoder == Transcoder.FFMpeg)
-      {
-        var converter = new FFMpegMediaConverter();
-        await converter.CleanUpTranscodeCacheAsync();
-        ServiceRegistration.Set<IMediaConverter>(converter);
-        Logger.Debug("TranscodingService: Registered FFMpeg MediaConverter.");
-
-        var analyzer = new FFMpegMediaAnalyzer();
-        ServiceRegistration.Set<IMediaAnalyzer>(analyzer);
-        Logger.Debug("TranscodingService: Registered FFMpeg MediaAnalyzer.");
-      }
+      await ServiceRegistration.Get<IMediaConverter>().CleanUpTranscodeCacheAsync();
     }
 
     private async void TidyUpCache()
     {
-      IMediaConverter converter = ServiceRegistration.Get<IMediaConverter>(false);
-      if(converter != null)
-        await converter.CleanUpTranscodeCacheAsync();
-    }
-
-    private void LoadTranscodeSettings()
-    {
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      Settings = settingsManager.Load<TranscodingServiceSettings>();
-      if (Directory.Exists(Settings.CachePath) == false)
-      {
-        Directory.CreateDirectory(Settings.CachePath);
-      }
-    }
-
-    private void SaveTranscodeSettings()
-    {
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      settingsManager.Save(Settings);
+      if(_converter != null)
+        await _converter.CleanUpTranscodeCacheAsync();
     }
 
     public bool RequestEnd()
@@ -117,13 +124,17 @@ namespace MediaPortal.Extensions.TranscodingService.Service
 
     public async void Shutdown()
     {
-      IMediaConverter converter = ServiceRegistration.Get<IMediaConverter>(false);
-      if (converter != null)
+      if (_settings != null)
       {
-        await converter.StopAllTranscodesAsync();
-        await converter.CleanUpTranscodeCacheAsync();
+        _settings.Dispose();
+        _settings = null;
       }
-      SaveTranscodeSettings();
+      if (_converter != null)
+      {
+        await _converter.StopAllTranscodesAsync();
+        await _converter.CleanUpTranscodeCacheAsync();
+        _converter = null;
+      }
     }
 
     internal static ILogger Logger

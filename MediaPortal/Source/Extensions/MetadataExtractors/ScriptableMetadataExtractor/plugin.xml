@@ -1,0 +1,42 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="ScriptableMetadataExtractor"
+    PluginId="{80D9C44E-9C9A-4BED-958D-018EC2DAFDD2}"
+    Author = "Henso"
+    Copyright="GPL"
+    Description="Metadata extractor to detect and lookup media information based on custom XML scripts">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2019-11-20 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
+    <PluginReference PluginId="{C2800928-8A57-4979-A95F-3CE6F3EBAB92}" CompatibleAPI="2"/> <!-- MovieMetadataExtractor -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="ScriptableMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="ScriptableMovieMetadataExtractor1"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.ScriptableMovieMetadataExtractor1"/>
+    <Instance
+        Id="ScriptableMovieMetadataExtractor2"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.ScriptableMovieMetadataExtractor2"/>
+    <Instance
+        Id="ScriptableMovieMetadataExtractor3"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.ScriptableMovieMetadataExtractor3"/>
+    <Instance
+        Id="ScriptableMovieMetadataExtractor4"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.ScriptableMovieMetadataExtractor4"/>
+    <Instance
+        Id="ScriptableMovieMetadataExtractor5"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.ScriptableMovieMetadataExtractor5"/>
+  </Register>
+</Plugin>

@@ -32,7 +32,6 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common;
-using MediaPortal.Common.Certifications;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Extensions.MediaServer.Objects.Basic
@@ -46,10 +45,12 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
     protected static readonly Guid[] OPTIONAL_GENERIC_MIA_TYPE_IDS = {
       DirectoryAspect.ASPECT_ID,
       VideoAspect.ASPECT_ID,
+      VideoStreamAspect.ASPECT_ID, //For detecting editions
       AudioAspect.ASPECT_ID,
       ImageAspect.ASPECT_ID,
       MovieAspect.ASPECT_ID,
       EpisodeAspect.ASPECT_ID,
+      SubtitleAspect.ASPECT_ID
     };
 
     protected static readonly Guid[] NECESSARY_SHARE_MIA_TYPE_IDS = {
@@ -84,11 +85,13 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       ImporterAspect.ASPECT_ID,
       MediaAspect.ASPECT_ID,
       VideoAspect.ASPECT_ID,
+      VideoStreamAspect.ASPECT_ID, //For detecting editions
       EpisodeAspect.ASPECT_ID,
       ProviderResourceAspect.ASPECT_ID
     };
     protected static readonly Guid[] OPTIONAL_EPISODE_MIA_TYPE_IDS = {
       GenreAspect.ASPECT_ID,
+      SubtitleAspect.ASPECT_ID
     };
 
     protected static readonly Guid[] NECESSARY_SEASON_MIA_TYPE_IDS = {
@@ -119,11 +122,13 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       ImporterAspect.ASPECT_ID,
       MediaAspect.ASPECT_ID,
       VideoAspect.ASPECT_ID,
+      VideoStreamAspect.ASPECT_ID, //For detecting editions
       MovieAspect.ASPECT_ID,
       ProviderResourceAspect.ASPECT_ID
     };
     protected static readonly Guid[] OPTIONAL_MOVIE_MIA_TYPE_IDS = {
       GenreAspect.ASPECT_ID,
+      SubtitleAspect.ASPECT_ID
     };
 
     protected static readonly Guid[] NECESSARY_PERSON_MIA_TYPE_IDS = {
@@ -136,6 +141,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
     protected readonly Guid? _userId;
 
     private string _containerClass = "object.container";
+    private bool _containersInitialized = false;
+
+    public ICollection<BasicObject> Children => _children;
 
     public BasicContainer(string id, EndPointSettings client) 
       : base(id, client)
@@ -162,31 +170,42 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
 
     public virtual BasicObject FindObject(string key)
     {
-      return Key == key ? this : _children
-        .Where(node => node is BasicContainer)
-        .Select(node => ((BasicContainer)node).FindObject(key))
-        .FirstOrDefault(n => n != null);
+      //Check if it is this item
+      if (Key == key)
+        return this;
+
+      //Needs to initialize children
+      if (!_containersInitialized)
+        InitialiseContainers();
+
+      //Check child items
+      var obj = _children.FirstOrDefault(c => c.Key == key && !c.Placeholder);
+      if (obj != null)
+        return obj;
+
+      //Check child dirs
+      foreach (BasicContainer dir in _children.Where(c => c is BasicContainer))
+      {
+        obj = dir.FindObject(key);
+        if (obj != null)
+          return obj;
+      }
+      return null;
     }
 
-    public void Sort()
+    public virtual List<IDirectoryObject> Browse()
     {
-      _children.Sort();
-      //TODO: Sort children of children?
-      //foreach (BasicContainer container in _children)
-      //{
-      //  container.Sort();
-      //}
+      return _children.OfType<IDirectoryObject>().ToList();
     }
 
-    public virtual List<IDirectoryObject> Browse(string sortCriteria)
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
-      // TODO: Need to sort based on sortCriteria.
-      _children.Sort();
-      return _children.Cast<IDirectoryObject>().ToList();
+      _containersInitialized = true;
     }
 
-    public override void Initialise()
+    public virtual void InitialiseContainers()
     {
+      _containersInitialized = true;
     }
 
     public void ContainerUpdated()

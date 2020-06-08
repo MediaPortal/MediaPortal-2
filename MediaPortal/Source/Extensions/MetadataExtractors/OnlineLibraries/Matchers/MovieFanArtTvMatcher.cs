@@ -41,6 +41,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
   {
     #region Constants
 
+    public const string NAME = "Fanart.tv";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\FanArtTV\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -49,7 +50,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public MovieFanArtTvMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, false)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, false)
     {
     }
 
@@ -57,7 +58,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        FanArtTVWrapper wrapper = new FanArtTVWrapper();
+        FanArtTVWrapper wrapper = new FanArtTVWrapper(NAME);
         // Try to lookup online content in the configured language
         CultureInfo currentCulture = new CultureInfo(PreferredLanguageCulture);
         wrapper.SetPreferredLanguage(currentCulture.TwoLetterISOLanguageName);

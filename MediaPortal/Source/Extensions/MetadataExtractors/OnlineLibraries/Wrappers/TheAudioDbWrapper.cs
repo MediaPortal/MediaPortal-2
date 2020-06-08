@@ -38,9 +38,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
   class TheAudioDbWrapper : ApiMediaWrapper<string, string>
   {
-    private const string PROVIDER_NAME = "theaudiodb.com";
-
     protected AudioDbApiV1 _audioDbHandler;
+    protected readonly string _name;
+
+    public TheAudioDbWrapper(string name)
+    {
+      _name = name;
+    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -102,7 +106,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           TrackNum = track.TrackNumber,
           Album = track.Album,
           Artists = ConvertToPersons(track.ArtistID ?? 0, track.MusicBrainzArtistID, track.Artist, PersonAspect.OCCUPATION_ARTIST, track.Track, track.Album),
-          DataProviders = new List<string>() { PROVIDER_NAME }
+          DataProviders = new List<string>() { _name }
         };
         tracks.Add(info);
       }
@@ -140,7 +144,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           ReleaseDate = album.Year != null && album.Year.Value > 1900 ? new DateTime(album.Year.Value, 1, 1) : default(DateTime?),
           Artists = ConvertToPersons(album.ArtistId ?? 0, album.MusicBrainzArtistID, album.Artist, PersonAspect.OCCUPATION_ARTIST, null, album.Album),
           MusicLabels = ConvertToCompanies(album.LabelId ?? 0, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL),
-          DataProviders = new List<string>() { PROVIDER_NAME }
+          DataProviders = new List<string>() { _name }
         };
         albums.Add(info);
       }
@@ -172,7 +176,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           AlternateName = artist.ArtistAlternate,
           Occupation = PersonAspect.OCCUPATION_ARTIST,
           IsGroup = artist.Members.HasValue ? artist.Members.Value > 1 : false,
-          DataProviders = new List<string>() { PROVIDER_NAME }
+          DataProviders = new List<string>() { _name }
         };
         persons.Add(info);
       }
@@ -203,7 +207,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Order = sortOrder++,
           MediaName = track,
           ParentMediaName = album,
-          DataProviders = new List<string>() { PROVIDER_NAME }
+          DataProviders = new List<string>() { _name }
         });
 
       }
@@ -223,7 +227,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           Name = company,
           Type = type,
           Order = 0,
-          DataProviders = new List<string>() { PROVIDER_NAME }
+          DataProviders = new List<string>() { _name }
         }
       };
     }
@@ -270,8 +274,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         person.Orign = artistDetail.Country;
         person.IsGroup = artistDetail.Members.HasValue ? artistDetail.Members.Value > 1 : false;
         person.Occupation = PersonAspect.OCCUPATION_ARTIST;
-        if (!person.DataProviders.Contains(PROVIDER_NAME))
-          person.DataProviders.Add(PROVIDER_NAME);
+        if (!person.DataProviders.Contains(_name))
+          person.DataProviders.Add(_name);
 
         return true;
       }
@@ -280,6 +284,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing person {0}", ex, person.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(PersonInfo person)
+    {
+      if (person.AudioDbId > 0 || !string.IsNullOrWhiteSpace(person.MusicBrainzId))
+        return true;
+
+      return base.HasSearchableIds(person);
     }
 
     public override Task<bool> UpdateFromOnlineMusicTrackPersonAsync(TrackInfo trackInfo, PersonInfo person, string language, bool cacheOnly)
@@ -359,8 +371,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             track.MusicLabels = ConvertToCompanies(album.LabelId.Value, album.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
         }
 
-        if (!track.DataProviders.Contains(PROVIDER_NAME))
-          track.DataProviders.Add(PROVIDER_NAME);
+        if (!track.DataProviders.Contains(_name))
+          track.DataProviders.Add(_name);
 
         return !cacheIncomplete;
       }
@@ -369,6 +381,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing track {0}", ex, track.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(TrackInfo track)
+    {
+      if (track.AudioDbId > 0 || track.AlbumAudioDbId > 0 || !string.IsNullOrWhiteSpace(track.AlbumMusicBrainzGroupId))
+        return true;
+
+      return base.HasSearchableIds(track);
     }
 
     public override async Task<bool> UpdateFromOnlineMusicTrackAlbumAsync(AlbumInfo album, string language, bool cacheOnly)
@@ -414,8 +434,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (albumDetail.LabelId.HasValue)
           album.MusicLabels = ConvertToCompanies(albumDetail.LabelId.Value, albumDetail.Label, CompanyAspect.COMPANY_MUSIC_LABEL);
 
-        if (!album.DataProviders.Contains(PROVIDER_NAME))
-          album.DataProviders.Add(PROVIDER_NAME);
+        if (!album.DataProviders.Contains(_name))
+          album.DataProviders.Add(_name);
 
         List<AudioDbTrack> albumTracks = await _audioDbHandler.GetTracksByAlbumIdAsync(albumDetail.AlbumId, language, cacheOnly).ConfigureAwait(false);
         if (cacheOnly && albumTracks == null)
@@ -453,8 +473,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             track.AlbumArtists = album.Artists.ToList();
             track.MusicLabels = album.MusicLabels.ToList();
 
-            if (!track.DataProviders.Contains(PROVIDER_NAME))
-              track.DataProviders.Add(PROVIDER_NAME);
+            if (!track.DataProviders.Contains(_name))
+              track.DataProviders.Add(_name);
 
             album.Tracks.Add(track);
           }
@@ -467,6 +487,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing album {0}", ex, album.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(AlbumInfo album)
+    {
+      if (album.AudioDbId > 0 || !string.IsNullOrWhiteSpace(album.MusicBrainzGroupId))
+        return true;
+
+      return base.HasSearchableIds(album);
     }
 
     public override async Task<bool> UpdateFromOnlineMusicTrackAlbumCompanyAsync(AlbumInfo album, CompanyInfo company, string language, bool cacheOnly)
@@ -494,8 +522,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           company.AudioDbId = albumDetail.LabelId.Value;
           company.Name = albumDetail.Label;
           company.Type = CompanyAspect.COMPANY_MUSIC_LABEL;
-          if (!company.DataProviders.Contains(PROVIDER_NAME))
-            company.DataProviders.Add(PROVIDER_NAME);
+          if (!company.DataProviders.Contains(_name))
+            company.DataProviders.Add(_name);
           return true;
         }
 
@@ -506,6 +534,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         ServiceRegistration.Get<ILogger>().Debug("TheAudioDbWrapper: Exception while processing company {0}", ex, company.ToString());
         return false;
       }
+    }
+
+    public override bool HasSearchableIds(CompanyInfo company)
+    {
+      if (company.AudioDbId > 0)
+        return true;
+
+      return base.HasSearchableIds(company);
     }
 
     #endregion

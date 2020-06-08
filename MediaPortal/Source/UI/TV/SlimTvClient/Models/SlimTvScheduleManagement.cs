@@ -51,6 +51,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected ISchedule _selectedSchedule;
     protected AbstractProperty _scheduleSeriesModeProperty = null;
     protected AbstractProperty _channelNameProperty = null;
+    protected AbstractProperty _channelNumberProperty = null;
     protected AbstractProperty _channelLogoTypeProperty = null;
     protected AbstractProperty _scheduleNameProperty = null;
     protected AbstractProperty _scheduleTypeProperty = null;
@@ -129,6 +130,23 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public AbstractProperty ChannelLogoTypeProperty
     {
       get { return _channelLogoTypeProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)_channelNumberProperty.GetValue(); }
+      set { _channelNumberProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public AbstractProperty ChannelNumberProperty
+    {
+      get { return _channelNumberProperty; }
     }
 
     /// <summary>
@@ -239,9 +257,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         StartTime = EndTime = DateTime.MinValue;
         ChannelName = ScheduleName = ScheduleType = string.Empty;
+        ChannelNumber = 0;
         return;
       }
-      string channelName = string.Empty;
+
       IChannel channel = null;
       if (_tvHandler.ChannelAndGroupInfo != null)
       {
@@ -249,13 +268,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (result.Success)
         {
           channel = result.Result;
-          channelName = channel.Name;
         }
       }
 
       StartTime = schedule.StartTime;
       EndTime = schedule.EndTime;
-      ChannelName = channelName;
+      ChannelName = channel?.Name ?? String.Empty;
+      ChannelNumber = channel?.ChannelNumber ?? 0;
       ChannelLogoType = channel.GetFanArtMediaType();
       ScheduleName = schedule.Name;
       ScheduleType = string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType);
@@ -494,6 +513,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _scheduleSeriesModeProperty = new WProperty(typeof(bool), false);
         _scheduleSeriesModeProperty.Attach(ToggleSeriesMode);
         _channelNameProperty = new WProperty(typeof(string), string.Empty);
+        _channelNumberProperty = new WProperty(typeof(int), 0);
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _scheduleNameProperty = new WProperty(typeof(string), string.Empty);
         _scheduleTypeProperty = new WProperty(typeof(string), string.Empty);

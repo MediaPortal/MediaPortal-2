@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Profiles;
@@ -40,7 +41,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       Title = title;
     }
 
-    public IList<IChannel> GetItems()
+    public IList<IChannel> GetItems(string sortCriteria)
     {
       if (ServiceRegistration.IsRegistered<ITvProvider>())
       {
@@ -49,17 +50,18 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         var res = channelAndGroupInfo.GetChannelsAsync(group).Result;
         if (res.Success)
         {
-          return res.Result;
+          return res.Result.OrderBy(c => c.Name).ToList();
         }
       }
       return null;
     }
 
-    public override void Initialise()
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
-      IList<IChannel> items = GetItems();
+      base.Initialise(sortCriteria, offset, count);
 
-      foreach (var item in items)
+      IList<IChannel> items = GetItems(sortCriteria);
+      foreach (var item in items.OrderBy(c => c.Name))
       {
         string title = item.Name;
         string key = "CHANNEL_CONTAINER_" + item.ChannelId;
@@ -69,7 +71,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
         Add(container);
       }
-      Sort();
     }
 
     public int GroupId { get; set; }

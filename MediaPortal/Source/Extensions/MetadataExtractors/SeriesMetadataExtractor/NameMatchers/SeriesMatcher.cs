@@ -122,7 +122,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
               yearMa = settings.SeriesYearPattern.Regex.Match(folderOrFileName);
               if (yearMa.Success)
               {
-                MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
+                int year = Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value);
+                if (year >= 1940 && year <= (DateTime.Now.Year + 1) && !folderOrFileName.EndsWith(year.ToString())) //It is a valid year and not the episode title
+                  MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(year, 1, 1));
               }
             }
             return true;

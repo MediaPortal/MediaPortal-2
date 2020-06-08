@@ -38,9 +38,5 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     {
       get { return "object.container.playlistContainer"; }
     }
-
-    public override void Initialise()
-    {
-    }
   }
 }

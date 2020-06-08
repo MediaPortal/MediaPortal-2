@@ -105,15 +105,15 @@
     <Label x:Name="MediaItemName" Wrap="True" Margin="0,0,0,0" FontSize="{ThemeResource SmallFontSize}"
            HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"/>
-    <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:SeriesAspectWrapper.Template>
+    <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:EpisodeAspectWrapper>
         <ControlTemplate>
           <Label x:Name="Episode" Margin="10,0,10,0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
                  TextTrimming="WordEllipsis" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Content="{Binding Series}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" />
+                 Content="{Binding Episode}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" />
         </ControlTemplate>
-      </media:SeriesAspectWrapper.Template>
-    </media:SeriesAspectWrapper>
+      </media:EpisodeAspectWrapper>
+    </media:EpisodeAspectWrapper>
   </Grid>
    
   <!-- Description for TV Recordings-->

@@ -542,6 +542,7 @@
     <Content Include="Skin\BlueVision\images\PlayerControls.Large.Dark\StopButton.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\Audio.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\AudioMute.png" />
+    <Content Include="Skin\BlueVision\images\PlayerControls.Large\Ejectdisc.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\ForwardButton.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\NextChapterButton.png" />
     <Content Include="Skin\BlueVision\images\PlayerControls.Large\PauseButton.png" />
@@ -917,15 +918,6 @@
     <Content Include="Skin\BlueVision\screens\MoviesShowItems.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\BlueVision\screens\NewsFeeds.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\NewsItemDetail.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\NewsItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\BlueVision\screens\SeriesFilterByName.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -939,12 +931,6 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\screens\weather.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\default\styles\NewsConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\default\styles\NewsStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -1002,12 +988,6 @@
     <Content Include="Skin\BlueVision\themes\Win10\screens\master_menu.xaml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\NewsFeeds.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\NewsItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\BlueVision\themes\Win10\styles\Brushes.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -1030,9 +1010,6 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Win10\styles\MediaStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\styles\NewsStyles.xaml">
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Win10\styles\OSD.xaml">
@@ -1067,10 +1044,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\Win10\screens\CurrentlyPlayingVideo.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\NewsItemDetail.xaml">
-      <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\BlueVision\themes\Win10\screens\SimpleShowItems.xaml">

@@ -30,6 +30,8 @@
   <string name="SlimTvClient.CreateSchedule">Aufnahme planen</string>
   <string name="SlimTvClient.CreateManualSchedule">Manuelle Aufnahmeplanung</string>
   <string name="SlimTvClient.DeleteRecording.Confirmation">Sind Sie sicher, dass Sie die laufende Aufnahme beenden und löschen wollen?  Das kann nicht rückgängig gemacht werden.</string>
+  <string name="SlimTvClient.DeleteAllRecordings.Text">Diese Aufnahmen löschen</string>
+  <string name="SlimTvClient.DeleteAllRecordings.Confirmation">Sind Sie sicher, dass Sie diese {0} Aufnahmen löschen wollen? Das kann nicht rückgängig gemacht werden.</string>
   <string name="SlimTvClient.ProgramSearch">Programme suchen</string>
   <string name="SlimTvClient.ProgramSearch.Help">Sucht nach Titeln im EPG und zeigt die gefundenen Sendungen tabellarisch an.</string>
   <!--Extended recording features-->

@@ -32,17 +32,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
 {
   public class BaseSubtitleDownloaderMatcher : SubtitleMatcher<string>
   {
-    private string _subtitleDownloaderProviderId = "";
-    private string _providerName = "";
+    public string SubtitleDownloaderProviderId { get; }
 
     #region Init
 
-    public BaseSubtitleDownloaderMatcher(string id, string subtitleDownloaderProvider, string providerName) : base(id)
+    public BaseSubtitleDownloaderMatcher(string name, string subtitleDownloaderProvider) : base(name)
     {
-      _subtitleDownloaderProviderId = subtitleDownloaderProvider;
-      _providerName = providerName;
+      SubtitleDownloaderProviderId = subtitleDownloaderProvider;
 
-      //Will be overridden if the user enables it in setttings
+      //Will be overridden if the user enables it in settings
       Enabled = subtitleDownloaderProvider == "OpenSubtitles" || subtitleDownloaderProvider == "MovieSubtitles" || subtitleDownloaderProvider == "Podnapisi" || subtitleDownloaderProvider == "Subscene" || subtitleDownloaderProvider == "TvSubtitles";
     }
 
@@ -51,15 +49,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
       try
       {
         var providerNames = SubtitleDownloader.SubtitleDownloaderSetup.GetSupportedProviderNames();
-        if (!providerNames.Contains(_subtitleDownloaderProviderId))
+        if (!providerNames.Contains(SubtitleDownloaderProviderId))
         {
           Enabled = false;
-          ServiceRegistration.Get<ILogger>().Error("SubtitleDownloaderMatcher ({0}): Unknown wrapper", _subtitleDownloaderProviderId);
+          ServiceRegistration.Get<ILogger>().Error("SubtitleDownloaderMatcher ({0}): Unknown wrapper", SubtitleDownloaderProviderId);
           return Task.FromResult(false);
         }
 
         SubtitleDownloaderWrapper wrapper = new SubtitleDownloaderWrapper();
-        if (wrapper.Init(_subtitleDownloaderProviderId, _providerName))
+        if (wrapper.Init(SubtitleDownloaderProviderId, Name))
         {
           _wrapper = wrapper;
           return Task.FromResult(true);
@@ -67,7 +65,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("SubtitleDownloaderMatcher ({0}): Error initializing wrapper", ex, _subtitleDownloaderProviderId);
+        ServiceRegistration.Get<ILogger>().Error("SubtitleDownloaderMatcher ({0}): Error initializing wrapper", ex, SubtitleDownloaderProviderId);
       }
       return Task.FromResult(false);
     }

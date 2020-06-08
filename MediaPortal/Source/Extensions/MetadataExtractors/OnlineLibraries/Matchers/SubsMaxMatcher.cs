@@ -32,11 +32,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
   public class SubsMaxMatcher : SubtitleMatcher<string>
   {
+    public const string NAME = "SubsMax.com";
+
     #region Init
 
-    public SubsMaxMatcher() : base(nameof(SubsMaxMatcher))
+    public SubsMaxMatcher() : base(NAME)
     {
-      //Will be overridden if the user enables it in setttings
+      //Will be overridden if the user enables it in settings
       Enabled = true;
     }
 
@@ -44,7 +46,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        SubsMaxWrapper wrapper = new SubsMaxWrapper();
+        SubsMaxWrapper wrapper = new SubsMaxWrapper(NAME);
         if (wrapper.Init())
         {
           _wrapper = wrapper;

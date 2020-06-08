@@ -65,12 +65,12 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         else // Show image
         if (action.Equals("playimage", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Image: ImageId: {0}, ImagePath: {1}, ", id, imagePath);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Image: ImageId: {0}, ImagePath: {1}, ", id, imagePath);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, imagePath, id, Helper.GetMediaItemByFileNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Image: Couldn't convert ImageId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Image: Couldn't convert ImageId '{0} to Guid", id);
             return false;
           }
 

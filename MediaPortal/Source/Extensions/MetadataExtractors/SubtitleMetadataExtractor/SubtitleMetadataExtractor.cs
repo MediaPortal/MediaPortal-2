@@ -49,7 +49,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
   /// <summary>
   /// MediaPortal 2 metadata extractor implementation for subtitle files. Supports several formats.
   /// </summary>
-  public class SubtitleMetadataExtractor : IMetadataExtractor
+  public class SubtitleMetadataExtractor : IMetadataExtractor, IDisposable
   {
     #region Constants
 
@@ -62,9 +62,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
     /// Subtitle metadata extractor GUID.
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
-
-    protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
-    protected const string MEDIA_CATEGORY_NAME_SERIES = "Series";
 
     #endregion
 
@@ -112,6 +109,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
 
       _settingWatcher = new SettingsChangeWatcher<SubtitleMetadataExtractorSettings>();
       _settingWatcher.SettingsChanged += SettingsChanged;
+    }
+
+    public void Dispose()
+    {
+      _settingWatcher.Dispose();
     }
 
     #endregion
@@ -528,7 +530,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
       get { return _metadata; }
     }
 
-    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -562,16 +564,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
                 var sys = ServiceRegistration.Get<ISystemResolver>();
                 subtitle.MediaFiles.Add(new ResourceLocator(sys.LocalSystemId, mediaItemAccessor.CanonicalLocalResourcePath));
 
-                IEnumerable<SubtitleInfo> matches = null;
+                List<SubtitleInfo> matches = new List<SubtitleInfo>();
                 if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
-                  matches = await OnlineMatcherService.Instance.FindMatchingMovieSubtitlesAsync(subtitle, ImportLanguageCultures.ToList()).ConfigureAwait(false);
-                if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-                  matches = await OnlineMatcherService.Instance.FindMatchingEpisodeSubtitlesAsync(subtitle, ImportLanguageCultures.ToList()).ConfigureAwait(false);
+                {
+                  foreach(var category in subtitle.Categories)
+                    matches.AddRange(await OnlineMatcherService.Instance.FindMatchingMovieSubtitlesAsync(subtitle, ImportLanguageCultures.ToList(), category).ConfigureAwait(false));
+                }
+                else if (extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+                {
+                  foreach (var category in subtitle.Categories)
+                    matches.AddRange(await OnlineMatcherService.Instance.FindMatchingEpisodeSubtitlesAsync(subtitle, ImportLanguageCultures.ToList(), category).ConfigureAwait(false));
+                }
 
-                if (matches != null)
+                if (matches.Count > 0)
                 {
                   //Order by language and ranking
-                  var subtitles = matches?.OrderBy(s => s.LanguageMatchRank).OrderByDescending(s => s.MatchPercentage);
+                  var subtitles = matches.OrderBy(s => s.LanguageMatchRank).OrderByDescending(s => s.MatchPercentage);
                   if (subtitles?.Count() > 0)
                   {
                     //Download for each language
@@ -618,9 +626,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
     {
       try
       {
-        if (!(searchCategories?.Contains(MEDIA_CATEGORY_NAME_MOVIE) ?? true) && !(searchCategories?.Contains(MEDIA_CATEGORY_NAME_SERIES) ?? true))
-          return null;
-
         if (!searchAspectData.ContainsKey(MovieAspect.ASPECT_ID) && !searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
           return null;
 
@@ -642,11 +647,31 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
 
         // Perform online search
         List<MediaItemSearchResult> searchResults = new List<MediaItemSearchResult>();
-        IEnumerable<SubtitleInfo> matches = new List<SubtitleInfo>();
+        List<SubtitleInfo> matches = new List<SubtitleInfo>();
         if (searchAspectData.ContainsKey(MovieAspect.ASPECT_ID))
-          matches = await OnlineMatcherService.Instance.FindMatchingMovieSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList()).ConfigureAwait(false);
-        if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
-          matches = await OnlineMatcherService.Instance.FindMatchingEpisodeSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList()).ConfigureAwait(false);
+        {
+          if (searchCategories?.Any() ?? false)
+          {
+            foreach (var category in searchCategories)
+              matches.AddRange(await OnlineMatcherService.Instance.FindMatchingMovieSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), category).ConfigureAwait(false));
+          }
+          else
+          {
+            matches.AddRange(await OnlineMatcherService.Instance.FindMatchingMovieSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), null).ConfigureAwait(false));
+          }
+        }
+        else if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        {
+          if (searchCategories?.Any() ?? false)
+          {
+            foreach (var category in searchCategories)
+              matches.AddRange(await OnlineMatcherService.Instance.FindMatchingEpisodeSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), category).ConfigureAwait(false));
+          }
+          else
+          {
+            matches.AddRange(await OnlineMatcherService.Instance.FindMatchingEpisodeSubtitlesAsync(subtitleSearchinfo, subtitleSearchinfo.Language?.Split(',').ToList(), null).ConfigureAwait(false));
+          }
+        }
         ServiceRegistration.Get<ILogger>().Debug("SubtitleMetadataExtractor: Subtitle search returned {0} matches", matches.Count());
         foreach (var match in matches.OrderBy(m => m.LanguageMatchRank ?? int.MaxValue).ThenByDescending(m => m.MatchPercentage ?? 0))
         {
@@ -665,6 +690,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
             result.ExternalIds.Add("themoviedb.org", match.MovieDbId.ToString());
           if (match.TvdbId > 0)
             result.ExternalIds.Add("thetvdb.com", match.TvdbId.ToString());
+          foreach (var customId in match.CustomIds)
+            result.ExternalIds.Add(customId.Key, customId.Value);
 
           //Assign aspects and remove unwanted aspects
           match.SetMetadata(result.AspectData, true);

@@ -58,7 +58,7 @@ namespace MediaPortal.Plugins.WifiRemote
     {
       bool isPlaying = false;
       if (ServiceRegistration.Get<IPlayerManager>().NumActiveSlots > 0)
-        isPlaying = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentPlayer != null;
+        isPlaying = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext?.CurrentPlayer != null;
         //isPlaying = ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext.PlaybackState == PlaybackState.Playing;
       return isPlaying;
     }
@@ -526,7 +526,7 @@ namespace MediaPortal.Plugins.WifiRemote
 
       if (items.Count == 0)
       {
-        ServiceRegistration.Get<ILogger>().Info("PlayFile: No media item found");
+        ServiceRegistration.Get<ILogger>().Info("WifiRemote: PlayFile: No media item found");
         return;
       }
 

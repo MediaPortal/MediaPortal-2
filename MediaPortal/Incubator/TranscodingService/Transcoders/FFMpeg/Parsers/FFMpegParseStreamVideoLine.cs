@@ -35,9 +35,9 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
 {
   public class FFMpegParseStreamVideoLine
   {
-    internal static void ParseStreamVideoLine(string streamVideoLine, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
+    internal static void ParseStreamVideoLine(IResourceAccessor file, string streamVideoLine, ref MetadataContainer info, Dictionary<string, CultureInfo> countryCodesMapping)
     {
-      if (info.Video.Codec != VideoCodec.Unknown) return;
+      if (info.Video[Editions.DEFAULT_EDITION].Codec != VideoCodec.Unknown) return;
 
       streamVideoLine = streamVideoLine.Trim();
       string beforeVideo = streamVideoLine.Substring(0, streamVideoLine.IndexOf("Video:", StringComparison.InvariantCultureIgnoreCase));
@@ -52,13 +52,13 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           Match match = Regex.Match(token, @"#[\d][\.:](?<stream>[\d]{1,2}).*\((?<lang>(\w+))\)[\.:]", RegexOptions.IgnoreCase);
           if (match.Success)
           {
-            info.Video.StreamIndex = Convert.ToInt32(match.Groups["stream"].Value.Trim());
+            info.Video[Editions.DEFAULT_EDITION].StreamIndex = Convert.ToInt32(match.Groups["stream"].Value.Trim());
             if (match.Groups.Count == 4)
             {
               string lang = match.Groups["lang"].Value.Trim().ToUpperInvariant();
               if (countryCodesMapping.ContainsKey(lang))
               {
-                info.Video.Language = countryCodesMapping[lang].TwoLetterISOLanguageName.ToUpperInvariant();
+                info.Video[Editions.DEFAULT_EDITION].Language = countryCodesMapping[lang].TwoLetterISOLanguageName.ToUpperInvariant();
               }
             }
           }
@@ -67,7 +67,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
             match = Regex.Match(token, @"#[\d][\.:](?<stream>[\d]{1,2}).*[\.:]", RegexOptions.IgnoreCase);
             if (match.Success)
             {
-              info.Video.StreamIndex = Convert.ToInt32(match.Groups["stream"].Value.Trim());
+              info.Video[Editions.DEFAULT_EDITION].StreamIndex = Convert.ToInt32(match.Groups["stream"].Value.Trim());
             }
           }
         }
@@ -82,7 +82,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           string codecValue = parts[0];
           if ((codecValue != null) && (codecValue.StartsWith("drm", StringComparison.InvariantCultureIgnoreCase)))
           {
-            throw new Exception(info.Metadata.Source + " is DRM protected");
+            throw new Exception($"MediaAnalyzer: {file} is DRM protected");
           }
           string codecDetails = null;
           if (parts.Length > 1)
@@ -94,19 +94,14 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
               codecDetails = details.Substring(iIndex + 1, details.IndexOf(")") - iIndex - 1);
             }
           }
-          info.Video.Codec = FFMpegParseVideoCodec.ParseVideoCodec(codecValue);
-          if (info.IsImage)
+          info.Video[Editions.DEFAULT_EDITION].Codec = FFMpegParseVideoCodec.ParseVideoCodec(codecValue);
+          if (info.IsImage(Editions.DEFAULT_EDITION))
           {
-            ILocalFsResourceAccessor lfra = null;
-            if (info.Metadata.Source is ILocalFsResourceAccessor)
-            {
-              lfra = (ILocalFsResourceAccessor)info.Metadata.Source;
-            }
-            info.Metadata.ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(codecValue, lfra);
+            info.Metadata[Editions.DEFAULT_EDITION].ImageContainerType = FFMpegParseImageContainer.ParseImageContainer(codecValue, file as ILocalFsResourceAccessor);
           }
-          if (info.Video.Codec == VideoCodec.H264 || info.Video.Codec == VideoCodec.H265)
+          if (info.Video[Editions.DEFAULT_EDITION].Codec == VideoCodec.H264 || info.Video[Editions.DEFAULT_EDITION].Codec == VideoCodec.H265)
           {
-            info.Video.ProfileType = FFMpegParseProfile.ParseProfile(codecDetails);
+            info.Video[Editions.DEFAULT_EDITION].ProfileType = FFMpegParseProfile.ParseProfile(codecDetails);
           }
 
           string fourCC = token.Trim();
@@ -118,7 +113,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
               fourCC = (fourCCBlock.Split('/')[0].Trim()).ToLowerInvariant();
               if (fourCC.IndexOf("[") == -1)
               {
-                info.Video.FourCC = fourCC;
+                info.Video[Editions.DEFAULT_EDITION].FourCC = fourCC;
               }
             }
           }
@@ -127,10 +122,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
         else if (nextTokenIsPixelFormat)
         {
           nextTokenIsPixelFormat = false;
-          if (info.IsImage)
-            info.Image.PixelFormatType = FFMpegParsePixelFormat.ParsePixelFormat(token.Trim());
+          if (info.IsImage(Editions.DEFAULT_EDITION))
+            info.Image[Editions.DEFAULT_EDITION].PixelFormatType = FFMpegParsePixelFormat.ParsePixelFormat(token.Trim());
           else
-            info.Video.PixelFormatType = FFMpegParsePixelFormat.ParsePixelFormat(token.Trim());
+            info.Video[Editions.DEFAULT_EDITION].PixelFormatType = FFMpegParsePixelFormat.ParsePixelFormat(token.Trim());
         }
         else if (token.IndexOf("x", StringComparison.InvariantCultureIgnoreCase) > -1 && token.Contains("max") == false)
         {
@@ -138,7 +133,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           int aspectStart = resolution.IndexOf(" [");
           if (aspectStart > -1)
           {
-            info.Video.PixelAspectRatio = 1.0F;
+            info.Video[Editions.DEFAULT_EDITION].PixelAspectRatio = 1.0F;
             string aspectDef = resolution.Substring(aspectStart + 2, resolution.IndexOf("]") - aspectStart - 2);
             int sarIndex = aspectDef.IndexOf("SAR"); //Sample AR
             if (sarIndex < 0)
@@ -154,7 +149,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
               {
                 try
                 {
-                  info.Video.PixelAspectRatio = Convert.ToSingle(sarRatio[0], CultureInfo.InvariantCulture) / Convert.ToSingle(sarRatio[1], CultureInfo.InvariantCulture);
+                  info.Video[Editions.DEFAULT_EDITION].PixelAspectRatio = Convert.ToSingle(sarRatio[0], CultureInfo.InvariantCulture) / Convert.ToSingle(sarRatio[1], CultureInfo.InvariantCulture);
                 }
                 catch
                 { }
@@ -168,29 +163,29 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           {
             try
             {
-              if (info.IsImage)
+              if (info.IsImage(Editions.DEFAULT_EDITION))
               {
-                info.Image.Width = Convert.ToInt32(res[0], CultureInfo.InvariantCulture);
-                info.Image.Height = Convert.ToInt32(res[1], CultureInfo.InvariantCulture);
+                info.Image[Editions.DEFAULT_EDITION].Width = Convert.ToInt32(res[0], CultureInfo.InvariantCulture);
+                info.Image[Editions.DEFAULT_EDITION].Height = Convert.ToInt32(res[1], CultureInfo.InvariantCulture);
               }
               else
               {
-                info.Video.Width = Convert.ToInt32(res[0], CultureInfo.InvariantCulture);
-                info.Video.Height = Convert.ToInt32(res[1], CultureInfo.InvariantCulture);
+                info.Video[Editions.DEFAULT_EDITION].Width = Convert.ToInt32(res[0], CultureInfo.InvariantCulture);
+                info.Video[Editions.DEFAULT_EDITION].Height = Convert.ToInt32(res[1], CultureInfo.InvariantCulture);
               }
             }
             catch
             { }
 
-            if (info.Video.Height > 0)
+            if (info.Video[Editions.DEFAULT_EDITION].Height > 0)
             {
-              info.Video.AspectRatio = (float)info.Video.Width / (float)info.Video.Height;
+              info.Video[Editions.DEFAULT_EDITION].AspectRatio = (float)info.Video[Editions.DEFAULT_EDITION].Width / (float)info.Video[Editions.DEFAULT_EDITION].Height;
             }
           }
         }
         else if (token.IndexOf("SAR", StringComparison.InvariantCultureIgnoreCase) > -1 || token.IndexOf("PAR", StringComparison.InvariantCultureIgnoreCase) > -1)
         {
-          info.Video.PixelAspectRatio = 1.0F;
+          info.Video[Editions.DEFAULT_EDITION].PixelAspectRatio = 1.0F;
           string aspectDef = token.Trim();
           int sarIndex = aspectDef.IndexOf("SAR", StringComparison.InvariantCultureIgnoreCase); //Sample AR
           if (sarIndex < 0)
@@ -206,7 +201,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
             {
               try
               {
-                info.Video.PixelAspectRatio = Convert.ToSingle(sarRatio[0], CultureInfo.InvariantCulture) / Convert.ToSingle(sarRatio[1], CultureInfo.InvariantCulture);
+                info.Video[Editions.DEFAULT_EDITION].PixelAspectRatio = Convert.ToSingle(sarRatio[0], CultureInfo.InvariantCulture) / Convert.ToSingle(sarRatio[1], CultureInfo.InvariantCulture);
               }
               catch
               { }
@@ -219,7 +214,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           //if (parts.Length == 3 && parts[1].All(Char.IsDigit))
           //  info.Video.Bitrate = long.Parse(parts[1].Trim(), CultureInfo.InvariantCulture);
           if (parts.Length == 2 && parts[0].All(Char.IsDigit))
-            info.Video.Bitrate = long.Parse(parts[0].Trim(), CultureInfo.InvariantCulture);
+            info.Video[Editions.DEFAULT_EDITION].Bitrate = long.Parse(parts[0].Trim(), CultureInfo.InvariantCulture);
         }
         else if (token.IndexOf("mb/s", StringComparison.InvariantCultureIgnoreCase) > -1)
         {
@@ -227,11 +222,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           //if (parts.Length == 3 && parts[1].All(Char.IsDigit))
           //  info.Video.Bitrate = long.Parse(parts[1].Trim(), CultureInfo.InvariantCulture) * 1024;
           if (parts.Length == 2 && parts[0].All(Char.IsDigit))
-            info.Video.Bitrate = long.Parse(parts[0].Trim(), CultureInfo.InvariantCulture) * 1024;
+            info.Video[Editions.DEFAULT_EDITION].Bitrate = long.Parse(parts[0].Trim(), CultureInfo.InvariantCulture) * 1024;
         }
         else if (token.IndexOf("tbr", StringComparison.InvariantCultureIgnoreCase) > -1 || token.IndexOf("fps", StringComparison.InvariantCultureIgnoreCase) > -1)
         {
-          if (info.Video.Framerate == 0)
+          if (info.Video[Editions.DEFAULT_EDITION].Framerate == 0)
           {
             string fpsValue = "23.976";
             if (token.IndexOf("tbr", StringComparison.InvariantCultureIgnoreCase) > -1)
@@ -267,7 +262,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
               else if (fr >= 59.990000000000002D && fr < 60.100000000000001D)
                 validFrameRate = 60;
             }
-            info.Video.Framerate = validFrameRate;
+            info.Video[Editions.DEFAULT_EDITION].Framerate = validFrameRate;
           }
         }
       }

@@ -22,7 +22,7 @@
   </Grid.ColumnDefinitions>
 
   <tv:RecordingAspectWrapper Grid.Row="1" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                             HorizontalAlignment="Right" VerticalAlignment="Bottom">
+                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,30">
     <tv:RecordingAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -54,16 +54,16 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Label x:Name="MediaItemName" Wrap="True" HorizontalAlignment="Stretch" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}"
-             FontFamily="SegoeUIBold" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"/>
-      <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-        <media:SeriesAspectWrapper.Template>
+             FontFamily="SegoeUIBold" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}" Margin="0,0,-460,0"/>
+      <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+        <media:EpisodeAspectWrapper.Template>
           <ControlTemplate>
-            <Label x:Name="Episode" Margin="10,0,10,0" Grid.Column="1"
+            <Label x:Name="Episode" Margin="10,0,10,0" Grid.Column="1" Opacity="0.5"
                    TextTrimming="WordEllipsis" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                   Content="{Binding Series}" Color="{ThemeResource TextColor}" />
+                   Content="{Binding Episode}" Color="{ThemeResource TextColor}" />
           </ControlTemplate>
-        </media:SeriesAspectWrapper.Template>
-      </media:SeriesAspectWrapper>
+        </media:EpisodeAspectWrapper.Template>
+      </media:EpisodeAspectWrapper>
     </Grid>
 
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >

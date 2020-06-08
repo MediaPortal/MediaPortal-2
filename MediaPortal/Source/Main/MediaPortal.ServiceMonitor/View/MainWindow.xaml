@@ -3,8 +3,8 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" 
         xmlns:Converters="clr-namespace:MediaPortal.ServiceMonitor.Converters"
         xmlns:e="clr-namespace:MediaPortal.ServiceMonitor.Extensions"
-        MinWidth="300" MinHeight="200"
-        Width="400" Height="300"
+        MinWidth="600" MinHeight="300"
+        Width="600" Height="300"
         Title="MP2-ServiceMonitor" 
         Closed="OnClosed"
         Background="{DynamicResource WindowBackgroundBrush}" 
@@ -13,7 +13,7 @@
   <Window.Resources>
     <Converters:ConnectionStatusToImageConverter x:Key="ConStatusToImageConverter"/>
   </Window.Resources>
-      
+
   <Grid x:Name="layoutRoot">
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto" />
@@ -22,33 +22,33 @@
       <RowDefinition Height="Auto" />
       <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
-      <TextBlock Grid.Row="0" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" 
+    <TextBlock Grid.Row="0" Margin="10,10,10,0" TextWrapping="Wrap" VerticalAlignment="Top" 
                  Style="{DynamicResource TitleLabel}" Text="{e:Loc [MainWindow.ServerStatus]}" />
 
-      <TextBlock Grid.Row="1" Margin="20,5,20,0" TextWrapping="Wrap" VerticalAlignment="Top"  
+    <TextBlock Grid.Row="1" Margin="20,5,20,0" TextWrapping="Wrap" VerticalAlignment="Top"  
                  Style="{DynamicResource DefaultLabel}" Text="{Binding Path=ServerStatus, Converter={StaticResource SrvStatToStringConverter}}" />
-       
-      <TextBlock Grid.Row="2" Margin="10,20,10,0" TextWrapping="Wrap" VerticalAlignment="Top" 
+
+    <TextBlock Grid.Row="2" Margin="10,20,10,0" TextWrapping="Wrap" VerticalAlignment="Top" 
                  Style="{DynamicResource TitleLabel}" Text="{e:Loc [MainWindow.AttachedClients]}" />
 
-        <ListView Grid.Row="3"  Margin="20,0,20,0" Background="Transparent" ItemsSource="{Binding Path=Clients}" HorizontalAlignment="Stretch">
-            <ListView.View>
-                <GridView>
-                    <GridViewColumn Header=" " >
-                        <GridViewColumn.CellTemplate>
-                            <DataTemplate>
-                                <Image Width="16" Height="16" Source="{Binding Path=IsConnected, Converter={StaticResource ConStatusToImageConverter}}" 
+    <ListView Grid.Row="3"  Margin="20,0,20,0" Background="Transparent" ItemsSource="{Binding Path=Clients}" HorizontalAlignment="Stretch">
+      <ListView.View>
+        <GridView>
+          <GridViewColumn Header=" " Width="32">
+            <GridViewColumn.CellTemplate>
+              <DataTemplate>
+                <Image Width="16" Height="16" Source="{Binding Path=IsConnected, Converter={StaticResource ConStatusToImageConverter}}" 
                                        Margin="2,5,5,2" VerticalAlignment="Center" HorizontalAlignment="Center" />
-                            </DataTemplate>
-                        </GridViewColumn.CellTemplate>
-                    </GridViewColumn>
-                    <GridViewColumn Header="Client" DisplayMemberBinding="{Binding Path=Name}" Width="180" />
-                    <GridViewColumn Header="System" DisplayMemberBinding="{Binding Path=System}" />
-                </GridView>
-            </ListView.View>
+              </DataTemplate>
+            </GridViewColumn.CellTemplate>
+          </GridViewColumn>
+          <GridViewColumn Header="Client" DisplayMemberBinding="{Binding Path=Name}" Width="240" />
+          <GridViewColumn Header="System" DisplayMemberBinding="{Binding Path=System}" Width="240" />
+        </GridView>
+      </ListView.View>
 
-        </ListView>
+    </ListView>
 
-    </Grid>
-  
+  </Grid>
+
 </Window>

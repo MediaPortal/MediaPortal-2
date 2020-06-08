@@ -76,7 +76,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           var mediaItemGuid = await GetIdFromNameAsync(client, seriesName, id, Helper.GetSeriesBySeriesNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote List Seasons: Couldn't convert SeriesId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: List Seasons: Couldn't convert SeriesId '{0} to Guid", id);
             return false;
           }
 
@@ -89,7 +89,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
           var mediaItemGuid = await GetIdFromNameAsync(client, seriesName, id, Helper.GetSeriesBySeriesNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote List Episodes: Couldn't convert SeriesId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: List Episodes: Couldn't convert SeriesId '{0} to Guid", id);
             return false;
           }
 
@@ -104,19 +104,19 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         // Play a episode
         else if (action.Equals("playepisode", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Episode: SeriesName: {0}, SeriesId: {1}, SeasonNumber: {2}, EpisodeNumber: {3}, StartPos: {4}", seriesName, id, seasonNum, episodeNum, startPos);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Episode: SeriesName: {0}, SeriesId: {1}, SeasonNumber: {2}, EpisodeNumber: {3}, StartPos: {4}", seriesName, id, seasonNum, episodeNum, startPos);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, seriesName, id, Helper.GetSeriesBySeriesNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Episode: Couldn't convert SeriesId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Episode: Couldn't convert SeriesId '{0} to Guid", id);
             return false;
           }
 
           var episode = await Helper.GetEpisodeBySeriesEpisodeAsync(client.UserId, mediaItemGuid.Value, seasonNum, episodeNum);
           if (episode == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Episode: Couldn't find episode");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Episode: Couldn't find episode");
             return false;
           }
 
@@ -124,19 +124,19 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         }
         else if (action.Equals("playunwatchedepisode", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Episode: SeriesName: {0}, SeriesId: {1}", seriesName, id);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Episode: SeriesName: {0}, SeriesId: {1}", seriesName, id);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, seriesName, id, Helper.GetSeriesBySeriesNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Episode: Couldn't convert SeriesId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Episode: Couldn't convert SeriesId '{0} to Guid", id);
             return false;
           }
 
           var episodes = await Helper.GetEpisodesBySeriesIdAsync(client.UserId, mediaItemGuid.Value);
           if (!(episodes?.Count > 0))
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Episode: Couldn't find episodes");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Episode: Couldn't find episodes");
             return false;
           }
 
@@ -145,7 +145,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
             episode = episodes.LastOrDefault(e => Convert.ToInt32(e.UserData.FirstOrDefault(d => d.Key == UserDataKeysKnown.KEY_PLAY_PERCENTAGE).Value ?? "0") == 100);
           if (episode == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Episode: Couldn't find episodes");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Episode: Couldn't find episodes");
             return false;
           }
 
@@ -153,19 +153,19 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         }
         else if (action.Equals("playrandomepisode", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Episode: SeriesName: {0}, SeriesId: {1}", seriesName, id);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Episode: SeriesName: {0}, SeriesId: {1}", seriesName, id);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, seriesName, id, Helper.GetSeriesBySeriesNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Episode: Couldn't convert SeriesId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Episode: Couldn't convert SeriesId '{0} to Guid", id);
             return false;
           }
 
           var episodes = await Helper.GetEpisodesBySeriesIdAsync(client.UserId, mediaItemGuid.Value);
           if (!(episodes?.Count > 0))
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Episode: Couldn't find episodes");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Episode: Couldn't find episodes");
             return false;
           }
 
@@ -175,12 +175,12 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         }
         else if (action.Equals("playseason", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Season: SeriesName: {0}, SeriesId: {1}, SeasonNumber: {2}, OnlyUnwatchedEpisodes: {3}", seriesName, id, seasonNum, onlyUnwatched);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Season: SeriesName: {0}, SeriesId: {1}, SeasonNumber: {2}, OnlyUnwatchedEpisodes: {3}", seriesName, id, seasonNum, onlyUnwatched);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, seriesName, id, Helper.GetSeriesBySeriesNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Season: Couldn't convert SeriesId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Season: Couldn't convert SeriesId '{0} to Guid", id);
             return false;
           }
 
@@ -193,7 +193,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
           if (!(episodes?.Count() > 0))
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Season: Couldn't find any episodes");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Season: Couldn't find any episodes");
             return false;
           }
 
@@ -201,12 +201,12 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         }
         else if (action.Equals("playseries", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Series: SeriesName: {0}, SeriesId: {1}, OnlyUnwatchedEpisodes: {2}", seriesName, id, onlyUnwatched);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Series: SeriesName: {0}, SeriesId: {1}, OnlyUnwatchedEpisodes: {2}", seriesName, id, onlyUnwatched);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, seriesName, id, Helper.GetSeriesBySeriesNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Series: Couldn't convert SeriesId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Series: Couldn't convert SeriesId '{0} to Guid", id);
             return false;
           }
 
@@ -219,7 +219,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
 
           if (!(episodes?.Count() > 0))
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Series: Couldn't find any episodes");
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Series: Couldn't find any episodes");
             return false;
           }
 

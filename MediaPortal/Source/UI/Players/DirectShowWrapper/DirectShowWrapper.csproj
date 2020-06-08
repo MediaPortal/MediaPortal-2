@@ -67,6 +67,7 @@
     <Compile Include="DirectShowLib.cs" />
     <Compile Include="DSHelper.cs" />
     <Compile Include="DVDIf.cs" />
+    <Compile Include="PointerExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

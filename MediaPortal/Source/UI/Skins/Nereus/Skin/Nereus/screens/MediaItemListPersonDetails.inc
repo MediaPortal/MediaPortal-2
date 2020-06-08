@@ -34,7 +34,7 @@
                                     Source="Square_large.png"/>
               </Image.Source>
             </Image>
-            <Image x:Name="Person" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="440" Height="440">
+            <Image x:Name="Person" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="UniformToFill" Margin="8" Width="440" Height="440">
               <Image.Source>
                 <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                                     Source="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"/>

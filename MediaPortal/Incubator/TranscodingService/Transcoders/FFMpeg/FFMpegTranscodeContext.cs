@@ -125,8 +125,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
     internal void DeleteFiles()
     {
-      if (TranscodedStream != null)
-        TranscodedStream.Dispose();
+      Stream?.Dispose();
 
       string deletePath = TargetFile;
       bool isFolder = false;

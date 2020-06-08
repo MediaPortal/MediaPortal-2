@@ -157,7 +157,7 @@ namespace Tests.Server.FanArt.MockFanArtAccess
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
-      throw new NotImplementedException();
+      return new List<IFileSystemResourceAccessor>();
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()

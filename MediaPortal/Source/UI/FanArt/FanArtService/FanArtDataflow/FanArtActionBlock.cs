@@ -119,6 +119,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
     /// <returns>Task that completes when the actions have been processed.</returns>
     private async Task<FanArtManagerAction[]> InnerBlockMethod(FanArtManagerAction[] actions)
     {
+      //Set fanart action as in progress so we can add it again if it is changed during the execution
+      foreach (var action in actions)
+      {
+        action.InProgress = true;
+      }
       //Persist any newly pending actions
       _persistBlock.Post(null);
       await LoadAspects(actions);
@@ -249,9 +254,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
 
     protected bool AddPendingAction(Guid actionId, ActionType actionType, Guid mediaItemId)
     {
-      //We use the dictionary enumeration to avoid locking the concurrent dictionary. The probabality of the same media item action being 
-      //posted while the check is done is minimal.
-      if (_pendingFanArtDownloads.Any(pfd => pfd.Value.MediaItemId == mediaItemId && pfd.Value.Type == actionType))
+      //Check if it is already in the queue and isn't currently being processed. Ignore it if it is so we avoid loading aspects
+      //multiple times for the same media item for collection actions
+      if (_pendingFanArtDownloads.Values.Any(pfd => pfd.MediaItemId == mediaItemId && pfd.Type == actionType && !pfd.InProgress))
         return false;
 
       return _pendingFanArtDownloads.TryAdd(actionId, new FanArtManagerAction(actionType, mediaItemId) { ActionId = actionId });

@@ -75,6 +75,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
     {
       result = null;
       Guid mediaItemId;
+
+      if (mediaType != FanArtMediaTypes.Album && mediaType != FanArtMediaTypes.Audio)
+        return false;
+
       if (!Guid.TryParse(name, out mediaItemId))
         return false;
 
@@ -82,8 +86,18 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaLibrary == null)
         return false;
 
-      IFilter filter = new MediaItemIdFilter(mediaItemId);
-      IList<MediaItem> items = mediaLibrary.Search(new MediaItemQuery(NECESSARY_MIAS, filter), false, null, true);
+      IFilter filter = null;
+      if (mediaType == FanArtMediaTypes.Album)
+      {
+        filter = new RelationshipFilter(AudioAspect.ROLE_TRACK, AudioAlbumAspect.ROLE_ALBUM, mediaItemId);
+      }
+      else if (mediaType == FanArtMediaTypes.Audio)
+      {
+        filter = new MediaItemIdFilter(mediaItemId);
+      }
+      MediaItemQuery mediaQuery = new MediaItemQuery(NECESSARY_MIAS, filter);
+      mediaQuery.Limit = 1;
+      IList<MediaItem> items = mediaLibrary.Search(mediaQuery, false, null, true);
       if (items == null || items.Count == 0)
         return false;
 
@@ -96,6 +110,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       IList<PictureType> patterns = new List<PictureType>();
       switch (fanArtType)
       {
+        case FanArtTypes.Undefined:
+        case FanArtTypes.Poster:
         case FanArtTypes.Cover:
         case FanArtTypes.Thumbnail:
           patterns.Add(PictureType.FrontCover);
@@ -144,7 +160,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("AudioTagProvider: Exception while reading mp4 tag of type '{0}' from '{1}'", ex, fanArtType, fileSystemPath);
+        ServiceRegistration.Get<ILogger>().Warn("AudioTagProvider: Exception while reading tag of type '{0}' from '{1}'", ex, fanArtType, fileSystemPath);
       }
       return false;
     }

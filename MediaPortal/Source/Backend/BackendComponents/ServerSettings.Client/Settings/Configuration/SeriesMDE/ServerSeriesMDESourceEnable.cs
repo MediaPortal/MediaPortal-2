@@ -29,6 +29,7 @@ using MediaPortal.Extensions.OnlineLibraries;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Settings;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -50,38 +51,12 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       _items.Clear();
       IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>();
       OnlineLibrarySettings settings = serverSettings.Load<OnlineLibrarySettings>();
-      foreach(MatcherSetting setting in settings.SeriesMatchers)
+      foreach(MatcherSetting setting in settings.SeriesMatchers.OrderBy(m => m.Name))
       {
-        if (setting.Id.Equals("SeriesOmDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("OMDBAPI.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("SeriesFanArtTvMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("Fanart.tv"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("SeriesTheMovieDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("TheMovieDB.org"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("SeriesTvDbMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("TheTVDB.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
-        else if (setting.Id.Equals("SeriesTvMazeMatcher", StringComparison.InvariantCultureIgnoreCase))
-        {
-          _items.Add(LocalizationHelper.CreateStaticString("TVmaze.com"));
-          if (setting.Enabled)
-            _selected.Add(_items.Count - 1);
-        }
+        _items.Add(LocalizationHelper.CreateStaticString(setting.Name));
+        if (setting.Enabled)
+          _selected.Add(_items.Count - 1);
+
         _dictionary[setting.Id] = _items.Count - 1;
       }
     }

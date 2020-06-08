@@ -41,4 +41,8 @@ namespace MediaPortal.Plugins.AppLauncher.Settings.Configuration
   internal class RemoveGroup : CustomConfigSetting
   {
   }
+
+  internal class Menu : CustomConfigSetting
+  {
+  }
 }

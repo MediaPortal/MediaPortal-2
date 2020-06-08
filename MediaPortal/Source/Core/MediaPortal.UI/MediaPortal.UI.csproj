@@ -69,6 +69,8 @@
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="ContentLists\ContentListProviderBuilder.cs" />
+    <Compile Include="ContentLists\IContentListProvider.cs" />
     <Compile Include="Control\InputManager\IClipboardManager.cs" />
     <Compile Include="Control\InputManager\Touch.cs" />
     <Compile Include="PluginItemBuilders\AdditionalPluginItemBuilders.cs" />
@@ -77,6 +79,8 @@
     <Compile Include="FrontendServer\IFrontendServer.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
+    <Compile Include="Presentation\Models\BaseContentListModel.cs" />
+    <Compile Include="Presentation\Models\IContentListModel.cs" />
     <Compile Include="Presentation\Players\IResumablePlayer.cs" />
     <Compile Include="Presentation\Players\ITitlePlayer.cs" />
     <Compile Include="Presentation\Players\IAudioPlayerAnalyze.cs" />

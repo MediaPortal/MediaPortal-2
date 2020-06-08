@@ -75,7 +75,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
           MediaConverter.GetSegmentSequence(hls) > 0)
         {
           long segmentRequest = MediaConverter.GetSegmentSequence(hls);
-          if (streamItem.RequestSegment(segmentRequest) == false)
+          if (await streamItem.RequestSegmentAsync(segmentRequest) == false)
           {
             Logger.Error("RetrieveStream: Request for segment file {0} canceled", hls);
 
@@ -140,12 +140,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
       #region Process range request
 
-      if (streamItem.TranscoderObject.IsTranscoding == false ||
-        (streamItem.StreamContext.Partial == false &&
-        streamItem.StreamContext.TargetFileSize > 0 &&
-        streamItem.StreamContext.TargetFileSize > streamItem.TranscoderObject.WebMetadata.Metadata.Size))
+      if (streamItem.StreamContext is TranscodeContext tc && (streamItem.TranscoderObject.IsTranscoding == false ||
+        (tc.Partial == false && tc.TargetFileSize > 0 && tc.TargetFileSize > streamItem.TranscoderObject.Metadata.Size)))
       {
-        streamItem.TranscoderObject.WebMetadata.Metadata.Size = streamItem.StreamContext.TargetFileSize;
+        streamItem.TranscoderObject.Metadata.Size = tc.TargetFileSize;
       }
 
       IList<Range> ranges = null;
@@ -193,21 +191,19 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
       #region Handle ready file request
 
-      if (resourceStream == null && streamItem.TranscoderObject.IsTranscoded == false)
-      {
-        if (streamItem.TranscoderObject.WebMetadata.Metadata.Source is ILocalFsResourceAccessor)
-        {
-          resourceStream = await MediaConverter.GetFileStreamAsync((ILocalFsResourceAccessor)streamItem.TranscoderObject.WebMetadata.Metadata.Source);
-        }
-      }
-
       if (resourceStream == null && (streamItem.StartPosition == timeRange.From || file != null))
       {
         //The initial request
         if (streamItem.StreamContext != null)
         {
-          resourceStream = streamItem.StreamContext.TranscodedStream;
+          resourceStream = streamItem.StreamContext.Stream;
         }
+      }
+
+      if (resourceStream == null && streamItem.TranscoderObject.IsTranscoded == false)
+      {
+        var streamContext = await StreamControl.StartOriginalFileStreamingAsync(identifier);
+        resourceStream = streamContext?.Stream;
       }
 
       #endregion
@@ -218,10 +214,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       if (resourceStream == null)
       {
         Logger.Debug("RetrieveStream: Attempting to start streaming for mediaitem {0} in mode {1}", streamItem.RequestedMediaItem.MediaItemId, requestedStreamingMode.ToString());
-        await StreamControl.StopStreamingAsync(identifier);
-        await StreamControl.StartStreamingAsync(identifier, timeRange.From);
-        partialResource = streamItem.StreamContext.Partial;
-        resourceStream = streamItem.StreamContext.TranscodedStream;
+        var transcode = await StreamControl.StartStreamingAsync(identifier, timeRange.From);
+        partialResource = transcode?.Partial ?? false;
+        resourceStream = transcode?.Stream;
 
         if (hls != null)
         {
@@ -292,12 +287,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 
     private static async Task<bool> SendSegmentAsync(string fileName, IOwinContext context, StreamItem streamItem)
     {
-      if (fileName != null)
+      if (!string.IsNullOrEmpty(fileName) && streamItem.StreamContext is TranscodeContext tc)
       {
         await streamItem.BusyLock.WaitAsync(SendDataCancellation.Token);
         try
         {
-          var segment = await MediaConverter.GetSegmentFileAsync((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter, streamItem.StreamContext, fileName);
+          var segment = await MediaConverter.GetSegmentFileAsync((VideoTranscoding)streamItem.TranscoderObject.TranscodingParameter, tc, fileName);
           if (segment != null)
           {
             if (segment.Value.ContainerEnum is VideoContainer)

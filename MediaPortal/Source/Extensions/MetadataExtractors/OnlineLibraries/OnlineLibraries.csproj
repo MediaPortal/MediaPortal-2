@@ -171,7 +171,6 @@
     <Compile Include="OnlineMatcherService.cs" />
     <Compile Include="Settings\MatcherSetting.cs" />
     <Compile Include="Settings\OnlineLibrarySettings.cs" />
-    <Compile Include="OnlineProviderBuilder.cs" />
     <Compile Include="Wrappers\ApiSubtitleWrapper.cs" />
     <Compile Include="Wrappers\ApiMediaWrapper.cs" />
     <Compile Include="Wrappers\SubsMaxWrapper.cs" />

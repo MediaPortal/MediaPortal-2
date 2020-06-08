@@ -30,7 +30,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
 {
   public class FFMpegParseVideoContainer
   {
-    internal static VideoContainer ParseVideoContainer(string token, ILocalFsResourceAccessor lfsra)
+    internal static VideoContainer ParseVideoContainer(string token, IResourceAccessor ra)
     {
       if (token != null)
       {
@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           return VideoContainer.Matroska;
         if (token.Equals("mov", StringComparison.InvariantCultureIgnoreCase) || token.Equals("mp4", StringComparison.InvariantCultureIgnoreCase))
         {
-          if (lfsra.LocalFileSystemPath != null && lfsra.LocalFileSystemPath.EndsWith(".3g", StringComparison.InvariantCultureIgnoreCase))
+          if (ra?.ResourceName != null && ra.ResourceName.EndsWith(".3g", StringComparison.InvariantCultureIgnoreCase))
           {
             return VideoContainer.Gp3;
           }
@@ -80,28 +80,29 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
       }
 
       //Try file extensions
-      if (lfsra?.LocalFileSystemPath != null)
+      var ext = ra?.ResourceName;
+      if (ext != null)
       {
-        if (lfsra.LocalFileSystemPath.EndsWith(".wmv", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".wmv", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Asf;
-        if (lfsra.LocalFileSystemPath.EndsWith(".avi", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".avi", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Avi;
-        if (lfsra.LocalFileSystemPath.EndsWith(".flv", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".flv", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Flv;
-        if (lfsra.LocalFileSystemPath.EndsWith(".3gp", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".3g", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".3gp", StringComparison.InvariantCultureIgnoreCase) || ext.EndsWith(".3g", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Gp3;
-        if (lfsra.LocalFileSystemPath.EndsWith(".mov", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".mp4", StringComparison.InvariantCultureIgnoreCase) ||
-          lfsra.LocalFileSystemPath.EndsWith(".mp4v", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".mov", StringComparison.InvariantCultureIgnoreCase) || ext.EndsWith(".mp4", StringComparison.InvariantCultureIgnoreCase) ||
+            ext.EndsWith(".mp4v", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Mp4;
-        if (lfsra.LocalFileSystemPath.EndsWith(".mkv", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".mkv", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Matroska;
-        if (lfsra.LocalFileSystemPath.EndsWith(".m2ts", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".m2ts", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.M2Ts;
-        if (lfsra.LocalFileSystemPath.EndsWith(".mpeg", StringComparison.InvariantCultureIgnoreCase) || lfsra.LocalFileSystemPath.EndsWith(".mpg", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".mpeg", StringComparison.InvariantCultureIgnoreCase) || ext.EndsWith(".mpg", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Mpeg2Ps;
-        if (lfsra.LocalFileSystemPath.EndsWith(".ts", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".ts", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Mpeg2Ts;
-        if (lfsra.LocalFileSystemPath.EndsWith(".ogg", StringComparison.InvariantCultureIgnoreCase))
+        if (ext.EndsWith(".ogg", StringComparison.InvariantCultureIgnoreCase))
           return VideoContainer.Ogg;
       }
 

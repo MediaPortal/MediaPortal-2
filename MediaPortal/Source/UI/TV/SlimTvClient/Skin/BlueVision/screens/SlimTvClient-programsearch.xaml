@@ -29,9 +29,15 @@
           <RowDefinition Height="*"/>
           <RowDefinition Height="220"/>
         </Grid.RowDefinitions>
-           
+
         <Label Grid.Row="0" Content="[SlimTvClient.ProgramLabel]" Color="{ThemeResource TextColor}" Wrap="True" Margin="10,10,10,10"/>
         <TextBox Grid.Row="1" Margin="10,10,20,10" Text="{Binding Path=ProgramSearchText,Mode=TwoWay}" PreferredTextLength="10" SetFocusPrio="DefaultHigh"/>
+
+        <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="0" VerticalAlignment="Top">
+          <CheckBox x:Name="UseContainsQueryCheckbox" Margin="10,10,5,5" Style="{ThemeResource DefaultCheckBoxStyle}"
+                    IsChecked="{Binding Path=UseContainsQuery,Mode=TwoWay}" Content="{Binding}" />
+          <Label Content="[SlimTvClient.UseContainsQuery]" Color="{ThemeResource TextColor}" Margin="5"/>
+        </StackPanel>
 
         <ListView x:Name="SearchList" Grid.Column="2" Grid.Row="0" Grid.RowSpan="3" 
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"

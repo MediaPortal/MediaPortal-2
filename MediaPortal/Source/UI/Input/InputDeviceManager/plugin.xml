@@ -48,6 +48,12 @@
         HideGroups="Global"
         DisplayLabel="Input Devices Keys"
         WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
+    <WorkflowState Id="40C2D4C7-7333-4775-A7F6-614023CC4B89"
+       Name="InputDeviceManagerConfigScreenActions"
+       MainScreen="ConfigScreenActions"
+       HideGroups="Global"
+       DisplayLabel="Input Devices Actions"
+       WorkflowModel="CC11183C-01A9-4F96-AF90-FAA046981006"/>
     <WorkflowState Id="A1399A7B-AD02-4F72-8F80-F0C43362953E"
         Name="InputDeviceManagerConfigScreenScreens"
         MainScreen="ConfigScreenScreens"
@@ -78,6 +84,12 @@
         HelpText="[Settings.InputDeviceManager.EnterKeyConfigHelp]"
         ClassName="MediaPortal.Plugins.InputDeviceManager.Settings.ConfigScreenKeys"
         AdditionalData="WorkflowState=CB09DF01-65FA-4550-977C-B685C237ED3D,ConfAppPanel=..."/>
+    <CustomConfigSetting
+        Id="InputDevicesConfActions"
+        Text="[Settings.InputDeviceManager.EnterActionConfig]"
+        HelpText="[Settings.InputDeviceManager.EnterActionConfigHelp]"
+        ClassName="MediaPortal.Plugins.InputDeviceManager.Settings.ConfigScreenActions"
+        AdditionalData="WorkflowState=40C2D4C7-7333-4775-A7F6-614023CC4B89,ConfAppPanel=..."/>
     <CustomConfigSetting
         Id="InputDevicesHomeScreens"
         Text="[Settings.InputDeviceManager.EnterScreenHome]"

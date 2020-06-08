@@ -91,6 +91,12 @@
   <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
   <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
     <ConfigSetting
+        Id="NereusEnableHelpTexts"
+        Text="[Nereus.Configuration.EnableHelpTexts]"
+        HelpText="[Nereus.Configuration.EnableHelpTexts.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHelpTextConfiguration"/>
+
+    <ConfigSetting
         Id="NereusEnableFanart"
         Text="[Nereus.Configuration.EnableFanart]"
         HelpText="[Nereus.Configuration.EnableFanart.Help]"

@@ -50,4 +50,16 @@
         Id="NfoAudioRelationshipExtractor"
         ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.AudioRelationshipExtractor"/>
   </Register>
+
+  <Register Location="/Media/FanArtHandlers">
+    <Instance
+      Id="NfoMovieFanArtHandler"
+      ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.MovieFanArtHandler"/>
+    <Instance
+      Id="NfoSeriesFanArtHandler"
+      ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.SeriesFanArtHandler"/>
+    <Instance
+      Id="NfoAudioFanArtHandler"
+      ClassName="MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.AudioFanArtHandler"/>
+  </Register>
 </Plugin>

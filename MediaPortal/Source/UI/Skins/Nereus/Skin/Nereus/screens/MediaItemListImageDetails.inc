@@ -7,7 +7,16 @@
   x:Name="MediaItemDetails" Margin="0,320,20,-60"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
-  <StackPanel Orientation="Vertical" Margin="0">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
+    </Grid.ColumnDefinitions>
+
+  <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
 
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>
@@ -136,5 +145,16 @@
     </media:ImageAspectWrapper>
 
   </StackPanel>
+
+  <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Width="480"
+         Margin="8,8,40,70" Grid.Column="1" Grid.Row="1">
+    <Image.Resources>
+      <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    </Image.Resources>
+    <Image.Source>
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Thumbnail;440;300}"/>
+    </Image.Source>
+  </Image>
 
 </Grid>

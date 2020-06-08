@@ -38,6 +38,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
   {
     #region Constants
 
+    public const string NAME = "TheMovieDB.org";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TheMovieDB\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -46,9 +47,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public SeriesTheMovieDbMatcher() : 
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, true)
     {
-      //Will be overridden if the user enables it in setttings
+      //Will be overridden if the user enables it in settings
       Enabled = false;
     }
 
@@ -56,7 +57,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        TheMovieDbWrapper wrapper = new TheMovieDbWrapper();
+        TheMovieDbWrapper wrapper = new TheMovieDbWrapper(NAME);
         // Try to lookup online content in the configured language
         CultureInfo mpLocal = new CultureInfo(PreferredLanguageCulture);
         wrapper.SetPreferredLanguage(mpLocal.TwoLetterISOLanguageName);

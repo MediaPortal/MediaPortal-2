@@ -60,12 +60,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Init
 
-    public MovieMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
+    public MovieMatcher(string name, string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
     {
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "MovieMatches.xml");
       _maxCacheDuration = maxCacheDuration;
       _id = GetType().Name;
+      _name = name;
       _cacheRefreshable = cacheRefreshable;
 
       _actorMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ActorMatches.xml"));
@@ -127,10 +128,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
+    public override bool Equals(object obj)
+    {
+      if (obj is MovieMatcher<TImg, TLang> m)
+        return Id.Equals(m.Id);
+      return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return Id.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return Name;
+    }
+
     #endregion
 
     #region Constants
-    
+
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
 
     protected override string MatchesSettingsFile
@@ -232,7 +250,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    private MovieMatch GetStroredMatch(MovieInfo movieInfo)
+    private MovieMatch GetStoredMatch(MovieInfo movieInfo)
     {
       // Load cache or create new list
       List<MovieMatch> matches = _storage.GetMatches();
@@ -316,7 +334,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          MovieMatch match = GetStroredMatch(movieInfo);
+          MovieMatch match = GetStoredMatch(movieInfo);
           movieMatch = movieInfo.Clone();
           if (string.IsNullOrEmpty(movieId))
           {
@@ -357,12 +375,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update movie information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, false).ConfigureAwait(false))
             {
-              //Search for the movie online and update the Ids if a match is found
-              if (await _wrapper.SearchMovieUniqueAndUpdateAsync(movieMatch, language).ConfigureAwait(false))
+              //If movie had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(movieMatch))
               {
-                //Ids were updated now try to update movie information from online source
-                if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, false).ConfigureAwait(false))
-                  matchFound = true;
+                //Search for the movie online and update the Ids if a match is found
+                if (await _wrapper.SearchMovieUniqueAndUpdateAsync(movieMatch, language).ConfigureAwait(false))
+                {
+                  //Ids were updated now try to update movie information from online source
+                  if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, false).ConfigureAwait(false))
+                    matchFound = true;
+                }
               }
             }
             else
@@ -521,15 +543,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update person information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMoviePersonAsync(movieMatch, person, language, false).ConfigureAwait(false))
             {
-              //Search for the person online and update the Ids if a match is found
-              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
-              {
-                //Ids were updated now try to fetch the online person info
-                if (await _wrapper.UpdateFromOnlineMoviePersonAsync(movieMatch, person, language, false).ConfigureAwait(false))
+              //If person had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(person))
+              { 
+                //Search for the person online and update the Ids if a match is found
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  movieInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online person info
+                  if (await _wrapper.UpdateFromOnlineMoviePersonAsync(movieMatch, person, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    movieInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -646,15 +672,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update character information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMovieCharacterAsync(movieMatch, character, language, false).ConfigureAwait(false))
             {
-              //Search for the character online and update the Ids if a match is found
-              if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
+              //If character had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(character))
               {
-                //Ids were updated now try to fetch the online character info
-                if (await _wrapper.UpdateFromOnlineMovieCharacterAsync(movieMatch, character, language, false).ConfigureAwait(false))
+                //Search for the character online and update the Ids if a match is found
+                if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  movieInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online character info
+                  if (await _wrapper.UpdateFromOnlineMovieCharacterAsync(movieMatch, character, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    movieInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -748,15 +778,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update company information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMovieCompanyAsync(movieMatch, company, language, false).ConfigureAwait(false))
             {
-              //Search for the company online and update the Ids if a match is found
-              if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
+              //If company had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(company))
               {
-                //Ids were updated now try to fetch the online company info
-                if (await _wrapper.UpdateFromOnlineMovieCompanyAsync(movieMatch, company, language, false).ConfigureAwait(false))
+                //Search for the company online and update the Ids if a match is found
+                if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  movieInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online company info
+                  if (await _wrapper.UpdateFromOnlineMovieCompanyAsync(movieMatch, company, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    movieInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }

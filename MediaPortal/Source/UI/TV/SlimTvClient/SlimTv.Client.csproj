@@ -130,6 +130,7 @@
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
     <Compile Include="Controls\EpgGrid.cs" />
+    <Compile Include="Controls\SlimTvDurationConverter.cs" />
     <Compile Include="Controls\SlimTvDateFormatConverter.cs" />
     <Compile Include="Controls\SlimTvGuideTimeFormatConverter.cs" />
     <Compile Include="Extensions\ManualSchedule.cs" />

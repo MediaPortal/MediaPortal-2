@@ -66,6 +66,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     protected MatchStorage<TMatch, TId> _storage;
 
     protected string _id;
+    protected string _name;
     protected ApiMediaWrapper<TImg, TLang> _wrapper;
     private bool _disposed;
     private bool _useHttps;
@@ -86,6 +87,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
     public string Id
     {
       get { return _id; }
+    }
+
+    public string Name
+    {
+      get { return _name; }
     }
 
     protected bool UseSecureWebCommunication

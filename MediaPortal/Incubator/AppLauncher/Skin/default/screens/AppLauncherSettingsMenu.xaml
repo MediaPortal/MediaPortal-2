@@ -1,0 +1,40 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_menu.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Settings.Menu]"/>
+
+    <Model x:Key="Model" Id="488A54AF-8EE5-4E9E-8C91-DE637DDB650C"/>
+
+    <!--List items have "Name", "App" and "ImgSrc" -->
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"  />
+          </Grid.ColumnDefinitions>
+
+          <ListView Style="{StaticResource AppLauncherMenuListViewStyle}" SetFocus="True"
+            ItemsSource="{Binding Path=Items,Mode=OneTime}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="true"
+            CurrentItem="{Binding Path=SelectedItem, Mode=TwoWay}">
+            <ListView.Resources>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+                <TranslateTransform X="40" />
+              </ResourceWrapper>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </ListView.Resources>
+          </ListView>
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

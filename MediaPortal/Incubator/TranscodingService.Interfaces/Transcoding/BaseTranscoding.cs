@@ -31,12 +31,12 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
 {
   public abstract class BaseTranscoding
   {
-    public string TranscodeId = "";
-    public Dictionary<int, IResourceAccessor> SourceMedia = new Dictionary<int, IResourceAccessor>();
-    public Dictionary<int, TimeSpan> SourceMediaDurations = new Dictionary<int, TimeSpan>();
-    public string TranscoderBinPath = "";
-    public string TranscoderArguments = "";
-
-    public TimeSpan SourceMediaTotalDuration => TimeSpan.FromSeconds(SourceMediaDurations.Sum(d => d.Value.TotalSeconds));
+    public string TranscodeId { get; set; } = "";
+    public bool ConcatSourceMediaPaths { get; set; } = false;
+    public Dictionary<int, string> SourceMediaPaths { get; set; } = new Dictionary<int, string>();
+    public Dictionary<int, TimeSpan> SourceMediaDurations { get; set; } = new Dictionary<int, TimeSpan>();
+    public TimeSpan SourceMediaDuration { get; set; } = TimeSpan.FromSeconds(0);
+    public string TranscoderBinPath { get; set; } = "";
+    public string TranscoderArguments { get; set; } = "";
   }
 }

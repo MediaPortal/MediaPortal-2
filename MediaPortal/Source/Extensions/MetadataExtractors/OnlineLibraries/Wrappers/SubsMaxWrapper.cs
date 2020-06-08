@@ -37,9 +37,13 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
   class SubsMaxWrapper : ApiSubtitleWrapper<string>
   {
-    private const string PROVIDER_NAME = "subsmax.com";
-
     protected SubsMaxV1 _subsMaxHandler;
+    protected readonly string _name;
+
+    public SubsMaxWrapper(string name)
+    {
+      _name = name;
+    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.
@@ -72,7 +76,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         MovieDbId = subtitleSearch.MovieDbId,
         SubtitleId = s.DownloadUrl,
         Year = subtitleSearch.Year,
-        DataProviders = new List<string>() { PROVIDER_NAME }
+        DataProviders = new List<string>() { _name }
       }).ToList();
     }
 
@@ -94,7 +98,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         Season = subtitleSearch.Season,
         SubtitleId = s.DownloadUrl,
         Year = subtitleSearch.Year,
-        DataProviders = new List<string>() { PROVIDER_NAME }
+        DataProviders = new List<string>() { _name }
       }).ToList();
     }
 
@@ -105,7 +109,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
     protected override async Task<IDictionary<BaseSubtitleMatch<string>, byte[]>> DownloadSubtitleAsync(SubtitleInfo subtitle)
     {
       var subs = new Dictionary<BaseSubtitleMatch<string>, byte[]>();
-      if (!subtitle.DataProviders.Contains(PROVIDER_NAME))
+      if (!subtitle.DataProviders.Contains(_name))
         return subs;
 
       var files = await _subsMaxHandler.DownloadSubtileAsync(subtitle.SubtitleId);

@@ -26,9 +26,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 {
   public class PodnapisiMatcher : BaseSubtitleDownloaderMatcher
   {
+    public const string NAME = "Podnapisi.net";
+
     #region Init
 
-    public PodnapisiMatcher() : base("PodnapisiMatcher", "Podnapisi", "podnapisi.net")
+    public PodnapisiMatcher() : base(NAME, "Podnapisi")
     {
     }
 

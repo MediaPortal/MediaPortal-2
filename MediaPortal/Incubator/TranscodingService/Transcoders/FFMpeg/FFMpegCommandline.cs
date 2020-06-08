@@ -133,27 +133,27 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
     internal void GetVideoDimensions(VideoTranscoding video, out Size newSize, out Size newContentSize, out float newPixelAspectRatio, out bool pixelARChanged, out bool videoARChanged, out bool videoHeightChanged)
     {
-      newSize = new Size(video.FirstSourceVideoStream.Width ?? DEFAULT_SOURCE_WIDTH, video.FirstSourceVideoStream.Height ?? DEFAULT_SOURCE_HEIGHT);
-      newContentSize = new Size(video.FirstSourceVideoStream.Width ?? DEFAULT_SOURCE_WIDTH, video.FirstSourceVideoStream.Height ?? DEFAULT_SOURCE_HEIGHT);
-      newPixelAspectRatio = video.FirstSourceVideoStream.PixelAspectRatio ?? 1;
+      newSize = new Size(video.SourceVideoStream.Width ?? DEFAULT_SOURCE_WIDTH, video.SourceVideoStream.Height ?? DEFAULT_SOURCE_HEIGHT);
+      newContentSize = new Size(video.SourceVideoStream.Width ?? DEFAULT_SOURCE_WIDTH, video.SourceVideoStream.Height ?? DEFAULT_SOURCE_HEIGHT);
+      newPixelAspectRatio = video.SourceVideoStream.PixelAspectRatio ?? 1;
       pixelARChanged = false;
       videoARChanged = false;
       videoHeightChanged = false;
 
-      if (Checks.IsSquarePixelNeeded(video) && video.FirstSourceVideoStream.Width.HasValue && video.FirstSourceVideoStream.Height.HasValue)
+      if (Checks.IsSquarePixelNeeded(video) && video.SourceVideoStream.Width.HasValue && video.SourceVideoStream.Height.HasValue)
       {
-        newSize.Width = Convert.ToInt32(Math.Round((double)video.FirstSourceVideoStream.Width.Value * video.FirstSourceVideoStream.PixelAspectRatio ?? 1));
-        newSize.Height = video.FirstSourceVideoStream.Height.Value;
+        newSize.Width = Convert.ToInt32(Math.Round((double)video.SourceVideoStream.Width.Value * video.SourceVideoStream.PixelAspectRatio ?? 1));
+        newSize.Height = video.SourceVideoStream.Height.Value;
         newContentSize.Width = newSize.Width;
         newContentSize.Height = newSize.Height;
         newPixelAspectRatio = 1;
         pixelARChanged = true;
       }
       if (Checks.IsVideoAspectRatioChanged(newSize.Width, newSize.Height, newPixelAspectRatio, video.TargetVideoAspectRatio) &&
-        video.FirstSourceVideoStream.AspectRatio.HasValue && video.TargetVideoAspectRatio.HasValue)
+        video.SourceVideoStream.AspectRatio.HasValue && video.TargetVideoAspectRatio.HasValue)
       {
-        double sourceNewAspectRatio = (double)newSize.Width / (double)newSize.Height * video.FirstSourceVideoStream.AspectRatio.Value;
-        if (sourceNewAspectRatio < video.FirstSourceVideoStream.AspectRatio)
+        double sourceNewAspectRatio = (double)newSize.Width / (double)newSize.Height * video.SourceVideoStream.AspectRatio.Value;
+        if (sourceNewAspectRatio < video.SourceVideoStream.AspectRatio)
           newSize.Width = Convert.ToInt32(Math.Round((double)newSize.Height * video.TargetVideoAspectRatio.Value / newPixelAspectRatio));
         else
           newSize.Height = Convert.ToInt32(Math.Round((double)newSize.Width * newPixelAspectRatio / video.TargetVideoAspectRatio.Value));
@@ -175,13 +175,14 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       newContentSize.Width = ((newContentSize.Width + 1) / 2) * 2;
     }
 
-    internal void InitTranscodingParameters(Dictionary<int, IResourceAccessor> sourceFiles, ref FFMpegTranscodeData data)
+    internal void InitTranscodingParameters(bool concatSourceFiles, Dictionary<int, string> sourceFiles, ref FFMpegTranscodeData data)
     {
       foreach (var mediaSourceIndex in sourceFiles.Keys)
         data.InputArguments.Add(mediaSourceIndex, new List<string>());
 
       data.GlobalArguments.Add("-hide_banner");
-      data.InputResourceAccessor = sourceFiles;
+      data.InputMediaFilePaths = sourceFiles;
+      data.ConcatedFileInput = concatSourceFiles;
       AddInputOptions(ref data);
       data.OutputArguments.Add("-y");
     }
@@ -209,18 +210,13 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         data.GlobalArguments.Add("-hwaccel cuvid");
       }
 
-      bool isNetworkResource = false;
-      if (data.FirstResourceAccessor is INetworkResourceAccessor)
-        isNetworkResource = true;
-
-      Logger.Debug("FFMpegMediaConverter: AddInputOptions() is NetworkResource: {0}", isNetworkResource);
-      if (isNetworkResource)
+      using (var accessor = data.GetFirstResourceAccessor())
       {
-        var accessor = data.FirstResourceAccessor as INetworkResourceAccessor;
-        if (accessor != null)
+        if (accessor is INetworkResourceAccessor a)
         {
-          if (accessor.URL.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase))
-            data.GlobalArguments.Add("-rtsp_transport +tcp+udp");
+          Logger.Debug("FFMpegMediaConverter: AddInputOptions() is network resource");
+          if (a.URL.StartsWith("rtsp://", StringComparison.InvariantCultureIgnoreCase))
+            data.GlobalArguments.Add("-rtsp_transport tcp");
 
           data.GlobalArguments.Add("-analyzeduration 10000000");
         }
@@ -229,7 +225,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
     internal void AddTranscodingThreadsParameters(bool useOutputThreads, ref FFMpegTranscodeData data)
     {
-      data.InputArguments[0].Add(string.Format("-threads {0}", _transcoderMaximumThreads));
+      data.InputArguments[data.FirstResourceIndex].Add(string.Format("-threads {0}", _transcoderMaximumThreads));
       if (useOutputThreads)
         data.OutputArguments.Add(string.Format("-threads {0}", _transcoderMaximumThreads));
     }
@@ -290,7 +286,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           else
           {
             if (video.SourceMediaDurations.Count > 0)
-              segmentBufferSize = Convert.ToInt64(video.SourceMediaTotalDuration.TotalSeconds / Convert.ToDouble(_hlsSegmentTimeInSeconds)) + 1;
+              segmentBufferSize = Convert.ToInt64(video.SourceMediaDuration.TotalSeconds / Convert.ToDouble(_hlsSegmentTimeInSeconds)) + 1;
 
             data.OutputArguments.Add(string.Format("-hls_list_size {0}", segmentBufferSize));
             data.OutputArguments.Add(string.Format("-hls_segment_filename {0}", "\"" + fileSegments + "\""));
@@ -307,9 +303,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           data.OutputArguments.Add(string.Format("-f {0}", FFMpegGetVideoContainer.GetVideoContainer(video.TargetVideoContainer)));
           if (video.TargetIsLive)
           {
-            var accessor = data.FirstResourceAccessor as INetworkResourceAccessor;
-            if (accessor == null)
-              data.InputArguments[0].Add("-re"); //Simulate live stream from file
+            using (var accessor = data.GetFirstResourceAccessor())
+            {
+              if (!(accessor is INetworkResourceAccessor))
+                data.InputArguments[data.FirstResourceIndex].Add("-re"); //Simulate live stream from file
+            }
 
             data.IsLive = true;
             data.IsStream = true;
@@ -340,9 +338,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       data.OutputArguments.Add(string.Format("-f {0}", FFMpegGetAudioContainer.GetAudioContainer(audio.TargetAudioContainer)));
       if (audio.TargetIsLive)
       {
-        var accessor = data.FirstResourceAccessor as INetworkResourceAccessor;
-        if (accessor == null)
-          data.InputArguments[0].Add("-re"); //Simulate live stream from file
+        using (var accessor = data.GetFirstResourceAccessor())
+        {
+          if (!(accessor is INetworkResourceAccessor))
+            data.InputArguments[data.FirstResourceIndex].Add("-re"); //Simulate live stream from file
+        }
 
         data.IsLive = true;
         data.IsStream = true;
@@ -371,17 +371,25 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
  
       string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(subtitle.Codec);
       FFMpegTranscodeData data = new FFMpegTranscodeData(_transcoderCachePath);
-      InitTranscodingParameters(video.SourceMedia, ref data);
+      InitTranscodingParameters(video.ConcatSourceMediaPaths, video.SourceMediaPaths, ref data);
       AddSubtitleExtractionParameters(subtitle, subtitleEncoding, subtitleEncoder, subtitleFormat, timeStart, data);
       data.OutputFilePath = targetFilePath;
 
-      Logger?.Debug("FFMpegMediaConverter: Invoking transcoder to extract subtitle from file '{0}'", video.SourceMedia[sourceMediaIndex]);
+      Logger?.Debug("FFMpegMediaConverter: Invoking transcoder to extract subtitle from file '{0}'", video.SourceMediaPaths[sourceMediaIndex]);
 
-      ProcessExecutionResult result = await FFMpegBinary.FFMpegExecuteWithResourceAccessAsync((ILocalFsResourceAccessor)data.InputResourceAccessor[sourceMediaIndex], data.TranscoderArguments, ProcessPriorityClass.Normal, _transcoderTimeout);
-      bool success = result.Success;
+      bool success = false;
+      using (var accessor = data.GetFirstResourceAccessor())
+      {
+        if (accessor is ILocalFsResourceAccessor lfra)
+        {
+          ProcessExecutionResult result = await FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(lfra, data.TranscoderArguments, ProcessPriorityClass.Normal, _transcoderTimeout);
+          success = result.Success;
+        }
+      }
+
       if (success && File.Exists(targetFilePath) == false)
       {
-        Logger?.Error("FFMpegMediaConverter: Failed to extract subtitle from file '{0}'", video.SourceMedia[sourceMediaIndex]);
+        Logger?.Error("FFMpegMediaConverter: Failed to extract subtitle from file '{0}'", video.SourceMediaPaths[sourceMediaIndex]);
         return false;
       }
       return true;
@@ -411,15 +419,15 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
       foreach (var subtitle in subtitles)
       {
-        if (subtitle == null || string.IsNullOrEmpty(subtitle.Source))
+        if (subtitle == null || string.IsNullOrEmpty(subtitle.SourcePath))
           continue;
 
-        data.AddSubtitle(mediaSourceIndex, subtitle.Source);
+        data.AddSubtitle(mediaSourceIndex, subtitle.SourcePath);
 
         string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(subtitle.Codec);
         data.AddSubtitleArgument(mediaSourceIndex, (data.InputSubtitleFilePaths[mediaSourceIndex]?.Count ?? 1) - 1, string.Format("-f {0}", subtitleFormat));
         string languageName = Get3LetterLanguage(subtitle.Language);
-        int inputNo = data.InputResourceAccessor.Count + data.InputSubtitleFilePaths.SelectMany(s => s.Value).Count() - 1;
+        int inputNo = data.InputMediaFilePaths.Count + data.InputSubtitleFilePaths.SelectMany(s => s.Value).Count() - 1;
         if (string.IsNullOrEmpty(languageName) == false)
           data.OutputArguments.Add(string.Format("-metadata:s:s:{0} language={1}", inputNo - 1, languageName.ToLowerInvariant())); // subtitle metadata stream index needs to be 1 less
         data.OutputArguments.Add(string.Format("-map {0}:s:0", inputNo));
@@ -510,7 +518,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
     internal void AddAudioParameters(AudioTranscoding audio, FFMpegTranscodeData data)
     {
-      if (Checks.IsAudioStreamChanged(0, 0, audio) == false || audio.TargetForceCopy == true)
+      if (Checks.IsAudioStreamChanged(0, audio) == false || audio.TargetForceCopy == true)
       {
         data.OutputArguments.Add("-c:a copy");
       }
@@ -620,27 +628,27 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
     internal void AddVideoParameters(VideoTranscoding video, string transcodeId, FFMpegEncoderConfig encoderConfig, FFMpegTranscodeData data)
     {
       if (video.TargetVideoCodec == VideoCodec.Unknown)
-        video.TargetVideoCodec = video.FirstSourceVideoStream.Codec;
+        video.TargetVideoCodec = video.SourceVideoStream.Codec;
 
       if (video.TargetVideoAspectRatio <= 0)
       {
-        if (video.FirstSourceVideoStream.Height > 0 && video.FirstSourceVideoStream.Width > 0)
+        if (video.SourceVideoStream.Height > 0 && video.SourceVideoStream.Width > 0)
         {
-          video.TargetVideoAspectRatio = (float)video.FirstSourceVideoStream.Width / (float)video.FirstSourceVideoStream.Height;
+          video.TargetVideoAspectRatio = (float)video.SourceVideoStream.Width / (float)video.SourceVideoStream.Height;
         }
         else
         {
           video.TargetVideoAspectRatio = 16.0F / 9.0F;
         }
       }
-      if (!(video.FirstSourceVideoStream.PixelAspectRatio > 0))
-        video.FirstSourceVideoStream.PixelAspectRatio = 1.0F;
+      if (!(video.SourceVideoStream.PixelAspectRatio > 0))
+        video.SourceVideoStream.PixelAspectRatio = 1.0F;
 
       if (video.TargetVideoMaxHeight <= 0)
         video.TargetVideoMaxHeight = 1080;
    
       bool vCodecCopy = false;
-      if (video.SourceMedia.Count == 1 && (Checks.IsVideoStreamChanged(video) == false || video.TargetForceVideoCopy == true))
+      if (video.SourceMediaPaths.Count == 1 && (Checks.IsVideoStreamChanged(video) == false || video.TargetForceVideoCopy == true))
       {
         vCodecCopy = true;
         data.OutputArguments.Add("-c:v copy");
@@ -693,9 +701,9 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
             {
               args += string.Format("-crf={0}", quality);
             }
-            if (video.FirstSourceVideoStream.Framerate > 0)
+            if (video.SourceVideoStream.Framerate > 0)
             {
-              args += string.Format(":fps={0}", Validators.GetValidFramerate(video.FirstSourceVideoStream.Framerate.Value));
+              args += string.Format(":fps={0}", Validators.GetValidFramerate(video.SourceVideoStream.Framerate.Value));
             }
             if (video.TargetLevel > 0)
             {
@@ -765,12 +773,12 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         }
 
         AddVideoFiltersParameters(video, data);
-        if (video.FirstSourceVideoStream.Framerate > 0)
-          data.OutputArguments.Add(string.Format("-r {0}", Validators.GetValidFramerate(video.FirstSourceVideoStream.Framerate.Value)));
+        if (video.SourceVideoStream.Framerate > 0)
+          data.OutputArguments.Add(string.Format("-r {0}", Validators.GetValidFramerate(video.SourceVideoStream.Framerate.Value)));
 
         data.OutputArguments.Add("-g 15");
       }
-      if (vCodecCopy && video.FirstSourceVideoStream.Codec == VideoCodec.H264 && !Checks.IsMPEGTSContainer(video.FirstSourceVideoContainer) && Checks.IsMPEGTSContainer(video.TargetVideoContainer))
+      if (vCodecCopy && video.SourceVideoStream.Codec == VideoCodec.H264 && !Checks.IsMPEGTSContainer(video.SourceVideoContainer) && Checks.IsMPEGTSContainer(video.TargetVideoContainer))
       {
         data.OutputArguments.Add("-bsf:v h264_mp4toannexb");
       }
@@ -808,10 +816,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
     private string GetVideoFilters(VideoTranscoding video, out Size newSize, FFMpegTranscodeData data)
     {
-      bool sourceSquarePixels = Checks.IsSquarePixel(video.FirstSourceVideoStream.PixelAspectRatio);
-      newSize = new Size(video.FirstSourceVideoStream.Width ?? DEFAULT_SOURCE_WIDTH, video.FirstSourceVideoStream.Height ?? DEFAULT_SOURCE_HEIGHT);
-      Size newContentSize = new Size(video.FirstSourceVideoStream.Width ?? DEFAULT_SOURCE_WIDTH, video.FirstSourceVideoStream.Height ?? DEFAULT_SOURCE_HEIGHT);
-      float newPixelAspectRatio = video.FirstSourceVideoStream.PixelAspectRatio ?? 1;
+      bool sourceSquarePixels = Checks.IsSquarePixel(video.SourceVideoStream.PixelAspectRatio);
+      newSize = new Size(video.SourceVideoStream.Width ?? DEFAULT_SOURCE_WIDTH, video.SourceVideoStream.Height ?? DEFAULT_SOURCE_HEIGHT);
+      Size newContentSize = new Size(video.SourceVideoStream.Width ?? DEFAULT_SOURCE_WIDTH, video.SourceVideoStream.Height ?? DEFAULT_SOURCE_HEIGHT);
+      float newPixelAspectRatio = video.SourceVideoStream.PixelAspectRatio ?? 1;
       bool pixelARChanged = false;
       bool videoARChanged = false;
       bool videoHeightChanged = false;
@@ -838,22 +846,23 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         }
         else if (sourceSquarePixels == false)
         {
-          if(video.FirstSourceVideoStream.PixelAspectRatio.HasValue)
-            vidFilter += "setsar=" + video.FirstSourceVideoStream.PixelAspectRatio.Value.ToString("0.00", CultureInfo.InvariantCulture);
+          if(video.SourceVideoStream.PixelAspectRatio.HasValue)
+            vidFilter += "setsar=" + video.SourceVideoStream.PixelAspectRatio.Value.ToString("0.00", CultureInfo.InvariantCulture);
         }
       }
       return vidFilter;
     }
 
-    private string GetSubtitleFilter(int subtitleInputNo, VideoTranscoding video, SubtitleStream subtitle, Size newSize, FFMpegTranscodeData data)
+    private string GetSubtitleFilter(int inputNo, VideoTranscoding video, SubtitleStream subtitle, Size newSize, FFMpegTranscodeData data)
     {
-      if (subtitle != null && subtitle.Source != null)
+      if (!string.IsNullOrEmpty(subtitle?.SourcePath))
       {
-        if(subtitle.IsEmbedded)
+        var subPath = subtitle.GetFileSystemPath();
+        if (subtitle.IsEmbedded)
         {
-          return string.Format("[{0}:s:{1}]", subtitleInputNo, subtitle.StreamIndex);
+          return string.Format("[{0}:{1}]", inputNo, subtitle.StreamIndex);
         }
-        else if(subtitle.Codec == SubtitleCodec.Unknown)
+        else if(string.IsNullOrEmpty(subPath) && subtitle.Codec == SubtitleCodec.Unknown)
         {
           return null;
         }
@@ -863,7 +872,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           if (string.IsNullOrEmpty(subtitle.CharacterEncoding) == false)
             encoding = subtitle.CharacterEncoding;
           
-          string subFilter = string.Format("subtitles=filename='{0}':original_size={1}x{2}:charenc='{3}'", EncodeFilePath(subtitle.Source), newSize.Width, newSize.Height, encoding);
+          string subFilter = string.Format("subtitles=filename='{0}':original_size={1}x{2}:charenc='{3}'", EncodeFilePath(subPath), newSize.Width, newSize.Height, encoding);
           List<string> style = new List<string>();
           if (!string.IsNullOrEmpty(video.TargetSubtitleFont))
             style.Add("FontName=" + video.TargetSubtitleFont);
@@ -884,96 +893,134 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         }
         else
         {
-          return string.Format("[{0}:s:0]overlay", subtitleInputNo);
+          return string.Format("[{0}:{1}]overlay", inputNo, subtitle.StreamIndex);
         }
       }
       return "";
     }
 
-    private void AddVideoFiltersParameters(VideoTranscoding video, FFMpegTranscodeData data)
+    internal void AddStreamMapParameters(VideoTranscoding video, FFMpegTranscodeData data)
     {
-      if (data.FirstResourceAccessor is TranscodeLiveAccessor)
+      using (var accessor = data.GetFirstResourceAccessor())
       {
-        data.OutputFilter.Add("yadif=0:-1:0");
-      }
-      else
-      {
-        Size newSize = new Size();
-        string vidFilter = GetVideoFilters(video, out newSize, data);
-        if (video.SourceMedia.Count > 1 || !string.IsNullOrEmpty(vidFilter))
+        if (accessor is TranscodeLiveAccessor)
         {
-          //Add video and audio graphs
-          int inputNo = 0;
-          int audioCount = 0;
-          foreach (var media in video.SourceMedia)
-          {
-            data.OutputFilter.Add(string.Format("[{0}:v:{1}]", inputNo, video.SourceVideoStreams[media.Key].StreamIndex)); //Only first video stream supported
-            if (video.PreferredSourceSubtitles.Any() && video.TargetSubtitleSupport == SubtitleSupport.HardCoded)
-            {
-              foreach (var sub in video.PreferredSourceSubtitles[media.Key])
-              {
-                if (SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec) == true || sub.IsEmbedded)
-                  data.AddSubtitle(media.Key, sub.Source);
-             
-                data.OutputFilter.Add(GetSubtitleFilter(data.InputResourceAccessor.Count + data.InputSubtitleFilePaths.Count - 1, video, sub, newSize, data));
-              }
-            }
-            if (Checks.AreMultipleAudioStreamsSupported(video))
-            {
-              foreach (var audio in video.SourceAudioStreams)
-              {
-                data.OutputFilter.Add(string.Format("[{0}:a:{1}]", inputNo, audio.Key));
-                audioCount++;
-              }
-            }
-            else
-            {
-              var audio = video.SourceAudioStreams.First();
-              data.OutputFilter.Add(string.Format("[{0}:a:{1}]", inputNo, audio.Key));
-              audioCount++;
-            }
-            inputNo++;
-          }
-
-          if (string.IsNullOrEmpty(vidFilter))
-          {
-            data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[v][a]", video.SourceMedia.Count, audioCount));
-          }
-          else
-          {
-            data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[vf][a];", video.SourceMedia.Count, audioCount));
-            data.OutputFilter.Add(string.Format("[vf]{0}[v]", vidFilter));
-          }
-          data.OutputArguments.Add("-map \"[v]\"");
-          data.OutputArguments.Add("-map \"[a]\"");
-        }
-        else
-        {
-          data.OutputArguments.Add(string.Format("-map 0:v:{0}", video.SourceMedia.First().Key));
+          data.OutputArguments.Add(string.Format("-map 0:{0}", video.SourceVideoStream.StreamIndex));
           if (Checks.AreMultipleAudioStreamsSupported(video))
           {
             foreach (var audio in video.SourceAudioStreams)
             {
-              data.OutputArguments.Add(string.Format("-map 0:a:{0}", audio.Key));
+              data.OutputArguments.Add(string.Format("-map 0:{0}", audio.StreamIndex));
             }
           }
           else
           {
-            var audio = video.SourceAudioStreams.First();
-            data.OutputArguments.Add(string.Format("-map 0:a:{0}", audio.Key));
+            var audio = video.SourceAudioStreams.FirstOrDefault();
+            if (audio != null)
+              data.OutputArguments.Add(string.Format("-map 0:{0}", audio.StreamIndex));
           }
-
-          if (video.PreferredSourceSubtitles?.Count > 0)
+        }
+        else
+        {
+          if (video.ConcatSourceMediaPaths == false && video.SourceMediaPaths.Count > 1)
           {
-            var subList = video.SourceSubtitles.First().Value.Where(s => s.IsEmbedded).OrderBy(s => s.StreamIndex).ToList();
-            foreach (var sub in video.PreferredSourceSubtitles.SelectMany(s => s.Value).Where(s => !s.IsPartial))
+            //Mapping will be handled by concat filter
+          }
+          else
+          {
+            data.OutputArguments.Add(string.Format("-map 0:{0}", video.SourceVideoStream.StreamIndex));
+            if (Checks.AreMultipleAudioStreamsSupported(video))
             {
-              if (sub.IsEmbedded)
+              foreach (var audio in video.SourceAudioStreams)
               {
-                var sourceSub = subList.First(s => s.StreamIndex == sub.StreamIndex);
-                data.OutputArguments.Add(string.Format("-map 0:s:{0}", subList.IndexOf(sourceSub)));
+                data.OutputArguments.Add(string.Format("-map 0:{0}", audio.StreamIndex));
               }
             }
+            else
+            {
+              var audio = video.SourceAudioStreams.FirstOrDefault();
+              if (audio != null)
+                data.OutputArguments.Add(string.Format("-map 0:{0}", audio.StreamIndex));
+            }
+
+            if (video.PreferredSourceSubtitles?.Count > 0)
+            {
+              foreach (var sub in video.PreferredSourceSubtitles.SelectMany(s => s.Value).Where(s => !s.IsPartial))
+              {
+                if (sub.IsEmbedded)
+                {
+                  data.OutputArguments.Add(string.Format("-map 0:{0}", sub.StreamIndex));
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+
+    private void AddVideoFiltersParameters(VideoTranscoding video, FFMpegTranscodeData data)
+    {
+      using (var accessor = data.GetFirstResourceAccessor())
+      {
+        if (accessor is TranscodeLiveAccessor)
+        {
+          //Add no options to live transcoding, we want to keep it as simple as possible
+          //data.OutputFilter.Add("yadif=0:-1:0");
+        }
+        else
+        {
+          Size newSize = new Size();
+          string vidFilter = GetVideoFilters(video, out newSize, data);
+          if ((video.ConcatSourceMediaPaths == false && video.SourceMediaPaths.Count > 1) || !string.IsNullOrEmpty(vidFilter))
+          {
+            //Add video and audio graphs
+            int inputNo = 0;
+            int audioCount = 0;
+            foreach (var media in video.SourceMediaPaths)
+            {
+              audioCount = 0;
+              data.OutputFilter.Add(string.Format("[{0}:{1}]", inputNo, video.SourceVideoStream.StreamIndex)); //Only first video stream supported
+              if (video.PreferredSourceSubtitles.ContainsKey(media.Key) && video.TargetSubtitleSupport == SubtitleSupport.HardCoded)
+              {
+                foreach (var sub in video.PreferredSourceSubtitles[media.Key])
+                {
+                  if (SubtitleAnalyzer.IsImageBasedSubtitle(sub.Codec) == true || sub.IsEmbedded)
+                    data.AddSubtitle(media.Key, sub.SourcePath);
+
+                  data.OutputFilter.Add(GetSubtitleFilter(inputNo, video, sub, newSize, data));
+                }
+              }
+
+              if (Checks.AreMultipleAudioStreamsSupported(video))
+              {
+                foreach (var audio in video.SourceAudioStreams)
+                {
+                  data.OutputFilter.Add(string.Format("[{0}:{1}]", inputNo, audio.StreamIndex));
+                  audioCount++;
+                }
+              }
+              else
+              {
+                var audio = video.SourceAudioStreams.First();
+                data.OutputFilter.Add(string.Format("[{0}:{1}]", inputNo, audio.StreamIndex));
+                audioCount++;
+              }
+
+              inputNo++;
+            }
+
+            if (string.IsNullOrEmpty(vidFilter))
+            {
+              data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[v][a]", inputNo, audioCount));
+            }
+            else
+            {
+              data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[vf][a];", inputNo, audioCount));
+              data.OutputFilter.Add(string.Format("[vf]{0}[v]", vidFilter));
+            }
+
+            data.OutputArguments.Add("-map \"[v]\"");
+            data.OutputArguments.Add("-map \"[a]\"");
           }
         }
       }
@@ -983,8 +1030,6 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
     {
       return _filerPathEncoding.Aggregate(filePath, (current, enc) => current.Replace(enc.Key, enc.Value));
     }
-
-    
 
     private string Get3LetterLanguage(string iso2language)
     {
@@ -1003,19 +1048,23 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
     internal void AddVideoAudioParameters(VideoTranscoding video, FFMpegTranscodeData data)
     {
       int mediaStreamIndex = video.FirstAudioStreamIndex;
-      int inputNo = 0;
-      if (mediaStreamIndex < 0)
-        return;
-
-      foreach (var audio in video.SourceAudioStreams[mediaStreamIndex])
+      int inputNo = -1;
+      if (mediaStreamIndex < 0 || video.SourceAudioStreams.Count == 0)
       {
+        data.OutputArguments.Add("-an");
+        return;
+      }
+
+      foreach (var audio in video.SourceAudioStreams)
+      {
+        inputNo++;
         if (audio.Codec == AudioCodec.Unknown)
         {
-          data.OutputArguments.Add(string.Format("-an:a:{0}", audio.StreamIndex));
+          data.OutputArguments.Add(string.Format("-an:a:{0}", inputNo));
           continue;
         }
 
-        if (Checks.IsAudioStreamChanged(mediaStreamIndex, audio.StreamIndex, video) == false || video.TargetForceAudioCopy == true)
+        if (Checks.IsAudioStreamChanged(audio.StreamIndex, video) == false || video.TargetForceAudioCopy == true)
         {
           data.OutputArguments.Add(string.Format("-c:a:{0} copy", inputNo));
         }
@@ -1035,7 +1084,6 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
             data.OutputArguments.Add(string.Format("-metadata:s:a:{0} language={1}", inputNo, languageName.ToLowerInvariant()));
 
           AddAudioChannelsNumberParameters(inputNo, audio.StreamIndex, video, data);
-          inputNo++;
         }
         if (!Checks.AreMultipleAudioStreamsSupported(video))
           break;
@@ -1045,14 +1093,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
     private void AddAudioChannelsNumberParameters(int inputNo, int audioStreamIndex, BaseTranscoding media, FFMpegTranscodeData data)
     {
       int? channels = null;
-      int? streamIndex = null;
       if (media is VideoTranscoding)
       {
         VideoTranscoding video = (VideoTranscoding)media;
-        int mediaStreamIndex = video.FirstAudioStreamIndex;
-        channels = Validators.GetAudioNumberOfChannels(video.SourceAudioStreams[mediaStreamIndex].First(s => s.StreamIndex == audioStreamIndex).Codec, 
-          video.TargetAudioCodec, video.SourceAudioStreams[mediaStreamIndex].First(s => s.StreamIndex == audioStreamIndex).Channels, video.TargetForceAudioStereo);
-        streamIndex = audioStreamIndex;
+        var audio = video.SourceAudioStreams.First(s => s.StreamIndex == audioStreamIndex);
+        channels = Validators.GetAudioNumberOfChannels(audio.Codec, video.TargetAudioCodec, audio.Channels, video.TargetForceAudioStereo);
       }
       if (media is AudioTranscoding)
       {

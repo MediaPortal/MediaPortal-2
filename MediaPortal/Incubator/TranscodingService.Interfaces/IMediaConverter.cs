@@ -31,8 +31,8 @@ using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 
 namespace MediaPortal.Extensions.TranscodingService.Interfaces
 {
-    public interface IMediaConverter
-    {
+  public interface IMediaConverter
+  {
     #region HLS
 
     /// <summary>
@@ -53,9 +53,9 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces
     /// <summary>
     /// Get the segment sequence from the file name
     /// </summary>
-    /// <param name="FileName">The segment file name</param>
+    /// <param name="fileName">The segment file name</param>
     /// <returns>The segment sequence number</returns>
-    long GetSegmentSequence(string FileName);
+    long GetSegmentSequence(string fileName);
 
     /// <summary>
     /// Get the stream for the requested segment file
@@ -73,23 +73,23 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces
     /// <summary>
     /// Parses the audio trancoding target and estimates the resulting metadata
     /// </summary>
-    /// <param name="AudioTarget">The transcoding target of the audio</param>
+    /// <param name="audioTarget">The transcoding target of the audio</param>
     /// <returns>Metadata for the transcoded audio</returns>
-    TranscodedAudioMetadata GetTranscodedAudioMetadata(AudioTranscoding AudioTarget);
+    TranscodedAudioMetadata GetTranscodedAudioMetadata(AudioTranscoding audioTarget);
 
     /// <summary>
     /// Parses the image trancoding target and estimates the resulting metadata
     /// </summary>
-    /// <param name="ImageTarget">The transcoding target of the image</param>
+    /// <param name="imageTarget">The transcoding target of the image</param>
     /// <returns>Metadata for the transcoded image</returns>
-    TranscodedImageMetadata GetTranscodedImageMetadata(ImageTranscoding ImageTarget);
+    TranscodedImageMetadata GetTranscodedImageMetadata(ImageTranscoding imageTarget);
 
     /// <summary>
     /// Parses the video trancoding target and estimates the resulting metadata
     /// </summary>
-    /// <param name="VideoTarget">The transcoding target of the video</param>
+    /// <param name="videoTarget">The transcoding target of the video</param>
     /// <returns>Metadata for the transcoded video</returns>
-    TranscodedVideoMetadata GetTranscodedVideoMetadata(VideoTranscoding VideoTarget);
+    TranscodedVideoMetadata GetTranscodedVideoMetadata(VideoTranscoding videoTarget);
 
     #endregion
 
@@ -98,17 +98,17 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces
     /// <summary>
     /// Checks if the specified client transcode is still running
     /// </summary>
-    /// <param name="ClientId">ID of the client</param>
-    /// <param name="TranscodeId">ID of the transcode</param>
+    /// <param name="clientId">ID of the client</param>
+    /// <param name="transcodeId">ID of the transcode</param>
     /// <returns>Transcode running status</returns>
-    Task<bool> IsTranscodeRunningAsync(string ClientId, string TranscodeId);
+    Task<bool> IsTranscodeRunningAsync(string clientId, string transcodeId);
 
     /// <summary>
     /// Stops the specified running client transcode
     /// </summary>
-    /// <param name="ClientId">ID of the client</param>
-    /// <param name="TranscodeId">ID of the transcode</param>
-    Task StopTranscodeAsync(string ClientId, string TranscodeId);
+    /// <param name="clientId">ID of the client</param>
+    /// <param name="transcodeId">ID of the transcode</param>
+    Task StopTranscodeAsync(string clientId, string transcodeId);
 
     /// <summary>
     /// Deletes transcoded files from the cache if needed
@@ -127,39 +127,39 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces
     /// <summary>
     /// Gets a stream from the specified file resource
     /// </summary>
-    /// <param name="FileResource">The file resource</param>
+    /// <param name="filePath">The file resource path</param>
     /// <returns>Stream from the requested file resource</returns>
-    Task<Stream> GetFileStreamAsync(ILocalFsResourceAccessor FileResource);
+    Task<StreamContext> GetFileStreamAsync(ResourcePath filePath);
 
     /// <summary>
     /// Gets a transcoded subtitle stream for the specified video transcode
     /// </summary>
-    /// <param name="ClientId">ID of the client requesting the stream</param>
-    /// <param name="VideoTarget">The video transcoding target</param>
+    /// <param name="clientId">ID of the client requesting the stream</param>
+    /// <param name="videoTarget">The video transcoding target</param>
     /// <returns>Stream for the transcoded subtitle</returns>
-    Task<Stream> GetSubtitleStreamAsync(string ClientId, VideoTranscoding VideoTarget);
+    Task<StreamContext> GetSubtitleStreamAsync(string clientId, VideoTranscoding videoTarget);
 
     /// <summary>
     /// Gets a transcode context for the specified media (video/audio/image) transcode
     /// </summary>
-    /// <param name="ClientId">ID of the client requesting the trancoded media</param>
-    /// <param name="MediaTarget">The media transcoding target</param>
-    /// <param name="StartTime">The number of seconds to skip in the video/audio</param>
-    /// <param name="Duration">The number of seconds to limit the transcode to</param>
-    /// <param name="WaitForBuffer">Wait for the buffer to start growing</param>
+    /// <param name="clientId">ID of the client requesting the trancoded media</param>
+    /// <param name="mediaTarget">The media transcoding target</param>
+    /// <param name="startTime">The number of seconds to skip in the video/audio</param>
+    /// <param name="duration">The number of seconds to limit the transcode to</param>
+    /// <param name="waitForBuffer">Wait for the buffer to start growing</param>
     /// <returns>Transcode context for the started transcode</returns>
-    Task<TranscodeContext> GetMediaStreamAsync(string ClientId, BaseTranscoding MediaTarget, double StartTime, double Duration, bool WaitForBuffer);
+    Task<TranscodeContext> GetMediaStreamAsync(string clientId, BaseTranscoding mediaTarget, double startTime, double duration, bool waitForBuffer);
 
     /// <summary>
     /// Gets a transcode context for the specified channel (SlimTv) transcode
     /// </summary>
-    /// <param name="ClientId">ID of the client requesting the trancoded media</param>
-    /// <param name="MediaTarget">The media transcoding target</param>
-    /// <param name="ChannelId">The channel number to transcode</param>
-    /// <param name="WaitForBuffer">Wait for the buffer to start growing</param>
+    /// <param name="clientId">ID of the client requesting the trancoded media</param>
+    /// <param name="mediaTarget">The media transcoding target</param>
+    /// <param name="channelId">The channel number to transcode</param>
+    /// <param name="waitForBuffer">Wait for the buffer to start growing</param>
     /// <returns>Transcode context for the started transcode</returns>
-    Task<TranscodeContext> GetLiveStreamAsync(string ClientId, BaseTranscoding MediaTarget, int ChannelId, bool WaitForBuffer);
-    
+    Task<TranscodeContext> GetLiveStreamAsync(string clientId, BaseTranscoding mediaTarget, int channelId, bool waitForBuffer);
+
     #endregion
   }
 }

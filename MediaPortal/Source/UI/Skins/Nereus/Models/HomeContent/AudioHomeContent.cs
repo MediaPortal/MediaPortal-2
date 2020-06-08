@@ -101,7 +101,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     { }
   }
 
-  public class AudioArtistShortcut : ActorShortcutItem
+  public class AudioArtistShortcut : ArtistShortcutItem
   {
     public AudioArtistShortcut()
       : base(Consts.WF_STATE_ID_AUDIO_NAVIGATION_ROOT, typeof(AudioFilterByAlbumArtistScreenData))

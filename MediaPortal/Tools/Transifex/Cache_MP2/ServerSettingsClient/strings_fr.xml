@@ -9,7 +9,8 @@
   <string name="Settings.ServerSettings.Password">Mot de passe:</string>
   <string name="Settings.ServerSettings.ImporterWorker">Actualisation du partage automatique</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configurer l\'actualisation automatique des actions</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Activer l\'actualisation automatique</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Activer l\'actualisation automatique du serveur </string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableClientAutoRefresh">Activer l\'actualisation automatique du client</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Heure de démarrage du processus  (base de 24h)</string>
   <string name="Settings.ServerSettings.AudioMDESettings">Paramètres d\'importation Audio</string>
   <string name="Settings.ServerSettings.MovieMDESettings">Paramètres d\'importation de Film</string>
@@ -34,6 +35,7 @@ Désactiver les filtres réduira le temps d\'importation.</string>
   <string name="Settings.ServerSettings.MDESettings.MDEBrowseOfflineLocal">Cache FanArt sur un dossier locale </string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Artists">Populer le filtre \"artiste\"</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Composers">Populer le filtre \"compositeur\"</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Conductors">Populer le filtre \"chef d\'orchestre\'</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.MusicLabels">Populer le filtre \"label musicale\"</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Actors">Populer le filtre \"acteur\"</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Characters">Populer le filtre \"Personnage\"</string>

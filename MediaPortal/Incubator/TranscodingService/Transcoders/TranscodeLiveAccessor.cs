@@ -3,9 +3,10 @@ using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
 {
-  public class TranscodeLiveAccessor : ITranscodeLiveAccessor
+  public class TranscodeLiveAccessor : ITranscodeLiveAccessor, INetworkResourceAccessor
   {
-    private Guid RESOURCE_PROVIDER_ID = new Guid("{231DC783-090E-4E4E-8BD6-4DFA2B7EB484}");
+    public static readonly Guid TRANSCODE_LIVE_PROVIDER_ID = new Guid("{231DC783-090E-4E4E-8BD6-4DFA2B7EB484}");
+
     private int _channelId = 0;
 
     public TranscodeLiveAccessor(int ChannelId)
@@ -17,7 +18,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
     {
       get
       {
-        return ResourcePath.BuildBaseProviderPath(RESOURCE_PROVIDER_ID, "");
+        return ResourcePath.BuildBaseProviderPath(TRANSCODE_LIVE_PROVIDER_ID, _channelId.ToString());
       }
     }
 
@@ -33,7 +34,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
     {
       get
       {
-        return null;
+        return _channelId.ToString();
       }
     }
 
@@ -49,7 +50,15 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
     {
       get
       {
-        return null;
+        return _channelId.ToString();
+      }
+    }
+
+    public string URL
+    {
+      get
+      {
+        return $"rtsp://channel_{_channelId}_stream_placeholder";
       }
     }
 

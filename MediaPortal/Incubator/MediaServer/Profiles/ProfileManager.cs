@@ -117,6 +117,13 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
         await LoadProfileLinksAsync();
       }
 
+      if (Guid.TryParse(request.Query["id"], out var clientId))
+      {
+        var idLink = ProfileLinks.FirstOrDefault(l => l.Value.ClientId == clientId);
+        if (idLink.Value != null)
+          return idLink.Value;
+      }
+
       if (request?.RemoteIpAddress == null)
       {
         Logger.Error("DetectProfile: Couldn't find remote address!");
@@ -131,12 +138,16 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       {
         if (link.Profile != null)
         {
+#if DEBUG
           Logger.Debug("DetectProfile: IP: {0}, using: {1}", ip, link.Profile.ID);
+#endif
           return link;
         }
         else if (link.AutoProfile == false)
         {
+#if DEBUG
           Logger.Debug("DetectProfile: IP: {0}, using: None", ip);
+#endif
           return null;
         }
       }      
@@ -171,7 +182,9 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
             List<TrackedDevice> trackedDevices = MediaServerPlugin.Tracker.GeTrackedDevicesByIp(ip);
             if (trackedDevices == null || trackedDevices.Count == 0)
             {
+#if DEBUG
               Logger.Warn("DetectProfile: No matching Devices");
+#endif
               break;
             }
 

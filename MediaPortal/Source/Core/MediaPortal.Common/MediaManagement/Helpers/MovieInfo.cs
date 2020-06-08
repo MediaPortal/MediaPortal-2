@@ -28,6 +28,8 @@ using System.Linq;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using System.Text.RegularExpressions;
 using System.Collections;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess;
 
 namespace MediaPortal.Common.MediaManagement.Helpers
 {
@@ -66,6 +68,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int AllocinebId = 0;
     public int CinePassionId = 0;
     public string NameId = null;
+    public Dictionary<string, string> CustomIds = new Dictionary<string, string>();
 
     public SimpleTitle MovieName = null;
     public SimpleTitle MovieNameSort = new SimpleTitle();
@@ -79,6 +82,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public SimpleTitle CollectionName = null;
     public int CollectionMovieDbId = 0;
     public string CollectionNameId = null;
+    public Dictionary<string, string> CustomCollectionIds = new Dictionary<string, string>();
 
     public float Popularity = 0;
     public long Budget = 0;
@@ -99,6 +103,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public List<CompanyInfo> ProductionCompanies = new List<CompanyInfo>();
     public List<GenreInfo> Genres = new List<GenreInfo>();
     public List<string> Awards = new List<string>();
+    public string SearchFilePath;
 
     public override bool IsBaseInfoPresent
     {
@@ -122,6 +127,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (CinePassionId > 0)
           return true;
         if (!string.IsNullOrEmpty(ImdbId))
+          return true;
+        if (CustomIds.Any())
           return true;
 
         return false;
@@ -187,6 +194,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, movie.ImdbId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, movie.MovieDbId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref CollectionMovieDbId, movie.CollectionMovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref AllocinebId, movie.AllocinebId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref CinePassionId, movie.CinePassionId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref CustomIds, movie.CustomIds);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref CustomCollectionIds, movie.CustomCollectionIds);
 
         HasChanged |= MetadataUpdater.SetOrUpdateString(ref MovieName, movie.MovieName, overwriteShorterStrings);
         HasChanged |= MetadataUpdater.SetOrUpdateString(ref OriginalName, movie.OriginalName);
@@ -270,9 +281,17 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (AllocinebId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_ALLOCINE, ExternalIdentifierAspect.TYPE_MOVIE, AllocinebId.ToString());
       if (CinePassionId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_CINEPASSION, ExternalIdentifierAspect.TYPE_MOVIE, CinePassionId.ToString());
       if (!string.IsNullOrEmpty(NameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_MOVIE, NameId);
+      foreach (var customId in CustomIds)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, customId.Key, ExternalIdentifierAspect.TYPE_MOVIE, customId.Value);
+      }
 
       if (CollectionMovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, CollectionMovieDbId.ToString());
       if (!string.IsNullOrEmpty(CollectionNameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COLLECTION, CollectionNameId);
+      foreach (var customId in CustomCollectionIds)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, customId.Key, ExternalIdentifierAspect.TYPE_COLLECTION, customId.Value);
+      }
 
       if (Runtime > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_RUNTIME_M, Runtime);
       if (Budget > 0) MediaItemAspect.SetAttribute(aspectData, MovieAspect.ATTR_BUDGET, Budget);
@@ -314,6 +333,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
+      bool success = false;
       GetMetadataChanged(aspectData);
 
       if (aspectData.ContainsKey(MovieAspect.ASPECT_ID))
@@ -346,22 +366,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_ORIG_MOVIE_NAME, out tempString);
         OriginalName = tempString;
 
-        string id;
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out id))
-          MovieDbId = Convert.ToInt32(id);
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_ALLOCINE, ExternalIdentifierAspect.TYPE_MOVIE, out id))
-          AllocinebId = Convert.ToInt32(id);
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_CINEPASSION, ExternalIdentifierAspect.TYPE_MOVIE, out id))
-          CinePassionId = Convert.ToInt32(id);
-
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
-          CollectionMovieDbId = Convert.ToInt32(id);
-
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out ImdbId);
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_MOVIE, out NameId);
-
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COLLECTION, out CollectionNameId);
-
         //Brownard 17.06.2016
         //The returned type of the collection differs on the server and client.
         //On the server it's an object collection but on the client it's a string collection due to [de]serialization.
@@ -390,20 +394,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           Characters.AddRange(collection.Cast<string>().Select(s => new CharacterInfo { Name = s, MediaName = MovieName.Text }));
         foreach (CharacterInfo character in Characters)
           character.AssignNameId();
-
-        Genres.Clear();
-        IList<MultipleMediaItemAspect> genreAspects;
-        if (MediaItemAspect.TryGetAspects(aspectData, GenreAspect.Metadata, out genreAspects))
-        {
-          foreach (MultipleMediaItemAspect genre in genreAspects)
-          {
-            Genres.Add(new GenreInfo
-            {
-              Id = genre.GetAttributeValue<int?>(GenreAspect.ATTR_ID),
-              Name = genre.GetAttributeValue<string>(GenreAspect.ATTR_GENRE)
-            });
-          }
-        }
 
         Awards.Clear();
         if (MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_AWARDS, out collection))
@@ -415,28 +405,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         foreach (CompanyInfo company in ProductionCompanies)
           company.AssignNameId();
 
-        byte[] data;
-        if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
-          HasThumbnail = true;
-
-        if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
-        {
-          Languages.Clear();
-          IList<MultipleMediaItemAspect> audioAspects;
-          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
-          {
-            foreach (MultipleMediaItemAspect audioAspect in audioAspects)
-            {
-              string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-              if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
-              {
-                Languages.Add(language);
-              }
-            }
-          }
-        }
-
-        return true;
+        success = true;
       }
       else if (aspectData.ContainsKey(VideoAspect.ASPECT_ID))
       {
@@ -445,22 +414,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MovieName = new SimpleTitle(tempString, false);
 
         MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, out ReleaseDate);
-
-        string id;
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out id))
-          MovieDbId = Convert.ToInt32(id);
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_ALLOCINE, ExternalIdentifierAspect.TYPE_MOVIE, out id))
-          AllocinebId = Convert.ToInt32(id);
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_CINEPASSION, ExternalIdentifierAspect.TYPE_MOVIE, out id))
-          CinePassionId = Convert.ToInt32(id);
-
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
-          CollectionMovieDbId = Convert.ToInt32(id);
-
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out ImdbId);
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_MOVIE, out NameId);
-
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COLLECTION, out CollectionNameId);
 
         //Brownard 17.06.2016
         //The returned type of the collection differs on the server and client.
@@ -491,6 +444,21 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         foreach (CharacterInfo character in Characters)
           character.AssignNameId();
 
+        success = true;
+      }
+      else if (aspectData.ContainsKey(MediaAspect.ASPECT_ID))
+      {
+        string tempString;
+        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_TITLE, out tempString);
+        MovieName = new SimpleTitle(tempString, false);
+
+        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, out ReleaseDate);
+
+        success = true;
+      }
+
+      if (success)
+      {
         Genres.Clear();
         IList<MultipleMediaItemAspect> genreAspects;
         if (MediaItemAspect.TryGetAspects(aspectData, GenreAspect.Metadata, out genreAspects))
@@ -526,56 +494,62 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           }
         }
 
-        return true;
-      }
-      else if (aspectData.ContainsKey(MediaAspect.ASPECT_ID))
-      {
-        string tempString;
-        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_TITLE, out tempString);
-        MovieName = new SimpleTitle(tempString, false);
-
-        MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_RECORDINGTIME, out ReleaseDate);
-
-        string id;
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_MOVIE, out id))
-          MovieDbId = Convert.ToInt32(id);
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_ALLOCINE, ExternalIdentifierAspect.TYPE_MOVIE, out id))
-          AllocinebId = Convert.ToInt32(id);
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_CINEPASSION, ExternalIdentifierAspect.TYPE_MOVIE, out id))
-          CinePassionId = Convert.ToInt32(id);
-
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
-          CollectionMovieDbId = Convert.ToInt32(id);
-
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_IMDB, ExternalIdentifierAspect.TYPE_MOVIE, out ImdbId);
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_MOVIE, out NameId);
-
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COLLECTION, out CollectionNameId);
-
-        byte[] data;
-        if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
-          HasThumbnail = true;
-
-        if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
+        CustomIds.Clear();
+        CustomCollectionIds.Clear();
+        IList<MultipleMediaItemAspect> externalIdAspects;
+        if (MediaItemAspect.TryGetAspects(aspectData, ExternalIdentifierAspect.Metadata, out externalIdAspects))
         {
-          Languages.Clear();
-          IList<MultipleMediaItemAspect> audioAspects;
-          if (MediaItemAspect.TryGetAspects(aspectData, VideoAudioStreamAspect.Metadata, out audioAspects))
+          foreach (MultipleMediaItemAspect externalId in externalIdAspects)
           {
-            foreach (MultipleMediaItemAspect audioAspect in audioAspects)
+            string source = externalId.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+            string id = externalId.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+            string type = externalId.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+            if (type == ExternalIdentifierAspect.TYPE_MOVIE)
             {
-              string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
-              if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
+              if (source == ExternalIdentifierAspect.SOURCE_TMDB)
               {
-                Languages.Add(language);
+                MovieDbId = Convert.ToInt32(id);
+              }
+              else if (source == ExternalIdentifierAspect.SOURCE_ALLOCINE)
+              {
+                AllocinebId = Convert.ToInt32(id);
+              }
+              else if (source == ExternalIdentifierAspect.SOURCE_CINEPASSION)
+              {
+                CinePassionId = Convert.ToInt32(id);
+              }
+              else if (source == ExternalIdentifierAspect.SOURCE_IMDB)
+              {
+                ImdbId = id;
+              }
+              else if (source == ExternalIdentifierAspect.SOURCE_NAME)
+              {
+                NameId = id;
+              }
+              else
+              {
+                CustomIds.Add(source, id);
+              }
+            }
+            else if (type == ExternalIdentifierAspect.TYPE_COLLECTION)
+            {
+              if (source == ExternalIdentifierAspect.SOURCE_TMDB)
+              {
+                CollectionMovieDbId = Convert.ToInt32(id);
+              }
+              else if (source == ExternalIdentifierAspect.SOURCE_NAME)
+              {
+                CollectionNameId = id;
+              }
+              else
+              {
+                CustomCollectionIds.Add(source, id);
               }
             }
           }
         }
-
-        return true;
       }
-      return false;
+      return success;
     }
 
     public string ToShortString()
@@ -617,6 +591,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         NameId = otherMovie.NameId;
         CollectionMovieDbId = otherMovie.CollectionMovieDbId;
         CollectionNameId = otherMovie.CollectionNameId;
+        foreach (var keyVal in otherMovie.CustomIds)
+          CustomIds[keyVal.Key] = keyVal.Value;
+        foreach (var keyVal in otherMovie.CustomCollectionIds)
+          CustomCollectionIds[keyVal.Key] = keyVal.Value;
         return true;
       }
       else if (otherInstance is MovieCollectionInfo)
@@ -624,6 +602,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MovieCollectionInfo otherCollection = otherInstance as MovieCollectionInfo;
         CollectionMovieDbId = otherCollection.MovieDbId;
         CollectionNameId = otherCollection.NameId;
+        foreach (var keyVal in otherCollection.CustomIds)
+          CustomCollectionIds[keyVal.Key] = keyVal.Value;
         return true;
       }
       return false;
@@ -636,6 +616,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MovieCollectionInfo info = new MovieCollectionInfo();
         info.MovieDbId = CollectionMovieDbId;
         info.NameId = CollectionNameId;
+        foreach (var keyVal in CustomCollectionIds)
+          info.CustomIds[keyVal.Key] = keyVal.Value;
         info.CollectionName = new SimpleTitle(CollectionName.Text, CollectionName.DefaultLanguage);
         info.Languages.AddRange(Languages);
         info.LastChanged = LastChanged;
@@ -677,6 +659,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return CinePassionId == other.CinePassionId;
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+      foreach(var key in CustomIds.Keys)
+      {
+        if (other.CustomIds.ContainsKey(key))
+          return string.Equals(CustomIds[key], other.CustomIds[key], StringComparison.InvariantCultureIgnoreCase);
+      }
 
       //Name id is generated from name and can be unreliable so should only be used if matches
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&

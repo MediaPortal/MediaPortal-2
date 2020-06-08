@@ -26,6 +26,8 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Text.RegularExpressions;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 
@@ -33,7 +35,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
 {
   public class FFMpegParseStreamSubtitleLine
   {
-    internal static void ParseStreamSubtitleLine(string streamSubtitleLine, ref MetadataContainer info, Dictionary<string, CultureInfo>  countryCodesMapping)
+    internal static void ParseStreamSubtitleLine(IResourceAccessor file, string streamSubtitleLine, ref MetadataContainer info, Dictionary<string, CultureInfo>  countryCodesMapping)
     {
       streamSubtitleLine = streamSubtitleLine.Trim();
 
@@ -63,7 +65,9 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
       string codecValue = streamSubtitleLine.Substring(streamSubtitleLine.IndexOf("Subtitle: ", StringComparison.InvariantCultureIgnoreCase) + 10).Split(' ')[0];
       sub.Codec = FFMpegParseSubtitleCodec.ParseSubtitleCodec(codecValue);
       sub.Default = streamSubtitleLine.IndexOf("(default)", StringComparison.InvariantCultureIgnoreCase) > -1;
-      info.Subtitles.Add(sub);
+      if (!info.Subtitles[Editions.DEFAULT_EDITION].ContainsKey(0))
+        info.Subtitles[Editions.DEFAULT_EDITION].Add(0, new List<SubtitleStream>());
+      info.Subtitles[Editions.DEFAULT_EDITION][0].Add(sub);
     }
   }
 }

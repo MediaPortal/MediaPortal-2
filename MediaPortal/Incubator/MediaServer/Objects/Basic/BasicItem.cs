@@ -30,8 +30,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
   {
     private string _containerClass = "object.item";
 
-    public BasicItem(string key, EndPointSettings client)
-      : base(key, client)
+    public BasicItem(string key, EndPointSettings client, bool placeholder = false)
+      : base(key, client, placeholder)
     {
     }
 
@@ -43,7 +43,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       set { _containerClass = value; }
     }
 
-    public override void Initialise()
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
     }
   }

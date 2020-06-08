@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Linq;
 using MediaPortal.Common;
 using MediaPortal.Extensions.MediaServer.Objects.Basic;
 using MediaPortal.Extensions.MediaServer.Profiles;
@@ -39,7 +40,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     {
     }
 
-    public IList<IChannelGroup> GetItems()
+    public IList<IChannelGroup> GetItems(string sortCriteria)
     {
       if (ServiceRegistration.IsRegistered<ITvProvider>())
       {
@@ -50,19 +51,20 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
         if (result.Success)
         {
           result.Result = FilterGroups(result.Result);
-          return result.Result;
+          return result.Result.OrderBy(g => g.Name).ToList();
         }
       }
       return null;
     }
 
-    public override void Initialise()
+    public override void Initialise(string sortCriteria, uint? offset = null, uint? count = null)
     {
+      base.Initialise(sortCriteria, offset, count);
+
       ILocalization language = ServiceRegistration.Get<ILocalization>();
+      IList<IChannelGroup> items = GetItems(sortCriteria);
 
-      IList<IChannelGroup> items = GetItems();
-
-      foreach (IChannelGroup item in items)
+      foreach (IChannelGroup item in items.OrderBy(g => g.Name))
       {
         string title = item.Name;
         string key = "BROADCAST_GROUP_" + item.ChannelGroupId;
@@ -72,7 +74,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
         Add(container);
       }
-      Sort();
     }
   }
 }

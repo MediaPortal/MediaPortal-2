@@ -100,7 +100,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     /// <summary>
     /// Gets or Sets the list of groups in which the channel is.
     /// </summary>
-    IList<string> GroupNames { get; set; }
+    List<string> GroupNames { get; set; }
   }
 
   public static class ChannelExtensions

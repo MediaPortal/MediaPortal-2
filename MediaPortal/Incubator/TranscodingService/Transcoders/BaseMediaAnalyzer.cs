@@ -38,6 +38,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Common.PathManager;
 using Newtonsoft.Json;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Text;
 using MediaPortal.Extensions.TranscodingService.Interfaces.MetaData;
 using System.Threading.Tasks;
@@ -51,8 +52,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
   {
     #region Constants
 
-    protected const string LIVE_MEDIAINFO_KEY = "MediaInfo";
     protected static readonly string DEFAULT_ANALYSIS_CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Transcoding\");
+    protected static readonly IEnumerable<string> OPTICAL_DISC_FILE_EXT = new string[] { ".vob", ".m2ts" };
+    protected static string AUDIO_CATEGORY = "Audio";
+    protected static string VIDEO_CATEGORY = "Video";
+    protected static string IMAGE_CATEGORY = "Image";
 
     #endregion
 
@@ -62,9 +66,9 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
     protected ILogger _logger = null;
     protected readonly Dictionary<float, long> _h264MaxDpbMbs = new Dictionary<float, long>();
     protected SlimTvHandler _slimTvHandler = new SlimTvHandler();
-    protected ICollection<string> _audioExtensions = new List<string>();
-    protected ICollection<string> _videoExtensions = new List<string>();
-    protected ICollection<string> _imageExtensions = new List<string>();
+    protected ICollection<string> _audioExtensions;
+    protected ICollection<string> _videoExtensions;
+    protected ICollection<string> _imageExtensions;
 
     public BaseMediaAnalyzer()
     {
@@ -112,106 +116,112 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       return _imageExtensions.Contains(ext);
     }
 
-    public abstract Task<MetadataContainer> ParseMediaStreamAsync(IResourceAccessor MediaResource, string AnalysisName = null);
-
-    private void CopyAspects(MediaItem SourceMediaItem, MediaItem DestinationMediaItem)
+    protected bool HasOpticalDiscFileExtension(string fileName)
     {
-      foreach (IList<MediaItemAspect> aspectList in SourceMediaItem.Aspects.Values.ToList())
+      string ext = DosPathHelper.GetExtension(fileName).ToLowerInvariant();
+      return OPTICAL_DISC_FILE_EXT.Contains(ext);
+    }
+
+    public abstract Task<MetadataContainer> ParseMediaStreamAsync(IEnumerable<IResourceAccessor> mediaResources);
+
+    private void CopyAspects(MediaItem sourceMediaItem, MediaItem destinationMediaItem)
+    {
+      foreach (IList<MediaItemAspect> aspectList in sourceMediaItem.Aspects.Values.ToList())
       {
         foreach (MediaItemAspect aspectData in aspectList.ToList())
         {
           if (aspectData is SingleMediaItemAspect)
           {
-            MediaItemAspect.SetAspect(DestinationMediaItem.Aspects, (SingleMediaItemAspect)aspectData);
+            MediaItemAspect.SetAspect(destinationMediaItem.Aspects, (SingleMediaItemAspect)aspectData);
           }
           else if (aspectData is MultipleMediaItemAspect)
           {
-            MediaItemAspect.AddOrUpdateAspect(DestinationMediaItem.Aspects, (MultipleMediaItemAspect)aspectData);
+            MediaItemAspect.AddOrUpdateAspect(destinationMediaItem.Aspects, (MultipleMediaItemAspect)aspectData);
           }
         }
       }
     }
 
-    private async Task<MetadataContainer> ParseSlimTvItemAsync(LiveTvMediaItem LiveMedia)
+    private async Task<MetadataContainer> ParseSlimTvItemAsync(LiveTvMediaItem liveMedia)
     {
       try
       {
-        if (LiveMedia.AdditionalProperties.ContainsKey(LIVE_MEDIAINFO_KEY))
-        {
-          return (MetadataContainer)LiveMedia.AdditionalProperties[LIVE_MEDIAINFO_KEY];
-        }
-        else //Not been tuned for transcode aspects yet
-        {
-          LiveTvMediaItem liveMediaItem = new LiveTvMediaItem(LiveMedia.MediaItemId, LiveMedia.Aspects); //Preserve current aspects
-          IChannel channel = (IChannel)LiveMedia.AdditionalProperties[LiveTvMediaItem.CHANNEL];
-          var container = await ParseChannelStreamAsync(channel.ChannelId, liveMediaItem).ConfigureAwait(false);
-          if (container == null) return null;
-          CopyAspects(liveMediaItem, LiveMedia);
-          LiveMedia.AdditionalProperties.Add(LIVE_MEDIAINFO_KEY, container);
-          return container;
-        }
+        LiveTvMediaItem liveMediaItem = new LiveTvMediaItem(liveMedia.MediaItemId, liveMedia.Aspects); //Preserve current aspects
+        IChannel channel = (IChannel)liveMedia.AdditionalProperties[LiveTvMediaItem.CHANNEL];
+        var container = await ParseChannelStreamAsync(channel.ChannelId, liveMediaItem).ConfigureAwait(false);
+        if (container == null)
+          return null;
+
+        CopyAspects(liveMediaItem, liveMedia);
+        return container;
       }
       catch (Exception ex)
       {
-        _logger.Error("MediaAnalyzer: Live mediaitem {0} could not be parsed", ex, LiveMedia.MediaItemId);
+        _logger.Error("MediaAnalyzer: Live mediaitem {0} could not be parsed", ex, liveMedia.MediaItemId);
       }
       return null;
     }
 
-    public async Task<IDictionary<int, IList<MetadataContainer>>> ParseMediaItemAsync(MediaItem Media, int? editionId = null)
+    public async Task<MetadataContainer> ParseMediaItemAsync(MediaItem media, int? editionId = null, bool cache = true)
     {
       try
       {
-        if (Media.IsStub)
+        if (media.IsStub)
           return null;
 
-        IDictionary<int, IList<MetadataContainer>> mediaContainers = new Dictionary<int, IList<MetadataContainer>>();
+        string category = null;
+        MetadataContainer info = null;
 
         //Check for live items
-        if (Media.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
+        if (media.Aspects.ContainsKey(AudioAspect.ASPECT_ID))
         {
-          if (Media.IsLiveRadioItem() && Media is LiveTvMediaItem ltmi)
+          category = AUDIO_CATEGORY;
+          if (media.IsLiveRadioItem() && media is LiveTvMediaItem ltmi)
           {
-            MetadataContainer info = await ParseSlimTvItemAsync(ltmi).ConfigureAwait(false);
+            info = await ParseSlimTvItemAsync(ltmi).ConfigureAwait(false);
             if (info != null)
             {
-              info.Metadata.Live = true;
-              info.Metadata.Size = 0;
+              info.Metadata[Editions.DEFAULT_EDITION].Live = true;
+              info.Metadata[Editions.DEFAULT_EDITION].Size = 0;
             }
+            return info;
+          }
+        }
+        else if (media.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
+        {
+          category = VIDEO_CATEGORY;
+          if (media.IsLiveTvItem() && media is LiveTvMediaItem ltmi)
+          {
+            info = await ParseSlimTvItemAsync(ltmi).ConfigureAwait(false);
+            if (info != null)
+            {
+              info.Metadata[Editions.DEFAULT_EDITION].Live = true;
+              info.Metadata[Editions.DEFAULT_EDITION].Size = 0;
+            }
+            return info;
+          }
+        }
+        else if (media.Aspects.ContainsKey(ImageAspect.ASPECT_ID))
+        {
+          category = IMAGE_CATEGORY;
+        }
 
-            mediaContainers.Add(-1, new MetadataContainer[] { info });
-            return mediaContainers;
-          }
-        }
-        else if (Media.Aspects.ContainsKey(VideoAspect.ASPECT_ID))
-        {
-          if (Media.IsLiveTvItem() && Media is LiveTvMediaItem ltmi)
-          {
-            MetadataContainer info = await ParseSlimTvItemAsync(ltmi).ConfigureAwait(false);
-            if (info != null)
-            {
-              info.Metadata.Live = true;
-              info.Metadata.Size = 0;
-            }
-            mediaContainers.Add(-1, new MetadataContainer[] { info });
-            return mediaContainers;
-          }
-        }
+        info = await LoadAnalysisAsync(media, category, media.MediaItemId);
+        if (info != null)
+          return info;
 
         IList<MultipleMediaItemAspect> providerAspects;
-        if (!MediaItemAspect.TryGetAspects(Media.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
-        {
+        if (!MediaItemAspect.TryGetAspects(media.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
           return null;
-        }
 
         IDictionary<int, ResourceLocator> resources = null;
-        if (Media.HasEditions)
+        if (media.HasEditions)
         {
           IEnumerable<int> praIdxs = null;
           if (editionId.HasValue)
-            praIdxs = Media.Editions.First(e => e.Key == editionId.Value).Value.PrimaryResourceIndexes;
+            praIdxs = media.Editions.First(e => e.Key == editionId.Value).Value.PrimaryResourceIndexes;
           else
-            praIdxs = Media.Editions.SelectMany(e => e.Value.PrimaryResourceIndexes).Distinct();
+            praIdxs = media.Editions.SelectMany(e => e.Value.PrimaryResourceIndexes).Distinct();
 
           resources = providerAspects.Where(pra => praIdxs.Contains(pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX))).
               ToDictionary(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX), pra => new ResourceLocator(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_SYSTEM_ID), ResourcePath.Deserialize(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))));
@@ -223,13 +233,18 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         }
 
         //Process media resources
-        Dictionary<int, (string Name, List<IResourceAccessor> Files)> processedResources = new Dictionary<int, (string, List<IResourceAccessor>)>();
+        Dictionary<int, Dictionary<int, IResourceAccessor>> editions = new Dictionary<int, Dictionary<int, IResourceAccessor>>();
         foreach (var res in resources)
         {
+          int edition = Editions.DEFAULT_EDITION;
+          if (media.HasEditions)
+            edition = media.Editions.FirstOrDefault(e => e.Value.PrimaryResourceIndexes.Contains(res.Key)).Value.SetNo;
+
+          if (!editions.ContainsKey(edition))
+            editions.Add(edition, new Dictionary<int, IResourceAccessor>());
           IResourceAccessor mia = res.Value.CreateAccessor();
-          if (!processedResources.ContainsKey(res.Key))
-            processedResources.Add(res.Key, (mia.ResourceName, new List<IResourceAccessor>()));
-          if (mia is ILocalFsResourceAccessor fileRes && !fileRes.IsFile)
+
+          if (mia is IFileSystemResourceAccessor fileRes && !fileRes.IsFile)
           {
             if (fileRes.ResourceExists("VIDEO_TS"))
             {
@@ -237,16 +252,16 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
               {
                 if (fsraVideoTs != null && fsraVideoTs.ResourceExists("VIDEO_TS.IFO"))
                 {
-                  using (var mainRes = fsraVideoTs.GetFiles().Where(f => f.ResourceName.EndsWith(".vob", StringComparison.InvariantCultureIgnoreCase)).OrderByDescending(f => f.Size).ThenBy(f => f.ResourceName).FirstOrDefault())
+                  //Find all titles and add each of them
+                  var titles = GetDvdTitleFiles(fsraVideoTs);
+                  foreach (var title in titles)
                   {
-                    if (mainRes != null)
+                    int fileNo = 0;
+                    foreach (var file in title.Value)
                     {
-                      var fileMask = mainRes.ResourceName.Substring(0, mainRes.ResourceName.LastIndexOf("_"));
-                      var orderedFileList = fsraVideoTs.GetFiles().Where(f => f.ResourceName.StartsWith(fileMask, StringComparison.InvariantCultureIgnoreCase) &&
-                        !Path.GetFileNameWithoutExtension(f.ResourcePathName).EndsWith("_0") &&
-                        f.ResourceName.EndsWith(".vob", StringComparison.InvariantCultureIgnoreCase)).Select(f => f as ILocalFsResourceAccessor).OrderBy(f => f.ResourceName);
-                      foreach (var file in orderedFileList)
-                        processedResources[res.Key].Files.Add(file);
+                      fileNo++;
+                      int titleKey = MetadataContainer.GetDvdResource(res.Key, title.Key, fileNo);
+                      editions[edition].Add(titleKey, file);
                     }
                   }
                 }
@@ -260,98 +275,117 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
                 {
                   using (IFileSystemResourceAccessor fsraStream = fsraBDMV.GetResource("STREAM"))
                   {
-                    var orderedFileList = fsraStream.GetFiles().Where(f => f.ResourceName.EndsWith(".m2ts", StringComparison.InvariantCultureIgnoreCase)).Select(f => f as ILocalFsResourceAccessor).OrderBy(f => f.ResourceName);
-                    processedResources[res.Key].Files.Add(orderedFileList.First());
+                    var orderedFileList = fsraStream.GetFiles().Where(f => f.ResourceName.EndsWith(".m2ts", StringComparison.InvariantCultureIgnoreCase)).OrderByDescending(f => f.Size);
+                    //Use the largest file which is probably the main stream
+                    var mainStream = orderedFileList.First();
+                    editions[edition].Add(res.Key, mainStream);
                   }
                 }
               }
             }
-            mia.Dispose();
           }
           else
           {
-            processedResources[res.Key].Files.Add(mia);
+            editions[edition].Add(res.Key, mia);
           }
+          mia.Dispose();
+        }
+
+        if (!editions.Any())
+        {
+          _logger.Error("MediaAnalyzer: Media item {0} has no resources to process", media.MediaItemId);
+          return null;
         }
 
         //Analyze media
-        foreach (var res in processedResources)
+        info = new MetadataContainer();
+        try
         {
-          int fileIndex = 0;
-          foreach (var file in res.Value.Files)
+          foreach (var edition in editions)
           {
-            MetadataContainer info = await ParseMediaStreamAsync(file, $"{res.Value.Name}-{fileIndex++}").ConfigureAwait(false);
-            if (info == null)
+            info.AddEdition(edition.Key);
+
+            if (edition.Value.Any(r => MetadataContainer.IsDvdResource(r.Key)))
             {
-              _logger.Error("MediaAnalyzer: Mediaitem {0} could not be parsed for information", Media.MediaItemId);
-              return null;
+              //Dvd resources will be analyzes as a merged file
+              var analysis = await ParseMediaStreamAsync(edition.Value.Values).ConfigureAwait(false);
+              if (analysis == null)
+              {
+                _logger.Error("MediaAnalyzer: Media item {0} could not be parsed for information", media.MediaItemId);
+                return null;
+              }
+
+              info.Metadata[edition.Key] = analysis.Metadata[Editions.DEFAULT_EDITION];
+              info.Image[edition.Key] = analysis.Image[Editions.DEFAULT_EDITION];
+              info.Video[edition.Key] = analysis.Video[Editions.DEFAULT_EDITION];
+              info.Audio[edition.Key] = analysis.Audio[Editions.DEFAULT_EDITION];
+              info.Subtitles[edition.Key] = analysis.Subtitles[Editions.DEFAULT_EDITION];
+              info.Metadata[edition.Key].FilePaths = edition.Value.ToDictionary(k => k.Key, r => r.Value.CanonicalLocalResourcePath.Serialize());
             }
             else
             {
-              info.Metadata.Source = file;
-
-              //Add external subtitles (embedded ones should already be included)
-              IList<MultipleMediaItemAspect> subtitleAspects;
-              if (MediaItemAspect.TryGetAspects(Media.Aspects, SubtitleAspect.Metadata, out subtitleAspects))
+              //Stacked files will be analyzed individually because we need individual durations for subtitle merging
+              bool firstFile = true;
+              foreach (var file in edition.Value)
               {
-                IResourceAccessor ra = null;
-                info.Subtitles.AddRange(subtitleAspects.Where(sa => sa.GetAttributeValue<int>(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX) == res.Key && sa.GetAttributeValue<bool>(SubtitleAspect.ATTR_INTERNAL) == false &&
-                  ResourcePath.Deserialize(providerAspects.FirstOrDefault(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == sa.GetAttributeValue<int>(SubtitleAspect.ATTR_RESOURCE_INDEX))?.
-                      GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) ?? "").TryCreateLocalResourceAccessor(out ra) && ra is ILocalFsResourceAccessor).
-                  Select(sa => new SubtitleStream
-                  {
-                    StreamIndex = -1,
-                    CharacterEncoding = sa.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_ENCODING),
-                    Codec = SubtitleHelper.GetSubtitleCodec(sa.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_FORMAT)),
-                    Default = sa.GetAttributeValue<bool>(SubtitleAspect.ATTR_DEFAULT),
-                    Language = sa.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE),
-                    IsPartial = processedResources.Count > 1,
-                    Source = (ra as ILocalFsResourceAccessor).LocalFileSystemPath
-                  }));
+                var analysis = await ParseMediaStreamAsync(new[] { file.Value }).ConfigureAwait(false);
+                if (analysis == null)
+                {
+                  _logger.Error("MediaAnalyzer: Media item {0} ({1}) could not be parsed for information", media.MediaItemId, file.Value.ResourceName);
+                  return null;
+                }
+
+                if (firstFile)
+                {
+                  //We assume the remaining files on the stack have the same encoding etc.
+                  info.Metadata[edition.Key] = analysis.Metadata[Editions.DEFAULT_EDITION];
+                  info.Image[edition.Key] = analysis.Image[Editions.DEFAULT_EDITION];
+                  info.Video[edition.Key] = analysis.Video[Editions.DEFAULT_EDITION];
+                  info.Audio[edition.Key] = analysis.Audio[Editions.DEFAULT_EDITION];
+                  info.Subtitles[edition.Key] = analysis.Subtitles[Editions.DEFAULT_EDITION];
+
+                  firstFile = false;
+                }
+                else
+                {
+                  info.Metadata[edition.Key].Size += analysis.Metadata[Editions.DEFAULT_EDITION].Size;
+                  info.Metadata[edition.Key].Duration += analysis.Metadata[Editions.DEFAULT_EDITION].Duration;
+                }
+
+                info.Metadata[edition.Key].FileDurations.Add(file.Key, analysis.Metadata[Editions.DEFAULT_EDITION].Duration);
+                info.Metadata[edition.Key].FilePaths.Add(file.Key, file.Value.CanonicalLocalResourcePath.Serialize());
               }
             }
-            int edition = -1;
-            if (Media.HasEditions)
-              edition = Media.Editions.First(e => e.Value.PrimaryResourceIndexes.Contains(res.Key)).Key;
-            if (!mediaContainers.ContainsKey(edition))
-              mediaContainers.Add(edition, new List<MetadataContainer>());
-
-            mediaContainers[edition].Add(info);
           }
         }
-        return mediaContainers;
+        finally
+        {
+          //Dispose accessors
+          foreach (var res in editions.Values)
+            foreach (var file in res.Values)
+              file.Dispose();
+        }
+
+        await SaveAnalysisAsync(info, category, media.MediaItemId);
+
+        AddExternalSubtitleAspects(media, info);
+        return info;
       }
       catch (Exception ex)
       {
-        _logger.Error("MediaAnalyzer: Mediaitem {0} could not be parsed", ex, Media.MediaItemId);
+        _logger.Error("MediaAnalyzer: Media item {0} could not be parsed", ex, media.MediaItemId);
       }
       return null;
     }
 
-    private string GetResourceCategory(string resourceName)
-    {
-      if (HasAudioExtension(resourceName))
-      {
-        return "Audio";
-      }
-      else if (HasImageExtension(resourceName))
-      {
-        return "Image";
-      }
-      else if (HasVideoExtension(resourceName))
-      {
-        return "Video";
-      }
-      return "";
-    }
-
-    protected async Task SaveAnalysisAsync(IResourceAccessor accessor, MetadataContainer analysis, string analysisName)
+    protected async Task SaveAnalysisAsync(MetadataContainer analysis, string category, Guid mediaItemId)
     {
       try
       {
         string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
-        filePath = Path.Combine(filePath, GetResourceCategory(accessor.ResourceName));
-        filePath = Path.Combine(filePath, $"{analysisName}.analysis");
+        if (!string.IsNullOrEmpty(category))
+          filePath = Path.Combine(filePath, category);
+        filePath = Path.Combine(filePath, $"{mediaItemId.ToString()}.analysis");
         if (!File.Exists(filePath))
         {
           if (!Directory.Exists(Path.GetDirectoryName(filePath)))
@@ -363,52 +397,128 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       }
       catch (Exception ex)
       {
-        _logger.Error("MediaAnalyzer: Error saving analysis", ex);
+        _logger.Error("MediaAnalyzer: Error saving analysis for media item {0}", ex, mediaItemId);
       }
     }
 
-    protected async Task<MetadataContainer> LoadAnalysisAsync(IResourceAccessor accessor, string analysisName)
+    protected async Task<MetadataContainer> LoadAnalysisAsync(MediaItem media, string category, Guid mediaItemId)
     {
       try
       {
         string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
-        filePath = Path.Combine(filePath, GetResourceCategory(accessor.ResourceName));
-        filePath = Path.Combine(filePath, $"{analysisName}.analysis");
+        if (!string.IsNullOrEmpty(category))
+          filePath = Path.Combine(filePath, category);
+        filePath = Path.Combine(filePath, $"{mediaItemId.ToString()}.analysis");
         if (File.Exists(filePath))
         {
           MetadataContainer info = null;
           using (var streamReader = new StreamReader(filePath, Encoding.UTF8))
             info = JsonConvert.DeserializeObject<MetadataContainer>(await streamReader.ReadToEndAsync().ConfigureAwait(false));
-          info.Metadata.Source = accessor;
+          AddExternalSubtitleAspects(media, info);
           return info;
         }
       }
       catch (Exception ex)
       {
-        _logger.Error("MediaAnalyzer: Error loading analysis", ex);
+        _logger.Error("MediaAnalyzer: Error loading analysis for media item {0}", ex, mediaItemId);
       }
       return null;
     }
 
-    public async Task<MetadataContainer> ParseChannelStreamAsync(int ChannelId, LiveTvMediaItem ChannelMediaItem)
+    public Task DeleteAnalysisAsync(Guid mediaItemId)
+    {
+      try
+      {
+        //Check possible file paths
+        string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
+        filePath = Path.Combine(filePath, $"{mediaItemId.ToString()}.analysis");
+        if (!File.Exists(filePath))
+        {
+          filePath = DEFAULT_ANALYSIS_CACHE_PATH;
+          filePath = Path.Combine(filePath, VIDEO_CATEGORY);
+          filePath = Path.Combine(filePath, $"{mediaItemId.ToString()}.analysis");
+        }
+
+        if (!File.Exists(filePath))
+        {
+          filePath = DEFAULT_ANALYSIS_CACHE_PATH;
+          filePath = Path.Combine(filePath, AUDIO_CATEGORY);
+          filePath = Path.Combine(filePath, $"{mediaItemId.ToString()}.analysis");
+        }
+
+        if (!File.Exists(filePath))
+        {
+          filePath = DEFAULT_ANALYSIS_CACHE_PATH;
+          filePath = Path.Combine(filePath, IMAGE_CATEGORY);
+          filePath = Path.Combine(filePath, $"{mediaItemId.ToString()}.analysis");
+        }
+
+        if (File.Exists(filePath))
+        {
+          File.Delete(filePath);
+        }
+      }
+      catch (Exception ex)
+      {
+        _logger.Error("MediaAnalyzer: Error deleting analysis for media item {0}", ex, mediaItemId);
+      }
+
+      return Task.CompletedTask;
+    }
+
+    public ICollection<Guid> GetAllAnalysisIds()
+    {
+      List<Guid> ids = new List<Guid>();
+      string filePath = DEFAULT_ANALYSIS_CACHE_PATH;
+      foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
+      {
+        if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
+          ids.Add(guid);
+      }
+      filePath = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, VIDEO_CATEGORY);
+      foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
+      {
+        if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
+          ids.Add(guid);
+      }
+      filePath = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, AUDIO_CATEGORY);
+      foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
+      {
+        if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
+          ids.Add(guid);
+      }
+      filePath = Path.Combine(DEFAULT_ANALYSIS_CACHE_PATH, IMAGE_CATEGORY);
+      foreach (var file in Directory.EnumerateFiles(filePath, "*.analysis"))
+      {
+        if (Guid.TryParse(Path.GetFileNameWithoutExtension(file), out var guid) && !ids.Contains(guid))
+          ids.Add(guid);
+      }
+
+      return ids;
+    }
+
+    public async Task<MetadataContainer> ParseChannelStreamAsync(int channelId, LiveTvMediaItem channelMediaItem)
     {
       MetadataContainer info = null;
       try
       {
-        string identifier = "MediaAnalyzer_" + ChannelId;
-        var result = await _slimTvHandler.StartTuningAsync(identifier, ChannelId).ConfigureAwait(false);
+        string identifier = "MediaAnalyzer_" + channelId;
+        var result = await _slimTvHandler.StartTuningAsync(identifier, channelId).ConfigureAwait(false);
         try
         {
           if (result.Success)
           {
-            CopyAspects(result.LiveMediaItem, ChannelMediaItem);
+            CopyAspects(result.LiveMediaItem, channelMediaItem);
             foreach (KeyValuePair<string, object> props in ((LiveTvMediaItem)result.LiveMediaItem).AdditionalProperties)
             {
-              ChannelMediaItem.AdditionalProperties[props.Key] = props.Value;
+              channelMediaItem.AdditionalProperties[props.Key] = props.Value;
             }
 
-            IResourceAccessor ra = await _slimTvHandler.GetAnalysisAccessorAsync(ChannelId).ConfigureAwait(false);
-            info = await ParseMediaStreamAsync(ra).ConfigureAwait(false);
+            IResourceAccessor ra = await _slimTvHandler.GetAnalysisAccessorAsync(channelId).ConfigureAwait(false);
+            var start = DateTime.UtcNow;
+            while(info == null && (DateTime.UtcNow - start).TotalSeconds < 5)
+              info = await ParseMediaStreamAsync(new[] { ra }).ConfigureAwait(false);
+
             if (info == null)
               return null;
           }
@@ -420,9 +530,185 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
       }
       catch (Exception ex)
       {
-        _logger.Error("MediaAnalyzer: Error parsing channel {0}", ex, ChannelId);
+        _logger.Error("MediaAnalyzer: Error parsing channel {0}", ex, channelId);
       }
       return info;
+    }
+
+    protected IDictionary<int, IOrderedEnumerable<IFileSystemResourceAccessor>> GetDvdTitleFiles(IFileSystemResourceAccessor fsraVideoTs, int? titleNumber = null)
+    {
+      //DVD titles are usually split into VOB files of maximum 1GB with the first file being the menu
+      //Set minimum size to 300 MB to avoid menus etc.
+      long minPlayableSize = 314572800;
+      var result = new Dictionary<int, IOrderedEnumerable<IFileSystemResourceAccessor>>();
+
+      var allVobs = fsraVideoTs.GetFiles().Where(f => f.ResourceName.EndsWith(".vob", StringComparison.InvariantCultureIgnoreCase)).OrderBy(f => f.ResourceName).ToList();
+
+      // If we didn't find any satisfying the min length, just take them all
+      if (!allVobs.Any())
+      {
+        _logger.Error("No vobs found in dvd structure.");
+        return result;
+      }
+
+      if (titleNumber.HasValue)
+      {
+        //Find vobs for a specific title
+        var prefix = string.Format("VTS_0{0}_", titleNumber.Value.ToString());
+        bool filterBySize = false;
+        foreach (var file in allVobs.ToList())
+        {
+          if (!file.ResourceName.StartsWith(prefix, StringComparison.OrdinalIgnoreCase))
+          {
+            file.Dispose();
+            allVobs.Remove(file);
+          }
+          else if (file.Size > minPlayableSize)
+          {
+              filterBySize = true;
+          }
+        }
+
+        if (filterBySize)
+        {
+          //Try to remove menus and intros by skipping all files at the front of the list that are less than the minimum size
+          //If a file larger than the minimum is found, return all subsequent ones
+          foreach (var file in allVobs.ToList())
+          {
+            if (file.Size < minPlayableSize)
+            {
+              file.Dispose();
+              allVobs.Remove(file);
+            }
+            else
+            {
+              break;
+            }
+          }
+        }
+
+        result.Add(titleNumber.Value, allVobs.OrderBy(v => v.ResourceName));
+        return result;
+      }
+
+      //Find all titles
+      var titles = new Dictionary<int, List<IFileSystemResourceAccessor>>();
+      bool titleFilterBySize = false;
+      foreach (var file in allVobs.ToList())
+      {
+        var parts = Path.GetFileNameWithoutExtension(file.ResourceName).Split('_');
+
+        //For a file named like "VTS_01_01", the middle part is the title number
+        if (parts.Length == 3 && int.TryParse(parts[1], out int titleNo))
+        {
+          if (!titles.ContainsKey(titleNo))
+            titles.Add(titleNo, new List<IFileSystemResourceAccessor>());
+          titles[titleNo].Add(file);
+          if (file.Size > minPlayableSize)
+            titleFilterBySize = true;
+        }
+        else
+        {
+          file.Dispose();
+        }
+        allVobs.Remove(file);
+      }
+
+      if (titleFilterBySize)
+      {
+        //Try to remove menus and intros by skipping all files at the front of the list that are less than the minimum size
+        //If a file larger than the minimum is found, return all subsequent ones
+        foreach (var title in titles)
+        {
+          foreach (var file in title.Value.ToList())
+          {
+            if (file.Size < minPlayableSize)
+            {
+              file.Dispose();
+              title.Value.Remove(file);
+            }
+            else
+            {
+              break;
+            }
+          }
+
+          //We only want titles with at least 2 files above min size
+          //Less than that would probably mean it is a menu or trailer titles
+          if (title.Value.Count() > 1)
+          {
+            //Only return titles with files over min size
+            if (!result.ContainsKey(title.Key))
+              result.Add(title.Key, title.Value.OrderBy(f => f.ResourceName));
+          }
+        }
+      }
+      else
+      {
+        //No title with files over min size so return all titles
+        result = titles.ToDictionary(k => k.Key, v => v.Value.OrderBy(r => r.ResourceName));
+      }
+      return result;
+    }
+
+    protected void AddExternalSubtitleAspects(MediaItem media, MetadataContainer info)
+    {
+      if (media == null || info == null)
+        return;
+
+      IList<MultipleMediaItemAspect> providerAspects;
+      if (!MediaItemAspect.TryGetAspects(media.Aspects, ProviderResourceAspect.Metadata, out providerAspects))
+        return;
+
+      //Add external subtitles (embedded ones should already be included)
+      IList<MultipleMediaItemAspect> subtitleAspects;
+      if (MediaItemAspect.TryGetAspects(media.Aspects, SubtitleAspect.Metadata, out subtitleAspects))
+      {
+        foreach (var subtitle in subtitleAspects.Where(sa => sa.GetAttributeValue<bool>(SubtitleAspect.ATTR_INTERNAL) == false))
+        {
+          int index = subtitle.GetAttributeValue<int>(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX);
+          int edition = Editions.DEFAULT_EDITION;
+          bool multiFile = false;
+          if (media.HasEditions)
+          {
+            edition = media.Editions.FirstOrDefault(e => e.Value.PrimaryResourceIndexes.Contains(index)).Value.SetNo;
+            multiFile = media.Editions[edition].PrimaryResourceIndexes.Count() > 1;
+          }
+
+          if (!info.HasEdition(edition))
+          {
+            if (info.Metadata.Count == 1)
+              edition = info.Metadata.First().Key;
+            else
+              continue;
+          }
+
+          if (ResourcePath.Deserialize(providerAspects.FirstOrDefault(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == subtitle.GetAttributeValue<int>(SubtitleAspect.ATTR_RESOURCE_INDEX))
+                ?.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH) ?? "")
+                .TryCreateLocalResourceAccessor(out var ra) && ra is ILocalFsResourceAccessor raFs)
+          {
+            var resIndex = index;
+            if (!info.Metadata[edition].FilePaths.ContainsKey(index))
+              resIndex = info.Metadata[edition].FilePaths.Min(f => f.Key);
+
+            if (!info.Subtitles[edition].ContainsKey(resIndex))
+              info.Subtitles[edition].Add(resIndex, new List<SubtitleStream>());
+            info.Subtitles[edition][resIndex]
+              .Add(new SubtitleStream
+              {
+                StreamIndex = -1,
+                CharacterEncoding = subtitle.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_ENCODING),
+                Codec = SubtitleHelper.GetSubtitleCodec(subtitle.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_FORMAT)),
+                Default = subtitle.GetAttributeValue<bool>(SubtitleAspect.ATTR_DEFAULT),
+                Language = subtitle.GetAttributeValue<string>(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE),
+                IsPartial = multiFile,
+                SourcePath = raFs.CanonicalLocalResourcePath.Serialize()
+              });
+          }
+
+          ra?.Dispose();
+        }
+      }
     }
   }
 }

@@ -69,12 +69,12 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         // Play a recording
         else if (action.Equals("playrecording", StringComparison.InvariantCultureIgnoreCase))
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote Play Recording: RecordingName: {0}, RecordingId: {1}, StartPos: {2}", recordingName, id, startPos);
+          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Play Recording: RecordingName: {0}, RecordingId: {1}, StartPos: {2}", recordingName, id, startPos);
 
           var mediaItemGuid = await GetIdFromNameAsync(client, recordingName, id, Helper.GetRecordingByRecordingNameAsync);
           if (mediaItemGuid == null)
           {
-            ServiceRegistration.Get<ILogger>().Error("WifiRemote Play Recording: Couldn't convert RecordingId '{0} to Guid", id);
+            ServiceRegistration.Get<ILogger>().Error("WifiRemote: Play Recording: Couldn't convert RecordingId '{0} to Guid", id);
             return false;
           }
 

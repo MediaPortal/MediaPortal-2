@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="WMC.Configuration.EnableFanart.Help">Si se desea mostrar fanart de fondo.</string>
+  <string name="WMC.Home.LatestAdded">Último añadido</string>
+  <string name="WMC.Home.LatestPlayed">Última reproducción</string>
+  <string name="WMC.Home.CurrentPrograms">Programas actuales</string>
+  <string name="WMC.Home.CurrentSchedules">Programación actual</string>
   <string name="WMC.Home.Favorites">Favoritos</string>
-  </resources>
+  <string name="WMC.Home.Unplayed">Sin reproducir</string>
+
+</resources>

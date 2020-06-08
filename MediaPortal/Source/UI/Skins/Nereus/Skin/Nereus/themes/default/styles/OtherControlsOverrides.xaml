@@ -628,6 +628,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource NereusListButtonStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
+                  ContextMenuCommand ="{DynamicResource ResourceKey=Context_Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -802,7 +803,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Style="{ThemeResource HorizontalMediaScrollViewerStyle}" Width="1920"
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource HorizontalMediaScrollViewerStyle}" Width="{SkinWidth}"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           </ScrollViewer>
@@ -836,6 +837,57 @@
 
 
   <!-- ****************************** PlayerControl ********************************** -->
+
+  <Style x:Key="PipControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <mp_special_controls:PlayerControl x:Name="PiPControl" AutoVisibility="True" PlayerContext="SecondaryPlayer"
+                                             FixedImageWidth="{ThemeResource PiPVideoWidth}">
+            <mp_special_controls:PlayerControl.TemplateControl>
+              <Border x:Name="PiPControlBorder"
+                      DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      BorderBrush="{ThemeResource PipBorderColor}" BorderThickness="{ThemeResource PipBorderThickness}">
+                <Grid x:Name="PiPBackground" Background="{ThemeResource NereusColorMedium}">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Control x:Name="PiPVideo" IsVisible="{Binding IsVideoPlayerPresent}" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}">
+                    <Control.Background>
+                      <VideoBrush Stream="1"/>
+                    </Control.Background>
+                  </Control>
+                  <Image x:Name="PiPImage" IsVisible="{Binding IsImagePlayerPresent}" Width="{Binding ImageWidth}" Height="{Binding ImageHeight}" Stretch="Uniform">
+                    <Image.Source>
+                      <ImagePlayerImageSource Stream="1" TransitionInOut="False"
+                          Transition="transitions\granular_dissolve;transitions\fade;transitions\dissolve;transitions\wipe_right;transitions\wipe_down;transitions\wipe_down-right;transitions\wipe_up-left"/>
+                    </Image.Source>
+                  </Image>
+                  <Image x:Name="PiPAudio" IsVisible="{Binding IsAudioPlayerPresent}" Stretch="Uniform" Width="200" Height="200" FallbackSource="{Binding MediaItem}">
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                                fanart:MaxWidth="200" fanart:MaxHeight="200"/>
+                    </Image.Source>
+                  </Image>
+                  <Image Stretch="Uniform" Source="audio.png" HorizontalAlignment="Center" VerticalAlignment="Center" Width="160" Height="160" Margin="20">
+                    <Image.IsVisible>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}&amp;&amp;{1}">
+                        <Binding ElementName="PiPAudio" Path="!HasImage"/>
+                        <Binding Path="IsAudioPlayerPresent"/>
+                      </MultiBinding>
+                    </Image.IsVisible>
+                  </Image>
+                </Grid>
+              </Border>
+            </mp_special_controls:PlayerControl.TemplateControl>
+          </mp_special_controls:PlayerControl>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
 
   <Style x:Key="CPPlayerControlStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
     <Setter Property="Template">
@@ -901,66 +953,6 @@
       </Setter.Value>
     </Setter>
   </Style>
-
-  <!--Style x:Key="PlayerControlsProgressBarStyle" TargetType="{x:Type ProgressBar}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type ProgressBar}">
-          <Grid x:Name="ProgressBarGrid" HorizontalAlignment="Stretch"
-                UIElement.MouseClick="{CommandStencil RelativeSource={RelativeSource TemplatedParent}, Path=OnMouseClick}">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-
-            <Image Source="PlayerControl\seekbarshadow.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="-15,-1,-15,0">
-              <Image.IsVisible>
-                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
-                  <Binding Path="MediaItem"/>
-                  <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
-                </MultiBinding>
-              </Image.IsVisible>
-            </Image>
-
-            <Image Source="PlayerControl\seekbardummy.png" Height="35" Stretch="Fill" VerticalAlignment="Center" Margin="-15,-1,-15,0">
-              <Image.IsVisible>
-                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
-                  <Binding Path="MediaItem"/>
-                  <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
-                </MultiBinding>
-              </Image.IsVisible>
-            </Image>
-
-            <Rectangle HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                       RadiusX="3.5" RadiusY="3.5" Height="10" Fill="{ThemeResource ProgressBarBackgroundColor}" Opacity="0.8"/>
-            
-            <StackPanel Orientation="Horizontal" Margin="-27,0,-27,0">
-              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
-              <Image Source="PlayerControl\Current.Position.Shadow.png" Width="55" Height="55" Stretch="Fill" Margin="-10"
-                     VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            </StackPanel>
-            <Grid x:Name="ProgressBarIndicator" HorizontalAlignment="Left" VerticalAlignment="Center">
-              <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-153,-45,-42,0" Height="53">
-                <Image Source="PlayerControl\Time.Indicator.png" Height="53" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.9"/>
-                <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0" Content="{Binding CurrentTime}" Opacity="0.9"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,11" FontFamily="SegoeUIBold"
-                       Color="Black" FontSize="{ThemeResource SmallerFontSize}"/>
-              </Grid>
-              <Rectangle Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                         RadiusX="3.5" RadiusY="3.5" Height="10" Fill="{ThemeResource ProgressBarFillColor}" Margin="0,0,0,0"/>
-            </Grid>
-            <StackPanel Orientation="Horizontal" Margin="-21,0,-21,0">
-              <StackPanel Width="{TemplateBinding PartIndicatorWidth}"/>
-                <Image Source="PlayerControl\Current.Position.png" Width="40" Height="40" Stretch="Fill"
-                       VerticalAlignment="Center" HorizontalAlignment="Center"/>
-            </StackPanel>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </-->
 
   <Style x:Key="OSDProgressBarStyle" TargetType="{x:Type ProgressBar}">
     <Setter Property="Template">
@@ -1234,8 +1226,9 @@
           </LinearGradientBrush>
         </Rectangle.Fill>
       </Rectangle>
-      <Label x:Name="ItemLabel" Margin="10,5,10,5" Content="{Binding [Name]}" Color="{ThemeResource TextColor}"
-             HorizontalAlignment="Center" VerticalAlignment="Bottom" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="ItemLabel" Margin="10,5,10,0" Content="{Binding [Name]}"
+             Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}"
+             HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
     </Grid>
   </DataTemplate>
 

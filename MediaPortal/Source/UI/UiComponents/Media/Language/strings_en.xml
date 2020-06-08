@@ -160,6 +160,7 @@
   <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Play action</string>
   <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Play action</string>
   <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Choose media type</string>
+  <string name="Media.Info">Show media information</string>
 
   <!-- Screen headers -->
   <string name="Media.BrowseMediaNavigationHeader">Browse media navigation</string>
@@ -261,6 +262,8 @@
   <string name="Media.MoreThanMaxItemsSearchResultHint">The search result contains more than {0} items. Please narrow your search.</string>
   <string name="Media.ListIsBeingBuiltHint">The items list is being built...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Searching...</string>
+  <string name="Media.EjectOpticalDisc">Eject optical disc</string>
+  <string name="Media.Eject">Eject</string>
 
   <!-- Playlists -->
   <string name="Media.ManagePlaylists">Playlists</string>
@@ -357,6 +360,7 @@
   <string name="Media.AudioContextName">Audio</string>
 
   <!-- Video currently playing -->
+  <string name="Media.Info">Media information</string>
   <string name="Media.VideoCurrentlyPlayingHeader">Current video information</string>
   <string name="Media.Rating">Rating: </string>
   <string name="Media.VideoTitleLabel">Title: </string>

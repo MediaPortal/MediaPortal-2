@@ -42,6 +42,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     private static readonly Guid[] ROLE_ASPECTS = { SeriesAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { CompanyAspect.ASPECT_ID };
 
+    private string _category;
+
+    public SeriesProductionRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
+
     public bool BuildRelationship
     {
       get { return true; }
@@ -96,7 +103,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         seriesInfo.ProductionCompanies = companies;
 
       if (SeriesMetadataExtractor.IncludeProductionCompanyDetails && !SeriesMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateSeriesCompaniesAsync(seriesInfo, CompanyAspect.COMPANY_PRODUCTION).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateSeriesCompaniesAsync(seriesInfo, CompanyAspect.COMPANY_PRODUCTION, _category).ConfigureAwait(false);
       
       foreach (CompanyInfo company in seriesInfo.ProductionCompanies)
       {

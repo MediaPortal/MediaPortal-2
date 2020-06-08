@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -46,7 +47,8 @@ namespace MediaPortal.Plugins.AppLauncher.Models
   {
     #region Consts
 
-    public const string MODEL_ID_STR = "624339C2-0D3B-437B-8046-6F540D704A93";
+    public const string APP_HOME_ID_STR = "624339C2-0D3B-437B-8046-6F540D704A93";
+    public readonly static Guid APP_HOME_ID = new Guid(APP_HOME_ID_STR);
 
     #endregion
 
@@ -59,14 +61,47 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     private AbstractProperty _secondaryTitle = new WProperty(typeof(string), string.Empty);
     private AbstractProperty _secondaryVisible = new WProperty(typeof(bool), false);
     private AbstractProperty _selectedGroup = new WProperty(typeof(string), string.Empty);
+    private static bool _anyAppChanged = false;
+    private static object _syncObject = new object();
 
     #endregion
 
     #region public Methods
 
+    public static bool AnyAppWasChangedToggle
+    {
+      get
+      {
+        lock(_syncObject)
+        {
+          if (!_anyAppChanged)
+            return false;
+
+          _anyAppChanged = false;
+          return true;
+        }
+      }
+      set
+      {
+        lock(_syncObject)
+        {
+          _anyAppChanged = value;
+        }
+      }
+    }
+
     public void StartApp(ListItem item)
     {
-      Start(_apps.AppsList.FirstOrDefault(a => Convert.ToString(a.Id) == (string)item.AdditionalProperties[Consts.KEY_ID]));
+      StartApp((string)item.AdditionalProperties[Consts.KEY_ID]);
+    }
+
+    public void StartApp(string appId)
+    {
+      if ((_apps?.AppsList?.Count ?? 0) == 0)
+      {
+        _apps = Helper.LoadApps(true);
+      }
+      Start(_apps.AppsList.FirstOrDefault(a => Convert.ToString(a.Id).Equals(appId, StringComparison.OrdinalIgnoreCase)));
     }
 
     public void SelectGroup(ListItem item)
@@ -166,6 +201,9 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     {
       try
       {
+        if (app == null)
+          return;
+
         if (ServiceRegistration.Get<IPlayerContextManager>().NumActivePlayerContexts > 0)
         {
           var pp = ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext;
@@ -212,6 +250,12 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
         var p = new Process { StartInfo = pInfo };
         p.Start();
+
+        app.LastUsed = DateTime.Now;
+        app.StartCount++;
+        Helper.SaveApps(_apps);
+
+        AnyAppWasChangedToggle = true;
       }
       catch (Exception ex)
       {
@@ -233,8 +277,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     {
       Clear();
 
-      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      _apps = settingsManager.Load<Apps>();
+      _apps = Helper.LoadApps(true);
       var groups = new List<string>();
 
       var item = new ListItem();
@@ -275,7 +318,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
     {
       _items.Clear();
       _groupItems.Clear();
-      _apps?.AppsList?.Clear();
+      _apps = null;
     }
 
     #endregion
@@ -284,7 +327,7 @@ namespace MediaPortal.Plugins.AppLauncher.Models
 
     public Guid ModelId
     {
-      get { return new Guid(MODEL_ID_STR); }
+      get { return APP_HOME_ID; }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)

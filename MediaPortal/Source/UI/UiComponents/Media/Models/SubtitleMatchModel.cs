@@ -257,11 +257,11 @@ namespace MediaPortal.UiComponents.Media.Models
       if (!IsValidMediaItem(mediaItem))
       {
         ServiceRegistration.Get<ILogger>().Error("Error finding subtitles for media item '{0}'. No valid aspects found.", mediaItem.MediaItemId);
-        return null;
+        return Task.FromResult<bool>(false);
       }
       if(!mediaItem.HasEditions)
       {
-        return null;
+        return Task.FromResult<bool>(false);
       }
 
       foreach (var edition in mediaItem.Editions)
@@ -294,7 +294,7 @@ namespace MediaPortal.UiComponents.Media.Models
       if (!IsValidMediaItem(mediaItem))
       {
         ServiceRegistration.Get<ILogger>().Error("Error finding subtitles for media item '{0}'. No valid aspects found.", mediaItem.MediaItemId);
-        return null;
+        return Task.FromResult<IEnumerable<MediaItemAspect>>(null);
       }
 
       _searchAspects = mediaItem.Aspects;

@@ -26,9 +26,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.I
 {
   public class OpenSubtitlesMatcher : BaseSubtitleDownloaderMatcher
   {
+    public const string NAME = "OpenSubtitles.org";
+
     #region Init
 
-    public OpenSubtitlesMatcher() : base("OpenSubtitlesMatcher", "OpenSubtitles", "opensubtitles.org")
+    public OpenSubtitlesMatcher() : base(NAME, "OpenSubtitles")
     {
     }
 

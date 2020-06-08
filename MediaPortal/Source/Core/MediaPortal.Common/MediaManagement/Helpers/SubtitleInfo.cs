@@ -57,6 +57,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public int MovieDbId = 0;
     public string SubtitleId = null;
     public string NameId = null;
+    public Dictionary<string, string> CustomIds = new Dictionary<string, string>();
 
     /// <summary>
     /// Gets or sets the subtitle file name.
@@ -64,6 +65,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public string Name = null;
     public string DisplayName = null;
     public List<IResourceLocator> MediaFiles = new List<IResourceLocator>();
+    public List<string> Categories = new List<string>();
 
     /// <summary>
     /// Search result
@@ -99,6 +101,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           return true;
         if (!string.IsNullOrEmpty(ImdbId))
           return true;
+        if (CustomIds.Any())
+          return true;
 
         return false;
       }
@@ -133,6 +137,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref TvdbId, sub.TvdbId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref ImdbId, sub.ImdbId);
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, sub.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref CustomIds, sub.CustomIds);
+
+        Categories = Categories.Except(sub.Categories).Concat(sub.Categories).ToList();
 
         MergeDataProviders(sub);
         return true;
@@ -153,6 +160,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       SingleMediaItemAspect subtitleAspect = MediaItemAspect.GetOrCreateAspect(aspectData, TempSubtitleAspect.Metadata);
       subtitleAspect.SetAttribute(TempSubtitleAspect.ATTR_PROVIDER, string.Join(";", DataProviders));
+      subtitleAspect.SetAttribute(TempSubtitleAspect.ATTR_CATEGORY, string.Join(";", Categories));
       subtitleAspect.SetAttribute(TempSubtitleAspect.ATTR_NAME, Name);
       subtitleAspect.SetAttribute(TempSubtitleAspect.ATTR_DISPLAY_NAME, DisplayName);
       subtitleAspect.SetAttribute(TempSubtitleAspect.ATTR_SUBTITLEID, SubtitleId);
@@ -194,19 +202,25 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       }
       else if (MediaItemAspect.TryGetAspect(aspectData, MediaAspect.Metadata, out var mediaAspect))
       {
-        MediaTitle = movieAspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
+        MediaTitle = mediaAspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
       }
 
       if (MediaItemAspect.TryGetAspect(aspectData, TempSubtitleAspect.Metadata, out var subAspect))
       {
         Name = subAspect.GetAttributeValue<string>(TempSubtitleAspect.ATTR_NAME);
         DisplayName = subAspect.GetAttributeValue<string>(TempSubtitleAspect.ATTR_DISPLAY_NAME);
+        SubtitleId = subAspect.GetAttributeValue<string>(TempSubtitleAspect.ATTR_SUBTITLEID);
+        Language = subAspect.GetAttributeValue<string>(TempSubtitleAspect.ATTR_LANGUAGE);
+
         DataProviders.Clear();
         var dataProviders = subAspect.GetAttributeValue<string>(TempSubtitleAspect.ATTR_PROVIDER);
         if (dataProviders?.Count() > 0)
           DataProviders = new List<string>(dataProviders.Split(';'));
-        SubtitleId = subAspect.GetAttributeValue<string>(TempSubtitleAspect.ATTR_SUBTITLEID);
-        Language = subAspect.GetAttributeValue<string>(TempSubtitleAspect.ATTR_LANGUAGE);
+
+        Categories.Clear();
+        var categories = subAspect.GetAttributeValue<string>(TempSubtitleAspect.ATTR_CATEGORY);
+        if (categories?.Count() > 0)
+          Categories = new List<string>(categories.Split(';'));
       }
 
       MediaFiles.Clear();
@@ -247,6 +261,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         ImdbId = other.ImdbId;
         TvdbId = other.TvdbId;
         SubtitleId = other.SubtitleId;
+        foreach (var keyVal in other.CustomIds)
+          CustomIds[keyVal.Key] = keyVal.Value;
         return true;
       }
       else if (otherInstance is MovieInfo)
@@ -254,6 +270,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MovieInfo other = otherInstance as MovieInfo;
         MovieDbId = other.MovieDbId;
         ImdbId = other.ImdbId;
+        foreach (var keyVal in other.CustomIds)
+          CustomIds[keyVal.Key] = keyVal.Value;
         return true;
       }
       else if (otherInstance is EpisodeInfo)
@@ -262,6 +280,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MovieDbId = other.MovieDbId;
         ImdbId = other.ImdbId;
         TvdbId = other.TvdbId;
+        foreach (var keyVal in other.CustomIds)
+          CustomIds[keyVal.Key] = keyVal.Value;
         return true;
       }
       return false;
@@ -310,6 +330,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return MovieDbId == other.MovieDbId;
       if (!string.IsNullOrEmpty(ImdbId) && !string.IsNullOrEmpty(other.ImdbId))
         return string.Equals(ImdbId, other.ImdbId, StringComparison.InvariantCultureIgnoreCase);
+      foreach (var key in CustomIds.Keys)
+      {
+        if (other.CustomIds.ContainsKey(key))
+          return string.Equals(CustomIds[key], other.CustomIds[key], StringComparison.InvariantCultureIgnoreCase);
+      }
 
       //Name id is generated from name and can be unreliable so should only be used if matches
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) &&

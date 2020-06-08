@@ -1,0 +1,275 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ScriptableScraper>
+	<details>
+		<!-- These details are for display purposes only. -->
+		<name>sratim.co.il</name>
+		<author>sbentin</author>
+		<description>This script pulls data from sratim.co.il.</description>
+
+		<!--
+			These fields uniquely identify the script. The ID should never change
+			and should be unique (no other script should use this ID). With new
+			versions of the script the version numbers should change. EVEN FOR
+			MINOR CHANGES, you should change the version number if you are going
+			to distribute it to anyone but internal testers. The point number is
+			for minor bug fix releases. Use it.
+		-->
+		<id>241682</id>
+		<version major="3" minor="0" point="12" />
+		<published month="4" day="28" year="2011" />
+
+		<!--
+			These fields are used for categorization purposes. Separate multiple
+			types with a pipe | character.
+		-->
+		<type>MovieDetailsFetcher|MovieCoverFetcher</type>
+		<language>he</language>
+
+	</details>
+
+	<action name="search">
+		<set name="offset" value="0" />
+		<set name="rx_search_results">
+			<![CDATA[
+			<a href="view.php\?q=(.{0,90})id=(\d+?)&q=(.{0,90})" title="(.{0,30}): (.{0,90})">
+			]]>
+		</set>
+
+		<set name="id_on_result">
+			<![CDATA[
+			id=(.*?)\"[^\"]*
+			]]>
+		</set>
+
+		<set name="title_on_result">
+			<![CDATA[
+			(\b[^\"]*)$(.*?)
+			]]>
+		</set>
+
+		<set name="details_on_result">
+			<![CDATA[
+			\s*=\s*\b("([^"]*")|'[^']*'|([^'">\s]+))\s*
+			]]>
+		</set>
+
+		<!-- Retrieve results using Title -->
+		<retrieve name="search_page"
+			url="http://www.sratim.co.il/browse.php?q=${search.title:safe}&amp;d=full&amp;r=true"
+			encoding="utf-8" retries="10" timeout="10000" timeout_increment="4000" />
+
+		<!-- parse the results into movie_details -->
+		<parse name="movie_titles" input="${search_page:htmldecode}"
+			regex="${rx_search_results}" />
+
+		<!-- loop over the results to find the correct one -->
+		<loop name="titles" on="movie_titles" limit="15">
+			<!-- parse returned with id, we need to omit it -->
+			<add name="counter" value1="${count}" value2="${offset}" />
+			<set name="movie[${counter}].site_id" value="${titles[1]}" />
+
+			<parse name="year" input="${titles[3]}" regex="(\d{4})" />
+			<set name="movie[${counter}].year" value="${year}" />
+
+			<parse name="title" input="${titles[3]}" regex=".{0,30}\|" />
+			<set name="movie[${counter}].title" value="${title[0]}" />
+
+			<set name="movie[${counter}].details_url" value="http://www.sratim.co.il/view.php?id=${titles[0]}" />
+		</loop>
+
+		<!-- Set Sortby for Hebrew Titles -->
+		<set name="movie.sortby" value="${movie.title}" />
+	</action>
+
+	<action name="get_details">
+		<set name="offset" value="0" />
+
+		<!-- general regexp -->
+		<set name="between_brackets">
+			<![CDATA[
+			>(.*?)<
+			]]>
+		</set>
+
+		<set name="profileview">
+			<![CDATA[
+			profileview.php(.*?)</a>
+			]]>
+		</set>
+		<set name="site" value="${movie.details_url}" />
+
+		<retrieve name="movie_details" url="${site}" encoding="utf-8"
+			retries="10" timeout="10000" timeout_increment="4000" />
+
+		<!--  get the hebrew title -->
+		<set name="Hebrewtitle">
+      		<![CDATA[
+	  		<h1 class="subtext_view">(.*?)<\/div>(.*?)<\/h1>
+      		]]>
+		</set>
+		<parse name="title" input="${movie_details}" regex="${Hebrewtitle}" />
+		<set name="movie.title" value="${title[0][1]:htmldecode}" />
+
+		<!-- Genre -->
+		<set name="genre_result">
+			<![CDATA[
+			\?g=(.*?)</a>
+			]]>
+		</set>
+		<set name="genre_result_inner">
+			<![CDATA[
+			>(.*?)<
+			]]>
+		</set>
+		<parse name="genre_details" input="${movie_details}" regex="${genre_result}" />
+		<loop name="genres" on="genre_details" limit="5">
+			<add name="counter" value1="${count}" value2="${offset}" />
+			<parse name="a_genre[${counter}]" input="${genres}" regex="${genre_result_inner}" />
+			<set name="movie.genres" value="${movie.genres}|${a_genre[${counter}][0][0]}" />
+		</loop>
+
+		<!-- Actors -->
+		<set name="actor_result">
+			<![CDATA[
+			שחקנים:(.*?)</tr>
+			]]>
+		</set>
+
+		<parse name="actor_details" input="${movie_details}" regex="${actor_result}" />
+		<parse name="actors_det" input="${actor_details[0]}" regex="${profileview}" />
+
+		<loop name="actors" on="actors_det" limit="5">
+			<add name="counter" value1="${count}" value2="${offset}" />
+			<parse name="an_actor" input="${actors}" regex="${between_brackets}" />
+			<set name="movie.actors" value="${movie.actors}|${an_actor[0][0]}" />
+		</loop>
+
+		<!-- Directors -->
+		<set name="dir_result">
+			<![CDATA[
+			בימוי:(.*?)</tr>
+			]]>
+		</set>
+		<parse name="dir_details" input="${movie_details}" regex="${dir_result}" />
+		<parse name="dir_det" input="${dir_details[0]}" regex="${profileview}" />
+
+		<loop name="directors" on="dir_det" limit="5">
+			<add name="counter" value1="${count}" value2="${offset}" />
+			<parse name="a_director" input="${directors}" regex="${between_brackets}" />
+			<set name="movie.directors" value="${movie.directors}|${a_director[0][0]}" />
+		</loop>
+
+		<!-- year -->
+		<set name="year_rx">
+			<![CDATA[
+			prod_year(.*?)</td>
+			]]>
+		</set>
+		<parse name="year_tmp" input="${movie_details}" regex="${year_rx}" />
+		<parse name="year" input="${year_tmp}" regex="${between_brackets}" />
+		<set name="movie.year" value="${year[0][0]}" />
+
+		<!-- language -->
+		<set name="lang_result">
+			<![CDATA[
+			שפה:(.*?)</tr>
+			]]>
+		</set>
+		<set name="inner_lang">
+			<![CDATA[
+			<td >(.*?)</td>
+			]]>
+		</set>
+		<parse name="lang_details" input="${movie_details}" regex="${lang_result}" />
+		<parse name="tmp_lang" input="${lang_details}" regex="${inner_lang}" />
+		<set name="movie.language" value="${tmp_lang:striptags}" />
+
+		<!-- length -->
+		<set name="length_result">
+			<![CDATA[
+			זמן:(.*?)</tr>
+			]]>
+		</set>
+		<set name="inner_time">
+			<![CDATA[
+			(\d.{0,2})
+			]]>
+		</set>
+		<parse name="length_details" input="${movie_details}" regex="${length_result}" />
+		<parse name="tmp_time" input="${length_details}" regex="${inner_time}" />
+		<set name="movie.runtime" value="${tmp_time}" />
+
+		<!-- summary -->
+		<set name="summary_result">
+			<![CDATA[
+			text-align:justify;(.*?)</div>
+			]]>
+		</set>
+		<parse name="summary_details" input="${movie_details}" regex="${summary_result}" />
+		<replace name="tmp_summary" input="${summary_details[0][0]}"
+			pattern="&gt;" with="" />
+		<replace name="tmp_summary2" input="${tmp_summary}" pattern='&lt;'
+			with="" />
+		<replace name="tmp_summary3" input="${tmp_summary2}" pattern='br /'
+			with=" " />
+		<set name="movie.summary" value="${tmp_summary3:htmldecode}" />
+
+		<!-- imdb details -->
+		<set name="imdb_result">
+			<![CDATA[
+			tt(\d{1,10})
+			]]>
+		</set>
+
+		<parse name="imdb_details" input="${movie_details}" regex="${imdb_result}" />
+		<set name="movie.imdb_id" value="${imdb_details}" />
+
+		<retrieve name="imdb_page" url="http://www.imdb.com/title/${movie.imdb_id}"
+			retries='10' timeout='10000' encoding="UTF-8" />
+
+		<!-- Certification from imdb (PG|G|R) -->
+		<set name="imdb_certification">
+			<!--
+				<h4>Motion Picture Rating \(<a href="\/mpaa">MPAA<\/a>\)<\/h4>(.*?)<
+			-->
+      		<![CDATA[
+	  		/certificates/us(.*?)>
+      		]]>
+		</set>
+
+		<parse name="certification" input="${imdb_page}" regex="${imdb_certification}" />
+		<parse name="certificationTitle" input="${certification}" regex="title=(.*?)\s" />
+
+		<set name='movie.certification' value='${certificationTitle[0][0]:htmldecode}' />
+
+		<!-- Score / Rating-->
+		<set name="imdb_score">
+      		<![CDATA[
+	  		\|imdb\|(.{0,3})\|
+      		]]>
+		</set>
+
+		<parse name="score" input="${imdb_page}" regex="${imdb_score}" />
+		<set name='movie.score' value='${score[0][0]:htmldecode}' />
+
+		<!-- Set Sortby for Hebrew Titles -->
+		<set name="movie.sortby" value="${movie.title}" />
+	</action>
+
+	<action name="get_cover_art">
+		<if test="${movie.details_url}!=">
+			<set name="site" value="${movie.details_url}" />
+			<retrieve name="movie_details" url="${site}" encoding="utf-8"
+				retries="10" timeout="10000" timeout_increment="4000" />
+
+			<!-- cover -->
+			<set name="cover_result">
+				<![CDATA[
+				<img class="lrg_cover" src="(.*?)".+?>
+				]]>
+			</set>
+			<parse name="cover_src" input="${movie_details}" regex="${cover_result}" />
+			<set name="cover_art[0].url" value="http://www.sratim.co.il${cover_src[0][0]}" />
+		</if>
+	</action>
+</ScriptableScraper>

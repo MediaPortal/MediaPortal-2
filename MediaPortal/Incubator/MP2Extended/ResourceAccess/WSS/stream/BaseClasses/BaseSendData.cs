@@ -297,7 +297,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
               Guid? userId = ResourceAccessUtils.GetUser(context);
               IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
               if(library != null && userId.HasValue)
-                library.NotifyUserPlayback(userId.Value, item.MediaSource.MediaItemId, 100, true);
+                library.NotifyUserPlayback(userId.Value, item.MediaItemId, 100, true);
             }
           }
         }
@@ -363,8 +363,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       }
       if (item.IsLive == false)
       {
-        context.Response.Headers["X-Content-Duration"] = Convert.ToDouble(item.WebMetadata.Metadata.Duration).ToString("0.00", CultureInfo.InvariantCulture);
-        context.Response.Headers["Content-Duration"] = Convert.ToDouble(item.WebMetadata.Metadata.Duration).ToString("0.00", CultureInfo.InvariantCulture);
+        context.Response.Headers["X-Content-Duration"] = Convert.ToDouble(item.Metadata.Duration).ToString("0.00", CultureInfo.InvariantCulture);
+        context.Response.Headers["Content-Duration"] = Convert.ToDouble(item.Metadata.Duration).ToString("0.00", CultureInfo.InvariantCulture);
       }
 
       await SendAsync(context, resourceStream, item, profile, onlyHeaders, partialResource, fileRange);
@@ -374,14 +374,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
     {
       if (timeRange.Length <= 0.0)
       {
-        return new Range(0, item.WebMetadata.Metadata.Size ?? 0);
+        return new Range(0, item.Metadata.Size ?? 0);
       }
       long startByte = 0;
       long endByte = 0;
       if (item.IsTranscoding == true)
       {
         long length = GetStreamSize(item);
-        double factor = Convert.ToDouble(length) / Convert.ToDouble(item.WebMetadata.Metadata.Duration);
+        double factor = Convert.ToDouble(length) / Convert.ToDouble(item.Metadata.Duration);
         startByte = Convert.ToInt64(Convert.ToDouble(timeRange.From) * factor);
         endByte = Convert.ToInt64(Convert.ToDouble(timeRange.To) * factor);
       }
@@ -390,7 +390,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
         double bitrate = 0;
         if (item.IsSegmented == false)
         {
-          bitrate = Convert.ToDouble(item.WebMetadata.Metadata.Bitrate) * 1024; //Bitrate in bits/s
+          bitrate = Convert.ToDouble(item.Metadata.Bitrate) * 1024; //Bitrate in bits/s
         }
         startByte = Convert.ToInt64((bitrate * timeRange.From) / 8.0);
         endByte = Convert.ToInt64((bitrate * timeRange.To) / 8.0);
@@ -402,7 +402,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
     {
       if (byteRange.Length <= 0.0)
       {
-        return new Range(0, Convert.ToInt64(item.WebMetadata.Metadata.Duration));
+        return new Range(0, Convert.ToInt64(item.Metadata.Duration));
       }
 
       double startSeconds = 0;
@@ -410,7 +410,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       if (item.IsTranscoding == true)
       {
         long length = GetStreamSize(item);
-        double factor = Convert.ToDouble(item.WebMetadata.Metadata.Duration) / Convert.ToDouble(length);
+        double factor = Convert.ToDouble(item.Metadata.Duration) / Convert.ToDouble(length);
         startSeconds = Convert.ToDouble(byteRange.From) * factor;
         endSeconds = Convert.ToDouble(byteRange.To) * factor;
       }
@@ -419,7 +419,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
         double bitrate = 0;
         if (item.IsSegmented == false)
         {
-          bitrate = Convert.ToDouble(item.WebMetadata.Metadata.Bitrate) * 1024; //Bitrate in bits/s
+          bitrate = Convert.ToDouble(item.Metadata.Bitrate) * 1024; //Bitrate in bits/s
         }
         if (bitrate > 0)
         {
@@ -440,10 +440,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       }
       if (item.IsSegmented == false && item.IsTranscoding == true)
       {
-        if (item.WebMetadata.Metadata.Size > 0 && (toRange > item.WebMetadata.Metadata.Size || fromRange > item.WebMetadata.Metadata.Size))
+        if (item.Metadata.Size > 0 && (toRange > item.Metadata.Size || fromRange > item.Metadata.Size))
         {
-          fromRange = Convert.ToInt64((Convert.ToDouble(fromRange) / Convert.ToDouble(length)) * Convert.ToDouble(item.WebMetadata.Metadata.Size));
-          toRange = Convert.ToInt64((Convert.ToDouble(toRange) / Convert.ToDouble(length)) * Convert.ToDouble(item.WebMetadata.Metadata.Size));
+          fromRange = Convert.ToInt64((Convert.ToDouble(fromRange) / Convert.ToDouble(length)) * Convert.ToDouble(item.Metadata.Size));
+          toRange = Convert.ToInt64((Convert.ToDouble(toRange) / Convert.ToDouble(length)) * Convert.ToDouble(item.Metadata.Size));
         }
       }
       return new Range(fromRange, toRange);
@@ -482,7 +482,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 
     internal static long GetStreamSize(ProfileMediaItem item)
     {
-      long length = item?.WebMetadata?.Metadata?.Size ?? 0;
+      long length = item?.Metadata?.Size ?? 0;
       if (item.IsTranscoding == true || item.IsLive == true || length <= 0)
       //if (length <= 0)
       {

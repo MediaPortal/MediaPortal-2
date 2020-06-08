@@ -27,6 +27,8 @@ using System.Net;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.General;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.Network;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
@@ -43,6 +45,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected static string _baseUrl;
 
+    protected AbstractProperty _mediaItemProperty;
     protected AbstractProperty _fanArtMediaTypeProperty;
     protected AbstractProperty _fanArtTypeProperty;
     protected AbstractProperty _fanArtNameProperty;
@@ -53,6 +56,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     #endregion
 
     #region Properties
+
+    public MediaItem MediaItem
+    {
+      get { return (MediaItem)_mediaItemProperty.GetValue(); }
+      set { _mediaItemProperty.SetValue(value); }
+    }
+
+    public AbstractProperty MediaItemProperty
+    {
+      get { return _mediaItemProperty; }
+    }
 
     public string FanArtMediaType
     {
@@ -156,6 +170,8 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
 
     protected void Init()
     {
+      _mediaItemProperty = new WProperty(typeof(MediaItem), null);
+      _mediaItemProperty.Attach(SetFanArtType);
       _fanArtMediaTypeProperty = new SProperty(typeof(string), FanArtMediaTypes.Undefined);
       _fanArtTypeProperty = new SProperty(typeof(string), FanArtTypes.Undefined);
       _fanArtNameProperty = new SProperty(typeof(string), string.Empty);
@@ -189,6 +205,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
         _baseUrl = null;
         return false;
       }
+
       if (!string.IsNullOrWhiteSpace(_baseUrl))
         return true;
 
@@ -222,10 +239,22 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client
     protected bool CheckValidArgs()
     {
       return (
-        FanArtMediaType != FanArtMediaTypes.Undefined && FanArtType != FanArtTypes.Undefined ||
-        FanArtMediaType == FanArtMediaTypes.Undefined && FanArtType == FanArtTypes.Thumbnail /* Special case for all MediaItem thumbs */
-        )
-        && !string.IsNullOrWhiteSpace(FanArtName);
+               FanArtMediaType != FanArtMediaTypes.Undefined && FanArtType != FanArtTypes.Undefined ||
+               FanArtMediaType == FanArtMediaTypes.Undefined && FanArtType == FanArtTypes.Thumbnail /* Special case for all MediaItem thumbs */
+             )
+             && !string.IsNullOrWhiteSpace(FanArtName);
+    }
+
+    private void SetFanArtType(AbstractProperty property, object value)
+    {
+      if (MediaItem == null)
+        return;
+
+      if (string.IsNullOrEmpty(FanArtMediaType))
+        FanArtMediaType = FanArtMediaTypes.Undefined;
+
+      if (FanArtMediaTypes.TryGetMediaItemFanArtType(MediaItem, out var detectedType))
+        FanArtMediaType = detectedType;
     }
   }
 }

@@ -364,7 +364,10 @@ namespace MediaPortal.UiComponents.Login.Models
             }
             else if (newState == SystemState.Suspending || newState == SystemState.Hibernating)
             {
-              LogoutUser();
+              if ((UserSettingStorage.AutoLoginUser == Guid.Empty || UserSettingStorage.AutoLoginUser != CurrentUser?.ProfileId) && UserSettingStorage.UserLoginEnabled)
+              {
+                LogoutUser();
+              }
             }
             else if (newState == SystemState.ShuttingDown)
             {
@@ -379,7 +382,8 @@ namespace MediaPortal.UiComponents.Login.Models
         switch (messageType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
-            _ = SetCurrentUser();
+            if (_firstLogin)
+              _ = SetCurrentUser(); //Auto login user on first connect
             _ = RefreshUserList();
             break;
         }

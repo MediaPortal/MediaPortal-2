@@ -2300,11 +2300,28 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type Button}">
           <Grid>
-            <Image x:Name="image" Source="topbar_dvd.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,0,-4,0" VerticalAlignment="Center"/>
+            <Image x:Name="image" Source="topbar_dvd.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,0" VerticalAlignment="Center"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="image" Property="Source" Value="topbar_dvd_focus.png"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="EjectDiscButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="topbar_ejectdisc.png" Stretch="Uniform" Height="56" Width="80" Margin="-4,5,-4,0" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="topbar_ejectdisc_focus.png"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

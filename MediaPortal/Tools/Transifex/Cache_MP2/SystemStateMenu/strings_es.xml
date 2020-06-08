@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">Hibernar</string>
   <string name="SystemState.Shutdown">Apagar</string>
   <string name="SystemState.Suspend">Suspernder</string>
-  <string name="SystemState.Restart">Reiniciar</string>
   <string name="SystemState.Logoff">Cerrar sesión</string>
   <string name="SystemState.SleepTimerConfig">Configurar temporizador de apagado</string>
   <string name="SystemState.SleepTimerStop">Detener temporizador de apagado</string>

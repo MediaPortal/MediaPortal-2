@@ -36,7 +36,6 @@ using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Backend.Services.MediaLibrary.QueryEngine;
 using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement.MLQueries;
-using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Backend.Services.UserProfileDataManagement
 {
@@ -182,7 +181,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
     public Task<Guid> CreateClientProfileAsync(Guid profileId, string profileName)
     {
       var guid = CreateProfileInternal(profileId, profileName, UserProfileType.ClientProfile, null);
-      return  Task.FromResult(guid);
+      return Task.FromResult(guid);
     }
 
     public async Task<Guid> CreateProfileAsync(string profileName, UserProfileType profileType, string profilePassword)
@@ -572,7 +571,7 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       }
     }
 
-    public Task<AsyncResult<IEnumerable<Tuple<string, int, string>>>> GetUserSelectedAdditionalDataListAsync(Guid profileId, string[] keys, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending, 
+    public Task<AsyncResult<IEnumerable<Tuple<string, int, string>>>> GetUserSelectedAdditionalDataListAsync(Guid profileId, string[] keys, bool sortByKey = false, SortDirection sortDirection = SortDirection.Ascending,
       uint? offset = null, uint? limit = null)
     {
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
@@ -609,6 +608,24 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       {
         transaction.Dispose();
       }
+    }
+
+    public async Task<bool> NotifyFeatureUsageAsync(Guid profileId, string scope, string usedItem)
+    {
+      var knownStats = await GetUserAdditionalDataAsync(profileId, UserDataKeysKnown.KEY_FEATURE_USAGE_STATS);
+      var serialized = UsageStatisticsList.SetUsed(knownStats.Success ? knownStats.Result : string.Empty, scope, usedItem);
+      await SetUserAdditionalDataAsync(profileId, UserDataKeysKnown.KEY_FEATURE_USAGE_STATS, serialized);
+      return true;
+    }
+
+    public async Task<UsageStatistics> GetFeatureUsageStatisticsAsync(Guid profileId, string scope)
+    {
+      var knownStats = await GetUserAdditionalDataAsync(profileId, UserDataKeysKnown.KEY_FEATURE_USAGE_STATS);
+      if (!knownStats.Success)
+        return null;
+      return UsageStatisticsList.Deserialize(knownStats.Result)
+        .FirstOrDefault(s => s.Scope == scope)?
+        .LimitEntries(UsageStatistics.MAX_RETURNED_ENTRIES);
     }
 
     #endregion

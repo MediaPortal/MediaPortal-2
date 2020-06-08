@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_mediamenu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[News.Title]"/>
+
+    <!-- News model -->
+    <Model x:Key="Model" Id="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
+
+    <ControlTemplate x:Key="TopGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,0,0" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#E6000000" Offset="0" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="BottomGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,0" Height="100" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#00000000" Offset="0" />
+            <GradientStop Color="#E6000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid>
+        <Image Stretch="Fill" Source="news_background.jpg" />
+        <Image Stretch="Fill" Source="Background_GridView.png"/>
+      </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,-270" 
+            DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="1300"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Image Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="50,20,20,50">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" DelayInOut="true" Transition="transitions\dissolve" FallbackSource="news_background.jpg"
+                                TransitionDuration="0" VerticalTextureAlignment="Top" HorizontalTextureAlignment="Right"
+                                Source="{Binding SelectedItem.Thumb}"/>
+          </Image.Source>
+        </Image>
+
+        <Image Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="50,50,20,100" MaxHeight="200">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" DelayInOut="true" Transition="transitions\dissolve" FallbackSource="RssIcon.png"
+                                  TransitionDuration="0" VerticalTextureAlignment="Top" HorizontalTextureAlignment="Left"
+                                  Source="{Binding SelectedItem.Feed.Icon}"/>
+          </Image.Source>
+        </Image>
+
+        <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="70,10,0,100">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Label Color="{ThemeResource TextColor}" Wrap="True" Width="900" VerticalAlignment="Stretch"
+                 FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
+                 Content="{Binding SelectedItem.Feed.Title}" Margin="0,0,0,10"/>
+
+          <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
+            <Image Source="HomeContentIcons\news.png" Height="30" Width="30" Stretch="Uniform" Margin="0,8,5,0"
+                   VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <Label VerticalAlignment="Stretch" Content="{Binding SelectedItem.Title}" Wrap="True" Width="860"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"/>
+          </Grid>
+
+          <Grid Grid.Row="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">
+            <Image Source="HomeContentIcons\year.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left"
+                   Content="{Binding Path=SelectedItem.PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"/>
+          </Grid>
+
+          <ScrollViewer Grid.Row="3" CanContentScroll="True" Margin="0,30,20,30" VerticalScrollBarVisibility="Hidden"
+                        HorizontalScrollBarVisibility="Disabled" Focusable="True" Height="600">
+            <ScrollViewer.Resources>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
+            </ScrollViewer.Resources>
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Opacity="0.8"
+                   Content="{Binding SelectedItem.Summary}" Wrap="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+          </ScrollViewer>
+        </Grid>
+
+        <!-- Updating Overlay -->
+        <Label Content="Refreshing Data ..." IsVisible="{Binding IsUpdating}" 
+               Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" 
+               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

@@ -1,32 +1,38 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players.Codecs">Codificadores</string>
-  <string name="Settings.Players.Codecs.VideoCodecs">Codificadores de Vídeo</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">Codificador de Vídeo MPEG2</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Configura o codificador usado para vídeos MPEG2 (DVD, DVB-SD)</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">Codificador de Vídeo MPEG4</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Configura o codificador usado para vídeos MPEG4 (H.264, x264)</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.AVC">Codificador de Vídeo AVC</string>
-  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Configura o codificador usado para vídeos AVC (HDTV, BlueRay)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Codecs de Vídeo</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">Codec de Vídeo MPEG2</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Definir o codec utilizado para vídeo MPEG2 (DVD, DVB-SD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">Codec de Vídeo MPEG4</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4.Help">Definir o codec utilizado para vídeo MPEG4 (H.264, x264)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">Codec de Vídeo AVC</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Definir o codec utilizado para vídeo AVC (HDTV, BlueRay)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.HEVC">Codec de Video HEVC</string>
   <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Definir codec usado para video HEVC  (HD, UHD)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.Splitter">Separador audio/vídeo</string>
   <string name="Settings.Players.Codecs.VideoCodecs.Splitter.Help">Indique o separador audio/vídeo</string>
-  <string name="Settings.Players.Codecs.AudioCodecs">Codificadores de Áudio</string>
-  <string name="Settings.Players.Codecs.AudioRenderer">Processadores de Áudio</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">Codificador de áudio MPEG1/2</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Configurar o codificador de áudio MPEG1/2</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">Codificador de áudio LATM-AAC</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Configurar o codificador de áudio LATM-AAC</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">Codificador de áudio AAC</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Configurar o codificador de áudio AAC</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Processador de Áudio</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Configurar o processador de áudio</string>
-  <string name="Settings.Players.VideoPlayer">Visualizador de Vídeos</string>
-  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Preferir faixas de áudio multi-canal</string>
-  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Se habilitado, faixas de 6cn são preferidas (ex.: AC3, AAC)</string>
-  <string name="Settings.Players.DVDPlayer">Visualizador de DVD</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Codecs de Áudio</string>
+  <string name="Settings.Players.Codecs.AudioRenderer">Renderizador de Áudio</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">Codec de Áudio MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Definir o codificador de áudio MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">Codec de Áudio LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Definir o codificador de áudio LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">Codec de Áudio AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Definir o codec de áudio AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Renderizador de Áudio</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Definir o renderizador de áudio</string>
+  <string name="Settings.Players.VideoPlayer">Reprodutor de Vídeo</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Preferir transmissões de áudio multicanal</string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Se ativado, as transmissões de 6cn são as preferidas (ex.: AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">Reprodutor de DVD</string>
   <string name="Settings.Players.Subtitles">Legendas</string>
+  <string name="Settings.Players.Subtitles.Help">Selecione que tipo de legendas deverão ser ativadas</string>
+  <string name="Settings.Players.EnableAtscClosedCaptions">Legendas Ocultas de ATSC</string>
+  <string name="Settings.Players.EnableDvbSubtitles">Transmissão de Vídeo Digital</string>
+  <string name="Settings.Players.EnableTeletextSubtitles">Teletexto</string>
+  <string name="Settings.Players.EnableDvdSubtitles">Legendas de DVD</string>
+  <string name="Settings.Players.EnableDvdClosedCaptions">Legendas Ocultas de DVD</string>
   <string name="Playback.NotSpecified">Não especificado</string>
   <string name="Playback.CaptionNormal">Legenda Normal</string>
   <string name="Playback.CaptionBig">Legenda Grande</string>
@@ -45,4 +51,5 @@
   <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Título {0}</string>
   <!--For example: "Title 1"-->
+  <string name="Playback.Players.No.Subtitles">Sem legendas</string>
 </resources>

@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">Hibernacja</string>
   <string name="SystemState.Shutdown">Zamknij system</string>
   <string name="SystemState.Suspend">Stan wstrzymania</string>
-  <string name="SystemState.Restart">Uruchom ponownie</string>
   <string name="SystemState.Logoff">Wyloguj</string>
   <string name="SystemState.MinimizeMP">Minimalizuj MediaPortal</string>
   <string name="SystemState.ShutdownMP">Zamknij MediaPortal</string>

@@ -3,7 +3,7 @@
   <string name="Configuration.Name">Configurações</string>
   <string name="Configuration.Name.Help">Configure a fontes de mídia e o aspeto do MediaPortal</string>
   <string name="Configuration.ConfigurationMainWorkflowNavigationContextDisplayLabel">Configurações</string>
-  <string name="Configuration.MainSettings">Configurações Prinicipais</string>
+  <string name="Configuration.MainSettings">Configurações Principiais</string>
   <!--2nd Header for root configuration section-->
   <string name="Configuration.NoSettingsInThisSection">Não existem configurações nesta secção</string>
   <string name="Configuration.ErrorFloatingPointValue">\'{0}\' não é um número de vírgula flutuante válido</string>

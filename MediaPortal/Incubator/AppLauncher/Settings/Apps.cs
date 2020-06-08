@@ -63,6 +63,7 @@ namespace MediaPortal.Plugins.AppLauncher.Settings
       Id = new Guid();
       Admin = false;
       Group = string.Empty;
+      MenuNumber = 0;
     }
 
     /// <summary>
@@ -130,5 +131,23 @@ namespace MediaPortal.Plugins.AppLauncher.Settings
     /// </summary>
     [Setting(SettingScope.User, "")]
     public string Group { get; set; }
+
+    /// <summary>
+    /// Date when last started
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public DateTime LastUsed { get; set; }
+
+    /// <summary>
+    /// Number of times started
+    /// </summary>
+    [Setting(SettingScope.User, 0)]
+    public long StartCount { get; set; }
+
+    /// <summary>
+    /// The menu number it is linked to
+    /// </summary>
+    [Setting(SettingScope.User, 0)]
+    public int MenuNumber { get; set; }
   }
 }

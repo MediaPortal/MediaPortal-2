@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">Hibernacija</string>
   <string name="SystemState.Shutdown">Gašenje</string>
   <string name="SystemState.Suspend">Spavanje</string>
-  <string name="SystemState.Restart">Ponovno pokretanje</string>
   <string name="SystemState.Logoff">Odjava</string>
   <string name="SystemState.MinimizeMP">Minimizirajte Mediaportal</string>
   <string name="SystemState.ShutdownMP">Zatvorite Mediaportal</string>

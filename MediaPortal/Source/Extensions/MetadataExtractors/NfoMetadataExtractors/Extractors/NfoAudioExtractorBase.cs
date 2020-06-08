@@ -29,6 +29,7 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
+using MediaPortal.Utilities.FileSystem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -48,7 +49,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
     /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
     /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    protected async Task<NfoAlbumReader> TryGetNfoAlbumReaderAsync(IResourceAccessor mediaItemAccessor)
+    protected async Task<NfoAlbumReader> TryGetNfoAlbumReaderAsync(IResourceAccessor mediaItemAccessor, bool includeFanart)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -71,7 +72,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
         if (TryGetAlbumNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out albumNfoFsra))
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object
-          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, false, false, _httpClient, _settings);
+          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, false, false, _httpClient, _settings, includeFanart);
           using (albumNfoFsra)
           {
             if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
@@ -115,10 +116,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     /// Asynchronously tries to get an <see cref="NfoArtistReader"/> for the given <param name="mediaItemAccessor"></param>
     /// </summary>
     /// <param name="mediaItemAccessor">Points to the resource for which we try to extract metadata</param>
-    /// <param name="extractedAspectData">Dictionary of <see cref="MediaItemAspect"/>s with the extracted metadata</param>
-    /// <param name="forceQuickMode">If <c>true</c>, nothing is downloaded from the internet</param>
-    /// <returns><c>true</c> if metadata was found and stored into <param name="extractedAspectData"></param>, else <c>false</c></returns>
-    protected async Task<NfoArtistReader> TryGetNfoArtistReaderAsync(IResourceAccessor mediaItemAccessor)
+    /// <param name="artistName"></param>
+    /// <param name="includeFanart"></param>
+    /// <returns>NfoArtistReader</returns>
+    protected async Task<NfoArtistReader> TryGetNfoArtistReaderAsync(IResourceAccessor mediaItemAccessor, string artistName, bool includeFanart)
     {
       // Get a unique number for this call to TryExtractMetadataAsync. We use this to make reading the debug log easier.
       // This MetadataExtractor is called in parallel for multiple MediaItems so that the respective debug log entries
@@ -138,10 +139,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
 
         // First we try to find an IFileSystemResourceAccessor pointing to the artist nfo-file.
         IFileSystemResourceAccessor artistNfoFsra;
-        if (TryGetArtistNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, out artistNfoFsra))
+        if (TryGetArtistNfoSResourceAccessor(miNumber, mediaItemAccessor as IFileSystemResourceAccessor, artistName, out artistNfoFsra))
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object
-          var artistNfoReader = new NfoArtistReader(_debugLogger, miNumber, false, _httpClient, _settings);
+          var artistNfoReader = new NfoArtistReader(_debugLogger, miNumber, false, _httpClient, _settings, includeFanart);
           using (artistNfoFsra)
           {
             if (await artistNfoReader.TryReadMetadataAsync(artistNfoFsra).ConfigureAwait(false))
@@ -227,10 +228,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     /// <param name="mediaFsra">FileSystemResourceAccessor for which we search a artist nfo-file</param>
     /// <param name="artistNfoFsra">FileSystemResourceAccessor of the artist nfo-file or <c>null</c> if no artist nfo-file was found</param>
     /// <returns><c>true</c> if a artist nfo-file was found, otherwise <c>false</c></returns>
-    protected bool TryGetArtistNfoSResourceAccessor(long miNumber, IFileSystemResourceAccessor mediaFsra, out IFileSystemResourceAccessor artistNfoFsra)
+    protected bool TryGetArtistNfoSResourceAccessor(long miNumber, IFileSystemResourceAccessor mediaFsra, string artistName, out IFileSystemResourceAccessor artistNfoFsra)
     {
       artistNfoFsra = null;
 
+      #region First Directory
       // Determine the first directory, in which we look for the artist nfo-file
       // We cannot use mediaFsra.GetResource, because for ChainedResourceProviders the parent directory
       // may be located in the ParentResourceProvider. For details see the comments for the ResourcePathHelper class.
@@ -273,7 +275,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
               _debugLogger.Info("[#{0}]: artist nfo-file '{1}' not found; checking next possible file...", miNumber, artistNfoFileName);
         }
       }
+      #endregion
 
+      #region Second directory
       // Determine the second directory, in which we look for the series nfo-file
 
       // First get the ResourcePath of the parent directory's parent directory
@@ -304,6 +308,120 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
           }
           else
             _debugLogger.Info("[#{0}]: artist nfo-file '{1}' not found; checking next possible file...", miNumber, artistNfoFileName);
+      }
+      #endregion
+
+      if (!string.IsNullOrEmpty(artistName))
+      {
+        ResourcePath centralArtistFolderPath = null;
+
+        //Find cached central artist information folder
+        foreach (var folder in NfoAudioMetadataExtractor.CentralArtistFolderCache)
+        {
+          if (folder.Key.IsSameOrParentOf(mediaFsra.CanonicalLocalResourcePath))
+          {
+            if (folder.Value != null && folder.Value.BasePathSegment != null)
+            {
+              //Reuse previously found central artist folder
+              centralArtistFolderPath = folder.Value;
+              break;
+            }
+            else if (folder.Value == null)
+            {
+              //Root path was initialized and needs to be search for a central artist folder
+              break;
+            }
+            else
+            {
+              _debugLogger.Info("[#{0}]: No artist nfo-file found", miNumber);
+              return false;
+            }
+          }
+        }
+
+        if (centralArtistFolderPath == null)
+        {
+          bool rootReached = false;
+
+          //Find central artist information folder
+          for (int level = 1; level <= 5; level++) //Look for central artist folder
+          {
+            // First get the ResourcePath of the central directory for the current level
+            var centralArtistNfoDirectoryResourcePath = mediaFsra.CanonicalLocalResourcePath;
+            for (int addLevel = 0; addLevel < level; addLevel++)
+              centralArtistNfoDirectoryResourcePath = ResourcePathHelper.Combine(centralArtistNfoDirectoryResourcePath, "../");
+            if (NfoAudioMetadataExtractor.CentralArtistFolderCache.Any(f => f.Key.IsSameOrParentOf(mediaFsra.CanonicalLocalResourcePath) && f.Key == centralArtistNfoDirectoryResourcePath))
+              rootReached = true;
+            if (centralArtistNfoDirectoryResourcePath.BasePathSegment.Path.Length < 3)
+              break; //Path no longer valid
+            centralArtistNfoDirectoryResourcePath = ResourcePathHelper.Combine(centralArtistNfoDirectoryResourcePath, $"{NfoAudioMetadataExtractor.ARTIST_INFO_FOLDER}/");
+
+            // Then try to create an IFileSystemResourceAccessor for this directory
+            centralArtistNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out artistNfoDirectoryRa);
+            artistNfoDirectoryFsra = artistNfoDirectoryRa as IFileSystemResourceAccessor;
+            if (artistNfoDirectoryFsra != null)
+            {
+              using (artistNfoDirectoryFsra)
+              {
+                centralArtistFolderPath = centralArtistNfoDirectoryResourcePath;
+                break;
+              }
+            }
+
+            if (rootReached)
+              break; //Reached share root, so stop search
+          }
+
+          if (centralArtistFolderPath != null)
+          {
+            //Store path for reuse if possible
+            var addToCacheKey = NfoAudioMetadataExtractor.CentralArtistFolderCache.FirstOrDefault(f => f.Key.IsSameOrParentOf(mediaFsra.CanonicalLocalResourcePath) && f.Value == null);
+            if (addToCacheKey.Key != null)
+              NfoAudioMetadataExtractor.CentralArtistFolderCache.TryUpdate(addToCacheKey.Key, centralArtistFolderPath, null);
+          }
+          else
+          {
+            //Store last valid path to avoid path hierarchy to be searched again
+            var addToCacheKey = NfoAudioMetadataExtractor.CentralArtistFolderCache.FirstOrDefault(f => f.Key.IsSameOrParentOf(mediaFsra.CanonicalLocalResourcePath));
+            if (addToCacheKey.Key != null)
+              NfoAudioMetadataExtractor.CentralArtistFolderCache.TryUpdate(addToCacheKey.Key, new ResourcePath(new List<ProviderPathSegment>()), null);
+          }
+        }
+
+        if (centralArtistFolderPath != null)
+        {
+          #region Look for central artist directory
+
+          // First get the ResourcePath of the central directory
+          var artistFolderPath = ResourcePathHelper.Combine(centralArtistFolderPath, $"{FileUtils.GetSafeFilename(artistName, '¤').Replace("¤", "")}/");
+          _debugLogger.Info("[#{0}]: central artist nfo-directory: '{1}'", miNumber, artistFolderPath);
+
+          // Then try to create an IFileSystemResourceAccessor for this directory
+          artistFolderPath.TryCreateLocalResourceAccessor(out artistNfoDirectoryRa);
+          artistNfoDirectoryFsra = artistNfoDirectoryRa as IFileSystemResourceAccessor;
+          if (artistNfoDirectoryFsra == null)
+          {
+            _debugLogger.Info("[#{0}]: central artist nfo-directory not accessible'", miNumber, artistFolderPath);
+          }
+          else
+          {
+            // Finally try to find a artist nfo-file in the central directory
+            using (artistNfoDirectoryFsra)
+            {
+              var artistNfoFileNames = GetArtistNfoFileNames();
+              foreach (var artistNfoFileName in artistNfoFileNames)
+                if (artistNfoDirectoryFsra.ResourceExists(artistNfoFileName))
+                {
+                  _debugLogger.Info("[#{0}]: artist nfo-file found: '{1}'", miNumber, artistNfoFileName);
+                  artistNfoFsra = artistNfoDirectoryFsra.GetResource(artistNfoFileName);
+                  return true;
+                }
+                else
+                  _debugLogger.Info("[#{0}]: artist nfo-file '{1}' not found; checking next possible file...", miNumber, artistNfoFileName);
+            }
+          }
+          #endregion
+        }
       }
 
       _debugLogger.Info("[#{0}]: No artist nfo-file found", miNumber);

@@ -187,11 +187,11 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Stretch" Margin="5">
             <Grid.RowDefinitions>
-              <RowDefinition Height="150"/>
-              <RowDefinition Height="70"/>
+              <RowDefinition Height="145"/>
+              <RowDefinition Height="60"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="150"/>
+              <ColumnDefinition Width="145"/>
             </Grid.ColumnDefinitions>
 
             <Image Source="Square_small.png" Stretch="Fill" Margin="-6,-6,-5,-6"/>
@@ -209,8 +209,14 @@
             <Control Style="{ThemeResource ButtonBaseControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="3"
                      IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
 
-            <Label Content="{Binding PersonName}" Grid.Row="1" Color="{ThemeResource TextColor}" Wrap="True"
-                   FontSize="{ThemeResource SmallerFontSize}" Scroll="Auto" ScrollDelay="0" HorizontalAlignment="Center"/>
+            <Label x:Name="NameLabel" Content="{Binding PersonName}" Grid.Row="1" Color="{ThemeResource TextColor}" Wrap="True"
+                   FontSize="{ThemeResource SmallerFontSize}" Scroll="None" ScrollDelay="0" HorizontalAlignment="Center">
+              <Label.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                  <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
+                </DataTrigger>
+              </Label.Triggers>
+            </Label>
           </Grid>
         </ControlTemplate>
       </media:PersonAspectWrapper.Template>
@@ -224,11 +230,11 @@
         <ControlTemplate>
           <Grid Margin="0,5,-30,0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Grid.RowDefinitions>
-              <RowDefinition Height="150"/>
+              <RowDefinition Height="145"/>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="150"/>
+              <ColumnDefinition Width="145"/>
             </Grid.ColumnDefinitions>
 
             <Image x:Name="thumb" Width="{StaticResource AUDIO_COVER_WIDTH}" Height="{StaticResource AUDIO_COVER_HEIGHT}" Stretch="Fill" FallbackSource="person.filled.png">

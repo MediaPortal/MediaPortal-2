@@ -5,5 +5,4 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Korisničko ime i zaporka</string>
   <string name="Settings.ServerSettings.Username">Korisničko ime:</string>
   <string name="Settings.ServerSettings.Password">Zaporka:</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Omogući automatsko osvježavanje</string>
 </resources>
