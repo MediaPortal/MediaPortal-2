@@ -62,7 +62,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
         Type = WebMediaType.MusicTrack,
         Path = ResourceAccessUtils.GetPaths(item),
         Year = mediaAspect.GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME).Year,
-        Duration = audioAspect.GetAttributeValue<int>(AudioAspect.ATTR_DURATION),
+        Duration = (int)audioAspect.GetAttributeValue<long>(AudioAspect.ATTR_DURATION),
         DateAdded = importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED),
         Rating = Convert.ToSingle(audioAspect.GetAttributeValue<double>(AudioAspect.ATTR_TOTAL_RATING)),
         Artwork = ResourceAccessUtils.GetWebArtwork(item),
