@@ -5,13 +5,15 @@ using MediaPortal.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Emulators.Common.MobyGames;
+using Emulators.Common.RawG;
+using MediaPortal.Common.MediaManagement;
 
 namespace Emulators.Common.Matchers
 {
   public class GameMatcher
   {
-    IOnlineMatcher _onlineMatcher;
-    Dictionary<Guid, IOnlineMatcher> _imageHandlers;
+    List<IOnlineMatcher> _onlineMatchers = new List<IOnlineMatcher>();
 
     public static GameMatcher Instance
     {
@@ -20,34 +22,31 @@ namespace Emulators.Common.Matchers
 
     public GameMatcher()
     {
-      _onlineMatcher = new TheGamesDbWrapperV2();
-
-      _imageHandlers = new Dictionary<Guid, IOnlineMatcher>();
-      _imageHandlers.Add(_onlineMatcher.MatcherId, _onlineMatcher);
-
-      IOnlineMatcher legacyImageHandler = new TheGamesDbLegacyWrapper();
-      _imageHandlers.Add(legacyImageHandler.MatcherId, legacyImageHandler);
+      _onlineMatchers.Add(new TheGamesDbWrapperV2());
+      _onlineMatchers.Add(new RawGWrapperV1());
+      _onlineMatchers.Add(new MobyGamesWrapper());
     }
 
-    public Task<bool> FindAndUpdateGameAsync(GameInfo gameInfo)
+    public async Task<bool> FindAndUpdateGameAsync(GameInfo gameInfo)
     {
       TheGamesDbWrapperV2.TryGetTGDBId(gameInfo);
       NameProcessor.CleanupTitle(gameInfo);
-      return _onlineMatcher.FindAndUpdateGameAsync(gameInfo);
+      bool success = false;
+      foreach (IOnlineMatcher matcher in _onlineMatchers)
+      {
+        success |= await matcher.FindAndUpdateGameAsync(gameInfo).ConfigureAwait(false);
+      }
+      return success;
     }
 
-    public Task DownloadFanArtAsync(string onlineId)
+    public async Task DownloadFanArtAsync(Guid mediaItem, IDictionary<Guid, IList<MediaItemAspect>> aspects)
     {
-      return _onlineMatcher.DownloadFanArtAsync(onlineId);
-    }
-
-    public bool TryGetImagePath(Guid matcherId, string onlineId, ImageType imageType, out string path)
-    {
-      if (_imageHandlers.TryGetValue(matcherId, out IOnlineMatcher matcher))
-        return matcher.TryGetImagePath(onlineId, imageType, out path);
-
-      path = null;
-      return false;
+      GameInfo gameInfo = new GameInfo();
+      gameInfo.SetIdsAndName(aspects);
+      foreach (IOnlineMatcher matcher in _onlineMatchers)
+      {
+        await matcher.DownloadFanArtAsync(mediaItem, gameInfo).ConfigureAwait(false);
+      }
     }
   }
 }

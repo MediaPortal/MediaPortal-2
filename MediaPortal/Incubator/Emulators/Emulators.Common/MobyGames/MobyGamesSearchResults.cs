@@ -1,15 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Emulators.Common.MobyGames
 {
   class MobyGamesSearchResults : AbstractMobyGamesResult
   {
-    protected static readonly Regex REGEX = new Regex(@"<a href=""/game/([^""]*)"">([^<]*)</a>(\s*\([^\)]*\))*(<[^>]*>){3}([^\(]*)\(<em>(\d+)");
+    protected static readonly Regex REGEX = new Regex(@"<a href=""[^>]*/game/([^""]*)"">([^<]*)</a>(\s*\([^\)]*\))*(<[^>]*>){3}([^\(]*)\(<em>(\d+)<\/em>\)");
 
     public List<SearchResult> Results { get; set; }
 
@@ -28,7 +25,7 @@ namespace Emulators.Common.MobyGames
         {
           Id = m.Groups[1].Value,
           Title = Decode(m.Groups[2].Value),
-          Platform = Decode(m.Groups[5].Value),
+          Platform = m.Groups[1].Value.Substring(0, m.Groups[1].Value.IndexOf("/")),
           Year = int.Parse(m.Groups[6].Value)
         });
       }

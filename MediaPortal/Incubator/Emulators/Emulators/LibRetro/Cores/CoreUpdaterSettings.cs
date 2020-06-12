@@ -1,9 +1,4 @@
 ﻿using MediaPortal.Common.Settings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Emulators.LibRetro.Cores
 {
@@ -48,6 +43,9 @@ namespace Emulators.LibRetro.Cores
 
     [Setting(SettingScope.Global, "/nightly/windows/x86/latest/")]
     public string CoresUrl { get; set; }
+
+    [Setting(SettingScope.Global, "/nightly/windows/x86_64/latest/")]
+    public string Cores64Url { get; set; }
 
     [Setting(SettingScope.Global, "/assets/frontend/info/")]
     public string CoreInfoUrl { get; set; }

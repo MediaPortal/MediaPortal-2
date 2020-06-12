@@ -3,9 +3,8 @@ using MediaPortal.Common.ResourceAccess;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
+using Emulators.Common.Games;
 
 namespace Emulators.Emulator
 {
@@ -48,7 +47,7 @@ namespace Emulators.Emulator
       _nativeConfiguration = new EmulatorConfiguration()
       {
         Name = "PC",
-        Platforms = new HashSet<string> { "PC" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_PC },
         FileExtensions = new HashSet<string> { ".exe", ".bat", ".lnk" }
       };
 
@@ -59,7 +58,7 @@ namespace Emulators.Emulator
       {
         Name = "MAME",
         Path = "mame.exe",
-        Platforms = new HashSet<string> { "Arcade" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_ARCADE },
         FileExtensions = new HashSet<string> { ".zip" },
         Arguments = string.Format("-rp {0} {1}", EmulatorConfiguration.WILDCARD_GAME_DIRECTORY, EmulatorConfiguration.WILDCARD_GAME_PATH_NO_EXT)
       },
@@ -68,7 +67,7 @@ namespace Emulators.Emulator
       {
         Name = "Project 64",
         Path = "project64.exe",
-        Platforms = new HashSet<string> { "Nintendo 64" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_NINTENDO_64 },
         UseQuotes = false,
         FileExtensions = new HashSet<string> { ".n64", ".z64", ".v64", ".rom" }
       },
@@ -77,7 +76,7 @@ namespace Emulators.Emulator
       {
         Name = "WinUAE",
         Path = "winuae.exe",
-        Platforms = new HashSet<string> { "Amiga" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_AMIGA },
         FileExtensions = new HashSet<string> { ".uae" }
       },
 
@@ -85,7 +84,7 @@ namespace Emulators.Emulator
       {
         Name = "Atari800",
         Path = "atari800win.exe",
-        Platforms = new HashSet<string> { "Atari 5200" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_ATARI_5200 },
         FileExtensions = new HashSet<string> { ".atr" }
       },
 
@@ -93,7 +92,7 @@ namespace Emulators.Emulator
       {
         Name = "NullDC",
         Path = "nulldc.exe",
-        Platforms = new HashSet<string> { "Sega Dreamcast" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_SEGA_DREAMCAST },
         FileExtensions = new HashSet<string> { ".cdi" }
       },
 
@@ -101,7 +100,7 @@ namespace Emulators.Emulator
       {
         Name = "VisualBoyAdvance",
         Path = "vba.exe",
-        Platforms = new HashSet<string> { "Nintendo Game Boy", "Nintendo Game Boy Advance", "Nintendo Game Boy Color" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_NINTENDO_GAME_BOY, GameInfo.PLATFORM_NINTENDO_GAME_BOY_ADVANCE, GameInfo.PLATFORM_NINTENDO_GAME_BOY_COLOR },
         FileExtensions = new HashSet<string> { ".gba", ".gbc", ".sgb", ".gb" }
       },
 
@@ -109,7 +108,7 @@ namespace Emulators.Emulator
       {
         Name = "FCE Ultra",
         Path = "fceu.exe",
-        Platforms = new HashSet<string> { "Nintendo Entertainment System (NES)" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_NINTENDO_NES },
         FileExtensions = new HashSet<string> { ".nes" }
       },
 
@@ -117,7 +116,7 @@ namespace Emulators.Emulator
       {
         Name = "ePSXe",
         Path = "epsxe.exe",
-        Platforms = new HashSet<string> { "Sony Playstation" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_SONY_PLAYSTATION },
         FileExtensions = new HashSet<string> { ".bin", ".iso", ".img" },
         Arguments = "-nogui -loadbin",
         ExitsOnEscapeKey = true
@@ -127,7 +126,7 @@ namespace Emulators.Emulator
       {
         Name = "PCSX2",
         PathRegex = "pcsx2.*?\\.exe",
-        Platforms = new HashSet<string> { "Sony Playstation 2" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_SONY_PLAYSTATION_2 },
         FileExtensions = new HashSet<string> { ".bin", ".iso", ".img" },
         Arguments = "--nogui"
       },
@@ -136,7 +135,7 @@ namespace Emulators.Emulator
       {
         Name = "Kega Fusion",
         Path = "fusion.exe",
-        Platforms = new HashSet<string> { "Sega 32X", "Sega CD", "Sega Genesis", "Sega Master System", "Sega Mega Drive", "Sega Game Gear" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_SEGA_32X, GameInfo.PLATFORM_SEGA_CD, GameInfo.PLATFORM_SEGA_GENESIS, GameInfo.PLATFORM_SEGA_MASTER_SYSTEM, GameInfo.PLATFORM_SEGA_MEGA_DRIVE, GameInfo.PLATFORM_SEGA_GAME_GEAR },
         FileExtensions = new HashSet<string> { ".bin", ".smd", ".md" }
       },
 
@@ -144,7 +143,7 @@ namespace Emulators.Emulator
       {
         Name = "Snes9x",
         Path = "snes9xw.exe",
-        Platforms = new HashSet<string> { "Super Nintendo (SNES)" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_NINTENDO_SNES },
         FileExtensions = new HashSet<string> { ".smc", ".sfc" }
       },
 
@@ -152,7 +151,7 @@ namespace Emulators.Emulator
       {
         Name = "Snes9x",
         Path = "snes9x.exe",
-        Platforms = new HashSet<string> { "Super Nintendo (SNES)" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_NINTENDO_SNES },
         FileExtensions = new HashSet<string> { ".smc", ".fig", ".bin", ".sfc" }
       },
 
@@ -160,7 +159,7 @@ namespace Emulators.Emulator
       {
         Name = "ZSNES",
         Path = "zsnesw.exe",
-        Platforms = new HashSet<string> { "Super Nintendo (SNES)" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_NINTENDO_SNES },
         FileExtensions = new HashSet<string> { ".smc", ".fig", ".sfc" }
       },
 
@@ -168,7 +167,7 @@ namespace Emulators.Emulator
       {
         Name = "Dolphin",
         Path = "dolphin.exe",
-        Platforms = new HashSet<string> { "Nintendo Wii", "Nintendo GameCube" },
+        Platforms = new HashSet<string> { GameInfo.PLATFORM_NINTENDO_WII, GameInfo.PLATFORM_NINTENDO_GAMECUBE },
         FileExtensions = new HashSet<string> { ".iso", ".elf", ".dol", ".gcm", ".wbfs", ".ciso", ".gcz", ".wad" },
         Arguments = "-b -e"
       }

@@ -10,11 +10,11 @@ namespace Emulators.Common.MobyGames
 {
   class MobyGamesResult : AbstractMobyGamesResult
   {
-    protected static readonly Regex TITLE_REGEX = new Regex(@"<a href=""/game/([^""]*)"">([^<]*)</a>[^\(]*\(<a[^>]*>([^<]*)");
+    protected static readonly Regex TITLE_REGEX = new Regex(@"<a href=""[^>]*/game/([^""]*)"">([^<]*)</a>[^\(]*\(<a[^>]*>([^<]*)");
     protected static readonly Regex RELEASE_REGEX = new Regex(@"Published by(<[^>]*>){3}([^<]*)(<[^>]*>){3}Developed by(<[^>]*>){3}([^<]*)(<[^>]*>){3}Released(<[^>]*>){3}([^<]*)");
     protected static readonly Regex GENRE_REGEX = new Regex(@"ESRB Rating(<[^>]*>){3}([^<]*)(<[^>]*>){3}Genre(<[^>]*>){3}([^<]*)");
-    protected static readonly Regex RATING_REGEX = new Regex(@"<div[^>]*>(\d+)</div>[\r\n\s]*<div><b>Critic Score");
-    protected static readonly Regex OVERVIEW_REGEX = new Regex(@"Description</h2>(.*?)<div");
+    protected static readonly Regex RATING_REGEX = new Regex(@"<td.*mobyrank[^>]*>.*[\r\n\s]*<td.*[\r\n\s]*<td.*[\r\n\s]*<td[^>]*>(\d+)<\/td>");
+    protected static readonly Regex OVERVIEW_REGEX = new Regex(@"Description<\/h2>(.*?)<div");
     protected static readonly Regex BREAK_REGEX = new Regex(@"<br[^>]*>");
     protected static readonly Regex TAGS_REGEX = new Regex(@"<[^>]*>");
 
@@ -38,7 +38,7 @@ namespace Emulators.Common.MobyGames
         return false;
       Id = m.Groups[1].Value;
       Title = Decode(m.Groups[2].Value);
-      Platform = Decode(m.Groups[3].Value);
+      Platform = m.Groups[1].Value.Substring(0, m.Groups[1].Value.IndexOf("/"));
 
       m = RELEASE_REGEX.Match(response);
       if (m.Success)
@@ -55,9 +55,14 @@ namespace Emulators.Common.MobyGames
         Genres = new HashSet<string> { m.Groups[5].Value };
       }
 
-      m = RATING_REGEX.Match(response);
-      if (m.Success)
-        Rating = int.Parse(m.Groups[1].Value) / 10d;
+      var ms = RATING_REGEX.Matches(response);
+      if (ms.Count > 0)
+      {
+        foreach (Match match in ms)
+          Rating += int.Parse(match.Value) / 10d;
+
+        Rating /= ms.Count;
+      }
 
       m = OVERVIEW_REGEX.Match(response);
       if (m.Success)

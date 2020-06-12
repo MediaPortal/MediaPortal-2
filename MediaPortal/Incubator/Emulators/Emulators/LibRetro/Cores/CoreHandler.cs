@@ -8,8 +8,6 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Emulators.LibRetro.Cores
 {
@@ -36,9 +34,17 @@ namespace Emulators.LibRetro.Cores
 
       CoreUpdaterSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<CoreUpdaterSettings>();
       _baseUrl = settings.BaseUrl;
-      _latestUrl = settings.CoresUrl;
+      if (Environment.Is64BitProcess)
+      {
+        _latestUrl = settings.Cores64Url;
+        _customCoresUrl = null;
+      }
+      else
+      {
+        _latestUrl = settings.CoresUrl;
+        _customCoresUrl = settings.CustomCoresUrl;
+      }
       _infoUrl = settings.CoreInfoUrl;
-      _customCoresUrl = settings.CustomCoresUrl;
       _unsupportedCores = new HashSet<string>(CoreUpdaterSettings.DEFAULT_UNSUPPORTED);
     }
 
@@ -105,6 +111,12 @@ namespace Emulators.LibRetro.Cores
 
     protected void UpdateCustomCores()
     {
+      if (string.IsNullOrEmpty(_customCoresUrl))
+      {
+        _customCores = new List<CustomCore>();
+        return;
+      }
+
       _customCores = CustomCoreHandler.GetCustomCores(_customCoresUrl);
 
       if (!TryCreateDirectory(_infoDirectory))

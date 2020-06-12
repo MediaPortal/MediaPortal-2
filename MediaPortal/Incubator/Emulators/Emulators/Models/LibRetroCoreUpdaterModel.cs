@@ -4,8 +4,6 @@ using MediaPortal.UI.Presentation.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.SkinBase.General;
@@ -138,11 +136,11 @@ namespace Emulators.Models
       _coresDirectory = settings.CoresDirectory;
       _infoDirectory = settings.InfoDirectory;
       _onlyShowSupportedCores = settings.OnlyShowSupportedCores;
-      _coreHandler = new CoreHandler(_coresDirectory, _infoDirectory);
 
       if ((DateTime.Now - _lastUpdateTime).TotalMinutes < settings.CoreUpdateIntervalMinutes)
         return;
       _lastUpdateTime = DateTime.Now;
+      _coreHandler = new CoreHandler(_coresDirectory, _infoDirectory);
 
       var sm = ServiceRegistration.Get<IScreenManager>();
       Guid? dialogId = null;

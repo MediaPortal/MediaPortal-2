@@ -1,11 +1,8 @@
 ﻿using Emulators.Common.Games;
 using MediaPortal.Utilities;
-using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace Emulators.Common.NameProcessing
 {
@@ -29,13 +26,13 @@ namespace Emulators.Common.NameProcessing
 
     public static bool CleanupTitle(GameInfo gameInfo)
     {
-      string originalTitle = gameInfo.GameName;
+      string originalTitle = gameInfo.SearchName;
       foreach (ITitleConverter converter in TITLE_CONVERTERS)
         converter.ConvertTitle(gameInfo);
       foreach (Regex regex in REGEXP_CLEANUPS)
-        gameInfo.GameName = regex.Replace(gameInfo.GameName, "");
-      gameInfo.GameName = CleanupWhiteSpaces(gameInfo.GameName);
-      return originalTitle != gameInfo.GameName;
+        gameInfo.SearchName = regex.Replace(gameInfo.SearchName, "");
+      gameInfo.SearchName = CleanupWhiteSpaces(gameInfo.SearchName);
+      return originalTitle != gameInfo.SearchName;
     }
 
     /// <summary>

@@ -42,9 +42,9 @@ namespace Emulators.Common.NameProcessing
         return false;
 
       string newTitle;
-      if (MAME_TITLES_DICTIONARY.TryGetValue(gameInfo.GameName, out newTitle))
+      if (MAME_TITLES_DICTIONARY.TryGetValue(gameInfo.SearchName, out newTitle))
       {
-        gameInfo.GameName = newTitle;
+        gameInfo.SearchName = newTitle;
         return true;
       }
       return false;

@@ -1,9 +1,5 @@
 ﻿using MediaPortal.Common.MediaManagement;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace Emulators.Common.Games
 {
@@ -16,30 +12,6 @@ namespace Emulators.Common.Games
     /// </summary>
     public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_GAME_NAME =
         MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("GameName", 100, Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the TGDB ID of the game.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_TGDB_ID =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("TGDBID", typeof(int), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the id of the matcher that matched the game.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_MATCHER_ID =
-        MediaItemAspectMetadata.CreateSingleAttributeSpecification("MatcherId", typeof(Guid), Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the online id of the game.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_ONLINE_ID =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("OnlineId", 100, Cardinality.Inline, false);
-
-    /// <summary>
-    /// Contains the online id of the platform.
-    /// </summary>
-    public static readonly MediaItemAspectMetadata.SingleAttributeSpecification ATTR_PLATFORM_ID =
-        MediaItemAspectMetadata.CreateSingleStringAttributeSpecification("PlatformId", 100, Cardinality.Inline, false);
 
     /// <summary>
     /// Contains the platform of the game.
@@ -87,10 +59,6 @@ namespace Emulators.Common.Games
       // TODO: Localize name
       ASPECT_ID, "GameItem", new[] {
             ATTR_GAME_NAME,
-            ATTR_TGDB_ID,
-            ATTR_MATCHER_ID,
-            ATTR_ONLINE_ID,
-            ATTR_PLATFORM_ID,
             ATTR_PLATFORM,
             ATTR_YEAR,
             ATTR_DESCRIPTION,

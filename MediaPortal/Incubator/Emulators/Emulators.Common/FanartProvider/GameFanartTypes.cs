@@ -9,5 +9,8 @@ namespace Emulators.Common.FanartProvider
   public static class GameFanartTypes
   {
     public const string MEDIA_TYPE_GAME = "Game";
+
+    public const string BackCover = "BackCover";
+    public const string ScreenShot = "ScreenShot";
   }
 }

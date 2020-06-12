@@ -5,9 +5,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace Emulators.MediaExtensions
 {
@@ -23,6 +21,8 @@ namespace Emulators.MediaExtensions
 
     protected AbstractProperty _gameNameProperty;
     protected AbstractProperty _tGDBIDProperty;
+    protected AbstractProperty _mobyIDProperty;
+    protected AbstractProperty _rawGIDProperty;
     protected AbstractProperty _platformProperty;
     protected AbstractProperty _developerProperty;
     protected AbstractProperty _yearProperty;
@@ -56,6 +56,28 @@ namespace Emulators.MediaExtensions
     {
       get { return (int?)_tGDBIDProperty.GetValue(); }
       set { _tGDBIDProperty.SetValue(value); }
+    }
+
+    public AbstractProperty MobyIDProperty
+    {
+      get { return _mobyIDProperty; }
+    }
+
+    public string MobyID
+    {
+      get { return (string)_mobyIDProperty.GetValue(); }
+      set { _mobyIDProperty.SetValue(value); }
+    }
+
+    public AbstractProperty RAWGIDProperty
+    {
+      get { return _rawGIDProperty; }
+    }
+
+    public long? RAWGID
+    {
+      get { return (long?)_rawGIDProperty.GetValue(); }
+      set { _rawGIDProperty.SetValue(value); }
     }
 
     public AbstractProperty PlatformProperty
@@ -154,6 +176,8 @@ namespace Emulators.MediaExtensions
     {
       _gameNameProperty = new SProperty(typeof(string));
       _tGDBIDProperty = new SProperty(typeof(int?));
+      _mobyIDProperty = new SProperty(typeof(string));
+      _rawGIDProperty = new SProperty(typeof(long?));
       _platformProperty = new SProperty(typeof(string));
       _developerProperty = new SProperty(typeof(string));
       _yearProperty = new SProperty(typeof(int?));
@@ -174,6 +198,25 @@ namespace Emulators.MediaExtensions
       Init(MediaItem);
     }
 
+    private string GetESRBCertificationText(string esrbId)
+    {
+      if (string.IsNullOrEmpty(esrbId))
+        return "";
+
+      if (esrbId.Equals("ESRB_E10+", StringComparison.InvariantCultureIgnoreCase))
+        return "ESRB E 10+";
+      if (esrbId.Equals("ESRB_E", StringComparison.InvariantCultureIgnoreCase))
+        return "ESRB E";
+      if (esrbId.Equals("ESRB_T", StringComparison.InvariantCultureIgnoreCase))
+        return "ESRB T";
+      if (esrbId.Equals("ESRB_M", StringComparison.InvariantCultureIgnoreCase))
+        return "ESRB M";
+      if (esrbId.Equals("ESRB_A", StringComparison.InvariantCultureIgnoreCase))
+        return "ESRB A";
+
+      return "";
+    }
+
     public void Init(MediaItem mediaItem)
     {
       SingleMediaItemAspect aspect;
@@ -184,20 +227,47 @@ namespace Emulators.MediaExtensions
       }
 
       GameName = (string)aspect[GameAspect.ATTR_GAME_NAME];
-      TGDBID = (int?)aspect[GameAspect.ATTR_TGDB_ID];
       Platform = (string)aspect[GameAspect.ATTR_PLATFORM];
       Developer = (string)aspect[GameAspect.ATTR_DEVELOPER];
       Year = (int?)aspect[GameAspect.ATTR_YEAR];
-      Certification = (string)aspect[GameAspect.ATTR_CERTIFICATION];
+      Certification = GetESRBCertificationText((string)aspect[GameAspect.ATTR_CERTIFICATION]);
       Description = (string)aspect[GameAspect.ATTR_DESCRIPTION];
       Rating = (double?)aspect[GameAspect.ATTR_RATING];
       Genres = (IEnumerable<string>)aspect[GameAspect.ATTR_GENRES] ?? EMPTY_STRING_COLLECTION;
+
+      IList<MultipleMediaItemAspect> externalIdAspects;
+      if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ExternalIdentifierAspect.Metadata, out externalIdAspects))
+      {
+        foreach (MultipleMediaItemAspect externalId in externalIdAspects)
+        {
+          string source = externalId.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+          string id = externalId.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+          string type = externalId.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+          if (type == GameInfo.TYPE_GAME)
+          {
+            if (source == GameInfo.SOURCE_GAMESDB)
+            {
+              TGDBID = Convert.ToInt32(id);
+            }
+            else if (source == GameInfo.SOURCE_MOBY)
+            {
+              MobyID = id;
+            }
+            else if (source == GameInfo.SOURCE_RAWG)
+            {
+              RAWGID = Convert.ToInt64(id);
+            }
+          }
+        }
+      }
     }
 
     public void SetEmpty()
     {
       GameName = null;
       TGDBID = null;
+      MobyID = null;
+      RAWGID = null;
       Platform = null;
       Developer = null;
       Year = null;

@@ -126,16 +126,17 @@ namespace Emulators.Common
       string name = DosPathHelper.GetFileNameWithoutExtension(lfsra.CanonicalLocalResourcePath.BasePathSegment.Path);
       GameInfo gameInfo = new GameInfo()
       {
-        GameName = name,
+        SearchName = name,
         Platform = platform
       };           
 
       GameMatcher matcher = GameMatcher.Instance;
       if (!forceQuickMode && !await matcher.FindAndUpdateGameAsync(gameInfo).ConfigureAwait(false))
-      {
         Logger.Debug("GamesMetadataExtractor: No match found for game: '{0}', '{1}'", lfsra.LocalFileSystemPath, platform);
-        gameInfo.GameName = name;
-      }
+      
+      if (string.IsNullOrWhiteSpace(gameInfo.GameName))
+        gameInfo.GameName = gameInfo.SearchName;
+
       gameInfo.SetMetadata(extractedAspectData, lfsra);
       return true;
     }
@@ -202,6 +203,11 @@ namespace Emulators.Common
     }
 
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       return Task.FromResult(false);
     }

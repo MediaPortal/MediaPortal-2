@@ -32,6 +32,24 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -51,7 +69,6 @@
     <Compile Include="GoodMerge\IExtractor.cs" />
     <Compile Include="GoodMerge\SharpCompressExtractor.cs" />
     <Compile Include="Matchers\GameMatch.cs" />
-    <Compile Include="Matchers\ImageType.cs" />
     <Compile Include="Matchers\IOnlineMatcher.cs" />
     <Compile Include="Matchers\MemoryCache.cs" />
     <Compile Include="MobyGames\AbstractMobyGamesResult.cs" />
@@ -59,10 +76,45 @@
     <Compile Include="MobyGames\MobyGamesResult.cs" />
     <Compile Include="MobyGames\MobyGamesSearchResults.cs" />
     <Compile Include="MobyGames\MobyGamesWrapper.cs" />
+    <Compile Include="RawG\Data\Clip.cs" />
+    <Compile Include="RawG\Data\ClipCollection.cs" />
+    <Compile Include="RawG\Data\Creator.cs" />
+    <Compile Include="RawG\Data\CreatorResult.cs" />
+    <Compile Include="RawG\Data\PlatformResult.cs" />
+    <Compile Include="RawG\Data\ScreenshotResult.cs" />
+    <Compile Include="RawG\Data\PublisherResult.cs" />
+    <Compile Include="RawG\Data\DeveloperResult.cs" />
+    <Compile Include="RawG\Data\GenreResult.cs" />
+    <Compile Include="RawG\Data\Genre.cs" />
+    <Compile Include="RawG\Data\GameDetails.cs" />
+    <Compile Include="RawG\Data\AddedStatus.cs" />
+    <Compile Include="RawG\Data\EsrbRating.cs" />
+    <Compile Include="RawG\Data\ParentPlatform.cs" />
+    <Compile Include="RawG\Data\Screenshot.cs" />
+    <Compile Include="RawG\Data\Tag.cs" />
+    <Compile Include="RawG\Data\NamedItem.cs" />
+    <Compile Include="RawG\Data\Platform.cs" />
+    <Compile Include="RawG\Data\Requirement.cs" />
+    <Compile Include="RawG\Data\Developer.cs" />
+    <Compile Include="RawG\Data\Publisher.cs" />
+    <Compile Include="RawG\Data\StoreDetails.cs" />
+    <Compile Include="RawG\Data\Store.cs" />
+    <Compile Include="RawG\Data\StoreLink.cs" />
+    <Compile Include="RawG\Data\Release.cs" />
+    <Compile Include="RawG\Data\NamedItemCountImage.cs" />
+    <Compile Include="RawG\Data\Rating.cs" />
+    <Compile Include="Settings\ImporterSettings.cs" />
     <Compile Include="Settings\CommonSettings.cs" />
+    <Compile Include="RawG\Api\RawGV1.cs" />
+    <Compile Include="RawG\Data\ApiResult.cs" />
+    <Compile Include="RawG\Data\Game.cs" />
+    <Compile Include="RawG\Data\GameResult.cs" />
+    <Compile Include="RawG\RawGWrapperV1.cs" />
     <Compile Include="TheGamesDb\Api\TheGamesDbV2.cs" />
     <Compile Include="TheGamesDb\Data\ApiData.cs" />
     <Compile Include="TheGamesDb\Data\ApiResult.cs" />
+    <Compile Include="TheGamesDb\Data\PlatformData.cs" />
+    <Compile Include="TheGamesDb\Data\PlatformResult.cs" />
     <Compile Include="TheGamesDb\Data\PublisherData.cs" />
     <Compile Include="TheGamesDb\Data\DeveloperData.cs" />
     <Compile Include="TheGamesDb\Data\PublisherResult.cs" />
@@ -94,7 +146,6 @@
     <Compile Include="NameProcessing\MameTitleConverter.cs" />
     <Compile Include="NameProcessing\NameProcessor.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="TheGamesDb\TheGamesDbLegacyWrapper.cs" />
     <Compile Include="WebRequests\CompressionWebClient.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -119,7 +170,6 @@
   <ItemGroup>
     <EmbeddedResource Include="TheGamesDb\Data\Platforms\DefaultPlatforms.json" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
       <Version>10.0.3</Version>

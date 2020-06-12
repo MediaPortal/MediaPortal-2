@@ -29,12 +29,13 @@ namespace Emulators.Common.TheGamesDb.Api
 
     protected const string BASE_URL = "https://api.thegamesdb.net/";
 
-    protected const string SEARCH_GAME_PATH = "Games/ByGameName";
-    protected const string GET_GAME_PATH = "Games/ByGameID";
+    protected const string SEARCH_GAME_PATH = "/Games/ByGameName";
+    protected const string GET_GAME_PATH = "/Games/ByGameID";
     protected const string GET_GAME_IMAGES_PATH = "/Games/Images";
     protected const string GET_GENRES_PATH = "/Genres";
     protected const string GET_DEVELOPERS_PATH = "/Developers";
     protected const string GET_PUBLISHERS_PATH = "/Publishers";
+    protected const string GET_PLATFORMS_PATH = "/Platforms";
 
     protected const string GAME_CACHE_PATH = "Games";
 
@@ -54,15 +55,15 @@ namespace Emulators.Common.TheGamesDb.Api
       _downloader = new Downloader();
     }
     
-    public Task<GameResult> SearchGameByNameAsync(string searchName, string platform)
+    public Task<GameResult> SearchGameByNameAsync(string searchName, int platformId)
     {
       string query = "name=" + Uri.EscapeDataString(searchName) + "&" + _gameFieldsAndIncludeQuery;
-      if (!string.IsNullOrEmpty(platform))
+      if (platformId > 0)
       {
-        string filter = Uri.EscapeDataString("platform=" + platform);
+        string filter = Uri.EscapeDataString("platform=" + platformId);
         query += "&filter=" + filter;
       }
-      string url = BuildRequestUrl(SEARCH_GAME_PATH, query);
+      string url = BuildRequestUrl(SEARCH_GAME_PATH, query, "v1.1");
       return _downloader.DownloadAsync<GameResult>(url);
     }
 
@@ -79,6 +80,13 @@ namespace Emulators.Common.TheGamesDb.Api
       string json = JsonConvert.SerializeObject(gameResult);
       string cachePath = CreateAndGetGameCacheName(gameId);
       WriteToCache(json, cachePath);
+    }
+
+    public Task<PlatformResult> GetPlatformsAsync()
+    {
+      string cacheName = CreateAndGetCacheName("platforms.json");
+      string url = BuildRequestUrl(GET_PLATFORMS_PATH, null);
+      return _downloader.DownloadAsync<PlatformResult>(url, cacheName);
     }
 
     public Task<GenreResult> GetGenresAsync()
@@ -110,22 +118,32 @@ namespace Emulators.Common.TheGamesDb.Api
       return _downloader.DownloadAsync<ImageResult>(url, cacheName);
     }
 
-    public Task<bool> DownloadImageAsync(int gameId, string baseUrl, Image image)
+    public Task<bool> DownloadImageAsync(int gameId, string baseUrl, Image image, string downloadFolder)
     {
       string url = baseUrl + image.Filename;
-      string fileName = Path.GetFileName(new Uri(url).LocalPath);
-      string downloadFile = CreateAndGetImageCacheName(fileName, gameId, image.Type, image.Side);
+      string downloadFile = CreateAndGetImageCacheName(gameId, Path.GetFileName(image.Filename), downloadFolder);
       return _downloader.DownloadFileAsync(url, downloadFile);
     }
 
-    public string GetGameImageCachePath(string gameId, string type, string side)
+    public string CreateAndGetImageCacheName(int id, string fileName, string folderPath)
     {
-      return GetCachePath(GAME_CACHE_PATH, gameId, type, side);
+      try
+      {
+        string prefix = string.Format(@"GDB({0})_", id);
+        if (!Directory.Exists(folderPath))
+          Directory.CreateDirectory(folderPath);
+        return Path.Combine(folderPath, prefix + fileName);
+      }
+      catch
+      {
+        // TODO: logging
+        return null;
+      }
     }
 
-    protected string BuildRequestUrl(string path, string query)
+    protected string BuildRequestUrl(string path, string query, string apiVersion = "v1")
     {
-      string url = $"{BASE_URL}{path}?apikey={_apiKey}";
+      string url = $"{BASE_URL}{apiVersion}{path}?apikey={_apiKey}";
       if (!string.IsNullOrEmpty(query))
         url += $"&{query}";
       return url;
@@ -141,9 +159,9 @@ namespace Emulators.Common.TheGamesDb.Api
       return CreateAndGetCacheName($"game_{gameId}_images.json", GAME_CACHE_PATH, gameId.ToString());
     }
 
-    protected string CreateAndGetImageCacheName(string fileName, int gameId, string type, string side)
+    public string GetGameImageCachePath(string gameId, string type, string side)
     {
-      return CreateAndGetCacheName(fileName, GAME_CACHE_PATH, gameId.ToString(), type, side);
+      return GetCachePath(GAME_CACHE_PATH, gameId, type, side);
     }
 
     protected string GetCachePath(params string[] paths)
