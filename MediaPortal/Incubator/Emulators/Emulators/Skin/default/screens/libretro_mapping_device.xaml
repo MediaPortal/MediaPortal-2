@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\emulator_config_master.xaml"
+    >
+  <Include.Resources>
+
+    <!--Mapping model -->
+    <Model x:Key="Model" Id="FD908F54-B37E-408F-9D53-EB72A2912617"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True" 
+                     Resource="{Binding Source={StaticResource Model}, Path=CurrentPlayerHeader}"/>
+
+    <ResourceWrapper x:Key="Select_Device" Resource="[Emulators.LibRetro.SelectDevice]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel Grid.Row="0" Orientation="Vertical">
+          <Label Margin="10" Content="[Emulators.LibRetro.InputDevice]" Color="{ThemeResource TextColor}"/>
+          <Button Margin="10" Style="{ThemeResource ButtonWideStyle}" FontSize="{ThemeResource SmallFontSize}"
+                Command="{Command Source={StaticResource Model}, Path=ShowDeviceDialog}">
+            <Button.Content>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {null} ? {0} : {1}">
+                <Binding Source="{StaticResource Model}" Path="CurrentDeviceName" />
+                <Binding Source="{StaticResource Select_Device}" Path="Resource" />
+              </MultiBinding>
+            </Button.Content>
+          </Button>
+        </StackPanel>
+
+        <Grid Grid.Row="1" Margin="0,20,0,0" DataContext="{Binding Source={StaticResource Model}}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Margin="10" Content="[Emulators.LibRetro.Mappings]" Color="{ThemeResource TextColor}"/>
+          <ListView Grid.Row="1" Name="InputList" Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource emuLibRetroMappingInputsListViewStyle}"
+              ItemsSource="{Binding Path=Inputs}">
+          </ListView>
+        </Grid>
+
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

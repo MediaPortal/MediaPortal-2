@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\SimpleShowItems.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Emulators.MenuItem]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Control Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsListHeader.inc"/>
+          </Control.TemplateControl>
+        </Control>
+
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" Width="1080">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemGameDetails.inc"/>
+          </Control.TemplateControl>
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+          </Control.IsVisible>
+        </Control>
+
+        <!--The width needs to be "1"! In case of "0" the grid is invisible, >"1" results in to right side shifted covers with CoverLayout-->
+        <Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" Width="1">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemGameDetailsCover.inc"/>
+          </Control.TemplateControl>
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
+          </Control.IsVisible>
+        </Control>
+
+        <Control Grid.Column="1" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsList.inc"/>
+          </Control.TemplateControl>
+        </Control>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

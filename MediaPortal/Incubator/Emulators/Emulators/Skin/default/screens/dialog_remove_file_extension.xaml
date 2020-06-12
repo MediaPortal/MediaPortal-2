@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Emulators.Config.RemoveFileExtension.Title]"/>
+
+    <!-- Emulator configuration model -->
+    <Model x:Key="Model" Id="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True">
+      <Binding Source="{StaticResource Model}" Path="EmulatorProxy.FileExtensionItems" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Command -->
+    <ResourceWrapper x:Key="Execute_Command_Stencil">
+      <CommandStencil Source="{StaticResource Model}" Path="EmulatorProxy.RemoveFileExtension"/>
+    </ResourceWrapper>
+
+  </Include.Resources>
+</Include>

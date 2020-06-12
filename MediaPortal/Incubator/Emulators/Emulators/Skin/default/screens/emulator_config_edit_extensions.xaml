@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\emulator_config_master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Emulator configuration model -->
+    <Model x:Key="Model" Id="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource Model},Path=EmulatorProxy.ConfigEmulatorTitle,Mode=OneTime}"/>
+
+    <ResourceWrapper x:Key="ArgumentsStateId" Resource="B2D4E8EC-0AE3-4C77-9E45-5EDC71EF4032"/>
+    <ResourceWrapper x:Key="LibRetroOptionsStateId" Resource="97E490B5-DF74-4894-9704-81B214C47EF8"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Content="[Emulators.Config.ChooseFileExtensions.Label]" Color="{ThemeResource TextColor}" Wrap="True"/>
+        <ListView Grid.Row="1" Margin="0,10,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource DefaultListViewStyle}" Background="{ThemeResource ItemsControlShadowBackgroundColor}"
+            ItemsSource="{Binding Path=EmulatorProxy.FileExtensionItems}"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+          <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]"
+                Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialog_add_file_extension}"/>
+          <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Remove]"
+                Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialog_remove_file_extension}"/>
+        </StackPanel>
+        
+        <Grid Grid.Row="3" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Back]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+          
+          <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}" Content="[System.Continue]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource ArgumentsStateId}}">
+            <Button.IsVisible>
+              <Binding Path="EmulatorProxy.EmulatorType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {EmulatorType}.{Emulator}"/>
+            </Button.IsVisible>
+          </Button>
+
+          <Button x:Name="LibRetroContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}" Content="[System.Continue]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource LibRetroOptionsStateId}}">
+            <Button.IsVisible>
+              <Binding Path="EmulatorProxy.EmulatorType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {EmulatorType}.{LibRetro}"/>
+            </Button.IsVisible>
+          </Button>
+
+          <Button x:Name="FinishButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Finish]" Command="{Command Source={StaticResource Model},Path=FinishEmulatorConfiguration}">
+            <Button.IsVisible>
+              <Binding Path="EmulatorProxy.EmulatorType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {EmulatorType}.{Native}"/>
+            </Button.IsVisible>
+          </Button>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

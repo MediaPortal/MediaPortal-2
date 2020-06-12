@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Emulators.MenuItem">Games</string>
+  <string name="Emulators.GamesRootViewName">Games library</string>
+  <string name="Emulators.FilterGameItemsNavbarDisplayLabel">{0}</string>
+  <string name="Emulators.ShowAllGameItemsMenuItem">Show all</string>
+  <string name="Emulators.FilterByPlatformMenuItem">Filter by platform</string>
+  <string name="Emulators.FilterByYearMenuItem">Filter by year</string>
+  <string name="Emulators.FilterByGenreMenuItem">Filter by genre</string>
+  <string name="Emulators.FilterByDeveloperMenuItem">Filter by developer</string>
+  <string name="Emulators.SortByRating">Sort by rating</string>
+  <string name="Emulators.GroupByRating">Group by rating</string>
+  <string name="Emulators.Platform">Platform</string>
+  <string name="Emulators.Developer">Developer</string>
+
+  <string name="Emulators.ConfigureEmulatorNow.Header">Add a new emulator?</string>
+  <string name="Emulators.ConfigureEmulatorNow.Label">You haven't added any emulators that can play this game. Do you want to add a new emulator now?</string>
+
+  <string name="Emulators.Dialog.Error.Header">Error</string>
+  <string name="Emulators.LaunchError.Label">Unable to start the game. Check the log for details.</string>
+  <string name="Emulators.ExtractionError.Label">Unable to extract the archive. Check the log for details.</string>
+  <string name="Emulators.LibRetro.CoreAlreadyLoaded">Unable to load the libretro core, the core is already loaded</string>
+
+  <string name="Emulators.Config.PluginSettingsLabel">Emulators</string>
+  <string name="Emulators.Config.Setting.Goodmerge">Goodmerge</string>
+  <string name="Emulators.Config.Setting.LibRetro">Libretro</string>
+  <string name="Emulators.Config.Setting.LibRetro.Paths">Paths</string>
+  <string name="Emulators.Config.Setting.Advanced">Advanced</string>
+  
+  <string name="Emulators.Config.Setting.ConfigureEmulators">Configure emulators</string>
+  <string name="Emulators.Config.Setting.ConfigureEmulators.Help">Add, edit and remove emulators</string>
+  <string name="Emulators.Config.Setting.MinimiseOnStart">Minimise MediaPortal</string>
+  <string name="Emulators.Config.Setting.MinimiseOnStart.Help">Minimise MediaPortal whilst a game is running?</string>
+  <string name="Emulators.Config.Setting.ClearGoodMergeCache">Clear GoodMerge cache</string>
+  <string name="Emulators.Config.Setting.ClearGoodMergeCache.Help">Deletes previously extracted GoodMerge games from the file system</string>
+  <string name="Emulators.Config.Setting.ClearGoodMergeCache.Label">The following directory will be deleted</string>
+
+  <string name="Emulators.Config.EmulatorConfigurations.Title">Emulators Configuration</string>
+  <string name="Emulators.Config.EmulatorConfigurations.Label">Emulators</string>
+  <string name="Emulators.Config.NoEmulatorsInThisView">No emulators in this view</string>
+  <string name="Emulators.Config.AddEmulatorConfiguration.Title">Add emulator</string>
+  <string name="Emulators.Config.EditEmulatorConfiguration.Title">Edit emulator</string>
+  <string name="Emulators.Config.RemoveEmulatorConfiguration.Title">Remove emulator</string>
+  <string name="Emulators.Config.RemoveEmulatorConfiguration.Label">Select emulators to remove</string>
+
+  <string name="Emulators.Config.ChooseEmulatorType.Title">Choose emulator type</string>
+  <string name="Emulators.Config.ChooseEmulatorType.Label">Choose the type of emulator you want to create. Choose Native for PC Games.</string>
+  <string name="Emulators.Config.EmulatorType.Emulator">Emulator</string>
+  <string name="Emulators.Config.EmulatorType.Native">Native</string>
+  <string name="Emulators.Config.EmulatorType.LibRetro">LibRetro</string>
+
+  <string name="Emulators.Config.ChooseCore.Title">Choose core</string>
+  <string name="Emulators.Config.ChooseCore.Label">Choose a libretro core</string>
+  <string name="Emulators.Config.DownloadCores">Download Cores</string>
+  <string name="Emulators.Config.DownloadCores.Help">Download and update libretro cores</string>
+  <string name="Emulators.Config.ManualPathInput">Manual Input</string>
+  <string name="Emulators.Config.NoCoresInThisView">No cores have been downloaded</string>
+  
+  <string name="Emulators.Config.ChooseEmulatorPath.Title">Choose path</string>
+  <string name="Emulators.Config.ChooseEmulatorPath.Label">Choose the path to the emulator</string>
+  <string name="Emulators.Config.EditEmulatorName.Title">Edit name</string>
+  <string name="Emulators.Config.EditEmulatorName.Label">Choose a name for the emulator</string>
+  <string name="Emulators.Config.ChooseEmulatorCategory.Title">Choose platform</string>
+  <string name="Emulators.Config.ChooseEmulatorCategory.Label">Choose the platforms that this emulator supports</string>
+  <string name="Emulators.Config.AddFileExtension.Title">Add Extension</string>
+  <string name="Emulators.Config.RemoveFileExtension.Title">Remove Extension</string>
+  <string name="Emulators.Config.ChooseFileExtensions.Title">File extensions</string>
+  <string name="Emulators.Config.ChooseFileExtensions.Label">Edit the file extensions that this emulator supports</string>
+  <string name="Emulators.Config.EditArguments.Title">Edit arguments</string>
+  <string name="Emulators.Config.EditArguments.Label">Edit the arguments to pass to the emulator</string>
+  <string name="Emulators.Config.UseQuotes.Label">Surround paths with quotes</string>
+  <string name="Emulators.Config.AdvancedSettings.Label">Advanced Settings</string>
+  <string name="Emulators.Config.WorkingDirectory.Label">Working Directory</string>
+  <string name="Emulators.Config.CloseWithESC.Label">Send the ESC key when closing this emulator</string>
+  <string name="Emulators.Config.InsertGameWildcard.Label">Insert wildcard</string>
+  <string name="Emulators.Config.SelectWildcard.Header">Choose Wildcard</string>
+  <string name="Emulators.Config.SelectWildcard.Game">Game path</string>
+  <string name="Emulators.Config.SelectWildcard.GameNoExt">Game filename without extension</string>
+  <string name="Emulators.Config.SelectWildcard.GameDir">Game directory</string>
+
+  <string name="Emulators.Config.LibRetroSettings.Title">LibRetro settings</string>
+  <string name="Emulators.Config.LibRetroSettings.Label">Edit the settings to use for this LibRetro core</string>
+  <string name="Emulators.Config.NoSettingsInThisView">No settings in this view</string>
+  <string name="Emulators.Config.LibRetroSelectOption.Header">Select option</string>
+
+  <string name="Emulators.SelectGoodmerge.Header">Choose GoodMerge file</string>
+  <string name="Emulators.ExtractGoodmerge.Header">Extracting GoodMerge file</string>
+  
+  <string name="Emulators.Config.LibRetro.SavesDirectory">Saves directory</string>
+  <string name="Emulators.Config.LibRetro.SavesDirectory.Help">The path to use for game saves</string>
+  <string name="Emulators.Config.LibRetro.CoresDirectory">Cores directory</string>
+  <string name="Emulators.Config.LibRetro.CoresDirectory.Help">The path to use for downloaded cores</string>
+  <string name="Emulators.Config.LibRetro.CoreInfoDirectory">Core info directory</string>
+  <string name="Emulators.Config.LibRetro.CoreInfoDirectory.Help">The path to use for downloaded core information</string>
+  <string name="Emulators.Config.LibRetro.SystemDirectory">System directory</string>
+  <string name="Emulators.Config.LibRetro.SystemDirectory.Help">The path to use for core system files (bios files, etc)</string>
+  <string name="Emulators.Config.LibRetro.MaximumPlayers">Maximum players</string>
+  <string name="Emulators.Config.LibRetro.MaximumPlayers.Help">Set the maximum number of players available when configuring input devices</string>
+  <string name="Emulators.Config.LibRetro.MapInputDevices">Map input devices</string>
+  <string name="Emulators.Config.LibRetro.MapInputDevices.Help">Edit the device and button mappings to use for each player</string>
+  <string name="Emulators.Config.LibRetro.AutoSave">Auto save</string>
+  <string name="Emulators.Config.LibRetro.AutoSave.Help">Whether to periodically save the Libretro core's save states during gameplay</string>
+  <string name="Emulators.Config.LibRetro.AutoSaveInterval">Auto save interval</string>
+  <string name="Emulators.Config.LibRetro.AutoSaveInterval.Help">The number of seconds between auto saves</string>
+  <string name="Emulators.Config.LibRetro.EnableVSync">Enable VSync</string>
+  <string name="Emulators.Config.LibRetro.EnableVSync.Help">Whether to synchronize playback rate to the monitor refresh rate</string>
+  <string name="Emulators.Config.LibRetro.AudioDevice">Audio device</string>
+  <string name="Emulators.Config.LibRetro.AudioDevice.Help">Select the audio device to you use for audio output</string>
+  <string name="Emulators.Config.LibRetro.AudioBufferSize">Audio buffer size</string>
+  <string name="Emulators.Config.LibRetro.AudioBufferSize.Help">The size in seconds of the audio buffer. A larger buffer reduces the chance of audio artifacts at the cost of increased latency</string>
+
+  <string name="Emulators.CoreUpdater.ProgressHeader">Updating</string>
+  <string name="Emulators.CoreUpdater.UpdatingCores">Updating cores</string>
+  <string name="Emulators.CoreUpdater.Downloading">Downloading {0}</string>
+  <string name="Emulators.CoreUpdater.Update">Update</string>
+  <string name="Emulators.CoreUpdater.Download">Download</string>
+
+  <string name="Emulators.LibRetro.ChoosePlayer">Choose player</string>
+  <string name="Emulators.LibRetro.PlayerNumber">Player {0}</string>
+  <string name="Emulators.LibRetro.InputDevice">Input device</string>
+  <string name="Emulators.LibRetro.InputDevice.None">None</string>
+  <string name="Emulators.LibRetro.SelectDevice">Select device...</string>
+  <string name="Emulators.LibRetro.Mappings">Mappings</string>
+  <string name="Emulators.LibRetro.PressInput">Press input...</string>
+  
+  <string name="Emulators.LibRetro.StateIndex">State Index</string>
+  <string name="Emulators.LibRetro.LoadState">Load State</string>
+  <string name="Emulators.LibRetro.SaveState">Save State</string>
+</resources>

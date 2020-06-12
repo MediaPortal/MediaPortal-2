@@ -1,0 +1,8 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<CustomCores>
+  <CustomCore>
+    <CoreName>mupen64plus_singlethread_libretro.dll</CoreName>
+    <CoreUrl>https://github.com/brownard/mupen64plus-libretro/releases/download/v0.1-single_thread/mupen64plus_singlethread_libretro.dll</CoreUrl>
+    <InfoUrl>https://github.com/brownard/mupen64plus-libretro/releases/download/v0.1-single_thread/mupen64plus_singlethread_libretro.info</InfoUrl>
+  </CustomCore>
+</CustomCores>

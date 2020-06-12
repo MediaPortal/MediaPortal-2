@@ -1,0 +1,346 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="Emulators"
+    PluginId="{FFAC513C-40B3-4FB0-8CBC-1683B4B7395C}"
+    Author="Brownard"
+    Copyright="GPL"
+    Description="Frontend for the emulators plugin."
+    AutoActivate="True">
+  
+  <Version
+        PluginVersion="0.7"
+        ReleaseDate="2017-08-26 01:00:00 GMT+01:00"
+        CurrentAPI="1"/>
+  
+  <Runtime>
+    <Assembly FileName="Emulators.dll"/>
+    <Assembly FileName="Emulators.Common.dll"/>
+    <PluginStateTracker ClassName="Emulators.EmulatorsPlugin"/>
+  </Runtime>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/>   <!-- SkinBase -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/>   <!-- SkinEngine -->
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="2"/>   <!-- Media -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/>   <!-- OnlineLibraries -->
+    <PluginReference PluginId="{15FD97A4-D925-4D8A-9DF0-5349743EED0C}" CompatibleAPI="2"/>   <!-- Fanart Client -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/>   <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/>   <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Register Location="/Models">
+    <Model Id="6C96C335-7A79-45DA-90B7-541B3C7235EF" Name="EmulatorConfigurationModel" ClassName="Emulators.Models.EmulatorConfigurationModel"/>
+    <Model Id="E5D445E1-1F1E-4604-90CC-A63B098A5FFE" Name="GoodMergeSelectModel" ClassName="Emulators.Models.GoodMergeSelectModel"/>
+    <Model Id="9929690F-BFB9-47CF-8FFE-11617D3B8B44" Name="GamesAction" ClassName="Emulators.Actions.GamesAction"/>
+    <Model Id="3ECB5E18-5B24-411D-9F06-533249BA6F00" Name="AddEmulatorAction" ClassName="Emulators.Actions.AddEmulatorAction"/>
+    <Model Id="495F94B5-9E13-4548-BAAA-6DB424B58267" Name="RemoveEmulatorAction" ClassName="Emulators.Actions.RemoveEmulatorAction"/>
+    <Model Id="940A868F-8360-42DA-B652-F3924B747CB5" Name="ClearGoodMergeCacheModel" ClassName="Emulators.Models.ClearGoodMergeCacheModel"/>
+    <Model Id="FD908F54-B37E-408F-9D53-EB72A2912617" Name="LibRetroMappingModel" ClassName="Emulators.Models.LibRetroMappingModel"/>
+    <Model Id="ED801805-42FC-47A2-B978-64B61BD48FE9" Name="QueryCreateConfigurationModel" ClassName="Emulators.Models.QueryCreateConfigurationModel"/>
+    <Model Id="656E3AC1-0363-4DA9-A23F-F1422A9ADD74" Name="LibRetroCoreUpdaterModel" ClassName="Emulators.Models.LibRetroCoreUpdaterModel"/>
+  </Register>
+
+  <Register Location="/Services">
+    <Service Id="IMediaCategoryHelper" RegistrationClassName="Emulators.Common.IMediaCategoryHelper"
+        ServiceClassName="Emulators.MediaCategoryHelper"/>
+    <Service Id="IGameLauncher" RegistrationClassName="Emulators.Game.IGameLauncher"
+        ServiceClassName="Emulators.Game.GameLauncher"/>
+    <Service Id="IEmulatorManager" RegistrationClassName="Emulators.Emulator.IEmulatorManager"
+        ServiceClassName="Emulators.Emulator.EmulatorConfigurationManager"/>
+    <Service Id="GamesDbMatcher" RegistrationClassName="Emulators.Common.Matchers.GameMatcher"
+        ServiceClassName="Emulators.Common.Matchers.GameMatcher"/>
+    <Service Id="CoreInstanceManager" RegistrationClassName="Emulators.LibRetro.ILibRetroCoreInstanceManager"
+        ServiceClassName="Emulators.LibRetro.LibRetroCoreInstanceManager"/>
+  </Register>
+
+  <Register Location="/Players/Builders">
+    <PlayerBuilder Id="45976CB8-7CB7-4F7D-9766-DDEC12A6D42C" ClassName="Emulators.LibRetro.LibRetroPlayerBuilder"/>
+  </Register>
+
+  <Register Location="/Media/Extensions">
+    <MediaItemActionBuilder Id="F6B516D8-E342-423D-ABE4-91ECD2E59446" Caption="[Emulators.SelectGoodmerge.Header]" Sort="A.01" ClassName="Emulators.MediaExtensions.MediaItemActions.SelectGoodMergeAction"/>
+  </Register>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="GamesMetadataExtractor"
+        ClassName="Emulators.Common.GameMetadataExtractor"/>
+    <Instance
+        Id="GoodMergeMetadataExtractor"
+        ClassName="Emulators.Common.GoodMergeMetadataExtractor"/>
+  </Register>
+  
+  <Register Location="/Fanart/FanartImageSourceProviders">
+    <FanartImageSourceProviderBuilder Id="{611ACDE1-C3FB-4645-BFD4-BA8801F7CA47}" ClassName="Emulators.Fanart.GameFanartImageProvider"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+
+    <WorkflowState Id="DFC41902-DE22-4AEF-B9D2-C369BD79C4E0"
+      Name="GamesNavigation-Root"
+      DisplayLabel="[Emulators.GamesRootViewName]"
+      WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>   <!-- Workflow model = Media model -->
+    
+    <!-- Overview screen for all configured emulators -->
+    <WorkflowState Id="903DD5EB-56B2-42B5-B1D8-64106651296A"
+        Name="EmulatorConfigurationOverview"
+        DisplayLabel="[Emulators.Config.EmulatorConfigurations.Title]"
+        MainScreen="emulator_config"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+
+    <!-- Remove configured emulators -->
+    <WorkflowState Id="A07A0648-878E-4762-9540-3939E308DD94"
+        Name="RemoveEmulatorConfiguration"
+        DisplayLabel="[Emulators.Config.RemoveEmulatorConfiguration.Title]"
+        MainScreen="emulator_config_remove"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+    
+    <!-- Choose emulator type -->
+    <WorkflowState Id="CFD8DD6F-6C80-49E1-9F79-A87AE259828D"
+        Name="ChooseEmulatorType"
+        DisplayLabel="[Emulators.Config.ChooseEmulatorType.Title]"
+        MainScreen="emulator_config_choose_type"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+
+    <!-- Choose libretro core -->
+    <WorkflowState Id="13145964-27DA-4F29-A3FD-E75755DFB603"
+        Name="ChooseLibRetroCore"
+        DisplayLabel="[Emulators.Config.ChooseCore.Title]"
+        MainScreen="emulator_config_choose_core"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+    
+    <!-- Choose emulator path -->
+    <WorkflowState Id="B3B74541-3779-46EB-8EED-DF00CBEEC91A"
+        Name="ChooseEmulatorPath"
+        DisplayLabel="[Emulators.Config.ChooseEmulatorPath.Title]"
+        MainScreen="emulator_config_choose_path"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+
+    <!-- Edit emulator name -->
+    <WorkflowState Id="A533006C-D895-41AE-86A3-DF9193707120"
+        Name="EditEmulatorName"
+        DisplayLabel="[Emulators.Config.EditEmulatorName.Title]"
+        MainScreen="emulator_config_edit_name"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+
+    <!-- Choose emulator categories -->
+    <WorkflowState Id="E30DCBAE-BB1D-4701-84B0-FA3624481648"
+        Name="ChooseCategoriesName"
+        DisplayLabel="[Emulators.Config.ChooseEmulatorCategory.Title]"
+        MainScreen="emulator_config_choose_categories"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+    
+    <!-- Edit emulator file extensions -->
+    <WorkflowState Id="3017CAD9-3EFD-48F4-BC8D-06295389D21D"
+        Name="EditFileExtensions"
+        DisplayLabel="[Emulators.Config.ChooseFileExtensions.Title]"
+        MainScreen="emulator_config_edit_extensions"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+
+    <!-- Edit emulator arguments -->
+    <WorkflowState Id="B2D4E8EC-0AE3-4C77-9E45-5EDC71EF4032"
+        Name="EditArguments"
+        DisplayLabel="[Emulators.Config.EditArguments.Title]"
+        MainScreen="emulator_config_arguments"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+
+    <!-- Edit libretro emulator options -->
+    <WorkflowState Id="97E490B5-DF74-4894-9704-81B214C47EF8"
+        Name="EditLibRetroOptions"
+        DisplayLabel="[Emulators.Config.LibRetroSettings.Title]"
+        MainScreen="emulator_config_libretro_options"
+        WorkflowModel="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>    <!-- Emulator config model -->
+    
+    <!-- Mapping choose player -->
+    <WorkflowState Id="02FEF896-7C0E-444D-9657-44660E0ED90A"
+        Name="MappingChoosePlayer"
+        DisplayLabel="[Emulators.LibRetro.ChoosePlayer]"
+        MainScreen="libretro_mapping_players"
+        WorkflowModel="FD908F54-B37E-408F-9D53-EB72A2912617"/>    <!-- LibRetro mapping model -->
+
+    <!-- Mapping configure device -->
+    <WorkflowState Id="499FFA69-A92A-4BC8-9F87-0A578A62815A"
+        Name="MappingConfigureDevice"
+        DisplayLabel="[Emulators.LibRetro.InputDevice]"
+        MainScreen="libretro_mapping_device"
+        WorkflowModel="FD908F54-B37E-408F-9D53-EB72A2912617"/>    <!-- LibRetro mapping model -->
+
+    <!-- Core updater -->
+    <WorkflowState Id="BC9FAFDE-315E-4DBD-A99D-060D3225DCAA"
+        Name="CoreUpdater"
+        DisplayLabel="[Emulators.Config.DownloadCores]"
+        MainScreen="libretro_core_updater"
+        WorkflowModel="656E3AC1-0363-4DA9-A23F-F1422A9ADD74"/>    <!-- LibRetro core updater model -->
+
+    <!-- Dialog States -->
+
+    <!-- Clear GoodMerge cache dialog -->
+    <DialogState Id="65CA11E1-C408-453D-B751-FF6598020612"
+        Name="ClearGoodMergeCache"
+        DisplayLabel="[Emulators.Config.Setting.ClearGoodMergeCache]"
+        DialogScreen="dialog_clear_goodmerge_cache"
+        WorkflowModel="940A868F-8360-42DA-B652-F3924B747CB5"/>    <!-- Clear GoodMerge cache model -->
+
+    <!-- Mapping press input -->
+    <DialogState Id="AAFD9AD5-F31D-41FE-A717-D9D7801EC27F"
+        Name="MappingPressInput"
+        DisplayLabel="[Emulators.LibRetro.PressInput]"
+        DialogScreen="dialog_mapping_press_input"
+        WorkflowModel="FD908F54-B37E-408F-9D53-EB72A2912617"/>    <!-- LibRetro mapping model -->
+  
+  </Register>
+
+  <!-- Language resources -->
+  <Register Location="/Resources/Language">
+    <Resource Id="EmulatorsLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="EmulatorsSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Root Sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="Plugins"
+        Redundant="true"
+        Text="[Settings.Plugins]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Plugins">
+    <ConfigSection
+        Id="Emulators"
+        Redundant="true"
+        Text="[Emulators.Config.PluginSettingsLabel]"/>
+  </Register>
+
+  <Register Location="/Configuration/Settings/Plugins/Emulators">
+    <ConfigSection
+        Id="LibRetro"
+        Redundant="true"
+        Text="[Emulators.Config.Setting.LibRetro]"
+        Sort="a"/>
+    
+    <ConfigSection
+        Id="Goodmerge"
+        Redundant="true"
+        Text="[Emulators.Config.Setting.Goodmerge]"
+        Sort="b"/>
+    
+    <CustomConfigSetting
+        Id="EmulatorsConfiguration"
+        Text="[Emulators.Config.Setting.ConfigureEmulators]"
+        HelpText="[Emulators.Config.Setting.ConfigureEmulators.Help]"
+        ClassName="Emulators.Settings.Configuration.EmulatorsConfigSetting"
+        AdditionalData="WorkflowState=903DD5EB-56B2-42B5-B1D8-64106651296A,ConfAppPanel=..."/>
+
+    <!--<ConfigSetting
+        Id="MinimiseOnStart"
+        Text="[Emulators.Config.Setting.MinimiseOnStart]"
+        HelpText="[Emulators.Config.Setting.MinimiseOnStart.Help]"
+        ClassName="Emulators.Settings.Configuration.MinimiseOnStart"/>-->
+    
+  </Register>
+
+  <Register Location="/Configuration/Settings/Plugins/Emulators/LibRetro">
+    <ConfigSection
+        Id="Paths"
+        Redundant="true"
+        Text="[Emulators.Config.Setting.LibRetro.Paths]"
+        Sort="a"/>
+    <ConfigSection
+        Id="Advanced"
+        Redundant="true"
+        Text="[Emulators.Config.Setting.Advanced]"
+        Sort="b"/>
+
+    <CustomConfigSetting
+        Id="LibRetroMapping"
+        Text="[Emulators.Config.LibRetro.MapInputDevices]"
+        HelpText="[Emulators.Config.LibRetro.MapInputDevices.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.MappingSetting"
+        AdditionalData="WorkflowState=02FEF896-7C0E-444D-9657-44660E0ED90A,ConfAppPanel=..."/>
+    <CustomConfigSetting
+        Id="DownloadCores"
+        Text="[Emulators.Config.DownloadCores]"
+        HelpText="[Emulators.Config.DownloadCores.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.CoreUpdaterSetting"
+        AdditionalData="WorkflowState=BC9FAFDE-315E-4DBD-A99D-060D3225DCAA,ConfAppPanel=..."/>
+    <ConfigSetting
+        Id="VSync"
+        Text="[Emulators.Config.LibRetro.EnableVSync]"
+        HelpText="[Emulators.Config.LibRetro.EnableVSync.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.EnableVSyncSetting"/>
+    <ConfigSetting
+        Id="AudioDevice"
+        Text="[Emulators.Config.LibRetro.AudioDevice]"
+        HelpText="[Emulators.Config.LibRetro.AudioDevice.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.AudioDeviceSetting"/>
+    <ConfigSetting
+        Id="AutoSave"
+        Text="[Emulators.Config.LibRetro.AutoSave]"
+        HelpText="[Emulators.Config.LibRetro.AutoSave.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.AutoSaveSetting"/>
+    
+  </Register>
+
+  <Register Location="/Configuration/Settings/Plugins/Emulators/LibRetro/Paths">    
+    <ConfigSetting
+        Id="SavesDirectory"
+        Text="[Emulators.Config.LibRetro.SavesDirectory]"
+        HelpText="[Emulators.Config.LibRetro.SavesDirectory.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.SavesDirectorySetting"/>
+    
+    <ConfigSetting
+        Id="CoresDirectory"
+        Text="[Emulators.Config.LibRetro.CoresDirectory]"
+        HelpText="[Emulators.Config.LibRetro.CoresDirectory.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.CoresDirectorySetting"/>
+    
+    <ConfigSetting
+        Id="CoreInfoDirectory"
+        Text="[Emulators.Config.LibRetro.CoreInfoDirectory]"
+        HelpText="[Emulators.Config.LibRetro.CoreInfoDirectory.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.CoreInfoDirectorySetting"/>
+    
+    <ConfigSetting
+        Id="SystemDirectory"
+        Text="[Emulators.Config.LibRetro.SystemDirectory]"
+        HelpText="[Emulators.Config.LibRetro.SystemDirectory.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.SystemDirectorySetting"/>
+    
+  </Register>
+
+  <Register Location="/Configuration/Settings/Plugins/Emulators/LibRetro/Advanced">
+    <ConfigSetting
+        Id="MaxPlayers"
+        Text="[Emulators.Config.LibRetro.MaximumPlayers]"
+        HelpText="[Emulators.Config.LibRetro.MaximumPlayers.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.MaxPlayersSetting"/>
+
+    <ConfigSetting
+        Id="AutoSaveInterval"
+        Text="[Emulators.Config.LibRetro.AutoSaveInterval]"
+        HelpText="[Emulators.Config.LibRetro.AutoSaveInterval.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.AutoSaveIntervalSetting"/>
+
+    <ConfigSetting
+        Id="AudioBufferSize"
+        Text="[Emulators.Config.LibRetro.AudioBufferSize]"
+        HelpText="[Emulators.Config.LibRetro.AudioBufferSize.Help]"
+        ClassName="Emulators.Settings.Configuration.LibRetro.AudioBufferSizeSetting"/>
+    
+  </Register>
+
+  <Register Location="/Configuration/Settings/Plugins/Emulators/Goodmerge">
+    <CustomConfigSetting
+        Id="ClearGoodMergeCache"
+        Text="[Emulators.Config.Setting.ClearGoodMergeCache]"
+        HelpText="[Emulators.Config.Setting.ClearGoodMergeCache.Help]"
+        ClassName="Emulators.Settings.Configuration.ClearGoodMergeCache"
+        AdditionalData="WorkflowState=65CA11E1-C408-453D-B751-FF6598020612,ConfAppPanel=..."/>    
+  </Register>
+  
+</Plugin>

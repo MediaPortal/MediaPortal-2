@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\emulator_config_master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Emulators.LibRetro.ChoosePlayer]"/>
+
+    <!--Mapping model -->
+    <Model x:Key="Model" Id="FD908F54-B37E-408F-9D53-EB72A2912617"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Margin="10" Content="[Emulators.LibRetro.ChoosePlayer]" Color="{ThemeResource TextColor}"/>
+        <ListView Name="DeviceList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource emuLibRetroPlayerPortListViewStyle}"
+              ItemsSource="{Binding Path=Ports,Mode=OneTime}">
+        </ListView>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

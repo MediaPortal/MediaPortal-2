@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:emu="clr-namespace:Emulators.Models.Navigation;assembly=Emulators"
+    xmlns:emunavitems="clr-namespace:Emulators.MediaExtensions;assembly=Emulators"
+    xmlns:emufanart="clr-namespace:Emulators.Fanart;assembly=Emulators"
+    DependsOnStyleResources="MediaStyles,MediaButtons,MediaColors,MediaConsts,Consts,Colors,Buttons,OtherControls,Widgets"
+    >
+
+  <ControlTemplate x:Key="ListViewGameItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="55"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center">
+        <Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="{ThemeResource TextColor}"/>
+            <Binding Source="{ThemeResource WatchedTextColor}"/>
+          </MultiBinding>
+        </Label.Color>
+      </Label>
+      <Image x:Name="ItemTypeSmall" Stretch="Uniform"
+            Source="{Binding MediaItem}" FallbackSource="defaultGame.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+        </Image.IsVisible>
+      </Image>
+      <Image x:Name="ItemTypeMedium" Stretch="Uniform"
+            Source="{Binding MediaItem}" FallbackSource="defaultGame.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
+        </Image.IsVisible>
+      </Image>
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform"
+            Source="{Binding MediaItem}" FallbackSource="defaultGame.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+        </Image.IsVisible>
+      </Image>
+
+      <!-- TODO: Year -->
+      <Label x:Name="Year" Grid.Row="0" Grid.Column="2" Content="{Binding Year}"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GridViewGameItemTemplate">
+    <Grid x:Name="ItemControl" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource MEDIA_POSTER_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="thumb" Stretch="Uniform" Margin="2" HorizontalAlignment="Center" VerticalAlignment="Center"
+             Source="{Binding MediaItem}"
+             Grid.Row="0" Grid.Column="0">
+        <Image.OpacityMask >
+          <ImageBrush ImageSource="video_thumb_mask.png"/>
+        </Image.OpacityMask>
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Image Stretch="Fill" Margin="3" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+       Source="filmstrip_background.png" Opacity="0.85"/>
+      <Image Stretch="Uniform" Margin="20" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"
+             Source="defaultGame.png">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.85"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
+      <Image Source="video_thumb_focus.png" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="0,0,0,0"
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="CoverViewGameItemTemplate">
+    <Grid x:Name="ItemControl" Margin="-4,200,-3,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource COVERVIEW_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource COVERVIEW_HEIGHT}"/>
+      </Grid.RowDefinitions>
+      <Image x:Name="thumb" Grid.Column="1" Width="{StaticResource COVERVIEW_WIDTH}" Stretch="Uniform" 
+             Source="{Binding MediaItem}" FallbackSource="defaultGame.png" VerticalAlignment="Bottom">
+        <Image.OpacityMask >
+          <ImageBrush ImageSource="filmstrip_mask.png"/>
+        </Image.OpacityMask>
+      </Image>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GameCoverTemplate">
+    <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <!--Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Control Style="{ThemeResource Shadow_35_24}" />
+    </Grid-->
+      <Grid Grid.Row="0" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0">
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image Width="{StaticResource MEDIA_POSTER_WIDTH}" Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="defaultGame.png"
+           HorizontalAlignment="Center" VerticalAlignment="Center">
+        </Image>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
+
+  <!-- Game Item --><!--
+  <ControlTemplate x:Key="ListViewGameItemTemplate">
+    <Grid x:Name="ItemControl" Margin="0,0,43,0">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
+               Template="{ThemeResource GameCoverTemplate}" RenderTransformOrigin="0.5,0.5"
+               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+        <Control.LayoutTransform>
+          <ScaleTransform>
+            <ScaleTransform.ScaleX>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                <Binding Source="0.5"/>
+                <Binding Source="0.8"/>
+                <Binding Source="1"/>
+              </MultiBinding>
+            </ScaleTransform.ScaleX>
+            <ScaleTransform.ScaleY>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                <Binding Source="0.5"/>
+                <Binding Source="0.8"/>
+                <Binding Source="1"/>
+              </MultiBinding>
+            </ScaleTransform.ScaleY>
+          </ScaleTransform>
+        </Control.LayoutTransform>
+      </Control>
+
+      <StackPanel Grid.Column="1" Orientation="Vertical">
+        <Label x:Name="ItemLabel" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.4"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+
+        <Grid x:Name="FocusDetails" Margin="0,0,30,0"
+            HorizontalAlignment="Stretch" 
+            IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <emunavitems:GameAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="0">
+            <emunavitems:GameAspectWrapper.Template>
+              <ControlTemplate>
+                <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                  </Grid.RowDefinitions>
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+                  <Label x:Name="Platform" Grid.Row="0" Grid.Column="0" Content="{Binding Platform}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold" Margin="0,0,0,0"/>
+                </Grid>
+              </ControlTemplate>
+            </emunavitems:GameAspectWrapper.Template>
+          </emunavitems:GameAspectWrapper>
+
+          <emunavitems:GameAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1" HorizontalAlignment="Right">
+            <emunavitems:GameAspectWrapper.Template>
+              <ControlTemplate>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" VerticalAlignment="Center" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"  Margin="30,0,-30,0">
+                  <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
+                               Maximum="10"
+                               Value="{Binding Rating}">
+                    <StarRatingPanel.LayoutTransform>
+                      <TransformGroup>
+                        <ScaleTransform ScaleX="1.6" ScaleY="1.4"/>
+                      </TransformGroup>
+                    </StarRatingPanel.LayoutTransform>
+                  </StarRatingPanel>
+                </StackPanel>
+              </ControlTemplate>
+            </emunavitems:GameAspectWrapper.Template>
+          </emunavitems:GameAspectWrapper>
+
+        </Grid>
+      </StackPanel>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GridViewGameItemTemplate">
+    <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      --><!-- SHADOW --><!--
+      <Control Height="{Binding ElementName=PosterGrid,Path=ActualHeight}" Style="{ThemeResource Shadow_3_20}" />
+      --><!-- SHADOW --><!--
+
+      <Grid Name="PosterGrid" HorizontalAlignment="Center" VerticalAlignment="Center">
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="{StaticResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Image  HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" >
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.8"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="CoverViewGameItemTemplate">
+    <Grid x:Name="ItemControl" Margin="3,0,3,0" >
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="320"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="455"  />
+        <RowDefinition Height="210"  />
+      </Grid.RowDefinitions>
+
+      <Image Width="320" Height="230" Stretch="Fill" FallbackSource="VideoLarge.png" VerticalAlignment="Top" HorizontalAlignment="Center" Margin="0,15,0,-40" Grid.Row="1"
+               Source="{Binding MediaItem}" Opacity="0.6" RenderTransformOrigin="0.5,0.5" >
+        <Image.OpacityMask>
+          <ImageBrush ImageSource="MediaItem_Reflexion.png" />
+        </Image.OpacityMask>
+        <Image.RenderTransform>
+          <ScaleTransform ScaleY="-1.0"/>
+        </Image.RenderTransform>
+      </Image>
+
+      <Image Width="343" Height="{Binding ElementName=PosterGrid,Path=ActualHeight}" Stretch="Fill" VerticalAlignment="Bottom" Grid.Row="0" Margin="-20,0,-20,0" Opacity="0.8">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="MediaItem_focus.png"/>
+            <Binding Source=""/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+
+      <Grid Grid.Row="0" Height="{Binding ElementName=PosterGrid,Path=ActualHeight}" VerticalAlignment="Bottom" Margin="-4,0,-4,1" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="28" />
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="28" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="28" />
+          <RowDefinition Height="*"  />
+          <RowDefinition Height="28" />
+        </Grid.RowDefinitions>
+        <Image Grid.Row="0" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_00.png" />
+        <Image Grid.Row="1" Grid.Column="0" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_10.png" />
+        <Image Grid.Row="2" Grid.Column="0" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_20.png" />
+        <Image Grid.Row="0" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_01.png" />
+        <Image Grid.Row="1" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_11.png" />
+        <Image Grid.Row="2" Grid.Column="1" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_21.png" />
+        <Image Grid.Row="0" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_02.png" />
+        <Image Grid.Row="1" Grid.Column="2" Stretch="Fill" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0" Opacity="0.9" Source="shadow_12.png" />
+        <Image Grid.Row="2" Grid.Column="2" Stretch="Fill" Margin="0" Opacity="0.9" Source="shadow_22.png" />
+      </Grid>
+
+      <Grid Name="PosterGrid" Grid.Row="0" Width="320" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="0,0,0,0">
+        <Grid.OpacityMask>
+          <VisualBrush>
+            <VisualBrush.Visual>
+              <Border Name="mask" Background="White" CornerRadius="18" BorderThickness="0" BorderBrush="Black"/>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.OpacityMask>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"  />
+          </Grid.RowDefinitions>
+        </Grid>
+        <Image Stretch="Uniform" Grid.Row="0" FallbackSource="VideoLarge.png" HorizontalAlignment="Center" VerticalAlignment="Center" Source="{Binding MediaItem}" Margin="0,7,0,7">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.8"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+      </Grid>
+    </Grid>
+  </ControlTemplate>-->
+
+  <DataTemplate DataType="{x:Type emu:GameItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewGameItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewGameItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewGameItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
+</ResourceDictionary>

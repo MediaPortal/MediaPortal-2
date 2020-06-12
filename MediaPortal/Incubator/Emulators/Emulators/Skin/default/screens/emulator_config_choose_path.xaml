@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\emulator_config_master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Emulator configuration model -->
+    <Model x:Key="Model" Id="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource Model},Path=EmulatorProxy.ConfigEmulatorTitle,Mode=OneTime}"/>
+
+    <ResourceWrapper x:Key="EditEmulatorNameStateId" Resource="A533006C-D895-41AE-86A3-DF9193707120"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Content="[Emulators.Config.ChooseEmulatorPath.Label]" Color="{ThemeResource TextColor}" Wrap="True"/>
+        <TreeView Grid.Row="1" Style="{ThemeResource SingleMarkableTreeViewStyle}"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            ForceExpander="True"
+            ItemsSource="{Binding Path=EmulatorProxy.PathBrowser.PathTreeRoot,Mode=OneTime}">
+          <TreeView.Resources>
+            <BindingWrapper x:Key="Expander_Binding" Binding="{Binding Path=AdditionalProperties[Expansion].IsExpanded,Mode=OneWayToSource}"/>
+
+            <!-- Expander_Command isn't necessary here - the expansion event will be visible in the model
+                 by the change handler of the property which gets bound via Expander_Binding. -->
+            <ResourceWrapper x:Key="Expander_Command"/>
+
+            <!-- Checker_Command isn't necessary here - the selection state will be propagated via the Selected property.
+                 We use a dummy. -->
+            <ResourceWrapper x:Key="Checker_Command"/>
+          </TreeView.Resources>
+        </TreeView>
+        <DockPanel Grid.Row="2" Margin="10,5,10,0">
+          <Label Content="{Binding EmulatorProxy.PathBrowser.ChoosenResourcePathDisplayName}" Color="{ThemeResource TextColor}"
+              DockPanel.Dock="Center"
+              IsVisible="{Binding EmulatorProxy.PathBrowser.IsChoosenPathValid}" Scroll="Auto"/>
+        </DockPanel>
+        <Grid Grid.Row="3" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <!--<Button x:Name="ManualInputButton" Grid.Column="0" Grid.Row="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[SharesConfig.ManualPathInput]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=652C5A9F-EA50-4076-886B-B28FD167AD66}"/>-->
+          <Button x:Name="BackButton" Grid.Column="0" Grid.Row="1" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Back]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+          <Button x:Name="ContinueButton" Grid.Column="2" Grid.Row="1" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Continue]" IsEnabled="{Binding EmulatorProxy.PathBrowser.IsChoosenPathValid}"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditEmulatorNameStateId}}"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

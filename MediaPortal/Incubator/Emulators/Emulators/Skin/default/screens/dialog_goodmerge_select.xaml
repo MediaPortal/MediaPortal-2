@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+
+    <Model x:Key="GoodmergeSelectModel" Id="E5D445E1-1F1E-4604-90CC-A63B098A5FFE"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Emulators.SelectGoodmerge.Header]"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True">
+      <Binding Source="{StaticResource GoodmergeSelectModel}" Path="Items" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil"
+        Source="{StaticResource GoodmergeSelectModel}" Path="Select"/>
+
+  </Include.Resources>
+</Include>

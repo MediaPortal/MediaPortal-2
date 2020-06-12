@@ -1,0 +1,330 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:system="clr-namespace:System"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    DependsOnStyleResources="Colors,Buttons,Consts,MediaConsts,Brushes,OtherControls"
+    >
+
+  <!-- Container style for a emulator item in a button -->
+  <Style x:Key="emuSelectableContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid Margin="0,3,0,3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle RadiusY="17" RadiusX="17" HorizontalAlignment="Stretch" Fill="#0DFFFFFF"/>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="17" RadiusX="17" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/>
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <Button Style="{ThemeResource MenuButtonWideStyle}" Command="{Binding Command}">
+              <Button.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel" Property="Color" Value="Black"/>
+                  <Setter TargetName="ItemLabel2" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel2" Property="Color" Value="Black"/>
+                  <Setter TargetName="ItemLabel3" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel3" Property="Color" Value="Black"/>
+                  <Setter TargetName="ButtonControlRectangle" Property="IsVisible" Value="True"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </Button.Triggers>
+            </Button>
+          </Grid>
+
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- Container style for a emulator entry markable with a checkbox in the emulators list -->
+  <Style x:Key="emuMultiMarkableContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid Margin="-2,4,0,4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="20" RadiusX="20" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/>
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <CheckBox x:Name="ShareMarker" Margin="2,5,0,5"
+                IsChecked="{Binding Path=Selected,Mode=TwoWay}"
+                Content="{Binding}">
+              <CheckBox.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel" Property="Color" Value="Black"/>
+                  <Setter TargetName="ItemLabel2" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel2" Property="Color" Value="Black"/>
+                  <Setter TargetName="ItemLabel3" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel3" Property="Color" Value="Black"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </CheckBox.Triggers>
+            </CheckBox>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="emuSingleMarkableContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Grid Margin="-2,4,0,4">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Rectangle x:Name="ButtonControlRectangle" RadiusY="20" RadiusX="20" IsVisible="False" HorizontalAlignment="Stretch">
+              <Rectangle.Fill>
+                <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                  <GradientStop Color="#FF1cade5" Offset="0"/>
+                  <GradientStop Color="#FF0185b9" Offset="0.5"/>
+                  <GradientStop Color="#FF017fb1" Offset="0.5"/>
+                  <GradientStop Color="#FF026891" Offset="1"/>
+                </LinearGradientBrush>
+              </Rectangle.Fill>
+            </Rectangle>
+            <RadioButton x:Name="ShareMarker" Margin="2,5,0,5"
+                IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
+                Content="{Binding}">
+              <RadioButton.Triggers>
+                <Trigger Property="HasFocus" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel" Property="Color" Value="Black"/>
+                  <Setter TargetName="ItemLabel2" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel2" Property="Color" Value="Black"/>
+                  <Setter TargetName="ItemLabel3" Property="Scroll" Value="Auto"/>
+                  <Setter TargetName="ItemLabel3" Property="Color" Value="Black"/>
+                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                </Trigger>
+              </RadioButton.Triggers>
+            </RadioButton>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <DataTemplate x:Key="emuDefaultItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a simple emulator entry in the emulators list -->
+  <DataTemplate x:Key="emuEmulatorItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="300"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="300"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel2" Grid.Column="1" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource HintTextColor}"/>
+      <Label x:Name="ItemLabel3" Grid.Column="2" Content="{Binding [Platforms]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Right" VerticalAlignment="Center"
+          Color="{ThemeResource HintTextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a simple libretro option entry in the options list -->
+  <DataTemplate x:Key="emuLibRetroOptionItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="100"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel2" Grid.Column="2" Content="{Binding [OptionValue]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Right" VerticalAlignment="Center"
+          Color="{ThemeResource HintTextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a player port entry -->
+  <DataTemplate x:Key="emuPlayerPortItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="100"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel2" Grid.Column="2" Content="{Binding [MappedDevice]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Right" VerticalAlignment="Center"
+          Color="{ThemeResource HintTextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a mapped input entry -->
+  <DataTemplate x:Key="emuMappingInputItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="100"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ItemLabel" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center"
+          Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabel2" Grid.Column="2" Content="{Binding [MappedInput]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Right" VerticalAlignment="Center"
+          Color="{ThemeResource HintTextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Data template for a core -->
+  <DataTemplate x:Key="emuLibRetroCoretItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="100"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="ItemLabel" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Left" VerticalAlignment="Center">
+        <Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Path="Downloaded"/>
+            <Binding Source="{ThemeResource EmphasisTextColor}"/>
+            <Binding Source="{ThemeResource TextColor}"/>
+          </MultiBinding>
+        </Label.Color>
+      </Label>
+      <Label x:Name="ItemLabel2" Grid.Column="2" Content="{Binding [CoreName]}" FontSize="{ThemeResource SmallFontSize}"
+          HorizontalAlignment="Right" VerticalAlignment="Center"
+          Color="{ThemeResource HintTextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- ListView style to be used for the emulators list -->
+  <Style x:Key="emuDefaultConfigListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="{DynamicResource ResourceKey=Empty_List_Label}" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource emuDefaultItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource emuSelectableContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="emuMultiMarkableListViewStyle" BasedOn="{ThemeResource emuDefaultConfigListViewStyle}">
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource emuMultiMarkableContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="emuSingleMarkableListViewStyle" BasedOn="{ThemeResource SingleMarkableListViewStyle}">
+  </Style>
+
+  <!-- ListView style to be used for the emulators list -->
+  <Style x:Key="emuEmulatorsConfigListViewStyle" BasedOn="{ThemeResource emuDefaultConfigListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource emuEmulatorItemDataTemplate}"/>
+    <Style.Resources>
+      <ResourceWrapper x:Key="Empty_List_Label" Resource="[Emulators.Config.NoEmulatorsInThisView]"/>
+    </Style.Resources>
+  </Style>
+
+  <!-- ListView style to be used for the emulators list -->
+  <Style x:Key="emuEmulatorsMultiMarkableListViewStyle" BasedOn="{ThemeResource emuDefaultConfigListViewStyle}">
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource emuMultiMarkableContainerStyle}"/>
+    <Style.Resources>
+      <ResourceWrapper x:Key="Empty_List_Label" Resource="[Emulators.Config.NoEmulatorsInThisView]"/>
+    </Style.Resources>
+  </Style>
+
+  <!-- ListView style to be used for the LibRetro options list -->
+  <Style x:Key="emuLibRetroOptionsListViewStyle" BasedOn="{ThemeResource emuDefaultConfigListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource emuLibRetroOptionItemDataTemplate}"/>
+    <Style.Resources>
+      <ResourceWrapper x:Key="Empty_List_Label" Resource="[Emulators.Config.NoSettingsInThisView]"/>
+    </Style.Resources>
+  </Style>
+
+  <!-- ListView style to be used for the player ports list -->
+  <Style x:Key="emuLibRetroPlayerPortListViewStyle" BasedOn="{ThemeResource emuDefaultConfigListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource emuPlayerPortItemDataTemplate}"/>
+  </Style>
+
+  <!-- ListView style to be used for the mapped input list -->
+  <Style x:Key="emuLibRetroMappingInputsListViewStyle" BasedOn="{ThemeResource emuDefaultConfigListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource emuMappingInputItemDataTemplate}"/>
+  </Style>
+
+  <!-- ListView style to be used in the content area of the screens -->
+  <Style x:Key="emuLibRetroCoresMenuListViewStyle" BasedOn="{ThemeResource emuDefaultConfigListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource emuLibRetroCoretItemDataTemplate}"/>
+  </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\emulator_config_master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Emulator configuration model -->
+    <Model x:Key="Model" Id="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource Model},Path=EmulatorProxy.ConfigEmulatorTitle,Mode=OneTime}"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <Label Content="[Emulators.Config.EditArguments.Label]" Color="{ThemeResource TextColor}" Wrap="True"/>
+        
+        <StackPanel Grid.Row="1" Orientation="Vertical">
+          <Grid HorizontalAlignment="Stretch">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding Path=EmulatorProxy.Arguments,Mode=TwoWay}" PreferredTextLength="30"/>
+            <Button Grid.Column="1" Margin="10,0,0,0" Style="{ThemeResource ButtonWideStyle}" Content="[Emulators.Config.InsertGameWildcard.Label]"
+                Command="{Command Path=ShowWildcardDialog}"/>
+          </Grid>
+
+          <CheckBox Margin="0,20,0,0" Content="[Emulators.Config.UseQuotes.Label]"
+                    IsChecked="{Binding Path=EmulatorProxy.UseQuotes,Mode=TwoWay}"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="3" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+          <Button  Margin="5" Style="{ThemeResource WizardButtonStyle}" Content="[Emulators.Config.AdvancedSettings.Label]"
+                Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialog_advanced_settings}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="4" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Back]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+          <Button x:Name="FinishButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Finish]" Command="{Command Source={StaticResource Model},Path=FinishEmulatorConfiguration}"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\emulator_config_master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Emulator configuration model -->
+    <Model x:Key="Model" Id="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
+        Resource="{Binding Source={StaticResource Model},Path=EmulatorProxy.ConfigEmulatorTitle,Mode=OneTime}"/>
+
+    <ResourceWrapper x:Key="EditEmulatorNameStateId" Resource="A533006C-D895-41AE-86A3-DF9193707120"/>
+    <ResourceWrapper x:Key="EditEmulatorPathStateId" Resource="B3B74541-3779-46EB-8EED-DF00CBEEC91A"/>
+    <ResourceWrapper x:Key="DownloadCoresStateId" Resource="BC9FAFDE-315E-4DBD-A99D-060D3225DCAA"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Content="[Emulators.Config.ChooseCore.Label]" Color="{ThemeResource TextColor}" Wrap="True"/>
+        <ListView Grid.Row="1" Margin="0,10,0,0"
+            Style="{ThemeResource emuSingleMarkableListViewStyle}"
+            ItemsSource="{Binding Path=LocalCoreItems,Mode=OneTime}"/>
+
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="10">
+          <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[Emulators.Config.DownloadCores]"
+                Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource DownloadCoresStateId}}"/>
+          <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[Emulators.Config.ManualPathInput]"
+                Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditEmulatorPathStateId}}"/>
+        </StackPanel>
+
+        <Grid Grid.Row="3" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="BackButton" Grid.Column="0" Grid.Row="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Back]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+          <Button x:Name="ContinueButton" Grid.Column="2" Grid.Row="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Continue]" IsEnabled="{Binding EmulatorProxy.PathBrowser.IsChoosenPathValid}"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditEmulatorNameStateId}}"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

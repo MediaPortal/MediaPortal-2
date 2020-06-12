@@ -1,0 +1,50 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="Emulators Server"
+    PluginId="{C98D7481-5E7B-4DD0-873A-192A4EAA922E}"
+    Author = "Brownard"
+    Copyright="GPL"
+    Description="Backend for the emulators plugin">
+
+  <Version
+        PluginVersion="0.7"
+        ReleaseDate="2017-08-26 01:00:00 GMT+01:00"
+        CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="Emulators.Server.dll"/>
+    <Assembly FileName="Emulators.Common.dll"/>
+  </Runtime>
+
+  <DependsOn>
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
+    <PluginReference PluginId="{BDA68C24-EEA3-47D0-B43A-86E086E43AE1}" CompatibleAPI="3"/> <!-- FanartService -->
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
+  </DependsOn>
+
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="GamesMetadataExtractor"
+        ClassName="Emulators.Common.GameMetadataExtractor"/>
+    <Instance
+        Id="GoodmergeMetadataExtractor"
+        ClassName="Emulators.Common.GoodMergeMetadataExtractor"/>
+  </Register>
+
+  <Register Location="/Services">
+    <Service Id="GamesDbMatcher" RegistrationClassName="Emulators.Common.Matchers.GameMatcher"
+        ServiceClassName="Emulators.Common.Matchers.GameMatcher"/>
+    <Service Id="IMediaCategoryHelper" RegistrationClassName="Emulators.Common.IMediaCategoryHelper"
+        ServiceClassName="Emulators.Server.MediaCategoryHelper"/>
+  </Register>
+  
+  <Register Location="/Fanart/Providers">
+    <FanartProviderBuilder Id="{CD23AA74-57E8-4FFE-93DB-9AC4C701F19A}" MediaTypes="Game" ClassName="Emulators.Server.GameFanartProvider"/>
+  </Register>
+
+  <Register Location="/Media/FanArtHandlers">
+    <Instance Id="GameFanArtHandler" ClassName="Emulators.Server.FanArtHandlers.GameFanArtHandler"/>
+  </Register>
+  
+</Plugin>

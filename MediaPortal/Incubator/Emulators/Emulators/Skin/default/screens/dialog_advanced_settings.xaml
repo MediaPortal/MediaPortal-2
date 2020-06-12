@@ -1,0 +1,31 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Emulator configuration model -->
+    <Model x:Key="Model" Id="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Emulators.Config.AdvancedSettings.Label]"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource Model}}" Margin="0,20">
+        <Label Margin="10" Content="[Emulators.Config.WorkingDirectory.Label]" Color="{ThemeResource TextColor}" Wrap="True"/>
+
+        <StackPanel Orientation="Horizontal">
+          <TextBox Text="{Binding Path=EmulatorProxy.WorkingDirectory,Mode=TwoWay}" PreferredTextLength="30" SetFocusPrio="Default"/>
+          <Button Margin="10,0,0,0" Style="{ThemeResource ButtonWideStyle}" Content="..."
+                Command="{Command Path=EmulatorProxy.ShowWorkingDirectoryDialog}"/>
+        </StackPanel>
+
+        <CheckBox Margin="0,40,0,0" Content="[Emulators.Config.CloseWithESC.Label]"
+                    IsChecked="{Binding Path=EmulatorProxy.ExitsOnEscapeKey,Mode=TwoWay}"/>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

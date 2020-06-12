@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\emulator_config_master.xaml"
+    >
+  <Include.Resources>
+
+    <!--Mapping model -->
+    <Model x:Key="Model" Id="656E3AC1-0363-4DA9-A23F-F1422A9ADD74"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Emulators.Config.DownloadCores]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <ListView Name="CoresList" Margin="10" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource emuLibRetroCoresMenuListViewStyle}"
+              ItemsSource="{Binding Path=Items,Mode=OneTime}">
+        </ListView>
+
+        <Grid Grid.Row="1" Margin="10,10,10,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="10"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Button x:Name="DoneButton" Grid.Column="2" Grid.Row="0" Style="{ThemeResource WizardButtonStyle}"
+              Content="[System.Done]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

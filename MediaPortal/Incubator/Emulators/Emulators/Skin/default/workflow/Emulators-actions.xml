@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <WorkflowContributorAction Id="A24958E2-538A-455E-A1DB-A7BB241AF7EC"
+      Name="Home->Games"
+      DisplayCategory="a-Media"
+      SortOrder="f"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      ContributorModelId="9929690F-BFB9-47CF-8FFE-11617D3B8B44"/>
+
+    <WorkflowContributorAction Id="27657AA4-B1B6-422C-80C7-9C30DEB01268"
+      Name="Emulators->AddEmulator"
+      DisplayCategory="a-Emulators"
+      SortOrder="a"
+      SourceStates="903DD5EB-56B2-42B5-B1D8-64106651296A"
+      ContributorModelId="3ECB5E18-5B24-411D-9F06-533249BA6F00"/>
+
+    <WorkflowContributorAction Id="D683E49D-39DE-4B37-95B6-B9BE4AA11AB1"
+      Name="Emulators->RemoveEmulator"
+      DisplayCategory="a-Emulators"
+      SortOrder="b"
+      SourceStates="903DD5EB-56B2-42B5-B1D8-64106651296A"
+      ContributorModelId="495F94B5-9E13-4548-BAAA-6DB424B58267"/>
+
+  </MenuActions>
+</Workflow>

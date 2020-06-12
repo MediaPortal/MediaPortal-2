@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    xmlns:navitems="clr-namespace:MediaPortal.UiComponents.Media.Models.Navigation;assembly=Media"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:emu="clr-namespace:Emulators.Models.Navigation;assembly=Emulators"
+    DependsOnStyleResources="MediaStyles,MediaButtons,MediaColors,MediaConsts,Consts,Colors,Buttons,OtherControls,Widgets"
+    >
+
+  <ResourceWrapper x:Key="GAME_POSTER_WIDTH" Resource="200"/>
+  <ResourceWrapper x:Key="GAME_POSTER_HEIGHT" Resource="240"/>
+  <ResourceWrapper x:Key="GAME_POSTER_REFLECTION_HEIGHT" Resource="120"/>
+
+  <!-- Game Item -->
+  <ControlTemplate x:Key="ListViewGameItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="50"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}">
+        <Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="{ThemeResource TextColor}"/>
+            <Binding Source="{ThemeResource WatchedTextColor}"/>
+          </MultiBinding>
+        </Label.Color>
+      </Label>
+      <Image x:Name="ItemTypeSmall" Stretch="Uniform"
+            Source="{Binding MediaItem}" FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+        </Image.IsVisible>
+      </Image>
+      <Image x:Name="ItemTypeMedium" Stretch="Uniform"
+            Source="{Binding MediaItem}" FallbackSource="VideoSmall.png" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
+        </Image.IsVisible>
+      </Image>
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform"
+            Source="{Binding MediaItem}" FallbackSource="VideoLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+        </Image.IsVisible>
+      </Image>
+
+      <!-- TODO: Year -->
+      <Label x:Name="Year" Grid.Row="0" Grid.Column="2" Content="{Binding Year}"
+          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+    </Grid>
+  </ControlTemplate>
+
+  <ControlTemplate x:Key="GridViewGameItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource MEDIA_POSTER_CONTAINER_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" HorizontalAlignment="Center" FontSize="{ThemeResource SmallFontSize}">
+        <Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="{ThemeResource TextColor}"/>
+            <Binding Source="{ThemeResource WatchedTextColor}"/>
+          </MultiBinding>
+        </Label.Color>
+      </Label>
+      <Image Width="{StaticResource GAME_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Stretch="Uniform"
+             Source="{Binding MediaItem}" FallbackSource="VideoLarge.png"
+             Grid.Row="0" Grid.Column="1"/>
+    </Grid>
+  </ControlTemplate>
+
+  <Style x:Key="EmuReflexionControl" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="MainReflexionGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="{StaticResource GAME_POSTER_HEIGHT}"/>
+              <RowDefinition Height="{StaticResource GAME_POSTER_REFLECTION_HEIGHT}"/>
+            </Grid.RowDefinitions>
+
+            <Control Grid.Column="0" Grid.Row="0" x:Name="ControlPresenter" Margin="0" Width="{StaticResource MEDIA_POSTER_CONTAINER_WIDTH}" VerticalAlignment="Bottom"
+                Template="{DynamicResource ResourceKey=MakeReflexion}" />
+
+            <Control Grid.Column="0" Grid.Row="1" x:Name="ReflexionControlPresenter" Margin="0,10,0,0" Width="{StaticResource MEDIA_POSTER_CONTAINER_WIDTH}" VerticalAlignment="Top"
+                Template="{DynamicResource ResourceKey=MakeReflexion}">
+              <Control.LayoutTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="1" ScaleY="-0.45"/>
+                </TransformGroup>
+              </Control.LayoutTransform>
+              <Control.OpacityMask>
+                <LinearGradientBrush StartPoint="0.5,0.0" EndPoint="0.5,1.0">
+                  <GradientStop Offset="0.0" Color="#60000000" />
+                  <GradientStop Offset="1.0" Color="#00000000" />
+                </LinearGradientBrush>
+              </Control.OpacityMask>
+            </Control>
+
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <ControlTemplate x:Key="CoverViewGameItemTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource MEDIA_POSTER_CONTAINER_WIDTH}"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource COVERVIEW_FILTER_HEIGHT}"/>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+
+      <Control x:Name="CoverReflexion" Style="{ThemeResource EmuReflexionControl}" Grid.Row="0" Grid.Column="0" VerticalAlignment="Center">
+        <Control.Resources>
+          <ResourceWrapper x:Key="ControlWidth" Resource="{StaticResource REFLEXION_WIDTH}"/>
+          <ResourceWrapper x:Key="ControlHeight" Resource="{StaticResource REFLEXION_HEIGHT}"/>
+          <ControlTemplate x:Key="MakeReflexion">
+            <Image Stretch="Uniform"
+                   Source="{Binding MediaItem}" FallbackSource="VideoLarge.png"/>
+          </ControlTemplate>
+        </Control.Resources>
+      </Control>
+
+      <Label x:Name="ItemLabel" Grid.Row="1" Grid.Column="0" Content="{Binding SimpleTitle}" HorizontalAlignment="Center" FontSize="{ThemeResource SmallFontSize}">
+        <Label.Color>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {1} : {2}">
+            <Binding Path="PlayCount"/>
+            <Binding Source="{ThemeResource TextColor}"/>
+            <Binding Source="{ThemeResource WatchedTextColor}"/>
+          </MultiBinding>
+        </Label.Color>
+      </Label>
+    </Grid>
+  </ControlTemplate>
+
+  <DataTemplate DataType="{x:Type emu:GameItem}">
+    <Control>
+      <Control.Template>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource ListViewGameItemTemplate}"/>
+          <Binding Source="{StaticResource GridViewGameItemTemplate}"/>
+          <Binding Source="{StaticResource CoverViewGameItemTemplate}"/>
+        </MultiBinding>
+      </Control.Template>
+    </Control>
+  </DataTemplate>
+
+</ResourceDictionary>

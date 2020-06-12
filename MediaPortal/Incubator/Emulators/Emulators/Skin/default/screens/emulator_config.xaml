@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\emulator_config_master.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Emulators.Config.EmulatorConfigurations.Title]"/>
+
+    <!-- Emulator configuration model -->
+    <Model x:Key="Model" Id="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Label Grid.Row="0" Margin="10" Content="[Emulators.Config.EmulatorConfigurations.Label]" Color="{ThemeResource TextColor}"/>
+        <ListView Name="EmulatorList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource emuEmulatorsConfigListViewStyle}"
+              ItemsSource="{Binding Path=Configurations,Mode=OneTime}"/>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

@@ -1,0 +1,46 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- GoodMerge cache model -->
+    <Model x:Key="Model" Id="940A868F-8360-42DA-B652-F3924B747CB5"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Emulators.Config.Setting.ClearGoodMergeCache]"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*" />
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <StackPanel Orientation="Vertical" Margin="0,20">
+          <Label Margin="10" Content="[Emulators.Config.Setting.ClearGoodMergeCache.Label]" Color="{ThemeResource TextColor}" Wrap="True"/>
+          <Label Margin="10" Content="{Binding Path=GoodMergeCacheDirectory,Mode=OneTime}" Color="{ThemeResource TextColor}" Wrap="True"/>
+        </StackPanel>
+
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+          <Button Margin="10" Style="{ThemeResource DialogButtonStyle}"
+                Content="[System.OK]">
+            <Button.Command>
+              <CommandList>
+                <Command Path="ClearCache"/>
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+              </CommandList>
+            </Button.Command>
+          </Button>          
+          <Button Margin="10" Style="{ThemeResource DialogButtonStyle}"
+                Content="[System.Cancel]"
+                Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+        </StackPanel>
+        
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

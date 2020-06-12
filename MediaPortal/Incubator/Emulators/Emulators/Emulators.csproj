@@ -1,0 +1,511 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{954604B1-5F96-4491-B80E-18413C2BEE90}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>Emulators</RootNamespace>
+    <AssemblyName>Emulators</AssemblyName>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Actions\AddEmulatorAction.cs" />
+    <Compile Include="Actions\GamesAction.cs" />
+    <Compile Include="Actions\RemoveEmulatorAction.cs" />
+    <Compile Include="EmulatorsConsts.cs" />
+    <Compile Include="EmulatorsPlugin.cs" />
+    <Compile Include="Emulator\DefaultConfigurations.cs" />
+    <Compile Include="Emulator\EmulatorConfigurationManager.cs" />
+    <Compile Include="Emulator\EmulatorProcess.cs" />
+    <Compile Include="Emulator\IEmulatorManager.cs" />
+    <Compile Include="Fanart\GameFanartImageProvider.cs" />
+    <Compile Include="Game\GameLauncher.cs" />
+    <Compile Include="Game\IGameLauncher.cs" />
+    <Compile Include="GoodMerge\GoodMergeExtractor.cs" />
+    <Compile Include="Input\InputHandler.cs" />
+    <Compile Include="Input\KeyboardHook.cs" />
+    <Compile Include="LibRetro\Controllers\ControllerWrapper.cs" />
+    <Compile Include="LibRetro\Controllers\DeviceProxy.cs" />
+    <Compile Include="LibRetro\Controllers\Hid\HidAxis.cs" />
+    <Compile Include="LibRetro\Controllers\Hid\HidMapper.cs" />
+    <Compile Include="LibRetro\Controllers\Hid\HidState.cs" />
+    <Compile Include="LibRetro\Controllers\Hid\HidGameControl.cs" />
+    <Compile Include="LibRetro\Controllers\Hid\HidListener.cs" />
+    <Compile Include="LibRetro\Controllers\Hid\HidUtils.cs" />
+    <Compile Include="LibRetro\Controllers\Hid\IHidDevice.cs" />
+    <Compile Include="LibRetro\Controllers\Hid\XBox360HidMapping.cs" />
+    <Compile Include="LibRetro\Controllers\Keyboard\Keyboard.cs" />
+    <Compile Include="LibRetro\Controllers\Keyboard\KeyboardController.cs" />
+    <Compile Include="LibRetro\Controllers\Keyboard\KeyboardListener.cs" />
+    <Compile Include="LibRetro\Controllers\Keyboard\KeyboardMapper.cs" />
+    <Compile Include="LibRetro\Controllers\Mapping\PortMapping.cs" />
+    <Compile Include="LibRetro\Controllers\Mapping\DeviceInput.cs" />
+    <Compile Include="LibRetro\Controllers\Mapping\IDeviceMapper.cs" />
+    <Compile Include="LibRetro\Controllers\Mapping\IMappableDevice.cs" />
+    <Compile Include="LibRetro\Controllers\Mapping\MappingProxy.cs" />
+    <Compile Include="LibRetro\Controllers\Mapping\RetroPadMapping.cs" />
+    <Compile Include="LibRetro\Controllers\NumericUtils.cs" />
+    <Compile Include="LibRetro\Controllers\XInput\XInputAxis.cs" />
+    <Compile Include="LibRetro\Controllers\XInput\XInputControllerCache.cs" />
+    <Compile Include="LibRetro\Controllers\XInput\XInputMapper.cs" />
+    <Compile Include="LibRetro\Cores\CoreHandler.cs" />
+    <Compile Include="LibRetro\Cores\CoreInfoList.cs" />
+    <Compile Include="LibRetro\Cores\CoreList.cs" />
+    <Compile Include="LibRetro\Cores\CustomCore.cs" />
+    <Compile Include="LibRetro\Cores\CustomCoreHandler.cs" />
+    <Compile Include="LibRetro\Cores\LocalCore.cs" />
+    <Compile Include="LibRetro\Cores\OnlineCore.cs" />
+    <Compile Include="LibRetro\Cores\CoreUpdaterSettings.cs" />
+    <Compile Include="LibRetro\GLContexts\DXRenderContextProvider.cs" />
+    <Compile Include="LibRetro\GLContexts\FBORenderContextProvider.cs" />
+    <Compile Include="LibRetro\GLContexts\OpenGLEx.cs" />
+    <Compile Include="LibRetro\GLContexts\SharedTexture.cs" />
+    <Compile Include="LibRetro\ILibRetroCoreInstanceManager.cs" />
+    <Compile Include="LibRetro\LibRetroCoreInstanceManager.cs" />
+    <Compile Include="LibRetro\LibRetroPlayerUIContributor.cs" />
+    <Compile Include="LibRetro\LibRetroThread.cs" />
+    <Compile Include="LibRetro\Render\RefreshRateHelper.cs" />
+    <Compile Include="LibRetro\Render\SynchronisationStrategy.cs" />
+    <Compile Include="LibRetro\Settings\LibRetroCoreSettings.cs" />
+    <Compile Include="LibRetro\LibRetroFrontend.cs" />
+    <Compile Include="LibRetro\LibRetroMediaItem.cs" />
+    <Compile Include="LibRetro\GLContexts\RetroGLContext.cs" />
+    <Compile Include="LibRetro\LibRetroSaveStateHandler.cs" />
+    <Compile Include="LibRetro\Settings\LibRetroMappingSettings.cs" />
+    <Compile Include="LibRetro\Settings\LibRetroSettings.cs" />
+    <Compile Include="LibRetro\SoundProviders\ISoundOutput.cs" />
+    <Compile Include="LibRetro\SoundProviders\LibRetroDirectSound.cs" />
+    <Compile Include="LibRetro\LibRetroPlayer.cs" />
+    <Compile Include="LibRetro\LibRetroPlayerBuilder.cs" />
+    <Compile Include="LibRetro\VideoProviders\ITextureProvider.cs" />
+    <Compile Include="LibRetro\VideoProviders\LibRetroTextureWrapper.cs" />
+    <Compile Include="LibRetro\Controllers\XInput\XInputController.cs" />
+    <Compile Include="MediaCategoryHelper.cs" />
+    <Compile Include="MediaExtensions\GameAspectWrapper.cs" />
+    <Compile Include="MediaExtensions\GameFilterByDeveloperScreenData.cs" />
+    <Compile Include="MediaExtensions\GameFilterByGenreScreenData.cs" />
+    <Compile Include="MediaExtensions\GameFilterByYearScreenData.cs" />
+    <Compile Include="MediaExtensions\GameFilterByPlatformScreenData.cs" />
+    <Compile Include="MediaExtensions\GamesLibrary.cs" />
+    <Compile Include="MediaExtensions\GamesShowItemsScreenData.cs" />
+    <Compile Include="MediaExtensions\MediaItemActions\SelectGoodMergeAction.cs" />
+    <Compile Include="Models\AbstractConfigurationModel.cs" />
+    <Compile Include="Models\ClearGoodMergeCacheModel.cs" />
+    <Compile Include="Models\EmulatorConfigurationModel.cs" />
+    <Compile Include="Models\EmulatorProxy.cs" />
+    <Compile Include="Models\GoodMergeSelectModel.cs" />
+    <Compile Include="Models\LibRetroCoreUpdaterModel.cs" />
+    <Compile Include="Models\LibRetroMappingModel.cs" />
+    <Compile Include="Models\DeviceMapperProxy.cs" />
+    <Compile Include="Models\LibRetroProxy.cs" />
+    <Compile Include="Models\Navigation\GameFilterItem.cs" />
+    <Compile Include="Models\Navigation\GameItem.cs" />
+    <Compile Include="Models\Navigation\LibRetroCoreItem.cs" />
+    <Compile Include="Models\Navigation\MappingItems.cs" />
+    <Compile Include="Models\PathBrowser.cs" />
+    <Compile Include="Models\QueryCreateConfigurationModel.cs" />
+    <Compile Include="Models\Sorting\SortByRatingDesc.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Settings\Configuration\ClearGoodMergeCache.cs" />
+    <Compile Include="Settings\Configuration\EmulatorsConfigSetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\AudioDeviceSetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\CoreInfoDirectorySetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\CoresDirectorySetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\SystemDirectorySetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\SavesDirectorySetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\AutoSaveIntervalSetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\AutoSaveSetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\CoreUpdaterSetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\MappingSetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\MaxPlayersSetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\AudioBufferSizeSetting.cs" />
+    <Compile Include="Settings\Configuration\LibRetro\EnableVSyncSetting.cs" />
+    <Compile Include="Settings\Configuration\MinimiseOnStart.cs" />
+    <Compile Include="Settings\EmulatorsSettings.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+      <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
+      <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
+      <Name>OnlineLibraries</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\UI\SkinEngine\SkinEngine.csproj">
+      <Project>{7e943389-3589-40c9-b481-2e223554cc49}</Project>
+      <Name>SkinEngine</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\UI\UiComponents\Media\Media.csproj">
+      <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
+      <Name>Media</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\UI\UiComponents\SkinBase\SkinBase.csproj">
+      <Project>{4efed5be-2f6a-4944-bb96-053d5945ba1f}</Project>
+      <Name>SkinBase</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\UI\FanArt\FanArtService.Client\FanArtService.Client.csproj">
+      <Project>{cda7272f-e218-42a0-a53a-2d44e4015ff7}</Project>
+      <Name>FanArtService.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj">
+      <Project>{587b806e-9afc-47d7-a024-1cec38c4d1d3}</Project>
+      <Name>FanArtService.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj">
+      <Project>{8e15fbe3-f6c8-4b76-a560-f391b4124e9c}</Project>
+      <Name>ServerSettings.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Emulators.Common\Emulators.Common.csproj">
+      <Project>{f7e3d356-1cf6-43a8-91f1-4baca72f6637}</Project>
+      <Name>Emulators.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\SharpRetro\SharpRetro.csproj">
+      <Project>{cba289bc-deb5-4542-9564-4f0d646717da}</Project>
+      <Name>SharpRetro</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="LibRetro\Cores\CustomCoresList.xml" />
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\images\A24958E2-538A-455E-A1DB-A7BB241AF7EC.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemGameDetails.inc" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemGameDetailsCover.inc" />
+    <Content Include="Skin\BlueVision\themes\Win10\screens\MediaItemGameDetails.inc" />
+    <Content Include="Skin\default\workflow\Emulators-actions.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Titanium\images\A24958E2-538A-455E-A1DB-A7BB241AF7EC.jpg" />
+    <Content Include="Skin\Titanium\screens\MediaItemGameDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemGameDetails.inc" />
+    <Content Include="Skin\WMCSkin\screens\MediaItemGameListDetails.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\GameShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\GameShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\ConfigControls.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_choose_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_choose_categories.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_remove.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\themes\default\styles\EmuMediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\themes\default\styles\EmuMediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\MediaItemGameDetails.inc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\GameShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\default\styles\EmuMediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_arguments.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_edit_extensions.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_add_file_extension.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_remove_file_extension.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_master.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_edit_name.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Titanium\screens\emulator_config_master.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\screens\emulator_config_master.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_goodmerge_select.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_goodmerge_extract.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_choose_type.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_choose_wildcard.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_advanced_settings.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_clear_goodmerge_cache.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\ApolloOne\screens\emulator_config_master.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets">
+      <SubType>Designer</SubType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_libretro_options.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_libretro_option_select.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_mapping_press_input.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_mapping_devices.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\libretro_mapping_players.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\libretro_mapping_device.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\GameShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\EmuMediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\ConfigControls.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\libretro_core_updater.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_core_update_progress.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_core_context_menu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\emulator_config_choose_core.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_retro_context_menu.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\dialog_retro_choose_state.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\emulator_config_master.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\screens\GameShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\BlueVision\themes\Win10\styles\EmuMediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\screens\GameShowItems.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\default\styles\ConfigControls.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\WMCSkin\themes\default\styles\EmuMediaStyles.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SharpDX">
+      <Version>4.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="SharpDX.Direct3D9">
+      <Version>4.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="SharpDX.DirectSound">
+      <Version>4.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="SharpDX.XInput">
+      <Version>4.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="SharpGL">
+      <Version>2.4.0</Version>
+    </PackageReference>
+    <PackageReference Include="SharpLibHid">
+      <Version>1.4.3</Version>
+    </PackageReference>
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

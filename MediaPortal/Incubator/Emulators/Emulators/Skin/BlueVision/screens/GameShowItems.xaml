@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: This screen should be adapted to match its special function, i.e. add images etc. -->
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Emulators.MenuItem]"/>
+    <ResourceWrapper x:Key="Cover_Width" Resource="860"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <Control Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+          <Control.TemplateControl>
+            <Include Source="screens\MediaItemsList.inc"/>
+          </Control.TemplateControl>
+        </Control>
+
+        <Control Grid.Column="1" VerticalAlignment="Stretch" Width="{DynamicResource Cover_Width}"
+          Template="{Binding Source={DynamicResource Media_Details_Template}}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+          </Control.IsVisible>
+        </Control>
+      </Grid>
+    </ControlTemplate>
+
+    <!-- Control template for the MediaItem details (cover, thumbs, duration, genres...)-->
+    <ControlTemplate x:Key="Media_Details_Template">
+      <Include Source="screens\MediaItemFanArt.inc"/>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Alternative_Footer_Template">
+      <Include Source="screens\MediaItemGameDetails.inc"/>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

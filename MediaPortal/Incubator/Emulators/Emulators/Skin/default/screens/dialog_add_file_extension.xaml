@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+    
+    <!-- Emulator configuration model -->
+    <Model x:Key="Model" Id="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>
+    
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Emulators.Config.AddFileExtension.Title]"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="10"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <TextBox x:Name="ExtensionTextBox" HorizontalAlignment="Stretch" PreferredTextLength="30" Margin="10" SetFocusPrio="DefaultLow" />
+        <Button x:Name="OkButton" Grid.Row="2" Style="{ThemeResource DialogButtonStyle}"
+              Content="[System.Ok]" HorizontalAlignment="Center">
+          <Button.Command>
+            <CommandList>
+              <Command Source="{StaticResource Model}" Path="EmulatorProxy.AddFileExtension" Parameters="{LateBoundValue BindingValue={Binding ElementName=ExtensionTextBox, Path=Text}}"/>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

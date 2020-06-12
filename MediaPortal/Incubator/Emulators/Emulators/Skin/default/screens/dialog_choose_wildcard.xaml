@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\simple_dialog_menu.xaml"
+    >
+  <Include.Resources>
+
+    <Model x:Key="Model" Id="6C96C335-7A79-45DA-90B7-541B3C7235EF"/>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Emulators.Config.SelectWildcard.Header]"/>
+
+    <!-- Menu -->
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True">
+      <Binding Source="{StaticResource Model}" Path="WildcardItems" Mode="OneTime"/>
+    </ResourceWrapper>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil"
+        Source="{StaticResource Model}" Path="WildcardItemSelected"/>
+
+  </Include.Resources>
+</Include>
