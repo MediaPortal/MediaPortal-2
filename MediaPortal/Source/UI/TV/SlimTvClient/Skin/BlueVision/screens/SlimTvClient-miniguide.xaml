@@ -19,12 +19,12 @@
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="1805" Height="910"
             DataContext="{Binding Source={StaticResource SlimTvClient}}" Margin="50,120,35,0">
 
-       <Grid.Triggers>
-        <EventTrigger RoutedEvent="Screen.Show">
-         <TriggerCommand Command="{Command Source={StaticResource SlimTvClient}, Path=UpdateChannelsMiniGuide}"/>
-         </EventTrigger>
-       </Grid.Triggers>
-        
+        <Grid.Triggers>
+          <EventTrigger RoutedEvent="Screen.Show">
+            <TriggerCommand Command="{Command Source={StaticResource SlimTvClient}, Path=UpdateChannelsMiniGuide}"/>
+          </EventTrigger>
+        </Grid.Triggers>
+
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="300"/>
           <ColumnDefinition Width="*"/>
@@ -70,7 +70,7 @@
           <Control Template="{ThemeResource PiPControlTemplate}" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
                    HorizontalAlignment="Left"/>
         </StackPanel>
-        
+
         <Label x:Name="TimeLabel" Grid.Column="1" Grid.Row="1" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
                FontSize="30" Margin="0,0,30,4" FontFamily="DefaultBold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
@@ -138,9 +138,10 @@
                  Content="{Binding Path=SelectedCurrentProgram.Description}"/>
 
         </Grid>
-        
+
         <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
         <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <KeyBinding Key="Red" Command="{Command Source={Service ScreenManager}, Path=CloseTopmostDialog}"/>
         <KeyBinding Key="Right" Command="{Command Path=NextGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Left"  Command="{Command Path=PrevGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />

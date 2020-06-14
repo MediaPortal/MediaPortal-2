@@ -478,17 +478,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             isFirstEpisode = false;
           }
         }
-        if (!episode.DataProviders.Contains(_name))
-          episode.DataProviders.Add(_name);
 
         if (episodeDetails.Count > 1)
         {
           SetMultiEpisodeDetails(episode, episodeDetails);
+          if (!episode.DataProviders.Contains(_name))
+            episode.DataProviders.Add(_name);
           return true;
         }
         else if (episodeDetails.Count > 0)
         {
           SetEpisodeDetails(episode, episodeDetails[0]);
+          if (!episode.DataProviders.Contains(_name))
+            episode.DataProviders.Add(_name);
           return true;
         }
         return false;

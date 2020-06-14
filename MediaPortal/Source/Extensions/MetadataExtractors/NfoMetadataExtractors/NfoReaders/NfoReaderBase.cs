@@ -51,10 +51,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// We have a separate reader for the different nfo-files of all possible MediaItem types (in particular movies and series).
   /// This abstract base class contains common functionality that can be used for all types of nfo-files.
   /// This class can parse much more information than we can currently store in our MediaLibrary.
-  /// For performance reasons, the following long lasting operations have been temporarily disabled:
-  /// - We do parse elements containing information on persons, however, parsing and downloading "thumb"
-  ///   child elements for persons has been disabled. Reenable in <see cref="ParsePerson"/>
-  /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
   public abstract class NfoReaderBase<TStub> where TStub : new()
   {
@@ -1196,7 +1192,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// - element does not contain child elements
     /// - element does not contain a child element with the name "name" or such child element is empty or contains a value from _settings.IgnoreStrings
     /// </returns>
-    protected async Task<PersonStub> ParsePerson(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
+    protected async Task<PersonStub> ParsePerson(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra, bool includeFanart)
     {
       // Example of a valid element:
       // <[ElementName]>
@@ -1225,8 +1221,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return null;
       value.Role = ParseSimpleString(element.Element("role"));
       value.Order = ParseSimpleInt(element.Element("order"));
-      //ToDo: Reenable parsing <thumb> child elements once we can store them in the MediaLibrary
-      value.Thumb = await Task.FromResult<byte[]>(null); //ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra).ConfigureAwait(false);
+      if (includeFanart)
+        value.Thumb = await ParseSimpleImageAsync(element.Element("thumb"), nfoDirectoryFsra).ConfigureAwait(false);
+      else
+        value.Thumb = await Task.FromResult<byte[]>(null);
       value.ImdbId = ParseSimpleString(element.Element("imdb"));
       value.Birthdate = ParseSimpleDateTime(element.Element("birthdate"));
       value.Birthplace = ParseSimpleString(element.Element("birthplace"));

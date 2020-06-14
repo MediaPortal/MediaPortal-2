@@ -76,6 +76,16 @@ namespace MediaPortal.Common.FanArt
     }
 
     /// <summary>
+    /// Checks if id is in the cache.
+    /// </summary>
+    /// <param name="id">Media item id to cache.</param>
+    /// <returns><c>true</c> if the specified id was contained in the cache.</returns>
+    protected bool IsInCache(Guid id)
+    {
+      return _cache.ContainsKey(id);
+    }
+
+    /// <summary>
     /// Removes the specified id from the cache.
     /// </summary>
     /// <param name="id">Media item id to remove from the cache.</param>
@@ -131,7 +141,7 @@ namespace MediaPortal.Common.FanArt
     /// <param name="paths"><see cref="FanArtPathCollection"/> to populate</param>
     protected void ExtractAllFanArtImages(ICollection<ResourcePath> potentialFanArtFiles, FanArtPathCollection paths)
     {
-      if (potentialFanArtFiles == null && potentialFanArtFiles.Count == 0)
+      if (potentialFanArtFiles == null || potentialFanArtFiles.Count == 0)
         return;
       paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.THUMB_FILENAMES));
       paths.AddRange(FanArtTypes.Poster, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles, LocalFanartHelper.POSTER_FILENAMES));
@@ -151,7 +161,7 @@ namespace MediaPortal.Common.FanArt
     /// <param name="filename">The filename of the media item.</param>
     protected void ExtractAllFanArtImages(ICollection<ResourcePath> potentialFanArtFiles, FanArtPathCollection paths, string filename)
     {
-      if (potentialFanArtFiles == null && potentialFanArtFiles.Count == 0)
+      if (potentialFanArtFiles == null || potentialFanArtFiles.Count == 0)
         return;
 
       filename = filename.ToLowerInvariant();
@@ -187,7 +197,7 @@ namespace MediaPortal.Common.FanArt
     /// <param name="prefix">The filename prefix of the media item.</param>
     protected void ExtractAllFanArtImagesByPrefix(ICollection<ResourcePath> potentialFanArtFiles, FanArtPathCollection paths, string prefix)
     {
-      if (potentialFanArtFiles == null && potentialFanArtFiles.Count == 0)
+      if (potentialFanArtFiles == null || potentialFanArtFiles.Count == 0)
         return;
 
       prefix = prefix.ToLowerInvariant();
@@ -307,9 +317,9 @@ namespace MediaPortal.Common.FanArt
       return false;
     }
 
-    protected Task<bool> TrySaveFileImage(byte[] imageData, string saveDirectory, string filename)
+    protected Task<bool> TrySaveFileImage(byte[] imageData, string saveDirectory, string filename, string prefix = null)
     {
-      string savePath = Path.Combine(saveDirectory, "File." + filename + ".jpg");
+      string savePath = Path.Combine(saveDirectory, (prefix ?? "File.") + filename + ".jpg");
       try
       {
         if (File.Exists(savePath))

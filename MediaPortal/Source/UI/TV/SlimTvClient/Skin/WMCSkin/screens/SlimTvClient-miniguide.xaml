@@ -157,6 +157,7 @@
 
         <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
         <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <KeyBinding Key="Red" Command="{Command Source={Service ScreenManager}, Path=CloseTopmostDialog}"/>
         <KeyBinding Key="Right" Command="{Command Path=NextGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Left"  Command="{Command Path=PrevGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />

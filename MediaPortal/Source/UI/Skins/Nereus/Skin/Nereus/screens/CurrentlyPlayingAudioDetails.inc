@@ -177,10 +177,9 @@
                 </media:AudioAlbumAspectWrapper.MediaItem>
                 <media:AudioAlbumAspectWrapper.Template>
                   <ControlTemplate>
-                    <StackPanel Orientation="Horizontal"
-                                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-                      <Label Content="|" Color="{ThemeResource TextColorForeground}"/>
-                      <Label x:Name="NumTracks" Content="{Binding NumTracks}" Color="{ThemeResource TextColorForeground}"/>
+                    <StackPanel Orientation="Horizontal" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                      <Label Content="|" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
+                      <Label x:Name="NumTracks" Content="{Binding NumTracks}" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
                     </StackPanel>
                   </ControlTemplate>
                 </media:AudioAlbumAspectWrapper.Template>

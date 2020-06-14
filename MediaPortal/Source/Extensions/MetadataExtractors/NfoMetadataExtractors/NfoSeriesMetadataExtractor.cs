@@ -193,7 +193,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           episodeDetailsFound = true;
           // Now we (asynchronously) extract the metadata into a stub object.
           // If no metadata was found, nothing can be stored in the MediaItemAspects.
-          episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings);
+          episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings, false);
           using (episodeNfoFsra)
           {
             if (!await episodeNfoReader.TryReadMetadataAsync(episodeNfoFsra).ConfigureAwait(false))
@@ -210,7 +210,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
-          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, forceQuickMode, !episodeDetailsFound, isStub, _httpClient, _settings);
+          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, forceQuickMode, !episodeDetailsFound, isStub, _httpClient, _settings, false);
           using (seriesNfoFsra)
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))
@@ -338,7 +338,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
                       }
                     }
 
-                    episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings);
+                    episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings, false);
                     episodeNfoReader.SetEpisodeStubs(new List<Stubs.SeriesEpisodeStub> { mergedEpisode });
                   }
                 }
@@ -437,7 +437,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the episodeNfoReader so that the latter can store metadata from series and episode level into the MediaItemAspects.
-          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, forceQuickMode, false, false, _httpClient, _settings);
+          var seriesNfoReader = new NfoSeriesReader(_debugLogger, miNumber, forceQuickMode, false, false, _httpClient, _settings, false);
           using (seriesNfoFsra)
           {
             if (await seriesNfoReader.TryReadMetadataAsync(seriesNfoFsra).ConfigureAwait(false))

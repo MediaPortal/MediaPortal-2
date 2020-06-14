@@ -79,6 +79,7 @@
     <Compile Include="Actions\SkinSettingsAction.cs" />
     <Compile Include="Controls\HomeTilesScrollContentPresenter.cs" />
     <Compile Include="Controls\ItemsListFilter.cs" />
+    <Compile Include="Controls\NereusHomeListView.cs" />
     <Compile Include="Controls\NereusTileControl.cs" />
     <Compile Include="Converters\StringCaseConverter.cs" />
     <Compile Include="Converters\ListToGridConverter.cs" />
@@ -716,8 +717,11 @@
     <Content Include="Skin\Nereus\images\Weather\64x64\na.png" />
     <Content Include="Skin\Nereus\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\Nereus\images\Weather\64x64\WEATHERALERT.png" />
-    <Content Include="Skin\Nereus\screens\InfoAudioGeneral.inc" />
-    <Content Include="Skin\Nereus\screens\InfoSeriesGeneral.inc" />
+    <Content Include="Skin\Nereus\screens\MediaInfoSeriesDetails.inc" />
+    <Content Include="Skin\Nereus\screens\MediaInfoAudioDetails.inc" />
+    <Content Include="Skin\Nereus\screens\CurrentlyPlayingAudioDetails.inc" />
+    <Content Include="Skin\Nereus\screens\MediaInfoMovieDetails.inc" />
+    <Content Include="Skin\Nereus\screens\CurrentlyPlayingSeriesDetails.inc" />
     <Content Include="Skin\Nereus\screens\NotificationsBar.inc" />
     <Content Include="Skin\Nereus\screens\WindowControlButtons.inc">
       <SubType>Designer</SubType>
@@ -815,7 +819,7 @@
     <Content Include="Skin\Nereus\fonts\SketchyTimes.ttf" />
     <None Include="Skin\Nereus\fonts\seguisb.ttf" />
     <Content Include="Skin\Nereus\fonts\seguisb.desc" />
-    <Content Include="Skin\Nereus\screens\InfoMovieGeneral.inc" />
+    <Content Include="Skin\Nereus\screens\CurrentlyPlayingMovieDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemListPersonDetails.inc">
       <SubType>Designer</SubType>
     </Content>
@@ -1088,6 +1092,21 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Nereus\screens\shares_config_choose_path.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\MediaInfoVideo.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\MediaInfoAudio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\MediaInfoImage.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
