@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       // Get all episodes for this season
       IList<MediaItem> episodes = MediaLibraryAccess.GetMediaItemsByGroup(context, EpisodeAspect.ROLE_EPISODE, SeasonAspect.ROLE_SEASON, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (episodes.Count == 0)
-        throw new BadRequestException("No Tv Episodes found");
+        return Task.FromResult<IList<WebTVEpisodeBasic>>(new List<WebTVEpisodeBasic>());
 
       var output = episodes.Select(episode => EpisodeBasic(episode, null, Guid.Parse(id)));
 
