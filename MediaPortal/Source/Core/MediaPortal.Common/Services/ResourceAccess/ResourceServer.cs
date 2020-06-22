@@ -204,6 +204,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public string GetServiceUrl(IPAddress ipAddress)
     {
+      if (ipAddress == null)
+        return string.Format("http://{0}:{1}{2}", "127.0.0.1", _serverPort, _servicePrefix);
+
       return ipAddress.AddressFamily == AddressFamily.InterNetworkV6 ?
         string.Format("http://[{0}]:{1}{2}", RemoveScope(ipAddress.ToString()), _serverPort, _servicePrefix) :
         string.Format("http://{0}:{1}{2}", ipAddress, _serverPort, _servicePrefix);
