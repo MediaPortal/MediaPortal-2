@@ -216,11 +216,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         {
           var potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryFsra);
 
-          string[] prefixes = new[]
-          {
-            string.Format("season{0:00}", seasonNumber),
-            seasonNumber == 0 ? "season-specials" : "season-all"
-          };
+          string[] prefixes = LocalFanartHelper.GetAdditionalSeasonPrefixes(seasonNumber);
 
           if (fanArtType == FanArtTypes.Undefined || fanArtType == FanArtTypes.Thumbnail)
             fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
@@ -255,41 +251,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       var seriesDirectoryPath = ResourcePathHelper.Combine(episodePath, "../../");
       using (var seriesRa = new ResourceLocator(systemId, seriesDirectoryPath).CreateAccessor())
       {
-        if (IsSeriesFolder(seriesRa as IFileSystemResourceAccessor, knownSeasonNo))
+        if (LocalFanartHelper.IsSeriesFolder(seriesRa as IFileSystemResourceAccessor, knownSeasonNo))
           return seriesDirectoryPath;
       }
 
       //Presume there are no season folders
       return ResourcePathHelper.Combine(episodePath, "../");
-    }
-
-    private bool IsSeriesFolder(IFileSystemResourceAccessor seriesFolder, int knownSeasonNo = -1)
-    {
-      if (seriesFolder == null)
-        return false;
-
-      int maxInvalidFolders = 3;
-      var seasonFolders = seriesFolder.GetChildDirectories();
-      var seasonNos = seasonFolders.Select(GetSeasonFromFolder).ToList();
-      var invalidSeasonCount = seasonNos.Count(s => s < 0);
-      var validSeasonCount = seasonNos.Count(s => s >= 0);
-      if (invalidSeasonCount <= maxInvalidFolders && validSeasonCount > 0)
-        return true;
-      if (invalidSeasonCount > maxInvalidFolders)
-        return false;
-      if (validSeasonCount > 0 && knownSeasonNo >= 0 && !seasonNos.Contains(knownSeasonNo))
-        return false;
-
-      return true;
-    }
-
-    private int GetSeasonFromFolder(IFileSystemResourceAccessor seasonFolder)
-    {
-      int beforeSeasonNoIndex = seasonFolder.ResourceName.LastIndexOf(" ");
-      if (beforeSeasonNoIndex >= 0 && int.TryParse(seasonFolder.ResourceName.Substring(beforeSeasonNoIndex + 1), out int seasonNo))
-        return seasonNo;
-
-      return -1;
     }
   }
 }
