@@ -578,6 +578,7 @@ namespace MediaPortal.Utilities.SystemAPI
                 {".oga", "audio/ogg"},
                 {".ogg", "audio/ogg"},
                 {".ogv", "video/ogg"},
+                {".ogm", "video/ogg"},
                 {".ogx", "application/ogg"},
                 {".omdoc", "application/omdoc+xml"},
                 {".onepkg", "application/onenote"},

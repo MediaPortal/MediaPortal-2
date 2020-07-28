@@ -59,6 +59,8 @@ namespace MediaPortal.UI.Players.Video
       EXTENSIONS2PLAYER.Add(".webm", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mov", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".flv", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".ogm", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".ogv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".vob", typeof(DvdPlayer));
       EXTENSIONS2PLAYER.Add(".ifo", typeof(DvdPlayer));
       // TODO: Go on with extensions mapping

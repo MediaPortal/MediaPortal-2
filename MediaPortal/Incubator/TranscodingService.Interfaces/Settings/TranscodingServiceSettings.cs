@@ -61,6 +61,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
       ".mpp",
       ".dsf",
       ".dff",
+      ".oga",
     };
     // Don't add .ifo here because they are processed while processing the video DVD directory
     private readonly static string[] DEFAULT_VIDEO_FILE_EXTENSIONS = new string[]
@@ -81,6 +82,12 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
       ".mov",
       ".wtv",
       ".dvr-ms",
+      ".divx",
+      ".mpeg",
+      ".m2p",
+      ".qt",
+      ".rm",
+      ".ogv"
     };
     private readonly static string[] DEFAULT_IMAGE_FILE_EXTENSIONS = new string[]
     {

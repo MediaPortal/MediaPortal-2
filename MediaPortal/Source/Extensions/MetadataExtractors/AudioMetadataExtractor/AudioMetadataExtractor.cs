@@ -45,6 +45,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Utilities.SystemAPI;
 using TagLib;
 using File = TagLib.File;
 using Tag = TagLib.Id3v2.Tag;
@@ -643,7 +644,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
                 // mimetype handling in the BASS player, which expects audio/xxx.
                 if (!string.IsNullOrWhiteSpace(tag.MimeType))
+                {
                   providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
+                }
+                else
+                {
+                  var mime = MimeTypeDetector.GetMimeTypeFromExtension(fsra.ResourceName);
+                  if (!string.IsNullOrWhiteSpace(mime))
+                    providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mime);
+                }
 
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);

@@ -56,6 +56,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor.Setti
           ".mpp",
           ".dsf",
           ".dff",
+          ".oga",
       };
 
     protected string[] _unsplittableID3v23Values;
