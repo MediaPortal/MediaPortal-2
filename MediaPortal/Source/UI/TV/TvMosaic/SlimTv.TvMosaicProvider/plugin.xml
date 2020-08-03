@@ -37,7 +37,7 @@
   </Register>
 
   <!-- Root Sections -->
-  <!--<Register Location="/Configuration/Settings">
+  <Register Location="/Configuration/Settings">
     <ConfigSection
         Id="Plugins"
         Redundant="true"
@@ -52,23 +52,23 @@
   </Register>
 
 
-  <Register Location="/Configuration/Settings/Plugins/TV">
+  <Register Location="/Configuration/Settings/TV">
     <ConfigSetting
-        Id="MPExtendedServerAddress"
-        Text="[Settings.Plugins.TV.MPExtendedServerAddress]"
-        HelpText="[Settings.Plugins.TV.MPExtendedServerAddress.Help]"
-        ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.MPExtendedServerAddress"/>
+        Id="TvMosaicServerAddress"
+        Text="[Settings.Plugins.TV.TvMosaicServerAddress]"
+        HelpText="[Settings.Plugins.TV.TvMosaicServerAddress.Help]"
+        ClassName="SlimTv.TvMosaicProvider.Settings.Configuration.ServerAddress"/>
     <ConfigSetting
-        Id="MPExtendedUsername"
-        Text="[Settings.Plugins.TV.MPExtendedUsername]"
-        HelpText="[Settings.Plugins.TV.MPExtendedUsername.Help]"
-        ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.MPExtendedUsername"/>
+        Id="TvMosaicUsername"
+        Text="[Settings.Plugins.TV.TvMosaicUsername]"
+        HelpText="[Settings.Plugins.TV.TvMosaicUsername.Help]"
+        ClassName="SlimTv.TvMosaicProvider.Settings.Configuration.Username"/>
     <ConfigSetting
-        Id="MPExtendedPassword"
-        Text="[Settings.Plugins.TV.MPExtendedPassword]"
-        HelpText="[Settings.Plugins.TV.MPExtendedPassword.Help]"
-        ClassName="MediaPortal.Plugins.SlimTv.Providers.Settings.Configuration.MPExtendedPassword"/>
-  </Register>-->
+        Id="TvMosaicPassword"
+        Text="[Settings.Plugins.TV.TvMosaicPassword]"
+        HelpText="[Settings.Plugins.TV.TvMosaicPassword.Help]"
+        ClassName="SlimTv.TvMosaicProvider.Settings.Configuration.Password"/>
+  </Register>
   
   <!-- The ResourceProvider to access Tve3. -->
   <Register Location="/ResourceProviders">
