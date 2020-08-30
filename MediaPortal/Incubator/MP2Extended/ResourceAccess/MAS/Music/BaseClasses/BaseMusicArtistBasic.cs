@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
 
     internal static WebMusicArtistBasic MusicArtistBasic(MediaItem item)
     {
-      MediaItemAspect audioAspect = item.GetAspect(AudioAspect.Metadata);
+      MediaItemAspect artistAspect = item.GetAspect(PersonAspect.Metadata);
 
       bool hasAlbum = false;
       if (MediaItemAspect.TryGetAspects(item.Aspects, RelationshipAspect.Metadata, out var relationAspects))
@@ -59,7 +59,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
       {
         HasAlbums = hasAlbum,
         Id = item.MediaItemId.ToString(),
-        Title = audioAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME),
+        Title = artistAspect.GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME),
         Artwork = ResourceAccessUtils.GetWebArtwork(item)
       };
     }

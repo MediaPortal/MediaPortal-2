@@ -189,7 +189,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
     private void AddInputOptions(ref FFMpegTranscodeData data)
     {
-      if(TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.Auto)
+      if (TranscodingServicePlugin.Settings.HardwareAcceleration == HWAcceleration.Auto)
       {
         data.GlobalArguments.Add("-hwaccel auto");
       }
@@ -362,13 +362,13 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       SubtitleCodec targetCodec = video.TargetSubtitleCodec;
       if (targetCodec == SubtitleCodec.Unknown)
         targetCodec = subtitle.Codec;
-   
+
       if (targetCodec == SubtitleCodec.Unknown)
         targetCodec = SubtitleCodec.Ass;
-   
+
       if (subtitle.Codec != targetCodec)
         subtitleEncoder = FFMpegGetSubtitleContainer.GetSubtitleContainer(targetCodec);
- 
+
       string subtitleFormat = FFMpegGetSubtitleContainer.GetSubtitleContainer(subtitle.Codec);
       FFMpegTranscodeData data = new FFMpegTranscodeData(_transcoderCachePath);
       InitTranscodingParameters(video.ConcatSourceMediaPaths, video.SourceMediaPaths, ref data);
@@ -438,7 +438,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
     private void AddSubtitleExtractionParameters(SubtitleStream subtitle, string subtitleEncoding, string subtitleEncoder, string subtitleFormat, double timeStart, FFMpegTranscodeData data)
     {
-      if(timeStart > 0)
+      if (timeStart > 0)
       {
         data.OutputArguments.Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
       }
@@ -572,11 +572,11 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         long? frequency = Validators.GetAudioFrequency(audio.SourceAudioCodec, audio.TargetAudioCodec, audio.SourceAudioFrequency, audio.TargetAudioFrequency);
         if (frequency > 0)
           data.OutputArguments.Add(string.Format("-ar {0}", frequency.Value));
-    
+
         if (audio.TargetAudioContainer != AudioContainer.Lpcm)
         {
           long? audioBitrate = Validators.GetAudioBitrate(audio.SourceAudioBitrate, audio.TargetAudioBitrate);
-          if(audioBitrate.HasValue)
+          if (audioBitrate.HasValue)
             data.OutputArguments.Add(string.Format("-b:a {0}k", audioBitrate.Value));
         }
       }
@@ -587,7 +587,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
       string coder = null;
       Coders.TryGetValue(audio.TargetCoder, out coder);
-      if(string.IsNullOrEmpty(coder) == false)
+      if (string.IsNullOrEmpty(coder) == false)
         data.OutputArguments.Add(coder);
     }
 
@@ -646,7 +646,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
       if (video.TargetVideoMaxHeight <= 0)
         video.TargetVideoMaxHeight = 1080;
-   
+
       bool vCodecCopy = false;
       if (video.SourceMediaPaths.Count == 1 && (Checks.IsVideoStreamChanged(video) == false || video.TargetForceVideoCopy == true))
       {
@@ -660,7 +660,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
         if (video.TargetPixelFormat == PixelFormat.Unknown)
           video.TargetPixelFormat = PixelFormat.Yuv420;
-       
+
         data.OutputArguments.Add(string.Format("-pix_fmt {0}", FFMpegGetPixelFormat.GetPixelFormat(video.TargetPixelFormat)));
 
         if (video.TargetVideoCodec == VideoCodec.H265)
@@ -668,10 +668,10 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           string profile = encoderConfig.GetEncoderProfile(video.TargetVideoCodec, video.TargetProfile);
           if (string.IsNullOrEmpty(profile) == false)
             data.OutputArguments.Add(profile);
-    
+
           if (video.TargetLevel > 0)
             data.OutputArguments.Add(string.Format("-level {0}", video.TargetLevel.Value.ToString("0.0", CultureInfo.InvariantCulture)));
-   
+
           string preset = encoderConfig.GetEncoderPreset(video.TargetVideoCodec, video.TargetPreset);
           if (string.IsNullOrEmpty(preset) == false)
             data.OutputArguments.Add(preset);
@@ -826,31 +826,31 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
       GetVideoDimensions(video, out newSize, out newContentSize, out newPixelAspectRatio, out pixelARChanged, out videoARChanged, out videoHeightChanged);
 
-      string vidFilter = "";
+      List<string> vidFilters = new List<string>();
 
       if (videoARChanged || pixelARChanged || videoHeightChanged)
       {
         if (videoHeightChanged || pixelARChanged)
-          vidFilter += string.Format("scale={0}:{1}", newContentSize.Width, newContentSize.Height);
-    
+          vidFilters.Add(string.Format("scale={0}:{1}", newContentSize.Width, newContentSize.Height));
+
         if (videoARChanged)
         {
           int posX = Convert.ToInt32(Math.Abs(newSize.Width - newContentSize.Width) / 2);
           int posY = Convert.ToInt32(Math.Abs(newSize.Height - newContentSize.Height) / 2);
-          vidFilter += string.Format("pad={0}:{1}:{2}:{3}:black", newSize.Width, newSize.Height, posX, posY);
-          vidFilter += string.Format("setdar={0}/{1}", newSize.Width, newSize.Height);
+          vidFilters.Add(string.Format("pad={0}:{1}:{2}:{3}:black", newSize.Width, newSize.Height, posX, posY));
+          vidFilters.Add(string.Format("setdar={0}/{1}", newSize.Width, newSize.Height));
         }
         if (pixelARChanged)
         {
-          vidFilter += "setsar=1";
+          vidFilters.Add("setsar=1");
         }
         else if (sourceSquarePixels == false)
         {
-          if(video.SourceVideoStream.PixelAspectRatio.HasValue)
-            vidFilter += "setsar=" + video.SourceVideoStream.PixelAspectRatio.Value.ToString("0.00", CultureInfo.InvariantCulture);
+          if (video.SourceVideoStream.PixelAspectRatio.HasValue)
+            vidFilters.Add("setsar=" + video.SourceVideoStream.PixelAspectRatio.Value.ToString("0.00", CultureInfo.InvariantCulture));
         }
       }
-      return vidFilter;
+      return string.Join(",", vidFilters.ToArray());
     }
 
     private string GetSubtitleFilter(int inputNo, VideoTranscoding video, SubtitleStream subtitle, Size newSize, FFMpegTranscodeData data)
@@ -862,7 +862,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         {
           return string.Format("[{0}:{1}]", inputNo, subtitle.StreamIndex);
         }
-        else if(string.IsNullOrEmpty(subPath) && subtitle.Codec == SubtitleCodec.Unknown)
+        else if (string.IsNullOrEmpty(subPath) && subtitle.Codec == SubtitleCodec.Unknown)
         {
           return null;
         }
@@ -871,7 +871,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           string encoding = "UTF-8";
           if (string.IsNullOrEmpty(subtitle.CharacterEncoding) == false)
             encoding = subtitle.CharacterEncoding;
-          
+
           string subFilter = string.Format("subtitles=filename='{0}':original_size={1}x{2}:charenc='{3}'", EncodeFilePath(subPath), newSize.Width, newSize.Height, encoding);
           List<string> style = new List<string>();
           if (!string.IsNullOrEmpty(video.TargetSubtitleFont))
@@ -1087,7 +1087,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         }
         if (!Checks.AreMultipleAudioStreamsSupported(video))
           break;
-      }      
+      }
     }
 
     private void AddAudioChannelsNumberParameters(int inputNo, int audioStreamIndex, BaseTranscoding media, FFMpegTranscodeData data)
@@ -1118,8 +1118,9 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         {
           if (timeStart < dur.Value.TotalSeconds)
           {
-            foreach(var subKey in data.InputSubtitleArguments[dur.Key].Keys)
-              data.InputSubtitleArguments[dur.Key][subKey].Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
+            if (data.InputSubtitleArguments.TryGetValue(dur.Key, out var subtitleArguments))
+              foreach (var subtitleArgumentsList in subtitleArguments.Values)
+                subtitleArgumentsList.Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
             data.InputArguments[dur.Key].Add(string.Format(CultureInfo.InvariantCulture, "-ss {0:0.0}", timeStart));
             break;
           }

@@ -29,6 +29,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Plugins.MP2Extended.Utils;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
 {
@@ -73,6 +74,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     }
 
     /// <summary>
+    /// Gets or sets the time of the last activity on this <see cref="StreamItem"/>.
+    /// Used to determine whether to stop the stream if idle for longer than <see cref="IdleTimeout"/>.
+    /// </summary>
+    internal DateTime LastActivityTime { get; set; }
+
+    /// <summary>
     /// Gets or sets the profile which is used for streaming
     /// </summary>
     internal EndPointProfile Profile { get; set; }
@@ -91,6 +98,43 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream
     /// Gets a lock for indicating that files are in use
     /// </summary>
     internal SemaphoreSlim BusyLock { get { return _busyLock; } }
+
+    /// <summary>
+    /// Waits to enter the busy lock and returns an IDisposable that will
+    /// update the <see cref="LastActivityTime"/> and release the lock
+    /// when disposed.
+    /// </summary>
+    /// <returns><see cref="IDisposable"/> that releases the lock when disposed.</returns>
+    internal Task<IDisposable> RequestBusyLockAsync()
+    {
+      return RequestBusyLockAsync(CancellationToken.None);
+    }
+
+    /// <summary>
+    /// Waits to enter the busy lock and returns an IDisposable that will
+    /// update the <see cref="LastActivityTime"/> and release the lock
+    /// when disposed.
+    /// </summary>
+    /// <param name="cancellationToken">Cancellation token to use to cancel waiting.</param>
+    /// <returns><see cref="IDisposable"/> that releases the lock when disposed.</returns>
+    internal async Task<IDisposable> RequestBusyLockAsync(CancellationToken cancellationToken)
+    {
+      await _busyLock.WaitAsync(cancellationToken);
+      try
+      {
+        SemaphoreReleaser releaser = new SemaphoreReleaser(_busyLock);
+        // Set the last activity time to just before the busy lock is released
+        releaser.Releasing += (s, e) => LastActivityTime = DateTime.Now;
+        return releaser;
+      }
+      catch
+      {
+        // Shouldn't ever happen, but just in case,
+        // if there's an error release here
+        _busyLock.Release();
+        throw;
+      }
+    }
 
     /// <summary>
     /// Gets or sets the type of stream item

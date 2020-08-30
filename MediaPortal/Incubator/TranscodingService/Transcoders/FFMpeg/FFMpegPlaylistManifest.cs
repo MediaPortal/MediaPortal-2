@@ -73,9 +73,9 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       }
 
       //No need to keep data so free used memory
-      data.SegmentManifestData.Dispose();
-      data.SegmentPlaylistData.Dispose();
-      data.SegmentSubsPlaylistData.Dispose();
+      data.SegmentManifestData?.Dispose();
+      data.SegmentPlaylistData?.Dispose();
+      data.SegmentSubsPlaylistData?.Dispose();
     }
   }
 }

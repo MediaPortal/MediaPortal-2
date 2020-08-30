@@ -27,7 +27,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
-using MediaPortal.Utilities.Pointers;
 
 namespace MediaPortal.Utilities.Network
 {
@@ -299,9 +298,9 @@ namespace MediaPortal.Utilities.Network
           Type t = (2 == level) ? typeof(ShareInfo2) : typeof(ShareInfo1);
           int offset = Marshal.SizeOf(t);
 
-          IntPtr pItem = pBuffer;
-          for (int i = 0; i < entriesRead; i++, pItem = pItem.Add(offset))
+          for (int i = 0, lpItem = pBuffer.ToInt32(); i < entriesRead; i++, lpItem += offset)
           {
+            IntPtr pItem = new IntPtr(lpItem);
             if (1 == level)
             {
               ShareInfo1 si = (ShareInfo1) Marshal.PtrToStructure(pItem, t);
