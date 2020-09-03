@@ -27,7 +27,8 @@ using System.Runtime.InteropServices;
 using DirectShow;
 using MediaPortal.UI.Players.Video.Settings;
 using MediaPortal.Utilities.SystemAPI;
-using SharpDX;
+using Rectangle = SharpDX.Rectangle;
+using Size = SharpDX.Size2;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
 {
@@ -46,8 +47,12 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     //load subtitles for video file filename, with given (rendered) graph 
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true, CharSet = CharSet.Unicode)]
-    public static extern bool LoadSubtitles(IntPtr d3DDev, Size2 size, string filename, IGraphBuilder graphBuilder,
+    public static extern bool LoadSubtitles(IntPtr d3DDev, Size size, string filename, IGraphBuilder graphBuilder,
                                             string paths, int lcidCI);
+
+    //updates used D3D device
+    [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true, CharSet = CharSet.Unicode)]
+    public static extern bool SetDevice(IntPtr d3DDev);
 
     //set sample time (set from EVR presenter, not used in case of vmr9)
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
@@ -80,13 +85,19 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public static extern void SetCurrent(int current);
 
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    public static extern void SetCurrent3DSubtitle(int current);
+
+    [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern bool GetEnable();
 
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void SetEnable(bool enable);
 
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-    public static extern void Render(int x, int y, int width, int height);
+    public static extern void Render(int x, int y, int width, int height, int xOffsetInPixels);
+
+    [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
+    public static extern void RenderEx(Rectangle viewportRect, Rectangle croppedVideoRect, int xOffsetInPixels, bool posRelativeToFrame);
 
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern int GetDelay();
@@ -94,13 +105,13 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     //in milliseconds
 
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-    public static extern void SetDelay(int delay_ms);
+    public static extern void SetDelay(int delayMs);
 
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
     public static extern void FreeSubtitles();
 
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
-    public static extern void SetAdvancedOptions(int subPicsBufferAhead, Size2 textureSize, bool pow2tex,
+    public static extern void SetAdvancedOptions(int subPicsBufferAhead, Size textureSize, bool pow2tex,
                                                  bool disableAnimation);
 
     [DllImport("mpcSubs.dll", CallingConvention = CallingConvention.Cdecl, ExactSpelling = true)]
