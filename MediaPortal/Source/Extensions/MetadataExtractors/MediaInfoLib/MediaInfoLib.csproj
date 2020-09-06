@@ -11,6 +11,7 @@
     <RootNamespace>MediaInfoLib</RootNamespace>
     <AssemblyName>MediaInfoLib</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
     <FileAlignment>512</FileAlignment>
     <StartupObject>
     </StartupObject>

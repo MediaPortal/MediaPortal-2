@@ -11,6 +11,7 @@
     <RootNamespace>MediaPortal.UiComponents.Nereus</RootNamespace>
     <AssemblyName>Nereus</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>

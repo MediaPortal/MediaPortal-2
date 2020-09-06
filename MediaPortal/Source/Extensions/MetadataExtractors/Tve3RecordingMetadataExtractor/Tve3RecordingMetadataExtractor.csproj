@@ -11,6 +11,7 @@
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors</RootNamespace>
     <AssemblyName>Tve3RecordingMetadataExtractor</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <RuntimeIdentifier>win</RuntimeIdentifier>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
