@@ -6,6 +6,8 @@ if not exist %MB% set MB="%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Commu
 if not exist %MB% set MB="%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Professional\MSBuild\15.0\Bin\MSBUILD.exe"
 if not exist %MB% set MB="%ProgramFiles(x86)%\Microsoft Visual Studio\2017\Enterprise\MSBuild\15.0\Bin\MSBUILD.exe"
 if not exist %MB% set MB="%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\MSBuild\15.0\Bin\MSBUILD.exe"
+if not exist %MB% set MB="%ProgramFiles(x86)%\Microsoft Visual Studio\2017\BuildTools\MSBuild\16.0\Bin\MSBUILD.exe"
+if not exist %MB% set MB="%ProgramFiles(x86)%\Microsoft Visual Studio\2019\BuildTools\MSBuild\Current\Bin\MSBUILD.exe"
 
 if not exist %MB% echo "No supported MSBUILD version found. Exiting here." && exit 1
 echo Start building using %MB%
