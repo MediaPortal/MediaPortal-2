@@ -11,7 +11,7 @@
     <RootNamespace>MediaPortal.UiComponents.Configuration</RootNamespace>
     <AssemblyName>Configuration</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <RuntimeIdentifier>win</RuntimeIdentifier>
+    <RuntimeIdentifiers>win;win-x86;win-x64</RuntimeIdentifiers>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
