@@ -34,7 +34,7 @@ namespace SkinCloneTool
     [Option('t', "Target Skin", Required = true, HelpText = "Specifies the target skin name. This name will be used as folder, namespace and display name.")]
     public string TargetSkin { get; set; }
 
-    [Option('f', "Plugin folder", Required = false, HelpText = @"Specifies the path to skin folder.", DefaultValue = @"..\..\..\..\..\Source\UI\Skins")]
+    [Option('f', "Plugin folder", Required = false, HelpText = @"Specifies the path to skin folder.", DefaultValue = @"..\..\..\..\..\..\Source\UI\Skins")]
     public string PluginFolder { get; set; }
 
     [Option('o', "Overwrite existing folder", Required = false, HelpText = @"Deletes target folder if it exists.", DefaultValue = false)]

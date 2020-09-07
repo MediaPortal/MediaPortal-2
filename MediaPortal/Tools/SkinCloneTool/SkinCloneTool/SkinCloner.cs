@@ -60,9 +60,11 @@ namespace SkinCloneTool
       string sourcePath = Path.Combine(args.PluginFolder, args.SourceSkin);
       string targetPath = Path.Combine(args.PluginFolder, args.TargetSkin);
       if (!Directory.Exists(sourcePath))
-        throw new ArgumentException(string.Format("Source folder does not exists: {0}", sourcePath));
+        throw new ArgumentException(string.Format("Source folder does not exist: {0}", sourcePath));
       if (Directory.Exists(targetPath) && !args.Overwrite)
-        throw new ArgumentException(string.Format("Target folder already not exists: {0}", targetPath));
+        throw new ArgumentException(string.Format("Target folder already not exist: {0}", targetPath));
+
+      ValidateSourceSkin(args.PluginFolder, args.SourceSkin);
 
       if (Directory.Exists(targetPath) && args.Overwrite)
         Directory.Delete(targetPath, true);
@@ -80,6 +82,27 @@ namespace SkinCloneTool
       ProcessPluginXml(target, args, infos);
       ProcessNameSpacesAndModels(target, args, infos);
       ProcessLanguage(target, args, infos);
+    }
+
+    private static void ValidateSourceSkin(string pluginFolder, string skin)
+    {
+      string basePath = Path.Combine(pluginFolder, skin);
+      string skinXML = Path.Combine(basePath, "Skin", "skin.xml");
+      string pluginXML = Path.Combine(basePath, "plugin.xml");
+      if (!File.Exists(pluginXML)) throw new FileNotFoundException("The plugin xml does not exist. Is the target a valid plugin?");
+
+      // try to detect what it might be
+      string type = "not a skin";
+
+      // see if it's lacking a skin.xml, but contains a themes folder.
+      string skinName = Directory.EnumerateDirectories(Path.Combine(basePath, "Skin")).FirstOrDefault();
+      if (skinName != null)
+      {
+        string themesPath = Path.Combine(skinName, "themes");
+        if (Directory.Exists(themesPath)) type = $"a theme for {Path.GetFileName(skinName)}";
+      }
+
+      if (!File.Exists(skinXML)) throw new FileNotFoundException($"The skin xml for {skin} does not exist. It is {type}");
     }
 
     private static void ProcessProject(DirectoryInfo target, SkinCloneArguments args, ProjectInfos infos)
@@ -119,11 +142,14 @@ namespace SkinCloneTool
 
     private static void ProcessSkinFolder(DirectoryInfo target, SkinCloneArguments args, ProjectInfos infos)
     {
+      // MediaPortal\Source\UI\Skins\{Target}\Skin
       var skinDir = new DirectoryInfo(Path.Combine(target.FullName, "Skin"));
+      // the only folder inside is named after {Target}
       var skinNameDir = skinDir.GetDirectories().First();
-
       var newSkinDir = Path.Combine(skinNameDir.FullName, "..", args.TargetSkin);
       Directory.Move(skinNameDir.FullName, newSkinDir);
+
+      // remap references
       infos.OldSkinDir = skinNameDir.FullName;
       infos.NewSkinDir = newSkinDir;
     }
