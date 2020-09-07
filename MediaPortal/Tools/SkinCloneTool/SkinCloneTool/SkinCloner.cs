@@ -87,20 +87,19 @@ namespace SkinCloneTool
     private static void ValidateSourceSkin(string pluginFolder, string skin)
     {
       string basePath = Path.Combine(pluginFolder, skin);
-      string skinXML = Path.Combine(basePath, "Skin", "skin.xml");
-      string pluginXML = Path.Combine(basePath, "plugin.xml");
-      if (!File.Exists(pluginXML)) throw new FileNotFoundException("The plugin xml does not exist. Is the target a valid plugin?");
+      string skinName = Directory.EnumerateDirectories(Path.Combine(basePath, "Skin")).FirstOrDefault();
+      if (skinName == null) throw new Exception("The plugin does not have a skin folder. It is not a skin.");
 
       // try to detect what it might be
       string type = "not a skin";
 
       // see if it's lacking a skin.xml, but contains a themes folder.
-      string skinName = Directory.EnumerateDirectories(Path.Combine(basePath, "Skin")).FirstOrDefault();
-      if (skinName != null)
-      {
-        string themesPath = Path.Combine(skinName, "themes");
-        if (Directory.Exists(themesPath)) type = $"a theme for {Path.GetFileName(skinName)}";
-      }
+      string skinXML = Path.Combine(skinName, "skin.xml");
+      string pluginXML = Path.Combine(basePath, "plugin.xml");
+      if (!File.Exists(pluginXML))
+        throw new FileNotFoundException("The plugin xml does not exist. Is the target a valid plugin?");
+      string themesPath = Path.Combine(skinName, "themes");
+      if (Directory.Exists(themesPath)) type = $"a theme for {Path.GetFileName(skinName)}";
 
       if (!File.Exists(skinXML)) throw new FileNotFoundException($"The skin xml for {skin} does not exist. It is {type}");
     }
