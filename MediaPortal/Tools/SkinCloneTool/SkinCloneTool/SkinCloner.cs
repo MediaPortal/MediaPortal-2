@@ -60,9 +60,9 @@ namespace SkinCloneTool
       string sourcePath = Path.Combine(args.PluginFolder, args.SourceSkin);
       string targetPath = Path.Combine(args.PluginFolder, args.TargetSkin);
       if (!Directory.Exists(sourcePath))
-        throw new ArgumentException(string.Format("Source folder does not exist: {0}", sourcePath));
+        throw new ArgumentException($"Source folder does not exist: {sourcePath}");
       if (Directory.Exists(targetPath) && !args.Overwrite)
-        throw new ArgumentException(string.Format("Target folder already not exist: {0}", targetPath));
+        throw new ArgumentException($"Target folder already exists: {targetPath}");
 
       ValidateSourceSkin(args.PluginFolder, args.SourceSkin);
 
