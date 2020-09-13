@@ -1,0 +1,44 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="What's New"
+    PluginId="CDB49FC3-DE14-4932-BBBA-B97762557794"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    AutoActivate="true" 
+    Description="What's New plugin">
+
+  <Version
+    PluginVersion="0.1"
+    ReleaseDate="2020-09-13 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="WhatsNew.dll"/>
+    <PluginStateTracker ClassName="WhatsNew.PluginStateTracker"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="E5C115FF-30C3-43D1-A524-0259EB0D0621" ClassName="WhatsNew.Models.WhatsNewModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+     <DialogState 
+        Id="CB3BB0B7-A769-4E17-AC7D-81CF42760744"
+        Name="WhatsNewMain" MainScreen="whats-new"
+        DisplayLabel="[WhatsNew.StateDisplayLabel]"/> <!-- No workflow model -->
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="WhatsNewSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="WhatsNewLanguage" Directory="Language" Type="Language"/>
+  </Register>
+</Plugin>
