@@ -267,6 +267,11 @@ namespace Tests.Server.MediaServer
       return _shares;
     }
 
+    public IDictionary<Guid, Share> GetCachedShares(string systemId)
+    {
+      return _shares;
+    }
+
     public Share GetShare(Guid shareId)
     {
       throw new NotImplementedException();

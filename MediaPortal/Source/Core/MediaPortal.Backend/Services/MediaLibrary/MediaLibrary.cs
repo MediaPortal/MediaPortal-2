@@ -397,6 +397,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected ICollection<Share> _importingSharesCache;
     protected CancellationTokenSource _accessLockCancel = new CancellationTokenSource();
     protected AsyncPriorityLock _accessLock = new AsyncPriorityLock();
+    protected ConcurrentDictionary<Guid, Share> _cachedShares = new ConcurrentDictionary<Guid, Share>();
 
     #endregion
 
@@ -618,7 +619,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
             ITransaction transaction = database.BeginTransaction();
             IList<MediaItem> dirtyItems;
-            IDictionary<Guid, Share> shares;
             try
             {
               var query = new MediaItemQuery(new Guid[] { ProviderResourceAspect.ASPECT_ID, ImporterAspect.ASPECT_ID }, new List<Guid>(),
@@ -631,7 +631,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
               CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, query);
               dirtyItems = cmiq.QueryList(database, transaction);
 
-              shares = GetShares(transaction, _localSystemId);
+              UpdateCachedShares(transaction);
             }
             finally
             {
@@ -648,7 +648,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 continue;
 
               var mediaItemPath = ResourcePath.Deserialize(accessorPath);
-              Share share = shares?.Values?.FirstOrDefault(s => s.BaseResourcePath.IsSameOrParentOf(mediaItemPath));
+              Share share = GetCachedShares(_localSystemId).Values.FirstOrDefault(s => s.BaseResourcePath.IsSameOrParentOf(mediaItemPath));
               if (share != null && !importShares.Contains(share))
                 importShares.Add(share);
             }
@@ -899,6 +899,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       _miaManagement = new MIA_Management();
       _preparedStatements = new PreparedStatements(_miaManagement);
       _relationshipManagement = new RelationshipManagement(_miaManagement, _localSystemId);
+
+      UpdateCachedShares(null);
 
       NotifySystemOnline(_localSystemId, SystemName.GetLocalSystemName());
     }
@@ -3013,6 +3015,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
+    private void UpdateCachedShares(ITransaction transaction)
+    {
+      _cachedShares.Clear();
+      IDictionary<Guid, Share> shares = GetShares(transaction, null);
+      foreach (var share in shares)
+        _cachedShares.TryAdd(share.Key, share.Value);
+    }
+
     private void InitShareWatchers()
     {
       lock (_syncObj)
@@ -3096,6 +3106,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         foreach (string mediaCategory in share.MediaCategories)
           AddMediaCategoryToShare(transaction, share.ShareId, mediaCategory);
 
+        UpdateCachedShares(transaction);
+
         transaction.Commit();
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
@@ -3140,6 +3152,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         _relationshipManagement.DeletePathAndRelationships(transaction, share.SystemId, share.BaseResourcePath, true);
         UpdateAllSetNumbers(database, transaction);
 
+        UpdateCachedShares(transaction);
+
         transaction.Commit();
 
         MediaLibraryMessaging.SendMediaItemsDeletedMessage();
@@ -3176,6 +3190,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         _relationshipManagement.DeletePathAndRelationships(transaction, systemId, null, true);
         UpdateAllSetNumbers(database, transaction);
+
+        UpdateCachedShares(transaction);
 
         transaction.Commit();
 
@@ -3239,6 +3255,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             TryScheduleLocalShareImport(updatedShare);
             break;
         }
+
+        UpdateCachedShares(transaction);
+
         transaction.Commit();
 
         ContentDirectoryMessaging.SendRegisteredSharesChangedMessage();
@@ -3256,6 +3275,19 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public IDictionary<Guid, Share> GetShares(string systemId)
     {
       return GetShares(null, systemId);
+    }
+
+    public IDictionary<Guid, Share> GetCachedShares(string systemId)
+    {
+      Dictionary <Guid, Share> shares = new Dictionary<Guid, Share>();
+      foreach (var share in _cachedShares)
+      {
+        if (string.IsNullOrEmpty(systemId))
+          shares.Add(share.Key, share.Value);
+        else if (string.Equals(share.Value.SystemId, systemId, StringComparison.InvariantCultureIgnoreCase))
+          shares.Add(share.Key, share.Value);
+      }
+      return shares;
     }
 
     private IDictionary<Guid, Share> GetShares(ITransaction transaction, string systemId)

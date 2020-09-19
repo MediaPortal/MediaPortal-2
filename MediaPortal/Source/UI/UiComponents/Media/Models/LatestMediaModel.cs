@@ -32,6 +32,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
@@ -117,21 +118,22 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected static async Task FillListAsync(IContentDirectory contentDirectory, Guid[] necessaryMIATypeIds, ItemsList list, MediaItemToListItemAction converterAction)
     {
-      MediaItemQuery query = new MediaItemQuery(necessaryMIATypeIds, null)
+      UserProfile userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
+        userProfile = userProfileDataManagement.CurrentUser;
+      }
+
+      MediaItemQuery query = new MediaItemQuery(necessaryMIATypeIds, UserHelper.GetUserRestrictionFilter(necessaryMIATypeIds, userProfile))
       {
         Limit = QUERY_LIMIT, // Last 5 imported items
         SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
       };
 
-      Guid? userProfile = null;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
-      {
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-      }
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
 
-      var items = await contentDirectory.SearchAsync(query, false, userProfile, showVirtual);
+      var items = await contentDirectory.SearchAsync(query, false, userProfile?.ProfileId, showVirtual);
       list.Clear();
       foreach (MediaItem mediaItem in items)
       {

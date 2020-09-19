@@ -31,6 +31,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Services.UserManagement;
 
@@ -102,27 +103,34 @@ namespace MediaPortal.UiComponents.Media.Views
       if (cd == null)
         return;
 
-      Guid? userProfile = null;
+      UserProfile userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+        userProfile = userProfileDataManagement.CurrentUser;
+
+      ICollection<Guid> allowedShares = null;
+      if (userProfile?.RestrictShares == true)
+        allowedShares = userProfile.GetAllowedShares();
 
       foreach (Share share in cd.GetSharesAsync(_systemId, SharesFilter.All).Result)
       {
-        // Check if we want to filter only for given MediaCategories
-        if (_restrictedMediaCategories != null && !share.MediaCategories.Intersect(_restrictedMediaCategories).Any())
-          continue;
-        MediaItem parentDirectory = cd.LoadItemAsync(share.SystemId, share.BaseResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile).Result;
-        if (parentDirectory == null)
-          continue;
-        IList<MultipleMediaItemAspect> pras = null;
-        MediaItemAspect.TryGetAspects(parentDirectory.Aspects, ProviderResourceAspect.Metadata, out pras);
-        foreach (MultipleMediaItemAspect pra in pras)
+        if (allowedShares?.Contains(share.ShareId) ?? true)
         {
-          subViewSpecifications.Add(new MediaLibraryBrowseViewSpecification(share.Name, parentDirectory.MediaItemId,
+          // Check if we want to filter only for given MediaCategories
+          if (_restrictedMediaCategories != null && !share.MediaCategories.Intersect(_restrictedMediaCategories).Any())
+            continue;
+          MediaItem parentDirectory = cd.LoadItemAsync(share.SystemId, share.BaseResourcePath, DIRECTORY_MIA_ID_ENUMERATION, EMPTY_ID_ENUMERATION, userProfile?.ProfileId).Result;
+          if (parentDirectory == null)
+            continue;
+          IList<MultipleMediaItemAspect> pras = null;
+          MediaItemAspect.TryGetAspects(parentDirectory.Aspects, ProviderResourceAspect.Metadata, out pras);
+          foreach (MultipleMediaItemAspect pra in pras)
+          {
+            subViewSpecifications.Add(new MediaLibraryBrowseViewSpecification(share.Name, parentDirectory.MediaItemId,
               (string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID),
               ResourcePath.Deserialize((string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)),
               _necessaryMIATypeIds, _optionalMIATypeIds));
+          }
         }
       }
     }

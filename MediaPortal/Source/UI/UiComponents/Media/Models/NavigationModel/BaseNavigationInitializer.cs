@@ -40,6 +40,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -106,8 +107,19 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// </summary>
     protected virtual Task PrepareAsync()
     {
+      return PrepareAsync(true);
+    }
+
+    /// <summary>
+    /// Prepares custom views or initializes specific data, which are not available at construction time (i.e. <see cref="MediaNavigationModel.GetMediaSkinOptionalMIATypes(string)"/>).
+    /// </summary>
+    protected Task PrepareAsync(bool applyUserFilter)
+    {
       // Read filters from plugin.xml and apply the matching ones
       BuildFilters();
+
+      if (applyUserFilter)
+        _filter = UserHelper.GetUserRestrictionFilter(_necessaryMias.ToList(), _filter);
 
       _customRootViewSpecification = null;
       return Task.CompletedTask;

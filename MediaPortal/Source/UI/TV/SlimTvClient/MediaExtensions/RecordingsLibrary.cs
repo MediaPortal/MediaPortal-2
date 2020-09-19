@@ -29,11 +29,14 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
+using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
@@ -107,7 +110,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         GenreAspect.ASPECT_ID
       }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 
-      _customRootViewSpecification = new StackingViewSpecification(_viewName, null, _necessaryMias, optionalMias, true)
+      IFilterTree filterTree = null;
+      if (_filter != null)
+      {
+        filterTree = new SimpleFilterTree();
+        filterTree.AddFilter(_filter);
+      }
+
+      _customRootViewSpecification = new StackingViewSpecification(_viewName, filterTree, _necessaryMias, optionalMias, true)
       {
         MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
       };

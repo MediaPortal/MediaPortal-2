@@ -33,6 +33,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.Utilities.DB;
 using UPnP.Infrastructure.CP;
@@ -126,25 +127,26 @@ namespace MediaPortal.UiComponents.Media.Views
       if (cd == null)
         return new List<MediaItem>();
 
+      UserProfile userProfile = null;
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
+      {
+        userProfile = userProfileDataManagement.CurrentUser;
+      }
+
       MediaItemQuery query = new MediaItemQuery(
           _necessaryMIATypeIds,
           _optionalMIATypeIds,
-          new BooleanCombinationFilter(BooleanOperator.And,
+          UserHelper.GetUserRestrictionFilter(_necessaryMIATypeIds, userProfile, new BooleanCombinationFilter(BooleanOperator.And,
               new IFilter[]
               {
                 new RelationalFilter(ProviderResourceAspect.ATTR_SYSTEM_ID, RelationalOperator.EQ, _systemId),
                 new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, SqlUtils.LikeEscape(_basePath.Serialize(), '\\') + "%", '\\', true)
-              }));
+              })));
 
-      Guid? userProfile = null;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
-      {
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
-      }
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(_necessaryMIATypeIds);
 
-      return await cd.SearchAsync(query, false, userProfile, showVirtual);
+      return await cd.SearchAsync(query, false, userProfile?.ProfileId, showVirtual);
     }
 
     protected internal override void ReLoadItemsAndSubViewSpecifications(out IList<MediaItem> mediaItems, out IList<ViewSpecification> subViewSpecifications)

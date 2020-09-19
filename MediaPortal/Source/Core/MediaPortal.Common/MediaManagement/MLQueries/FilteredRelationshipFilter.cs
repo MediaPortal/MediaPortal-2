@@ -72,6 +72,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]
     [XmlElement("FilteredRelationship", typeof(FilteredRelationshipFilter))]
+    [XmlElement("SharePath", typeof(SharePathFilter))]
     public object XML_Filter
     {
       get { return _filter; }

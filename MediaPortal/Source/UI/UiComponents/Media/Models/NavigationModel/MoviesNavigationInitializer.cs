@@ -52,18 +52,6 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     {
       await base.PrepareAsync();
 
-      //Update filter by adding the user filter to the already loaded filters
-      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
-      if (userFilter != null)
-      {
-        _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, userFilter,
-          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters));
-      }
-      else
-      {
-         _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters);
-      }
-
       _defaultScreen = new MoviesShowItemsScreenData(_genericPlayableItemCreatorDelegate);
       _availableScreens = new List<AbstractScreenData>
         {

@@ -172,6 +172,7 @@
     <Compile Include="FilterTrees\RelationshipFilterTree.cs" />
     <Compile Include="FilterTrees\SimpleFilterTree.cs" />
     <Compile Include="General\Consts.cs" />
+    <Compile Include="Helpers\UserHelper.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
     <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />
     <Compile Include="MediaItemActions\EjectMediaItem.cs" />

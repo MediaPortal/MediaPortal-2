@@ -71,6 +71,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]
     [XmlElement("FilterRelationship", typeof(FilteredRelationshipFilter))]
+    [XmlElement("SharePath", typeof(SharePathFilter))]
     public object XML_Filter
     {
       get { return _filter; }
@@ -310,6 +311,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]
     [XmlElement("FilterRelationship", typeof(FilteredRelationshipFilter))]
+    [XmlElement("SharePath", typeof(SharePathFilter))]
     // Necessary to have an object here, else the serialization algorithm cannot cope with polymorph values
     public object XML_Filter
     {
@@ -333,6 +335,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("SubqueryMediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("SubqueryRelationship", typeof(RelationshipFilter))]
     [XmlElement("SubqueryFilterRelationship", typeof(FilteredRelationshipFilter))]
+    [XmlElement("SubquerySharePath", typeof(SharePathFilter))]
     // Necessary to have an object here, else the serialization algorithm cannot cope with polymorph values
     public object XML_SubqueryFilter
     {

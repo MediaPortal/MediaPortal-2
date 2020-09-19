@@ -480,6 +480,14 @@ namespace MediaPortal.Backend.MediaLibrary
     IDictionary<Guid, Share> GetShares(string systemId);
 
     /// <summary>
+    /// Returns all cached shares which are registered in the MediaPortal server's media library without querying the database.
+    /// </summary>
+    /// <param name="systemId">Filters the returned shares by system. If <c>null</c>, the returned set isn't filtered
+    /// by system.</param>
+    /// <returns>Mapping of share's GUIDs to shares.</returns>
+    IDictionary<Guid, Share> GetCachedShares(string systemId);
+
+    /// <summary>
     /// Returns the share descriptor for the share with the specified <paramref name="shareId"/>.
     /// </summary>
     /// <param name="shareId">Id of the share to return.</param>

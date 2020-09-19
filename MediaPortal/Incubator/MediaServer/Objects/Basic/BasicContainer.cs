@@ -214,7 +214,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       LastUpdate = DateTime.Now;
     }
 
-    public IFilter AppendUserFilter(IFilter filter, IEnumerable<Guid> necessaryMias)
+    public IFilter AppendUserFilter(IFilter filter, ICollection<Guid> necessaryMias)
     {
       IFilter userFilter = null;
       if (_userId.HasValue)
@@ -222,11 +222,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
         IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
         var res = userProfileDataManagement.GetProfileAsync(_userId.Value).Result;
         if (res.Success)
-        {
-          IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-          ICollection<Share> shares = library.GetShares(null)?.Values;
-          userFilter = res.Result.GetUserFilter(necessaryMias, shares);
-        }
+          userFilter = res.Result.GetUserFilter(necessaryMias);
       }
       return filter == null ? userFilter : userFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : filter;
     }
@@ -247,7 +243,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       if (!res.Result.RestrictShares)
         return shares;
 
-      return res.Result.GetAllowedShares(shares).ToList();
+      var allowedShareIds = res.Result.GetAllowedShares();
+      return shares.Where(s => allowedShareIds.Contains(s.ShareId)).ToList();
     }
 
     protected IList<IChannelGroup> FilterGroups(IList<IChannelGroup> channelGroups)

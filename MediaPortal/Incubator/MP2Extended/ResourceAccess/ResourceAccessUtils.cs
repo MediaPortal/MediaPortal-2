@@ -112,7 +112,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return false;
     }
 
-    internal static IFilter AppendUserFilter(Guid? userId, IFilter filter, IEnumerable<Guid> filterMias)
+    internal static IFilter AppendUserFilter(Guid? userId, IFilter filter, ICollection<Guid> filterMias)
     {
       IFilter userFilter = null;
       if (userId.HasValue)
@@ -120,11 +120,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
         IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
         var res = userProfileDataManagement.GetProfileAsync(userId.Value).Result;
         if (res.Success)
-        {
-          IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
-          ICollection<Share> shares = library.GetShares(null)?.Values;
-          userFilter = res.Result.GetUserFilter(filterMias, shares);
-        }
+          userFilter = res.Result.GetUserFilter(filterMias);
       }
       return filter == null ? userFilter : userFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : filter;
     }

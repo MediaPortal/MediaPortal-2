@@ -33,7 +33,8 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Backend.Services.UserProfileDataManagement;
-using MediaPortal.Common.Certifications;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
@@ -312,6 +313,52 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add("=");
         resultParts.Add(outerMIIDJoinVariable);
         resultParts.Add(")");
+
+        return;
+      }
+
+      SharePathFilter sharePathFilter = filter as SharePathFilter;
+      if (sharePathFilter != null)
+      {
+        IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>(false);
+        if (library != null && sharePathFilter.ShareIds.Any())
+        {
+          var allShares = library.GetCachedShares(null);
+
+          resultParts.Add(outerMIIDJoinVariable);
+          resultParts.Add(" IN(");
+          resultParts.Add("SELECT ");
+          resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+          resultParts.Add(" FROM ");
+          resultParts.Add(miaManagement.GetMIATableName(ProviderResourceAspect.Metadata));
+          resultParts.Add(" WHERE ");
+          
+          bool anyAdded = false;
+          foreach (var share in allShares)
+          {
+            if (!allShares.Any() || !sharePathFilter.ShareIds.Contains(share.Key))
+              continue;
+
+            if (!anyAdded)
+            {
+              //Allow virtual objects like parents etc.
+              resultParts.Add(miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+              resultParts.Add(" LIKE '{00000000-0000-0000-0000-000000000000}:///%'");
+              anyAdded = true;
+            }
+            resultParts.Add(" OR ");
+            resultParts.Add(miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+            resultParts.Add($" LIKE '{share.Value.BaseResourcePath + "%"}'");
+          }
+
+          if (!anyAdded)
+          {
+            //No shares are allowed
+            resultParts.Add(miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+            resultParts.Add(" = ''");
+          }
+          resultParts.Add(")");
+        }
 
         return;
       }

@@ -447,8 +447,7 @@ namespace MediaPortal.Plugins.WifiRemote
       {
         ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
-        ICollection<Share> shares = await library.GetSharesAsync(systemResolver.LocalSystemId, SharesFilter.All);
-        var userFilter = user.GetUserFilter(necessaryMIATypes, shares);
+        var userFilter = user.GetUserFilter(necessaryMIATypes);
         filter = filter == null ? userFilter : userFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : filter;
 
         MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, filter)

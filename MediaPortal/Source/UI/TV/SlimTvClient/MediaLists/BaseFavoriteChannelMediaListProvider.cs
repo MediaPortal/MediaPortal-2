@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       if (!TryInitTvHandler())
         return false;
 
-      if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PlaybackComplete))
+      if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PlaybackComplete) && !updateReason.HasFlag(UpdateReason.UserChanged))
         return true;
 
       IList<IChannel> channels = await GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT);
