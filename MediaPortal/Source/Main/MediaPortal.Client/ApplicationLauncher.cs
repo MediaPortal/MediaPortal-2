@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -104,13 +105,16 @@ namespace MediaPortal.Client
         }
       }
 
+      Version version = Assembly.GetEntryAssembly().GetName().Version;
       SplashScreen result = new SplashScreen
           {
             StartupScreen = startupSettings.StartupScreenNum,
             ScaleToFullscreen = true,
             FadeInDuration = TimeSpan.FromMilliseconds(300),
             FadeOutDuration = TimeSpan.FromMilliseconds(200),
-            SplashBackgroundImage = image
+            SplashBackgroundImage = image,
+            UsePictureBox = true,
+            InfoText = $"Version {version.Major}.{version.Minor}"
           };
       return result;
     }

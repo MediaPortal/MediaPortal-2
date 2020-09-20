@@ -32,7 +32,7 @@ namespace AssemblyInfoHelper
 {
   class Program
   {
-    private const string MAJOR_VERSION = "2.2"; // 2.2 from 10/2018
+    private const string MAJOR_VERSION = "2.3"; // 2.3 from 10/2020
     private static readonly Regex RE_REPLACE_ADDITIONAL = new Regex("(AssemblyInformationalVersion\\(\").*(\")", RegexOptions.Multiline);
     private static readonly Regex RE_REPLACE_VERSION_NUMBER = new Regex("(Assembly.*Version\\(\")([^\"]*)(\")", RegexOptions.Multiline);
     private static readonly Regex RE_REPLACE_YEAR_COPY = new Regex("(AssemblyCopyright\\(\"Copyright © Team MediaPortal 2007 - )\\d{4}(\")", RegexOptions.Multiline);

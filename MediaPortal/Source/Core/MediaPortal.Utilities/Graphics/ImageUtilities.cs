@@ -32,7 +32,7 @@ using System.Linq;
 namespace MediaPortal.Utilities.Graphics
 {
   /// <summary>
-  /// Provides various image untilities, such as high quality resizing and the ability to save a JPEG.
+  /// Provides various image utilities, such as high quality resizing and the ability to save a JPEG.
   /// </summary>
   public static class ImageUtilities
   {
@@ -54,6 +54,13 @@ namespace MediaPortal.Utilities.Graphics
         // If the quick lookup isn't initialised, initialise it
         return _encoders = ImageCodecInfo.GetImageEncoders().ToDictionary(codec => codec.MimeType.ToLower());
       }
+    }
+
+
+    public static Bitmap ResizeImageUniformToFill(Image image, int width, int height)
+    {
+      var scaleFactor = ComputeScaleFactor(new SizeF(width, height), new SizeF(image.Width, image.Height), StretchDirection.Both);
+      return ResizeImageExact(image, (int)((float)image.Width * scaleFactor.Width), (int)((float)image.Height * scaleFactor.Height));
     }
 
     /// <summary>
@@ -81,7 +88,7 @@ namespace MediaPortal.Utilities.Graphics
 
     /// <summary>
     /// Resizes the given <paramref name="fullsizeImage"/> to a maximum <paramref name="maxWidth"/> and <paramref name="maxHeight"/> while preserving
-    /// corrent aspect ratio. By default images are not upscaled, if you want this, set <paramref name="allowUpScale"/> to <c>true</c>.
+    /// correct aspect ratio. By default images are not upscaled, if you want this, set <paramref name="allowUpScale"/> to <c>true</c>.
     /// </summary>
     /// <param name="fullsizeImage">Image</param>
     /// <param name="maxWidth">Max. width</param>
@@ -260,6 +267,86 @@ namespace MediaPortal.Utilities.Graphics
         tmpImageStream.Position = 0;
         return tmpImageStream;
       }
+    }
+
+    /// 
+    /// This is a helper function that computes scale factors depending on a target size and a content size
+    /// 
+    /// Size into which the content is being fitted.
+    /// Size of the content, measured natively (unconstrained).
+    /// Value of the Stretch property on the element.
+    /// Value of the StretchDirection property on the element. 
+    public static SizeF ComputeScaleFactor(SizeF availableSize,
+                                           SizeF contentSize,
+                                           StretchDirection stretchDirection)
+    {
+      // Compute scaling factors to use for axes
+      double scaleX = 1.0;
+      double scaleY = 1.0;
+
+      bool isConstrainedWidth = availableSize.Width != -1;
+      bool isConstrainedHeight = availableSize.Height != -1;
+
+      if ((isConstrainedWidth || isConstrainedHeight))
+      {
+        // Compute scaling factors for both axes
+        scaleX = (int)contentSize.Width == 0 ? 0.0 : availableSize.Width / contentSize.Width;
+        scaleY = (int)contentSize.Height == 0 ? 0.0 : availableSize.Height / contentSize.Height;
+
+        if (!isConstrainedWidth) scaleX = scaleY;
+        else if (!isConstrainedHeight) scaleY = scaleX;
+        else
+        {
+          // If not preserving aspect ratio, then just apply transform to fit
+          double maxscale = scaleX > scaleY ? scaleX : scaleY;
+          scaleX = scaleY = maxscale;
+        }
+
+        //Apply stretch direction by bounding scales.
+        //In the uniform case, scaleX=scaleY, so this sort of clamping will maintain aspect ratio
+        //In the uniform fill case, we have the same result too.
+        //In the fill case, note that we change aspect ratio, but that is okay 
+        switch (stretchDirection)
+        {
+          case StretchDirection.UpOnly:
+            if (scaleX < 1.0) scaleX = 1.0;
+            if (scaleY < 1.0) scaleY = 1.0;
+            break;
+
+          case StretchDirection.DownOnly:
+            if (scaleX > 1.0) scaleX = 1.0;
+            if (scaleY > 1.0) scaleY = 1.0;
+            break;
+
+          case StretchDirection.Both:
+            break;
+
+          default:
+            break;
+        }
+      }
+      //Return this as a size now 
+      return new SizeF((float)scaleX, (float)scaleY);
+    }
+
+    /// StretchDirection - Enum which describes when scaling should be used on the content of a Viewbox. This 
+    /// enum restricts the scaling factors along various axes. 
+    public enum StretchDirection
+    {
+      /// 
+      /// Only scales the content upwards when the content is smaller than the Viewbox. 
+      /// If the content is larger, no scaling downwards is done.
+      /// 
+      UpOnly,
+      /// 
+      /// Only scales the content downwards when the content is larger than the Viewbox.
+      /// If the content is smaller, no scaling upwards is done.
+      /// 
+      DownOnly,
+      /// 
+      /// Always stretches to fit the Viewbox according to the stretch mode. 
+      /// 
+      Both
     }
   }
 }
