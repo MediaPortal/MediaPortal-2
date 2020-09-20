@@ -62,6 +62,8 @@ namespace MediaPortal.Utilities.Screens
     private Label _statusLabel;
     private Timer _splashTimer;
     private IContainer _components;
+    private IContainer components;
+    private PictureBox picture;
     private Image _backgroundImage;
 
     #region Public Properties & Methods
@@ -202,7 +204,7 @@ namespace MediaPortal.Utilities.Screens
 
     public void PositionStatusLabel(Point location, int width, int height)
     {
-      if (location != new Point())
+      if (location != Point.Empty)
         _statusLabel.Location = location;
       if (width == 0 && height == 0)
         _statusLabel.AutoSize = true;
@@ -217,7 +219,7 @@ namespace MediaPortal.Utilities.Screens
 
     public void PositionInfoLabel(Point location, int width, int height)
     {
-      if (location != new Point())
+      if (location != Point.Empty)
         _programInfoLabel.Location = location;
       if (width == 0 && height == 0)
         _programInfoLabel.AutoSize = true;
@@ -252,6 +254,8 @@ namespace MediaPortal.Utilities.Screens
     public SplashScreen()
     {
       InitializeComponent();
+      Load += SplashScreenLoad;
+      _splashTimer.Tick += SplashTimerTick;
     }
 
     private void SetFormLocationAndBackground(Image backgroundImage)
@@ -271,17 +275,19 @@ namespace MediaPortal.Utilities.Screens
 
       if (UsePictureBox)
       {
-        var picture = new PictureBox
-        {
-          Image = backgroundImage,
-          Dock = DockStyle.Fill,
-          SizeMode = PictureBoxSizeMode.Zoom,
-          BackColor = Color.Black
-        };
-        Controls.Add(picture);
-        _statusLabel.Visible = false;
-        _programInfoLabel.Visible = false;
+        // Overlay over picture box doesn't support transparency properly
+        _statusLabel.Visible = !string.IsNullOrEmpty(_statusLabel.Text);
+        _statusLabel.BackColor = Color.Black;
+        _programInfoLabel.Visible = !string.IsNullOrEmpty(_programInfoLabel.Text);
+        _programInfoLabel.BackColor = Color.Black;
         Bounds = preferredScreen.Bounds;
+        if (ScaleToFullscreen)
+        {
+          backgroundImage = ImageUtilities.ResizeImageUniformToFill(backgroundImage, screen.Width, screen.Height);
+        }
+        picture.Visible = true;
+        picture.Image = backgroundImage;
+        picture.SizeMode = PictureBoxSizeMode.CenterImage;
       }
       else
       {
@@ -302,51 +308,75 @@ namespace MediaPortal.Utilities.Screens
     private void UpdateStatus()
     {
       _statusLabel.Text = _statusText;
+      _statusLabel.Visible = !string.IsNullOrEmpty(_statusLabel.Text);
     }
 
     private void UpdateInfo()
     {
       _programInfoLabel.Text = _infoText;
+      _programInfoLabel.Visible = !string.IsNullOrEmpty(_programInfoLabel.Text);
     }
 
     #region InitComponents
 
     private void InitializeComponent()
     {
-      _components = new Container();
-      _programInfoLabel = new Label();
-      _statusLabel = new Label();
-      _splashTimer = new Timer(_components);
-      SuspendLayout();
+      this.components = new System.ComponentModel.Container();
+      this._programInfoLabel = new System.Windows.Forms.Label();
+      this._statusLabel = new System.Windows.Forms.Label();
+      this._splashTimer = new System.Windows.Forms.Timer(this.components);
+      this.picture = new System.Windows.Forms.PictureBox();
+      ((System.ComponentModel.ISupportInitialize)(this.picture)).BeginInit();
+      this.SuspendLayout();
       // 
       // _programInfoLabel
       // 
-      _programInfoLabel.BackColor = Color.Transparent;
-      _programInfoLabel.Location = new Point(56, 52);
-      _programInfoLabel.Name = "_programInfoLabel";
-      _programInfoLabel.Size = new Size(100, 23);
-      _programInfoLabel.TabIndex = 0;
+      this._programInfoLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+      this._programInfoLabel.BackColor = System.Drawing.Color.Black;
+      this._programInfoLabel.Font = new System.Drawing.Font("Segoe UI", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this._programInfoLabel.ForeColor = System.Drawing.Color.Silver;
+      this._programInfoLabel.Location = new System.Drawing.Point(1420, 1022);
+      this._programInfoLabel.Name = "_programInfoLabel";
+      this._programInfoLabel.Size = new System.Drawing.Size(490, 50);
+      this._programInfoLabel.TabIndex = 0;
+      this._programInfoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
       // _statusLabel
       // 
-      _statusLabel.BackColor = Color.Transparent;
-      _statusLabel.Location = new Point(59, 135);
-      _statusLabel.Name = "_statusLabel";
-      _statusLabel.Size = new Size(100, 23);
-      _statusLabel.TabIndex = 1;
+      this._statusLabel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+      this._statusLabel.BackColor = System.Drawing.Color.Black;
+      this._statusLabel.Font = new System.Drawing.Font("Segoe UI", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+      this._statusLabel.ForeColor = System.Drawing.Color.Silver;
+      this._statusLabel.Location = new System.Drawing.Point(12, 1022);
+      this._statusLabel.Name = "_statusLabel";
+      this._statusLabel.Size = new System.Drawing.Size(1400, 50);
+      this._statusLabel.TabIndex = 1;
+      // 
+      // picture
+      // 
+      this.picture.BackColor = System.Drawing.Color.Black;
+      this.picture.Dock = System.Windows.Forms.DockStyle.Fill;
+      this.picture.Location = new System.Drawing.Point(0, 0);
+      this.picture.Name = "picture";
+      this.picture.Size = new System.Drawing.Size(1920, 1080);
+      this.picture.SizeMode = System.Windows.Forms.PictureBoxSizeMode.CenterImage;
+      this.picture.TabIndex = 2;
+      this.picture.TabStop = false;
+      this.picture.Visible = false;
       // 
       // SplashScreen
       // 
-      ClientSize = new Size(292, 273);
-      Controls.Add(_statusLabel);
-      Controls.Add(_programInfoLabel);
-      FormBorderStyle = FormBorderStyle.None;
-      Name = "SplashScreen";
-      ShowInTaskbar = false;
-      StartPosition = FormStartPosition.CenterScreen;
-      ResumeLayout(false);
-      Load += SplashScreenLoad;
-      _splashTimer.Tick += SplashTimerTick;
+      this.ClientSize = new System.Drawing.Size(1920, 1080);
+      this.Controls.Add(this._statusLabel);
+      this.Controls.Add(this._programInfoLabel);
+      this.Controls.Add(this.picture);
+      this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+      this.Name = "SplashScreen";
+      this.ShowInTaskbar = false;
+      this.StartPosition = System.Windows.Forms.FormStartPosition.CenterScreen;
+      ((System.ComponentModel.ISupportInitialize)(this.picture)).EndInit();
+      this.ResumeLayout(false);
+
     }
 
     #endregion
