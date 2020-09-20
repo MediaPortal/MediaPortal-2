@@ -688,7 +688,7 @@ namespace MediaPortal.UiComponents.Login.Models
           {
             user = item.AdditionalProperties[Consts.KEY_USER] as UserProfile;
           }
-          _userList.FireChange();
+          item.FireChange();
 
           SetUser(user);
         }

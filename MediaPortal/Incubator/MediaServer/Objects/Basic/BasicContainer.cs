@@ -138,7 +138,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
     protected static readonly Guid[] OPTIONAL_PERSON_MIA_TYPE_IDS = null;
 
     protected readonly List<BasicObject> _children = new List<BasicObject>();
-    protected readonly Guid? _userId;
 
     private string _containerClass = "object.container";
     private bool _containersInitialized = false;
@@ -148,8 +147,6 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
     public BasicContainer(string id, EndPointSettings client) 
       : base(id, client)
     {
-      _userId = client.UserId ?? client.ClientId;
-
       Restricted = true;
       Searchable = false;
       SearchClass = new List<IDirectorySearchClass>();
@@ -165,7 +162,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       {
         _children.Add(node);
       }
-      Logger.Debug("MediaServer added {0} to {1}, now {2} children", node.Key, Key, _children.Count);
+      Logger.Debug("MediaServer added {0} ({3}) to {1}, now {2} children", node.Key, Key, _children.Count, node.Title);
     }
 
     public virtual BasicObject FindObject(string key)
@@ -217,13 +214,11 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
     public IFilter AppendUserFilter(IFilter filter, ICollection<Guid> necessaryMias)
     {
       IFilter userFilter = null;
-      if (_userId.HasValue)
-      {
-        IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
-        var res = userProfileDataManagement.GetProfileAsync(_userId.Value).Result;
-        if (res.Success)
-          userFilter = res.Result.GetUserFilter(necessaryMias);
-      }
+      IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
+      var res = userProfileDataManagement.GetProfileAsync(UserId).Result;
+      if (res.Success)
+        userFilter = res.Result.GetUserFilter(necessaryMias);
+
       return filter == null ? userFilter : userFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : filter;
     }
 
@@ -232,15 +227,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       ICollection<Share> shares = library.GetShares(null)?.Values;
 
-      if (!_userId.HasValue)
-        return shares;
-
       IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
-      var res = userProfileDataManagement.GetProfileAsync(_userId.Value).Result;
-      if (!res.Success)
-        return shares;
-
-      if (!res.Result.RestrictShares)
+      var res = userProfileDataManagement.GetProfileAsync(UserId).Result;
+      if (!res.Success || !res.Result.RestrictShares)
         return shares;
 
       var allowedShareIds = res.Result.GetAllowedShares();
@@ -253,7 +242,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       IUserProfileDataManagement userProfileDataManagement = ServiceRegistration.Get<IUserProfileDataManagement>();
       if (userProfileDataManagement != null)
       {
-        userProfile = (userProfileDataManagement.GetProfileAsync(_userId.Value).Result)?.Result;
+        userProfile = (userProfileDataManagement.GetProfileAsync(UserId).Result)?.Result;
         if (userProfile != null)
         {
           IList<IChannelGroup> filteredGroups = new List<IChannelGroup>();
@@ -276,9 +265,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.Basic
       set { _containerClass = value; }
     }
 
-    protected Guid? UserId
+    protected Guid UserId
     {
-      get => _userId;
+      get => Client.UserId ?? Client.ClientId;
     }
 
     public virtual IList<IDirectoryCreateClass> CreateClass { get; set; }

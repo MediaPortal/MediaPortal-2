@@ -31,7 +31,7 @@ namespace MediaPortal.UI.SkinEngine.Settings
     protected string _skin;
     protected string _theme;
 
-    [Setting(SettingScope.User, "BlueVision")]
+    [Setting(SettingScope.User, "Nereus")]
     public string Skin
     {
       get { return _skin; }
