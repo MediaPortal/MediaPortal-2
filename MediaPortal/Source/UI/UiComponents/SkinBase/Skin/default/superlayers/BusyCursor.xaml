@@ -3,16 +3,12 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <Grid>
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*"/>
-      <ColumnDefinition Width="Auto"/>
-      <ColumnDefinition Width="*"/>
-    </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
-      <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-    <Control Grid.Column="1" Grid.Row="1" Style="{ThemeResource BusyCursorControlStyle}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Control Style="{ThemeResource BusyCursorControlStyle}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
   </Grid>
 </Screen>
