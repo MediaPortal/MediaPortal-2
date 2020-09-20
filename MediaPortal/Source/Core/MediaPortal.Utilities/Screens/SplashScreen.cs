@@ -275,7 +275,7 @@ namespace MediaPortal.Utilities.Screens
         {
           Image = backgroundImage,
           Dock = DockStyle.Fill,
-          SizeMode = PictureBoxSizeMode.CenterImage,
+          SizeMode = PictureBoxSizeMode.Zoom,
           BackColor = Color.Black
         };
         Controls.Add(picture);

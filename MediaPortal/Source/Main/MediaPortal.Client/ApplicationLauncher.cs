@@ -110,8 +110,9 @@ namespace MediaPortal.Client
             ScaleToFullscreen = true,
             FadeInDuration = TimeSpan.FromMilliseconds(300),
             FadeOutDuration = TimeSpan.FromMilliseconds(200),
-            SplashBackgroundImage = image
-          };
+            SplashBackgroundImage = image,
+            UsePictureBox = true
+      };
       return result;
     }
 #endif
