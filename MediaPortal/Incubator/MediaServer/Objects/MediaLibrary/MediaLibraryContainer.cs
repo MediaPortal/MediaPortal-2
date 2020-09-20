@@ -40,7 +40,9 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
   {
     protected readonly Guid[] _necessaryMiaTypeIds;
     protected readonly Guid[] _optionalMiaTypeIds;
-    protected MediaItemQuery _query = null;
+    protected IFilter _filter = null;
+    protected uint? _queryLimit = null;
+    protected IList<ISortInformation> _sortInformation = new List<ISortInformation> { new AttributeSortInformation(MediaAspect.ATTR_SORT_TITLE, SortDirection.Ascending) };
     protected IList<MediaItem> _initCache = new List<MediaItem>();
 
     public Guid? MediaItemId { get; protected set; }
@@ -52,7 +54,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
       _necessaryMiaTypeIds = necessaryMiaTypeIds;
       _optionalMiaTypeIds = optionalMiaTypeIds;
-      _query = new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, filter);
+      _filter = filter;
     }
 
     public MediaLibraryContainer(MediaItem item, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, IFilter filter, EndPointSettings client)
@@ -67,17 +69,17 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>();
       //TODO: Check if this is correct handling of missing filter
 
-      _query.Filter = AppendUserFilter(_query.Filter, _necessaryMiaTypeIds);
-      if (_query.Filter == null && MediaItemId.HasValue)
-      {
-        var items = library.Browse(MediaItemId.Value, _necessaryMiaTypeIds, _optionalMiaTypeIds, _userId, false);
-        return items.OrderBy(i => MediaItemAspect.TryGetAspect(i.Aspects, MediaAspect.Metadata, out var aspect) ? aspect.GetAttributeValue<string>(MediaAspect.ATTR_SORT_TITLE) : "").ToList();
-      }
-      else
-      {
-        _query.SortInformation = new List<ISortInformation> { new AttributeSortInformation(MediaAspect.ATTR_SORT_TITLE, SortDirection.Ascending) };
-        return library.Search(_query, true, _userId, false);
-      }
+      List<IFilter> filters = new List<IFilter>();
+      if (_filter != null)
+        filters.Add(_filter);
+      if (MediaItemId.HasValue)
+        filters.Add(new RelationalFilter(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, RelationalOperator.EQ, MediaItemId.Value));
+
+      IFilter filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filters);
+      var query = new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, AppendUserFilter(filter, _necessaryMiaTypeIds));
+      query.Limit = _queryLimit;
+      query.SortInformation = _sortInformation;
+      return library.Search(query, true, UserId, false);
     }
 
     public override List<IDirectoryObject> Browse()

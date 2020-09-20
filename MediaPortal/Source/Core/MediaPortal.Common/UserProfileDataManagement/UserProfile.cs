@@ -148,19 +148,7 @@ namespace MediaPortal.Common.UserProfileDataManagement
 
       // Shares filter
       if (RestrictShares && !ignoreShareRestriction)
-      {
-        List<IFilter> shareFilters = new List<IFilter>();
-        var allowedShares = GetAllowedShares();
-        if (allowedShares.Any())
-        {
-          shareFilters.Add(new SharePathFilter(allowedShares));
-        }
-
-        if (shareFilters.Count > 0)
-          filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, shareFilters.ToArray()));
-        else
-          filters.Add(new RelationalFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RelationalOperator.EQ, "")); //No shares are allowed
-      }
+        filters.Add(new SharePathFilter(GetAllowedShares()));
 
       // Content filter
       if (AllowedAge.HasValue && RestrictAges)

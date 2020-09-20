@@ -48,6 +48,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
       _rootRole = EpisodeAspect.ROLE_EPISODE;
+      _applyUserFilter = false;
     }
 
     public static void NavigateToSeries(Guid seriesId)
@@ -93,7 +94,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 
     protected override async Task PrepareAsync()
     {
-      await PrepareAsync(false);
+      await base.PrepareAsync();
       await PrepareFilterTree();
 
       _defaultScreen = new SeriesFilterByNameScreenData();

@@ -110,11 +110,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         GenreAspect.ASPECT_ID
       }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 
-      IFilterTree filterTree = null;
+      IFilterTree filterTree = new SimpleFilterTree();
       if (_filter != null)
-      {
-        filterTree = new SimpleFilterTree();
         filterTree.AddFilter(_filter);
+      if (_applyUserFilter)
+      {
+        var userFilter = UserHelper.GetUserRestrictionFilter(_necessaryMias.ToList());
+        if (userFilter != null)
+         filterTree.AddFilter(userFilter);
       }
 
       _customRootViewSpecification = new StackingViewSpecification(_viewName, filterTree, _necessaryMias, optionalMias, true)
