@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
     {
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
       if (items.Count == 0)
-        throw new BadRequestException("No Movies found");
+        return System.Threading.Tasks.Task.FromResult<IList<WebMovieDetailed>>(new List<WebMovieDetailed>());
 
       var output = items.Select(item => MovieDetailed(item)).ToList()
         .Filter(filter);

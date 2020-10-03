@@ -50,11 +50,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);
       necessaryMIATypes.Add(SeriesAspect.ASPECT_ID);
 
+      var output = new List<WebTVShowBasic>();
+
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, necessaryMIATypes, null);
       if (items.Count == 0)
-        throw new BadRequestException("No Tv Episodes found");
+        return System.Threading.Tasks.Task.FromResult(new WebIntResult { Result = output.Count });
 
-      var output = new List<WebTVShowBasic>();
       foreach (var item in items)
       {
         var seriesAspect = item.GetAspect(SeriesAspect.Metadata);

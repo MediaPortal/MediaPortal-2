@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       // this is the MediaItem for the show
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), necessaryMIATypes, null);
       if (item == null)
-        throw new BadRequestException(String.Format("GetTVSeasonCountForTVShow: No MediaItem found with id: {0}", id));
+        throw new NotFoundException(String.Format("GetTVSeasonCountForTVShow: No MediaItem found with id: {0}", id));
 
       int count = item.GetAspect(SeriesAspect.Metadata).GetAttributeValue<int>(SeriesAspect.ATTR_AVAILABLE_SEASONS);
       return Task.FromResult(new WebIntResult { Result = count });

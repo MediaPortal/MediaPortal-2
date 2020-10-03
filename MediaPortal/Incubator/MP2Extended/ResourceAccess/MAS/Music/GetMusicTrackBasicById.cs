@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (item == null)
-        throw new BadRequestException(String.Format("GetMusicTrackBasicById: No MediaItem found with id: {0}", id));
+        throw new NotFoundException(String.Format("GetMusicTrackBasicById: No MediaItem found with id: {0}", id));
 
       return Task.FromResult(MusicTrackBasic(item));
     }

@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
     {
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
       if (items.Count == 0)
-        throw new BadRequestException("No Tracks found");
+        return System.Threading.Tasks.Task.FromResult<IList<WebMusicTrackBasic>>(new List<WebMusicTrackBasic>());
 
       var output = items.Select(item => MusicTrackBasic(item))
         .Filter(filter);

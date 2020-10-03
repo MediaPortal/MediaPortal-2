@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     {
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (item == null)
-        throw new BadRequestException(String.Format("GetTVShowDetailedById: No MediaItem found with id: {0}", id));
+        throw new NotFoundException(String.Format("GetTVShowDetailedById: No MediaItem found with id: {0}", id));
 
       return Task.FromResult(TVSeasonBasic(context, item));
     }
