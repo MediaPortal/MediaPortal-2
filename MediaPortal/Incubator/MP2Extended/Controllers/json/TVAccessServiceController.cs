@@ -155,7 +155,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> AddSchedule(string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return ResourceAccess.TAS.Schedule.AddSchedule.ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, startTime, scheduleType);
+      return ResourceAccess.TAS.Schedule.AddSchedule.ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, endTime, scheduleType);
     }
 
     [HttpGet]
