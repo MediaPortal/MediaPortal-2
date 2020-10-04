@@ -41,6 +41,7 @@ using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.UI;
 using MediaPortal.Utilities.Process;
 
 [assembly: CLSCompliant(true)]
@@ -218,6 +219,8 @@ namespace MediaPortal.Server
 
       try
       {
+        Application.EnableVisualStyles();
+        FormDpiAwarenessExtension.TryEnableDPIAwareness();
         Application.Run(new MainForm());
       }
       catch (Exception e)

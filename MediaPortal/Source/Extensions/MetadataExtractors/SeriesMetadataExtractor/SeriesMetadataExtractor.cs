@@ -39,6 +39,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -246,7 +249,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
         {
           var mediaItemPath = lfsra.CanonicalLocalResourcePath;
-          var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+          var seriesMediaItemDirectoryPath = GetSeriesFolderFromEpisodePath(extractedAspectData, mediaItemPath, episodeInfo.SeasonNumber);
           episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
         }
       }
@@ -623,6 +626,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         SeriesAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID, GenreAspect.ASPECT_ID };
       foreach (var aspect in aspectData.Where(a => !reimportAspects.Contains(a.Key)).ToList())
         aspectData.Remove(aspect.Key);
+    }
+
+    private ResourcePath GetSeriesFolderFromEpisodePath(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, ResourcePath episodePath, int? knownSeasonNo)
+    {
+      var system = ServiceRegistration.Get<ISystemResolver>();
+
+      //Check series folder with season folders
+      var seriesDirectoryPath = ResourcePathHelper.Combine(episodePath, "../../");
+      using (var seriesRa = new ResourceLocator(system.LocalSystemId, seriesDirectoryPath).CreateAccessor())
+      {
+        if (LocalFanartHelper.IsSeriesFolder(seriesRa as IFileSystemResourceAccessor, knownSeasonNo))
+          return seriesDirectoryPath;
+      }
+
+      //Presume there are no season folders
+      return ResourcePathHelper.Combine(episodePath, "../");
     }
 
     public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)

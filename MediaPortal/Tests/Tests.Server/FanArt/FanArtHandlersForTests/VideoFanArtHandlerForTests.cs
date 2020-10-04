@@ -23,7 +23,9 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor;
@@ -35,7 +37,8 @@ namespace Tests.Server.FanArt.FanArtHandlersForTests
     public Task TestExtractVideoFolderFanArt(Guid mediaItemId, ResourcePath path)
     {
       IResourceLocator locator = new ResourceLocator("test", path);
-      return ExtractFolderFanArt(locator, mediaItemId, "video");
+      var aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
+      return ExtractFolderFanArt(locator, mediaItemId, "video", aspects);
     }
   }
 }

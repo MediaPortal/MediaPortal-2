@@ -46,7 +46,7 @@
                   <Image.Source>
                     <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5">
                       <ImageSourceWrapper.Source>
-                        <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt" fanart:MaxWidth="1920" fanart:MaxHeight="1080"
+                        <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt" fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"
                                                   fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}" fanart:Cache="false"/>
                       </ImageSourceWrapper.Source>
                     </ImageSourceWrapper>
@@ -248,7 +248,7 @@
           </media:AudioAspectWrapper.Template>
         </media:AudioAspectWrapper>
 
-        <mp_audio_viz:AudioSpectrumAnalyzer Grid.Row="2" Grid.ColumnSpan="3" Width="1900" Height="280"
+        <mp_audio_viz:AudioSpectrumAnalyzer Grid.Row="2" Grid.ColumnSpan="3" Width="{SkinWidth}" Height="280"
           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-260,0,0"
           x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
 

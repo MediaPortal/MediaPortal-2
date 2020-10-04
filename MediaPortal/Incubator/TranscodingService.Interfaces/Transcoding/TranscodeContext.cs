@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
     public bool Partial { get; set; }
     public bool Segmented => !string.IsNullOrEmpty(SegmentDir);
     public bool Live { get; set; }
-    public bool InUse { get; }
+    public bool InUse { get { return _streamInUse; } }
 
     public long LastSegment { get; set; }
     public long CurrentSegment { get; set; }

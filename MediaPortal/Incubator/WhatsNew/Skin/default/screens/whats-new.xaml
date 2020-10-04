@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[WhatsNew.ScreenTitle]"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Context="{Model Id=E5C115FF-30C3-43D1-A524-0259EB0D0621}" Margin="20">
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Label Content="[WhatsNew.WhatsNewText]" Color="{ThemeResource TextColor}" FontSize="28" 
+               Wrap="True" HorizontalAlignment="Center" Margin="0,10,0,10" Width="800" />
+
+        <Image Source="whatsnew.png"  DockPanel.Dock="Center" Width="800" Grid.Row="1" Margin="0,10,0,10" Stretch="Uniform"/>
+
+        <StackPanel DockPanel.Dock="Center" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center"  Grid.Row="2" Margin="10">
+          <Button Content="[WhatsNew.ButtonText]" Style="{ThemeResource ButtonWideStyle}"
+                  HorizontalAlignment="Right" VerticalAlignment="Center"
+                  Command="{Command ChangeSkin}"/>
+
+          <Button Content="Close" Style="{ThemeResource ButtonWideStyle}"
+              HorizontalAlignment="Right" VerticalAlignment="Center"
+              Command="{Command Dismiss}"/>
+        </StackPanel>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       {
         if (share.MediaCategories.Any(x => x.Contains("Image")))
         {
-          MediaItem item = library.LoadItem(share.SystemId, share.BaseResourcePath, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, _userId);
+          MediaItem item = library.LoadItem(share.SystemId, share.BaseResourcePath, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, UserId);
           if (item != null && item.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))
             shares.Add(item);
         }
@@ -60,7 +60,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
 
       foreach (MediaItem share in shares.OrderBy(s => MediaItemAspect.TryGetAspect(s.Aspects, MediaAspect.Metadata, out var aspect) ? aspect.GetAttributeValue<string>(MediaAspect.ATTR_SORT_TITLE) : ""))
       {
-        IList<MediaItem> albums = library.Browse(share.MediaItemId, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, _userId, false);
+        IList<MediaItem> albums = library.Browse(share.MediaItemId, NECESSARY_SHARE_MIA_TYPE_IDS, OPTIONAL_SHARE_MIA_TYPE_IDS, UserId, false);
         foreach (MediaItem album in albums)
         {
           if (album != null && album.Aspects.ContainsKey(DirectoryAspect.ASPECT_ID))

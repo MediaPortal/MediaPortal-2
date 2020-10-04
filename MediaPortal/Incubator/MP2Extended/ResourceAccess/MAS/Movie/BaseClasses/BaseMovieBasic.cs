@@ -52,7 +52,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
     internal static ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
     {
       ExternalIdentifierAspect.ASPECT_ID,
-      GenreAspect.ASPECT_ID
+      GenreAspect.ASPECT_ID,
+      SubtitleAspect.ASPECT_ID,
+      VideoAudioStreamAspect.ASPECT_ID
     };
 
     internal static WebMovieBasic MovieBasic(MediaItem item)

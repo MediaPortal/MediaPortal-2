@@ -43,7 +43,7 @@
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
          Margin="0,40,10,60"/>
 
-  <StackPanel Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
+  <StackPanel Grid.ColumnSpan="2" Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
 
     <media:MovieCollectionAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch" >
       <media:MovieCollectionAspectWrapper.Template>

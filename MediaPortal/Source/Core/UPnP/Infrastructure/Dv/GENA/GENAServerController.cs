@@ -332,6 +332,12 @@ namespace UPnP.Infrastructure.Dv.GENA
             response.ReasonPhrase = "Incompatible Header Fields";
             return true;
           }
+          if (callbackURLs != null && !CheckValidCallbackUrls(callbackURLs))
+          {
+            response.StatusCode = (int)HttpStatusCode.BadRequest;
+            response.ReasonPhrase = "Invalid callback urls: " + string.Join("; ", callbackURLs.ToArray());
+            return true;
+          }
           if (callbackURLs != null && !string.IsNullOrEmpty(nt))
           { // Subscription
             bool subscriberSupportsUPnP11;
@@ -430,6 +436,40 @@ namespace UPnP.Infrastructure.Dv.GENA
         }
       }
       return false;
+    }
+
+    /// <summary>
+    /// Checks all callback urls if they come from any sub net we are listening to.
+    /// </summary>
+    /// <param name="callbackUrls"></param>
+    /// <returns></returns>
+    private bool CheckValidCallbackUrls(ICollection<string> callbackUrls)
+    {
+      foreach (var callbackUrl in callbackUrls)
+      {
+        var uri = new Uri(callbackUrl);
+        if (IPAddress.TryParse(uri.Host, out IPAddress address))
+        {
+          if (address.AddressFamily == AddressFamily.InterNetwork)
+          {
+            bool isValidOnEndpoint = false;
+            foreach (var endpoint in _serverData.UPnPEndPoints.Where(endpoint => endpoint.EndPointIPAddress.AddressFamily == AddressFamily.InterNetwork))
+            {
+              var mask = endpoint.EndPointIPAddress.GetSubnetMask();
+              if (endpoint.EndPointIPAddress.IsInSameSubnet(address, mask))
+              {
+                isValidOnEndpoint = true;
+                break;
+              }
+            }
+
+            // One callback url is not inside our subnet
+            if (!isValidOnEndpoint)
+              return false;
+          }
+        }
+      }
+      return true;
     }
 
     /// <summary>

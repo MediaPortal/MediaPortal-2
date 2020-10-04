@@ -40,6 +40,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -69,6 +70,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected Guid? _rootRole = null;
     protected IFilterTree _customFilterTree = null;
     protected FixedItemStateTracker _tracker;
+    protected bool _applyUserFilter = true;
 
     #endregion
 
@@ -118,7 +120,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       PrepareAsync().Wait();
 
       IFilterTree filterTree = _customFilterTree ?? (_rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree());
-      filterTree.AddFilter(_filter);
+      if (_filter != null)
+        filterTree.AddFilter(_filter);
 
       //Default configuration
       string viewName = _viewName;
@@ -171,6 +174,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 
         if (_availableScreens != null)
           nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
+      }
+
+      if (_applyUserFilter)
+      {
+        var userFilter = UserHelper.GetUserRestrictionFilter(_necessaryMias.ToList());
+        if (userFilter != null)
+          filterTree.AddFilter(userFilter);
       }
 
       // Prefer custom view specification.
@@ -232,7 +242,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         try
         {
           MediaNavigationFilter navigationFilter = pluginManager.RequestPluginItem<MediaNavigationFilter>(
-              MediaNavigationFilterBuilder.MEDIA_FILTERS_PATH, itemMetadata.Id, _tracker);
+            MediaNavigationFilterBuilder.MEDIA_FILTERS_PATH, itemMetadata.Id, _tracker);
           if (navigationFilter == null)
             ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Media navigation filter with id '{0}'", itemMetadata.Id);
           else
@@ -259,9 +269,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         return;
       }
 
-      _filter = _filters.Count == 1 ? 
+      _filter = _filters.Count == 1 ?
         // Single filter
-        _filters[0] : 
+        _filters[0] :
         // Or a "AND" combined filter
         new BooleanCombinationFilter(BooleanOperator.And, _filters);
     }

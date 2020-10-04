@@ -96,12 +96,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
     public async Task<IFilter> AppendUserFilterAsync(IFilter filter, IEnumerable<Guid> filterMias)
     {
-      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(filterMias);
-      if (userFilter != null)
-      {
-        return filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : userFilter;
-      }
-      return filter;
+      return UserHelper.GetUserRestrictionFilter(filterMias.ToList(), filter);
     }
 
     public virtual async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)

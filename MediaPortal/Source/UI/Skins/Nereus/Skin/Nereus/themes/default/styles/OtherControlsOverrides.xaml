@@ -803,7 +803,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Style="{ThemeResource HorizontalMediaScrollViewerStyle}" Width="1920"
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource HorizontalMediaScrollViewerStyle}" Width="{SkinWidth}"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
             <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
           </ScrollViewer>

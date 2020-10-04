@@ -53,7 +53,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Setti
           ".mpeg",
           ".m2p",
           ".qt",
-          ".rm"
+          ".rm",
+          ".ogv"
       };
 
     protected string[] _videoFileExtensions;

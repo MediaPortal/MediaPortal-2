@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
       // select the channel Group we are looking for
       var group = await TVAccess.GetGroupAsync(context, int.Parse(groupId));
       if (group == null)
-        throw new BadRequestException(string.Format("GetRadioGroupById: group with id: {0} not found", groupId));
+        throw new NotFoundException(string.Format("GetRadioGroupById: group with id: {0} not found", groupId));
 
       WebChannelGroup webChannelGroup = ChannelGroup(group);
       return webChannelGroup;

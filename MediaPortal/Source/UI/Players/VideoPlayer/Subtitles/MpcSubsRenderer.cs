@@ -58,7 +58,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
             if (clear)
               SkinContext.Device.Clear(ClearFlags.Target, ColorConverter.FromArgb(0, Color.Black), 1.0f, 0);
             var surfaceDesc = targetTexture.GetLevelDescription(0);
-            MpcSubtitles.Render(0, 0, surfaceDesc.Width, surfaceDesc.Height);
+            int xOffsetInPixels = 0; // TODO?
+            MpcSubtitles.Render(0, 0, surfaceDesc.Width, surfaceDesc.Height, xOffsetInPixels);
           }
         }
         if (_onTextureInvalidated != null)

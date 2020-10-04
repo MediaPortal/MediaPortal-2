@@ -53,7 +53,7 @@ namespace Tests.Server.NfoMetadataExtractor
 
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
 
-      NfoArtistReader reader = new NfoArtistReader(new ConsoleLogger(LogLevel.All, true), 1, false, null, new NfoAudioMetadataExtractorSettings());
+      NfoArtistReader reader = new NfoArtistReader(new ConsoleLogger(LogLevel.All, true), 1, false, null, new NfoAudioMetadataExtractorSettings(), false);
       reader.GetArtistStubs().Add(artistStub);
       reader.TryWriteMetadata(aspects);
 
@@ -75,16 +75,17 @@ namespace Tests.Server.NfoMetadataExtractor
       Assert.IsTrue(TestUtils.HasExternalId(externalIdentifiers, ExternalIdentifierAspect.SOURCE_AUDIODB, ExternalIdentifierAspect.TYPE_PERSON, artistStub.AudioDbId.ToString()));
       Assert.IsTrue(TestUtils.HasExternalId(externalIdentifiers, ExternalIdentifierAspect.SOURCE_MUSICBRAINZ, ExternalIdentifierAspect.TYPE_PERSON, artistStub.MusicBrainzArtistId));
 
-      MediaItemAspect thumbnailAspect = MediaItemAspect.GetAspect(aspects, ThumbnailLargeAspect.Metadata);
-      Assert.NotNull(thumbnailAspect);
-      CollectionAssert.AreEqual(artistStub.Thumb, thumbnailAspect.GetAttributeValue<byte[]>(ThumbnailLargeAspect.ATTR_THUMBNAIL));
+      //Thumbnail aspect no longer used. FanArt cache used instead because of expanded FanArt support
+      //MediaItemAspect thumbnailAspect = MediaItemAspect.GetAspect(aspects, ThumbnailLargeAspect.Metadata);
+      //Assert.NotNull(thumbnailAspect);
+      //CollectionAssert.AreEqual(artistStub.Thumb, thumbnailAspect.GetAttributeValue<byte[]>(ThumbnailLargeAspect.ATTR_THUMBNAIL));
 
       //Test Group
       aspects.Clear();
       artistStub.Birthdate = null;
       artistStub.Deathdate = null;
 
-      reader = new NfoArtistReader(new ConsoleLogger(LogLevel.All, true), 1, false, null, new NfoAudioMetadataExtractorSettings());
+      reader = new NfoArtistReader(new ConsoleLogger(LogLevel.All, true), 1, false, null, new NfoAudioMetadataExtractorSettings(), false);
       reader.GetArtistStubs().Add(artistStub);
       reader.TryWriteMetadata(aspects);
 

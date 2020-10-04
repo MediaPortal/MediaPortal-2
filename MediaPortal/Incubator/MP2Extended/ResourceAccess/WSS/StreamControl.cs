@@ -22,8 +22,10 @@
 
 #endregion
 
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -38,6 +40,89 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
   {
     private static readonly ConcurrentDictionary<string, StreamItem> STREAM_ITEMS = new ConcurrentDictionary<string, StreamItem>();
 
+    private const int STREAM_CLEANUP_TICK_INTERVAL = 30000; // Millisecond interval between checks for inactive streams
+    private const int STREAM_BUSY_WAIT_TIMEOUT = 2000; // Milliseconds to wait to obtain a lock on a stream
+    private static readonly object _streamCleanupSyncObj = new object();
+    static Timer _streamCleanupTimer;
+
+    /// <summary>
+    /// Starts a task that intermittently checks for inactive
+    /// streams and stops and removes them if necessary.
+    /// </summary>
+    internal static void StartStreamCleanupTask()
+    {
+      lock (_streamCleanupSyncObj)
+      {
+        if (_streamCleanupTimer != null)
+        {
+          Logger.Warn("StreamControl: Unable to start stream cleanup timer, it's already started.");
+          return;
+        }
+
+        _streamCleanupTimer = new Timer(CleanupTimerTick);
+        _streamCleanupTimer.Change(STREAM_CLEANUP_TICK_INTERVAL, Timeout.Infinite);
+      }
+    }
+
+    /// <summary>
+    /// Stops checking for inactive streams and optionally
+    /// stops and removes all streams.
+    /// </summary>
+    /// <param name="deleteAllStreams">Whether to stop and delete all streams.</param>
+    internal static void StopStreamCleanupTask(bool deleteAllStreams)
+    {
+      lock (_streamCleanupSyncObj)
+      {
+        if (_streamCleanupTimer != null)
+        {
+          _streamCleanupTimer.Dispose();
+          _streamCleanupTimer = null;
+        }
+      }
+
+      if (deleteAllStreams)
+        DeleteAllStreamItemsAsync().Wait();
+    }
+
+    private static void CleanupTimerTick(object state)
+    {
+      try
+      {
+        List<KeyValuePair<string, StreamItem>> streamItems = new List<KeyValuePair<string, StreamItem>>(STREAM_ITEMS);
+        foreach (var streamItem in streamItems)
+        {
+          bool shouldRemove = false;
+          // If stream is currently busy it's active, so just skip it
+          if (!streamItem.Value.BusyLock.Wait(STREAM_BUSY_WAIT_TIMEOUT))
+            continue;
+          try
+          {
+            shouldRemove = (DateTime.Now - streamItem.Value.LastActivityTime).TotalSeconds > streamItem.Value.IdleTimeout;
+          }
+          finally
+          {
+            streamItem.Value.BusyLock.Release();
+          }
+
+          if (shouldRemove)
+          {
+            DeleteStreamItemAsync(streamItem.Key).Wait();
+            Logger.Info("StreamControl: Removed stream with identifier {0} due to inactivity.", streamItem.Key);
+          }
+        }
+      }
+      catch (Exception ex)
+      {
+        Logger.Error("StreamControl: Error when trying to cleanup inactive streams.", ex);
+      }
+
+      lock (_streamCleanupSyncObj)
+      {
+        if (_streamCleanupTimer != null)
+          _streamCleanupTimer.Change(STREAM_CLEANUP_TICK_INTERVAL, Timeout.Infinite);
+      }
+    }
+
     /// <summary>
     /// Adds a new stream Item to the list.
     /// </summary>
@@ -48,6 +133,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       if (await DeleteStreamItemAsync(identifier))
         Logger.Debug("StreamControl: Identifier {0} is already in list -> deleting old stream item", identifier);
 
+      item.LastActivityTime = DateTime.Now;
       return STREAM_ITEMS.TryAdd(identifier, item);
     }
 
@@ -61,14 +147,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
       if (ValidateIdentifier(identifier))
       {
         await StopStreamingAsync(identifier);
-        if(STREAM_ITEMS.TryRemove(identifier, out var stream))
-        {
-          if (stream.TranscoderObject != null)
-            stream.TranscoderObject.StopTranscoding();
-        }
+        STREAM_ITEMS.TryRemove(identifier, out _);
         return true;
       }
       return false;
+    }
+
+    /// <summary>
+    /// Deletes all stream items from the list.
+    /// </summary>
+    /// <returns>A <see cref="Task"/> that completes when all streams items have been deleted.</returns>
+    internal static async Task DeleteAllStreamItemsAsync()
+    {
+      List<string> streamIdentifiers = new List<string>(STREAM_ITEMS.Keys);
+      foreach (string identifier in streamIdentifiers)
+        await DeleteStreamItemAsync(identifier);
     }
 
     /// <summary>
@@ -90,8 +183,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     internal static Task<StreamItem> GetStreamItemAsync(string identifier)
     {
       if (STREAM_ITEMS.TryGetValue(identifier, out var stream))
+      {
+        stream.LastActivityTime = DateTime.Now;
         return Task.FromResult(stream);
-
+      }
       return Task.FromResult<StreamItem>(null);
     }
 
@@ -116,65 +211,56 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     /// <param name="context">Transcoder context</param>
     internal static async Task<TranscodeContext> StartStreamingAsync(string identifier, double startTime)
     {
-      if (STREAM_ITEMS.TryGetValue(identifier, out var currentStreamItem))
+      if (!STREAM_ITEMS.TryGetValue(identifier, out StreamItem currentStreamItem))
+        return null;
+
+      using (await currentStreamItem.RequestBusyLockAsync())
       {
-        await currentStreamItem.BusyLock.WaitAsync();
-        try
+        if (currentStreamItem.TranscoderObject == null)
         {
-          if (currentStreamItem.TranscoderObject == null)
-          {
-            STREAM_ITEMS.TryRemove(identifier, out _);
-            return null;
-          }
+          STREAM_ITEMS.TryRemove(identifier, out _);
+          return null;
+        }
 
-          if (currentStreamItem.IsActive)
+        if (currentStreamItem.IsActive)
+        {
+          currentStreamItem.TranscoderObject.StopStreaming();
+          if (currentStreamItem.StreamContext != null)
           {
-            currentStreamItem.TranscoderObject?.StopStreaming();
-            if (currentStreamItem.StreamContext is TranscodeContext existingContext)
-            {
-              existingContext.UpdateStreamUse(false);
-            }
-            else if (currentStreamItem.StreamContext != null)
-            {
-              currentStreamItem.StreamContext.Dispose();
-              currentStreamItem.StreamContext = null;
-            }
-          }
-
-          if (currentStreamItem.TranscoderObject.StartTrancoding() == false)
-          {
-            Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", currentStreamItem.RequestedMediaItem.MediaItemId);
-            return null;
-          }
-
-          currentStreamItem.TranscoderObject.StartStreaming();
-          if (currentStreamItem.IsLive)
-            currentStreamItem.StreamContext = await MediaConverter.GetLiveStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, currentStreamItem.LiveChannelId, true);
-          else
-            currentStreamItem.StreamContext = await MediaConverter.GetMediaStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, startTime, 0, true);
-
-          if (currentStreamItem.StreamContext is TranscodeContext context)
-          {
-            context.UpdateStreamUse(true);
-            currentStreamItem.TranscoderObject.SegmentDir = context.SegmentDir;
-            return context;
-          }
-          else if (currentStreamItem.StreamContext != null)
-          {
-            //We want a transcoded stream
+            if (currentStreamItem.StreamContext is TranscodeContext transcodeContext)
+              transcodeContext.UpdateStreamUse(false);
             currentStreamItem.StreamContext.Dispose();
             currentStreamItem.StreamContext = null;
           }
+        }
 
+        if (!currentStreamItem.TranscoderObject.StartTrancoding())
+        {
+          Logger.Debug("StreamControl: Transcoding busy for mediaitem {0}", currentStreamItem.RequestedMediaItem.MediaItemId);
           return null;
         }
-        finally
-        {
-          currentStreamItem.BusyLock.Release();
-        }
-      }
 
-      return null;
+        currentStreamItem.TranscoderObject.StartStreaming();
+        if (currentStreamItem.IsLive)
+          currentStreamItem.StreamContext = await MediaConverter.GetLiveStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, currentStreamItem.LiveChannelId, true);
+        else
+          currentStreamItem.StreamContext = await MediaConverter.GetMediaStreamAsync(identifier, currentStreamItem.TranscoderObject.TranscodingParameter, startTime, 0, true);
+
+        if (currentStreamItem.StreamContext is TranscodeContext context)
+        {
+          context.UpdateStreamUse(true);
+          currentStreamItem.TranscoderObject.SegmentDir = context.SegmentDir;
+          return context;
+        }
+        else if (currentStreamItem.StreamContext != null)
+        {
+          //We want a transcoded stream
+          currentStreamItem.StreamContext.Dispose();
+          currentStreamItem.StreamContext = null;
+        }
+
+        return null;
+      }
     }
 
     /// <summary>
@@ -184,8 +270,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     {
       if (STREAM_ITEMS.TryGetValue(identifier, out var currentStreamItem))
       {
-        await currentStreamItem.BusyLock.WaitAsync();
-        try
+        using (await currentStreamItem.RequestBusyLockAsync())
         {
           if (currentStreamItem.IsActive)
           {
@@ -200,7 +285,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
               currentStreamItem.StreamContext = null;
             }
           }
-          
+
           IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
           List<IResourceAccessor> resources = new List<IResourceAccessor>();
           foreach (var res in currentStreamItem.TranscoderObject.Metadata.FilePaths)
@@ -221,10 +306,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
             }
           }
         }
-        finally
-        {
-          currentStreamItem.BusyLock.Release();
-        }
       }
 
       return null;
@@ -238,8 +319,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
     {
       if (STREAM_ITEMS.TryGetValue(identifier, out var stream))
       {
-        await stream.BusyLock.WaitAsync();
-        try
+        using (await stream.RequestBusyLockAsync())
         {
           stream.TranscoderObject?.StopStreaming();
           if (stream.StreamContext is TranscodeContext context)
@@ -251,12 +331,8 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS
             stream.StreamContext.Dispose();
             stream.StreamContext = null;
           }
-
+          stream.TranscoderObject?.StopTranscoding();
           return true;
-        }
-        finally
-        {
-          stream.BusyLock.Release();
         }
       }
       return false;

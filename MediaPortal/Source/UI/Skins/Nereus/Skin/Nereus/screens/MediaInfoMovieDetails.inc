@@ -30,7 +30,7 @@
     </Image>
     <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="278" Height="412">
       <Image.Source>
-        <fanart:FanArtImageSource fanart:FanArtMediaType="Other" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+        <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                   fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
       </Image.Source>
     </Image>
@@ -64,16 +64,19 @@
     </media:MovieAspectWrapper.Template>
   </media:MovieAspectWrapper>
 
-   <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" Grid.Row="1">
-      <mp_special_controls:PlayerControl.TemplateControl>
+  <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" Grid.Row="1">
+    <media:VideoAspectWrapper.Template>
+      <ControlTemplate>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+          <Label x:Name="StoryPlot" Wrap="True" Margin="0,40,10,20" TextTrimming="WordEllipsis" Color="{ThemeResource MenuTextBackground}"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Height="370"
+                 Content="{Binding StoryPlot}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+        </Grid>
+      </ControlTemplate>
+    </media:VideoAspectWrapper.Template>
+  </media:VideoAspectWrapper>
 
-        <Label x:Name="StoryPlot" Wrap="True" Margin="0,40,10,20" TextTrimming="WordEllipsis" Color="{ThemeResource MenuTextBackground}"
-               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" 
-               Content="{Binding VideoStoryPlot}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
-      </mp_special_controls:PlayerControl.TemplateControl>
-   </mp_special_controls:PlayerControl>
-
-  <StackPanel Grid.ColumnSpan="2" Grid.Row="0" Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
+  <StackPanel Grid.Row="0" Margin="0,0,-70,0" VerticalAlignment="Stretch" Orientation="Vertical">
 
     <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch">
       <media:MovieAspectWrapper.Template>
@@ -121,19 +124,19 @@
     </StackPanel>
 
     <media:MediaAspectWrapper MediaItem="{Binding MediaItem}">
-        <media:MediaAspectWrapper.Template>
-          <ControlTemplate>
-            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                  IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-              <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
-                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
-              <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" 
-                     Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center" Margin="40,0,0,0"
-                     Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" />
-            </Grid>
-          </ControlTemplate>
-        </media:MediaAspectWrapper.Template>
-      </media:MediaAspectWrapper>
+      <media:MediaAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" 
+                   Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center" Margin="40,0,0,0"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" />
+          </Grid>
+        </ControlTemplate>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
 
     <Grid IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
       <Image Source="HomeContentIcons\genre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" 
@@ -149,8 +152,7 @@
       </Label>
     </Grid>
 
-    <media:MovieAspectWrapper MediaItem="{Binding MediaItem}"
-                              VerticalAlignment="Center" >
+    <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Center" >
       <media:MovieAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" 
@@ -193,11 +195,21 @@
       </media:UserDataWrapper>
       <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-30,-280,-40">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Other" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="240" fanart:MaxHeight="140"/>
         </Image.Source>
       </Image>
     </StackPanel>
+
   </StackPanel>
 
+  <Button x:Name="PlayButton" Grid.Column="1" Margin="0,-60,50,0" Command="{Command Play}" Style="{ThemeResource EmptyButtonStyle}"
+          HorizontalAlignment="Right" VerticalAlignment="Top" Width="190" Height="190">
+    <Grid>
+      <Image Stretch="Uniform" Width="190" Height="190"
+             Source="playback.png" Opacity="0.8" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}" />
+      <Image Stretch="Uniform" Width="190" Height="190"
+             Source="playback_focus.png" Opacity="1" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}" />
+    </Grid>
+  </Button>
 </Grid>

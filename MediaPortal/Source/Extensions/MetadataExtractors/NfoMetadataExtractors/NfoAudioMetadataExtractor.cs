@@ -220,7 +220,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the MediaItemAspects.
-          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings);
+          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings, false);
           using (albumNfoFsra)
           {
             if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))

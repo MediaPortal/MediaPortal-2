@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     {
       if (delta < TimeSpan.Zero)
         delta = -delta;
-      if (delta > TimeSpan.FromHours(1))
+      if (delta >= TimeSpan.FromHours(1))
         result = delta.ToString("hh\\:mm\\:ss", culture);
       else if (delta > TimeSpan.Zero)
         result = delta.ToString("mm\\:ss", culture);

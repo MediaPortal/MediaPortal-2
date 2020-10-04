@@ -29,16 +29,14 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.MP2Extended.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.Settings;
-using System;
-using System.IO;
-using System.Reflection;
 
 namespace MediaPortal.Plugins.MP2Extended
 {
-   public class MP2Extended : IPluginStateTracker
+  public class MP2Extended : IPluginStateTracker
   {
     public static MP2ExtendedSettings Settings = new MP2ExtendedSettings();
     public static OnlineVideosManager OnlineVideosManager;
@@ -50,6 +48,8 @@ namespace MediaPortal.Plugins.MP2Extended
 
       if (Settings.OnlineVideosEnabled)
         OnlineVideosManager = new OnlineVideosManager(); // must be loaded after the settings are loaded
+
+      StreamControl.StartStreamCleanupTask();
     }
 
     private void LoadSettings()
@@ -98,6 +98,7 @@ namespace MediaPortal.Plugins.MP2Extended
     {
       SaveSettings();
       BaseSendData.SendDataCancellation.Cancel();
+      StreamControl.StopStreamCleanupTask(true);
     }
 
     #endregion IPluginStateTracker

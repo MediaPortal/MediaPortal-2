@@ -69,6 +69,10 @@ namespace MediaPortal.UiComponents.Media.Extensions
   /// </summary>
   public interface IDeferredMediaItemAction : IMediaItemAction
   {
+    /// <summary>
+    /// Indicates if the current action will change the workflow, like navigating to another screen.
+    /// </summary>
+    bool DoesChangeWorkflow { get; set; }
   }
 
   /// <summary>

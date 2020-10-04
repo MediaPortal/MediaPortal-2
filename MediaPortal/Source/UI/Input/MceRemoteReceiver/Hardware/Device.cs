@@ -113,7 +113,7 @@ namespace MediaPortal.Plugins.MceRemoteReceiver.Hardware
 
       string devicePath = null;
 
-      if (handle.ToInt32() == -1)
+      if (handle == new IntPtr(-1))
       {
         throw new Exception(string.Format("Failed in call to SetupDiGetClassDevs ({0})", GetLastError()));
       }

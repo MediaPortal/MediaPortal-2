@@ -48,6 +48,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
       _rootRole = EpisodeAspect.ROLE_EPISODE;
+      _applyUserFilter = false;
     }
 
     public static void NavigateToSeries(Guid seriesId)
@@ -82,11 +83,11 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
 
       //Update filter by adding the user filter to the already loaded filters
-      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+      IFilter userFilter = UserHelper.GetUserRestrictionFilter(_necessaryMias);
       if (userFilter != null)
         _customFilterTree.AddFilter(userFilter);
 
-      userFilter = await CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
+      userFilter = UserHelper.GetUserRestrictionFilter(new[] { SeriesAspect.ASPECT_ID });
       if (userFilter != null)
         _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
     }

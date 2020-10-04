@@ -46,6 +46,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
           <!--Label x:Name="searchlabel" Grid.Column="0" Content="[SlimTvClient.ProgramLabel]" Color="{ThemeResource TextColor}" Wrap="True" Opacity="0.5"
                  VerticalAlignment="Center" Margin="0,-5,10,0" Height="50"/-->
@@ -53,6 +54,12 @@
                    Text="{Binding Path=ProgramSearchText,Mode=TwoWay}" PreferredTextLength="10" SetFocusPrio="DefaultHigh"/>
           <Image Grid.Column="1" x:Name="searchsymbol" Source="search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
                  Stretch="Uniform" Height="40" Margin="0,0,30,0"/>
+          <StackPanel Orientation="Horizontal" Grid.Column="2" VerticalAlignment="Top">
+            <CheckBox x:Name="UseContainsQueryCheckbox" Margin="10,10,5,5" Style="{ThemeResource DefaultCheckBoxStyle}"
+                      IsChecked="{Binding Path=UseContainsQuery,Mode=TwoWay}" Content="{Binding}" />
+            <Label Content="[SlimTvClient.UseContainsQuery]" Color="{ThemeResource TextColor}" Margin="5"/>
+          </StackPanel>
+
           <Grid.Triggers>
             <Trigger Property="IsKeyboardFocusWithin" Value="True">
               <Setter TargetName="searchsymbol" Property="Opacity" Value="1"/>

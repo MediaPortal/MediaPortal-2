@@ -49,6 +49,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     internal const string MEDIA_ITEMS_TABLE_NAME = "MEDIA_ITEMS";
     internal const string MEDIA_ITEMS_ITEM_ID_COL_NAME = "MEDIA_ITEM_ID";
 
+    internal const string SHARE_TABLE_NAME = "SHARES";
+    internal const string SHARE_ID_COL_NAME = "SHARE_ID";
+    internal const string SHARE_BASE_PATH_COL_NAME = "BASE_RESOURCE_PATH";
+
     #endregion
 
     public static string SubSchemaScriptDirectory

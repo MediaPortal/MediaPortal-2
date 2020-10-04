@@ -70,6 +70,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]
     [XmlElement("FilterRelationship", typeof(FilteredRelationshipFilter))]
+    [XmlElement("SharePath", typeof(SharePathFilter))]
     public object XML_InnerFilter
     {
       get { return _innerFilter; }

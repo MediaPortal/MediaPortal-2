@@ -60,7 +60,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), necessaryMIATypes, optionalMIATypes);
       if (item == null)
-        throw new BadRequestException(String.Format("GetMediaItem: No MediaItem found with id: {0}", id));
+        throw new NotFoundException(String.Format("GetMediaItem: No MediaItem found with id: {0}", id));
 
       WebMediaItem webMediaItem = new WebMediaItem();
       webMediaItem.Id = item.MediaItemId.ToString();

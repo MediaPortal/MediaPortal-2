@@ -9,13 +9,18 @@
   <PropertyGroup>
     <ProjectRoot Condition="$(ProjectRoot) == ''">$(MSBuildThisFileDirectory)\..</ProjectRoot>
     <NuGetExePath Condition="$(NuGetExePath) == ''">$(MSBuildThisFileDirectory)\NuGet.exe</NuGetExePath>
+    <!-- 
+    Example to force a specific MSBuild version
+    <NuGetMsBuildVersion Condition="$(NuGetMsBuildVersion) == ''">-MSBuildVersion 15.9</NuGetMsBuildVersion>
+	-->
+    <NuGetMsBuildVersion Condition="$(NuGetMsBuildVersion) == ''"></NuGetMsBuildVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectsToRestore Include="$(ProjectRoot)\Source\MP2-Client.sln"/>
     <ProjectsToRestore Include="$(ProjectRoot)\Source\MP2-Server.sln"/>
     <ProjectsToRestore Include="$(ProjectRoot)\Source\MP2-ServiceMonitor.sln"/>
-    <ProjectsToRestore Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln"/>
+    <ProjectsToRestore Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" />
     <ProjectsToRestore Include="$(ProjectRoot)\Setup\MP2-Setup.sln"/>
     <ProjectsToRestore Include="$(ProjectRoot)\Source\UI\Players\EVRPresenter\EVRPresenter.sln"/>
   </ItemGroup>
@@ -30,8 +35,8 @@
     <Message Text="Found the following solutions: @(ProjectsToRestore->'%(FullPath)')"/>
 
     <!-- First do a self update of nuget.exe -->
-    <Exec Command='"$(NuGetExePath)" update -self'/>
-    <Exec Command='"$(NuGetExePath)" restore "%(ProjectsToRestore.FullPath)"'/>
+    <Exec Command='"$(NuGetExePath)" update -self $(NuGetMsBuildVersion)'/>
+    <Exec Command='"$(NuGetExePath)" restore "%(ProjectsToRestore.FullPath)" $(NuGetMsBuildVersion)'/>
   </Target>
 
   <!--
@@ -41,7 +46,7 @@
   <Target Name="RestoreBuildPackages"
           DependsOnTargets="DownloadNuGet">
     <!-- First do a self update of nuget.exe -->
-    <Exec Command='"$(NuGetExePath)" update -self'/>
+    <Exec Command='"$(NuGetExePath)" update -self $(NuGetMsBuildVersion)'/>
     <Exec Command='"$(NuGetExePath)" install "$(MSBuildThisFileDirectory)\packages.config"'/>
   </Target>
 </Project>

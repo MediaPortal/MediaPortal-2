@@ -1,0 +1,283 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare_media.xaml"
+    xmlns:animation="clr-namespace:MediaPortal.UI.SkinEngine.Controls.Brushes.Animation;assembly=SkinEngine" 
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:media_consts="clr-namespace:MediaPortal.UiComponents.Media.General;assembly=Media">
+  <Include.Resources>
+
+    <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
+
+    <ControlTemplate x:Key="TopGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#E6000000" Offset="0" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="BottomGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#00000000" Offset="0" />
+            <GradientStop Color="#E6000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <ControlTemplate.Resources>
+        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+        <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+      </ControlTemplate.Resources>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Context="{Model Id=E71C7104-4398-41BF-A019-5C92904DE7E7}">
+        <Image x:Name="FanArtImageBackground" Stretch="UniformToFill">
+          <Image.Source>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                          fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
+          </Image.Source>
+        </Image>
+        <Image Stretch="Fill" Source="Background_ListView.png"/>
+      </Grid>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Client_Template">
+      <Grid x:Name="ClientGrid" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="0,0,0,-100"
+            Context="{Model Id=E71C7104-4398-41BF-A019-5C92904DE7E7}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="1000"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Details Field -->
+        <Grid Grid.Column="1" Width="1000" Height="1200" Background="#33000000" Margin="-5,-90,-20,-200">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Grid.Resources>
+            <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+            <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+            <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+          </Grid.Resources>
+
+          <Image x:Name="FanArtImageBackgroundOverlay" Stretch="Uniform" VerticalAlignment="Top">
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                            fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
+            </Image.Source>
+          </Image>
+          <Image Stretch="Fill" Source="List_overlay.png"/>
+          <Image Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
+          <Border BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
+                <GradientStop Color="#44000000" Offset="0.0"/>
+                <GradientStop Color="#77000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
+
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,100,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="90"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <media:AudioAspectWrapper MediaItem="{Binding MediaItem}">
+              <media:AudioAspectWrapper.Template>
+                <ControlTemplate>
+                  <UniformGrid Columns="6" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="20,0,200,0">
+
+                    <Grid IsVisible="{Binding Path=Encoding,Converter={StaticResource ReferenceToBoolConverter}}">
+                      <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                        <Image.Source>
+                          <Binding Path="Encoding" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
+                        </Image.Source>
+                      </Image>
+                    </Grid>
+
+                    <Grid IsVisible="{Binding Path=Channels,Converter={StaticResource ReferenceToBoolConverter}}">
+                      <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                        <Image.Source>
+                          <Binding Path="Channels" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\audio\{0}.png"/>
+                        </Image.Source>
+                      </Image>
+                    </Grid>
+
+
+                    <Grid IsVisible="{Binding Path=NumDiscs,Converter={StaticResource ReferenceToBoolConverter}}">
+                      <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Uniform" Source="Medialogos\audio\disc.png" Margin="-30,15,0,15"/>
+                      <StackPanel Orientation="Horizontal" Margin="-20,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center">
+                        <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=DiscId}" 
+                                   Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                        <Label FontSize="{ThemeResource SmallerFontSize}" Content="|" 
+                                   Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                        <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=NumDiscs}" 
+                                   Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                      </StackPanel>
+                    </Grid>
+
+                    <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
+                      <Label Margin="5,5,5,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
+                                 IsVisible="{Binding Path=BitRate,Converter={StaticResource ReferenceToBoolConverter}}"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Label.Content>
+                          <Binding Path="BitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kbps"/>
+                        </Label.Content>
+                      </Label>
+                      <Label Margin="5,0,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
+                                 IsVisible="{Binding Path=SampleRate,Converter={StaticResource ReferenceToBoolConverter}}"
+                                 HorizontalAlignment="Center" VerticalAlignment="Center">
+                        <Label.Content>
+                          <Binding Path="SampleRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} Hz"/>
+                        </Label.Content>
+                      </Label>
+                    </StackPanel>
+
+                  </UniformGrid>
+                </ControlTemplate>
+              </media:AudioAspectWrapper.Template>
+            </media:AudioAspectWrapper>
+
+            <Control x:Name="Info_AudioGeneral" Grid.Row="1" Margin="0,0,0,100">
+              <Control.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Control.IsVisible>
+              <Control.TemplateControl>
+                <Include Source="screens\MediaInfoAudioDetails.inc"/>
+              </Control.TemplateControl>
+            </Control>
+
+          </Grid>
+        </Grid>
+
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-140,0,0,-300">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <!-- Artists -->
+          <Grid HorizontalAlignment="Stretch" Grid.Row="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="45"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Margin="200,15,0,-2">
+              <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="Artists" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Artists"/>
+            </Grid>
+
+            <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+              <ListView.ItemsSource>
+                <RelationshipQuery
+                      NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
+                      OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_PERSON_MIAS}"
+                      Role="{x:Static aspect:PersonAspect.ROLE_ARTIST}"
+                      LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+              </ListView.ItemsSource>
+            </ListView>
+          </Grid>
+
+          <!-- Album Artists -->
+          <Grid HorizontalAlignment="Stretch" Grid.Row="1">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="45"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Margin="200,15,0,-2">
+              <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="Album Artists" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Album Artists"/>
+            </Grid>
+
+            <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+              <ListView.ItemsSource>
+                <RelationshipQuery
+                      NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
+                      OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_PERSON_MIAS}"
+                      Role="{x:Static aspect:PersonAspect.ROLE_ALBUMARTIST}"
+                      LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+              </ListView.ItemsSource>
+            </ListView>
+          </Grid>
+
+          <!-- Composer -->
+          <Grid HorizontalAlignment="Stretch" Grid.Row="2">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="45"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid.Triggers>
+              <DataTrigger Binding="{Binding ElementName=ComposerList, Path=Items.Count}" Value="0">
+                <Setter Property="Visibility" Value="Hidden"/>
+              </DataTrigger>
+            </Grid.Triggers>
+
+            <Grid Margin="200,15,0,-2">
+              <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="Composers" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Composers"/>
+            </Grid>
+
+            <ListView x:Name="ComposerList" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+              <ListView.ItemsSource>
+                <RelationshipQuery
+                      NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
+                      OptionalRequestedMIAs="{x:Static media_consts:Consts.OPTIONAL_PERSON_MIAS}"
+                      Role="{x:Static aspect:PersonAspect.ROLE_COMPOSER}"
+                      LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
+              </ListView.ItemsSource>
+            </ListView>
+          </Grid>
+
+        </Grid>
+
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

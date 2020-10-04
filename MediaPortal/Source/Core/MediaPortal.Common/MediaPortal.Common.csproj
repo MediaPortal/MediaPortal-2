@@ -131,6 +131,7 @@
     <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\ChildAggregateAttributeSortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\DataSortInformation.cs" />
+    <Compile Include="MediaManagement\MLQueries\SharePathFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
     <Compile Include="MediaManagement\MLQueries\AttributeSortInformation.cs" />
     <Compile Include="MediaManagement\MLQueries\ISortInformation.cs" />
@@ -486,6 +487,7 @@
     <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
     <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
+    <Compile Include="UI\FormDpiAwareness.cs" />
     <Compile Include="UPnP\UPnPDtDictionary.cs" />
     <Compile Include="UPnP\UPnPDtMediaCategoryEnumeration.cs" />
     <Compile Include="UPnP\UPnPDtRelationshipItemEnumeration.cs" />

@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
 
       var item = MediaLibraryAccess.GetMediaItemById(context, itemId, necessaryMIATypes, optionalMIATypes);
       if (item == null)
-        throw new BadRequestException(String.Format("GetStreamSize: No MediaItem found with id: {0}", itemId));
+        throw new NotFoundException(String.Format("GetStreamSize: No MediaItem found with id: {0}", itemId));
 
       EndPointProfile profile = null;
       List<EndPointProfile> namedProfiles = ProfileManager.Profiles.Where(x => x.Value.Name == profileName).Select(namedProfile => namedProfile.Value).ToList();

@@ -30,10 +30,14 @@ using MediaPortal.UiComponents.Media.Models.NavigationModel;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public class ContinueWatchAlbumMediaListProvider : BaseContinueWatchMediaListProvider
+  public class ContinueWatchAlbumMediaListProvider : BaseContinueWatchRelationshipMediaListProvider
   {
     public ContinueWatchAlbumMediaListProvider()
     {
+      _role = AudioAlbumAspect.ROLE_ALBUM;
+      _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
+      _linkedRole = AudioAspect.ROLE_TRACK;
+      _necessaryLinkedMias = Consts.NECESSARY_AUDIO_MIAS;
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
       _playableContainerConverterAction = item => new AlbumFilterItem(item)
       {

@@ -33,6 +33,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.Views;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.Utilities.Events;
 
 namespace MediaPortal.UiComponents.Media.Models.ScreenData
@@ -44,12 +45,14 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     protected AbstractProperty _simpleSearchTextProperty;
     protected DelayedEvent _delayedEvent;
     protected MediaLibraryQueryViewSpecification _baseViewSpecification = null;
+    protected bool _applyUserFilter;
 
     #endregion
 
-    protected AbstractSearchScreenData(string screen, string menuItemLabel, PlayableItemCreatorDelegate playableItemCreator) :
+    protected AbstractSearchScreenData(string screen, string menuItemLabel, PlayableItemCreatorDelegate playableItemCreator, bool applyUserFilter = true) :
       base(screen, menuItemLabel, null, playableItemCreator, false)
     {
+      _applyUserFilter = applyUserFilter;
       _delayedEvent = new DelayedEvent(Consts.TS_SEARCH_TEXT_TYPE.TotalMilliseconds);
       _delayedEvent.OnEventHandler += OnSearchTimerElapsed;
     }
@@ -131,9 +134,22 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       return filter;
     }
 
+    protected IFilter BuildFinalSearchFilter()
+    {
+      IFilter userFilter = null;
+      if (_applyUserFilter)
+        userFilter = UserHelper.GetUserRestrictionFilter(_baseViewSpecification.NecessaryMIATypeIds);
+      var filter = BuildTextSearchFilter();
+      if (userFilter != null && filter != null)
+        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter);
+      else if (userFilter != null)
+        filter = userFilter;
+      return filter;
+    }
+
     protected View BuildAllItemsView()
     {
-      return new SimpleTextSearchViewSpecification(Consts.RES_SIMPLE_SEARCH_VIEW_NAME, BuildTextSearchFilter(),
+      return new SimpleTextSearchViewSpecification(Consts.RES_SIMPLE_SEARCH_VIEW_NAME, BuildFinalSearchFilter(),
         _baseViewSpecification.NecessaryMIATypeIds, _baseViewSpecification.OptionalMIATypeIds,
           true, true).BuildView();
     }

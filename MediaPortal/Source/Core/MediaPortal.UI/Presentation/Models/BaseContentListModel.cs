@@ -39,6 +39,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.UI.Presentation.Models
 {
@@ -57,6 +58,7 @@ namespace MediaPortal.UI.Presentation.Models
     protected ContentListProviderDictionary _listProviders;
     protected DateTime _nextGet = DateTime.MinValue;
     protected DateTime _nextMinute = DateTime.MinValue;
+    protected Guid _currentUserId;
 
     private bool _providersInititialized = false;
 
@@ -112,12 +114,15 @@ namespace MediaPortal.UI.Presentation.Models
           return false;
         }
 
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>(false);
+
         UpdateReason updateReason = UpdateReason.None;
         if (_updatePending || UpdateRequired) updateReason |= UpdateReason.Forced;
         if (_importUpdatePending) updateReason |= UpdateReason.ImportComplete;
         if (_playbackUpdatePending) updateReason |= UpdateReason.PlaybackComplete;
         if (_nextMinute < DateTime.UtcNow) updateReason |= UpdateReason.PeriodicMinute;
         if (_mediaItemUpdatePending) updateReason |= UpdateReason.MediaItemChanged;
+        if (userProfileDataManagement?.CurrentUser != null && _currentUserId != userProfileDataManagement.CurrentUser.ProfileId) updateReason |= UpdateReason.UserChanged;
         if (updateReason == UpdateReason.None)
           return false;
 
@@ -125,6 +130,8 @@ namespace MediaPortal.UI.Presentation.Models
         _importUpdatePending = false;
         _playbackUpdatePending = false;
         _mediaItemUpdatePending = false;
+        if (userProfileDataManagement?.CurrentUser != null)
+          _currentUserId = userProfileDataManagement.CurrentUser.ProfileId;
         _nextMinute = DateTime.UtcNow.AddMinutes(1);
 
         int maxItems = Limit;

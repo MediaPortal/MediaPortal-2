@@ -56,7 +56,31 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
     protected override bool ShouldUpdate(UpdateReason updateReason)
     {
-      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || updateReason.HasFlag(UpdateReason.ImportComplete) || base.ShouldUpdate(updateReason);
+      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || updateReason.HasFlag(UpdateReason.ImportComplete) || updateReason.HasFlag(UpdateReason.UserChanged) || base.ShouldUpdate(updateReason);
+    }
+  }
+
+  public abstract class BaseUnwatchedRelationshipMediaListProvider : BaseUnwatchedMediaListProvider
+  {
+    protected Guid _role;
+    protected Guid _linkedRole;
+    protected IEnumerable<Guid> _necessaryLinkedMias;
+
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
+    {
+      Guid? userProfile = CurrentUserProfile?.ProfileId;
+      IFilter filter;
+      if (userProfile.HasValue)
+        filter = new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(
+          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0), true), _necessaryLinkedMias));
+      else
+        filter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
+
+      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
+      {
+        SubqueryFilter = GetNavigationFilter(_navigationInitializerType),
+        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Ascending) }
+      };
     }
   }
 }

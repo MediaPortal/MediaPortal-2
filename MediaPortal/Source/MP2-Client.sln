@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 15
-VisualStudioVersion = 15.0.27130.2036
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}"
 EndProject
@@ -252,6 +252,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptableMetadataExtractor
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCvLib", "Extensions\MetadataExtractors\OpenCvLib\OpenCvLib.csproj", "{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WhatsNew", "..\Incubator\WhatsNew\WhatsNew.csproj", "{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -268,8 +270,8 @@ Global
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Debug|x64.Build.0 = Debug|x64
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Debug|x86.ActiveCfg = Debug|x86
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Debug|x86.Build.0 = Debug|x86
-		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Release|Any CPU.ActiveCfg = Release|x86
-		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Release|Any CPU.Build.0 = Release|x86
+		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Release|x64.ActiveCfg = Release|x64
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Release|x64.Build.0 = Release|x64
 		{53EFA17B-5F8B-4942-8211-2015FFC2223C}.Release|x86.ActiveCfg = Release|x86
@@ -900,7 +902,6 @@ Global
 		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Debug|x64.ActiveCfg = Debug|Any CPU
 		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Debug|x64.Build.0 = Debug|Any CPU
 		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Debug|x86.ActiveCfg = Debug|x86
-		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Debug|x86.Build.0 = Debug|x86
 		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Release|x64.ActiveCfg = Release|Any CPU
 		{7751E502-CAEF-41A9-BB69-DBA66D7D05B9}.Release|x86.ActiveCfg = Release|x86
@@ -1301,6 +1302,18 @@ Global
 		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Release|x64.ActiveCfg = Release|Any CPU
 		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Release|x86.ActiveCfg = Release|x86
 		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}.Release|x86.Build.0 = Release|x86
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Debug|x64.Build.0 = Debug|Any CPU
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Debug|x86.ActiveCfg = Debug|x86
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Debug|x86.Build.0 = Debug|x86
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Release|x64.ActiveCfg = Release|Any CPU
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Release|x64.Build.0 = Release|Any CPU
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Release|x86.ActiveCfg = Release|x86
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Release|x86.Build.0 = Release|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -1421,6 +1434,7 @@ Global
 		{8CC51373-426A-45AB-86F6-8EEE7203F9F2} = {D7E79601-A62E-4193-892F-033F8E7C90BD}
 		{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A} = {9407EDC5-89CB-476C-AF36-E705C78D1659}
+		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2} = {91CC1D84-4327-48CA-8186-D7C3529AEB44}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {2EFE6986-DFCD-450F-BFEE-15D3F8642201}

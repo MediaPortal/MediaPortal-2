@@ -164,10 +164,6 @@
       <Project>{e34b06d1-8dcd-4027-9c2f-26fb29eb58a7}</Project>
       <Name>NfoMetadataExtractors</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OCVVideoThumbnailer\OCVVideoThumbnailer.csproj">
-      <Project>{9049f675-1a23-46a1-b0a9-bba94c492aad}</Project>
-      <Name>OCVVideoThumbnailer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
       <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
       <Name>OnlineLibraries</Name>

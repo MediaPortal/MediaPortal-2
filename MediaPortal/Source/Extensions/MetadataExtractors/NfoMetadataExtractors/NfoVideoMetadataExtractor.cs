@@ -163,7 +163,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
         // Now we (asynchronously) extract the metadata into a stub object.
         // If no metadata was found, nothing can be stored in the MediaItemAspects.
-        var nfoReader = new NfoMovieReader(_debugLogger, miNumber, true, forceQuickMode, false, _httpClient, _settings);
+        var nfoReader = new NfoMovieReader(_debugLogger, miNumber, true, forceQuickMode, false, _httpClient, _settings, false);
         using (nfoFsra)
         {
           if (!await nfoReader.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false) &&

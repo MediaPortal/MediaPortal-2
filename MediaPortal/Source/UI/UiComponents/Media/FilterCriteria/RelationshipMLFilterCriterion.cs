@@ -38,6 +38,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.FilterCriteria
@@ -74,25 +75,25 @@ namespace MediaPortal.UiComponents.Media.FilterCriteria
       if (cd == null)
         throw new NotConnectedException("The MediaLibrary is not connected");
       
-      Guid? userProfile = null;
+      UserProfile userProfile = null;
       IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
       {
-        userProfile = userProfileDataManagement.CurrentUser.ProfileId;
+        userProfile = userProfileDataManagement.CurrentUser;
       }
 
-      IEnumerable<Guid> mias = _necessaryMIATypeIds ?? necessaryMIATypeIds;
-      IEnumerable<Guid> optMias = _optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null;
+      var mias = (_necessaryMIATypeIds ?? necessaryMIATypeIds)?.ToList();
+      var optMias = (_optionalMIATypeIds != null ? _optionalMIATypeIds.Except(mias) : null)?.ToList();
       bool showVirtual = VirtualMediaHelper.ShowVirtualMedia(necessaryMIATypeIds);
       IFilter queryFilter = new FilteredRelationshipFilter(_role, _linkedRole, filter);
       if (selectAttributeFilter != null)
         queryFilter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, selectAttributeFilter, queryFilter);
 
-      MediaItemQuery query = new MediaItemQuery(mias, optMias, queryFilter);
+      MediaItemQuery query = new MediaItemQuery(mias, optMias, UserHelper.GetUserRestrictionFilter(mias, userProfile, queryFilter));
       if (_sortInformation != null)
         query.SortInformation = new List<ISortInformation> { _sortInformation };
-      
-      IList<MediaItem> items = await cd.SearchAsync(query, true, userProfile, showVirtual).ConfigureAwait(false);
+
+      IList<MediaItem> items = await cd.SearchAsync(query, true, userProfile?.ProfileId, showVirtual).ConfigureAwait(false);
       CertificationHelper.ConvertCertifications(items);
       IList<FilterValue> result = new List<FilterValue>(items.Count);
       foreach (MediaItem item in items)

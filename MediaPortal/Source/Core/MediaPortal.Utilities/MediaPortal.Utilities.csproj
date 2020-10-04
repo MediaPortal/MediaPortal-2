@@ -95,6 +95,7 @@
     <Compile Include="Network\Netbios\NbNsStatistics.cs" />
     <Compile Include="Network\Netbios\NbPacketSegmentBase.cs" />
     <Compile Include="OrdinalStringComparer.cs" />
+    <Compile Include="Pointers\PointerExtensions.cs" />
     <Compile Include="Process\Ipc.cs" />
     <Compile Include="Process\IpcClient.cs" />
     <Compile Include="Process\IpcServer.cs" />
@@ -153,6 +154,9 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Screens\SplashScreen.resx">
+      <DependentUpon>SplashScreen.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

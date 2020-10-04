@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.IO;
 using System.Threading.Tasks;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
@@ -39,43 +40,50 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
     internal static async Task CreatePlaylistFilesAsync(FFMpegTranscodeData data)
     {
       if (Directory.Exists(data.WorkPath) == false)
-      {
         Directory.CreateDirectory(data.WorkPath);
-      }
-      if (data.SegmentPlaylistData != null)
+
+      try
       {
-        string playlist = Path.Combine(data.WorkPath, BaseMediaConverter.PLAYLIST_FILE_NAME);
-        string tempPlaylist = playlist + ".tmp";
-        using (FileStream fileStream = File.Open(tempPlaylist, FileMode.Create, FileAccess.Write, FileShare.None))
+        if (data.SegmentPlaylistData != null)
         {
-          await data.SegmentPlaylistData.CopyToAsync(fileStream);
-        };
-        File.Move(tempPlaylist, playlist);
-        if (data.SegmentSubsPlaylistData != null)
-        {
-          playlist = Path.Combine(data.WorkPath, BaseMediaConverter.PLAYLIST_SUBTITLE_FILE_NAME);
-          tempPlaylist = playlist + ".tmp";
+          string playlist = Path.Combine(data.WorkPath, BaseMediaConverter.PLAYLIST_FILE_NAME);
+          string tempPlaylist = playlist + ".tmp";
           using (FileStream fileStream = File.Open(tempPlaylist, FileMode.Create, FileAccess.Write, FileShare.None))
+            await data.SegmentPlaylistData.CopyToAsync(fileStream);
+          MoveFile(tempPlaylist, playlist);
+
+          if (data.SegmentSubsPlaylistData != null)
           {
-            await data.SegmentSubsPlaylistData.CopyToAsync(fileStream);
-          };
-          File.Move(tempPlaylist, playlist);
+            playlist = Path.Combine(data.WorkPath, BaseMediaConverter.PLAYLIST_SUBTITLE_FILE_NAME);
+            tempPlaylist = playlist + ".tmp";
+            using (FileStream fileStream = File.Open(tempPlaylist, FileMode.Create, FileAccess.Write, FileShare.None))
+              await data.SegmentSubsPlaylistData.CopyToAsync(fileStream);
+            MoveFile(tempPlaylist, playlist);
+          }
+        }
+
+        if (data.SegmentPlaylist != null && data.SegmentManifestData != null)
+        {
+          string tempManifest = data.SegmentPlaylist + ".tmp";
+          using (FileStream fileStream = File.Open(tempManifest, FileMode.Create, FileAccess.Write, FileShare.None))
+            await data.SegmentManifestData.CopyToAsync(fileStream);
+          MoveFile(tempManifest, data.SegmentPlaylist);
         }
       }
-      if (data.SegmentPlaylist != null && data.SegmentManifestData != null)
+      finally
       {
-        string tempManifest = data.SegmentPlaylist + ".tmp";
-        using (FileStream fileStream = File.Open(tempManifest, FileMode.Create, FileAccess.Write, FileShare.None))
-        {
-          await data.SegmentManifestData.CopyToAsync(fileStream);
-        };
-        File.Move(tempManifest, data.SegmentPlaylist);
+        //No need to keep data so free used memory
+        data.SegmentManifestData?.Dispose();
+        data.SegmentPlaylistData?.Dispose();
+        data.SegmentSubsPlaylistData?.Dispose();
       }
+    }
 
-      //No need to keep data so free used memory
-      data.SegmentManifestData.Dispose();
-      data.SegmentPlaylistData.Dispose();
-      data.SegmentSubsPlaylistData.Dispose();
+    private static void MoveFile(string sourceFilePath, string destinationFilePath)
+    {
+      if (File.Exists(destinationFilePath))
+        File.Delete(destinationFilePath);
+      File.Move(sourceFilePath, destinationFilePath);
     }
   }
 }

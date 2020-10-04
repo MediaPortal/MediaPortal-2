@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, id, necessaryMIATypes, null);
       if (item == null)
-        throw new BadRequestException("GetFileInfo: no media item found");
+        throw new NotFoundException("GetFileInfo: no media item found");
 
       var files = ResourceAccessUtils.GetResourcePaths(item);
       var ra = GetResourceAccessor(files[offset]);

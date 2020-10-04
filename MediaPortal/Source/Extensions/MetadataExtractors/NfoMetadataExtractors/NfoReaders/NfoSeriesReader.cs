@@ -59,11 +59,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// For performance reasons, the following long lasting operations have been temporarily disabled:
   /// - We do parse "set" (and therefore also "sets" elements); however, parsing and downloading
   ///   "setimage" child elements has been disabled. Reenable in <see cref="TryReadSetAsync"/>
-  /// - We do parse "actor" elements, however, parsing and downloading "thumb"
-  ///   child elements has been disabled. Reenable in <see cref="NfoReaderBase{T}.ParsePerson"/>
-  /// - The following elements are completely ignored:
-  ///   "thumb" and "fanart"
-  ///   Reenable in <see cref="InitializeSupportedElements"/>
   /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
   public class NfoSeriesReader : NfoReaderBase<SeriesStub>
@@ -84,7 +79,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Cache used to temporarily store <see cref="SeriesStub"/> objects so that the same tvshow.nfo file
     /// doesn't have to be parsed once for every episode
     /// </summary>
-    private static readonly AsyncStaticTimeoutCache<ResourcePath, List<SeriesStub>> CACHE = new AsyncStaticTimeoutCache<ResourcePath, List<SeriesStub>>(CACHE_TIMEOUT);
+    private static readonly AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<SeriesStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<SeriesStub>)>(CACHE_TIMEOUT);
 
     #endregion
 
@@ -93,12 +88,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <summary>
     /// If true, episode details will also be read from the nfo-file
     /// </summary>
-    private bool _readEpisodes;
+    private readonly bool _readEpisodes;
 
     /// <summary>
     /// If true, file details will also be read from the nfo-file
     /// </summary>
-    private bool _readFileDetails;
+    private readonly bool _readFileDetails;
+
+    private readonly bool _includeFanart;
 
     #endregion
 
@@ -114,13 +111,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="readEpisodes">If true, episode details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoSeriesMetadataExtractor"/></param>
-    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool forceQuickMode, bool readEpisodes, bool readFileDetails, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings)
+    public NfoSeriesReader(ILogger debugLogger, long miNumber, bool forceQuickMode, bool readEpisodes, bool readFileDetails, HttpClient httpClient, NfoSeriesMetadataExtractorSettings settings, bool includeFanart)
       : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {
+      _includeFanart = includeFanart;
       _readEpisodes = readEpisodes;
       _readFileDetails = readFileDetails;
       _settings = settings;
-      InitializeSupportedElements();
+      InitializeSupportedElements(includeFanart);
       InitializeSupportedAttributes();
     }
 
@@ -133,7 +131,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <summary>
     /// Adds a delegate for each xml element in a series nfo-file that is understood by this MetadataExtractor to NfoReaderBase._supportedElements
     /// </summary>
-    private void InitializeSupportedElements()
+    private void InitializeSupportedElements(bool includeFanart)
     {
       _supportedElements.Add("id", new TryReadElementDelegate(TryReadId));
       _supportedElements.Add("code", new TryReadElementDelegate(TryReadCode));
@@ -158,8 +156,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("genre", new TryReadElementDelegate(TryReadGenre));
       _supportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
 
-      _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
-      _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
+      if (includeFanart)
+      {
+        _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
+        _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
+      }
+      else
+      {
+        _supportedElements["thumb"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
+      }
 
       _supportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
@@ -167,11 +173,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("top250", new TryReadElementDelegate(TryReadTop250));
 
       _supportedElements.Add("episodedetails", new TryReadElementAsyncDelegate(TryReadEpisodeAsync));
-
-      // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
-      // ToDo: Reenable the below once we can store the information in the MediaLibrary
-      _supportedElements["thumb"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
 
       // The following elements are contained in many tvshow.nfo files, but have no meaning
       // in the context of a series. We add them here to avoid them being logged as
@@ -211,7 +212,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteSeriesAspectCertification);
       _supportedAttributes.Add(TryWriteSeriesAspectNetworks);
 
-      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+      //Handled by FanArt collector now
+      //_supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
     }
 
     #endregion
@@ -444,7 +446,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     private async Task<bool> TryReadActorAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra).ConfigureAwait(false);
+      var person = await ParsePerson(element, nfoDirectoryFsra, _includeFanart).ConfigureAwait(false);
       if (person == null)
         return false;
       if (_currentStub.Actors == null)
@@ -567,7 +569,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       if (!_readEpisodes)
         return false;
 
-      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _forceQuickMode, _readFileDetails, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings);
+      NfoSeriesEpisodeReader episodeNfoReader = new NfoSeriesEpisodeReader(_debugLogger, _miNumber, _forceQuickMode, _readFileDetails, _httpDownloadClient, (NfoSeriesMetadataExtractorSettings)_settings, false);
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
       if(await episodeNfoReader.TryReadElementAsync(element, nfoDirectoryFsra).ConfigureAwait(false))
       {
@@ -1170,21 +1172,26 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
     public override async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
     {
-      var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path =>
-      {
-        _debugLogger.Info("[#{0}]: SeriesStub object for series nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
-        if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
-        {
-          if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
-            LogStubObjects();
-          return _stubs;
-        }
-        return null;
-      }).ConfigureAwait(false);
-      if (stubs == null)
+      var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path => await ReadMetadataAsync(path, nfoFsra)).ConfigureAwait(false);
+      if (!stubs.HasFanart && _includeFanart)
+        await CACHE.UpdateValue(nfoFsra.CanonicalLocalResourcePath, async path => stubs = await ReadMetadataAsync(path, nfoFsra)).ConfigureAwait(false);
+
+      if (stubs.Stubs == null)
         return false;
-      _stubs = stubs;
+      _stubs = stubs.Stubs;
       return true;
+    }
+
+    protected async Task<(bool HasFanart, List<SeriesStub> Stubs)> ReadMetadataAsync(ResourcePath path, IFileSystemResourceAccessor nfoFsra)
+    {
+      _debugLogger.Info("[#{0}]: SeriesStub object for series nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
+      if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
+      {
+        if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
+          LogStubObjects();
+        return (_includeFanart, _stubs);
+      }
+      return (_includeFanart, null);
     }
 
     #endregion

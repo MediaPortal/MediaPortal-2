@@ -65,6 +65,10 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="SharpFont, Version=3.0.1.200, Culture=neutral, PublicKeyToken=48add4c483071cdf, processorArchitecture=MSIL">
+      <HintPath>..\..\..\Packages\SharpFont.3.1.0\lib\net20\SharpFont.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -311,6 +315,8 @@
     <Compile Include="MarkupExtensions\IValueConverter.cs" />
     <Compile Include="MarkupExtensions\MultiBindingExtension.cs" />
     <Compile Include="MarkupExtensions\RelationshipQueryExtension.cs" />
+    <Compile Include="MarkupExtensions\SkinHeightExtension.cs" />
+    <Compile Include="MarkupExtensions\SkinWidthExtension.cs" />
     <Compile Include="MarkupExtensions\StaticResourceBase.cs" />
     <Compile Include="MarkupExtensions\ResolutionResourceExtension.cs" />
     <Compile Include="MarkupExtensions\ThemeResourceExtension.cs" />
@@ -433,7 +439,6 @@
     <Compile Include="Xaml\PathExpression.cs" />
     <Compile Include="Xaml\ReflectionHelper.cs" />
     <Compile Include="Xaml\TypeConverter.cs" />
-    <Compile Include="Fonts\FreeType.cs" />
     <Compile Include="MpfElements\DependencyObject.cs" />
     <Compile Include="Controls\Visuals\IScrollInfo.cs" />
     <Compile Include="Controls\Panels\Canvas.cs" />
@@ -656,14 +661,17 @@
     <PackageReference Include="MediaPortal.FreeImageNET">
       <Version>3.18.3</Version>
     </PackageReference>
-    <PackageReference Include="MediaPortal.FreeType">
-      <Version>2.10.1</Version>
-    </PackageReference>
     <PackageReference Include="SharpDX.Direct3D9">
       <Version>4.0.1</Version>
     </PackageReference>
     <PackageReference Include="SharpDX.Mathematics">
       <Version>4.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="SharpFont">
+      <Version>4.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="SharpFont.Dependencies" GeneratePathProperty="true">
+      <Version>2.6.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

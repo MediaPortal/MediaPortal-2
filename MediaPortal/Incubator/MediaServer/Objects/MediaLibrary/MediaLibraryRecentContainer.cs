@@ -35,11 +35,8 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     public MediaLibraryRecentContainer(string id, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, EndPointSettings client)
       : base(id, "Recently Added", necessaryMiaTypeIds, optionalMiaTypeIds, null, client)
     {
-      _query = new MediaItemQuery(_necessaryMiaTypeIds, _optionalMiaTypeIds, AppendUserFilter(null, necessaryMiaTypeIds))
-      {
-        Limit = 10,
-        SortInformation = new List<ISortInformation>() { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
-      };
+      _queryLimit = 10;
+      _sortInformation = new List<ISortInformation>() { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) };
     }
   }
 }

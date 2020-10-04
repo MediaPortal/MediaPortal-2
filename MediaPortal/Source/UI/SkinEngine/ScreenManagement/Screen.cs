@@ -804,6 +804,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     }
 
     /// <summary>
+    /// Returns the element that had focus before <see cref="FocusedElement"/>.
+    /// If <see cref="FocusedElement"/> element is null, this is the element
+    /// that had focus before focus was lost.
+    /// </summary>
+    public FrameworkElement LastFocusedElement
+    {
+      get { return (FrameworkElement)_lastFocusedElement.Target; }
+    }
+
+    /// <summary>
     /// Dialog/screen instance id. With this id, this screen can uniquely be identified.
     /// </summary>
     public Guid ScreenInstanceId

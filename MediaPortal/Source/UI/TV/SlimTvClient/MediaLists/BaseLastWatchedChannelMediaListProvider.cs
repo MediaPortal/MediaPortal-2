@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
     public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
     {
-      if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PlaybackComplete))
+      if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PlaybackComplete) && !updateReason.HasFlag(UpdateReason.UserChanged))
         return true;
       
       IList<IChannel> channels = await GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_DATE);

@@ -142,34 +142,21 @@ namespace MediaPortal.Common.UserProfileDataManagement
       return false;
     }
 
-    public IFilter GetUserFilter(IEnumerable<Guid> necessaryMias, ICollection<Share> allShares)
+    public IFilter GetUserFilter(ICollection<Guid> necessaryMias, bool ignoreShareRestriction = false)
     {
       List<IFilter> filters = new List<IFilter>();
 
       // Shares filter
-      if (RestrictShares)
-      {
-        List<IFilter> shareFilters = new List<IFilter>();
-        foreach (var share in GetAllowedShares(allShares))
-        {
-          if (allShares == null || !allShares.Any(s => s.ShareId == share.ShareId))
-            continue;
-          shareFilters.Add(new LikeFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, allShares.First(s => s.ShareId == share.ShareId).BaseResourcePath + "%", null, true));
-        }
-
-        if (shareFilters.Count > 0)
-          filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, shareFilters.ToArray()));
-        else
-          filters.Add(new RelationalFilter(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RelationalOperator.EQ, "")); //No shares are allowed
-      }
+      if (RestrictShares && !ignoreShareRestriction)
+        filters.Add(new SharePathFilter(GetAllowedShares()));
 
       // Content filter
       if (AllowedAge.HasValue && RestrictAges)
       {
         if (necessaryMias.Contains(MovieAspect.ASPECT_ID))
         {
-          IEnumerable<CertificationMapping> certs = CertificationMapper.GetMovieCertificationsForAge(AllowedAge.Value, IncludeParentGuidedContent);
-          if (certs.Count() > 0)
+          var certs = CertificationMapper.GetMovieCertificationsForAge(AllowedAge.Value, IncludeParentGuidedContent).ToList();
+          if (certs.Any())
           {
             if (!IncludeUnratedContent)
               filters.Add(new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
@@ -186,8 +173,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
         else if (necessaryMias.Contains(SeriesAspect.ASPECT_ID))
         {
           //TODO: Should series filters reset the share filter? Series have no share dependency
-          IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(AllowedAge.Value, IncludeParentGuidedContent);
-          if (certs.Count() > 0)
+          var certs = CertificationMapper.GetSeriesCertificationsForAge(AllowedAge.Value, IncludeParentGuidedContent).ToList();
+          if (certs.Any())
           {
             if (!IncludeUnratedContent)
               filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
@@ -203,8 +190,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
         }
         else if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID))
         {
-          IEnumerable<CertificationMapping> certs = CertificationMapper.GetSeriesCertificationsForAge(AllowedAge.Value, IncludeParentGuidedContent);
-          if (certs.Count() > 0)
+          var certs = CertificationMapper.GetSeriesCertificationsForAge(AllowedAge.Value, IncludeParentGuidedContent).ToList();
+          if (certs.Any())
           {
             if (!IncludeUnratedContent)
               filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId))));
@@ -242,16 +229,16 @@ namespace MediaPortal.Common.UserProfileDataManagement
       return subtitleList?.SelectMany(l => l.Value.Values).ToList();
     }
 
-    public IEnumerable<Share> GetAllowedShares(ICollection<Share> allShares)
+    public ICollection<Guid> GetAllowedShares()
     {
       if (!RestrictShares)
-        return allShares;
+        return new List<Guid>();
 
-      List<Share> allowedShares = new List<Share>();
+      List<Guid> allowedShares = new List<Guid>();
       foreach (var key in AdditionalData.Where(d => d.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE))
-        allowedShares.AddRange(key.Value.Values.Select(g => allShares.FirstOrDefault(s => s.ShareId == Guid.Parse(g))));
+        allowedShares.AddRange(key.Value.Values.Select(g => Guid.Parse(g)));
 
-      return allowedShares.Where(s => s != null);
+      return allowedShares;
     }
 
     public bool CheckUserAccess(IUserRestriction restrictedElement)

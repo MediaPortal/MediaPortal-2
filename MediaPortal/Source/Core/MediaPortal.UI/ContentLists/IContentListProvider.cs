@@ -36,7 +36,8 @@ namespace MediaPortal.UI.ContentLists
     PeriodicMinute = 2,
     ImportComplete = 4,
     PlaybackComplete = 8,
-    MediaItemChanged = 16
+    MediaItemChanged = 16,
+    UserChanged = 32
   }
 
   public interface IContentListProvider
