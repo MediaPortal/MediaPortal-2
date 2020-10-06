@@ -26,13 +26,13 @@
     <tv:RecordingAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Image HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill" Width="456" Height="316">
+          <Image HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill" Width="456" Height="316" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}">
             <Image.Source>
               <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                                   Source="Thumbnail_large.png"/>
             </Image.Source>
           </Image>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill" Margin="8" Width="440" Height="300">
+          <Image x:Name="thumbnail" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill" Margin="8" Width="440" Height="300">
             <Image.Source>
               <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                                   FallbackSource="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
