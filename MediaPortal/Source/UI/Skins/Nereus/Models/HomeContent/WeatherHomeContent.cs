@@ -27,10 +27,37 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
-  public class WeatherHomeContent
+  public class WeatherHomeContent : AbstractHomeContent
   {
+    protected override void PopulateBackingList()
+    {
+      MediaListModel mlm = GetMediaListModel();
+
+      _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
+      {
+        new LocationShortcut(),
+        new RefreshShortcut(),
+      }));
+
+    }
   }
+
+  public class LocationShortcut : WorkflowNavigationShortcutItem
+  {
+    public LocationShortcut() : base(new Guid("65A9A5F6-CA50-4459-8E49-0DC614B7A2E8")) { }
+  }
+
+  public class RefreshShortcut : WorkflowNavigationShortcutItem
+  {
+    public RefreshShortcut() : base(new Guid("7AEB11DE-BA40-40a2-933A-B00BBD151B08")) { }
+  }
+
 }

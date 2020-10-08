@@ -2260,6 +2260,28 @@
 
   <!--++++++++++ Weather +++++++++++-->
 
+  <Style x:Key="WeatherLocationShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Weather.ChooseLocation]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\65A9A5F6-CA50-4459-8E49-0DC614B7A2E8.png"/>
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="WeatherRefreshShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Weather.Refresh]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\7AEB11DE-BA40-40a2-933A-B00BBD151B08.png"/>
+    </Style.Resources>
+  </Style>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:LocationShortcut}">
+    <Control Style="{ThemeResource WeatherLocationShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:RefreshShortcut}">
+    <Control Style="{ThemeResource WeatherRefreshShortcutItemControlStyle}"/>
+  </DataTemplate>
+
   <ControlTemplate x:Key="CurrentWeatherControlTemplate">
     <Grid>
       <Grid.ColumnDefinitions>
@@ -2353,8 +2375,13 @@
   <DataTemplate DataType="{x:Type nereus_home_content:WeatherHomeContent}">
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 DataContext="{Binding Source={StaticResource CurrentWeatherModel}}">
-      <!-- Current weather -->
 
+      <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      </ListView>
+
+      <!-- Current weather -->
       <Control Template="{ThemeResource CurrentWeatherTileTemplate}" Width="{ThemeResource TileGroupWidthMedium}" Margin="-20,0,0,0">
         <Control.Resources>
           <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource CurrentWeatherControlTemplate}"/>
