@@ -52,7 +52,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 
   public class LocationShortcut : WorkflowNavigationShortcutItem
   {
-    public LocationShortcut() : base(new Guid("65A9A5F6-CA50-4459-8E49-0DC614B7A2E8")) { }
+    public LocationShortcut() : base(new Guid("9A20A26F-2EF0-4a45-8F92-42D911AE1D8F")) { }
   }
 
   public class RefreshShortcut : WorkflowNavigationShortcutItem
