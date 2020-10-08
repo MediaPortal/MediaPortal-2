@@ -44,6 +44,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new LocationShortcut(),
+        new SetupShortcut(),
         new RefreshShortcut(),
       }));
 
@@ -53,6 +54,11 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   public class LocationShortcut : WorkflowNavigationShortcutItem
   {
     public LocationShortcut() : base(new Guid("9A20A26F-2EF0-4a45-8F92-42D911AE1D8F")) { }
+  }
+
+  public class SetupShortcut : WorkflowNavigationShortcutItem
+  {
+    public SetupShortcut() : base(new Guid("F1CE62B4-32CA-46e8-BCFB-250FE07911B2")) { }
   }
 
   public class RefreshShortcut : WorkflowNavigationShortcutItem

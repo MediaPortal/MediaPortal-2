@@ -2267,6 +2267,13 @@
     </Style.Resources>
   </Style>
 
+  <Style x:Key="WeatherSetupShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Weather.WeatherSetupStateDisplayLabel]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\setup.png"/>
+    </Style.Resources>
+  </Style>
+
   <Style x:Key="WeatherRefreshShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Weather.Refresh]"/>
@@ -2276,6 +2283,10 @@
 
   <DataTemplate DataType="{x:Type nereus_home_content:LocationShortcut}">
     <Control Style="{ThemeResource WeatherLocationShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:SetupShortcut}">
+    <Control Style="{ThemeResource WeatherSetupShortcutItemControlStyle}"/>
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type nereus_home_content:RefreshShortcut}">
@@ -2382,7 +2393,7 @@
       </ListView>
 
       <!-- Current weather -->
-      <Control Template="{ThemeResource CurrentWeatherTileTemplate}" Width="{ThemeResource TileGroupWidthMedium}" Margin="-20,0,0,0">
+      <Control Template="{ThemeResource CurrentWeatherTileTemplate}" Width="{ThemeResource TileGroupWidthNarrow}" Margin="-20,0,0,0">
         <Control.Resources>
           <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource CurrentWeatherControlTemplate}"/>
         </Control.Resources>
