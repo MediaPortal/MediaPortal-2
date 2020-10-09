@@ -55,8 +55,8 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     public NewsSetupShortcut() : base(new Guid("66398F9B-A4DE-49F4-840C-4228C9C94F35")) { }
   }
 
-  public class NewsRefreshShortcut : WorkflowNavigationShortcutItem
+  public class NewsRefreshShortcut : WorkflowActionShortcutItem
   {
-    public NewsRefreshShortcut() : base(new Guid("7AEB11DE-BA40-40a2-933A-B00BBD151B08")) { }
+    public NewsRefreshShortcut() : base(new Guid("EE1BBF83-AE5C-491C-9978-14737A2B0883"), "Refresh") { }
   }
 }

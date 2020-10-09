@@ -61,9 +61,9 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     public SetupShortcut() : base(new Guid("F1CE62B4-32CA-46e8-BCFB-250FE07911B2")) { }
   }
 
-  public class RefreshShortcut : WorkflowNavigationShortcutItem
+  public class RefreshShortcut : WorkflowActionShortcutItem
   {
-    public RefreshShortcut() : base(new Guid("7AEB11DE-BA40-40a2-933A-B00BBD151B08")) { }
+    public RefreshShortcut() : base(new Guid("92BDB53F-4159-4dc2-B212-6083C820A214"), "Refresh") { }
   }
 
 }
