@@ -27,10 +27,36 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
-  public class NewsHomeContent
+  public class NewsHomeContent : AbstractHomeContent
   {
+    protected override void PopulateBackingList()
+    {
+      MediaListModel mlm = GetMediaListModel();
+
+      _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
+      {
+        new NewsSetupShortcut(),
+        new NewsRefreshShortcut(),
+      }));
+
+    }
+  }
+
+  public class NewsSetupShortcut : WorkflowNavigationShortcutItem
+  {
+    public NewsSetupShortcut() : base(new Guid("66398F9B-A4DE-49F4-840C-4228C9C94F35")) { }
+  }
+
+  public class NewsRefreshShortcut : WorkflowNavigationShortcutItem
+  {
+    public NewsRefreshShortcut() : base(new Guid("7AEB11DE-BA40-40a2-933A-B00BBD151B08")) { }
   }
 }
