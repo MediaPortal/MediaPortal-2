@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (items.Count == 0)
-        throw new BadRequestException("No Images found");
+        return System.Threading.Tasks.Task.FromResult<IList<WebPictureBasic>>(new List<WebPictureBasic>());
 
       var output = items.Select(item => PictureBasic(item)).ToList();
 

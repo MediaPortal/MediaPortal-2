@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
     {
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (item == null)
-        throw new BadRequestException(String.Format("GetTvEpisodeBasicById: No MediaItem found with id: {0}", id));
+        throw new NotFoundException(String.Format("GetTvEpisodeBasicById: No MediaItem found with id: {0}", id));
 
       WebTVEpisodeBasic webTvEpisodeBasic = EpisodeBasic(item);
       return Task.FromResult(webTvEpisodeBasic);

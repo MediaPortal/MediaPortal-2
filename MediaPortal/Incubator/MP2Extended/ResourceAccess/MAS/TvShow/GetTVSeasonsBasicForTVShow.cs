@@ -54,7 +54,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       IList<MediaItem> seasons = MediaLibraryAccess.GetMediaItemsByGroup(context, SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (seasons.Count == 0)
-        throw new BadRequestException("No seasons found");
+        return Task.FromResult<IList<WebTVSeasonBasic>>(new List<WebTVSeasonBasic>());
 
       var output = new List<WebTVSeasonBasic>();
 

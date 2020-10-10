@@ -1,18 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Net.Http;
-using System.Security.Claims;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Threading.Tasks;
-using System.Web.Http;
-using System.Web.Http.Description;
-using System.Web.Script.Services;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.Services.ResourceAccess;
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -36,6 +22,15 @@ using MediaPortal.Common.Services.ResourceAccess;
 
 #endregion
 
+using System.Collections.Generic;
+using System.IO;
+using System.Net.Http;
+using System.Threading.Tasks;
+using System.Web.Http;
+using System.Web.Http.Description;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Controllers.Interfaces;
 using MediaPortal.Plugins.MP2Extended.MAS;
@@ -47,7 +42,6 @@ using MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.json

@@ -991,36 +991,40 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
                 }
               }
 
-              if (Checks.AreMultipleAudioStreamsSupported(video))
+              if (video.SourceAudioStreams.Any())
               {
-                foreach (var audio in video.SourceAudioStreams)
+                if (Checks.AreMultipleAudioStreamsSupported(video))
                 {
+                  foreach (var audio in video.SourceAudioStreams)
+                  {
+                    data.OutputFilter.Add(string.Format("[{0}:{1}]", inputNo, audio.StreamIndex));
+                    audioCount++;
+                  }
+                }
+                else
+                {
+                  var audio = video.SourceAudioStreams.First();
                   data.OutputFilter.Add(string.Format("[{0}:{1}]", inputNo, audio.StreamIndex));
                   audioCount++;
                 }
-              }
-              else
-              {
-                var audio = video.SourceAudioStreams.First();
-                data.OutputFilter.Add(string.Format("[{0}:{1}]", inputNo, audio.StreamIndex));
-                audioCount++;
               }
 
               inputNo++;
             }
 
+            string audioMap = audioCount > 0 ? "[a]" : "";
             if (string.IsNullOrEmpty(vidFilter))
             {
-              data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[v][a]", inputNo, audioCount));
+              data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[v]{2}", inputNo, audioCount, audioMap));
             }
             else
             {
-              data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[vf][a];", inputNo, audioCount));
+              data.OutputFilter.Add(string.Format("concat=n={0}:v=1:a={1}[vf]{2};", inputNo, audioCount, audioMap));
               data.OutputFilter.Add(string.Format("[vf]{0}[v]", vidFilter));
             }
 
             data.OutputArguments.Add("-map \"[v]\"");
-            data.OutputArguments.Add("-map \"[a]\"");
+            if (audioCount > 0) data.OutputArguments.Add("-map \"[a]\"");
           }
         }
       }

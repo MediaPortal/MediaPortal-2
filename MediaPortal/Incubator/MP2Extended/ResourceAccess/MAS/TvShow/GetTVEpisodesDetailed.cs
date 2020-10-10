@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds, null);
 
       if (items.Count == 0)
-        throw new BadRequestException("No Tv Episodes found");
+        return System.Threading.Tasks.Task.FromResult<IList<WebTVEpisodeDetailed>>(new List<WebTVEpisodeDetailed>());
 
       var output = items.Select(item => EpisodeDetailed(item))
         .Filter(filter);

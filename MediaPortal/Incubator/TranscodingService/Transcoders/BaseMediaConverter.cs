@@ -146,14 +146,14 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
         {
           playlistPath = Path.Combine(context.SegmentDir, PLAYLIST_FILE_NAME);
         }
-        DateTime waitStart = DateTime.Now;
+        DateTime waitStart = DateTime.UtcNow;
 
         //Ensure that writing is completed. Is there a better way?
         if (Path.GetExtension(PLAYLIST_FILE_NAME) == Path.GetExtension(fileName)) //playlist file
         {
           while (!File.Exists(completePath))
           {
-            if ((DateTime.Now - waitStart).TotalMilliseconds > HLS_PLAYLIST_TIMEOUT)
+            if ((DateTime.UtcNow - waitStart).TotalMilliseconds > HLS_PLAYLIST_TIMEOUT)
               return nullVal;
 
             await Task.Delay(10).ConfigureAwait(false);
@@ -195,7 +195,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
                   break;
               }
             }
-            if ((DateTime.Now - waitStart).TotalSeconds > _hlsSegmentTimeInSeconds)
+            if ((DateTime.UtcNow - waitStart).TotalSeconds > _hlsSegmentTimeInSeconds)
               return nullVal;
 
             await Task.Delay(10).ConfigureAwait(false);
@@ -211,7 +211,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
           {
             if (!context.Running)
               return nullVal;
-            if ((DateTime.Now - waitStart).TotalMilliseconds > _hlsSegmentTimeInSeconds)
+            if ((DateTime.UtcNow - waitStart).TotalMilliseconds > _hlsSegmentTimeInSeconds)
               return nullVal;
 
             await Task.Delay(10).ConfigureAwait(false);

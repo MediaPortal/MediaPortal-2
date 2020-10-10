@@ -56,9 +56,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       necessaryMIATypes.Add(PersonAspect.ASPECT_ID);
 
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByGroup(context, PersonAspect.ROLE_ACTOR, SeriesAspect.ROLE_SERIES, Guid.Empty, necessaryMIATypes, null);
-         
+
       if (items.Count == 0)
-        throw new BadRequestException("No Tv show actors found");
+        return System.Threading.Tasks.Task.FromResult<IList<WebActor>>(new List<WebActor>());
 
       var output = items.Select(a => new WebActor(a.GetAspect(PersonAspect.Metadata).GetAttributeValue<string>(PersonAspect.ATTR_PERSON_NAME)))
         .Filter(filter);

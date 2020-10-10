@@ -57,7 +57,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
       IFilter searchFilter = new MediaItemIdFilter(playlistRawData.MediaItemIds);
       IList<MediaItem> items = MediaLibraryAccess.Search(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, searchFilter);
       if (items.Count == 0)
-        throw new BadRequestException("No Tracks found");
+        return System.Threading.Tasks.Task.FromResult<IList<WebPlaylistItem>>(new List<WebPlaylistItem>());
 
       var tracks = items.Select(item => MusicTrackBasic(item))
         .Filter(filter);

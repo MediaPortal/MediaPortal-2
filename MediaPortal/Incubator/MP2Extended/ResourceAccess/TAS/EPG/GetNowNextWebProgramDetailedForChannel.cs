@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 
       var programs = await TVAccess.GetChannelNowNextProgramAsync(context, int.Parse(channelId));
       if (programs == null)
-        throw new BadRequestException(string.Format("GetNowNextWebProgramDetailedForChannel: Couldn't get Now/Next Info for channel with Id: {0}", channelId));
+        throw new NotFoundException(string.Format("GetNowNextWebProgramDetailedForChannel: Couldn't get Now/Next Info for channel with Id: {0}", channelId));
 
       List<WebProgramDetailed> output = new List<WebProgramDetailed>
       {
