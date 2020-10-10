@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Configuration.EnableFanart.Help">Si se desea mostrar fanart de fondo.</string>
+  <string name="Nereus.Home.LatestAdded">Último añadido</string>
+  <string name="Nereus.Home.LatestPlayed">Última reproducción</string>
+  <string name="Nereus.Home.CurrentPrograms">Programas actuales</string>
+  <string name="Nereus.Home.CurrentSchedules">Programación actual</string>
+  <string name="Nereus.Home.Favorites">Favoritos</string>
+  <string name="Nereus.Home.Unplayed">Sin reproducir</string>
+  <string name="Nereus.Shortcut.Genre">Genre</string>
+  <string name="Nereus.Shortcut.Year">Year</string>
+  <string name="Nereus.Shortcut.Age">Age</string>
+  <string name="Nereus.Shortcut.Actor">Actor</string>
+  <string name="Nereus.Shortcut.Artist">Artista</string>
+  <string name="Nereus.Shortcut.Search">Buscar</string>
+  <string name="Nereus.Shortcut.Track">Pista</string>
+  <string name="Nereus.Shortcut.Schedules">Programaciones</string>
+  <string name="Nereus.Shortcut.Recordings">Grabaciones</string>
+  <string name="Nereus.Shortcut.System">Sistema</string>
+  <string name="Nereus.Shortcut.Size">Tamaño</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Otros</string>
+  </resources>

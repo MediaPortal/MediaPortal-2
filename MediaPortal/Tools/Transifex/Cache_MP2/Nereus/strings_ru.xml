@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Configuration.EnableWatchedFlags.ListView">В виде списка</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.GridView">В виде сетки</string>
+  <string name="Nereus.Configuration.GridViewType.Poster">Постеры</string>
+  <string name="Nereus.Configuration.GridViewType.Banner">Баннеры</string>
+  <string name="Nereus.Configuration.GridViewType.Thumbnail">Миниатюры</string>
+  <string name="Nereus.Home.LatestAdded">Последнее добавленное</string>
+  <string name="Nereus.Home.LatestPlayed">Последнее воспроизведенное</string>
+  <string name="Nereus.Home.ContinuePlayed">Продолжить воспроизведение</string>
+  <string name="Nereus.Home.CurrentPrograms">Текущие программы</string>
+  <string name="Nereus.Home.CurrentSchedules">Текущие расписания</string>
+  <string name="Nereus.Home.Favorites">Избранное</string>
+  <string name="Nereus.Home.Forecast">Прогноз</string>
+  <string name="Nereus.Home.LatestLaunched">Последнее запущенное</string>
+
+  <string name="Nereus.Shortcut.Genre">Жанр</string>
+  <string name="Nereus.Shortcut.Year">Год</string>
+  <string name="Nereus.Shortcut.Actor">Актер</string>
+  <string name="Nereus.Shortcut.Artist">Исполнитель</string>
+  <string name="Nereus.Shortcut.Search">Поиск</string>
+  <string name="Nereus.Shortcut.Track">Трек</string>
+  <string name="Nereus.Shortcut.Album">Альбом</string>
+  <string name="Nereus.Shortcut.TVGuide">ТВ гид</string>
+  <string name="Nereus.Shortcut.Schedules">Расписания</string>
+  <string name="Nereus.Shortcut.Recordings">Записанные файлы</string>
+  <string name="Nereus.Shortcut.System">Система</string>
+  <string name="Nereus.Shortcut.Size">Размер</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Другое</string>
+  <string name="Nereus.Home.OtherPlugins.Help">Остальные плагины.</string>
+  
+  <string name="Nereus.Dialog.EditMenu.Header">Изменить меню</string>
+  <string name="Nereus.Dialog.AddMenuItem.Header">Добавить элемент меню</string>
+
+</resources>

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Stoppa</string>
+  <string name="AppLauncher.Pause">Pausa</string>
+  <string name="AppLauncher.Settings.Title">Inställningar</string>
+  <string name="AppLauncher.Settings.Add.Arguments">Parametrar till appen</string>
+  <string name="AppLauncher.Settings.Add.Description">Beskrivning</string>
+  <string name="AppLauncher.Settings.Add.Username">Användarnamn</string>
+  <string name="AppLauncher.Settings.Add.Password">Lösenord</string>
+  <string name="AppLauncher.Settings.Add.Search">Sök</string>
+  <string name="AppLauncher.Settings.Add.Select">Välj</string>
+  <string name="AppLauncher.Settings.Add.Minimum">Minimum</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normal</string>
+  <string name="AppLauncher.Settings.Add.Maximum">Maximum</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">Dölj fönster</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">Sök ikon</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">Sök app</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">Kör som Administratör</string>
+  <string name="AppLauncher.Settings.Add.Helptext">La till app</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Ändra en befintlig app</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Ta bort en befintlig app</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Ta bort en befintlig grupp</string>
+
+  <string name="AppLauncher.Group">Grupp</string>
+  <string name="AppLauncher.SelectGroup">Välj grupp</string>
+  <string name="AppLauncher.RemoveGroup">Ta bort grupp</string>
+  <string name="AppLauncher.Delete">Ta bort</string>
+  <string name="AppLauncher.Menu.Clear">Rensa</string>
+</resources>

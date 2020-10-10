@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">Ääni</string>
+  <string name="MediaServer.GenreContainter">Tyylilajit</string>
+  <string name="MediaServer.ShareContainter">Verkkojaot</string>
+  <string name="MediaServer.ImageContainter">Kuvat</string>
+  <string name="MediaServer.MovieContainter">Elokuvat</string>
+  <string name="MediaServer.UnwatchedContainter">Katsomaton</string>
+  <string name="MediaServer.ActorContainter">Näyttelijät</string>
+  <string name="MediaServer.SeriesContainter">Sarjat</string>
+  <string name="MediaServer.TV">TV</string>
+  </resources>

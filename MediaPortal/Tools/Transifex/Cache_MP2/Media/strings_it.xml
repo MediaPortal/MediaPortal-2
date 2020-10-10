@@ -451,8 +451,6 @@
   <string name="Settings.Media.Certification.Series">Paese da usare per il controllo parentale delle serie TV</string>
   <string name="Settings.Media.Certification.Series.Help">Seleziona il sistema certificazione da usare per il controllo parentale delle serie TV</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

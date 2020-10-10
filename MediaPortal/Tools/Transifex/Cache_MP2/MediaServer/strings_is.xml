@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">Hljóð</string>
+  <string name="MediaServer.ShareContainter">Deilingar</string>
+  <string name="MediaServer.ImageContainter">Ljósmyndir</string>
+  <string name="MediaServer.MovieContainter">Kvikmyndir</string>
+  <string name="MediaServer.ActorContainter">Leikarar</string>
+  <string name="MediaServer.SeriesContainter">Þættir</string>
+  <string name="MediaServer.TV">Sjónvarp</string>
+  </resources>

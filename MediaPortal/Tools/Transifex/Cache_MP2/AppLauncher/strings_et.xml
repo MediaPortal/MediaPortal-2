@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Stopp</string>
+  <string name="AppLauncher.Settings.Title">Seaded</string>
+  <string name="AppLauncher.Settings.Add.Description">Kirjeldus</string>
+  <string name="AppLauncher.Settings.Add.Search">Otsi</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normal</string>
+  <string name="AppLauncher.Delete">Kustuta</string>
+  <string name="AppLauncher.Menu.Clear">selge</string>
+</resources>

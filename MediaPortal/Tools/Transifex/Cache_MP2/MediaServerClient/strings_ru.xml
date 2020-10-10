@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!--Client Settings-->
+  <string name="Settings.DLNA.Title">DLNA</string> <string name="Settings.DLNA.Clients.Config.ClientName">Имя</string>
+  <string name="Settings.DLNA.Clients.Config.Profile">Профиль</string>
+  <string name="Settings.DLNA.Clients.Config.DefaultUser">Пользователь по умолчанию</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation.Title">Удалить подтверждение</string>
+  <string name="Settings.DLNA.Clients.Config.Yes">Да</string>
+  <string name="Settings.DLNA.Clients.Config.No">Нет</string>
+  <string name="Settings.DLNA.Clients.Config.NoUser">Никто</string>
+  <string name="Settings.DLNA.Clients.Config.AutoProfile">Автоматически</string>
+  
+  <string name="Settings.DLNA.UserLogin">Показать логин пользователя</string> </resources>

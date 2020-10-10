@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Configuration.EnableFanart">Activer FanArt</string>
+  <string name="Nereus.Configuration.EnableFanart.Help">Indique s\'il faut afficher un fanart en fond d\'cran</string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity">Fanart : Visibilité</string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Ajustez l\'opacité du fanart par rapport à l\'arriere plan. Une valeur inférieure augmente la visibilité du fanart (la valeur par défaut est 1,0).</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags">Activer les drappeaux \"vu\"</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.Help">Afficher les icônes \"vu\" dans les vues sélectionnées.</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.ListView">Liste</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.GridView">Grille</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.CoverView">Affiche</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos">Activer la signalétique jeunesse</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos.Help">Indique si les logos de certification d\'âge doivent être affichés dans les écrans des médias.</string>
+  <string name="Nereus.Configuration.MovieGridViewType">Déplacer la disposition de la grille</string>
+  <string name="Nereus.Configuration.MovieGridViewType.Help">Sélectionné la disposition utilisée pour la l\'affichage de la grille Film.</string>
+  <string name="Nereus.Configuration.SeriesGridViewType">Affichage des séries</string>
+  <string name="Nereus.Configuration.SeriesGridViewType.Help">Sélectionné la disposition utilisée pour la l\'affichage de la grille Séries.</string>
+  <string name="Nereus.Configuration.SeasonGridViewType">Affichage des saisons</string>
+  <string name="Nereus.Configuration.SeasonGridViewType.Help">Sélectionné la disposition utilisée pour la l\'affichage de la grille Saison.</string>
+  <string name="Nereus.Configuration.GridViewType.Poster">Affiches</string>
+  <string name="Nereus.Configuration.GridViewType.Banner">Bannières</string>
+  <string name="Nereus.Configuration.GridViewType.Thumbnail">Vignettes</string>
+  <string name="Nereus.Configuration.EnableHomeContent">Activé le contenu dans Home</string>
+  <string name="Nereus.Configuration.EnableHomeContent.Help">Indique si vous souhaitez afficher du contenu sur l\'écran d\'accueil.</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView">Activer l\'affichage des détails du média</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Afficher les infos du média, au lieu de le lire directement.</string>
+
+  <string name="Nereus.Home.LatestAdded">Dernier ajouté</string>
+  <string name="Nereus.Home.LatestPlayed">Dernier lu</string>
+  <string name="Nereus.Home.ContinuePlayed">Continuer La Lecture</string>
+  <string name="Nereus.Home.CurrentPrograms">Programmes en cours</string>
+  <string name="Nereus.Home.CurrentSchedules">Horaires Actuelles</string>
+  <string name="Nereus.Home.Favorites">Favoris</string>
+  <string name="Nereus.Home.Unplayed">Non lu</string>
+  <string name="Nereus.Shortcut.Genre">Genre</string>
+  <string name="Nereus.Shortcut.Year">Année</string>
+  <string name="Nereus.Shortcut.Actor">Acteurs</string>
+  <string name="Nereus.Shortcut.Artist">Artiste</string>
+  <string name="Nereus.Shortcut.Search">Recherche</string>
+  <string name="Nereus.Shortcut.Track">Piste</string>
+  <string name="Nereus.Shortcut.Schedules">Programmations</string>
+  <string name="Nereus.Shortcut.Recordings">Enregistrements</string>
+  <string name="Nereus.Shortcut.System">Système</string>
+  <string name="Nereus.Shortcut.Size">Taille</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Autres</string>
+  </resources>

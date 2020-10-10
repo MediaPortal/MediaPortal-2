@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Dur</string>
+  <string name="AppLauncher.Settings.Title">Ayarlar</string>
+  <string name="AppLauncher.Settings.Add.Description">Tanım</string>
+  <string name="AppLauncher.Settings.Add.Search">Arama</string>
+  <string name="AppLauncher.Settings.Add.Select">Seç</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normal</string>
+  <string name="AppLauncher.Delete">Sil</string>
+  <string name="AppLauncher.Menu.Clear">Açık</string>
+</resources>

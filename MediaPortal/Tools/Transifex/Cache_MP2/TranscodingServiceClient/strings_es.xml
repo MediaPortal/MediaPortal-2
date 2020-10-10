@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.Transcode.None">None</string>
+  <string name="Settings.Transcode.Auto">Automáticamente</string>
+  <string name="Settings.Transcode.Default">Por defecto</string>
+
+</resources>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.AudiotContainter">Áudio</string>
+  <string name="MediaServer.YearContainter">Ano</string>
+  <string name="MediaServer.ImageContainter">Imagens</string>
+  <string name="MediaServer.VideoContainter">Vídeo</string>
+  <string name="MediaServer.MovieContainter">Filmes</string>
+  <string name="MediaServer.SeriesContainter">Séries</string>
+  <string name="MediaServer.TV">TV</string>
+  </resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Shortcut.Genre">Műfaj</string>
+  <string name="Nereus.Shortcut.Search">Keresés</string>
+  <string name="Nereus.Shortcut.Recordings">Felvételek</string>
+  <string name="Nereus.Shortcut.System">Rendszer</string>
+  <string name="Nereus.Home.OtherPlugins">Egyebek</string>
+  </resources>

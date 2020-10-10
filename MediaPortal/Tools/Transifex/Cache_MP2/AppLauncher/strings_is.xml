@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Stöðva</string>
+  <string name="AppLauncher.Settings.Title">Stillingar</string>
+  <string name="AppLauncher.Settings.Add.Description">Lýsing</string>
+  <string name="AppLauncher.Settings.Add.Search">Leita</string>
+  <string name="AppLauncher.Settings.Add.Select">Veljið</string>
+  <string name="AppLauncher.Settings.Add.Normal">Eðlilegt</string>
+  <string name="AppLauncher.Delete">Eyða</string>
+  <string name="AppLauncher.Menu.Clear">Heiðskýrt</string>
+</resources>

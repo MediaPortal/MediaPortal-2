@@ -1,0 +1,5 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="HelloWorld.HelloWorldText">Нажатие на кнопку изменит текст</string>
+  <string name="HelloWorld.ButtonText">Нажмите на меня</string>
+</resources>

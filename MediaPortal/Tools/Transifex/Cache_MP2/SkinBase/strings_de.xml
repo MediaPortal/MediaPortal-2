@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Vom Server abkoppeln</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">MP2-Server</string>
   <string name="ServerConnection.AttachedText.Before">Dieser Client ist einem MP2-Server zugewiesen.</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Dieser Client ist momentan keinem MP2-Server zugewiesen.</string>
   <string name="ServerConnection.HomeServerIsConnected">Der MP2-Server ist verbunden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Der MP2-Server ist getrennt.</string>

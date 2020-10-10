@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Home.Favorites">מועדפים</string>
+  <string name="Nereus.Shortcut.Genre">ז\'אנר</string>
+  <string name="Nereus.Shortcut.Actor">שחקן</string>
+  <string name="Nereus.Shortcut.Artist">אמן</string>
+  <string name="Nereus.Shortcut.Search">חפש</string>
+  <string name="Nereus.Shortcut.Recordings">הקלטות</string>
+  <string name="Nereus.Shortcut.System">מערכת</string>
+  <string name="Nereus.Shortcut.Size">גודל</string>
+  
+  <string name="Nereus.Home.OtherPlugins">אחרים</string>
+  </resources>

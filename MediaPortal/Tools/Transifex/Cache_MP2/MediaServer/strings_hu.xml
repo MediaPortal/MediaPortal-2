@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">Audió</string>
+  <string name="MediaServer.ShareContainter">Megosztások</string>
+  <string name="MediaServer.ImageContainter">Képek</string>
+  <string name="MediaServer.VideoContainter">Videó</string>
+  <string name="MediaServer.MovieContainter">Filmek</string>
+  <string name="MediaServer.SeriesContainter">Sorozatok</string>
+  <string name="MediaServer.TV">TV</string>
+  </resources>

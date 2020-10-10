@@ -160,7 +160,7 @@
   <string name="Media.CheckQueryPlayActionSingleItemWorkflowStateNavigationContextDisplayLabel">Play action</string>
   <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Play action</string>
   <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Choose media type</string>
-  
+
   <!-- Screen headers -->
   <string name="Media.BrowseMediaNavigationHeader">Browse media navigation</string>
   <string name="Media.LocalMediaNavigationHeader">Local media navigation</string>

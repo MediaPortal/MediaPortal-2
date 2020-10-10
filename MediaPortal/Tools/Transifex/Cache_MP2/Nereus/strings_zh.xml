@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Configuration.EnableFanart">启用同人画</string>
+  <string name="Nereus.Configuration.EnableFanart.Help">是否在背景中显示同人画。</string>
+  <string name="Nereus.Home.Favorites">收藏夹</string>
+  <string name="Nereus.Shortcut.Genre">流派</string>
+  <string name="Nereus.Shortcut.Artist">艺术家</string>
+  <string name="Nereus.Shortcut.Search">搜索</string>
+  <string name="Nereus.Shortcut.Recordings">录制</string>
+  <string name="Nereus.Shortcut.System">系统</string>
+  <string name="Nereus.Shortcut.Size">大小</string>
+  
+  <string name="Nereus.Home.OtherPlugins">其它的</string>
+  </resources>

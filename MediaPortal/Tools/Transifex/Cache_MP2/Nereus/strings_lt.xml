@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Home.Favorites">Megstamiausi</string>
+  <string name="Nereus.Shortcut.Genre">Zanras</string>
+  <string name="Nereus.Shortcut.Year">Metai</string>
+  <string name="Nereus.Shortcut.Age">Senumas</string>
+  <string name="Nereus.Shortcut.Actor">Aktorius</string>
+  <string name="Nereus.Shortcut.Artist">Atlikėjas</string>
+  <string name="Nereus.Shortcut.Search">Paieška</string>
+  <string name="Nereus.Shortcut.Schedules">Tvarkaraščiai</string>
+  <string name="Nereus.Shortcut.Recordings">Įrašai</string>
+  <string name="Nereus.Shortcut.System">Sistema</string>
+  <string name="Nereus.Shortcut.Size">Dydis</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Kiti</string>
+  </resources>

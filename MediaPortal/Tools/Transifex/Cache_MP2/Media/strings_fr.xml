@@ -454,8 +454,6 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="Settings.Media.Certification.Series">Pays du système du code régional de la série</string>
   <string name="Settings.Media.Certification.Series.Help">Sélectionnez le pays du système de certification à utiliser lors de l\'affichage des certifications de série</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>
