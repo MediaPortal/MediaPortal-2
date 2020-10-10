@@ -2093,14 +2093,14 @@
 
   <Style x:Key="NewsSetupShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Settings.Plugins.News.FeedsSetup]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Setup]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\setup.png"/>
     </Style.Resources>
   </Style>
 
   <Style x:Key="NewsRefreshShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Settings.Plugins.News.RefreshInterval]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Refresh]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\7AEB11DE-BA40-40a2-933A-B00BBD151B08.png"/>
     </Style.Resources>
   </Style>
@@ -2290,21 +2290,21 @@
 
   <Style x:Key="WeatherLocationShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Weather.ChooseLocation]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Location]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\65A9A5F6-CA50-4459-8E49-0DC614B7A2E8.png"/>
     </Style.Resources>
   </Style>
 
   <Style x:Key="WeatherSetupShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Weather.WeatherSetupStateDisplayLabel]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Setup]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\setup.png"/>
     </Style.Resources>
   </Style>
 
   <Style x:Key="WeatherRefreshShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
-      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Weather.Refresh]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Refresh]"/>
       <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\7AEB11DE-BA40-40a2-933A-B00BBD151B08.png"/>
     </Style.Resources>
   </Style>
