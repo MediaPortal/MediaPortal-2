@@ -71,9 +71,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       { WebFileType.Backdrop, FanArtTypes.FanArt },
       { WebFileType.Banner, FanArtTypes.Banner },
       { WebFileType.Content, FanArtTypes.Thumbnail },
-      { WebFileType.Cover, FanArtTypes.Poster },
-      { WebFileType.Logo, FanArtTypes.FanArt }, // ??
+      { WebFileType.Cover, FanArtTypes.Cover },
+      { WebFileType.Logo, FanArtTypes.Logo },
       { WebFileType.Poster, FanArtTypes.Poster },
+      { WebFileType.ClearArt, FanArtTypes.ClearArt },
+      { WebFileType.DiscArt, FanArtTypes.DiscArt },
     };
 
 
@@ -82,7 +84,6 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
       // Map the Fanart Type
       if (!_fanArtTypeMapping.TryGetValue(webFileType, out fanartType))
         fanartType = FanArtTypes.Undefined;
-
 
       // Map the Fanart MediaType
       if (!_fanArtMediaTypeMapping.TryGetValue(webMediaType, out fanArtMediaType))
@@ -108,51 +109,27 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
         item = MediaLibraryAccess.GetMediaItemById(context, id, necessaryMIATypes, optionalMIATypes);
 
       if (item == null && !isTvRadio)
-        throw new BadRequestException(String.Format("GetArtworkResized: No MediaItem found with id: {0}", id));
+        throw new BadRequestException(String.Format("GetFanArtImages: No MediaItem found with id: {0}", id));
 
-      string name;
+      string name = id;
       if (isTvRadio)
       {
-        name = id;
-        if (ServiceRegistration.IsRegistered<ITvProvider>())
+        IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>(false) as IChannelAndGroupInfoAsync;
+        if (channelAndGroupInfo != null)
         {
-          IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
           int idInt = int.Parse(id);
           var channel = channelAndGroupInfo.GetChannelAsync(idInt).Result;
           if (channel.Success)
             name = channel.Result.Name;
+          else
+            throw new BadRequestException(String.Format("GetFanArtImages: No Channel found with id: {0}", id));
         }
-      }else if (isRecording)
-      {
-        name = id;
-      }else
-      {
-        name = (string)MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata)[MediaAspect.ATTR_TITLE];
-        // Tv Episode
-        if (item.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
-        {
-          //name = (string)item.Aspects[SeriesAspect.ASPECT_ID][SeriesAspect.ATTR_EPISODENAME];
-          name = item.MediaItemId.ToString();
-          fanArtMediaType = FanArtMediaTypes.Undefined;
-          fanartType = FanArtTypes.Thumbnail;
-        }
-        else
-        {
-          name = id;
-        }
-
-        /*if (isSeason)
-        {
-          name = String.Format("{0} S{1}", (string)MediaItemAspect.GetAspect(item.Aspects, MediaAspect.Metadata)[MediaAspect.ATTR_TITLE], seasonId);
-          fanartType = FanArtTypes.Poster;
-        }*/
       }
 
       IList<FanArtImage> fanart = ServiceRegistration.Get<IFanArtService>().GetFanArt(fanArtMediaType, fanartType, name, 0, 0, false);
-
       if (fanart == null || fanart.Count == 0)
       {
-        Logger.Debug("BaseGetArtwork: no fanart found - fanArtMediaType: {0}, fanartType: {1}, name: {2}", fanArtMediaType, fanartType, name);
+        Logger.Debug("GetFanArtImages: no fanart found - fanArtMediaType: {0}, fanartType: {1}, name: {2}", fanArtMediaType, fanartType, name);
         // We return a transparent image instead of throwing an exception
         Bitmap newImage = new Bitmap(1, 1, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
         Graphics graphic = Graphics.FromImage(newImage);

@@ -689,7 +689,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           string name = "MP Transcode - " + data.TranscodeId;
           if (context.Partial)
             name += " - Partial: " + Thread.CurrentThread.ManagedThreadId;
-       
+
           Thread transcodeThread = new Thread(TranscodeProcessor)
           {
             //IsBackground = true, //Can cause invalid cache files
@@ -722,281 +722,274 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
     {
       FFMpegTranscodeThreadData data = (FFMpegTranscodeThreadData)args;
       bool isStream = data.Context.Live && !data.Context.Segmented;
-
-      if (data.Context.Segmented == true)
-        await FFMpegPlaylistManifest.CreatePlaylistFilesAsync(data.TranscodeData).ConfigureAwait(false);
-
       bool isFile = true;
       bool isSlimTv = false;
-      int liveChannelId = 0;
-      bool runProcess = true;
-      using (IResourceAccessor mediaAccessor = data.TranscodeData.GetFirstResourceAccessor())
-      {
-        if (mediaAccessor is ITranscodeLiveAccessor tla)
-        {
-          isSlimTv = true;
-          liveChannelId = tla.ChannelId;
-        }
-      }
 
-      data.Context.Start();
-      data.TranscodeData.ClearRuntimeResourcePaths();
-      int exitCode = -1;
-
-      string identifier = "Transcode_" + data.TranscodeData.ClientId;
-      if (isSlimTv)
+      try
       {
-        var result = await _slimtTvHandler.StartTuningAsync(identifier, liveChannelId).ConfigureAwait(false);
-        if (!result.Success)
+        if (data.Context.Segmented == true)
+          await FFMpegPlaylistManifest.CreatePlaylistFilesAsync(data.TranscodeData).ConfigureAwait(false);
+
+        int liveChannelId = 0;
+        bool runProcess = true;
+        using (IResourceAccessor mediaAccessor = data.TranscodeData.GetFirstResourceAccessor())
         {
-          _logger.Error("FFMpegMediaConverter: Transcoder unable to start timeshifting for channel {0}", liveChannelId);
-          runProcess = false;
-          exitCode = 5000;
-        }
-        else
-        {
-          using (var mediaAccessor = await _slimtTvHandler.GetDefaultAccessorAsync(liveChannelId).ConfigureAwait(false))
+          if (mediaAccessor is ITranscodeLiveAccessor tla)
           {
-            if (mediaAccessor is INetworkResourceAccessor)
-            {
-              int mediaStreamIndex = data.TranscodeData.FirstResourceIndex;
-              data.TranscodeData.AddRuntimeResourcePath(ResourcePath.Deserialize(data.TranscodeData.InputMediaFilePaths[mediaStreamIndex]), mediaAccessor.CanonicalLocalResourcePath.Serialize());
-            }
-            else
-            {
-              _logger.Error("FFMpegMediaConverter: Transcoder unable to start timeshifting for channel {0} because no URL was found", liveChannelId);
-              runProcess = false;
-              exitCode = 5001;
-            }
+            isSlimTv = true;
+            liveChannelId = tla.ChannelId;
           }
         }
-      }
 
-      ResourcePath firstPath;
-      using (var mediaAccessor = data.TranscodeData.GetFirstResourceAccessor())
-      {
-        firstPath = mediaAccessor.CanonicalLocalResourcePath;
-        if (mediaAccessor is INetworkResourceAccessor)
-        {
-          isFile = false;
-        }
-      }
+        data.Context.Start();
+        data.TranscodeData.ClearRuntimeResourcePaths();
+        int exitCode = -1;
 
-      if (runProcess)
-      {
-        //Prepare resources
-        List<IDisposable> disposables = new List<IDisposable>();
-        foreach (var res in data.TranscodeData.GetResourceAccessors())
+        string identifier = "Transcode_" + data.TranscodeData.ClientId;
+        if (isSlimTv)
         {
-          if (!(res is INetworkResourceAccessor))
+          var result = await _slimtTvHandler.StartTuningAsync(identifier, liveChannelId).ConfigureAwait(false);
+          if (!result.Success)
           {
-            var rah = new LocalFsResourceAccessorHelper(res);
-            data.TranscodeData.AddRuntimeResourcePath(res.CanonicalLocalResourcePath, rah.LocalFsResourceAccessor.LocalFileSystemPath);
-            var accessToken = rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess();
-            if (accessToken != null)
-              disposables.Add(accessToken);
-            disposables.Add(rah);
+            _logger.Error("FFMpegMediaConverter: Transcoder unable to start timeshifting for channel {0}", liveChannelId);
+            runProcess = false;
+            exitCode = 5000;
           }
-          disposables.Add(res);
-        }
-
-        ProcessStartInfo startInfo = new ProcessStartInfo()
-        {
-          FileName = data.TranscodeData.TranscoderBinPath,
-          WorkingDirectory = data.TranscodeData.WorkPath,
-          Arguments = data.TranscodeData.TranscoderArguments,
-          UseShellExecute = false,
-          CreateNoWindow = true,
-          RedirectStandardOutput = true,
-          RedirectStandardError = true,
-          RedirectStandardInput = true,
-          StandardOutputEncoding = Encoding.UTF8,
-          StandardErrorEncoding = Encoding.UTF8
-        };
-
-        _logger.Debug("FFMpegMediaConverter: Transcoder '{0}' invoked with command line arguments '{1}'", data.TranscodeData.TranscoderBinPath, data.TranscodeData.TranscoderArguments);
-
-        try
-        {
-          //TODO: Fix usages of obsolete and deprecated methods when alternative is available
-#if !TRANSCODE_CONSOLE_TEST
-          using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(firstPath))
+          else
           {
-            //Only when the server is running as a service it will have elevation rights
-            using (ImpersonationProcess ffmpeg = new ImpersonationProcess { StartInfo = startInfo })
+            using (var mediaAccessor = await _slimtTvHandler.GetDefaultAccessorAsync(liveChannelId).ConfigureAwait(false))
             {
-              IntPtr userToken = IntPtr.Zero;
-              if (isFile && !ImpersonationHelper.GetTokenByProcess(out userToken, true))
-                return;
-#else
-          {
-            {
-              Process ffmpeg = new Process() { StartInfo = startInfo };
-#endif
-              ffmpeg.EnableRaisingEvents = true; //Enable raising events because Process does not raise events by default.
-              if (isStream == false)
+              if (mediaAccessor is INetworkResourceAccessor)
               {
-                ffmpeg.OutputDataReceived += data.Context.OutputDataReceived;
-              }
-
-              ffmpeg.ErrorDataReceived += data.Context.ErrorDataReceived;
-#if !TRANSCODE_CONSOLE_TEST
-              if (isFile) 
-                ffmpeg.StartAsUser(userToken);
-              else 
-                ffmpeg.Start();
-#else
-              ffmpeg.Start();
-#endif
-              ffmpeg.BeginErrorReadLine();
-              if (isStream == false)
-              {
-                ffmpeg.BeginOutputReadLine();
+                int mediaStreamIndex = data.TranscodeData.FirstResourceIndex;
+                data.TranscodeData.AddRuntimeResourcePath(ResourcePath.Deserialize(data.TranscodeData.InputMediaFilePaths[mediaStreamIndex]), mediaAccessor.CanonicalLocalResourcePath.Serialize());
               }
               else
               {
-                data.TranscodeData.LiveStream = ffmpeg.StandardOutput.BaseStream;
+                _logger.Error("FFMpegMediaConverter: Transcoder unable to start timeshifting for channel {0} because no URL was found", liveChannelId);
+                runProcess = false;
+                exitCode = 5001;
               }
-
-              while (ffmpeg.HasExited == false)
-              {
-                if (data.Context.Running == false)
-                {
-                  data.Context.Aborted = true;
-                  if (isStream == false)
-                  {
-                    ffmpeg.CancelOutputRead();
-                  }
-
-                  ffmpeg.CancelErrorRead();
-                  //if (isStream == false)
-                  {
-                    ffmpeg.StandardInput.WriteLine("q"); //Soft exit
-                    ffmpeg.StandardInput.Close();
-                  }
-
-                  if (ffmpeg.WaitForExit(2000) == false)
-                  {
-                    ffmpeg.Kill(); //Hard exit
-                  }
-
-                  break;
-                }
-
-                if (data.Context.Segmented == true)
-                {
-                  long lastSequence = 0;
-                  if (Directory.Exists(data.Context.SegmentDir))
-                  {
-                    string[] segmentFiles = Directory.GetFiles(data.Context.SegmentDir, "*.ts");
-                    foreach (string file in segmentFiles)
-                    {
-                      long sequenceNumber = GetSegmentSequence(file);
-                      if (sequenceNumber > lastSequence) lastSequence = sequenceNumber;
-                    }
-
-                    data.Context.LastSegment = lastSequence;
-                  }
-                }
-
-                Thread.Sleep(5);
-              }
-
-              ffmpeg.WaitForExit();
-              exitCode = ffmpeg.ExitCode;
-              ffmpeg.Close();
-              data.TranscodeData.LiveStream?.Dispose();
-         
-#if !TRANSCODE_CONSOLE_TEST
-              if (isFile)
-                NativeMethods.CloseHandle(userToken);
-#endif
             }
           }
         }
-        catch (Exception ex)
+
+        ResourcePath firstPath;
+        using (var mediaAccessor = data.TranscodeData.GetFirstResourceAccessor())
         {
-          if (isStream || data.TranscodeData.OutputFilePath == null)
+          firstPath = mediaAccessor.CanonicalLocalResourcePath;
+          if (mediaAccessor is INetworkResourceAccessor)
+            isFile = false;
+        }
+
+        if (runProcess)
+        {
+          //Prepare resources
+          List<IDisposable> disposables = new List<IDisposable>();
+          foreach (var res in data.TranscodeData.GetResourceAccessors())
           {
-            _logger.Error("FFMpegMediaConverter: Transcoder command failed for stream '{0}'", ex, data.TranscodeData.TranscodeId);
+            if (!(res is INetworkResourceAccessor))
+            {
+              var rah = new LocalFsResourceAccessorHelper(res);
+              data.TranscodeData.AddRuntimeResourcePath(res.CanonicalLocalResourcePath, rah.LocalFsResourceAccessor.LocalFileSystemPath);
+              var accessToken = rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess();
+              if (accessToken != null)
+                disposables.Add(accessToken);
+              disposables.Add(rah);
+            }
+
+            disposables.Add(res);
           }
-          else
+
+          ProcessStartInfo startInfo = new ProcessStartInfo()
           {
-            _logger.Error("FFMpegMediaConverter: Transcoder command failed for file '{0}'", ex, data.TranscodeData.OutputFilePath);
+            FileName = data.TranscodeData.TranscoderBinPath,
+            WorkingDirectory = data.TranscodeData.WorkPath,
+            Arguments = data.TranscodeData.TranscoderArguments,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardOutput = true,
+            RedirectStandardError = true,
+            RedirectStandardInput = true,
+            StandardOutputEncoding = Encoding.UTF8,
+            StandardErrorEncoding = Encoding.UTF8
+          };
+
+          _logger.Debug("FFMpegMediaConverter: Transcoder '{0}' invoked with command line arguments '{1}'", data.TranscodeData.TranscoderBinPath, data.TranscodeData.TranscoderArguments);
+
+          IntPtr userToken = IntPtr.Zero;
+          try
+          {
+            //TODO: Fix usages of obsolete and deprecated methods when alternative is available
+#if !TRANSCODE_CONSOLE_TEST
+            using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(firstPath))
+            {
+              //Only when the server is running as a service it will have elevation rights
+              using (ImpersonationProcess ffmpeg = new ImpersonationProcess { StartInfo = startInfo })
+              {
+                if (isFile && !ImpersonationHelper.GetTokenByProcess(out userToken, true))
+                  return;
+#else
+            {
+              using (Process ffmpeg = new Process() { StartInfo = startInfo })
+              {
+#endif
+                ffmpeg.EnableRaisingEvents = true; //Enable raising events because Process does not raise events by default.
+                if (isStream == false)
+                  ffmpeg.OutputDataReceived += data.Context.OutputDataReceived;
+
+                ffmpeg.ErrorDataReceived += data.Context.ErrorDataReceived;
+#if !TRANSCODE_CONSOLE_TEST
+                if (isFile)
+                  ffmpeg.StartAsUser(userToken);
+                else
+                  ffmpeg.Start();
+#else
+                ffmpeg.Start();
+#endif
+                ffmpeg.BeginErrorReadLine();
+                if (isStream == false)
+                  ffmpeg.BeginOutputReadLine();
+                else
+                  data.TranscodeData.LiveStream = ffmpeg.StandardOutput.BaseStream;
+
+                RunTranscodingProcess(ffmpeg, data, isStream);
+               
+                ffmpeg.WaitForExit();
+                exitCode = ffmpeg.ExitCode;
+                ffmpeg.Close();
+              }
+            }
           }
+          catch (Exception ex)
+          {
+            if (isStream || data.TranscodeData.OutputFilePath == null)
+              _logger.Error("FFMpegMediaConverter: Transcoder command failed for stream '{0}'", ex, data.TranscodeData.TranscodeId);
+            else
+              _logger.Error("FFMpegMediaConverter: Transcoder command failed for file '{0}'", ex, data.TranscodeData.OutputFilePath);
 
-          data.Context.Fail();
+            data.Context.Fail();
+          }
+          finally
+          {
+#if !TRANSCODE_CONSOLE_TEST
+            if (userToken != IntPtr.Zero)
+              NativeMethods.CloseHandle(userToken);
+#endif
+            data.TranscodeData.LiveStream?.Dispose();
+            foreach (var disposable in disposables)
+              disposable?.Dispose();
+          }
         }
-        finally
-        {
-          foreach(var disposable in disposables)
-            disposable?.Dispose();
-        }
-      }
-      if (exitCode > 0)
-      {
-        data.Context.Fail();
-      }
-      data.Context.Stop();
-      _ffMpegEncoderHandler.EndEncoding(data.TranscodeData.Encoder, data.TranscodeData.TranscodeId);
 
-      if (isSlimTv)
-      {
-        if (await _slimtTvHandler.EndTuningAsync(identifier).ConfigureAwait(false) == false)
-        {
-          _logger.Error("FFMpegMediaConverter: Transcoder unable to stop timeshifting for channel {0}", liveChannelId);
-        }
-      }
-
-      string filePath = data.Context.TargetFile;
-      bool isFolder = false;
-      if (string.IsNullOrEmpty(data.Context.SegmentDir) == false)
-      {
-        filePath = data.Context.SegmentDir;
-        isFolder = true;
-      }
-      if (exitCode > 0 || data.Context.Aborted == true)
-      {
         if (exitCode > 0)
+          data.Context.Fail();
+        else
+          data.Context.Stop();
+        _ffMpegEncoderHandler.EndEncoding(data.TranscodeData.Encoder, data.TranscodeData.TranscodeId);
+
+        if (isSlimTv)
         {
-          if (isStream || data.TranscodeData.OutputFilePath == null)
-          {
-            _logger.Debug("FFMpegMediaConverter: Transcoder command failed with error {1} for stream '{0}'", data.TranscodeData.TranscodeId, exitCode);
-          }
-          else
-          {
-            _logger.Debug("FFMpegMediaConverter: Transcoder command failed with error {1} for file '{0}'", data.TranscodeData.OutputFilePath, exitCode);
-          }
+          if (await _slimtTvHandler.EndTuningAsync(identifier).ConfigureAwait(false) == false)
+            _logger.Error("FFMpegMediaConverter: Transcoder unable to stop timeshifting for channel {0}", liveChannelId);
         }
-        if (data.Context.Aborted == true)
+
+        string filePath = data.Context.TargetFile;
+        bool isFolder = false;
+        if (string.IsNullOrEmpty(data.Context.SegmentDir) == false)
         {
-          if (isStream || data.TranscodeData.OutputFilePath == null)
+          filePath = data.Context.SegmentDir;
+          isFolder = true;
+        }
+
+        if (exitCode > 0 || data.Context.Aborted)
+        {
+          if (exitCode > 0)
           {
-            _logger.Debug("FFMpegMediaConverter: Transcoder command aborted for stream '{0}'", data.TranscodeData.TranscodeId);
+            if (isStream || data.TranscodeData.OutputFilePath == null)
+              _logger.Debug("FFMpegMediaConverter: Transcoder command failed with error {1} for stream '{0}'", data.TranscodeData.TranscodeId, exitCode);
+            else
+              _logger.Debug("FFMpegMediaConverter: Transcoder command failed with error {1} for file '{0}'", data.TranscodeData.OutputFilePath, exitCode);
+          }
+
+          if (data.Context.Aborted)
+          {
+            if (isStream || data.TranscodeData.OutputFilePath == null)
+              _logger.Debug("FFMpegMediaConverter: Transcoder command aborted for stream '{0}'", data.TranscodeData.TranscodeId);
+            else
+              _logger.Debug("FFMpegMediaConverter: Transcoder command aborted for file '{0}'", data.TranscodeData.OutputFilePath);
           }
           else
           {
-            _logger.Debug("FFMpegMediaConverter: Transcoder command aborted for file '{0}'", data.TranscodeData.OutputFilePath);
+            _logger.Debug("FFMpegMediaConverter: FFMpeg error \n {0}", data.Context.ConsoleErrorOutput);
           }
+
+          data.Context.DeleteFiles();
         }
         else
         {
-          _logger.Debug("FFMpegMediaConverter: FFMpeg error \n {0}", data.Context.ConsoleErrorOutput);
+          //Touch cache files so they will not be cleaned up
+          if (isFolder == false)
+            TouchFile(filePath);
+          else
+            TouchDirectory(filePath);
         }
-        data.Context.DeleteFiles();
       }
-      else
+      catch (Exception ex)
       {
-        if (isFolder == false)
-        {
-          TouchFile(filePath);
-        }
+        if (isStream || data.TranscodeData.OutputFilePath == null)
+          _logger.Error("FFMpegMediaConverter: Transcoder failed processing '{0}'", ex, data.TranscodeData.TranscodeId);
         else
-        {
-          TouchDirectory(filePath);
-        }
+          _logger.Error("FFMpegMediaConverter: Transcoder failed processing file '{0}'", ex, data.TranscodeData.OutputFilePath);
       }
-      await RemoveTranscodeContextAsync(data.TranscodeData.ClientId, data.TranscodeData.TranscodeId, data.Context).ConfigureAwait(false);
+      finally
+      {
+        await RemoveTranscodeContextAsync(data.TranscodeData.ClientId, data.TranscodeData.TranscodeId, data.Context).ConfigureAwait(false);
+      }
+    }
+
+    private void RunTranscodingProcess(Process ffmpeg, FFMpegTranscodeThreadData data, bool isStream)
+    {
+      while (ffmpeg.HasExited == false)
+      {
+        if (data.Context.Running == false)
+        {
+          data.Context.Aborted = true;
+          if (isStream == false)
+            ffmpeg.CancelOutputRead();
+
+          ffmpeg.CancelErrorRead();
+          //if (isStream == false)
+          {
+            ffmpeg.StandardInput.WriteLine("q"); //Soft exit
+            ffmpeg.StandardInput.Close();
+          }
+
+          if (ffmpeg.WaitForExit(2000) == false)
+            ffmpeg.Kill(); //Hard exit
+
+          break;
+        }
+
+        if (data.Context.Segmented)
+        {
+          long lastSequence = 0;
+          if (Directory.Exists(data.Context.SegmentDir))
+          {
+            string[] segmentFiles = Directory.GetFiles(data.Context.SegmentDir, "*.ts");
+            foreach (string file in segmentFiles)
+            {
+              long sequenceNumber = GetSegmentSequence(file);
+              if (sequenceNumber > lastSequence)
+                lastSequence = sequenceNumber;
+            }
+
+            data.Context.LastSegment = lastSequence;
+          }
+        }
+
+        Thread.Sleep(5);
+      }
     }
 
     #endregion

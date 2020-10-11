@@ -71,7 +71,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
       Guid idGuid;
       int idInt;
       if (!Guid.TryParse(itemId, out idGuid) && !isTvRadio)
-        throw new BadRequestException(String.Format("ExtractImageResized: Couldn't parse if '{0}' to Guid", itemId));
+        throw new BadRequestException(String.Format("ExtractImageResized: Couldn't parse id '{0}'", itemId));
       else if (int.TryParse(itemId, out idInt) && (fanArtMediaType == FanArtMediaTypes.ChannelTv || fanArtMediaType == FanArtMediaTypes.ChannelRadio))
         idGuid = IntToGuid(idInt);
 

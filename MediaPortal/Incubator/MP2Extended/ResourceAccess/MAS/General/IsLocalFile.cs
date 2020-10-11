@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), necessaryMIATypes, optionalMIATypes);
       if (item == null)
-        throw new BadRequestException(String.Format("IsLocalFile: No MediaItem found with id: {0}", id));
+        throw new NotFoundException(String.Format("IsLocalFile: No MediaItem found with id: {0}", id));
 
       var files = ResourceAccessUtils.GetResourcePaths(item);
       return System.Threading.Tasks.Task.FromResult(new WebBoolResult { Result = files[offset].IsValidLocalPath });

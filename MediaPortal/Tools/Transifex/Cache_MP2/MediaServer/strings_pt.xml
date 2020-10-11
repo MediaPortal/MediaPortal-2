@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.DefaultFriendlyName">MP2 Media Server</string>
+  <string name="MediaServer.Manufacturer">Equipa MediaPortal</string>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelDescription">Servidor Media DLNA para MediaPortal 2</string>
+  <string name="MediaServer.ModelName">Servidor Media MediaPortal 2</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.RootContainter">Biblioteca Media MediaPortal</string>
+  <string name="MediaServer.AudiotContainter">Áudio</string>
+  <string name="MediaServer.AlbumContainter">Album</string>
+  <string name="MediaServer.RecentContainter">Recentemente Adicionados</string>
+  <string name="MediaServer.ArtistContainter">Artistas</string>
+  <string name="MediaServer.AlbumArtistContainter">Artistas</string>
+  <string name="MediaServer.GenreContainter">Géneros</string>
+  <string name="MediaServer.YearContainter">Ano</string>
+  <string name="MediaServer.ShareContainter">Compartilhamentos</string>
+  <string name="MediaServer.ImageContainter">Imagens</string>
+  <string name="MediaServer.VideoContainter">Video</string>
+  <string name="MediaServer.TitleContainter">Títulos</string>
+  <string name="MediaServer.MovieContainter">Filmes</string>
+  <string name="MediaServer.UnwatchedContainter">Não visto</string>
+  <string name="MediaServer.ActorContainter">Actores:</string>
+  <string name="MediaServer.SeriesContainter">Séries</string>
+  <string name="MediaServer.BroadcastContainter">Broadcasts</string>
+  <string name="MediaServer.TV">TV</string>
+  <string name="MediaServer.Radio">Rádio</string>
+</resources>

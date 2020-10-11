@@ -56,7 +56,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 
       IList<MediaItem> tracks = MediaLibraryAccess.GetMediaItemsByGroup(context, AudioAspect.ROLE_TRACK, PersonAspect.ROLE_ARTIST, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (tracks.Count == 0)
-        throw new BadRequestException("No Tracks found");
+        return Task.FromResult<IList<WebMusicTrackDetailed>>(new List<WebMusicTrackDetailed>());
 
       var output = tracks.Select(t => MusicTrackDetailed(t)).ToList();
 
@@ -66,7 +66,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
         output = output.SortWebMusicTrackBasic(sort, order).ToList();
       }
 
-      // assing artists
+      // assign artists
       AssignArtists(context, output);
 
       return Task.FromResult<IList<WebMusicTrackDetailed>>(output);

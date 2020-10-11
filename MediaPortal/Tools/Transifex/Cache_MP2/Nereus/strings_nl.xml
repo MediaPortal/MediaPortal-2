@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Configuration.EnableHelpTexts">Activeer helpteksten</string>
+  <string name="Nereus.Configuration.EnableHelpTexts.Help">Wel of niet tonen van helpteksten voor menu\'s op het thuisscherm.</string>
+  <string name="Nereus.Configuration.EnableFanart">Activeer Fanart</string>
+  <string name="Nereus.Configuration.EnableFanart.Help">Wel of niet tonen van Fanart achtergrond</string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity">Fanart zichtbaarheid</string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Stel de ondoorzichtigheid van de achtergrond fanart overlay bij. Een lagere waarde verhoogt de zichtbaarheid van fanart (standaard is 1.0).</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags">Watched Flags Inschakelen</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.Help">Wel of niet tonen van bekeken iconen in de geselecteerde views.</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.ListView">Bekijk lijst</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.GridView">Bekijk raster</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.CoverView">Bekijk cover</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos">Activeer leeftijd logo\'s </string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos.Help">Wel of niet tonen van leeftijd logo\'s in mediaschermen</string>
+  <string name="Nereus.Configuration.MovieGridViewType">Film grid lay-out</string>
+  <string name="Nereus.Configuration.MovieGridViewType.Help">Selecteer de lay-out gebruikt in film grid views.</string>
+  <string name="Nereus.Configuration.SeriesGridViewType">Series grid lay-out</string>
+  <string name="Nereus.Configuration.SeriesGridViewType.Help">Selecteer de lay-out gebruikt in series grid views.</string>
+  <string name="Nereus.Configuration.SeasonGridViewType">Seizoen grid lay-out</string>
+  <string name="Nereus.Configuration.SeasonGridViewType.Help">Selecteer de lay-out gebruikt in seizoen grid views.</string>
+  <string name="Nereus.Configuration.GridViewType.Poster">Posters</string>
+  <string name="Nereus.Configuration.GridViewType.Banner">Banners</string>
+  <string name="Nereus.Configuration.GridViewType.Thumbnail">Miniaturen</string>
+  <string name="Nereus.Configuration.EnableHomeContent">Thuisinhoud inschakelen</string>
+  <string name="Nereus.Configuration.EnableHomeContent.Help">Wel of niet tonen van Thuisinhoud op het thuisscherm.</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView">Media Item Details View inschakelen</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Wel of niet tonen van mediaitemdetails i.p.v. media direct afspelen.</string>
+
+  <string name="Nereus.Home.LatestAdded">Laatst gezien</string>
+  <string name="Nereus.Home.LatestPlayed">Laatst afgespeeld</string>
+  <string name="Nereus.Home.ContinuePlayed">Blijf Spelen</string>
+  <string name="Nereus.Home.CurrentPrograms">Huidige programma\'s</string>
+  <string name="Nereus.Home.CurrentSchedules">Huidige opnames</string>
+  <string name="Nereus.Home.Favorites">Favorieten</string>
+  <string name="Nereus.Home.Unplayed">Niet afgespeeld</string>
+  <string name="Nereus.Home.CurrentWeather">Huidige</string>
+  <string name="Nereus.Home.Forecast">Voorspeld</string>
+  <string name="Nereus.Home.News">Nieuwsprovider</string>
+  <string name="Nereus.Home.TopNews">Top Nieuws</string>
+  <string name="Nereus.Home.LatestLaunched">Laatst gelanceerd</string>
+
+  <string name="Nereus.Shortcut.Genre">Genre</string>
+  <string name="Nereus.Shortcut.Year">Jaar</string>
+  <string name="Nereus.Shortcut.Age">Leeftijd</string>
+  <string name="Nereus.Shortcut.Actor">Acteur</string>
+  <string name="Nereus.Shortcut.Artist">Artiest</string>
+  <string name="Nereus.Shortcut.Search">zoek</string>
+  <string name="Nereus.Shortcut.Track">Track</string>
+  <string name="Nereus.Shortcut.Album">Album</string>
+  <string name="Nereus.Shortcut.LiveTV">Live TV</string>
+  <string name="Nereus.Shortcut.TVGuide">TV-Gids</string>
+  <string name="Nereus.Shortcut.Schedules">Geplande opnames</string>
+  <string name="Nereus.Shortcut.Recordings">Opnames</string>
+  <string name="Nereus.Shortcut.Place">Plaats</string>
+  <string name="Nereus.Shortcut.System">Systeem</string>
+  <string name="Nereus.Shortcut.Size">Grootte</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Overige</string>
+  <string name="Nereus.Home.OtherPlugins.Help">Alle andere plug-ins.</string>
+  
+  <string name="Nereus.Dialog.EditMenu.Header">Menu bewerken</string>
+  <string name="Nereus.Dialog.AddMenuItem.Header">Menu items toevoegen</string>
+
+</resources>

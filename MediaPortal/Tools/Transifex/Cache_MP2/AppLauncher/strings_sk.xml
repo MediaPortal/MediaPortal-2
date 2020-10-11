@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Stop</string>
+  <string name="AppLauncher.Pause">Pauza</string>
+  <string name="AppLauncher.Settings.Title">Nastavenie</string>
+  <string name="AppLauncher.Settings.Add.Description">Popis</string>
+  <string name="AppLauncher.Settings.Add.Password">Heslo</string>
+  <string name="AppLauncher.Settings.Add.Search">Hľadať</string>
+  <string name="AppLauncher.Settings.Add.Select">Vyberte</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normálny</string>
+  <string name="AppLauncher.Delete">Vymazať</string>
+  <string name="AppLauncher.Menu.Clear">Vymazať</string>
+</resources>

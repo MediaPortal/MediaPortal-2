@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Title">Indító</string>
+  <string name="AppLauncher.Helptext">Külső alkalmazások futtatása a MediaPortal 2 -vel.</string>
+  <string name="AppLauncher.Stop">Megállítás</string>
+  <string name="AppLauncher.Pause">Szünet</string>
+  <string name="AppLauncher.SwitchPlaying">Változtasd a lejátszási állapotot</string>
+  <string name="AppLauncher.Settings.Title">Beállítások</string>
+  <string name="AppLauncher.Settings.Helptext">Válaszd ki a külső alkalmazásokat</string>
+  <string name="AppLauncher.Settings.Add">Alkalmazás hozzáadása</string>
+  <string name="AppLauncher.Settings.Add.Shortname">Rövid név</string>
+  <string name="AppLauncher.Settings.Add.Arguments">Változók</string>
+  <string name="AppLauncher.Settings.Add.Path">Alkalmazás útvonal</string>
+  <string name="AppLauncher.Settings.Add.Description">Leírás</string>
+  <string name="AppLauncher.Settings.Add.Username">Felhasználó név</string>
+  <string name="AppLauncher.Settings.Add.Password">Jelszó</string>
+  <string name="AppLauncher.Settings.Add.Icon">Ikon útvonal</string>
+  <string name="AppLauncher.Settings.Add.Screenmode">Kép mód</string>
+  <string name="AppLauncher.Settings.Add.Search">Keresés</string>
+  <string name="AppLauncher.Settings.Add.Select">Választ</string>
+  <string name="AppLauncher.Settings.Add.Minimum">Minimum</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normál</string>
+  <string name="AppLauncher.Settings.Add.Maximum">Maximum</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">Ablak nélkül</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">Ikon keresés</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">Alkalmazás keresés</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">Futtatás rendszergazdaként</string>
+  <string name="AppLauncher.Settings.Edit">Alkalmazás szerkesztés</string>
+  <string name="AppLauncher.Settings.Delete">Alkalmazás törlés</string>
+  <string name="AppLauncher.Settings.Menu">Alkalmazás menük</string>
+  <string name="AppLauncher.Settings.Menu.ClearMapping">Összerendelés törlése</string>
+  <string name="AppLauncher.Settings.Test">Alkalmazás tesztelés</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Új alkalmazás hozzáadva</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Meglévő alkalmazás szerkesztése</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Meglévő alkalmazás eltávolítása</string>
+  <string name="AppLauncher.Settings.Menu.Helptext">Alkalmazás menübejegyzésének létrehozása</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Meglévő csoport eltávolítása</string>
+
+  <string name="AppLauncher.Group">Csoport</string>
+  <string name="AppLauncher.Ungrouped">Szétbontva</string>
+  <string name="AppLauncher.SelectGroup">Válassz csoportot</string>
+  <string name="AppLauncher.SelectApp">Válassz egy alkalmazást</string>
+  <string name="AppLauncher.RemoveGroup">Csoport eltávolítása</string>
+  <string name="AppLauncher.Delete">Törlés</string>
+  <string name="AppLauncher.MenuEntry">Alkalmazás indítás</string>
+  <string name="AppLauncher.MenuEntry.Help">Hozzárendelt alkalmazás indítása</string>
+  <string name="AppLauncher.Menu">Menü</string>
+  <string name="AppLauncher.Menu.Clear">Tiszta</string>
+</resources>

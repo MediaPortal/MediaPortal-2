@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">אודיו</string>
+  <string name="MediaServer.GenreContainter">סגנונות</string>
+  <string name="MediaServer.ShareContainter">שיתופים</string>
+  <string name="MediaServer.ImageContainter">תמונות</string>
+  <string name="MediaServer.VideoContainter">וידאו</string>
+  <string name="MediaServer.MovieContainter">סרטים</string>
+  <string name="MediaServer.ActorContainter">שחקנים</string>
+  <string name="MediaServer.SeriesContainter">סדרה</string>
+  <string name="MediaServer.TV">טלויזיה</string>
+  </resources>

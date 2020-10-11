@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading;
 using System.Xml.XPath;
 using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.SSDP;
@@ -89,9 +90,9 @@ namespace UPnP.Infrastructure.CP
     /// <summary>
     /// Gets the synchronization object to use inside <c>lock()</c> statements when accessing data in this instance.
     /// </summary>
-    public object SyncObj
+    public ReaderWriterLockSlim Lock
     {
-      get { return _rootEntry.SyncObj; }
+      get { return _rootEntry.Lock; }
     }
 
     /// <summary>

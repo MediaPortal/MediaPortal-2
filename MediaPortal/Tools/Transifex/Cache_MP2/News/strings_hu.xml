@@ -1,0 +1,6 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="News.Title">Hírek</string>
+  <string name="News.FeedsStateDisplayLabel">Hírek</string>
+  <string name="Settings.Plugins.News">Hírek</string>
+</resources>

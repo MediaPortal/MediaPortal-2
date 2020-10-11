@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (item == null)
-        throw new BadRequestException(String.Format("DeleteRecording: No MediaItem found with id: {0}", id));
+        throw new NotFoundException(String.Format("DeleteRecording: No MediaItem found with id: {0}", id));
 
       return System.Threading.Tasks.Task.FromResult(new WebBoolResult { Result = MediaLibraryAccess.Delete(context, item) });
     }

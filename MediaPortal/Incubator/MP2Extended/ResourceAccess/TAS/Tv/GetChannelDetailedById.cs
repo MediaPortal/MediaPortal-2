@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 
       var channel = await TVAccess.GetChannelAsync(int.Parse(channelId));
       if (channel == null)
-        throw new BadRequestException(string.Format("GetChannelDetailedById: Couldn't get channel with Id: {0}", channelId));
+        throw new NotFoundException(string.Format("GetChannelDetailedById: Couldn't get channel with Id: {0}", channelId));
 
       return ChannelDetailed(channel);
     }

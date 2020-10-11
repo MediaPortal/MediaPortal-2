@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.Exceptions;
+using UPnP.Infrastructure;
 using UPnP.Infrastructure.CP;
 using UPnP.Infrastructure.CP.DeviceTree;
 
@@ -55,7 +56,7 @@ namespace MediaPortal.Backend.ClientCommunication
           throw new InvalidDataException("ClientController service not found in device '{0}' of type '{1}:{2}'",
               clientDescriptor.MPFrontendServerUUID,
               UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE, UPnPTypesAndIds.FRONTEND_SERVER_DEVICE_TYPE_VERSION);
-        lock (_connection.CPData.SyncObj)
+        using (_connection.CPData.Lock.EnterWrite())
           _clientController = new UPnPClientControllerServiceProxy(ccsStub);
         // TODO: other services
       }

@@ -29,7 +29,9 @@ using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.UPnP;
+using UPnP.Infrastructure;
 using UPnP.Infrastructure.CP;
+using ILogger = MediaPortal.Common.Logging.ILogger;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
 {
@@ -62,7 +64,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       get
       {
-        lock (_networkTracker.SharedControlPointData.SyncObj)
+        using (_networkTracker.SharedControlPointData.Lock.EnterRead())
           return new List<ClientDescriptor>(_availableClients);
       }
     }
@@ -74,12 +76,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       get
       {
-        lock (_networkTracker.SharedControlPointData.SyncObj)
+        using (_networkTracker.SharedControlPointData.Lock.EnterRead())
           return new List<string>(_attachedClientSystemIds);
       }
       set
       {
-        lock (_networkTracker.SharedControlPointData.SyncObj)
+        using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
           _attachedClientSystemIds = new List<string>(value);
       }
     }
@@ -93,7 +95,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       get
       {
-        lock (_networkTracker.SharedControlPointData.SyncObj)
+        using (_networkTracker.SharedControlPointData.Lock.EnterRead())
           return new Dictionary<string, ClientConnection>(_clientConnections);
       }
     }
@@ -119,7 +121,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
 
     public ClientConnection GetClientConnection(string systemId)
     {
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterRead())
       {
         ClientConnection result;
         if (_clientConnections.TryGetValue(systemId, out result))
@@ -131,7 +133,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     public void AddAttachedClient(string systemId)
     {
       ClientDescriptor availableClientDescriptor;
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
       {
         _attachedClientSystemIds.Add(systemId);
         // Check if the attached client is available in the network...
@@ -145,7 +147,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     public void RemoveAttachedClient(string systemId)
     {
       ClientConnection connectionToDisconnect;
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
       {
         _attachedClientSystemIds.Remove(systemId);
         if (!_clientConnections.TryGetValue(systemId, out connectionToDisconnect))
@@ -166,7 +168,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     void OnUPnPRootDeviceAdded(RootDescriptor rootDescriptor)
     {
       ClientDescriptor clientDescriptor;
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
       {
         clientDescriptor = ClientDescriptor.GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || _availableClients.Contains(clientDescriptor))
@@ -183,7 +185,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     void OnUPnPRootDeviceRemoved(RootDescriptor rootDescriptor)
     {
       ClientDescriptor clientDescriptor;
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
       {
         clientDescriptor = ClientDescriptor.GetMPFrontendServerDescriptor(rootDescriptor);
         if (clientDescriptor == null || !_availableClients.Contains(clientDescriptor))
@@ -200,7 +202,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     void OnClientDisconnected(ClientConnection clientConnection)
     {
       ClientDescriptor descriptor = clientConnection.Descriptor;
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
       {
         string deviceUuid = descriptor.MPFrontendServerUUID;
         if (!_clientConnections.ContainsKey(deviceUuid))
@@ -214,7 +216,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       // Check if client is attached and connect if it is an attached client
       string clientSystemId = clientDescriptor.MPFrontendServerUUID;
-      lock (_networkTracker.SharedControlPointData.SyncObj)
+      using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
       {
         if (!_attachedClientSystemIds.Contains(clientSystemId))
           return;
@@ -236,7 +238,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       try
       {
         ClientConnection clientConnection = new ClientConnection(_controlPoint, connection, clientDescriptor);
-        lock (_networkTracker.SharedControlPointData.SyncObj)
+        using (_networkTracker.SharedControlPointData.Lock.EnterWrite())
           _clientConnections.Add(clientDescriptor.MPFrontendServerUUID, clientConnection);
         clientConnection.ClientDeviceDisconnected += OnClientDisconnected;
       }

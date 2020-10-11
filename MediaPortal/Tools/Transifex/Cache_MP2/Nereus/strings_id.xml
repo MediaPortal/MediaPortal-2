@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Configuration.EnableFanart">Aktifkan seni fan</string>
+  <string name="Nereus.Home.Favorites">Favorit</string>
+  <string name="Nereus.Shortcut.Genre">Genre</string>
+  <string name="Nereus.Shortcut.Artist">Artis</string>
+  <string name="Nereus.Shortcut.Search">Cari</string>
+  <string name="Nereus.Shortcut.Recordings">Rekaman</string>
+  <string name="Nereus.Shortcut.System">Sistem</string>
+  <string name="Nereus.Shortcut.Size">Ukuran</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Lainnya</string>
+  </resources>

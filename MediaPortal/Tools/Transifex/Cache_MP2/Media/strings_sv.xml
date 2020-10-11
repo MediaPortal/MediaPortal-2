@@ -454,8 +454,6 @@ Du kan inte ångra ersättningen.</string>
   <string name="Settings.Media.Certification.Series">Åldersgränser för TV-serier från land </string>
   <string name="Settings.Media.Certification.Series.Help">Välj vilket lands åldersgränser som ska användas för TV-serier</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

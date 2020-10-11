@@ -400,8 +400,6 @@
   <string name="Settings.Media.ShowVirtual.Movie">Прикажи све познате колекције филмова</string>
   <string name="Settings.Media.ShowVirtual.Series">Прикажи све познате сезоне и епизоде</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

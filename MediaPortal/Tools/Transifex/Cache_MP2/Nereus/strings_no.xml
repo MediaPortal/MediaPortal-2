@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Home.Favorites">Favoritter</string>
+  <string name="Nereus.Shortcut.Genre">Sjanger</string>
+  <string name="Nereus.Shortcut.Year">År</string>
+  <string name="Nereus.Shortcut.Age">Age</string>
+  <string name="Nereus.Shortcut.Artist">Artist</string>
+  <string name="Nereus.Shortcut.Search">Søk</string>
+  <string name="Nereus.Shortcut.Recordings">Opptak</string>
+  <string name="Nereus.Shortcut.System">System</string>
+  <string name="Nereus.Shortcut.Size">Størrelse</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Andre</string>
+  </resources>
