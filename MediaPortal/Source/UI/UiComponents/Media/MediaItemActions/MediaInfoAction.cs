@@ -26,15 +26,16 @@ using MediaPortal.Common;
 using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.Threading;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
-using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.UiComponents.Media.Extensions;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
@@ -77,10 +78,19 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
         {
           if (mediaItem.Aspects.ContainsKey(aspectScreen.Key))
           {
-            var wf = ServiceRegistration.Get<IWorkflowManager>();
-            var contextConfig = new NavigationContextConfig { AdditionalContextVariables = new Dictionary<string, object> { { Consts.KEY_MEDIA_ITEM, mediaItem } } };
-            wf.NavigatePush(aspectScreen.Value, contextConfig);
-            result = true;
+            ServiceRegistration.Get<IThreadPool>().Add(() =>
+            {
+              // TODO: This is a workaround for a specific IWorkflowManager issue:
+              // By interface design it is able to support batching of WF transitions, but the screen manager is not. In our special case here
+              // the closing of the dialog leads to a "Pop", while the action itself issues a "Push". The order is not always kept and leads to 
+              // unpredictable results. So the workaround moves the "Push" into a background thread and waits a while before executing.
+              // Ideally the IScreenManager implementation should by finished.
+              Thread.Sleep(300);
+              var wf = ServiceRegistration.Get<IWorkflowManager>();
+              var contextConfig = new NavigationContextConfig { AdditionalContextVariables = new Dictionary<string, object> { { Consts.KEY_MEDIA_ITEM, mediaItem } } };
+              wf.NavigatePush(aspectScreen.Value, contextConfig);
+              result = true;
+            });
             break;
           }
         }
