@@ -30,7 +30,7 @@
   <Register Location="/Workflow/States">
      <DialogState 
         Id="CB3BB0B7-A769-4E17-AC7D-81CF42760744"
-        Name="WhatsNewMain" MainScreen="whats-new"
+        Name="WhatsNewMain" DialogScreen="whats-new"
         DisplayLabel="[WhatsNew.StateDisplayLabel]"/> <!-- No workflow model -->
   </Register>
 

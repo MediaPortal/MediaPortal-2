@@ -27,14 +27,14 @@
 
         <Image Source="whatsnew.png"  DockPanel.Dock="Center" Width="800" Grid.Row="1" Margin="0,10,0,10" Stretch="Uniform"/>
 
-        <StackPanel DockPanel.Dock="Center" Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Center"  Grid.Row="2" Margin="10">
+        <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="2" Margin="10">
           <Button Content="[WhatsNew.ButtonText]" Style="{ThemeResource ButtonWideStyle}"
-                  HorizontalAlignment="Right" VerticalAlignment="Center"
+                  HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,20,0"
                   Command="{Command ChangeSkin}"/>
 
           <Button Content="Close" Style="{ThemeResource ButtonWideStyle}"
-              HorizontalAlignment="Right" VerticalAlignment="Center"
-              Command="{Command Dismiss}"/>
+                  HorizontalAlignment="Right" VerticalAlignment="Center" Margin="20,0,0,0"
+                  Command="{Command Dismiss}"/>
         </StackPanel>
       </Grid>
     </ControlTemplate>

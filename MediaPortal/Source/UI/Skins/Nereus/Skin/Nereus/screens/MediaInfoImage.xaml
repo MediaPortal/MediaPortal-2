@@ -41,14 +41,13 @@
         <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
       </ControlTemplate.Resources>
       <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Context="{Model Id=E71C7104-4398-41BF-A019-5C92904DE7E7}">
-        <!--Image x:Name="FanArtImageBackground_Movie" Stretch="UniformToFill">
+        <Image x:Name="FanArtImageBackground" Stretch="UniformToFill">
           <Image.Source>
-            <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                                Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, 
-                                Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Thumbnail;1920;1080}"/>
+            <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                      fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
           </Image.Source>
-        </-->
-        <Image Stretch="Fill" Source="Background_ListView.png"/>
+        </Image>
+        <!--Image Stretch="Fill" Source="Background_ListView.png"/-->
       </Grid>
     </ControlTemplate>
 
@@ -78,7 +77,24 @@
             <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
           </Grid.Resources>
 
-          <StackPanel Orientation="Vertical" Grid.RowSpan="2" Grid.ColumnSpan="2">
+          <Image x:Name="FanArtImageBackgroundOverlay" Stretch="Uniform" VerticalAlignment="Top">
+            <Image.Source>
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Image" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                        fanart:MaxWidth="1920" fanart:MaxHeight="1080"/>
+            </Image.Source>
+          </Image>
+          <Image Stretch="Fill" Source="List_overlay.png"/>
+          <Image Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
+          <Border BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
+                <GradientStop Color="#44000000" Offset="0.0"/>
+                <GradientStop Color="#77000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
+
+          <StackPanel Orientation="Vertical" Margin="35,300,0,0">
 
             <media:MediaAspectWrapper MediaItem="{Binding MediaItem}">
               <media:MediaAspectWrapper.Template>

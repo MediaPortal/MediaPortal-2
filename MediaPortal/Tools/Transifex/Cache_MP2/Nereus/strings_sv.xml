@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Configuration.EnableFanart">Aktivera Fanart</string>
+  <string name="Nereus.Configuration.EnableFanart.Help">Om Fanart ska visas i bakgrunden</string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity">Synlighet för Fanart</string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Justera genomskinligheten för Fanart i bakgrunden. Ett lägre värde ökar synligheten på Fanart (förvalt värde är 1.0)</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags">Aktivera sedd-markeringar</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.Help">Välj om ikoner som visar om en film/TV-program har setts eller inte ska visas på utvalda sidor.</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.ListView">Lista</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.GridView">Rutnät</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.CoverView">Omslag</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos">Aktivera logos för åldersgränser</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos.Help">Ska logos för åldersgränser visas på media-sidor</string>
+  <string name="Nereus.Configuration.MovieGridViewType">Layout för filmer</string>
+  <string name="Nereus.Configuration.MovieGridViewType.Help">Välj layout för filmer</string>
+  <string name="Nereus.Configuration.SeriesGridViewType">Layout för TV-serier</string>
+  <string name="Nereus.Configuration.SeriesGridViewType.Help">Välj layout för TV-serier</string>
+  <string name="Nereus.Configuration.SeasonGridViewType">Layout för säsonger</string>
+  <string name="Nereus.Configuration.SeasonGridViewType.Help">Välj layout för säsonger</string>
+  <string name="Nereus.Configuration.GridViewType.Poster">Posters</string>
+  <string name="Nereus.Configuration.GridViewType.Banner">Banners</string>
+  <string name="Nereus.Configuration.GridViewType.Thumbnail">Miniatyrer</string>
+  <string name="Nereus.Configuration.EnableHomeContent">Aktivera Start Innehåll</string>
+  <string name="Nereus.Configuration.EnableHomeContent.Help">Om du vill visa Start Innehåll på startsidan</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView">Aktivera visning av information om media-filerna.</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Ska information om media-filerna visas i stället för att spela upp media direkt.</string>
+
+  <string name="Nereus.Home.LatestAdded">Senast tillagda</string>
+  <string name="Nereus.Home.LatestPlayed">Senast spelad</string>
+  <string name="Nereus.Home.ContinuePlayed">Fortsätt spela</string>
+  <string name="Nereus.Home.CurrentPrograms">Pågående program</string>
+  <string name="Nereus.Home.CurrentSchedules">Pågående inspelningar</string>
+  <string name="Nereus.Home.Favorites">Favoriter</string>
+  <string name="Nereus.Home.Unplayed">Inte spelad</string>
+  <string name="Nereus.Shortcut.Genre">Genre</string>
+  <string name="Nereus.Shortcut.Year">År</string>
+  <string name="Nereus.Shortcut.Age">Ålder</string>
+  <string name="Nereus.Shortcut.Actor">Skådespelare: </string>
+  <string name="Nereus.Shortcut.Artist">Artist</string>
+  <string name="Nereus.Shortcut.Search">Sök</string>
+  <string name="Nereus.Shortcut.Track">Spår</string>
+  <string name="Nereus.Shortcut.Schedules">Planerade inspelningar</string>
+  <string name="Nereus.Shortcut.Recordings">Inspelningar</string>
+  <string name="Nereus.Shortcut.System">System</string>
+  <string name="Nereus.Shortcut.Size">Storlek</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Övriga</string>
+  </resources>

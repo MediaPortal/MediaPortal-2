@@ -103,7 +103,7 @@
                     VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,-170,20,5">
           <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100" 
                    HorizontalAlignment="Stretch"/>
-          <Image x:Name="searchsymbol" Source="Topmenu\search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+          <Image x:Name="searchsymbol" Source="search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
                  Stretch="Uniform" Height="40" Margin="0,0,8,0"/>
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
@@ -121,7 +121,7 @@
                     VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,-20,20,5">
           <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100" 
                    HorizontalAlignment="Stretch"/>
-          <Image x:Name="searchsymbol2" Source="Topmenu\search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+          <Image x:Name="searchsymbol2" Source="search.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
                  Stretch="Uniform" Height="40" Margin="0,0,8,0"/>
           <Grid.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"

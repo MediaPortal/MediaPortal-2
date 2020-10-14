@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Home.Favorites">Suosikit</string>
+  <string name="Nereus.Shortcut.Genre">Genre</string>
+  <string name="Nereus.Shortcut.Age">Ikä</string>
+  <string name="Nereus.Shortcut.Actor">Näyttelijä</string>
+  <string name="Nereus.Shortcut.Artist">Esittäjä</string>
+  <string name="Nereus.Shortcut.Search">Etsi</string>
+  <string name="Nereus.Shortcut.Schedules">Ajastukset</string>
+  <string name="Nereus.Shortcut.Recordings">Tallennukset</string>
+  <string name="Nereus.Shortcut.System">Järjestelmä</string>
+  <string name="Nereus.Shortcut.Size">Koko</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Muut</string>
+  </resources>

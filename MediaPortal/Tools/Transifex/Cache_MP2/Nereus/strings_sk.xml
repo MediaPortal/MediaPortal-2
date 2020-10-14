@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Home.Favorites">Obľúbené</string>
+  <string name="Nereus.Shortcut.Genre">Žáner</string>
+  <string name="Nereus.Shortcut.Age">Vek</string>
+  <string name="Nereus.Shortcut.Actor">Herec</string>
+  <string name="Nereus.Shortcut.Artist">Umelec</string>
+  <string name="Nereus.Shortcut.Search">Hľadať</string>
+  <string name="Nereus.Shortcut.Recordings">Nahrávky</string>
+  <string name="Nereus.Shortcut.System">Systém</string>
+  <string name="Nereus.Shortcut.Size">Veľkosť</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Iné</string>
+  </resources>

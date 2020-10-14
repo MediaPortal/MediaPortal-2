@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Title">Launcher</string>
+  <string name="AppLauncher.Helptext">Link externe programma\'s en start ze vanuit MediaPortal 2</string>
+  <string name="AppLauncher.Stop">stop</string>
+  <string name="AppLauncher.Pause">Pause</string>
+  <string name="AppLauncher.SwitchPlaying">Afspeelstatus veranderen</string>
+  <string name="AppLauncher.Settings.Title">Instellingen</string>
+  <string name="AppLauncher.Settings.Helptext">Kies je externe Apps</string>
+  <string name="AppLauncher.Settings.Add">Voeg Applicatie toe</string>
+  <string name="AppLauncher.Settings.Add.Shortname">Korte Naam</string>
+  <string name="AppLauncher.Settings.Add.Arguments">Argumenten</string>
+  <string name="AppLauncher.Settings.Add.Path">Applicatie Pad</string>
+  <string name="AppLauncher.Settings.Add.Description">Beschrijving</string>
+  <string name="AppLauncher.Settings.Add.Username">Gebruikersnaam</string>
+  <string name="AppLauncher.Settings.Add.Password">Wachtwoord</string>
+  <string name="AppLauncher.Settings.Add.Icon">Icoon Pad</string>
+  <string name="AppLauncher.Settings.Add.Screenmode">Scherm modus</string>
+  <string name="AppLauncher.Settings.Add.Search">zoek</string>
+  <string name="AppLauncher.Settings.Add.Select">selecteer</string>
+  <string name="AppLauncher.Settings.Add.Minimum">minimaale</string>
+  <string name="AppLauncher.Settings.Add.Normal">normaal</string>
+  <string name="AppLauncher.Settings.Add.Maximum">maximale</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">geen scherm</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">zoek icoon</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">zoek applicatie</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">gebruik als Administrator</string>
+  <string name="AppLauncher.Settings.Edit">Bewerk Applicatie </string>
+  <string name="AppLauncher.Settings.Delete">Verwijder Applicatie</string>
+  <string name="AppLauncher.Settings.Menu">Applicatie menu\'s</string>
+  <string name="AppLauncher.Settings.Menu.ClearMapping">Kaart leegmaken</string>
+  <string name="AppLauncher.Settings.Test">Applicatie Testen</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Nieuwe applicatie toegevoegd</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Wijzig een bestaande applicatie</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Verwijder een bestaande applicatie</string>
+  <string name="AppLauncher.Settings.Menu.Helptext">Verbind een Applicatie met een menu item</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Verwijder een bestaande groep</string>
+
+  <string name="AppLauncher.Group">Groep</string>
+  <string name="AppLauncher.Ungrouped">Niet gegroepeerd</string>
+  <string name="AppLauncher.SelectGroup">Selecteer groep</string>
+  <string name="AppLauncher.SelectApp">Selecteer een Applicatie</string>
+  <string name="AppLauncher.RemoveGroup">Verwijder groep</string>
+  <string name="AppLauncher.Delete">Verwijderen</string>
+  <string name="AppLauncher.MenuEntry">Start Applicatie</string>
+  <string name="AppLauncher.MenuEntry.Help">Start de gelinkte Applicatie</string>
+  <string name="AppLauncher.Menu">Menu</string>
+  <string name="AppLauncher.Menu.Clear">Leegmaken</string>
+</resources>

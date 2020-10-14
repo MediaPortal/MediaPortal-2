@@ -2091,6 +2091,28 @@
 
   <!--++++++++++ News +++++++++++-->
 
+  <Style x:Key="NewsSetupShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Setup]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\setup.png"/>
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="NewsRefreshShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Refresh]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\7AEB11DE-BA40-40a2-933A-B00BBD151B08.png"/>
+    </Style.Resources>
+  </Style>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:NewsSetupShortcut}">
+    <Control Style="{ThemeResource NewsSetupShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:NewsRefreshShortcut}">
+    <Control Style="{ThemeResource NewsRefreshShortcutItemControlStyle}"/>
+  </DataTemplate>
+
   <ControlTemplate x:Key="FeedDataTemplate" TargetType="{x:Type Control}">
     <Grid>
       <Grid.ColumnDefinitions>
@@ -2231,12 +2253,18 @@
   <DataTemplate DataType="{x:Type nereus_home_content:NewsHomeContent}">
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 DataContext="{Binding Source={StaticResource CurrentNewsModel}}">
+
+      <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      </ListView>
+
       <!-- Feeds -->
 
       <!-- For mysterious reasons we have to bind the list to the Context property,
            rather than DataContext, to get the converter to run -->
       <Control Context="{Binding Path=CurrentNewsFeeds, Converter={StaticResource ListToGridConverter}, ConverterParameter=[Nereus.Home.News]}"
-               Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}">
+               Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}" Margin="-50,0,0,0">
         <Control.Resources>
           <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource FeedDataTemplate}"/>
           <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout3Template}"/>
@@ -2259,6 +2287,39 @@
   </DataTemplate>
 
   <!--++++++++++ Weather +++++++++++-->
+
+  <Style x:Key="WeatherLocationShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Location]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\65A9A5F6-CA50-4459-8E49-0DC614B7A2E8.png"/>
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="WeatherSetupShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Setup]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\setup.png"/>
+    </Style.Resources>
+  </Style>
+
+  <Style x:Key="WeatherRefreshShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Refresh]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\7AEB11DE-BA40-40a2-933A-B00BBD151B08.png"/>
+    </Style.Resources>
+  </Style>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:LocationShortcut}">
+    <Control Style="{ThemeResource WeatherLocationShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:SetupShortcut}">
+    <Control Style="{ThemeResource WeatherSetupShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:RefreshShortcut}">
+    <Control Style="{ThemeResource WeatherRefreshShortcutItemControlStyle}"/>
+  </DataTemplate>
 
   <ControlTemplate x:Key="CurrentWeatherControlTemplate">
     <Grid>
@@ -2353,9 +2414,14 @@
   <DataTemplate DataType="{x:Type nereus_home_content:WeatherHomeContent}">
     <StackPanel Orientation="Horizontal" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                 DataContext="{Binding Source={StaticResource CurrentWeatherModel}}">
-      <!-- Current weather -->
 
-      <Control Template="{ThemeResource CurrentWeatherTileTemplate}" Width="{ThemeResource TileGroupWidthMedium}" Margin="-20,0,0,0">
+      <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      </ListView>
+
+      <!-- Current weather -->
+      <Control Template="{ThemeResource CurrentWeatherTileTemplate}" Width="{ThemeResource TileGroupWidthNarrow}" Margin="-50,0,0,0">
         <Control.Resources>
           <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource CurrentWeatherControlTemplate}"/>
         </Control.Resources>

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.DLNA.Clients.Config.ClientName">Nom</string>
+  <string name="Settings.DLNA.Clients.Config.Yes">Sí</string>
+  <string name="Settings.DLNA.Clients.Config.No">No</string>
+  <string name="Settings.DLNA.Clients.Config.NoUser">Cpa</string>
+  </resources>

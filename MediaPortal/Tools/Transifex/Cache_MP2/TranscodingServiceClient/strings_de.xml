@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!--Client Settings-->
+  <string name="Settings.Transcode.Title">Transkodierung</string> <!-- Section name -->
+  <string name="Settings.Transcode.HWAcceleration">Hardwarebeschleunigung</string> <!-- Setting -->
+  <string name="Settings.Transcode.HWAcceleration.Help">Aktiviert die Hardwarebeschleunigung während der Transkodierung, soweit unterstützt</string>
+  <string name="Settings.Transcode.Cache">Cache</string> <!-- Setting -->
+  <string name="Settings.Transcode.Cache.Help">Aktiviert das Caching der Transkodierungen, so dass sie später wiederverwendet werden können</string>
+  <string name="Settings.Transcode.CacheAge">Max. Cache Alter (Tage)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheAge.Help">Die maximale Anzahl der Tage von gecachten Transkodierungen sollte gespeichert werden bevor sie ablaufen. 0 meint, dass sie nie ablaufen.</string>
+  <string name="Settings.Transcode.CacheSize">Max. Cache Größe (GB)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheSize.Help">Die maximale Größe des Caches in GB.  Ältere Transkodierungen werden gelöscht, wenn der Cache voll ist. 0 meint, dass es keine Größenrestriktion gibt.</string>
+  <string name="Settings.Transcode.SubtitleForce">Erzwinge hardcodierte Untertitel</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleForce.Help">Erzwinge hardcodierte Untertitel, wenn keine andere Art von Untertiteln unterstützt wird.</string>
+  <string name="Settings.Transcode.SubtitleBox">Zeige Rahmen für Untertitel</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleBox.Help">Zeige einen Rahmen um hardcodierte Untertitel</string>
+  <string name="Settings.Transcode.SubtitleFont">Schriftart für Untertitel</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFont.Help">Die Schriftart für hardcodierte Untertitel</string>
+  <string name="Settings.Transcode.SubtitleFontSize">Untertitel Schriftgröße</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontSize.Help">Schriftgröße für hardcodierte Untertitel</string>
+  <string name="Settings.Transcode.SubtitleFontColor">Schriftfarbe für Untertitel</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontColor.Help">The Schriftfarbe für hardkodierte Untertitel</string>
+
+  <string name="Settings.Transcode.None">Kein</string>
+  <string name="Settings.Transcode.Auto">Automatisch</string>
+  <string name="Settings.Transcode.Default">Standard</string>
+
+</resources>

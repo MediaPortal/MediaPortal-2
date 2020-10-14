@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Home.Favorites">Αγαπημένα</string>
+  <string name="Nereus.Shortcut.Genre">Είδος</string>
+  <string name="Nereus.Shortcut.Search">Αναζήτηση</string>
+  <string name="Nereus.Shortcut.System">Σύστημα</string>
+  <string name="Nereus.Shortcut.Size">Μέγεθος</string>
+  
+  </resources>

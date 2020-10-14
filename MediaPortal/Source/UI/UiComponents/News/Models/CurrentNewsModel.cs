@@ -105,7 +105,7 @@ namespace MediaPortal.UiComponents.News.Models
       return Task.CompletedTask;
     }
 
-    protected override void Update()
+    public void Refresh()
     {
       INewsCollector newsCollector = ServiceRegistration.Get<INewsCollector>(false);
       if (newsCollector != null)
@@ -144,15 +144,20 @@ namespace MediaPortal.UiComponents.News.Models
             _currentNewsItems.FireChange();
             _currentTopNewsItems.FireChange();
           }
-
-          if (!_inited)
-          {
-            // Decrease interval once we have the first item
-            ChangeInterval(NEWSITEM_UPDATE_INTERVAL);
-          }
-          _inited = true;
         }
-      } 
+      }
+    }
+
+    protected override void Update()
+    {
+      Refresh();
+
+      if (!_inited)
+      {
+        // Decrease interval once we have the first item
+        ChangeInterval(NEWSITEM_UPDATE_INTERVAL);
+      }
+      _inited = true;
     }
   }
 }

@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Home.Favorites">Ulubione</string>
+  <string name="Nereus.Shortcut.Genre">Rodzaj</string>
+  <string name="Nereus.Shortcut.Artist">Artysta</string>
+  <string name="Nereus.Shortcut.Search">Wyszukaj</string>
+  <string name="Nereus.Shortcut.Recordings">Nagrania</string>
+  <string name="Nereus.Shortcut.System">System</string>
+  <string name="Nereus.Shortcut.Size">Rozmiar</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Inne</string>
+  </resources>

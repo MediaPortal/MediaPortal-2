@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!--Client Settings-->
+  <string name="Settings.DLNA.Title">DLNA</string> <!-- Section name -->
+  <string name="Settings.DLNA.Clients.Config">Client Setup</string> <!-- Group name -->
+  <string name="Settings.DLNA.Clients.Config.Help">Beheer DLNA clienten op de thuisserver</string>
+  <string name="Settings.DLNA.Clients.Config.Clients">Clienten</string> 
+  <string name="Settings.DLNA.Clients.Config.ClientName">Naam</string>
+  <string name="Settings.DLNA.Clients.Config.Profile">Profiel</string>
+  <string name="Settings.DLNA.Clients.Config.DefaultUser">Standaard gebruiker</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteClient">Verwijder client</string>
+  <string name="Settings.DLNA.Clients.Config.SaveClients">Alle clienten opslaan</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation.Title">Verwijder bevestiging</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation">Weet je zeker dat je de geselecteerde client wil verwijderen?</string>
+  <string name="Settings.DLNA.Clients.Config.Yes">Ja</string>
+  <string name="Settings.DLNA.Clients.Config.No">Nee</string>
+  <string name="Settings.DLNA.Clients.Config.SelectProfile">Selecteer client profiel</string>
+  <string name="Settings.DLNA.Clients.Config.SelectUser">Selecteer client standaard gebruiker</string>
+  <string name="Settings.DLNA.Clients.NoConfigHomeServerNotConnected">De thuisserver is momenteel niet verbonden, dus DLNA clienten kunnen nu niet worden beheerd.</string>
+  <string name="Settings.DLNA.Clients.Config.NoUser">Geen</string>
+  <string name="Settings.DLNA.Clients.Config.AutoProfile">Automatisch</string>
+  
+  <string name="Settings.DLNA.HardcodedSubtitles">Hardcoded ondertitels toestaan</string> <!-- Setting -->
+  <string name="Settings.DLNA.HardcodedSubtitles.Help">Hardcoded ondertitels toestaan als client geen ondertitels ondersteunt</string>
+  <string name="Settings.DLNA.UserLogin">Toon gebruikers inlog</string> <!-- Setting -->
+  <string name="Settings.DLNA.UserLogin.Help">Toon gebruikerslijst voor inlogondersteuning door client</string>
+  <string name="Settings.DLNA.Transcoding">Transcoding toestaan</string> <!-- Setting -->
+  <string name="Settings.DLNA.Transcoding.Help">Media transcoding toestaan als client de media niet ondersteunt</string>
+
+</resources>

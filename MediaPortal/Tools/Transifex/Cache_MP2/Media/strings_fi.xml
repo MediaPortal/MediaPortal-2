@@ -306,6 +306,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">Avaa soittimen toimintasuunnitelma</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Toimintasuunnitelma, kuinka juuri avatut soittimet asetellaan jo avattujen soittimien kanssa</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

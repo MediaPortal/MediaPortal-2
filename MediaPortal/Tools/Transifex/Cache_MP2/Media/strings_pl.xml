@@ -197,6 +197,4 @@
   <!--Settings-->
   <string name="Settings.Players">Odtwarzacze</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

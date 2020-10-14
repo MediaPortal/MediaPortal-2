@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">Звук</string>
+  <string name="MediaServer.AlbumContainter">Албуми</string>
+  <string name="MediaServer.ArtistContainter">Уметници</string>
+  <string name="MediaServer.GenreContainter">Жанр</string>
+  <string name="MediaServer.YearContainter">Година</string>
+  <string name="MediaServer.ShareContainter">Фајлови за размену</string>
+  <string name="MediaServer.ImageContainter">Слике</string>
+  <string name="MediaServer.VideoContainter">Видео</string>
+  <string name="MediaServer.MovieContainter">Филмови</string>
+  <string name="MediaServer.UnwatchedContainter">Неодгледани</string>
+  <string name="MediaServer.ActorContainter">Глумци</string>
+  <string name="MediaServer.SeriesContainter">Серије</string>
+  <string name="MediaServer.TV">ТВ</string>
+  </resources>

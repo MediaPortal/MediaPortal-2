@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.Transcode.None">Hiçbiri</string>
+  <string name="Settings.Transcode.Auto">Otomatik olarak</string>
+  <string name="Settings.Transcode.Default">Öntanımlı</string>
+
+</resources>

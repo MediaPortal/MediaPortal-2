@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Settings.ServerSettings">Настройки сервера</string>
+  <string name="Settings.ServerSettings.UsernamePasswordGroup">Логин и пароль</string>
+  <string name="Settings.ServerSettings.Username">Логин:</string>
+  <string name="Settings.ServerSettings.Password">Пароль:</string>
+  <string name="Settings.ServerSettings.AudioMDESettings">Настройки импорта аудио</string>
+  <string name="Settings.ServerSettings.MovieMDESettings">Настройки импорта фильмов</string>
+  <string name="Settings.ServerSettings.SeriesMDESettings">Настройки импорта сериалов</string>
+  <string name="Settings.ServerSettings.VideoMDESettings">Настройки импорта видео</string>
+  <string name="Settings.ServerSettings.ImageMDESettings">Настройки импорта изображений</string>
+  <string name="Settings.ServerSettings.SubtitleMDESettings">Настройки импорта субтитров</string>
+  <string name="Settings.ServerSettings.FanArtSettings">Настройки фанарта</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData">Данные к загрузке из онлайн-источников</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.Help">Выбрать, какие данные загрузить из онлайн-источников.</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.None">Ничего не загружать</string>
+  <string name="Settings.ServerSettings.MDESettings.MovieMDEDownloadAllCollectionMovies">Загрузить метаданные всех фильмов в коллекции</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxThumbs">Максимальное кол-во миниатюр</string>
+  <string name="Settings.ServerSettings.LanguageSettings">Настройки языка</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage">Предпочитаемый язык по умолчанию</string>
+</resources>

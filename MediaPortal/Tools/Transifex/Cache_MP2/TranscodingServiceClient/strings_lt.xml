@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.Transcode.None">Joks</string>
+  <string name="Settings.Transcode.Auto">Automatiškai</string>
+  <string name="Settings.Transcode.Default">Standartinis</string>
+
+</resources>

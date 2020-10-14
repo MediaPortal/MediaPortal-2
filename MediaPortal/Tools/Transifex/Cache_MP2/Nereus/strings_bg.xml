@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Home.Favorites">Любими</string>
+  <string name="Nereus.Shortcut.Genre">Жанр</string>
+  <string name="Nereus.Shortcut.Search">Търси</string>
+  <string name="Nereus.Shortcut.Size">Размер</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Други</string>
+  </resources>
