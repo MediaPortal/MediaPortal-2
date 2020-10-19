@@ -65,11 +65,8 @@ namespace WhatsNew
       var settingsManager = ServiceRegistration.Get<ISettingsManager>();
       var settings = settingsManager.Load<WhatsNewSettings>();
 
-      // TODO: Multi user support?
-#if !DEBUG
       if (settings.NewsConfirmed)
         return;
-#endif
 
       _messageQueue = new AsynchronousMessageQueue(this.GetType(), new string[]
          {
