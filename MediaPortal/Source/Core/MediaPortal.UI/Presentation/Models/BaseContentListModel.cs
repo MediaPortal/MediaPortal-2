@@ -155,7 +155,7 @@ namespace MediaPortal.UI.Presentation.Models
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error updating Content List {0}", provider.GetType().Name, ex);
+        ServiceRegistration.Get<ILogger>().Error("Error updating Content List {0}", ex, provider.GetType().Name);
         return false;
       }
     }

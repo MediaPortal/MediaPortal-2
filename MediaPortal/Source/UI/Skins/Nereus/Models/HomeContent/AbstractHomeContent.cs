@@ -58,7 +58,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     }
 
     /// <summary>
-    /// Implementaions of this method should populate <see cref="_backingList"/>
+    /// Implementations of this method should populate <see cref="_backingList"/>
     /// with the <see cref="ItemsListWrapper"/>s to show.
     /// </summary>
     protected abstract void PopulateBackingList();
@@ -71,7 +71,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         return;
       _isInit = true;
 
-      // Overidden in derived classes
+      // Overridden in derived classes
       PopulateBackingList();
       AttachItemsListWrappers();
 
@@ -131,6 +131,11 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     protected static IContentListModel GetOnlineVideosListModel()
     {
       return (IContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.OV_LIST_MODEL_ID);
+    }
+
+    protected static IContentListModel GetWebradioListModel()
+    {
+      return (IContentListModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(HomeMenuModel.WEBRADIO_LIST_MODEL_ID);
     }
   }
 }
