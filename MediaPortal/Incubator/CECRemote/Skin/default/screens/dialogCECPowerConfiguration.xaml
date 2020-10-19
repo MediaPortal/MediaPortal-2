@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"    
+    Source="screens\master_dialog_bare.xaml"
+    >
+    <Include.Resources>
+        <Model x:Key="CECPowerConfigurationModel" Id="1e088edf-4f4f-4c45-bce1-6e49d2088f18"/>
+        <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[CECRemote.CECConfig]"/>
+
+        <!-- Contents -->
+        <ControlTemplate x:Key="Contents_Template">
+
+            <Grid DataContext="{Binding Source={StaticResource CECPowerConfigurationModel}}" MinHeight="350" MinWidth="700">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="*" />
+                </Grid.ColumnDefinitions>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                    <RowDefinition Height="Auto" />
+                </Grid.RowDefinitions>
+
+                <Label Content="[CECRemote.WakeSectionLabel]" Color="{ThemeResource TextColor}" 
+                       Grid.ColumnSpan="2"
+                       Margin="0,30,5,10"/>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.ColumnSpan="2">
+                    <CheckBox x:Name="WakeDevice" Margin="10,5,5,5" Style="{ThemeResource DefaultCheckBoxStyle}"
+                    IsChecked="{Binding Path=WakeDevice,Mode=TwoWay}"
+                    Content="{Binding}" />
+                    <Label Content="[CECRemote.WakeLabel]" Color="{ThemeResource TextColor}" Margin="5"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.ColumnSpan="2">
+                    <CheckBox x:Name="SendActive" Margin="10,5,5,100" Style="{ThemeResource DefaultCheckBoxStyle}"
+                    IsChecked="{Binding Path=SendActive,Mode=TwoWay}"
+                    Content="{Binding}" />
+                    <Label Content="[CECRemote.SendActiveLabel]" Color="{ThemeResource TextColor}" Margin="5"/>
+                </StackPanel>
+
+
+                <Label Content="[CECRemote.SleepSectionLabel]" Color="{ThemeResource TextColor}" 
+                       Grid.Column="2"
+                       Grid.ColumnSpan="2"
+                       Margin="0,30,5,10"/>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="1" Grid.Column="2" Grid.ColumnSpan="2">
+                    <CheckBox x:Name="SleepDevice" Margin="10,5,5,5" Style="{ThemeResource DefaultCheckBoxStyle}"
+                      IsChecked="{Binding Path=SleepDevice,Mode=TwoWay}"
+                    Content="{Binding}"    
+                     />
+                    <Label Content="[CECRemote.SleepLabel]" Color="{ThemeResource TextColor}" Margin="5"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Grid.Row="2" Grid.Column="2" Grid.ColumnSpan="2">
+                    <CheckBox x:Name="SendInactive" Margin="10,5,5,100" Style="{ThemeResource DefaultCheckBoxStyle}"
+                      IsChecked="{Binding Path=SendInactive,Mode=TwoWay}"
+                    Content="{Binding}" />
+                    <Label Content="[CECRemote.SendInActiveLabel]" Color="{ThemeResource TextColor}" Margin="5"/>
+                </StackPanel>
+
+                <!-- OK & Abort button -->
+                <Button Name="ButtonOk"
+                        Grid.Column="2"
+                        Grid.Row="4"
+                        Style="{ThemeResource DialogButtonStyle}"
+                        Content="[System.Ok]"
+                        HorizontalAlignment="Center">
+                    <Button.Command>
+                        <CommandList>
+                            <Command Path="SaveSettings" />
+                            <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog" />
+                        </CommandList>
+                    </Button.Command>
+                </Button>
+
+                <Button Name="ButtonCancel"
+                        Grid.Column="3"
+                        Grid.Row="4"
+                        Style="{ThemeResource DialogButtonStyle}"
+                        Content="[System.Cancel]"
+                        HorizontalAlignment="Center" 
+                        Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+
+            </Grid>
+
+        </ControlTemplate>
+    </Include.Resources>
+
+</Include>

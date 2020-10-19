@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="CECRemote.HDMIport">HDMI port</string>
+  <string name="CECRemote.HDMIport.Help">Set port value to match used HDMI port in TV or AV receiver</string>
+  <string name="CECRemote.CECConfig">CEC Power Commands</string>
+  <string name="CECRemote.CECConfig.Help">Settings for CEC power control</string>
+  <string name="CECRemote.WakeLabel">Wake TV from Standby Mode</string>
+  <string name="CECRemote.SendActiveLabel">Send Active Source</string>
+  <string name="CECRemote.SleepLabel">Put TV into Standby Mode</string>
+  <string name="CECRemote.SendInActiveLabel">Send Inactive Source</string>
+  <string name="CECRemote.SleepSectionLabel">Entering Sleep</string>
+  <string name="CECRemote.WakeSectionLabel">Resume from Sleep</string>
+  <string name="CECRemote.CECDeviceName">Device Name</string>
+  <string name="CECRemote.CECDeviceName.Help">This Client's CEC Device Name</string>
+</resources>
