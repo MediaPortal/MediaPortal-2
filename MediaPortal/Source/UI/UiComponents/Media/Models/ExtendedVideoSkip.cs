@@ -93,7 +93,7 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
-    /// Called from the skin if the user invokes the "SkipStepBackwar" action. It will switch between the available skip steps
+    /// Called from the skin if the user invokes the "SkipStepBackward" action. It will switch between the available skip steps
     /// and execute the skip after the skip timer is elapsed.
     /// </summary>
     public void SkipStepBackward()
@@ -103,7 +103,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
     /// <summary>
     /// Called from the skin if the user invokes the "InstantSkip" action. This will start the InstantSkip in the
-    /// underlaying player.
+    /// underlying player.
     /// </summary>
     public void InstantSkipForward()
     {
@@ -113,12 +113,15 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ClearSkipTimer();
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
-      pc.InstantSkip((int) settings.InstantSkipPercent);
+      if (settings.PreferInstantSkipSeconds)
+        pc.SkipRelative(TimeSpan.FromSeconds(settings.InstantSkipSeconds));
+      else
+        pc.InstantSkip((int)settings.InstantSkipPercent);
     }
 
     /// <summary>
     /// Called from the skin if the user invokes the "InstantSkip" action. This will start the InstantSkip in the
-    /// underlaying player.
+    /// underlying player.
     /// </summary>
     public void InstantSkipBackward()
     {
@@ -128,7 +131,10 @@ namespace MediaPortal.UiComponents.Media.Models
 
       ClearSkipTimer();
       MediaModelSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<MediaModelSettings>();
-      pc.InstantSkip(-(int) settings.InstantSkipPercent);
+      if (settings.PreferInstantSkipSeconds)
+        pc.SkipRelative(TimeSpan.FromSeconds(-settings.InstantSkipSeconds));
+      else
+        pc.InstantSkip(-(int) settings.InstantSkipPercent);
     }
 
     #endregion

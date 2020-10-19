@@ -502,6 +502,12 @@
   <string name="Settings.Players.InstantSkipPercent">Instant skip percent</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Select how many percent of video duration you want to skip instantly</string>
 
+  <string name="Settings.Players.InstantSkipSeconds">Instant skip seconds</string>
+  <string name="Settings.Players.InstantSkipSeconds.Help">Select how many seconds you want to skip instantly</string>
+
+  <string name="Settings.Players.PreferInstantSkipSeconds">Prefer instant skip seconds</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds.Help">Select if you prefer to use absolute seconds instead relative percents to skip instantly</string>
+
   <string name="Settings.Players.SkipStepTimeout">Timeout in seconds for skip steps</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Adjust the timeout for user inputs before the skip step is done</string>
 
