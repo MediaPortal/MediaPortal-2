@@ -2738,6 +2738,211 @@
     </ListView>
   </DataTemplate>
 
+  <!--++++++++++ WebRadio +++++++++++-->
+
+  <ControlTemplate x:Key="WebRadioDataTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+          </MultiBinding>
+        </Grid.Background>
+      </Grid>
+
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="30*"/>
+          <ColumnDefinition Width="40*"/>
+          <ColumnDefinition Width="30*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30*"/>
+          <RowDefinition Height="40*"/>
+          <RowDefinition Height="30*"/>
+        </Grid.RowDefinitions>
+        <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Thumbnail="False"
+               Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIcon]}" Grid.Column="1" Grid.Row="1"/>
+      </Grid>
+
+      <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="45"/>
+        </Grid.RowDefinitions>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
+               ScrollDelay="0" FontFamily="SegoeUIBold">
+          <Label.Scroll>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="Auto"/>
+              <Binding Source="None"/>
+            </MultiBinding>
+          </Label.Scroll>
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+      </Grid>
+    </Grid>
+  </ControlTemplate>
+
+  <!--ControlTemplate x:Key="WebRadioLanguageDataTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+        <Image.Source>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="g_tile_background_focus.jpg"/>
+            <Binding Source="g_tile_background_nofocus.jpg"/>
+            <Binding Source="MediaMenu\"/>
+          </MultiBinding>
+        </Image.Source>
+      </Image>
+      <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Source="language_shadow.png" Opacity="0.6"/>
+
+      <Grid>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="30*"/>
+          <ColumnDefinition Width="40*"/>
+          <ColumnDefinition Width="30*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30*"/>
+          <RowDefinition Height="40*"/>
+          <RowDefinition Height="30*"/>
+        </Grid.RowDefinitions>
+        <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Thumbnail="False"
+               Source="{Binding Thumb}" FallbackSource="{Binding [DefaultIcon]}" Grid.Column="1" Grid.Row="1"/>
+      </Grid>
+
+      <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="40"/>
+        </Grid.RowDefinitions>
+        <Grid.RenderTransform>
+          <TransformGroup>
+            <ScaleTransform ScaleX="1" ScaleY="0"/>
+          </TransformGroup>
+        </Grid.RenderTransform>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
+               ScrollDelay="0" FontFamily="SegoeUIBold">
+          <Label.Scroll>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="Auto"/>
+              <Binding Source="None"/>
+            </MultiBinding>
+          </Label.Scroll>
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+      </Grid>
+    </Grid>
+    <ControlTemplate.Triggers>
+      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+        <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+        <DataTrigger.EnterActions>
+          <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+          <BeginStoryboard x:Name="SlideOut">
+            <BeginStoryboard.Storyboard>
+              <Storyboard>
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.7" DecelerationRatio="1"
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ItemBandGrid" Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY">
+                  <DoubleAnimation.EasingFunction>
+                    <BackEase Amplitude="0.6" EasingMode="EaseOut"/>
+                  </DoubleAnimation.EasingFunction>
+                </DoubleAnimation>
+              </Storyboard>
+            </BeginStoryboard.Storyboard>
+          </BeginStoryboard>
+        </DataTrigger.EnterActions>
+        <DataTrigger.ExitActions>
+          <BeginStoryboard x:Name="SlideBack">
+            <BeginStoryboard.Storyboard>
+              <Storyboard>
+                <DoubleAnimation
+                           Storyboard.TargetName="ItemBandGrid"
+                           Storyboard.TargetProperty="RenderTransform.Children[0].ScaleY"
+                           From="1" To="0" BeginTime="0:0:0" Duration="00:00:00.35"
+                           FillBehavior="HoldEnd"/>
+              </Storyboard>
+            </BeginStoryboard.Storyboard>
+          </BeginStoryboard>
+        </DataTrigger.ExitActions>
+      </DataTrigger>
+    </ControlTemplate.Triggers>
+  </-->
+
+  <!--DataTemplate DataType="{x:Type nereus_home_content:TopLanguagesOnlineVideoSitesList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthTiny}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource OnlineVideosLanguageDataTemplate}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout4Template}"/>
+      </Control.Resources>
+    </Control>
+  </-->
+
+  <DataTemplate DataType="{x:Type nereus_home_content:LastPlayedWebradioList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:TopPlayedWebradioList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:WebradioHomeContent}">
+    <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource WebRadioDataTemplate}"/>
+      </ListView.Resources>
+    </ListView>
+  </DataTemplate>
+
   <!--++++++++++ TV +++++++++++-->
 
   <!--Live TV shortcut button-->
