@@ -29,6 +29,7 @@
   <string name="Media.MyVideos">Video</string>
   <string name="Media.MyPictures">Slike</string>
   <!--{0} = server name, {1} = host name-->
+  <string name="ServerConnection.AttachedText.After"></string>
   <!--{0} = server name, {1} = host name-->
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->

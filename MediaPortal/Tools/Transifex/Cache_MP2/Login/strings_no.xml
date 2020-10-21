@@ -11,5 +11,6 @@
   <string name="UserConfig.Yes">Ja</string>
   <string name="UserConfig.No">Nei</string>
   <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Default">Standard</string>
   <string name="UserConfig.SharesText">Delt ressurs</string>
   </resources>

@@ -6,6 +6,7 @@
   <string name="UserConfig.DeleteUser">Обриши</string>
   <string name="UserConfig.Yes">Да</string>
   <string name="UserConfig.No">Не</string>
+  <string name="UserConfig.Default">Подразумевано</string>
   <string name="UserConfig.SharesText">Фајлови за размену</string>
   <string name="UserConfig.LocalShare">Извори медија на клијенту</string>
   <string name="UserConfig.LocalShares">Извори медија на клијенту</string>

@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="SkinSettings.Configuration.SkinSettings">Skin instellingen </string>
+  <string name="SkinSettings.ViewModes.LayoutType.ListLayout">Lijst</string>
+  <string name="SkinSettings.ViewModes.LayoutType.GridLayout">Raster</string>
+  <string name="SkinSettings.ViewModes.LayoutType.CoverLayout">Cover</string>
 </resources>

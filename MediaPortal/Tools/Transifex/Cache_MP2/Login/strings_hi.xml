@@ -5,4 +5,5 @@
   <string name="UserConfig.DeleteUser">मिटाएँ</string>
   <string name="UserConfig.Yes">हाँ</string>
   <string name="UserConfig.No">नहीं</string>
+  <string name="UserConfig.Default">तयशुदा</string>
   </resources>

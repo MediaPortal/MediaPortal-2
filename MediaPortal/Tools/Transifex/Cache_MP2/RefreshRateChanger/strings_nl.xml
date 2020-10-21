@@ -1,4 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="RefreshRateChanger.IsEnabled.Help">Wanneer ingeschakeld wordt geprobeerd om de refresh rate aan te passen aan de frames per second van de video</string>
+  <string name="RefreshRateChanger.IsEnabled">Refresh rate verandering inschakelen</string>
+  <string name="RefreshRateChanger.IsEnabled.Help">Wanneer ingeschakeld wordt geprobeerd de refresh rate aan te passen aan de fps van de video.</string>
+  <string name="RefreshRateChanger.NoChangeForRate">Refresh rates uitsluiten</string>
+  <string name="RefreshRateChanger.NoChangeForRate.Help">Refresh rates lijst uitsluiten van veranderingen. Voer waarden in als integers, gescheiden door komma\'s (bv. 23,25,50).</string>
+  <string name="RefreshRateChanger.RateMappings">Refresh rate toewijzingen</string>
+  <string name="RefreshRateChanger.RateMappings.Help">Negeer de standaard toewijzingen.
+Formaat: fps:Hz; fps:Hz (bv. \"23:24\": voor video fps=23.976 verander scherm refresh rate naar 24Hz).</string>
 </resources>

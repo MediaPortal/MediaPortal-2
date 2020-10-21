@@ -43,6 +43,8 @@
   <string name="Nereus.Shortcut.Recordings">Inspelningar</string>
   <string name="Nereus.Shortcut.System">System</string>
   <string name="Nereus.Shortcut.Size">Storlek</string>
+  <string name="Nereus.Shortcut.Location">Plats</string>
+  <string name="Nereus.Shortcut.Refresh">Uppdatera</string>
   
   <string name="Nereus.Home.OtherPlugins">Övriga</string>
   </resources>

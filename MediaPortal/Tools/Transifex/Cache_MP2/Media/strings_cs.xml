@@ -178,6 +178,7 @@
   <string name="Media.DeleteFromStorage">Odstranit z úložiště</string>
   <string name="Media.ReimportMediaItem.Done">Hotovo</string>
   <string name="Media.ReimportMediaItem.Description">Popis</string>
+  <string name="Media.SubtitleSearch.Language">Jazyk</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Přehrát položku</string>
   <string name="Media.PlayAudioItems">Přehrát položky audia</string>
@@ -303,4 +304,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">Strategie otevírání přehrávače</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategie, jak budou nově otevřené přehrávače umístěny mezi již otevřené přehrávače</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

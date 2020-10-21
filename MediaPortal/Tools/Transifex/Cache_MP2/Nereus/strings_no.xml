@@ -9,6 +9,8 @@
   <string name="Nereus.Shortcut.Recordings">Opptak</string>
   <string name="Nereus.Shortcut.System">System</string>
   <string name="Nereus.Shortcut.Size">Størrelse</string>
+  <string name="Nereus.Shortcut.Location">Lokasjon</string>
+  <string name="Nereus.Shortcut.Refresh">Oppdater</string>
   
   <string name="Nereus.Home.OtherPlugins">Andre</string>
   </resources>

@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="AudioCDResourceProvider.Description">Hozzáférés az audió CD számokhoz</string>
+  <string name="AudioCDResourceProvider.Name">Hang CD</string>
+  <string name="AudioCDResourceProvider.Description">CD hangsávok elérése</string>
 </resources>

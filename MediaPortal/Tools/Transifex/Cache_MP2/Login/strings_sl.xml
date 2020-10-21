@@ -8,6 +8,7 @@
   <string name="UserConfig.SaveUser">Shrani</string>
   <string name="UserConfig.Yes">Da</string>
   <string name="UserConfig.No">Ne</string>
+  <string name="UserConfig.Default">Privzeto</string>
   <string name="UserConfig.SharesText">Deljene datoteke</string>
   <string name="UserConfig.LocalShare">Vir medijev na klientu</string>
   <string name="UserConfig.LocalShares">Viri medijev na klientu</string>

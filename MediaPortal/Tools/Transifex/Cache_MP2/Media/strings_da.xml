@@ -179,6 +179,7 @@
   <string name="Media.DeleteFromStorage">Slet fra lager</string>
   <string name="Media.ReimportMediaItem.Done">Færdig</string>
   <string name="Media.ReimportMediaItem.Description">Beskrivelse</string>
+  <string name="Media.SubtitleSearch.Language">Sprog</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Afspil emne</string>
   <string name="Media.PlayAudioItems">Afspil lyd emne</string>
@@ -306,4 +307,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">Åbn afspiller planlægning</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Planlæg hvordan nyåbnede afspiller vil blive placeret bland allerede åbne afspillere</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

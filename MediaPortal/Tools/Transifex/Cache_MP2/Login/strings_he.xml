@@ -8,5 +8,6 @@
   <string name="UserConfig.SaveUser">שמור</string>
   <string name="UserConfig.Yes">כן</string>
   <string name="UserConfig.No">לא</string>
+  <string name="UserConfig.Default">ברירת מחדל</string>
   <string name="UserConfig.SharesText">שיתופים</string>
   </resources>

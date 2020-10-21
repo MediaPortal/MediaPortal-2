@@ -8,5 +8,6 @@
   <string name="UserConfig.SaveUser">Tallenna</string>
   <string name="UserConfig.Yes">Kyllä</string>
   <string name="UserConfig.No">Ei</string>
+  <string name="UserConfig.Default">Oletus</string>
   <string name="UserConfig.SharesText">Verkkojaot</string>
   </resources>

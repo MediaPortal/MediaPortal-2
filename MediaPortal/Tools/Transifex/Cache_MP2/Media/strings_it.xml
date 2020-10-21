@@ -292,7 +292,12 @@
   <string name="Media.ReimportMediaItem.AutoMatch">Corrispondenza Automatica</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Ricerca Manuale</string>
   <string name="Media.ReimportMediaItem.Description">Descrizione</string>
-  <string name="Media.ReimportMediaItem.Hint">Nota: richiede una connessione e almeno uno scraper selezionato su impostazioni libreria.</string>
+  <string name="Media.SubtitleSearch.Id">Id</string>
+  <string name="Media.SubtitleSearch.SearchResultHeader">Risultato ricerca</string>
+  <string name="Media.SubtitleSearch.SearchTypeHeader">Tipo ricerca</string>
+  <string name="Media.SubtitleSearch.AutoMatch">Corrispondenza Automatica</string>
+  <string name="Media.SubtitleSearch.ManualSearch">Ricerca Manuale</string>
+  <string name="Media.SubtitleSearch.Language">Lingua</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Riproduci contenuto</string>
   <string name="Media.PlayAudioItems">Riproduci audio</string>
@@ -451,6 +456,8 @@
   <string name="Settings.Media.Certification.Series">Paese da usare per il controllo parentale delle serie TV</string>
   <string name="Settings.Media.Certification.Series.Help">Seleziona il sistema certificazione da usare per il controllo parentale delle serie TV</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>
