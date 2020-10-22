@@ -37,6 +37,7 @@
   <!--MediaItemAction dialog-->
   <string name="Media.Refresh">Опресни</string>
   <string name="Media.ReimportMediaItem.Done">Готово</string>
+  <string name="Media.SubtitleSearch.Language">Език</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <!--Video currently playing-->
@@ -55,4 +56,6 @@
   <!--Virtual-->
   <!--Settings-->
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

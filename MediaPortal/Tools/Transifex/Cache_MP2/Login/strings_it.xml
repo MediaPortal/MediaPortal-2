@@ -26,7 +26,6 @@
   <string name="Settings.Users.Config.AutoLoginUser.Help">Utente da utilizzare per l\'accesso automatico</string>
   <string name="Settings.Users.Config.SystemDefault">Impostazioni predefinite</string>
   <string name="Settings.Users.Config.AutoLoginUser.Title">Utente per l\'accesso automatico</string>
-
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestione Utente</string>
   <string name="UserConfig.UserConfiguration.Title">Gestione Utente</string>
@@ -53,6 +52,7 @@
   <string name="UserConfig.Ok">OK</string>
   <string name="UserConfig.Disable">Disattiva</string>
 
+  <string name="UserConfig.Default">Predefinito</string>
   <string name="UserConfig.SelectProfileTemplate">Seleziona la tipologia per il profilo</string>
   <string name="UserConfig.ClientProfile">Profilo client</string>
   <string name="UserConfig.UserProfile">Profilo utente</string>

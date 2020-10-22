@@ -7,6 +7,7 @@
   <string name="UserConfig.SaveUser">Kayıt Et</string>
   <string name="UserConfig.Yes">Evet</string>
   <string name="UserConfig.No">Hayır</string>
+  <string name="UserConfig.Default">Öntanımlı</string>
   <string name="UserConfig.SharesText">Paylaşımlar</string>
   <string name="UserConfig.LocalShare">İstemci medya kaynağı</string>
   <string name="UserConfig.LocalShares">İstemci medya kaynağı</string>

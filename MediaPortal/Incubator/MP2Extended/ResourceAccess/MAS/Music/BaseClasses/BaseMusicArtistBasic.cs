@@ -1,9 +1,9 @@
 ﻿// Source from: http://madreflection.originalcoder.com/2009/12/generic-tryparse.html
 
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2

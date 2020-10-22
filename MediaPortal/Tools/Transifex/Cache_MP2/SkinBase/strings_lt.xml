@@ -40,6 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Atjungti nuo serverio</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Pagrindinis serveris</string>
   <string name="ServerConnection.AttachedText.Before">MediaPortal 2 klientas yra prijungtas prie pagrindinio serverio</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Šis MediaPortal 2 klientas dabar nėra prijungtas prie pagrindinio serverio.</string>
   <string name="ServerConnection.HomeServerIsConnected">Pagrindinis serveris yra prijungtas.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Pagrindinis serveris atjungtas.</string>

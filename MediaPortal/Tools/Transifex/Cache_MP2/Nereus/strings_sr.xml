@@ -25,6 +25,7 @@
   <string name="Nereus.Shortcut.Recordings">Снимљено</string>
   <string name="Nereus.Shortcut.System">Систем</string>
   <string name="Nereus.Shortcut.Size">Величина</string>
+  <string name="Nereus.Shortcut.Refresh">Освежи приказ</string>
   
   <string name="Nereus.Home.OtherPlugins">Остало</string>
   </resources>

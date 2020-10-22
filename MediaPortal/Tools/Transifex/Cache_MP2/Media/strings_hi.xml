@@ -56,6 +56,7 @@
   <string name="Media.Refresh">ताज़ा करें</string>
   <string name="Media.ReimportMediaItem.Done">संपन्न</string>
   <string name="Media.ReimportMediaItem.Description">विवरण</string>
+  <string name="Media.SubtitleSearch.Language">भाषा</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">ऑडियो</string>
@@ -76,4 +77,6 @@
   <!--Settings-->
   <string name="Settings.Players">प्लेयर</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

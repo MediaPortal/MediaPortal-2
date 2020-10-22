@@ -1,5 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.Players.Codecs">Кодеки</string>
+  <string name="Settings.Players.Codecs.VideoCodecs">Видеокодеки</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">MPEG2 видеокодек</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.MPEG4">MPEG4 видеокодек</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.AVC">AVC видеокодек</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.HEVC">HEVC видеокодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs">Аудиокодеки</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">MPEG1/2 аудиокодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec.Help">Настроить аудиокодек MPEG1/2</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC">LATM-AAC аудиокодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Настроить аудиокодек LATM-AAC</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">AAC аудиокодек</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Настроить аудиокодек AAC</string>
+  <string name="Settings.Players.VideoPlayer">Видеоплеер</string>
+  <string name="Settings.Players.DVDPlayer">DVD-плеер</string>
+  <string name="Settings.Players.Subtitles">Субтитры</string>
+  <string name="Settings.Players.EnableTeletextSubtitles">Телетекст</string>
+  <string name="Settings.Players.EnableDvdSubtitles">DVD-субтитры</string>
   <!--For example: "Chapter 1"-->
   <!--For example: "Title 1"-->
+  <string name="Playback.Players.No.Subtitles">Нет субтитров</string>
 </resources>

@@ -150,6 +150,7 @@
   <string name="Media.Refresh">Odśwież</string>
   <string name="Media.ReimportMediaItem.Done">Gotowe</string>
   <string name="Media.ReimportMediaItem.Description">Opis</string>
+  <string name="Media.SubtitleSearch.Language">Język</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Odtwórz element</string>
   <string name="Media.PlayAudioItems">Odtwórz elementy audio</string>
@@ -190,6 +191,7 @@
   <string name="Media.RepeatMode.All">Wszystkie</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.LargeGrid">Siatka</string>
   <string name="Media.SortByDate">Data</string>
   <string name="Media.GroupingBrowseDefault">Domyślne</string>
   <!--Stubs-->
@@ -197,4 +199,6 @@
   <!--Settings-->
   <string name="Settings.Players">Odtwarzacze</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -176,6 +176,7 @@
   <string name="Media.Refresh">רענן</string>
   <string name="Media.ReimportMediaItem.Done">בוצע</string>
   <string name="Media.ReimportMediaItem.Description">תיאור</string>
+  <string name="Media.SubtitleSearch.Language">שפה</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">נגן פריט</string>
   <string name="Media.PlayAudioItems">נגן פריטי אודיו</string>
@@ -300,4 +301,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">פתח אסטרטגית נגן</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">אסטרטגיה, איך נגנים חדשים ימוקמו בד בבד עם נגנים אחרים</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

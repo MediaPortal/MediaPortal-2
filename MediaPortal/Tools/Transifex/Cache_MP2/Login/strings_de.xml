@@ -26,10 +26,14 @@
   <string name="Settings.Users.Config.AutoLoginUser.Help">Wählt den Benutzer für die automatische Anmeldung aus</string>
   <string name="Settings.Users.Config.SystemDefault">Systemstandard</string>
   <string name="Settings.Users.Config.AutoLoginUser.Title">Benutzer für automatisches Anmelden</string>
+  <string name="Settings.Users.Config.UserLanguage">Vorzugssprache</string>  <!-- Setting -->
+  <string name="Settings.Users.Config.UserLanguage.Help">Konfiguriere bevorzugte Inhaltssprachen für Nutzer</string>
 
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Benutzerverwaltung</string>
+  <string name="UserConfig.UserLanguagewWorkflowNavigationContextDisplayLabel">Nutzer Sprachen</string>
   <string name="UserConfig.UserConfiguration.Title">Benutzerverwaltung</string>
+  <string name="UserConfig.UserLanguages.Title">Nutzer Sprachen</string>
   <string name="UserConfig.Users">Benutzer</string>
   <string name="UserConfig.NoConfigUserHomeServerNotConnected">Der MP2-Server ist im Moment nicht verbunden. Serverbenutzer können deshalb derzeit nicht verwaltet werden.</string>
   <string name="UserConfig.UserName">Benutzername</string>
@@ -52,6 +56,15 @@
   <string name="UserConfig.No">Nein</string>
   <string name="UserConfig.Ok">OK</string>
   <string name="UserConfig.Disable">Deaktivieren</string>
+
+  <string name="UserConfig.SelectLanguage">Wähle Sprache</string>
+  <string name="UserConfig.Default">Standard</string>
+  <string name="UserConfig.MainAudioLanguage">Hauptaudiosprache</string>
+  <string name="UserConfig.SecondaryAudioLanguage">Zweite Audiosprache</string>
+  <string name="UserConfig.MainSubtitleLanguage">Hauptuntertitelsprache</string>
+  <string name="UserConfig.SecondarySubtitleLanguage">Zweite Untertitelsprache</string>
+  <string name="UserConfig.MainMenuLanguage">Hauptmenüsprache</string>
+  <string name="UserConfig.SecondaryMenuLanguage">Zweite Hauptmenüsprache</string>
 
   <string name="UserConfig.SelectProfileTemplate">Wähle die Profilvorlage</string>
   <string name="UserConfig.ClientProfile">Clientprofil</string>

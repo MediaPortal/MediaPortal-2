@@ -2,15 +2,36 @@
 <resources>
   <string name="Menu.Audio">Audió</string>
   <string name="Menu.Image">Képek</string>
+  <string name="Menu.MediaHub">Videó központ</string>
   <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Hírek</string>
   <string name="Menu.Weather">Időjárás</string>
   <string name="Menu.Settings">Beállítások</string>
+  <string name="Menu.Others">Egyebek</string>
   <string name="Menu.Home">Home</string>
+  <string name="Menu.Main">Főmenü</string>
   <string name="Movies.Title">Filmek</string>
   <string name="Series.Title">Sorozatok</string>
   <string name="Audio.Title">Audió</string>
+  <string name="Recordings.Title">Felvételek</string>
   <string name="Images.Title">Képek</string>
   <string name="Videos.Title">Videók</string>
+  <string name="Video.Title">Videó</string>
+  <string name="Subtitle.Title">Felirat</string>
+  <string name="News.Title">Hírek</string>
   <string name="Weather.Title">Időjárás</string>
   <string name="General.Title">Általános</string>
+  <string name="CastCrew.Title">Együttes + csapat</string>
+  <string name="MediaInfo.Title">Média info</string>
+  <string name="Media.AudioAlbumArtistsLabel">Album előadók:</string>
+  <string name="Media.AudioTrackLabel">Sáv:</string>
+  <string name="Media.AudioBitRateLabel">Bitráta:</string>
+  <string name="Media.AudioComposersLabel">Szerzők:</string>
+  <string name="Media.AudioMimeTypeLabel">Típus:</string>
+  <string name="BlueVision.Configuration">BlueVision konfiguráció</string>
+  <string name="BlueVision.Configuration.Help">A BlueVision kinézetének testreszabása</string>
+  <string name="BlueVision.DisableHomeTab">\"Home\" címke tiltása</string>
+  <string name="BlueVision.DisableAutoSelection">Az automatikus címke menü választásának tiltása</string>
+  <string name="BlueVision.UseAlternativeSplashscreen">BlueVision kezdőkép használata</string>
+  <string name="BlueVision.ResetMenuLayout">Menükiosztás alaphelyzetre állítása</string>
 </resources>

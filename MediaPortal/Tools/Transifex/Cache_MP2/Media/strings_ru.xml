@@ -1,10 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Headlines for HomeContent-->
+  <string name="Media.LatestPlayed">Последнее воспроизведенное</string>
+  <string name="Media.LatestAdded">Последнее добавленное</string>
+  <string name="Media.ContinueWatching">Продолжить просмотр</string>
   <string name="Media.Favorites">Избранное</string>
+  <string name="Media.CurrentPrograms">Текущие программы</string>
+  <string name="Media.CurrentSchedules">Текущие расписания</string>
   <!--Menu items for the five Media navigation parts-->
-  <string name="Media.BrowseMediaMenuItem">Медиа элементы</string>
-  <string name="Media.LocalMediaMenuItem">Локальные медиа элементы</string>
+  <string name="Media.BrowseMediaMenuItem">Медиаэлементы</string>
+  <string name="Media.LocalMediaMenuItem">Локальные медиаэлементы</string>
   <string name="Media.AudioMenuItem">Аудио</string>
   <string name="Media.VideosMenuItem">Видео</string>
   <string name="Media.SeriesMenuItem">Сериалы</string>
@@ -12,21 +17,46 @@
   <string name="Media.ImagesMenuItem">Изображения</string>
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.NameMenuItem">Имя</string>
+  <string name="Media.TitleMenuItem">Заголовок</string>
+  <string name="Media.AlbumMenuItem">Альбом и заголовок</string>
+  <string name="Media.AlbumTrackMenuItem">Альбом и трек</string>
+  <string name="Media.AlbumLabelMenuItem">Музыкальный лейбл</string>
+  <string name="Media.TrackMenuItem">Трек</string>
+  <string name="Media.ArtistMenuItem">Исполнитель</string>
   <string name="Media.GenreMenuItem">Жанр</string>
+  <string name="Media.YearMenuItem">Год</string>
+  <string name="Media.DecadeMenuItem">Десятилетие</string>
   <string name="Media.SizeMenuItem">Размер</string>
-  <string name="Media.EpisodeMenuItem">Эпизод</string>
+  <string name="Media.SystemMenuItem">Система</string>
+  <string name="Media.ActorMenuItem">Актер</string>
+  <string name="Media.DirectorMenuItem">Режиссер</string>
+  <string name="Media.WriterMenuItem">Сценарист</string>
+  <string name="Media.DurationMenuItem">Длительность</string>
+  <string name="Media.AiredDateMenuItem">Дата выхода</string>
+  <string name="Media.RecordingDateMenuItem">Дата записи</string>
+  <string name="Media.AddedDateMenuItem">Добавленная дата</string>
+  <string name="Media.EpisodeMenuItem">Серия</string>
+  <string name="Media.DVDEpisodeMenuItem">DVD-серия</string>
+  <string name="Media.MusicLabelMenuItem">Музыкальный лейбл</string>
+  <string name="Media.ShowAllMenuItem">Показать все</string>
   <string name="Media.AudioLanguageMenuItem">Язык</string>
-  <string name="Media.ImageCountryMenuItem">Кантри</string>
-  <string name="Media.ImageStateMenuItem">Страна</string>
-  <string name="Media.SeriesNameMenuItem">Сериалы</string>
+  <string name="Media.ImageCountryMenuItem">Страна</string>
+  <string name="Media.ImageStateMenuItem">Штат</string>
+  <string name="Media.ImageCityMenuItem">Город</string>
+  <string name="Media.MoviesCollectionMenuItem">Коллекция</string>
+  <string name="Media.SeriesNameMenuItem">Сериал</string>
+  <string name="Media.SeriesSeasonMenuItem">Сезон</string>
   <string name="Media.CompilationMenuItem">Сборник</string>
+  <string name="Media.CertificationMenuItem">Сертификация</string>
   <string name="Media.SimpleSearchFilterMenuItem">Поиск</string>
   <!--Filter titles-->
   <string name="Media.SwitchFilterMenuItem">Фильтр</string>
+  <string name="Media.SwitchFilterDialogTitle">Фильтровать по</string>
   <!--Special filters names-->
   <string name="Media.ImageFilterSmall">Маленькие</string>
   <string name="Media.ImageFilterMedium">Средние</string>
   <string name="Media.ImageFilterBig">Большие</string>
+  <string name="Media.CompilationFilterCompiled">Компиляции</string>
   <string name="Media.ContentGroupFilter">{0}</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
@@ -39,23 +69,31 @@
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Жанр: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Десятилетие: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Актер: {0}</string>
+  <string name="Media.FilterWriterNavbarDisplayLabel">Сценарист: {0}</string>
   <string name="Media.FilterVideoGenreNavbarDisplayLabel">Жанр: {0}</string>
   <string name="Media.FilterVideoYearNavbarDisplayLabel">Год: {0}</string>
+  <string name="Media.FilterAudioLanguagesNavbarDisplayLabel">Язык: {0}</string>
   <string name="Media.FilterImageSizeNavbarDisplayLabel">Размер: {0}</string>
   <string name="Media.FilterImageYearNavbarDisplayLabel">Год: {0}</string>
+  <string name="Media.FilterImageCountryNavbarDisplayLabel">Страна: {0}</string>
+  <string name="Media.FilterImageStateNavbarDisplayLabel">Штат: {0}</string>
+  <string name="Media.FilterImageCityNavbarDisplayLabel">Город: {0}</string>
   <string name="Media.FilterAudioItemsNavbarDisplayLabel">Название: {0}</string>
   <string name="Media.FilterVideoItemsNavbarDisplayLabel">Название: {0}</string>
   <string name="Media.FilterMoviesCollectionNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesItemsNavbarDisplayLabel">{0}</string>
   <string name="Media.FilterSeriesSeasonNavbarDisplayLabel">Сезон {0}</string>
   <string name="Media.FilterImageItemsNavbarDisplayLabel">Название: {0}</string>
+  <string name="Media.FilterSystemNavbarDisplayLabel">Система: {0}</string>
+  <string name="Media.FilterCompilationNavbarDisplayLabel">Компиляции</string>
   <!--Display labels for workflow navigation contexts-->
-  <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Медиа элементы</string>
-  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Локальные медиа элементы</string>
-  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Аудио библиотека</string>
-  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Видео библиотека</string>
+  <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Медиаэлементы</string>
+  <string name="Media.LocalMediaNavigationRootWorkflowNavigationContextDisplayLabel">Локальные медиаэлементы</string>
+  <string name="Media.AudioNavigationRootWorkflowNavigationContextDisplayLabel">Аудиотека</string>
+  <string name="Media.VideoNavigationRootWorkflowNavigationContextDisplayLabel">Видеотека</string>
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Библиотека сериалов</string>
-  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Библитека изображений</string>
+  <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Библиотека фильмов</string>
+  <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Библиотека изображений</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Текущее видео</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Во весь экран</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Текущее аудио</string>
@@ -73,17 +111,44 @@
   <string name="Media.CheckQueryPlayActionMultipleItemsWorkflowStateNavigationContextDisplayLabel">Играть</string>
   <string name="Media.CheckQueryPlayActionMultipleItemsChooseMediaTypeWorkflowStateNavigationContextDisplayLabel">Тип медиа</string>
   <!--Screen headers-->
-  <string name="Media.BrowseMediaNavigationHeader">Медиа элементы</string>
-  <string name="Media.LocalMediaNavigationHeader">Локальные медиа элементы</string>
+  <string name="Media.BrowseMediaNavigationHeader">Медиаэлементы</string>
+  <string name="Media.LocalMediaNavigationHeader">Локальные медиаэлементы</string>
+  <string name="Media.MediaItemsHeader">Медиаэлемент(ы)</string>
+  <string name="Media.VideoItemsHeader">Видеозапись(и)</string>
+  <string name="Media.AudioItemsHeader">Аудиоэлемент(ы)</string>
+  <string name="Media.EpisodeItemsHeader">Серия(и)</string>
+  <string name="Media.SeasonItemsHeader">Сезон(ы)</string>
+  <string name="Media.MoviesItemsHeader">Фильм(ы)</string>
+  <string name="Media.ImageItemsHeader">Изображение(я)</string>
+  <string name="Media.TrackItemsHeader">Трек(и)</string>
   <string name="Media.SimpleSearchHeader">Простой поиск</string>
+  <string name="Media.ChooseCollectionHeader">Коллекции</string>
   <string name="Media.ChooseActorHeader">Актеры</string>
   <string name="Media.ChooseDirectorHeader">Режиссеры</string>
   <string name="Media.ChooseMovieHeader">Фильмы</string>
+  <string name="Media.ChooseWriterHeader">Сценаристы</string>
+  <string name="Media.ChooseVideoGenreHeader">Жанры</string>
+  <string name="Media.ChooseVideoYearHeader">Года</string>
   <string name="Media.ChooseImageHeader">Изображения</string>
   <string name="Media.ChooseSeriesHeader">Сериалы</string>
-  <string name="Media.ChooseEpisodeHeader">Эпизоды</string>
+  <string name="Media.ChooseSeasonHeader">Сезоны</string>
+  <string name="Media.ChooseEpisodeHeader">Серии</string>
+  <string name="Media.ChooseAudioDecadeHeader">Десятилетия</string>
+  <string name="Media.ChooseAlbumHeader">Альбомы</string>
   <string name="Media.ChooseAudioHeader">Аудио</string>
+  <string name="Media.ChooseArtistHeader">Артисты</string>
+  <string name="Media.ChooseAlbumLabelHeader">Музыкальные лейблы</string>
+  <string name="Media.ChooseAudioGenreHeader">Жанры</string>
+  <string name="Media.ChooseImageYearHeader">Года</string>
+  <string name="Media.ChooseImageSizeHeader">Размеры</string>
+  <string name="Media.ChooseImageCountryHeader">Страны</string>
+  <string name="Media.ChooseImageStateHeader">Штаты</string>
+  <string name="Media.ChooseImageCityHeader">Города</string>
+  <string name="Media.ChooseSystemHeader">Системы</string>
   <string name="Media.ChooseVideoHeader">Видео</string>
+  <string name="Media.ChooseVideoLanguageHeader">Языки</string>
+  <string name="Media.ChooseCompilationHeader">Компиляции</string>
+  <string name="Media.ChooseCertificationHeader">Сертификации</string>
   <string name="Media.PlaylistsOverviewHeader">Плейлисты</string>
   <string name="Media.SavePlaylistEditNameHeader">Сохранить плейлист</string>
   <string name="Media.SavePlaylistFailedHeader">Сохранить плейлист</string>
@@ -92,15 +157,20 @@
   <string name="Media.PlaylistDetailsHeader">Свойства плейлиста</string>
   <string name="Media.PlaylistLoadNoPlaylistText">Нет плейлиста</string>
   <string name="Media.PlaylistLoadErrorLoadingPlaylist">Ошибка загрузки плейлиста</string>
-  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Плейлист может быть сохранён, только если все элементы найдены на домашнем сервере</string>
+  <string name="Media.CannotSavePlaylistWithLocalMediaItems">Плейлист может быть сохранён, только если все его элементы найдены на домашнем сервере</string>
   <!--View occupation names-->
+  <string name="Media.ArtistOccupationName">Исполнитель</string>
+  <string name="Media.ActorOccupationName">Актер</string>
+  <string name="Media.WriterOccupationName">Сценарист</string>
+  <string name="Media.DirectorOccupationName">Режиссер</string>
   <!--View names (names for the view instances)-->
-  <string name="Media.BrowseMediaRootViewName">Медиа элементы</string>
-  <string name="Media.LocalMediaRootViewName">Локальные медиа элементы</string>
+  <string name="Media.BrowseMediaRootViewName">Медиаэлементы</string>
+  <string name="Media.LocalMediaRootViewName">Локальные медиаэлементы</string>
   <string name="Media.AudioRootViewName">Аудио</string>
   <string name="Media.VideosRootViewName">Видео</string>
   <string name="Media.SeriesRootViewName">Сериалы</string>
-  <string name="Media.EpisodeRootViewName">Эпизод</string>
+  <string name="Media.SeasonRootViewName">Сезон</string>
+  <string name="Media.EpisodeRootViewName">Серия</string>
   <string name="Media.ImagesRootViewName">Изображения</string>
   <string name="Media.SimpleSearchViewName">Простой поиск</string>
   <!--General strings used in views-->
@@ -118,11 +188,12 @@
   <!--Shown in the header of an items list, e.g. "45 items"-->
   <string name="Media.MoreThanMaxItemsHint">Этот список содержит более {0} элементов. Сократите число элементов, добавив больше фильтров.</string>
   <string name="Media.MoreThanMaxItemsBrowseHint">Этот список содержит более {0} элементов.</string>
-  <string name="Media.MoreThanMaxItemsSearchResultHint">Результат поиска содержит более {0} элементов. Ограничте ваш поиск.</string>
+  <string name="Media.MoreThanMaxItemsSearchResultHint">Результат поиска содержит более {0} элементов. Ограничьте ваш поиск.</string>
   <string name="Media.ListIsBeingBuiltHint">Создание списка элементов...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Ищу...</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">Плейлисты</string>
+  <string name="Media.AddSingleToPlaylist">Добавить в плейлист</string>
   <string name="Media.AddAllToPlaylist">Добавить всё в плейлист</string>
   <string name="Media.NoItemsToAddHeader">Нечего добавлять</string>
   <string name="Media.NoItemsToAddText">Здесь нечего добавлять</string>
@@ -136,21 +207,37 @@
   <string name="Media.NItemsAdded">{0} элементов добавлено</string>
   <string name="Media.StopAddToPlaylistButton">Стоп</string>
   <string name="Media.NoPlaylistsAvailable">- Нет плейлистов -</string>
-  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Домашний сервер не подключён, поэтому работа с плейлистами не возможна</string>
+  <string name="Media.NoConfigPlaylistsHomeServerNotConnectedText">Домашний сервер не подключён, поэтому работа с плейлистами невозможна</string>
   <string name="Media.EditNameOfPlaylist">Переименовать плейлист</string>
-  <string name="Media.SavePlaylistSuccessfulText">Плейлист \'{0}\' сохранён на сервере</string>
+  <string name="Media.SavePlaylistSuccessfulText">Плейлист \'{0}\' сохранён на сервере.</string>
   <string name="Media.SavePlaylistFailedText">Плейлист не может быть сохранён. Ошибка: \'{0}\'</string>
   <string name="Media.SavePlaylistFailedAlreadyExists">Плейлист не сохранён: Плейлист \'{0}\' уже существует</string>
   <string name="Media.ChoosePlaylistsToBeRemovedText">Выберите удаляемые плейлисты</string>
   <string name="Media.PlaylistNameInfoLabel">Имя плейлиста</string>
   <string name="Media.PlaylistTypeInfoLabel">Тип плейлиста</string>
   <string name="Media.PlaylistNumItemsLabel">Число элементов</string>
-  <string name="Media.PlaylistIdInfoLabel">Плейлист id</string>
+  <string name="Media.PlaylistIdInfoLabel">Id плейлиста</string>
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Стандарт</string>
   <!--MediaItemAction dialog-->
   <string name="Media.Refresh">Обновить</string>
+  <string name="Media.SubtitleSearch">Поиск по субтитрам</string>
+  <string name="Media.DeleteFromStorage">Удалить из хранилища</string>
+  <string name="Media.DeleteFromStorage.Confirmation">Вы уверены, что хотите удалить этот элемент? Действие необратимо.</string>
+  <string name="Media.ConfirmAction">Подтвердить действие</string>
+  <string name="Media.ReimportMediaItem.Id">Id</string>
   <string name="Media.ReimportMediaItem.Done">Выполнено</string>
+  <string name="Media.ReimportMediaItem.SearchResultHeader">Поиск результата</string>
+  <string name="Media.ReimportMediaItem.SearchTypeHeader">Тип поиска</string>
+  <string name="Media.ReimportMediaItem.AutoMatch">Автозаполнение</string>
+  <string name="Media.ReimportMediaItem.ManualSearch">Ручной поиск</string>
   <string name="Media.ReimportMediaItem.Description">Описание</string>
+  <string name="Media.SubtitleSearch.Id">Id</string>
+  <string name="Media.SubtitleSearch.SearchResultHeader">Поиск результата</string>
+  <string name="Media.SubtitleSearch.SearchTypeHeader">Тип поиска</string>
+  <string name="Media.SubtitleSearch.AutoMatch">Автозаполнение</string>
+  <string name="Media.SubtitleSearch.ManualSearch">Ручной поиск</string>
+  <string name="Media.SubtitleSearch.Provider">Провайдер</string>
+  <string name="Media.SubtitleSearch.Language">Язык</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Играть</string>
   <string name="Media.PlayAudioItems">Играть всё</string>
@@ -167,19 +254,28 @@
   <string name="Media.EnqueueVideoImageItem">Во весь экран</string>
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Играть видео/изображение, продолжив аудио в фоне</string>
   <string name="Media.PlayVideoImageItemPiP">Играть видео/изображения PiP</string>
+  <string name="Media.PlaybackFromStart">Воспроизвести с начала</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Видео/изображения</string>
   <string name="Media.AudioContextName">Аудио</string>
   <!--Video currently playing-->
   <string name="Media.VideoCurrentlyPlayingHeader">Информация</string>
+  <string name="Media.Rating">Рейтинг:</string>
   <string name="Media.VideoTitleLabel">Название:</string>
   <string name="Media.VideoGenreLabel">Жанр:</string>
+  <string name="Media.VideoCollectionLabel">Коллекция:</string>
   <string name="Media.VideoYearLabel">Год:</string>
   <string name="Media.VideoDurationLabel">Длительность:</string>
   <string name="Media.VideoActorsLabel">Актер(ы):</string>
-  <string name="Media.VideoStoryPlotLabel">Анотация:</string>
+  <string name="Media.VideoStoryPlotLabel">Аннотация:</string>
   <!--Person currently playing-->
+  <string name="Media.DateBorn">Дата рождения:</string>
+  <string name="Media.DateDied">Дата смерти:</string>
   <!--Series currently playing-->
+  <string name="Media.SeriesTitleLabel">Сериал:</string>
+  <string name="Media.SeriesSeasonLabel">Сезон:</string>
+  <string name="Media.SeriesEpisodeLabel">Серия(и):</string>
+  <string name="Media.SeriesEpisodeNameLabel">Название серии:</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">Информация</string>
   <string name="Media.ImageTitleLabel">Название:</string>
@@ -191,22 +287,28 @@
   <string name="Media.ImageShutterSpeedLabel">Выдержка:</string>
   <string name="Media.ImageMeteringModeLabel">Тип экспозиции:</string>
   <string name="Media.ImageExposureTimeLabel">Время экспозиции:</string>
+  <string name="Media.ImageCountryLabel">Страна:</string>
+  <string name="Media.ImageStateLabel">Штат:</string>
+  <string name="Media.ImageCityLabel">Город:</string>
   <!--DVD currently playing-->
   <string name="Media.DVDCurrentlyPlayingHeader">Информация о DVD</string>
   <!--Audio currently playing-->
   <string name="Media.AudioCurrentlyPlayingHeader">Информация</string>
+  <string name="Media.AudioAlbumLabel">Альбом:</string>
   <string name="Media.AudioArtistsLabel">Исполнитель:</string>
   <string name="Media.AudioTitleLabel">Название:</string>
   <string name="Media.AudioYearLabel">Год:</string>
   <string name="Media.AudioDurationLabel">Длительность:</string>
-  <string name="Media.AudioPlaylistHeader">Аудио плейлист</string>
+  <string name="Media.AudioGenresLabel">Жанр(ы):</string>
+  <string name="Media.AudioTrackLabel">Трек:</string>
+  <string name="Media.AudioPlaylistHeader">Аудио-плейлист</string>
   <string name="Media.VideoImagePlaylistHeader">Видео/изображение плейлист</string>
-  <string name="Media.PiPPlaylistHeader">PiP плейлист</string>
+  <string name="Media.PiPPlaylistHeader">PiP-плейлист</string>
   <string name="Media.SavePLAtServer">Сохранить на сервере</string>
   <string name="Media.SavePLLocally">Сохранить локально</string>
-  <string name="Media.ShowAudioPlaylistAction">Показать аудио плейлист</string>
+  <string name="Media.ShowAudioPlaylistAction">Показать аудио-плейлист</string>
   <string name="Media.ShowVideoImagePlaylistAction">Показать плейлист видео/изображений</string>
-  <string name="Media.ShowPiPPlaylistAction">Показать PiP плейлист</string>
+  <string name="Media.ShowPiPPlaylistAction">Показать PiP-плейлист</string>
   <string name="Media.ClearPlaylistAction">Очистить плейлист</string>
   <string name="Media.SavePlaylistAction">Сохранить плейлист</string>
   <string name="Media.SaveCurrentPlaylistAction">Сохранить текущий плейлист</string>
@@ -217,6 +319,11 @@
   <string name="Media.CannotPlayItemDialogText">Нельзя проиграть</string>
   <string name="Media.CannotPlayItemsDialogText">Нельзя проиграть</string>
   <string name="Media.ValueEmptyTitle">&lt;Пусто&gt;</string>
+  <string name="Media.ChoosePlayModeDialogHeader">Выбрать режим воспроизведения</string>
+  <string name="Media.PlayMode">Режим воспроизведения</string>
+  <string name="Media.PlayMode.Shuffle">В случайном порядке</string>
+  <string name="Media.ChooseRepeatModeDialogHeader">Выбрать режим повтора</string>
+  <string name="Media.RepeatMode">Режим повтора</string>
   <string name="Media.RepeatMode.None">Никто</string>
   <string name="Media.RepeatMode.All">Все</string>
   <!--VideoPlayerUIContributor-->
@@ -225,9 +332,9 @@
   <string name="Media.ChooseSubtitleDialogHeader">Выбрать субтитры</string>
   <string name="Media.ChooseTitleDialogHeader">Выбрать название</string>
   <!--Video Player time units-->
-  <string name="Media.Seconds">сек.</string>
-  <string name="Media.Minutes">мин.</string>
-  <string name="Media.Hours">час.</string>
+  <string name="Media.Seconds">с</string>
+  <string name="Media.Minutes">мин</string>
+  <string name="Media.Hours">ч</string>
   <string name="Media.Start">Начало</string>
   <string name="Media.End">Конец</string>
   <string name="Media.DontSkip">Не пропускать</string>
@@ -237,19 +344,33 @@
   <string name="Media.MediumList">Список (средний шрифт)</string>
   <string name="Media.LargeList">Список (крупный шрифт)</string>
   <string name="Media.LargeGrid">Иконки</string>
+  <string name="Media.CoverLayout">Обложки</string>
+  <string name="Media.Watched">Просмотрено</string>
+  <string name="Media.Unwatched">Непросмотрено</string>
   <string name="Media.SwitchSortingMenuItem">Сортировка</string>
+  <string name="Media.SwitchSortingDialogTitle">Сортировать по</string>
+  <string name="Media.SortingBrowseDefault">Сортировка по умолчанию</string>
   <string name="Media.SortByDate">Дата</string>
   <string name="Media.GroupingBrowseDefault">Стандарт</string>
+  <string name="Media.SwitchGroupingMenuItem">Группировка</string>
+  <string name="Media.SwitchGroupingDialogTitle">Группировать по</string>
   <!--Stubs-->
   <!--Virtual-->
   <!--Settings-->
   <string name="Settings.Players">Проигрыватели</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Закрывать проигрыватель</string>
   <string name="Settings.Players.InstantSkipPercent">Процент немедленного пропуска</string>
-  <string name="Settings.Players.InstantSkipPercent.Help">Выберите сколько процентов длительности видео вы хотите пропускать сразу</string>
-  <string name="Settings.Players.SkipStepTimeout">Задержка(секунды)пропуска</string>
+  <string name="Settings.Players.InstantSkipPercent.Help">Выберите, сколько процентов длительности видео вы хотите пропускать сразу</string>
+  <string name="Settings.Players.SkipStepTimeout">Задержка (секунды) пропуска</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Установите паузу между выбором величины пропуска и срабатыванием пропуска</string>
   <string name="Settings.Players.SkipStepList">Шаги пропуска</string>
-  <string name="Settings.Players.SkipStepList.Help">Введите шаги пропуска в секундах, разделяя их ,</string>
+  <string name="Settings.Players.SkipStepList.Help">Введите шаги пропуска в секундах, разделяя их запятыми</string>
+  <string name="Settings.Media">Медиатека</string>
+  <string name="Settings.Media.ShowVirtual">Показать все известные медиаэлементы</string>
+  <string name="Settings.Media.ShowVirtual.Audio">Показать все известные треки альбомов</string>
+  <string name="Settings.Media.ShowVirtual.Series">Показать все известные сезоны и серии</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
+  <string name="Filter.StartsWith">Начинается с: {0}</string>
 </resources>

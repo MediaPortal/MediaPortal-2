@@ -25,7 +25,7 @@
   <string name="MediaInfo.Title">medya bilgisi</string>
   <string name="Media.AudioAlbumArtistsLabel">albüm sanatçıları</string>
   <string name="Media.AudioTrackLabel">parça</string>
-  <string name="Media.AudioBitRateLabel">bithızı</string>
+  <string name="Media.AudioBitRateLabel">Bit oranı</string>
   <string name="Media.AudioComposersLabel">besteciler</string>
   <string name="Media.AudioMimeTypeLabel">tip</string>
   <string name="BlueVision.Configuration">bluevision yapılandırması</string>

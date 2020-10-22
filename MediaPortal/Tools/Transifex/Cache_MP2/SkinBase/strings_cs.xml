@@ -40,6 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Odpojit od serveru</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">DomovskyServer</string>
   <string name="ServerConnection.AttachedText.Before">Tento klient MediaPortalu 2 je nyní připojen k domovskému serveru.</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Tento klient MediaPortalu 2 není nyní připojen k domovskému serveru.</string>
   <string name="ServerConnection.HomeServerIsConnected">Domovský server je nyní připojen.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Domovský server je nyní odpojen.</string>

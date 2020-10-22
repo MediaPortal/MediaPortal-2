@@ -39,6 +39,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Putuskan dari server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">HomeServer</string>
   <string name="ServerConnection.AttachedText.Before">Klien MediaPortal 2 ini sedang terkait dengan server pusat</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Saat ini, klien MediaPortal 2 terputus dari server pusat.</string>
   <string name="ServerConnection.HomeServerIsConnected">Server pusat sedang terhubung.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Server pusat sudah tidak terhubung.</string>

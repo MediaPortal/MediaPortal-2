@@ -2,7 +2,11 @@
 <resources>
   <string name="Menu.Audio">Audió</string>
   <string name="Menu.Image">Képek</string>
+  <string name="Menu.MediaHub">Médiaközpont</string>
   <string name="Menu.TV">TV</string>
+  <string name="Menu.News">Hírek</string>
   <string name="Menu.Weather">Időjárás</string>
   <string name="Menu.Settings">Beállítások</string>
+  <string name="Menu.Others">Egyebek</string>
+  <string name="Menu.Main">Főmenü</string>
 </resources>

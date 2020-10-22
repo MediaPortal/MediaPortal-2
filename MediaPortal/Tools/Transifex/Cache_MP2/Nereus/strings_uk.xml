@@ -2,4 +2,6 @@
 <resources>
   <string name="Nereus.Shortcut.Genre">Жанр</string>
   <string name="Nereus.Shortcut.System">Система</string>
+  <string name="Nereus.Shortcut.Refresh">Оновити</string>
+  
   </resources>

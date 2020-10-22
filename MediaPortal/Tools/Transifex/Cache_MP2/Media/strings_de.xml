@@ -246,6 +246,8 @@
   <string name="Media.MoreThanMaxItemsSearchResultHint">Das Suchergebnis enthält mehr als {0} Elemente. Bitte die Auswahl durch weitere Filter einschränken.</string>
   <string name="Media.ListIsBeingBuiltHint">Liste wird aufgebaut...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Suche...</string>
+  <string name="Media.EjectOpticalDisc">Werfe Optisches Medium aus</string>
+  <string name="Media.Eject">Auswerfen</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">Playlisten</string>
   <string name="Media.AddSingleToPlaylist">Zu Playlist hinzufügen</string>
@@ -280,6 +282,7 @@
   <string name="Media.SetUnplayed">Als ungesehen markieren</string>
   <string name="Media.Refresh">Ansicht aktualisieren</string>
   <string name="Media.Reimport">Erneut importieren</string>
+  <string name="Media.SubtitleSearch">Untertitelsuche</string>
   <string name="Media.DeleteFromStorage">Von Speicher löschen</string>
   <string name="Media.DeleteFromStorage.Confirmation">Soll das gewählte Element endgültig gelöscht werden? Diese Aktion kann nicht rückgängig gemacht werden.</string>
   <string name="Media.ConfirmAction">Bestätigung</string>
@@ -292,7 +295,19 @@
   <string name="Media.ReimportMediaItem.AutoMatch">Automatische Übereinstimmung</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Manuelle Suche</string>
   <string name="Media.ReimportMediaItem.Description">Beschreibung</string>
-  <string name="Media.ReimportMediaItem.Hint">Hinweis: Es wird eine Internetverbindung und mindestens ein in den Einstellungen aktivierter Online-Scraper benötigt.</string>
+  <string name="Media.ReimportMediaItem.Hint">Hinweis: Benötigt eine Internetverbindng und zumindest einen Untertitel Scraper ausgewählt in den Einstellungen der Medienbibliothek</string>
+  <string name="Media.SubtitleReplace.Confirmation">Sind Sie sicher den existierenden durch den ausgewählten untertitel zu ersetzen? Es kann nicht rückgängig gemacht werden.</string>
+  <string name="Media.SubtitleSearch.Title">Wähle passenden Untertitel</string>
+  <string name="Media.SubtitleSearch.Id">Id</string>
+  <string name="Media.SubtitleSearch.SearchResultHeader">Suchergebnis</string>
+  <string name="Media.SubtitleSearch.SearchTypeHeader">Such-Variante</string>
+  <string name="Media.SubtitleSearch.AutoMatch">Automatische Übereinstimmung</string>
+  <string name="Media.SubtitleSearch.ManualSearch">Manuelle Suche</string>
+  <string name="Media.SubtitleSearch.Provider">Anbieter</string>
+  <string name="Media.SubtitleSearch.Percentage">Vergleiche Prozentzahl</string>
+  <string name="Media.SubtitleSearch.Language">Sprache</string>
+  <string name="Media.SubtitleSearch.Hint">Hinweis: Benötigt eine Internetverbindng und zumindest einen Untertitel Scraper ausgewählt in den Einstellungen der Medienbibliothek</string>
+  <string name="Media.ChooseEditionDialogHeader">Wähle Edition</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Element abspielen</string>
   <string name="Media.PlayAudioItems">Audiotitel abspielen</string>
@@ -316,6 +331,7 @@
   <string name="Media.VideoImageContextName">Video/Bild</string>
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
+  <string name="Media.Info">Medieninformationen</string>
   <string name="Media.VideoCurrentlyPlayingHeader">Aktuelle Video-Informationen</string>
   <string name="Media.Rating">Bewertung:</string>
   <string name="Media.VideoTitleLabel">Titel: </string>
@@ -430,6 +446,10 @@
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aktiviere diese Option, damit MediaPortal die Player am Ende der Wiedergabe automatisch schließt</string>
   <string name="Settings.Players.InstantSkipPercent">Sofortsprung Prozent</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Lege fest, wieviel Prozent der Video-Dauer für Sofortsprünge verwendet werden sollen.</string>
+  <string name="Settings.Players.InstantSkipSeconds">Sofortsprung Sekunden</string>
+  <string name="Settings.Players.InstantSkipSeconds.Help">Lege fest, wieviele Sekunden für Sofortsprünge verwendet werden sollen.</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds">Sofortsprung Sekunden bevorzugen</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds.Help">Lege fest, ob der Sofortsprung absolute Sekunden oder Prozent der Video-Dauer verwenden soll.</string>
   <string name="Settings.Players.SkipStepTimeout">Timeout-Zeit für Sofortsprünge</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Setzt das Timeout für Benutzereingaben, bevor der Sofortsprung ausgeführt wird</string>
   <string name="Settings.Players.SkipStepList">Player Sprungintervalle</string>
@@ -453,6 +473,8 @@
   <string name="Settings.Media.Certification.Series">Altersfreigabe-Land Serien</string>
   <string name="Settings.Media.Certification.Series.Help">Altersfreigabe-Land für Serien auswählen</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

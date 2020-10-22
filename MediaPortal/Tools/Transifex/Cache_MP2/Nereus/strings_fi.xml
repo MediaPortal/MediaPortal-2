@@ -10,6 +10,7 @@
   <string name="Nereus.Shortcut.Recordings">Tallennukset</string>
   <string name="Nereus.Shortcut.System">Järjestelmä</string>
   <string name="Nereus.Shortcut.Size">Koko</string>
+  <string name="Nereus.Shortcut.Refresh">Päivitä</string>
   
   <string name="Nereus.Home.OtherPlugins">Muut</string>
   </resources>

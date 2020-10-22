@@ -19,11 +19,11 @@
   <string name="Media.SystemMenuItem">Sistem</string>
   <string name="Media.ActorMenuItem">Aktör </string>
   <string name="Media.EpisodeMenuItem">Bölüm</string>
-  <string name="Media.AudioLanguageMenuItem">Language</string>
+  <string name="Media.AudioLanguageMenuItem">Dil</string>
   <string name="Media.ImageCountryMenuItem">Ülke</string>
-  <string name="Media.ImageStateMenuItem">State</string>
+  <string name="Media.ImageStateMenuItem">Eyalet</string>
   <string name="Media.ImageCityMenuItem">Şehir</string>
-  <string name="Media.SeriesNameMenuItem">Dizi</string>
+  <string name="Media.SeriesNameMenuItem">Diziler</string>
   <string name="Media.SimpleSearchFilterMenuItem">Ara</string>
   <!--Filter titles-->
   <string name="Media.SwitchFilterMenuItem">Filter</string>
@@ -176,6 +176,7 @@
   <string name="Media.DeleteFromStorage">Depolama alanından sil</string>
   <string name="Media.ReimportMediaItem.Done">İşlem tamamlandı</string>
   <string name="Media.ReimportMediaItem.Description">Tanım</string>
+  <string name="Media.SubtitleSearch.Language">Dil</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">İçeriği çal</string>
   <string name="Media.PlayAudioItems">Ses içeriklerini çal</string>
@@ -208,7 +209,7 @@
   <string name="Media.VideoStoryPlotLabel">Konu:</string>
   <!--Person currently playing-->
   <!--Series currently playing-->
-  <string name="Media.SeriesTitleLabel">Seriler:</string>
+  <string name="Media.SeriesTitleLabel">Diziler:</string>
   <string name="Media.SeriesSeasonLabel">Sezon:</string>
   <string name="Media.SeriesEpisodeLabel">Bölüm(ler):</string>
   <string name="Media.SeriesEpisodeNameLabel">Bölüm başlığı:</string>
@@ -297,4 +298,6 @@
   <string name="Settings.Players.SkipStepList">Oynatıcı atlama adımları</string>
   <string name="Settings.Players.SkipStepList.Help">Atlama adım değerlerini , ile ayırarak girin</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>
