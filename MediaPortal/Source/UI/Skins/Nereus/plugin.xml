@@ -101,7 +101,13 @@
         Text="[Nereus.Configuration.EnableFanart]"
         HelpText="[Nereus.Configuration.EnableFanart.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
-    
+
+    <ConfigSetting
+        Id="NereusEnableLoopScrolling"
+        Text="[Nereus.Configuration.EnableLoopScrolling]"
+        HelpText="[Nereus.Configuration.EnableLoopScrolling.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableLoopScrollingConfiguration"/>
+
     <ConfigSetting
         Id="NereusFanartOverlayOpacity"
         Text="[Nereus.Configuration.FanartOverlayOpacity]"

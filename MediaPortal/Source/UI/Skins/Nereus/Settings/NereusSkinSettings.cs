@@ -66,6 +66,9 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     public bool EnableAgeCertificationLogos { get; set; }
 
     [Setting(SettingScope.User, true)]
+    public bool EnableLoopScrolling { get; set; }
+
+    [Setting(SettingScope.User, true)]
     public bool EnableHelpTexts { get; set; }
 
     static readonly Guid[] DEFAULT_HOME_MENU_ACTION_IDS = new []
