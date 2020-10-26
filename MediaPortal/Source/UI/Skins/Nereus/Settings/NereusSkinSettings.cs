@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -64,6 +64,9 @@ namespace MediaPortal.UiComponents.Nereus.Settings
 
     [Setting(SettingScope.User, true)]
     public bool EnableAgeCertificationLogos { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool EnableLoopScrolling { get; set; }
 
     [Setting(SettingScope.User, true)]
     public bool EnableHelpTexts { get; set; }

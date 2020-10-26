@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -393,7 +393,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
           #region Look for central artist directory
 
           // First get the ResourcePath of the central directory
-          var artistFolderPath = ResourcePathHelper.Combine(centralArtistFolderPath, $"{FileUtils.GetSafeFilename(artistName, '¤').Replace("¤", "")}/");
+          var artistFolderPath = ResourcePathHelper.Combine(centralArtistFolderPath, $"{FileUtils.GetSafeFilename(artistName, 'ï¿½').Replace("ï¿½", "")}/");
           _debugLogger.Info("[#{0}]: central artist nfo-directory: '{1}'", miNumber, artistFolderPath);
 
           // Then try to create an IFileSystemResourceAccessor for this directory

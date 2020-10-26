@@ -4,4 +4,5 @@
   <string name="Login.Logout">Излез от профила си</string>
 
   <string name="UserConfig.DeleteUser">Изтрий</string>
+  <string name="UserConfig.Default">По подразбиране</string>
   </resources>

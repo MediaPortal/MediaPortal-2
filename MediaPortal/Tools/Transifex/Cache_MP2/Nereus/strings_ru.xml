@@ -26,6 +26,7 @@
   <string name="Nereus.Shortcut.Recordings">Записанные файлы</string>
   <string name="Nereus.Shortcut.System">Система</string>
   <string name="Nereus.Shortcut.Size">Размер</string>
+  <string name="Nereus.Shortcut.Refresh">Обновить</string>
   
   <string name="Nereus.Home.OtherPlugins">Другое</string>
   <string name="Nereus.Home.OtherPlugins.Help">Остальные плагины.</string>

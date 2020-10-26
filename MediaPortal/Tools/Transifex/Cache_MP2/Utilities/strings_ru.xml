@@ -1,5 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Utilities.MenuItem">Утилиты</string>
+  <string name="Utilities.MainWorkflowNavigationContextDisplayLabel">Утилиты</string>
+  <string name="Utilities.PlaylistImportWorkflowNavigationContextDisplayLabel">Импорт плейлиста</string>
+  <string name="Utilities.MainScreenTitle">Утилиты</string>
+  <string name="Utilities.PlaylistImport">Импорт плейлиста</string>
+  <string name="Utilities.PlaylistImportScreenTitle">Импорт плейлиста</string>
+  <string name="Utilities.ImportPlaylistFile">Импорт файла плейлиста</string>
+  <string name="Utilities.ChoosePlaylistFile">Выбрать файл</string>
+  <string name="Utilities.ChooseImportFileDialogHeader">Выбрать файл для импорта</string>
+  <string name="Utilities.EditPlaylistName">Изменить имя нового плейлиста</string>
+  <string name="Utilities.StartPlaylistImport">Начать импорт плейлиста</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyTitle">Успешно</string>
+  <string name="Utilities.PlaylistSavedSuccessfullyText">Плейлист \'{0}\' успешно сохранен.</string>
+  <string name="Utilities.PlaylistSaveFailedTitle">Сохранение плейлиста не удалось</string>
   <string name="Utilities.ImportPlaylistProgressTitle">Выполнение</string>
+  <string name="Utilities.ImportPlaylistProgressHeaderText">Импорт плейлиста</string>
   <string name="Utilities.StopImportPlaylistButton">Стоп</string>
+  <string name="Utilities.PlaylistNameExists">Имя плейлиста уже существует</string>
+  <string name="Utilities.ImportFileInvalid">Некорректный файл импорта</string>
+  <string name="Utilities.PlaylistNameIsEmpty">Нет имени плейлиста</string>
+  <string name="Utilities.ServerNotConnected">Сервер не подключен</string>
 </resources>

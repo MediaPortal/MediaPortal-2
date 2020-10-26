@@ -11,6 +11,8 @@
   <string name="Nereus.Shortcut.Recordings">Įrašai</string>
   <string name="Nereus.Shortcut.System">Sistema</string>
   <string name="Nereus.Shortcut.Size">Dydis</string>
+  <string name="Nereus.Shortcut.Location">Vieta</string>
+  <string name="Nereus.Shortcut.Refresh">Atnaujinti vaizda</string>
   
   <string name="Nereus.Home.OtherPlugins">Kiti</string>
   </resources>

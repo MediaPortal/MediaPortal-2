@@ -533,8 +533,6 @@
   <string name="Settings.Media.Certification.Series.Help">Select the series certification system country to use when displaying series certifications</string>
 
   <!-- Secondary filters -->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

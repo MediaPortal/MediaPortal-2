@@ -1,4 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="PartyMusicPlayer.Playlist">Плейлист</string>
+  <string name="PartyMusicPlayer.ChoosePlaylist">Выбрать плейлист</string>
+  <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Выбрать плейлист</string>
+  <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Сервер не подключен</string>
+  <string name="PartyMusicPlayer.AudioArtistLabel">Исполнитель</string>
+  <string name="PartyMusicPlayer.AudioTitleLabel">Заголовок</string>
+  <string name="PartyMusicPlayer.ShowPlaylist">Показать плейлист</string>
 </resources>

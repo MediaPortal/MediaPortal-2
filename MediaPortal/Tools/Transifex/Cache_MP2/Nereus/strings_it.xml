@@ -43,6 +43,8 @@
   <string name="Nereus.Shortcut.Recordings">Registrazioni</string>
   <string name="Nereus.Shortcut.System">Sistema</string>
   <string name="Nereus.Shortcut.Size">Dimensione</string>
+  <string name="Nereus.Shortcut.Location">Località</string>
+  <string name="Nereus.Shortcut.Refresh">Aggiorna</string>
   
   <string name="Nereus.Home.OtherPlugins">Altro</string>
   </resources>

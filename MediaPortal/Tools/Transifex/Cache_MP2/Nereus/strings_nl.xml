@@ -55,6 +55,8 @@
   <string name="Nereus.Shortcut.Place">Plaats</string>
   <string name="Nereus.Shortcut.System">Systeem</string>
   <string name="Nereus.Shortcut.Size">Grootte</string>
+  <string name="Nereus.Shortcut.Location">Locatie</string>
+  <string name="Nereus.Shortcut.Refresh">Verversen</string>
   
   <string name="Nereus.Home.OtherPlugins">Overige</string>
   <string name="Nereus.Home.OtherPlugins.Help">Alle andere plug-ins.</string>

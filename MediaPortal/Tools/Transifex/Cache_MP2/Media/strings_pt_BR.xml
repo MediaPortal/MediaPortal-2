@@ -169,6 +169,7 @@
   <string name="Media.PlaylistIdInfoLabel">Identificação interna da playlist</string>
   <!--MediaItemAction dialog-->
   <string name="Media.Refresh">Atualizar</string>
+  <string name="Media.SubtitleSearch.Language">Linguagem</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Executar o ítem</string>
   <string name="Media.PlayAudioItems">Tocar ítens de áudio</string>
@@ -224,4 +225,6 @@
   <!--Settings-->
   <string name="Settings.Players">Reprodutores</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

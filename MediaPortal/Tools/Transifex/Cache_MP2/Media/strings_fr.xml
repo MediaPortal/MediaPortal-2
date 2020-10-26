@@ -293,7 +293,12 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="Media.ReimportMediaItem.AutoMatch">Sélection Auto.</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Recherche manuelle</string>
   <string name="Media.ReimportMediaItem.Description">Description</string>
-  <string name="Media.ReimportMediaItem.Hint">Nota: Nécessite être connecté à internet et que au moins un scrapper soit activé dans les paramètres médiathèque. </string>
+  <string name="Media.SubtitleSearch.Id">ID</string>
+  <string name="Media.SubtitleSearch.SearchResultHeader">Résultat de la recherche</string>
+  <string name="Media.SubtitleSearch.SearchTypeHeader">Type de recherche</string>
+  <string name="Media.SubtitleSearch.AutoMatch">Sélection Auto.</string>
+  <string name="Media.SubtitleSearch.ManualSearch">Recherche manuelle</string>
+  <string name="Media.SubtitleSearch.Language">Langue</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Lire l\'élément</string>
   <string name="Media.PlayAudioItems">Lire le fichies audio</string>
@@ -454,6 +459,8 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="Settings.Media.Certification.Series">Pays du système du code régional de la série</string>
   <string name="Settings.Media.Certification.Series.Help">Sélectionnez le pays du système de certification à utiliser lors de l\'affichage des certifications de série</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

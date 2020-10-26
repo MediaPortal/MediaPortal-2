@@ -36,6 +36,7 @@
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Σύνδεση στον διακομιστή</string>
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Αποσύνδεση απο διακομιστή</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Αρχικός Διακομιστής</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.HomeServerIsConnected">Ο αρχικός διακομιστής είναι ενωμένος</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Ο αρχικός διακομιστής δεν είναι ενωμένος</string>
   <string name="ServerConnection.DetachMenu">Αποσύνδεση</string>

@@ -6,6 +6,7 @@
   <string name="Nereus.Shortcut.Search">Otsi</string>
   <string name="Nereus.Shortcut.System">Süsteem</string>
   <string name="Nereus.Shortcut.Size">Maht</string>
+  <string name="Nereus.Shortcut.Refresh">Värskenda</string>
   
   <string name="Nereus.Home.OtherPlugins">Veel</string>
   </resources>

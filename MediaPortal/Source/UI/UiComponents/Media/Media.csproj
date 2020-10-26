@@ -450,7 +450,9 @@
     <Compile Include="General\Utils.cs" />
     <Compile Include="SecondaryFilter\IItemsFilter.cs" />
     <Compile Include="SecondaryFilter\RemoteNumpadFilter.cs" />
+    <Compile Include="Settings\Configuration\PreferInstantSkipSeconds.cs" />
     <Compile Include="Settings\Configuration\ClosePlayersWhenFinished.cs" />
+    <Compile Include="Settings\Configuration\InstantSkipSeconds.cs" />
     <Compile Include="Settings\Configuration\SeriesCertificationCountry.cs" />
     <Compile Include="Settings\Configuration\OpenPlayerStrategy.cs" />
     <Compile Include="Settings\Configuration\InstantSkipPercent.cs" />

@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="PartyMusicPlayer.MenuItem">Feestje muziekspeler</string>
+  <string name="PartyMusicPlayer.MenuItem.Help">Start een afspeellijst en voorkom ondertussen MediaPortal gebruik.</string>
   <string name="PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel">Feestje muziekspeler</string>
   <string name="PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel">Feestje muziekspeler</string>
   <string name="PartyMusicPlayer.ConfigScreenTitle">Feestje muziekspeler configuratie</string>

@@ -179,6 +179,7 @@
   <string name="Media.DeleteFromStorage">Poista varastosta</string>
   <string name="Media.ReimportMediaItem.Done">Valmis</string>
   <string name="Media.ReimportMediaItem.Description">Kuvaus</string>
+  <string name="Media.SubtitleSearch.Language">Kieli</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Toista kappale</string>
   <string name="Media.PlayAudioItems">Toista audiokappaleita</string>
@@ -306,4 +307,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">Avaa soittimen toimintasuunnitelma</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Toimintasuunnitelma, kuinka juuri avatut soittimet asetellaan jo avattujen soittimien kanssa</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -280,6 +280,11 @@
   <string name="Media.ReimportMediaItem.SearchTypeHeader">Tipo de búsqueda</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Búsqueda manual</string>
   <string name="Media.ReimportMediaItem.Description">Descripción</string>
+  <string name="Media.SubtitleSearch.Id">Id</string>
+  <string name="Media.SubtitleSearch.SearchResultHeader">Resultado de búsqueda</string>
+  <string name="Media.SubtitleSearch.SearchTypeHeader">Tipo de búsqueda</string>
+  <string name="Media.SubtitleSearch.ManualSearch">Búsqueda manual</string>
+  <string name="Media.SubtitleSearch.Language">Idioma</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Reproducir elementos</string>
   <string name="Media.PlayAudioItems">Reproduducir elementos de sonido</string>
@@ -425,6 +430,8 @@
   <string name="Settings.Media.ShowVirtual.Movie">Mostrar toda la colección de películas conocida</string>
   <string name="Settings.Media.ShowVirtual.Series">Mostrar todas las temporadas y episodios conocidos</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

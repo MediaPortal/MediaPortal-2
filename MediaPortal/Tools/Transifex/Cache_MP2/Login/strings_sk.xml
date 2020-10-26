@@ -8,5 +8,6 @@
   <string name="UserConfig.SaveUser">Uložiť</string>
   <string name="UserConfig.Yes">Áno</string>
   <string name="UserConfig.No">Nie</string>
+  <string name="UserConfig.Default">Predvolené</string>
   <string name="UserConfig.SharesText">Zdieľania</string>
   </resources>

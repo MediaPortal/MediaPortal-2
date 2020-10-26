@@ -2,5 +2,10 @@
 <resources>
   <string name="News.Title">Новости</string>
   <string name="News.FeedsStateDisplayLabel">Новости</string>
+  <string name="News.Published">Опубликовано</string>
+  <string name="News.AddFeed">Добавить новостную ленту</string>
+  <string name="News.EnterFeedName">Введите имя ленты</string>
+  <string name="News.EnterFeedUrl">Введите Url ленты</string>
   <string name="Settings.Plugins.News">Новости</string>
+  <string name="Settings.Plugins.News.FeedsSetup">Управлять лентами</string>
 </resources>

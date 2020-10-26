@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="Settings.InputDeviceManager.Section">Urządzenia wejściowe</string>
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Czysto</string>
   </resources>

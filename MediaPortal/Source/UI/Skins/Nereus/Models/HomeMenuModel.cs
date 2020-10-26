@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -61,6 +61,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
     public static readonly Guid HOME_STATE_ID = new Guid("7F702D9C-F2DD-42da-9ED8-0BA92F07787F");
     public static readonly Guid APPS_LIST_MODEL_ID = new Guid("E35E2C12-1B97-43EE-B7A2-D1527DF41D89");
     public static readonly Guid OV_LIST_MODEL_ID = new Guid("AFD048F1-9EBB-4EBC-84C8-B27B561B77D0");
+    public static readonly Guid WEBRADIO_LIST_MODEL_ID = new Guid("55623F9E-60EF-4C28-B835-F8E44D9549E7");
 
     protected const int UPDATE_DELAY_MS = 500;
 
@@ -121,6 +122,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _homeContent.Add(new Guid("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"), new WeatherHomeContent());
       _homeContent.Add(new Guid("873eb147-c998-4632-8f86-d5e24062be2e"), new LauncherHomeContent());
       _homeContent.Add(new Guid("c33e39cc-910e-41c8-bffd-9eccd340b569"), new OnlineVideosHomeContent());
+      _homeContent.Add(new Guid("2ded75c0-5eae-4e69-9913-6b50a9ab2956"), new WebradioHomeContent());
 
       // Home content for displaying a list of all other plugins
       _homeContent.Add(OtherPluginsAction.ACTION_ID, new OtherPluginsHomeContent(_otherMenuItems));

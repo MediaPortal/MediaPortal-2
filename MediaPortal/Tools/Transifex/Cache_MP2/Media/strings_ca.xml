@@ -168,6 +168,7 @@
   <string name="Media.Refresh">Actualitza</string>
   <string name="Media.ReimportMediaItem.Done">Fet</string>
   <string name="Media.ReimportMediaItem.Description">Descripció</string>
+  <string name="Media.SubtitleSearch.Language">Idioma</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Reprodueix l\'element</string>
   <string name="Media.PlayAudioItems">Reprodueix els elements audio</string>
@@ -290,4 +291,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">Obre l\'estrategia del reproductor</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estrategia, referent a la posició dels reproductors que s\'obrin respecte als que ja ho estiguin</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

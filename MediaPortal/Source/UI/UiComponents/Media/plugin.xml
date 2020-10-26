@@ -394,10 +394,22 @@
         ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.ClosePlayersWhenFinished"/>
 
     <ConfigSetting
+      Id="PreferInstantSkipSeconds"
+      Text="[Settings.Players.PreferInstantSkipSeconds]"
+      HelpText="[Settings.Players.PreferInstantSkipSeconds.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.PreferInstantSkipSeconds"/>
+
+    <ConfigSetting
       Id="InstantSkipPercent"
       Text="[Settings.Players.InstantSkipPercent]"
       HelpText="[Settings.Players.InstantSkipPercent.Help]"
       ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.InstantSkipPercent"/>
+
+    <ConfigSetting
+      Id="InstantSkipSeconds"
+      Text="[Settings.Players.InstantSkipSeconds]"
+      HelpText="[Settings.Players.InstantSkipSeconds.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.InstantSkipSeconds"/>
 
     <ConfigSetting
       Id="SkipStepTimeout"

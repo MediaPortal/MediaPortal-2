@@ -42,6 +42,7 @@
   <string name="Nereus.Shortcut.Recordings">Enregistrements</string>
   <string name="Nereus.Shortcut.System">Système</string>
   <string name="Nereus.Shortcut.Size">Taille</string>
+  <string name="Nereus.Shortcut.Refresh">Rafraîchir</string>
   
   <string name="Nereus.Home.OtherPlugins">Autres</string>
   </resources>

@@ -2,6 +2,7 @@
 <resources>
   <string name="Menu.Audio">Аудио</string>
   <string name="Menu.Image">Изображения</string>
+  <string name="Menu.MediaHub">Видеохаб</string>
   <string name="Menu.TV">ТВ</string>
   <string name="Menu.News">Новости</string>
   <string name="Menu.Weather">Погода</string>
@@ -14,14 +15,14 @@
   <string name="Audio.Title">Аудио</string>
   <string name="Recordings.Title">Записанные файлы</string>
   <string name="Images.Title">Изображения</string>
-  <string name="Videos.Title">Видео-файлы</string>
+  <string name="Videos.Title">Видеофайлы</string>
   <string name="Video.Title">Видео</string>
   <string name="Subtitle.Title">Субтитры</string>
   <string name="News.Title">Новости</string>
   <string name="Weather.Title">Погода</string>
   <string name="General.Title">Главное</string>
   <string name="CastCrew.Title">Актёры + съёмочная группа</string>
-  <string name="MediaInfo.Title">Инфо о медиа-файле</string>
+  <string name="MediaInfo.Title">Инфо о медиафайле</string>
   <string name="Media.AudioAlbumArtistsLabel">Исполнители в альбоме</string>
   <string name="Media.AudioTrackLabel">Трек:</string>
   <string name="Media.AudioBitRateLabel">Битрейт:</string>

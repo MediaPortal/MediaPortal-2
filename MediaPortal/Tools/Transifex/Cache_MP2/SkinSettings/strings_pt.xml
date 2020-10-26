@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="SkinSettings.Configuration.SkinSettings">Definicões da capa</string>
+  <string name="SkinSettings.ViewModes.LayoutType.ListLayout">Lista</string>
+  <string name="SkinSettings.ViewModes.LayoutType.GridLayout">Grade</string>
+  <string name="SkinSettings.ViewModes.LayoutType.CoverLayout">Capa</string>
 </resources>

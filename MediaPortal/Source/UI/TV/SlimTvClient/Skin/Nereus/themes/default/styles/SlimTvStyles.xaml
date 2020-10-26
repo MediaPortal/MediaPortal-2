@@ -1213,7 +1213,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -1586,7 +1586,8 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,0,-40">
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,0,-40"
+                              LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
             <AnimatedStackPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                 <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"

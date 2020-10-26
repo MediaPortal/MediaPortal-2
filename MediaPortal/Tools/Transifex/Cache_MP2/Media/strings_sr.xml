@@ -255,6 +255,7 @@
   <string name="Media.DeleteFromStorage">Обриши из складишта</string>
   <string name="Media.ReimportMediaItem.Done">Готово</string>
   <string name="Media.ReimportMediaItem.Description">Опис</string>
+  <string name="Media.SubtitleSearch.Language">Језик</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Пусти ставку</string>
   <string name="Media.PlayAudioItems">Пусти аудио ставку</string>
@@ -400,6 +401,8 @@
   <string name="Settings.Media.ShowVirtual.Movie">Прикажи све познате колекције филмова</string>
   <string name="Settings.Media.ShowVirtual.Series">Прикажи све познате сезоне и епизоде</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

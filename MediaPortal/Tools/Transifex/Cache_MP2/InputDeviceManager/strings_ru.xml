@@ -1,4 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="InputDeviceManager.Key">Ключ/Кнопка</string>
+  <string name="InputDeviceManager.Action">Боевик</string>
+
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Ясно</string>
+  <string name="InputDeviceManager.DefaultConfig.Keyboard">Клавиатура по умолчанию</string>
   </resources>

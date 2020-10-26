@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -155,7 +155,7 @@ namespace MediaPortal.UI.Presentation.Models
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error updating Content List {0}", provider.GetType().Name, ex);
+        ServiceRegistration.Get<ILogger>().Error("Error updating Content List {0}", ex, provider.GetType().Name);
         return false;
       }
     }

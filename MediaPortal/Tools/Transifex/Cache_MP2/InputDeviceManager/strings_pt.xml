@@ -3,6 +3,8 @@
   <string name="Settings.InputDeviceManager.Section">Dispositivos de Entrada</string>
   <string name="Settings.InputDeviceManager.EnterKeyConfig">Atalhos de Função</string>
   <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Permite atribuir funções MediaPortal a teclas ou botões em dispositivos de entrada. Pode por exemplo atribuir Subir/Descer volume ás teclas '+' e '-' no teclado caso não possua teclas de volume no teclado.</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfig">Atalhos de Acção</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfigHelp">Permite associar acções globais MediaPortal a teclas/botões físicos para acesso rápido.</string>
   <string name="Settings.InputDeviceManager.EnterScreenConfig">Atalhos de configuração</string>
   <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Permite atribuir o ecrã de configuração e definições do MediaPortal a teclas ou botões do dispositivo de entrada para  acesso rápido.  </string>
   <string name="Settings.InputDeviceManager.EnterScreenHome">Atalhos de Ecrã</string>
@@ -14,6 +16,7 @@
   <string name="InputDeviceManager.AddKey.Header">Pressione a combinação de teclas ou botões no dispositivo de entrada!</string>
   <string name="InputDeviceManager.Screen">Ecrã</string>
   <string name="InputDeviceManager.Key">Tecla/Botão</string>
+  <string name="InputDeviceManager.Action">Acção</string>
 
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Limpar</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Eliminar mapeamento?</string>

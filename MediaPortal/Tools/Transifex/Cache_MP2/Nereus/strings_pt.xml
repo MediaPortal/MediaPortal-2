@@ -55,6 +55,9 @@
   <string name="Nereus.Shortcut.Place">Local</string>
   <string name="Nereus.Shortcut.System">Sistema</string>
   <string name="Nereus.Shortcut.Size">Tamanho</string>
+  <string name="Nereus.Shortcut.Setup">Configuração</string>
+  <string name="Nereus.Shortcut.Location">Localização</string>
+  <string name="Nereus.Shortcut.Refresh">Actualizar</string>
   
   <string name="Nereus.Home.OtherPlugins">Outros</string>
   <string name="Nereus.Home.OtherPlugins.Help">Todos os outros plugins.</string>
