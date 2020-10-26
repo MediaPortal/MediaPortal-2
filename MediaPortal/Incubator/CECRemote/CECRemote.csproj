@@ -121,10 +121,10 @@
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="References\x64\cec.x64.dll" />
+    <Content Include="References\x64\cec.dll" />
     <Content Include="References\x64\LibCecSharp.dll" />
     <Content Include="References\x64\LibCecSharp.xml" />
-    <Content Include="References\x86\libcec.dll" />
+    <Content Include="References\x86\cec.dll" />
     <Content Include="References\x86\LibCecSharp.dll" />
     <Content Include="References\x86\LibCecSharp.xml" />
     <Content Include="Skin\default\screens\dialogCECPowerConfiguration.xaml">

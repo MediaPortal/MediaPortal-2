@@ -65,7 +65,7 @@ namespace MediaPortal.UiComponents.CECRemote
 
     public CECRemotePlugin()
     {
-      LoadPlatformAssembly();
+      ResolvePlatformAssembly();
     }
 
     #endregion
@@ -98,8 +98,6 @@ namespace MediaPortal.UiComponents.CECRemote
       if (_client != null)
         return;
 
-      // ISystemStateService systemStateService = ServiceRegistration.Get<ISystemStateService>();
-
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       CECRemoteSettings settings = settingsManager.Load<CECRemoteSettings>();
 
@@ -107,17 +105,8 @@ namespace MediaPortal.UiComponents.CECRemote
       _client.CecRemoteCommandEvent += CecRemoteCommandEvent;
       _client.CecRemoteKeyEvent += CecRemoteKeyEvent;
 
-
-      //if (_client.Connect(10000))
-      //{
       ServiceRegistration.Get<ILogger>().Info("CECRemotePlugin: Connect to HDMI port ({0})", settings.HDMIPort);
       SubscribeToMessages();
-
-      return;
-      //}
-
-      //  StopClient();
-
     }
 
     /// <summary>
@@ -207,12 +196,21 @@ namespace MediaPortal.UiComponents.CECRemote
       startupThread.Start();
     }
 
+    private void ResolvePlatformAssembly()
+    {
+      AppDomain.CurrentDomain.AssemblyResolve += (sender, args) =>
+      {
+        if (args.Name.StartsWith("LibCecSharp"))
+        {
+          return LoadPlatformAssembly();
+        }
+
+        return null;
+      };
+    }
+
     private Assembly LoadPlatformAssembly()
     {
-      // Workaround to enable legacy .NET 2 assemblies to be loaded
-      if (!RuntimePolicyHelper.LegacyV2RuntimeEnabledSuccessfully)
-        return null;
-
       // Include subfolder into native lookup
       if (!NativeMethods.SetPlatformSearchDirectories(out string platformDir))
         return null;

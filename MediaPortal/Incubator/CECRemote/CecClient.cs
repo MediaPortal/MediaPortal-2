@@ -113,8 +113,7 @@ namespace MediaPortal.UiComponents.CECRemote
 
       if (_config == null)
       {
-        _config = new LibCECConfiguration();
-        _config.SetCallbacks(this);
+        _config = new LibCECConfiguration { Callbacks = this };
       }
 
       _config.DeviceTypes.Types[0] = deviceType;
@@ -130,14 +129,13 @@ namespace MediaPortal.UiComponents.CECRemote
 
       if (_lib == null)
       {
-        _lib = new LibCecSharp(_config);
+        _lib = new LibCecSharp(this, _config);
 
       }
       else
       {
         _lib.SetConfiguration(_config);
-        _lib.EnableCallbacks(this);
-
+        _lib.EnableCallbacks();
       }
     }
 

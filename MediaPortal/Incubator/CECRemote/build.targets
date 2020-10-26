@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(ProjectDir)References\x86\libcec.dll" />
+    <PluginFiles Include="$(ProjectDir)References\x86\cec.dll" />
     <PluginFiles Include="$(ProjectDir)References\x86\LibCecSharp.dll" />
     <PluginFiles Include="$(ProjectDir)DefaultRemoteMap.xml" />
     <PluginFiles Include="$(ProjectDir)plugin.xml" />
