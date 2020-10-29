@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
   /// </summary>
   class ExtendedSchedule: IProgramAction
   {
-    public bool ShowExtendedRecordingcScreen(IProgram program)
+    public bool ShowExtendedRecordingScreen(IProgram program)
     {
       SlimTvExtScheduleModel.Show(program);
       return true;
@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
 
     public ProgramActionDelegate ProgramAction
     {
-      get { return ShowExtendedRecordingcScreen; }
+      get { return ShowExtendedRecordingScreen; }
     }
   }
 }
