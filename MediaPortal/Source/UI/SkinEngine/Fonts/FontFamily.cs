@@ -23,8 +23,7 @@
 #endregion
 
 using System;
-using MediaPortal.Utilities.SystemAPI;
-using SharpFont;
+using Tao.FreeType;
 
 namespace MediaPortal.UI.SkinEngine.Fonts
 {
@@ -33,27 +32,21 @@ namespace MediaPortal.UI.SkinEngine.Fonts
   /// </summary>
   public class FontFamily : IDisposable
   {
-    private static Library _library = null;
+    private static IntPtr _library = IntPtr.Zero;
 
     private readonly string _name;
-    private readonly Face _face;
-
-    static FontFamily()
-    {
-      string absolutePlatformDir;
-      if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
-        throw new Exception("Error adding dll probe path");
-    }
+    private readonly IntPtr _face;
 
     public FontFamily(string name, string filePathName)
     {
       _name = name;
 
-      if (_library == null)
-        _library = new Library();
+      if (_library == IntPtr.Zero)
+        FT.FT_Init_FreeType(out _library);
 
       // Load the requested font.
-      _face = new Face(_library, filePathName, 0);
+      if (FT.FT_New_Face(_library, filePathName, 0, out _face) != 0)
+        throw new ArgumentException("Failed to load face.");
     }
 
     /// <summary>
@@ -67,15 +60,15 @@ namespace MediaPortal.UI.SkinEngine.Fonts
     /// <summary>
     /// Gets the font face FreeType object.
     /// </summary>
-    public Face Face
+    public IntPtr Face
     {
       get { return _face; }
     }
 
     public void Dispose()
     {
-      if (_face != null)
-        _face.Dispose();
+      if (_face != IntPtr.Zero)
+        FT.FT_Done_Face(_face);
     }
   }
 }
