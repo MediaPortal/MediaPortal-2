@@ -335,9 +335,9 @@ namespace MediaPortal.Utilities.Screens
       this._programInfoLabel.BackColor = System.Drawing.Color.Black;
       this._programInfoLabel.Font = new System.Drawing.Font("Segoe UI", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this._programInfoLabel.ForeColor = System.Drawing.Color.Silver;
-      this._programInfoLabel.Location = new System.Drawing.Point(1420, 1022);
+      this._programInfoLabel.Location = new System.Drawing.Point(1626, 1034);
       this._programInfoLabel.Name = "_programInfoLabel";
-      this._programInfoLabel.Size = new System.Drawing.Size(490, 50);
+      this._programInfoLabel.Size = new System.Drawing.Size(284, 38);
       this._programInfoLabel.TabIndex = 0;
       this._programInfoLabel.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
       // 
@@ -347,9 +347,9 @@ namespace MediaPortal.Utilities.Screens
       this._statusLabel.BackColor = System.Drawing.Color.Black;
       this._statusLabel.Font = new System.Drawing.Font("Segoe UI", 19.8F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
       this._statusLabel.ForeColor = System.Drawing.Color.Silver;
-      this._statusLabel.Location = new System.Drawing.Point(12, 1022);
+      this._statusLabel.Location = new System.Drawing.Point(12, 1034);
       this._statusLabel.Name = "_statusLabel";
-      this._statusLabel.Size = new System.Drawing.Size(1400, 50);
+      this._statusLabel.Size = new System.Drawing.Size(1623, 38);
       this._statusLabel.TabIndex = 1;
       // 
       // picture
