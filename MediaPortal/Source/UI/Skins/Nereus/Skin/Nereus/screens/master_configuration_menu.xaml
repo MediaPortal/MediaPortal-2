@@ -38,6 +38,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Defines the default margins for the content area -->
     <ResourceWrapper x:Key="DefaultContentMargin" Resource="0" />
 
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Image Stretch="Fill" Source="Background.png" Opacity="0.9"/>
+      </Grid>
+    </ControlTemplate>
+
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True">
