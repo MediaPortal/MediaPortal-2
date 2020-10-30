@@ -108,11 +108,11 @@
         HelpText="[Nereus.Configuration.EnableLoopScrolling.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableLoopScrollingConfiguration"/>
 
-    <ConfigSetting
+    <!--ConfigSetting
         Id="NereusFanartOverlayOpacity"
         Text="[Nereus.Configuration.FanartOverlayOpacity]"
         HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"/-->
     
     <ConfigSetting
         Id="NereusEnableWatchedFlags"
@@ -144,11 +144,11 @@
         HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
 
-    <ConfigSetting
+    <!--ConfigSetting
         Id="NereusEnableHomeContent"
         Text="[Nereus.Configuration.EnableHomeContent]"
         HelpText="[Nereus.Configuration.EnableHomeContent.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHomeContentConfiguration"/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHomeContentConfiguration"/-->
 
     <ConfigSetting
         Id="NereusEnableMediaItemDetailsView"
