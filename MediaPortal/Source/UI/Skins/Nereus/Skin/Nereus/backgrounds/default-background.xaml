@@ -21,7 +21,7 @@ Default background image - no media present
     <!-- Video background -->
     <Grid IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=IsEnabled}" DockPanel.Dock="Center">
       <Grid.Background>
-        <bm:BackgroundVideoBrush VideoPlayer="{Binding Source={StaticResource VideoBackgroundModel},Path=VideoPlayer}"/>
+        <bm:BackgroundVideoBrush VideoPlayer="{Binding Source={StaticResource VideoBackgroundModel},Path=VideoPlayer}" Geometry="[Geometries.Zoom]"/>
       </Grid.Background>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
