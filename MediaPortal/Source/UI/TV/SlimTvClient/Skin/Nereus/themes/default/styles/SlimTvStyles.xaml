@@ -959,7 +959,7 @@
               Command="{Binding Command}"
               >
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource SlimTvSettings}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+              <Command Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
