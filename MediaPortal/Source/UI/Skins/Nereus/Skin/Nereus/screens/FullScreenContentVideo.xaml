@@ -13,10 +13,29 @@
     <Grid.Resources>
       <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
       <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+      <Storyboard x:Key="AnimationL" BeginTime="00:00:00" Duration="00:00:05" RepeatBehavior="None">
+        <DoubleAnimationUsingKeyFrames Storyboard.TargetName="FullscreenOverlay" Storyboard.TargetProperty="Opacity">
+          <SplineDoubleKeyFrame KeyTime="00:00:00.000" Value="1"/>
+          <SplineDoubleKeyFrame KeyTime="00:00:5.000" Value="0"/>
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
     </Grid.Resources>
+
+    <Grid.Triggers>
+      <Trigger Property="IsVisible" Value="True">
+        <Trigger.EnterActions>
+          <BeginStoryboard x:Name="BeginStoryboardL" Storyboard="{StaticResource AnimationL}"/>
+        </Trigger.EnterActions>
+        <Trigger.ExitActions>
+          <StopStoryboard BeginStoryboardName="BeginStoryboardL"/>
+        </Trigger.ExitActions>
+      </Trigger>
+    </Grid.Triggers>
+
     <Grid.Background>
       <VideoBrush Stream="0"/>
     </Grid.Background>
+    
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
       <ColumnDefinition Width="Auto"/>
@@ -28,6 +47,9 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
+
+    <Grid x:Name="FullscreenOverlay" Grid.ColumnSpan="3" Grid.RowSpan="4" HorizontalAlignment="Stretch" 
+          VerticalAlignment="Stretch" Background="Black"/>
 
     <Include Source="screens\FullScreenContentVideoKeyBindings.inc"/>
 
