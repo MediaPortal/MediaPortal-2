@@ -219,7 +219,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> EditSchedule(string scheduleId, string channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return ResourceAccess.TAS.Schedule.EditSchedule.ProcessAsync(Request.GetOwinContext(), scheduleId, scheduleId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
+      return ResourceAccess.TAS.Schedule.EditSchedule.ProcessAsync(Request.GetOwinContext(), scheduleId, channelId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
     }
 
     [HttpGet]
