@@ -113,6 +113,7 @@
     <Compile Include="Settings\Configuration\EnableMediaItemDetailsViewConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableWatchedFlagsConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
+    <Compile Include="Settings\Configuration\FanartOverlayOpacityConfiguration.cs" />
     <Compile Include="Settings\Configuration\MovieGridViewTypeConfiguration.cs" />
     <Compile Include="Settings\Configuration\SeasonGridViewTypeConfiguration.cs" />
     <Compile Include="Settings\Configuration\SeriesGridViewTypeConfiguration.cs" />

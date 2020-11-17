@@ -38,6 +38,24 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Defines the default margins for the content area -->
     <ResourceWrapper x:Key="DefaultContentMargin" Resource="0" />
 
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Image Stretch="Fill" Source="Background.png">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}-0.1">
+              <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].FanartOverlayOpacity"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+      </Grid>
+    </ControlTemplate>
+
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True">

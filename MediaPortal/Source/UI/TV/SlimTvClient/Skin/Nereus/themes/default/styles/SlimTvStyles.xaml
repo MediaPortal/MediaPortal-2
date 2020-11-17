@@ -959,7 +959,7 @@
               Command="{Binding Command}"
               >
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource SlimTvSettings}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+              <Command Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -1642,7 +1642,31 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource TVButtonScheduleWideStyle}" Command="{DynamicResource ResourceKey=Menu_Command}"
-                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}"/>
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                               Source="{StaticResource SlimTvExtSchedule}"
+                               Path="FocusToItem"
+                               Parameters="{LateBoundValue BindingValue={Binding}}" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                               Source="{StaticResource SlimTvExtSchedule}"
+                               Path="ClearItem" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1737,9 +1761,9 @@
         </Label.Content>
       </Label>
 
-      <Image Grid.Column="3" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="{Binding Program.IsSeriesScheduled}"
+      <Image Grid.Column="3" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="False"
              VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,5,0,5"/>
-      <Image Grid.Column="3" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="{Binding !Program.IsSeriesScheduled}"
+      <Image Grid.Column="3" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="False"
              VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,10,0,10"/>
     </Grid>
   </DataTemplate>
@@ -1751,7 +1775,7 @@
   </Style>
 
   <Style x:Key="ExtScheduleListViewStyle" BasedOn="{ThemeResource SearchProgramListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource ExtScheduleItemDataTemplate}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource ScheduleDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ExtScheduleItemContainerStyle}"/>
   </Style>
 
