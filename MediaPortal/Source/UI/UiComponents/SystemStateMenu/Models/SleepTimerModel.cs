@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
   /// <summary>
   /// Workflow model for the SleepTimer dialog.
   /// </summary>
-  public class SleepTimerModel : IWorkflowModel
+  public class SleepTimerModel : IWorkflowModel, IDisposable
   {
     public const string SLEEP_TIMER_MODEL_ID_STR = "40FDD1C3-CFAB-4731-9636-96726301B648";
 
@@ -51,12 +51,14 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
     private DateTime _startTime;
     private bool _needConfigRead = false;
     private bool _hasInputError = false;
-    private List<SystemStateAction> PosibleShutdownModes { get; set; }
+    private List<SystemStateAction> _posibleShutdownModes;
     private readonly System.Timers.Timer _timer;
     private readonly object _syncObject = new object();
-    SystemStateAction? _actSystemState = null;
-    SystemStateAction _wantedSystemState = SystemStateAction.Shutdown;
+    private SystemStateAction? _actSystemState = null;
+    private SystemStateAction _wantedSystemState = SystemStateAction.Shutdown;
     private int _maxSleepTimeInMinutes = Consts.DEFAULT_MAX_SLEEPTIME;
+
+    #endregion
 
     public SleepTimerModel()
     {
@@ -64,16 +66,22 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       _initialMinutesProperty.Attach(InitialMinutesChanged);
       _timeTextProperty.Attach(TimeTextChanged);
       _timer = new System.Timers.Timer(100.0);
-      _timer.Elapsed += _timer_Elapsed;
+      _timer.Elapsed += SleepTimer_Elapsed;
       _timer.Start();
     }
 
-    #endregion
+    public void Dispose()
+    {
+      _timer.Dispose();
+    }
 
     #region Private members
 
-    private void _timer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
+    private void SleepTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e)
     {
+      if (ServiceRegistration.IsShuttingDown)
+        return;
+
       // update
       if (System.Threading.Monitor.TryEnter(_syncObject) == false)
         return;
@@ -97,10 +105,8 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
           if (RemainingMinutes != rMin)
             RemainingMinutes = rMin;
 
-          ILocalization localization = ServiceRegistration.Get<ILocalization>();
-
-          string actionString = localization.ToString(Consts.GetResourceIdentifierForMenuItem(_actSystemState.Value));
-          string res = localization.ToString((RemainingMinutes <= 1) ? "[SleepTimer.ShutdownTextSingle]" : "[SleepTimer.ShutdownTextMulti]",
+          string actionString = GetLocalizedString(Consts.GetResourceIdentifierForMenuItem(_actSystemState.Value));
+          string res = GetLocalizedString((RemainingMinutes <= 1) ? "[SleepTimer.ShutdownTextSingle]" : "[SleepTimer.ShutdownTextMulti]",
               actionString, RemainingMinutes);
 
           if (res != ShutdownText)
@@ -126,9 +132,17 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       }
     }
 
+    private string GetLocalizedString(string label, params object[] args)
+    {
+      if (string.IsNullOrWhiteSpace(label))
+        return "?";
+
+      ILocalization localization = ServiceRegistration.Get<ILocalization>(false);
+      return localization?.ToString(label, args) ?? label;
+    }
+
     private void UpdateButtonEnabled()
     {
-      ILocalization localization = ServiceRegistration.Get<ILocalization>();
       if (_actSystemState.HasValue)
       {
         MediaItemEnabled = false;
@@ -136,7 +150,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
         AddEnabled = false;
         SubEnabled = false;
         ActivateEnabled = true;
-        ButtonText = localization.ToString(Consts.GetResourceIdentifierForMenuItem(_actSystemState.Value));
+        ButtonText = GetLocalizedString(Consts.GetResourceIdentifierForMenuItem(_actSystemState.Value));
         StartButtonText = "[SleepTimer.Stop]";
         IsSleepTimerActive = true;
         return;
@@ -186,7 +200,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       MediaItemEnabled = playActive;
       TextInputEnabled = true;
 
-      ButtonText = localization?.ToString(Consts.GetResourceIdentifierForMenuItem(_wantedSystemState)) ?? ButtonText;
+      ButtonText = GetLocalizedString(Consts.GetResourceIdentifierForMenuItem(_wantedSystemState));
       StartButtonText = "[SleepTimer.Start]";
       IsSleepTimerActive = false;
     }
@@ -194,7 +208,6 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
     private void TimeTextChanged(AbstractProperty property, object oldValue)
     {
       // This message occurs, when the Time-Textbox is changed
-      ILocalization localization = ServiceRegistration.Get<ILocalization>();
 
       // 1) test for integer
       int time;
@@ -203,7 +216,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       if (result == false)
       {
         // not an Integer
-        ErrorText = localization.ToString("[Configuration.ErrorIntegerValue]", textString);
+        ErrorText = GetLocalizedString("[Configuration.ErrorIntegerValue]", textString);
         _hasInputError = true;
         return;
       }
@@ -212,7 +225,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       if (time < 0 || time > _maxSleepTimeInMinutes)
       {
         // to low
-        ErrorText = localization.ToString(
+        ErrorText = GetLocalizedString(
             (time < 0) ? "[Configuration.ErrorNumericLowerLimit]" : "[Configuration.ErrorNumericUpperLimit]",
             time, 0, _maxSleepTimeInMinutes);
         _hasInputError = true;
@@ -257,7 +270,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
     private void GetShutdownActionsFromSettings()
     {
       SystemStateDialogSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SystemStateDialogSettings>();
-      PosibleShutdownModes = new List<SystemStateAction>();
+      _posibleShutdownModes = new List<SystemStateAction>();
       List<SystemStateItem> lst = settings.ShutdownItemList;
       for (int i = 0; i < lst.Count; i++)
       {
@@ -269,14 +282,14 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
           case SystemStateAction.Shutdown:
           case SystemStateAction.Suspend:
           case SystemStateAction.Hibernate:
-            PosibleShutdownModes.Add(lst[i].Action);
+            _posibleShutdownModes.Add(lst[i].Action);
             break;
         }
       }
 
       // at least, one element is needed
-      if (PosibleShutdownModes.Count == 0)
-        PosibleShutdownModes.Add(SystemStateAction.Shutdown);
+      if (_posibleShutdownModes.Count == 0)
+        _posibleShutdownModes.Add(SystemStateAction.Shutdown);
 
       // read the max sleeptime
       if (settings.MaxSleepTimeout.HasValue)
@@ -490,17 +503,17 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
         return;
 
       int index = 0;
-      for (int i = 0; i < PosibleShutdownModes.Count; i++)
+      for (int i = 0; i < _posibleShutdownModes.Count; i++)
       {
-        if (PosibleShutdownModes[i] == _wantedSystemState)
+        if (_posibleShutdownModes[i] == _wantedSystemState)
         {
           index = i;
           break;
         }
       }
 
-      index = (index + 1) % PosibleShutdownModes.Count;
-      _wantedSystemState = PosibleShutdownModes[index];
+      index = (index + 1) % _posibleShutdownModes.Count;
+      _wantedSystemState = _posibleShutdownModes[index];
       SetLastSleepTimerAction(_wantedSystemState);
       // update Buttontext & Buttonstates
       UpdateButtonEnabled();
