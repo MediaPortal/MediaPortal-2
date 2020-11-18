@@ -186,7 +186,7 @@ namespace MediaPortal.Plugins.SystemStateMenu.Models
       MediaItemEnabled = playActive;
       TextInputEnabled = true;
 
-      ButtonText = localization.ToString(Consts.GetResourceIdentifierForMenuItem(_wantedSystemState));
+      ButtonText = localization?.ToString(Consts.GetResourceIdentifierForMenuItem(_wantedSystemState)) ?? ButtonText;
       StartButtonText = "[SleepTimer.Start]";
       IsSleepTimerActive = false;
     }

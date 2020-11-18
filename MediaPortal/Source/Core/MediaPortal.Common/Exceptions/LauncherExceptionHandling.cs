@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -37,32 +38,65 @@ namespace MediaPortal.Common.Exceptions
   {
     public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
     {
-      string text = string.Format("Unhandled thread exception in thread '{0}'", sender);
-      ILogger logger = ServiceRegistration.Get<ILogger>(false);
-      if (logger ==  null)
-        MessageBox.Show(text + ": " + e.Exception.Message, "Unhandled Thread Exception");
-      else
-        logger.Error("ApplicationLauncher: " + text, e.Exception);
+      HandleException("Unhandled Thread Exception", string.Format("Unhandled thread exception in thread '{0}'", sender), e.Exception);
     }
 
     public static void CurrentDomain_UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
-      Exception exc = (Exception) e.ExceptionObject;
-      ILogger logger = ServiceRegistration.Get<ILogger>(false);
-      if (logger ==  null)
-        MessageBox.Show("Unhandled exception in application: " + exc.Message, "Unhandled Exception");
-      else
-        logger.Error("ApplicationLauncher: Unhandled exception in application", exc);
+      HandleException("Unhandled Exception", "Unhandled exception in application", (Exception)e.ExceptionObject);
     }
 
     public static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
     {
-      var exc = e.Exception;
-      ILogger logger = ServiceRegistration.Get<ILogger>(false);
-      if (logger == null)
-        MessageBox.Show("Unhandled exception in application: " + exc.Message, "Unhandled Exception");
-      else
-        logger.Error("ApplicationLauncher: Unhandled exception in application", exc);
+      HandleException("Unhandled Exception", "Unhandled exception in application", e.Exception);
+    }
+
+    public static void HandleException(string caption, string text, Exception ex)
+    {
+      try
+      {
+        ILogger logger = ServiceRegistration.Get<ILogger>(false);
+        if (logger != null)
+        {
+          logger.Error("ApplicationLauncher: " + text, ex);
+          return;
+        }
+      }
+      catch { }
+      MessageBox.Show(ExceptionInfo(text, ex), caption);
+    }
+
+    public static string ExceptionInfo(string text, Exception ex)
+    {
+      StringBuilder exceptionInfo = new StringBuilder();
+      exceptionInfo.AppendLine(text);
+      exceptionInfo.AppendLine("Exception: " + ex.GetType());
+      exceptionInfo.AppendLine("  Message: " + ex.Message);
+      exceptionInfo.AppendLine("  Site   : " + ex.TargetSite);
+      exceptionInfo.AppendLine("  Source : " + ex.Source);
+      if (ex.InnerException != null)
+      {
+        exceptionInfo.AppendLine("Inner Exception(s):");
+        exceptionInfo.AppendLine(WriteInnerException(ex.InnerException));
+      }
+      exceptionInfo.AppendLine("Stack Trace:");
+      exceptionInfo.AppendLine(ex.StackTrace);
+
+      return exceptionInfo.ToString();
+    }
+
+    public static string WriteInnerException(Exception exception)
+    {
+      StringBuilder exceptionInfo = new StringBuilder();
+      if (exception != null)
+      {
+        exceptionInfo.AppendLine("  " + exception.Message);
+        if (exception.InnerException != null)
+        {
+          exceptionInfo.AppendLine(WriteInnerException(exception));
+        }
+      }
+      return exceptionInfo.ToString();
     }
   }
 }
