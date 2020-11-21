@@ -49,7 +49,9 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       {
         if (Helper.IsNowPlaying())
         {
-          MediaItem mediaItem = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentMediaItem;
+          MediaItem mediaItem = ServiceRegistration.Get<IPlayerContextManager>(false)?.CurrentPlayerContext?.CurrentMediaItem;
+          if (mediaItem == null)
+            return null;
 
           IList<MultipleMediaItemAspect> providerAspects;
           if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&

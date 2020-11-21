@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -35,12 +36,15 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     private static Thread _nowPlayingUpdateThread;
     private static bool _nowPlayingUpdateThreadRunning;
     private static bool _nowPlayingWasSend;
+    private static ManualResetEventSlim _nowPlayingUpdateThreadSleep;
 
     internal static void Start()
     {
       if (_nowPlayingUpdateThread == null)
       {
+        _nowPlayingUpdateThreadSleep = new ManualResetEventSlim(false);
         _nowPlayingUpdateThread = new Thread(new ThreadStart(DoNowPlayingUpdate));
+        _nowPlayingUpdateThread.IsBackground = true;
         _nowPlayingUpdateThread.Start();
       }
     }
@@ -49,6 +53,9 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       _nowPlayingUpdateThreadRunning = false;
       _nowPlayingWasSend = false;
+      _nowPlayingUpdateThreadSleep?.Set();
+      if (_nowPlayingUpdateThread?.Join(UPDATE_INTERVAL) ?? false)
+        _nowPlayingUpdateThread?.Abort();
       _nowPlayingUpdateThread = null;
     }
 
@@ -56,22 +63,31 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Start now-playing update thread");
       _nowPlayingUpdateThreadRunning = true;
-      while (_nowPlayingUpdateThreadRunning)
+      try
       {
-        if (Helper.IsNowPlaying() && _nowPlayingUpdateThreadRunning)
+        while (_nowPlayingUpdateThreadRunning)
         {
-          ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Send Nowplaying");
-          if (_nowPlayingWasSend)
-            SendMessageToAllClients.Send(new MessageNowPlayingUpdate(), ref SocketServer.Instance.connectedSockets);
-          else
+          if (!ServiceRegistration.IsShuttingDown && Helper.IsNowPlaying())
           {
-            SendMessageToAllClients.Send(new MessageNowPlaying(), ref SocketServer.Instance.connectedSockets);
-            _nowPlayingWasSend = true;
+            ServiceRegistration.Get<ILogger>(false)?.Debug("WifiRemote: Send now-playing");
+            if (_nowPlayingWasSend)
+            {
+              SendMessageToAllClients.Send(new MessageNowPlayingUpdate(), ref SocketServer.Instance.connectedSockets);
+            }
+            else
+            {
+              SendMessageToAllClients.Send(new MessageNowPlaying(), ref SocketServer.Instance.connectedSockets);
+              _nowPlayingWasSend = true;
+            }
           }
+          _nowPlayingUpdateThreadSleep.Wait(UPDATE_INTERVAL);
         }
-        Thread.Sleep(UPDATE_INTERVAL);
+        ServiceRegistration.Get<ILogger>(false)?.Debug("WifiRemote: Stop now-playing update thread");
       }
-      ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Stop now-playing update thread");
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>(false)?.Error("WifiRemote: Now-playing update thread crashed", ex);
+      }
     }
   }
 }

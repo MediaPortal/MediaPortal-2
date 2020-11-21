@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       {
         try
         {
-          return Convert.ToInt32(ServiceRegistration.Get<IMediaPlaybackControl>().PlaybackRate);
+          return Convert.ToInt32(ServiceRegistration.Get<IMediaPlaybackControl>(false)?.PlaybackRate ?? 1);
         }
         catch (Exception)
         {
