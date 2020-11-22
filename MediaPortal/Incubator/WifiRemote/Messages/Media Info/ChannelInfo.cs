@@ -55,12 +55,12 @@ namespace MediaPortal.Plugins.WifiRemote
       if (channel.MediaType == SlimTv.Interfaces.Items.MediaType.TV)
       {
         MediaType = "tv";
-        ImageName = Helper.GetImageBaseURL(channel, FanArtMediaTypes.ChannelTv);
+        ImageName = Helper.GetImageBaseUrl(channel, FanArtMediaTypes.ChannelTv);
       }
       else
       {
         MediaType = "radio";
-        ImageName = Helper.GetImageBaseURL(channel, FanArtMediaTypes.ChannelRadio);
+        ImageName = Helper.GetImageBaseUrl(channel, FanArtMediaTypes.ChannelRadio);
       }
     }
   }

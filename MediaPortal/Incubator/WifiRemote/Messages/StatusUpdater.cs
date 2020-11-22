@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Threading;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
@@ -34,12 +35,15 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     private const int UPDATE_INTERVAL = 1000;
     private static Thread _statusUpdateThread;
     private static bool _statusUpdateThreadRunning;
+    private static ManualResetEventSlim _statusUpdateThreadSleep;
 
     internal static void Start()
     {
       if (_statusUpdateThread == null)
       {
+        _statusUpdateThreadSleep = new ManualResetEventSlim(false);
         _statusUpdateThread = new Thread(DoStatusUpdate);
+        _statusUpdateThread.IsBackground = true;
         _statusUpdateThread.Start();
       }
     }
@@ -47,6 +51,9 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     internal static void Stop()
     {
       _statusUpdateThreadRunning = false;
+      _statusUpdateThreadSleep?.Set();
+      if (_statusUpdateThread?.Join(UPDATE_INTERVAL) ?? false)
+        _statusUpdateThread?.Abort();
       _statusUpdateThread = null;
     }
 
@@ -54,17 +61,25 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Start status update thread");
       _statusUpdateThreadRunning = true;
-      while (_statusUpdateThreadRunning)
+      try
       {
-        if (_statusUpdateThreadRunning)
+        while (_statusUpdateThreadRunning)
         {
-          if (WifiRemotePlugin.MessageStatus.IsChanged())
+          if (!ServiceRegistration.IsShuttingDown)
           {
-            ServiceRegistration.Get<ILogger>().Debug("WifiRemote: Send Statusupdate");
-            SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
+            if (WifiRemotePlugin.MessageStatus.IsChanged())
+            {
+              ServiceRegistration.Get<ILogger>(false)?.Debug("WifiRemote: Send Status update");
+              SendMessageToAllClients.Send(WifiRemotePlugin.MessageStatus, ref SocketServer.Instance.connectedSockets);
+            }
           }
+          _statusUpdateThreadSleep.Wait(UPDATE_INTERVAL);
         }
-        Thread.Sleep(UPDATE_INTERVAL);
+        ServiceRegistration.Get<ILogger>(false)?.Debug("WifiRemote: Stop status update thread");
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>(false)?.Error("WifiRemote: Status update thread crashed", ex);
       }
     }
   }
