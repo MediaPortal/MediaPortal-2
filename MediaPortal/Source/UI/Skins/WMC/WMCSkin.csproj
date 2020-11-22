@@ -19,12 +19,52 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Page Remove="Skin\WMCSkin\backgrounds\default-background.xaml" />
+    <Page Remove="Skin\WMCSkin\backgrounds\image-background.xaml" />
+    <Page Remove="Skin\WMCSkin\backgrounds\video-background.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\configuration-section.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\CurrentlyPlayingAudio.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\CurrentlyPlayingVideo.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\dialogSystemState.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\DialogVirtualKeyboard.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\FullScreenContentAudio.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\FullscreenContentDVD.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\FullscreenContentImage.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\FullScreenContentVideo.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\LatestMedia.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\master_bare.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\master_bare_info.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\master_dialog_bare.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\master_mediamenu.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\shares_config_choose_system.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\shares_config_remove_shares.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\SimpleFilterItems.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\SimpleSearch.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\SimpleShowItems.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\weather.xaml" />
+    <Page Remove="Skin\WMCSkin\superlayers\ScreenSaver.xaml" />
+    <Page Remove="Skin\WMCSkin\superlayers\SkipStepOSD.xaml" />
+    <Page Remove="Skin\WMCSkin\superlayers\Volume.xaml" />
+    <Page Remove="Skin\WMCSkin\themes\Dark-WMC\styles\Colors.xaml" />
+    <Page Remove="Skin\WMCSkin\themes\default\styles\Animations.xaml" />
+    <Page Remove="Skin\WMCSkin\themes\default\styles\AudioSpectrumAnalyzer.xaml" />
+    <Page Remove="Skin\WMCSkin\themes\default\styles\BusyCursor.xaml" />
+    <Page Remove="Skin\WMCSkin\themes\default\styles\CurrentlyPlayingStyles.xaml" />
+    <Page Remove="Skin\WMCSkin\themes\default\styles\HomeContentStyles.xaml" />
+    <Page Remove="Skin\WMCSkin\themes\default\styles\SystemStateStyles.xaml" />
+    <Page Remove="Skin\WMCSkin\themes\default\styles\WeatherStyles.xaml" />
+    <Page Remove="Skin\WMCSkin\themes\Turquoise-WMC\styles\Colors.xaml" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
+    <Content Include="Skin\WMCSkin\backgrounds\default-background.xaml" />
+    <Content Include="Skin\WMCSkin\backgrounds\image-background.xaml" />
+    <Content Include="Skin\WMCSkin\backgrounds\video-background.xaml" />
     <Content Include="Skin\WMCSkin\fonts\default-font.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -628,6 +668,20 @@
     <Content Include="Skin\WMCSkin\images\Weather\64x64\na.png" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\WMCSkin\screens\configuration-section.xaml" />
+    <Content Include="Skin\WMCSkin\screens\CurrentlyPlayingAudio.xaml" />
+    <Content Include="Skin\WMCSkin\screens\CurrentlyPlayingVideo.xaml" />
+    <Content Include="Skin\WMCSkin\screens\dialogSystemState.xaml" />
+    <Content Include="Skin\WMCSkin\screens\DialogVirtualKeyboard.xaml" />
+    <Content Include="Skin\WMCSkin\screens\FullScreenContentAudio.xaml" />
+    <Content Include="Skin\WMCSkin\screens\FullscreenContentDVD.xaml" />
+    <Content Include="Skin\WMCSkin\screens\FullscreenContentImage.xaml" />
+    <Content Include="Skin\WMCSkin\screens\FullScreenContentVideo.xaml" />
+    <Content Include="Skin\WMCSkin\screens\LatestMedia.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_bare.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_bare_info.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_dialog_bare.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_mediamenu.xaml" />
     <Content Include="Skin\WMCSkin\screens\MediaItemAudioAlbumDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeEpisodeDetails.inc">
       <SubType>Designer</SubType>
@@ -703,7 +757,16 @@
     <Content Include="Skin\WMCSkin\screens\MultiDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\WMCSkin\screens\shares_config_choose_system.xaml" />
+    <Content Include="Skin\WMCSkin\screens\shares_config_remove_shares.xaml" />
+    <Content Include="Skin\WMCSkin\screens\SimpleFilterItems.xaml" />
+    <Content Include="Skin\WMCSkin\screens\SimpleSearch.xaml" />
+    <Content Include="Skin\WMCSkin\screens\SimpleShowItems.xaml" />
+    <Content Include="Skin\WMCSkin\screens\weather.xaml" />
     <Content Include="Skin\WMCSkin\skin.xml" />
+    <Content Include="Skin\WMCSkin\superlayers\ScreenSaver.xaml" />
+    <Content Include="Skin\WMCSkin\superlayers\SkipStepOSD.xaml" />
+    <Content Include="Skin\WMCSkin\superlayers\Volume.xaml" />
     <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Background.png">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -826,8 +889,16 @@
     <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\preview.jpg">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Skin\WMCSkin\themes\Dark-WMC\styles\Colors.xaml" />
     <Content Include="Skin\WMCSkin\themes\Dark-WMC\theme.xml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\Animations.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\AudioSpectrumAnalyzer.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\BusyCursor.xaml" />
     <Content Include="Skin\WMCSkin\themes\default\styles\Colors.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\CurrentlyPlayingStyles.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\HomeContentStyles.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\SystemStateStyles.xaml" />
+    <Content Include="Skin\WMCSkin\themes\default\styles\WeatherStyles.xaml" />
     <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Background.png" />
     <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Background_EPG.png" />
     <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Background_EPG_overlay.png" />
@@ -942,6 +1013,7 @@
     <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\Effects\Layer6.png" />
     <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\FIRSTRUN.PNG" />
     <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\images\preview.jpg" />
+    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\styles\Colors.xaml" />
     <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\theme.xml" />
     <Content Include="Skin\WMCSkin\workflow\wmc-actions.xml" />
     <Content Include="Skin\WMCSkin\themes\default\styles\Consts.xaml" />

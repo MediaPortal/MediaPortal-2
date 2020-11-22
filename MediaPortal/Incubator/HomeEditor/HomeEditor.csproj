@@ -29,29 +29,29 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\home_editor_config.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\default\screens\home_editor_master.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\screens\home_editor_master.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\home_editor_action_edit.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\home_editor_group_edit.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
@@ -62,43 +62,43 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\home_editor_action_remove.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\home_editor_group_remove.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\home_editor_action_edit.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\home_editor_action_remove.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\home_editor_config.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\home_editor_group_edit.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\home_editor_group_remove.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -22,8 +22,6 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Settings\Configuration\EnableLoopScrolling.cs" />
-    <Compile Include="Settings\Configuration\FanartOverlayOpacityConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
