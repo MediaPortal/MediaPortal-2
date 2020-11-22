@@ -198,6 +198,7 @@ namespace MediaPortal.Utilities.Process
       return tcs.Task;
     }
 
+#if !NET5_0
     /// <summary>
     /// Executes the <paramref name="executable"/> and waits a maximum time of <paramref name="maxWaitMs"/> for completion. If the process doesn't end in 
     /// this time, it gets aborted.
@@ -449,6 +450,8 @@ namespace MediaPortal.Utilities.Process
         catch { }
       };
     }
+    #endregion
+#endif
 
     /// <summary>
     /// Helper method to remove an existing encoding preamble (<see cref="Encoding.GetPreamble"/>) from the given <paramref name="rawString"/>.
@@ -462,6 +465,5 @@ namespace MediaPortal.Utilities.Process
       return rawString;
     }
 
-    #endregion
   }
 }

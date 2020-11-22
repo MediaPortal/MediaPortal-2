@@ -147,9 +147,16 @@ namespace MediaPortal.Utilities.Process
           new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
           PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
 
+#if NET5_0
+      var pipe = new NamedPipeServerStream(PipeName,
+        PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
+        PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024);
+      pipe.SetAccessControl(pipeSecurity);
+#else
       var pipe = new NamedPipeServerStream(PipeName,
         PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
         PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
+#endif
 
       lock (_serverPipes)
       {
@@ -292,9 +299,9 @@ namespace MediaPortal.Utilities.Process
       return CustomRestartCallback != null && CustomRestartCallback();
     }
 
-    #endregion
+#endregion
 
-    #region IDisposable pattern
+#region IDisposable pattern
 
     /// <summary>
     /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -322,6 +329,6 @@ namespace MediaPortal.Utilities.Process
       Dispose(false);
     }
 
-    #endregion
+#endregion
   }
 }

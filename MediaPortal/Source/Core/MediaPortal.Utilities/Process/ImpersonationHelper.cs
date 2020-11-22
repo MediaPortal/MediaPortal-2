@@ -31,13 +31,14 @@ using Microsoft.Win32.SafeHandles;
 
 namespace MediaPortal.Utilities.Process
 {
+#if !NET5_0
   /// <summary>
   /// Helper class to logon as a new user. This is be required to access network resources when running the main program as LocalSystem.
   /// </summary>
   [Obsolete("The impersonation functionality has been moved completely into ImpersonationService. Use this class instead.")]
   public class ImpersonationHelper
   {
-    #region ImpersonationContext
+#region ImpersonationContext
 
     /// <summary>
     /// Helper class to store <see cref="Identity"/> and automatically impersonate.
@@ -74,13 +75,13 @@ namespace MediaPortal.Utilities.Process
       }
     }
 
-    #endregion
+#endregion
 
-    #region Constants and imports
+#region Constants and imports
 
     private static readonly WellKnownSidType[] KNOWN_SID_TYPES = new[] { WellKnownSidType.NetworkServiceSid, WellKnownSidType.LocalServiceSid, WellKnownSidType.LocalSystemSid };
 
-    #endregion
+#endregion
 
     /// <summary>
     /// Checks if the caller needs to impersonate (again).
@@ -299,4 +300,5 @@ namespace MediaPortal.Utilities.Process
       handle = null;
     }
   }
+#endif
 }
