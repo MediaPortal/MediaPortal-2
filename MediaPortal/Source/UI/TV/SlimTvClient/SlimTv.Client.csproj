@@ -1,126 +1,39 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{6EB21E54-9984-41A4-922C-7AF27CFE56BA}</ProjectGuid>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Plugins.SlimTv.Client</RootNamespace>
-    <AssemblyName>SlimTv.Client</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="PresentationCore" />
-    <Reference Include="PresentationFramework" />
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
     <Reference Include="System.ServiceModel" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj">
-      <Project>{8E15FBE3-F6C8-4B76-A560-F391B4124E9C}</Project>
-      <Name>ServerSettings.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
-      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
-      <Name>MediaPortal.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
-      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
-      <Name>MediaPortal.UI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Players\DirectShowWrapper\DirectShowWrapper.csproj">
-      <Project>{C4A45FA7-BCD1-4B14-B6D5-051A780EB83B}</Project>
-      <Name>DirectShowWrapper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Players\VideoPlayer\VideoPlayers.csproj">
-      <Project>{ED9A8A29-91DD-4B21-8CB8-A8B0F3EFF61C}</Project>
-      <Name>VideoPlayers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
-      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
-      <Name>SkinEngine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\UiComponents\Media\Media.csproj">
-      <Project>{CD37E2FF-4CF7-4F96-8C73-C6764988D408}</Project>
-      <Name>Media</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
-      <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
-      <Name>SkinBase</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj">
-      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
-      <Name>SlimTv.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj">
-      <Project>{BD0AD1E7-48A9-404E-9C82-291CE3B41657}</Project>
-      <Name>Tve3RecordingMetadataExtractor</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\..\Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <ProjectReference Include="..\..\Players\DirectShowWrapper\DirectShowWrapper.csproj" />
+    <ProjectReference Include="..\..\Players\VideoPlayer\VideoPlayers.csproj" />
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\..\UiComponents\Media\Media.csproj" />
+    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj" />
+    <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
+    <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -129,93 +42,6 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Controls\EpgGrid.cs" />
-    <Compile Include="Controls\SlimTvDurationConverter.cs" />
-    <Compile Include="Controls\SlimTvDateFormatConverter.cs" />
-    <Compile Include="Controls\SlimTvGuideTimeFormatConverter.cs" />
-    <Compile Include="Extensions\ManualSchedule.cs" />
-    <Compile Include="Extensions\ExtendedSchedule.cs" />
-    <Compile Include="Extensions\ProgramExample.cs" />
-    <Compile Include="Helpers\ChannelContext.cs" />
-    <Compile Include="Helpers\DateFormatExtension.cs" />
-    <Compile Include="Helpers\ChannelProgramListItem.cs" />
-    <Compile Include="Helpers\ProgramListItem.cs" />
-    <Compile Include="Helpers\ProgramProperties.cs" />
-    <Compile Include="Helpers\ResourceHelper.cs" />
-    <Compile Include="Actions\DeleteAllRecordings.cs" />
-    <Compile Include="MediaItemActions\DeleteRecordingFromStorage.cs" />
-    <Compile Include="MediaLists\BaseFavoriteChannelMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvLastWatchedRecordingsMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvMediaListProviderBase.cs" />
-    <Compile Include="MediaLists\SlimTvUnwatchedRecordingsMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvProgramsMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvSchedulesMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvFavoriteRadioMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvFavoriteTVMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvFavoriteRecordingsMediaListProvider.cs" />
-    <Compile Include="MediaLists\BaseLastWatchedChannelMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvLastWatchedRadioMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvLastWatchedTVMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvContinueWatchRecordingsMediaListProvider.cs" />
-    <Compile Include="MediaLists\SlimTvLatestRecordingsMediaListProvider.cs" />
-    <Compile Include="MediaViewActions\DeleteAllRecordingsAction.cs" />
-    <Compile Include="Messaging\SlimTvClientMessaging.cs" />
-    <Compile Include="Models\AspectWrappers\RecordingAspectWrapper.cs" />
-    <Compile Include="Models\ChannelZapModel.cs" />
-    <Compile Include="Models\Navigation\ChannelFilterItem.cs" />
-    <Compile Include="Models\Navigation\RecordingItem.cs" />
-    <Compile Include="Models\RecordingsAction.cs" />
-    <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
-    <Compile Include="Models\ScreenData\RecordingsSimpleSearchScreenData.cs" />
-    <Compile Include="Models\ScreenData\RecordingsShowItemsScreenData.cs" />
-    <Compile Include="Models\SlimTvSettingsModel.cs" />
-    <Compile Include="Models\SlimTvManualScheduleModel.cs" />
-    <Compile Include="Models\SlimTvNotificationModel.cs" />
-    <Compile Include="Models\SlimTvProgramSearchModel.cs" />
-    <Compile Include="Models\SlimTvGuideExtScheduleModel.cs" />
-    <Compile Include="Models\SlimTvModelBase.cs" />
-    <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
-    <Compile Include="Models\SlimTvGuideModelBase.cs" />
-    <Compile Include="Models\SlimTvScheduleManagement.cs" />
-    <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
-    <Compile Include="Models\Sorting\SortByRecordingDateDesc.cs" />
-    <Compile Include="Notifications\ISlimTvNotification.cs" />
-    <Compile Include="Notifications\ISlimTvNotificationService.cs" />
-    <Compile Include="Notifications\SlimTvNotificationService.cs" />
-    <Compile Include="Notifications\SlimTvRecordingNotification.cs" />
-    <Compile Include="Player\ILivePlayer.cs" />
-    <Compile Include="Player\LiveRadioPlayer.cs" />
-    <Compile Include="Player\LiveRadioUIContributor.cs" />
-    <Compile Include="Player\WTVPlayer.cs" />
-    <Compile Include="Player\LiveTvPlayer.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Models\SlimTvClientModel.cs" />
-    <Compile Include="Settings\Configuration\EpgGenreColor.cs" />
-    <Compile Include="Settings\Configuration\ChannelLogoStyle.cs" />
-    <Compile Include="Settings\Configuration\RecordingNotificationDuration.cs" />
-    <Compile Include="Settings\Configuration\ShowRecordingEndedNotifications.cs" />
-    <Compile Include="Settings\Configuration\ShowRecordingStartedNotifications.cs" />
-    <Compile Include="Settings\Configuration\ShowEpgGenreColors.cs" />
-    <Compile Include="Settings\Configuration\ZapFromGuide.cs" />
-    <Compile Include="Settings\Configuration\EpgVisibleChannelInfoSetting.cs" />
-    <Compile Include="Settings\Configuration\ZapByChannelIndex.cs" />
-    <Compile Include="Settings\Configuration\ZapTimeout.cs" />
-    <Compile Include="Settings\Configuration\HideAllChannelsGroup.cs" />
-    <Compile Include="Settings\Configuration\ShowSeriesInfo.cs" />
-    <Compile Include="Settings\Configuration\AutoStartTV.cs" />
-    <Compile Include="Settings\Configuration\EpgNumberOfHoursSetting.cs" />
-    <Compile Include="Settings\Configuration\EpgNumberOfRowsSetting.cs" />
-    <Compile Include="Settings\SlimTvClientSettings.cs" />
-    <Compile Include="SlimTvClientPlugin.cs" />
-    <Compile Include="MediaExtensions\StackingSubViewSpecification.cs" />
-    <Compile Include="MediaExtensions\StackingViewSpecification.cs" />
-    <Compile Include="MediaExtensions\RecordingsLibrary.cs" />
-    <Compile Include="TvHandler\SlimTvConsts.cs" />
-    <Compile Include="TvHandler\SlimTvHandler.cs" />
-    <Compile Include="Player\SlimTvUIContributor.cs" />
-    <Compile Include="Player\SlimTvPlayerBuilder.cs" />
-    <Compile Include="TvHandler\TimeshiftContext.cs" />
-    <Compile Include="MediaExtensions\RecordingsFilterByChannelScreenData.cs" />
     <Content Include="Skin\Nereus\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\Nereus\screens\ProgramInfo.inc" />
     <Content Include="Skin\Nereus\screens\ProgramInfoSlim.inc" />
@@ -252,203 +78,9 @@
     <Content Include="Skin\default\screens\RecordingsByChannel.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets">
+    <None Update="build.targets">
       <SubType>Designer</SubType>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogChooseGroup.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-extschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogExtSchedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-schedulelist.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogScheduleManagement.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\screens\FullScreenContentRadio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogClientModel.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-programsearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\default\styles\SlimTvColors.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\default\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\screens\SlimTvClient-main.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\screens\CurrentlyPlayingTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\master_dialog_bare_transparent.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-extschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-main.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-miniguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-schedulelist.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\styles\SlimTvColors.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\RecordingsShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\CurrentlyPlayingTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-main.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\SlimTvColors.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\screens\master_dialog_bare_transparent.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\RecordingsShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\SlimTvClient-extschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\SlimTvClient-miniguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\SlimTvClient-programsearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\screens\SlimTvClient-schedulelist.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\RecordingsByChannel.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\RecordingsShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\ShowRecordingItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-extschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-programsearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-schedulelist.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\RecordingsShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\SlimTvClient-programsearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\superlayers\ChannelZapOSD.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\MediaItemRecordingDetails.inc">
@@ -461,231 +93,11 @@
     <Content Include="Skin\WMCSkin\screens\ProgramInfoSchedule.inc" />
     <Content Include="Skin\WMCSkin\screens\ProgramInfo.inc" />
     <Content Include="Skin\WMCSkin\screens\ProgramInfoSlim.inc" />
-    <Content Include="Skin\WMCSkin\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\SlimTvColors.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SlimTvClient-schedulelist.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SlimTvClient-programsearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SlimTvClient-extschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SlimTvClient-main.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\RecordingsShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SlimTvClient-miniguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\Dark-WMC\styles\SlimTvColors.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\DialogManualSchedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-manualschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SlimTvClient-manualschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-notification_bare.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\screens\SlimTvClient-notification_recording.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\superlayers\RecordingStartedNotification.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\default\superlayers\RecordingEndedNotification.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-miniguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SharpDX">
       <Version>4.0.1</Version>
     </PackageReference>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\CurrentlyPlayingTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\FullScreenContentTv.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\master_dialog_bare_transparent.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\RecordingsShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SlimTvClient-extschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SlimTvClient-fullguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SlimTvClient-guide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SlimTvClient-main.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SlimTvClient-miniguide.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SlimTvClient-programsearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SlimTvClient-schedulelist.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\SlimTvColors.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\SlimTvConsts.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\SlimTvStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SlimTvClient-manualschedule.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\CurrentlyPlayingRadio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\WMCSkin\screens\FullScreenContentRadio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\WMCSkin\screens\FullScreenContentRadioRecording.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\screens\FullScreenContentRadioRecording.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Win10\screens\FullScreenContentRadio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FullScreenContentRadio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FullScreenContentRadioRecording.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\FullScreenContentRadioRecording.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\FullScreenContentRadio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="build.targets" />
 </Project>

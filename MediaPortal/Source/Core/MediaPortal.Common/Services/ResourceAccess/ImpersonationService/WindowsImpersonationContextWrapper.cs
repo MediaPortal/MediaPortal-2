@@ -28,6 +28,7 @@ using System.Threading;
 
 namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 {
+  // TODO: Fix usage of WindowsImpersonationContext for .NET 5
   /// <summary>
   /// Thread-safe wrapper class for a <see cref="WindowsImpersonationContext"/> object
   /// </summary>
@@ -52,29 +53,39 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 
     #region Private fields
 
+#if NET5_0
+    private readonly object _ctx;
+#else
     private readonly WindowsImpersonationContext _ctx;
+#endif
     private readonly Action _notifyDispose;
     private int _disposed;
 
-    #endregion
+#endregion
 
-    #region Constructor
+#region Constructor
 
     /// <summary>
     /// Creates a new instance of <see cref="WindowsImpersonationContextWrapper"/>
     /// </summary>
     /// <param name="ctx"><see cref="WindowsImpersonationContext"/> to wrap (can be <c>null</c>)</param>
     /// <param name="notifyDispose"><see cref="Action"/> to call when this object is disposed</param>
-    internal WindowsImpersonationContextWrapper(WindowsImpersonationContext ctx, Action notifyDispose)
+    internal WindowsImpersonationContextWrapper(
+#if NET5_0
+      object ctx,
+#else
+      WindowsImpersonationContext ctx, 
+#endif
+      Action notifyDispose)
     {
        _ctx = ctx;
       _notifyDispose = notifyDispose;
       _disposed = NOT_DISPOSED;
     }
 
-    #endregion
+#endregion
 
-    #region IDisposable implementation
+#region IDisposable implementation
 
     /// <summary>
     /// Disposes the underlying <see cref="WindowsImpersonationContext"/> (if it is not <c>null</c>); and
@@ -85,12 +96,12 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       if (Interlocked.Exchange(ref _disposed, DISPOSED) == NOT_DISPOSED)
       {
         if (_ctx != null)
-          _ctx.Dispose();
+          (_ctx as IDisposable)?.Dispose();
         if (_notifyDispose != null)
           _notifyDispose.Invoke();
       }
     }
 
-    #endregion
+#endregion
   }
 }

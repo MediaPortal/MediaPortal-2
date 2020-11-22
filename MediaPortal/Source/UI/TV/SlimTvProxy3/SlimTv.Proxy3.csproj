@@ -6,7 +6,7 @@
     <ProductVersion>8.0.30703</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25}</ProjectGuid>
-    <OutputType>Library</OutputType>
+        <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Plugins.SlimTv.Service</RootNamespace>
     <AssemblyName>SlimTv.Proxy3</AssemblyName>

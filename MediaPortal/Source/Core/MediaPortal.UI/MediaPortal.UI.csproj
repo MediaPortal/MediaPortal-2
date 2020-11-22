@@ -1,231 +1,38 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{52E587D0-A274-44DA-8846-8EEAF5414923}</ProjectGuid>
+    <TargetFramework>net5.0-windows7.0</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.UI</RootNamespace>
-    <AssemblyName>MediaPortal.UI</AssemblyName>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
     <DebugType>none</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Serialization" />
     <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="ContentLists\ContentListProviderBuilder.cs" />
-    <Compile Include="ContentLists\IContentListProvider.cs" />
-    <Compile Include="Control\InputManager\IClipboardManager.cs" />
-    <Compile Include="Control\InputManager\Touch.cs" />
-    <Compile Include="PluginItemBuilders\AdditionalPluginItemBuilders.cs" />
-    <Compile Include="PluginItemBuilders\BackgroundBuilder.cs" />
-    <Compile Include="PluginItemBuilders\StaticBackgroundManager.cs" />
-    <Compile Include="FrontendServer\IFrontendServer.cs" />
-    <Compile Include="General\WindowsMessaging.cs" />
-    <Compile Include="Presentation\Actions\KeyAction.cs" />
-    <Compile Include="Presentation\Models\BaseContentListModel.cs" />
-    <Compile Include="Presentation\Models\IContentListModel.cs" />
-    <Compile Include="Presentation\Players\IResumablePlayer.cs" />
-    <Compile Include="Presentation\Players\ITitlePlayer.cs" />
-    <Compile Include="Presentation\Players\IAudioPlayerAnalyze.cs" />
-    <Compile Include="Presentation\Players\ResumeState\ResumeStateBase.cs" />
-    <Compile Include="Presentation\Players\ResumeState\BinaryResumeState.cs" />
-    <Compile Include="Presentation\Players\ResumeState\PositionResumeState.cs" />
-    <Compile Include="Presentation\Screens\IVideoPlayerSynchronizationStrategy.cs" />
-    <Compile Include="Presentation\Utilities\PathBrowserCloseWatcher.cs" />
-    <Compile Include="Presentation\Utilities\PathBrowserMessaging.cs" />
-    <Compile Include="Presentation\Utilities\IPathBrowser.cs" />
-    <Compile Include="Presentation\Screens\ScreenSaverController.cs" />
-    <Compile Include="Presentation\SkinResources\ISkin.cs" />
-    <Compile Include="Presentation\SkinResources\ISkinResourceBundle.cs" />
-    <Compile Include="Presentation\SkinResources\ITheme.cs" />
-    <Compile Include="RemovableMedia\IRemovableMediaTracker.cs" />
-    <Compile Include="Presentation\DataObjects\ItemsList.cs" />
-    <Compile Include="Presentation\DataObjects\ListItem.cs" />
-    <Compile Include="Presentation\Geometries\CropSettings.cs" />
-    <Compile Include="Presentation\ISkinEngine.cs" />
-    <Compile Include="Presentation\DataObjects\TreeItem.cs" />
-    <Compile Include="Presentation\Geometries\IGeometry.cs" />
-    <Compile Include="Presentation\Geometries\IGeometryManager.cs" />
-    <Compile Include="Control\InputManager\IInputManager.cs" />
-    <Compile Include="Control\InputManager\Key.cs" />
-    <Compile Include="Presentation\Models\BaseMessageControlledModel.cs" />
-    <Compile Include="Presentation\Players\IAudioPlayer.cs" />
-    <Compile Include="Presentation\Players\AudioStreamDescriptor.cs" />
-    <Compile Include="Presentation\Players\IDVDPlayer.cs" />
-    <Compile Include="Presentation\Players\IImagePlayer.cs" />
-    <Compile Include="Presentation\Players\IPlayer.cs" />
-    <Compile Include="Presentation\Players\IPlayerBuilder.cs" />
-    <Compile Include="Presentation\Players\IPlayerContext.cs" />
-    <Compile Include="Presentation\Players\IPlayerContextManager.cs" />
-    <Compile Include="Presentation\Players\IPlayerEvents.cs" />
-    <Compile Include="Presentation\Players\IPlayerManager.cs" />
-    <Compile Include="Presentation\Players\IPlayerSlotController.cs" />
-    <Compile Include="Presentation\Players\IPlaylist.cs" />
-    <Compile Include="Presentation\Players\IReusablePlayer.cs" />
-    <Compile Include="Presentation\Players\IMediaPlaybackControl.cs" />
-    <Compile Include="Presentation\Players\ISubtitlePlayer.cs" />
-    <Compile Include="Presentation\Players\IVideoPlayer.cs" />
-    <Compile Include="Presentation\Players\IVolumeControl.cs" />
-    <Compile Include="Presentation\Players\IUIContributorPlayer.cs" />
-    <Compile Include="Presentation\Players\IChapterPlayer.cs" />
-    <Compile Include="Presentation\Players\PlayerContextManagerMessaging.cs" />
-    <Compile Include="Presentation\Players\PlayerContextIndex.cs" />
-    <Compile Include="Presentation\Players\PlayerManagerMessaging.cs" />
-    <Compile Include="Presentation\Players\PlaylistMessaging.cs" />
-    <Compile Include="Presentation\Screens\DialogCloseWatcher.cs" />
-    <Compile Include="Presentation\Screens\DialogManagerMessaging.cs" />
-    <Compile Include="Presentation\Screens\IBackgroundManager.cs" />
-    <Compile Include="Presentation\Screens\IDialogManager.cs" />
-    <Compile Include="Presentation\Screens\ISuperLayerManager.cs" />
-    <Compile Include="Presentation\SkinResources\IResourceAccessor.cs" />
-    <Compile Include="Presentation\Screens\IScreenControl.cs" />
-    <Compile Include="Presentation\Models\IWorkflowModel.cs" />
-    <Compile Include="Presentation\Models\BaseTimerControlledModel.cs" />
-    <Compile Include="Presentation\SkinResources\ISkinResourceManager.cs" />
-    <Compile Include="Presentation\SkinResources\SkinResourcesMessaging.cs" />
-    <Compile Include="Presentation\UiNotifications\INotificationService.cs" />
-    <Compile Include="Presentation\UiNotifications\NotificationServiceMessaging.cs" />
-    <Compile Include="Presentation\Workflow\MethodCallAction.cs" />
-    <Compile Include="Presentation\Workflow\MethodDelegateAction.cs" />
-    <Compile Include="Presentation\Workflow\IWorkflowContributor.cs" />
-    <Compile Include="Presentation\Workflow\IWorkflowManager.cs" />
-    <Compile Include="Presentation\Workflow\NavigationContext.cs" />
-    <Compile Include="Presentation\Workflow\PushTransientStateNavigationTransition.cs" />
-    <Compile Include="Presentation\Workflow\WorkflowContributorAction.cs" />
-    <Compile Include="Presentation\Workflow\WorkflowManagerLockException.cs" />
-    <Compile Include="Presentation\Workflow\WorkflowManagerMessaging.cs" />
-    <Compile Include="Presentation\Workflow\WorkflowState.cs" />
-    <Compile Include="Presentation\Workflow\WorkflowAction.cs" />
-    <Compile Include="Presentation\Workflow\PopNavigationTransition.cs" />
-    <Compile Include="Presentation\Workflow\PushNavigationTransition.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Presentation\Screens\IScreenManager.cs" />
-    <Compile Include="RemovableMedia\RemovableMediaMessaging.cs" />
-    <Compile Include="ServerCommunication\IServerStateManager.cs" />
-    <Compile Include="ServerCommunication\ServerCommunicationHelper.cs" />
-    <Compile Include="ServerCommunication\IServerConnectionManager.cs" />
-    <Compile Include="ServerCommunication\ServerConnectionMessaging.cs" />
-    <Compile Include="ServerCommunication\ServerStateMessaging.cs" />
-    <Compile Include="ServerCommunication\Settings\FrontendServerSettings.cs" />
-    <Compile Include="ServerCommunication\Settings\ServerConnectionSettings.cs" />
-    <Compile Include="Services\FrontendServer\FrontendServer.cs" />
-    <Compile Include="Services\MediaManagement\RelationshipTypeRegistration.cs" />
-    <Compile Include="Services\Players\Builders\PlayerBuilder.cs" />
-    <Compile Include="Services\Players\PCMOpenPlayerStrategy\PreservePiP.cs" />
-    <Compile Include="Services\Players\PCMOpenPlayerStrategy\Default.cs" />
-    <Compile Include="Presentation\Players\IOpenPlayerStrategy.cs" />
-    <Compile Include="Services\Players\PlayerContext.cs" />
-    <Compile Include="Services\Players\PlayerContextManager.cs" />
-    <Compile Include="Services\Players\PlayerManager.cs" />
-    <Compile Include="Services\Players\PlayerSlotController.cs" />
-    <Compile Include="Services\Players\Playlist.cs" />
-    <Compile Include="Services\Players\Settings\PlayerContextManagerSettings.cs" />
-    <Compile Include="Services\Players\Settings\PlayerManagerSettings.cs" />
-    <Compile Include="Services\Players\VideoPlayerSynchronizationStrategies\BaseVideoPlayerSynchronizationStrategy.cs" />
-    <Compile Include="Services\Players\VideoPlayerSynchronizationStrategies\SynchronizeToPrimaryPlayer.cs" />
-    <Compile Include="Services\RemovableMedia\DeviceVolumeMonitor.cs" />
-    <Compile Include="Services\RemovableMedia\RemovableMediaTracker.cs" />
-    <Compile Include="Services\RemovableMedia\Settings\RemovableMediaTrackerSettings.cs" />
-    <Compile Include="Services\ServerCommunication\LocalizedUPnPDeviceInformation.cs" />
-    <Compile Include="Services\ServerCommunication\MP2FrontendServerDevice.cs" />
-    <Compile Include="Services\ServerCommunication\ServerConnectionManager.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPClientControllerServiceImpl.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPFrontendServer.cs" />
-    <Compile Include="Services\Shares\LocalSharesManagement.cs" />
-    <Compile Include="Presentation\UiNotifications\DefaultNotification.cs" />
-    <Compile Include="Services\UiNotifications\NotificationService.cs" />
-    <Compile Include="Services\UserManagement\UserMessageHandler.cs" />
-    <Compile Include="Services\UserManagement\UserManagement.cs" />
-    <Compile Include="Services\UserManagement\UserSettings.cs" />
-    <Compile Include="Services\Workflow\ShortcutResourcesLoader.cs" />
-    <Compile Include="Services\Workflow\WorkflowStateBuilder.cs" />
-    <Compile Include="Settings\StartupSettings.cs" />
-    <Compile Include="Shares\SharesMessaging.cs" />
-    <Compile Include="Services\Shares\Settings\SharesSettings.cs" />
-    <Compile Include="Services\SystemResolver\SystemResolver.cs" />
-    <Compile Include="Services\Workflow\ModelBuilder.cs" />
-    <Compile Include="Services\Workflow\WorkflowManager.cs" />
-    <Compile Include="Services\Workflow\WorkflowResourcesLoader.cs" />
-    <Compile Include="Services\MediaManagement\MediaItemAspectTypeRegistration.cs" />
-    <Compile Include="Shares\ILocalSharesManagement.cs" />
-    <Compile Include="UiExtension.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj">
-      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
-      <Name>MediaPortal.Common</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\UPnP\UPnP.csproj">
-      <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
-      <Name>UPnP</Name>
-      <Private>False</Private>
-    </ProjectReference>
+    <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <ProjectReference Include="..\UPnP\UPnP.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Thumbnails\" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Compile Remove="Services\Exif\ExifReader.cs" />
+  </ItemGroup>
 </Project>

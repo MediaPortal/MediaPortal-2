@@ -1,108 +1,27 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{874401F8-1283-4C20-8EFA-FD0EE7AD53A8}</ProjectGuid>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UiComponents.WMCSkin</RootNamespace>
-    <AssemblyName>WMCSkin</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Actions\SkinSettingsAction.cs" />
-    <Compile Include="Controls\HomeMenuContentPresenter.cs" />
-    <Compile Include="Controls\ItemsListFilter.cs" />
-    <Compile Include="Controls\SubItemsContentPresenter.cs" />
-    <Compile Include="Converters\ItemsListActionFilter.cs" />
-    <Compile Include="Converters\MediaListVisibilityConverter.cs" />
-    <Compile Include="Converters\RoundingFormatConverter.cs" />
-    <Compile Include="MarkupExtensions\DynamicResourceBindingExtension.cs" />
-    <Compile Include="Messaging\HomeMenuMessaging.cs" />
-    <Compile Include="Models\HomeContentModel.cs" />
-    <Compile Include="Models\HomeMenuActionProxy.cs" />
-    <Compile Include="Models\HomeMenuModel.cs" />
-    <Compile Include="Models\NavigationList.cs" />
-    <Compile Include="Models\NestedItem.cs" />
-    <Compile Include="Models\ScreenModeModel.cs" />
-    <Compile Include="Models\SubItem.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Configuration\EnableHomeContentConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableCertificationLogosConfiguration.cs" />
-    <Compile Include="Settings\Configuration\BaseGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\Configuration\FanartOverlayOpacityConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableMediaItemDetailsViewConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableWatchedFlagsConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
-    <Compile Include="Settings\Configuration\SeasonGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\Configuration\SeriesGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\Configuration\MovieGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\WMCSkinSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
@@ -709,10 +628,6 @@
     <Content Include="Skin\WMCSkin\images\Weather\64x64\na.png" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\WMCSkin\images\Weather\64x64\WEATHERALERT.png" />
-    <Content Include="Skin\WMCSkin\screens\LatestMedia.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Content>
     <Content Include="Skin\WMCSkin\screens\MediaItemAudioAlbumDetails.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemHomeEpisodeDetails.inc">
       <SubType>Designer</SubType>
@@ -787,10 +702,6 @@
     </Content>
     <Content Include="Skin\WMCSkin\screens\MultiDetails.inc">
       <SubType>Designer</SubType>
-    </Content>
-    <Content Include="Skin\WMCSkin\screens\weather.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
     </Content>
     <Content Include="Skin\WMCSkin\skin.xml" />
     <Content Include="Skin\WMCSkin\themes\Dark-WMC\images\Background.png">
@@ -1055,7 +966,6 @@
     <Content Include="Skin\WMCSkin\fonts\SansBetween.ttf" />
     <Content Include="Skin\WMCSkin\fonts\SketchyTimes.desc" />
     <Content Include="Skin\WMCSkin\fonts\SketchyTimes.ttf" />
-    <None Include="Skin\WMCSkin\fonts\seguisb.ttf" />
     <Content Include="Skin\WMCSkin\fonts\seguisb.desc" />
     <Content Include="Skin\WMCSkin\screens\InfoMovieGeneral.inc" />
     <Content Include="Skin\WMCSkin\screens\MediaItemPersonDetails.inc" />
@@ -1070,220 +980,27 @@
     <Content Include="Skin\WMCSkin\themes\default\styles\AnalogClock.xaml" />
     <Content Include="Skin\WMCSkin\themes\default\styles\OSD.xaml" />
     <Content Include="Skin\WMCSkin\themes\default\styles\Graphics.xaml" />
-    <Content Include="Skin\WMCSkin\screens\master_bare.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\WMCSkin\themes\default\styles\MediaStyles.xaml" />
-    <Content Include="Skin\WMCSkin\superlayers\ScreenSaver.xaml">
-      <SubType>Designer</SubType>
-    </Content>
     <Content Include="Skin\WMCSkin\themes\default\styles\MediaConsts.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_menu.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Incubator\HomeEditor\HomeEditor.csproj">
-      <Project>{8a94cde9-eda2-4dd7-b860-0421e578055c}</Project>
-      <Name>HomeEditor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Incubator\SkinSettings\SkinSettings.csproj">
-      <Project>{61c5a548-5b9b-4750-b98b-8161ec95dead}</Project>
-      <Name>SkinSettings</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
-      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
-      <Name>MediaPortal.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
-      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
-      <Name>MediaPortal.UI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
-      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
-      <Name>SkinEngine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\UiComponents\Media\Media.csproj">
-      <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
-      <Name>Media</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
-      <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
-      <Name>SkinBase</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\master_dialog_bare.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\master_mediamenu.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SimpleShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SimpleFilterItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\backgrounds\video-background.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\configuration-section.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\superlayers\Volume.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\FullScreenContentVideo.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\BusyCursor.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\superlayers\SkipStepOSD.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\backgrounds\image-background.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\backgrounds\default-background.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\shares_config_choose_system.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\shares_config_remove_shares.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\dialogSystemState.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\SystemStateStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\WeatherStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\Animations.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\DialogVirtualKeyboard.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\CurrentlyPlayingVideo.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\master_bare_info.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\SimpleSearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\FullscreenContentImage.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\Dark-WMC\styles\Colors.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
+    <ProjectReference Include="..\..\..\..\Incubator\HomeEditor\HomeEditor.csproj" />
+    <ProjectReference Include="..\..\..\..\Incubator\SkinSettings\SkinSettings.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\..\UiComponents\Media\Media.csproj" />
+    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Skin\WMCSkin\themes\Dark-WMC\fonts\" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\CurrentlyPlayingAudio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\FullScreenContentAudio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\AudioSpectrumAnalyzer.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\CurrentlyPlayingStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\Turquoise-WMC\styles\Colors.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\HomeContentStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="SharpDX">
       <Version>4.0.1</Version>
     </PackageReference>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\FullscreenContentDVD.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="build.targets" />
 </Project>

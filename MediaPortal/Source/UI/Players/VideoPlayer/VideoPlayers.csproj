@@ -1,173 +1,40 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{ED9A8A29-91DD-4B21-8CB8-A8B0F3EFF61C}</ProjectGuid>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UI.Players.Video</RootNamespace>
-    <AssemblyName>VideoPlayers</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="BaseDXPlayer.cs" />
-    <Compile Include="Native\EvrPresenterWrapper.cs" />
-    <Compile Include="PlayerRegistration.cs" />
-    <Compile Include="Settings\Configuration\AudioCodecAAC.cs" />
-    <Compile Include="Settings\Configuration\GenericCodecSelection.cs" />
-    <Compile Include="Settings\Configuration\AudioCodec.cs" />
-    <Compile Include="Settings\Configuration\AudioRenderer.cs" />
-    <Compile Include="Settings\Configuration\AudioCodecLATMAAC.cs" />
-    <Compile Include="Settings\Configuration\AudioPreferMultiChannel.cs" />
-    <Compile Include="Settings\Configuration\Splitter.cs" />
-    <Compile Include="Settings\Configuration\Subtitles.cs" />
-    <Compile Include="Settings\Configuration\VideoHEVCCodec.cs" />
-    <Compile Include="Settings\Configuration\VideoAVCCodec.cs" />
-    <Compile Include="Settings\Configuration\VideoMPEG4Codec.cs" />
-    <Compile Include="Settings\Configuration\VideoMPEG2Codec.cs" />
-    <Compile Include="Subtitles\ISubtitleRenderer.cs" />
-    <Compile Include="Subtitles\MpcEngine.cs" />
-    <Compile Include="Settings\MpcSubsSettings.cs" />
-    <Compile Include="Subtitles\MpcSubsRenderer.cs" />
-    <Compile Include="Subtitles\Subtitle.cs" />
-    <Compile Include="Teletext_v2\TeletextHeaderPacket.cs" />
-    <Compile Include="Teletext_v2\TeletextMagazine.cs" />
-    <Compile Include="Teletext_v2\TeletextPacket.cs" />
-    <Compile Include="Teletext_v2\TeletextPage.cs" />
-    <Compile Include="Teletext_v2\TeletextRow.cs" />
-    <Compile Include="Teletext_v2\TeletextService.cs" />
-    <Compile Include="Teletext_v2\Utils.cs" />
-    <Compile Include="Tools\COMHelper.cs" />
-    <Compile Include="Tools\FilterLoader.cs" />
-    <Compile Include="Tools\GraphRebuilder.cs" />
-    <Compile Include="Tools\StreamInfo.cs" />
-    <Compile Include="Tools\StreamInfoHandler.cs" />
-    <Compile Include="Tools\CodecHandler.cs" />
-    <Compile Include="Tools\CodecInfo.cs" />
-    <Compile Include="DvdPlayer.cs" />
-    <Compile Include="Exceptions.cs" />
-    <Compile Include="Tools\FilterGraphTools.cs" />
-    <Compile Include="Interfaces\IInitializablePlayer.cs" />
-    <Compile Include="Interfaces\IPersistMemory.cs" />
-    <Compile Include="Interfaces\ITsReaderCallback.cs" />
-    <Compile Include="Settings\VideoSettings.cs" />
-    <Compile Include="Subtitles\SubtitleRenderer.cs" />
-    <Compile Include="Subtitles\SubtitleSelector.cs" />
-    <Compile Include="Subtitles\TeletextMagazine.cs" />
-    <Compile Include="Subtitles\TeletextPageHeader.cs" />
-    <Compile Include="Subtitles\TeletextSubtitleDecoder.cs" />
-    <Compile Include="Subtitles\TextConversion.cs" />
-    <Compile Include="Teletext\Hamming.cs" />
-    <Compile Include="Teletext\IDVBTeletextDecoder.cs" />
-    <Compile Include="Teletext\ITeletextSource.cs" />
-    <Compile Include="Teletext\PESDecoder.cs" />
-    <Compile Include="Teletext\TeletextReceiver.cs" />
-    <Compile Include="Teletext\TSHeader.cs" />
-    <Compile Include="TsVideoPlayer.cs" />
-    <Compile Include="VideoPlayer.cs" />
-    <Compile Include="VideoPlayerBuilder.cs" />
-    <Compile Include="EVRCallback.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
-      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
-      <Name>MediaPortal.Common</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
-      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
-      <Name>MediaPortal.UI</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
-      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
-      <Name>SkinEngine</Name>
-      <Private>False</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\DirectShowWrapper\DirectShowWrapper.csproj">
-      <Project>{C4A45FA7-BCD1-4B14-B6D5-051A780EB83B}</Project>
-      <Name>DirectShowWrapper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\DotNetStreamSource\DotNetStreamSource.csproj">
-      <Project>{E417CA72-065F-4151-90AA-A3BFC2A7DEF8}</Project>
-      <Name>DotNetStreamSource</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\DirectShowWrapper\DirectShowWrapper.csproj" />
+    <ProjectReference Include="..\DotNetStreamSource\DotNetStreamSource.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml">
@@ -176,9 +43,6 @@
     <Content Include="plugin.xml">
       <SubType>Designer</SubType>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.CCCP">
@@ -197,7 +61,4 @@
       <Version>4.0.1</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="build.targets" />
 </Project>

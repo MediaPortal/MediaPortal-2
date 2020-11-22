@@ -1,60 +1,20 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{ECF060E7-CAA1-4466-851F-F80B857641EA}</ProjectGuid>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Common</RootNamespace>
-    <AssemblyName>MediaPortal.Common</AssemblyName>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\</SolutionDir>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
     <DebugType>none</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
@@ -62,486 +22,23 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>References\log4net.dll</HintPath>
     </Reference>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Runtime.Caching" />
     <Reference Include="System.ServiceProcess" />
     <Reference Include="System.Web" />
-    <Reference Include="System.Management" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ApplicationCore.cs" />
-    <Compile Include="Async\AsyncResult.cs" />
-    <Compile Include="Async\SynchronizationContextRemover.cs" />
-    <Compile Include="Commands\AsyncMethodDelegateCommand.cs" />
-    <Compile Include="Certifications\CertificationMapper.cs" />
-    <Compile Include="Certifications\CetificationMapping.cs" />
-    <Compile Include="Configuration\ConfigColoredItemList.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\SingleSelectionColoredList.cs" />
-    <Compile Include="Exceptions\LauncherExceptionHandling.cs" />
-    <Compile Include="FanArt\BaseFanArtHandler.cs" />
-    <Compile Include="FanArt\FanArtCache.cs" />
-    <Compile Include="FanArt\FanArtConstants.cs" />
-    <Compile Include="FanArt\FanArtPathCollection.cs" />
-    <Compile Include="FanArt\FanArtSettings.cs" />
-    <Compile Include="FanArt\LocalFanartHelper.cs" />
-    <Compile Include="FanArt\IFanArtCache.cs" />
-    <Compile Include="Logging\ILoggerConfig.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\ReimportAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\StubAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\GenreAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\SelectionMarkerAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\AudioAlbumAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\MovieCollectionAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\CompanyAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\PersonAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\ExternalIdentifierAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\SeasonAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\CharacterAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\SeriesAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\SubtitleAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\VideoStreamAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\VideoAudioStreamAspect.cs" />
-    <Compile Include="MediaManagement\Helpers\GenreInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\BaseInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\HelperExtensionMethods.cs" />
-    <Compile Include="MediaManagement\Helpers\SubtitleInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\RelationshipCache.cs" />
-    <Compile Include="MediaManagement\Helpers\SimpleRating.cs" />
-    <Compile Include="MediaManagement\Helpers\SimpleTitle.cs" />
-    <Compile Include="MediaManagement\Helpers\MovieCollectionInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\CompanyInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\SeasonInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\SeriesInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\CharacterInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\PersonInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\AlbumInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\TrackInfo.cs" />
-    <Compile Include="MediaManagement\IMediaFanArtHandler.cs" />
-    <Compile Include="MediaManagement\IRelationshipTypeRegistration.cs" />
-    <Compile Include="MediaManagement\IMediaMergeHandler.cs" />
-    <Compile Include="MediaManagement\IRelationshipExtractor.cs" />
-    <Compile Include="MediaManagement\FanArtHandlerMetadata.cs" />
-    <Compile Include="MediaManagement\MergeHandlerMetadata.cs" />
-    <Compile Include="MediaManagement\MetadataUpdater.cs" />
-    <Compile Include="MediaManagement\MLQueries\AbstractRelationshipFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\AbstractUserDataFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\ChildAggregateAttributeSortInformation.cs" />
-    <Compile Include="MediaManagement\MLQueries\DataSortInformation.cs" />
-    <Compile Include="MediaManagement\MLQueries\SharePathFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\EmptyUserDataFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\AttributeSortInformation.cs" />
-    <Compile Include="MediaManagement\MLQueries\ISortInformation.cs" />
-    <Compile Include="MediaManagement\MLQueries\RelationshipFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\IUserDataFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\RelationalUserDataFilter.cs" />
-    <Compile Include="MediaManagement\RelationshipExtractorMetadata.cs" />
-    <Compile Include="MediaManagement\RelationshipExtractorUtils.cs" />
-    <Compile Include="MediaManagement\RelationshipType.cs" />
-    <Compile Include="MediaManagement\MLQueries\FilteredRelationshipFilter.cs" />
-    <Compile Include="MediaManagement\RelationshipItem.cs" />
-    <Compile Include="MediaManagement\ResourceAspectMerger.cs" />
-    <Compile Include="MediaManagement\TransientAspects\TempAlbumAspect.cs" />
-    <Compile Include="MediaManagement\TransientAspects\TempActorAspect.cs" />
-    <Compile Include="MediaManagement\TransientAspects\TempArtistAspect.cs" />
-    <Compile Include="MediaManagement\TransientAspects\TempSubtitleAspect.cs" />
-    <Compile Include="MediaManagement\TransientAspects\TempSeriesAspect.cs" />
-    <Compile Include="ResourceAccess\IUncachableResource.cs" />
-    <Compile Include="ResourceAccess\IImpersonationService.cs" />
-    <Compile Include="Services\Dokan\DokanFileInfo.cs" />
-    <Compile Include="Services\Dokan\DokanOptions.cs" />
-    <Compile Include="Services\Dokan\DokanResult.cs" />
-    <Compile Include="Services\Dokan\FileAcces.cs" />
-    <Compile Include="Services\Dokan\FileInformation.cs" />
-    <Compile Include="Services\Dokan\FileSystemFeatures.cs" />
-    <Compile Include="Services\Dokan\Native\BY_HANDLE_FILE_INFORMATION.cs" />
-    <Compile Include="Services\Dokan\Native\DOKAN_OPERATIONS.cs" />
-    <Compile Include="Services\Dokan\Native\DOKAN_OPTIONS.cs" />
-    <Compile Include="Services\Dokan\Native\DokanNativeMethods.cs" />
-    <Compile Include="Services\Dokan\Native\SECURITY_INFORMATION.cs" />
-    <Compile Include="Services\Dokan\Native\WIN32_FIND_DATA.cs" />
-    <Compile Include="Services\Dokan\Native\WIN32_FIND_STREAM_DATA.cs" />
-    <Compile Include="Services\Dokan\NTStatus.cs" />
-    <Compile Include="Services\GenreConverter\IGenreProvider.cs" />
-    <Compile Include="Services\GenreConverter\GenreProviderBuilder.cs" />
-    <Compile Include="Services\GenreConverter\IGenreConverter.cs" />
-    <Compile Include="Services\GenreConverter\GenreConverter.cs" />
-    <Compile Include="Services\GenreConverter\AudioGenre.cs" />
-    <Compile Include="Services\GenreConverter\EpgGenre.cs" />
-    <Compile Include="Services\GenreConverter\VideoGenre.cs" />
-    <Compile Include="Services\Logging\LoggerConfig.cs" />
-    <Compile Include="Services\Logging\LogSettings.cs" />
-    <Compile Include="Services\Database\DatabaseUpgradeServerState.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\AsyncManualResetEvent.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectorySaveBlock.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\FileUnfoldBlock.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\ImporterWorkerDataflowBlockBase.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\IRelationshipCache.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemLoadBlock.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\LRURelationshipCache.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\RelationshipExtractorBlock.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MediaItemSaveBlock.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\MetadataExtractorBlock.cs" />
-    <Compile Include="Services\MediaManagement\ImportJobNewGen.cs" />
-    <Compile Include="Network\UriExtension.cs" />
-    <Compile Include="PluginManager\PluginDependencyInfo.cs" />
-    <Compile Include="ResourceAccess\IResourceDeletor.cs" />
-    <Compile Include="ResourceAccess\LocalFsResourceAccessorHelper.cs" />
-    <Compile Include="Services\Logging\ServerCrashLogger.cs" />
-    <Compile Include="Services\Logging\UiCrashLogger.cs" />
-    <Compile Include="Services\MediaManagement\ImportDataflowBlocks\DirectoryUnfoldBlock.cs" />
-    <Compile Include="Services\MediaManagement\ImporterWorkerAction.cs" />
-    <Compile Include="Services\MediaManagement\ImporterWorkerNewGen.cs" />
-    <Compile Include="Services\MediaManagement\ImportJobController.cs" />
-    <Compile Include="Services\MediaManagement\PendingImportResourceNewGen.cs" />
-    <Compile Include="Services\MediaManagement\PendingResourcesSettings.cs" />
-    <Compile Include="Services\MediaManagement\ShareImportServerState.cs" />
-    <Compile Include="Services\ResourceAccess\ImpersonationService\AsyncImpersonationProcess.cs">
+    <Compile Update="Services\ResourceAccess\ImpersonationService\AsyncImpersonationProcess.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="Services\ResourceAccess\ImpersonationService\ILocalFsResourceAccessorExtensions.cs" />
-    <Compile Include="Services\ResourceAccess\ImpersonationService\ImpersonationService.cs" />
-    <Compile Include="Services\ResourceAccess\ImpersonationService\LogonHelper.cs" />
-    <Compile Include="Services\ResourceAccess\ImpersonationService\TokenWrapper.cs" />
-    <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsIdentityWrapper.cs" />
-    <Compile Include="Services\ResourceAccess\ImpersonationService\WindowsImpersonationContextWrapper.cs" />
-    <Compile Include="Services\ResourceAccess\MediaPortalAuthorizeAttribute.cs" />
-    <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceAccessor.cs" />
-    <Compile Include="Services\ResourceAccess\VirtualResourceProvider\VirtualResourceProvider.cs" />
-    <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceProvider.cs" />
-    <Compile Include="Services\ResourceAccess\RawUrlResourceProvider\RawUrlResourceAccessor.cs" />
-    <Compile Include="Services\Runtime\PowerEventHandler.cs" />
-    <Compile Include="Async\AsyncExtensions.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPServerWatcher.cs" />
-    <Compile Include="Services\Settings\SettingsChangeWatcher.cs" />
-    <Compile Include="Services\Settings\SettingsManagerMessaging.cs" />
-    <Compile Include="Services\TaskScheduler\TaskWaitableTimer.cs" />
-    <Compile Include="Services\ThumbnailGenerator\IThumbnailProvider.cs" />
-    <Compile Include="Services\ThumbnailGenerator\ThumbnailProviderBuilder.cs" />
-    <Compile Include="Settings\SerializableRegex.cs" />
-    <Compile Include="SystemCommunication\MPClientMetadata.cs" />
-    <Compile Include="Commands\CommandList.cs" />
-    <Compile Include="Commands\ICommand.cs" />
-    <Compile Include="Commands\MethodDelegateCommand.cs" />
-    <Compile Include="Exceptions\NotConnectedException.cs" />
-    <Compile Include="General\AbstractProperty.cs" />
-    <Compile Include="General\ISynchronizable.cs" />
-    <Compile Include="General\HomogenousMap.cs" />
-    <Compile Include="General\SProperty.cs" />
-    <Compile Include="General\ParameterlessMethod.cs" />
-    <Compile Include="Configuration\ConfigBase.cs" />
-    <Compile Include="Configuration\ConfigBaseMetadata.cs" />
-    <Compile Include="Configuration\ConfigGroup.cs" />
-    <Compile Include="Configuration\ConfigGroupMetadata.cs" />
-    <Compile Include="Configuration\ConfigItemList.cs" />
-    <Compile Include="Configuration\ConfigSection.cs" />
-    <Compile Include="Configuration\ConfigSectionMetadata.cs" />
-    <Compile Include="Configuration\ConfigSetting.cs" />
-    <Compile Include="Configuration\ConfigSettingMetadata.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\CustomConfigSetting.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\Entry.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\LimitedNumberSelect.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\MultipleEntryList.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\MultipleSelectionList.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\NumberSelect.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\PathEntry.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\PreferenceList.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\SingleSelectionList.cs" />
-    <Compile Include="Configuration\ConfigurationClasses\YesNo.cs" />
-    <Compile Include="Configuration\IConfigurationManager.cs" />
-    <Compile Include="Configuration\IConfigurationNode.cs" />
-    <Compile Include="Configuration\NodeNotFoundException.cs" />
-    <Compile Include="Configuration\SearchResult.cs" />
-    <Compile Include="FileEventNotification\FileEventHandler.cs" />
-    <Compile Include="FileEventNotification\FileWatchChangeType.cs" />
-    <Compile Include="FileEventNotification\FileWatchInfo.cs" />
-    <Compile Include="FileEventNotification\IFileEventNotifier.cs" />
-    <Compile Include="FileEventNotification\IFileWatchEventArgs.cs" />
-    <Compile Include="FileEventNotification\InvalidFileWatchInfoException.cs" />
-    <Compile Include="FileEventNotification\NotSupportedDriveTypeException.cs" />
-    <Compile Include="General\WeakEventMulticastDelegate.cs" />
-    <Compile Include="General\HomogenousCollection.cs" />
-    <Compile Include="General\IObservable.cs" />
-    <Compile Include="General\WProperty.cs" />
-    <Compile Include="General\SystemName.cs" />
-    <Compile Include="IStatus.cs" />
-    <Compile Include="Localization\FormattingUtils.cs" />
-    <Compile Include="Localization\ILocalization.cs" />
-    <Compile Include="Localization\IResourceString.cs" />
-    <Compile Include="Localization\LocalizationHelper.cs" />
-    <Compile Include="Localization\LocalizationMessaging.cs" />
-    <Compile Include="Localization\LocalizedStringBuilder.cs" />
-    <Compile Include="Localization\NoLocalization.cs" />
-    <Compile Include="Localization\RegionSettings.cs" />
-    <Compile Include="Localization\StaticStringBuilder.cs" />
-    <Compile Include="Localization\StringId.cs" />
-    <Compile Include="Logging\ILogger.cs" />
-    <Compile Include="Logging\LogLevel.cs" />
-    <Compile Include="Logging\NoLogger.cs" />
-    <Compile Include="MediaManagement\ContentDirectoryMessaging.cs" />
-    <Compile Include="MediaManagement\Helpers\ImdbIdMatcher.cs" />
-    <Compile Include="MediaManagement\MediaCategory_DTO.cs" />
-    <Compile Include="MediaManagement\MediaCategory.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\ImporterAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\DirectoryAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\MovieAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\EpisodeAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\ThumbnailLargeAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\MediaAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\VideoAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\AudioAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\ImageAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\ProviderResourceAspect.cs" />
-    <Compile Include="MediaManagement\DefaultItemAspects\RelationshipAspect.cs" />
-    <Compile Include="MediaManagement\Helpers\MovieInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\EpisodeInfo.cs" />
-    <Compile Include="MediaManagement\Helpers\SharesHelper.cs" />
-    <Compile Include="MediaManagement\MLQueries\FalseFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\MediaItemIdFilter.cs" />
-    <Compile Include="MediaManagement\PlaylistBase.cs" />
-    <Compile Include="MediaManagement\PlaylistContents.cs" />
-    <Compile Include="MediaManagement\PlaylistInformationData.cs" />
-    <Compile Include="MediaManagement\PlaylistRawData.cs" />
-    <Compile Include="PluginItemBuilders\AdditionalPluginItemBuilders.cs" />
-    <Compile Include="PluginItemBuilders\MIATypeRegistrationBuilder.cs" />
-    <Compile Include="PluginManager\DefaultItemRegistrationChangeListener.cs" />
-    <Compile Include="PluginManager\DefaultItemStateTracker.cs" />
-    <Compile Include="ResourceAccess\INetworkResourceAccessor.cs" />
-    <Compile Include="ResourceAccess\ProviderPathHelper.cs" />
-    <Compile Include="ResourceAccess\FileSystemResourceNavigator.cs" />
-    <Compile Include="MediaManagement\IImporterWorker.cs" />
-    <Compile Include="MediaManagement\IImportResultHandler.cs" />
-    <Compile Include="MediaManagement\IMediaBrowsing.cs" />
-    <Compile Include="MediaManagement\IMediaItemAspectTypeRegistration.cs" />
-    <Compile Include="ResourceAccess\IRemoteResourceInformationService.cs" />
-    <Compile Include="ResourceAccess\IResourceAccessor.cs" />
-    <Compile Include="ResourceAccess\ILocalFsResourceAccessor.cs" />
-    <Compile Include="ResourceAccess\IResourceInformationService.cs" />
-    <Compile Include="ResourceAccess\IResourceLocator.cs" />
-    <Compile Include="ResourceAccess\IMediaAccessor.cs" />
-    <Compile Include="MediaManagement\IMetadataExtractor.cs" />
-    <Compile Include="ResourceAccess\IResourceMountingService.cs" />
-    <Compile Include="ResourceAccess\IChainedResourceProvider.cs" />
-    <Compile Include="ResourceAccess\IBaseResourceProvider.cs" />
-    <Compile Include="ResourceAccess\IResourceServer.cs" />
-    <Compile Include="MediaManagement\MLQueries\AbstractAttributeFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\AbstractExpressionFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\EmptyFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\SerializationHelper.cs" />
-    <Compile Include="ResourceAccess\DosPathHelper.cs" />
-    <Compile Include="ResourceAccess\ProviderPathSegment.cs" />
-    <Compile Include="ResourceAccess\LocalFsResourceProviderBase.cs" />
-    <Compile Include="MediaManagement\MediaItem.cs" />
-    <Compile Include="MediaManagement\MLQueries\BetweenFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\BooleanCombinationFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\IAttributeFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\IFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\InFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\LikeFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\MediaItemQuery.cs" />
-    <Compile Include="MediaManagement\MLQueries\NotFilter.cs" />
-    <Compile Include="MediaManagement\MLQueries\RelationalFilter.cs" />
-    <Compile Include="ResourceAccess\ResourcePath.cs" />
-    <Compile Include="ResourceAccess\ResourcePathHelper.cs" />
-    <Compile Include="ResourceAccess\ResourcePathMetadata.cs" />
-    <Compile Include="MediaManagement\MLQueries\MLQueryResultGroup.cs" />
-    <Compile Include="Messaging\MessageWatcher.cs" />
-    <Compile Include="SystemCommunication\IContentDirectory.cs" />
-    <Compile Include="SystemCommunication\IServerController.cs" />
-    <Compile Include="SystemCommunication\ServerDescriptor.cs" />
-    <Compile Include="Services\Dokan\IDokanOperations.cs" />
-    <Compile Include="Services\Dokan\FileHandle.cs" />
-    <Compile Include="Services\Dokan\Proxy.cs" />
-    <Compile Include="Services\Dokan\Dokan.cs" />
-    <Compile Include="Services\Dokan\VirtualBaseDirectory.cs" />
-    <Compile Include="Services\Dokan\VirtualDirectory.cs" />
-    <Compile Include="Services\Dokan\VirtualFile.cs" />
-    <Compile Include="Services\Dokan\VirtualFileSystemResource.cs" />
-    <Compile Include="Services\Dokan\VirtualRootDirectory.cs" />
-    <Compile Include="Services\Localization\LocalizationSettings.cs" />
-    <Compile Include="Services\Logging\GroupLogger.cs" />
-    <Compile Include="Services\Logging\log4netLogger.cs" />
-    <Compile Include="Services\ResourceAccess\CachedMultiSegmentHttpStream.cs" />
-    <Compile Include="Services\MediaManagement\ImporterWorker.cs" />
-    <Compile Include="MediaManagement\ImporterWorkerMessaging.cs" />
-    <Compile Include="Services\MediaManagement\ImporterWorkerSettings.cs" />
-    <Compile Include="Services\MediaManagement\ImportJob.cs" />
-    <Compile Include="Services\ResourceAccess\StreamedResourceToLocalFsAccessBridge\MountingDataProxy.cs" />
-    <Compile Include="Services\ResourceAccess\StreamedResourceToLocalFsAccessBridge\StreamedResourceToLocalFsAccessBridge.cs" />
-    <Compile Include="Services\MediaManagement\PendingImportResource.cs" />
-    <Compile Include="Services\ResourceAccess\LocalFsResourceProvider\LocalFsResourceAccessor.cs" />
-    <Compile Include="Services\ResourceAccess\LocalFsResourceProvider\LocalFsResourceProvider.cs" />
-    <Compile Include="Services\ResourceAccess\RemoteResourceInformationService.cs" />
-    <Compile Include="Services\ResourceAccess\RemoteResourceProvider\RemoteFileSystemResourceAccessor.cs" />
-    <Compile Include="Services\ResourceAccess\RemoteResourceProvider\RemoteResourceProvider.cs" />
-    <Compile Include="Services\ResourceAccess\ResourceAccessModule.cs" />
-    <Compile Include="MediaManagement\MediaItemAspect.cs" />
-    <Compile Include="MediaManagement\MediaItemAspectMetadata.cs" />
-    <Compile Include="Services\ResourceAccess\ResourceHttpAccessUrlUtils.cs" />
-    <Compile Include="Services\ResourceAccess\ResourceLocator.cs" />
-    <Compile Include="Services\MediaManagement\MediaAccessor.cs" />
-    <Compile Include="Services\MediaManagement\MediaAccessorMessaging.cs" />
-    <Compile Include="ResourceAccess\IFileSystemResourceAccessor.cs" />
-    <Compile Include="ResourceAccess\IResourceProvider.cs" />
-    <Compile Include="ResourceAccess\IResourceChangeNotifier.cs" />
-    <Compile Include="MediaManagement\ResourceProviderMetadata.cs" />
-    <Compile Include="MediaManagement\MetadataExtractorMetadata.cs" />
-    <Compile Include="MediaManagement\Share.cs" />
-    <Compile Include="Messaging\AsynchronousMessageQueue.cs" />
-    <Compile Include="Messaging\IMessageBroker.cs" />
-    <Compile Include="Messaging\MessageQueueBase.cs" />
-    <Compile Include="Messaging\SystemMessage.cs" />
-    <Compile Include="Messaging\SynchronousMessageQueue.cs" />
-    <Compile Include="PathManager\IPathManager.cs" />
-    <Compile Include="PluginManager\IItemRegistrationChangeListener.cs" />
-    <Compile Include="Registry\RegistryHelper.cs" />
-    <Compile Include="Services\FileEventNotification\EventData.cs" />
-    <Compile Include="Services\FileEventNotification\PathStateChangedEvent.cs" />
-    <Compile Include="Services\FileEventNotification\WatchedPath.cs" />
-    <Compile Include="Services\Localization\LocalizationStrings.cs" />
-    <Compile Include="Services\Localization\StringManager.cs" />
-    <Compile Include="Services\Localization\StringManagerBase.cs" />
-    <Compile Include="Services\Logging\ConsoleLogger.cs" />
-    <Compile Include="Services\Logging\CrashLoggerBase.cs" />
-    <Compile Include="Services\Logging\DefaultLogger.cs" />
-    <Compile Include="Services\Logging\FileLogger.cs" />
-    <Compile Include="Services\ResourceAccess\ResourceMountingService.cs" />
-    <Compile Include="Services\ResourceAccess\ResourceServer.cs" />
-    <Compile Include="Services\ResourceAccess\Settings\ServerSettings.cs" />
-    <Compile Include="Services\ResourceAccess\SynchronizedMasterStreamClient.cs" />
-    <Compile Include="Services\ResourceAccess\UPnPResourceInformationServiceProxy.cs" />
-    <Compile Include="Services\ResourceAccess\UPnPResourceInformationServiceImpl.cs" />
-    <Compile Include="Services\PluginManager\Builders\BuilderHelper.cs" />
-    <Compile Include="PluginManager\Exceptions\Exceptions.cs" />
-    <Compile Include="PluginManager\FixedItemStateTracker.cs" />
-    <Compile Include="PluginManager\IPluginMetadata.cs" />
-    <Compile Include="PluginManager\IPluginStateTracker.cs" />
-    <Compile Include="Services\PluginManager\Builders\ServiceBuilder.cs" />
-    <Compile Include="Services\PluginManager\PluginBuilderRegistration.cs" />
-    <Compile Include="PluginManager\PluginItemRegistration.cs" />
-    <Compile Include="PluginManager\IPluginItemStateTracker.cs" />
-    <Compile Include="PluginManager\PluginRuntime.cs" />
-    <Compile Include="PluginManager\IPluginItemBuilder.cs" />
-    <Compile Include="PluginManager\IPluginManager.cs" />
-    <Compile Include="PluginManager\PluginItemMetadata.cs" />
-    <Compile Include="PluginManager\PluginManagerMessaging.cs" />
-    <Compile Include="PluginManager\PluginState.cs" />
-    <Compile Include="ServiceCreatorCallback.cs" />
-    <Compile Include="Exceptions\ServiceNotFoundException.cs" />
-    <Compile Include="ServiceRegistration.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPClientControlPoint.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPContentDirectoryServiceProxy.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPServerControllerServiceProxy.cs" />
-    <Compile Include="Services\ServerCommunication\UPnPUserProfileDataManagementServiceProxy.cs" />
-    <Compile Include="Services\Settings\SettingsCache.cs" />
-    <Compile Include="Services\Settings\SettingsFileHandler.cs" />
-    <Compile Include="Services\Settings\SettingsManager.cs" />
-    <Compile Include="Services\SystemResolver\Settings\SystemResolverSettings.cs" />
-    <Compile Include="Services\SystemResolver\SystemResolverBase.cs" />
-    <Compile Include="Services\ThumbnailGenerator\IThumbnailGenerator.cs" />
-    <Compile Include="Services\ThumbnailGenerator\ThumbnailGenerator.cs" />
-    <Compile Include="Services\ThumbnailGenerator\WorkItem.cs" />
-    <Compile Include="Settings\ISettingsManager.cs" />
-    <Compile Include="Settings\NoSettingsManager.cs" />
-    <Compile Include="Settings\SettingAttribute.cs" />
-    <Compile Include="Runtime\SystemMessaging.cs" />
-    <Compile Include="Runtime\ISystemStateService.cs" />
-    <Compile Include="Services\Runtime\SystemStateService.cs" />
-    <Compile Include="SystemResolver\ISystemResolver.cs" />
-    <Compile Include="TaskScheduler\ITaskScheduler.cs" />
-    <Compile Include="TaskScheduler\Task.cs" />
-    <Compile Include="TaskScheduler\TaskSchedulerMessaging.cs" />
-    <Compile Include="Threading\IntervalWork.cs" />
-    <Compile Include="Threading\IThreadPool.cs" />
-    <Compile Include="Threading\IWork.cs" />
-    <Compile Include="Threading\IIntervalWork.cs" />
-    <Compile Include="Threading\Work.cs" />
-    <Compile Include="Threading\WorkEventArgs.cs" />
-    <Compile Include="Services\Messaging\MessageBroker.cs" />
-    <Compile Include="Services\PathManager\PathDefinition.cs" />
-    <Compile Include="Services\PathManager\PathListFile.cs" />
-    <Compile Include="Services\PathManager\PathManager.cs" />
-    <Compile Include="Services\PluginManager\Builders\InstanceBuilder.cs" />
-    <Compile Include="Services\PluginManager\Builders\ResourceBuilder.cs" />
-    <Compile Include="Services\PluginManager\PluginManager.cs" />
-    <Compile Include="Services\PluginManager\PluginManagerSettings.cs" />
-    <Compile Include="Services\PluginManager\PluginDirectoryDescriptor.cs" />
-    <Compile Include="Services\PluginManager\PluginResource.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Services\Registry\RegistryNode.cs" />
-    <Compile Include="Services\Registry\Registry.cs" />
-    <Compile Include="Registry\IRegistryNode.cs" />
-    <Compile Include="Registry\IRegistry.cs" />
-    <Compile Include="Services\TaskScheduler\TaskCollection.cs" />
-    <Compile Include="Services\TaskScheduler\TaskScheduler.cs" />
-    <Compile Include="Services\TaskScheduler\TaskSchedulerSettings.cs" />
-    <Compile Include="Services\Threading\ThreadPool.cs" />
-    <Compile Include="Services\Threading\ThreadPoolStartInfo.cs" />
-    <Compile Include="Services\Threading\WorkQueue.cs" />
-    <Compile Include="Services\FileEventNotification\FileEventNotifier.cs" />
-    <Compile Include="Services\FileEventNotification\FileWatcher.cs" />
-    <Compile Include="Services\FileEventNotification\FileWatcherInfo.cs" />
-    <Compile Include="Services\FileEventNotification\FileWatchEvent.cs" />
-    <Compile Include="Services\FileEventNotification\FileWatchEventArgs.cs" />
-    <Compile Include="UI\FormDpiAwareness.cs" />
-    <Compile Include="UPnP\UPnPDtDictionary.cs" />
-    <Compile Include="UPnP\UPnPDtMediaCategoryEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtRelationshipItemEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtUsageStatistics.cs" />
-    <Compile Include="UPnP\UPnPSystemResumeHelper.cs" />
-    <Compile Include="UPnP\UPnPTypesAndIds.cs" />
-    <Compile Include="UPnP\UPnPExtendedDataTypes.cs" />
-    <Compile Include="UPnP\DataTypesConfiguration.cs" />
-    <Compile Include="UPnP\UPnPDtMediaItem.cs" />
-    <Compile Include="UPnP\UPnPDtPlaylistRawData.cs" />
-    <Compile Include="UPnP\UPnPDtPlaylistContents.cs" />
-    <Compile Include="UPnP\UPnPDtPlaylistInformationDataEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtMPClientMetadataEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtResourceProviderMetadataEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtResourceProviderMetadata.cs" />
-    <Compile Include="UPnP\UPnPDtResourcePathMetadataEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtMediaItemAspectEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtMediaItemAttributeValues.cs" />
-    <Compile Include="UPnP\UPnPDtMediaItemQuery.cs" />
-    <Compile Include="UPnP\UPnPDtMediaItemEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtMediaItemsFilter.cs" />
-    <Compile Include="UPnP\UPnPDtResourcePathMetadata.cs" />
-    <Compile Include="UPnP\UPnPDtMLQueryResultGroupEnumeration.cs" />
-    <Compile Include="UPnP\UPnPServiceProxyBase.cs" />
-    <Compile Include="UPnP\UPnPDtShareEnumeration.cs" />
-    <Compile Include="UPnP\UPnPDtMediaItemAspectMetadata.cs" />
-    <Compile Include="UPnP\UPnPDtShare.cs" />
-    <Compile Include="UPnP\UPnPDtUserProfile.cs" />
-    <Compile Include="UPnP\UPnPDtUserProfileEnumeration.cs" />
-    <Compile Include="UserManagement\IUserManagement.cs" />
-    <Compile Include="UserManagement\UserMessaging.cs" />
-    <Compile Include="UserProfileDataManagement\IUserProfileDataManagement.cs" />
-    <Compile Include="UserProfileDataManagement\IUserRestriction.cs" />
-    <Compile Include="UserProfileDataManagement\UsageStatistics.cs" />
-    <Compile Include="UserProfileDataManagement\UserDataKeysKnown.cs" />
-    <Compile Include="UserProfileDataManagement\UserProfile.cs" />
-    <Compile Include="VersionInfo\VersionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\UPnP\UPnP.csproj">
-      <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
-      <Name>UPnP</Name>
-      <Private>True</Private>
-    </ProjectReference>
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <ProjectReference Include="..\UPnP\UPnP.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="References\log4net.dll" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets">
+    <None Update="build.targets">
       <SubType>Designer</SubType>
     </None>
   </ItemGroup>
@@ -564,8 +61,12 @@
     <PackageReference Include="Newtonsoft.Json">
       <Version>10.0.3</Version>
     </PackageReference>
+    <PackageReference Include="System.Management" Version="5.0.0" />
+    <PackageReference Include="System.Runtime.Caching" Version="5.0.0" />
+    <PackageReference Include="System.ServiceProcess.ServiceController" Version="5.0.0" />
   </ItemGroup>
-  <ItemGroup />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="build.targets" />
+  <ItemGroup>
+    <Compile Remove="MediaManagement\MLQueries\CertificationAgeFilter.cs" />
+    <Compile Remove="Services\MediaManagement\ImportDataflowBlocks\ChangeUnfoldBlock.cs" />
+  </ItemGroup>
 </Project>

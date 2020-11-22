@@ -1,89 +1,24 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="14.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{9B2DA988-87CE-421F-A4A3-679A45163599}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Tests.Client</RootNamespace>
-    <AssemblyName>Tests.Client</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
-    <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
-    <VSToolsPath Condition="'$(VSToolsPath)' == ''">$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)</VSToolsPath>
-    <ReferencePath>$(ProgramFiles)\Common Files\microsoft shared\VSTT\$(VisualStudioVersion)\UITestExtensionPackages</ReferencePath>
-    <IsCodedUITest>False</IsCodedUITest>
-    <TestProjectType>UnitTest</TestProjectType>
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <TargetFramework>net5.0-windows</TargetFramework>
+        <OutputType>Library</OutputType>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <GenerateBindingRedirectsOutputType>true</GenerateBindingRedirectsOutputType>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
     <Reference Include="System.Device" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Common\TestAsync.cs" />
-    <Compile Include="Common\TestGenres.cs" />
-    <Compile Include="Common\TestHelpers.cs" />
-    <Compile Include="Common\TestMediaItem.cs" />
-    <Compile Include="Common\TestMediaItemAspectTypeRegistration.cs" />
-    <Compile Include="Common\TestMediaItemQuery.cs" />
-    <Compile Include="Common\TestRelationshipExtraction.cs" />
-    <Compile Include="Common\Thumbnailer.cs" />
-    <Compile Include="Media\TestMediaViews.cs" />
-    <Compile Include="UPnP\HttpHeaders.cs" />
-    <Compile Include="VideoPlayers\ComSkip\ComSkipChaptersTests.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VideoPlayers\ComSkip\VideoPlayerForComSkipTests.cs" />
-    <Compile Include="VideoPlayers\Subtitles\FakeVideoSettings.cs" />
-    <Compile Include="VideoPlayers\Subtitles\MockedTsVideoPlayer.cs" />
-    <Compile Include="VideoPlayers\Subtitles\AddSubtitleFilterTests.cs" />
-    <Compile Include="VideoPlayers\Subtitles\TsReaderStub.cs" />
-    <Compile Include="WifiRemote\TestWifiRemote.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="VideoPlayers\ComSkip\TestData\Video.With.Invalid.ComSkip.Chapters.zip">
@@ -97,62 +32,20 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Incubator\WifiRemote\WifiRemote.csproj">
-      <Project>{8d67f134-c122-46b3-b393-329b06981045}</Project>
-      <Name>WifiRemote</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
-      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
-      <Name>MediaPortal.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
-      <Project>{52e587d0-a274-44da-8846-8eeaf5414923}</Project>
-      <Name>MediaPortal.UI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
-      <Project>{455e7d70-1c85-4d7f-9f01-dc801b8b8c34}</Project>
-      <Name>UPnP</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj">
-      <Project>{65cf3575-ac34-4e46-92c3-84e6eda9bacd}</Project>
-      <Name>GDIThumbnailProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj">
-      <Project>{1973ad5b-ef7e-41da-a668-58ac37e1154e}</Project>
-      <Name>GenreProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
-      <Project>{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}</Project>
-      <Name>OnlineLibraries</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj">
-      <Project>{7f790d8d-3a5a-499f-b9d3-8d9a1ef4f73a}</Project>
-      <Name>WICThumbnailProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj">
-      <Project>{33721bc7-193a-4b80-9cff-dc8a50700443}</Project>
-      <Name>ZipResourceProvider</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj">
-      <Project>{c4a45fa7-bcd1-4b14-b6d5-051a780eb83b}</Project>
-      <Name>DirectShowWrapper</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj">
-      <Project>{ed9a8a29-91dd-4b21-8cb8-a8b0f3eff61c}</Project>
-      <Name>VideoPlayers</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
-      <Project>{7e943389-3589-40c9-b481-2e223554cc49}</Project>
-      <Name>SkinEngine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
-      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
-      <Name>SlimTv.Interfaces</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
-      <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
-      <Name>Media</Name>
-    </ProjectReference>
+    <ProjectReference Include="..\..\Incubator\WifiRemote\WifiRemote.csproj" />
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj" />
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj" />
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj" />
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj" />
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj" />
+    <ProjectReference Include="..\..\Source\Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj" />
+    <ProjectReference Include="..\..\Source\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj" />
+    <ProjectReference Include="..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj" />
+    <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
+    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.Test.Thumbnail">
@@ -165,13 +58,4 @@
       <Version>3.10.1</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

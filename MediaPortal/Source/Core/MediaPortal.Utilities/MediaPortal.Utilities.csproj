@@ -1,163 +1,54 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</ProjectGuid>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>MediaPortal.Utilities</RootNamespace>
-    <AssemblyName>MediaPortal.Utilities</AssemblyName>
-    <StartupObject>
-    </StartupObject>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
+    <StartupObject></StartupObject>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
     <DebugType>none</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Attributes\CoreAPIAttribute.cs" />
-    <Compile Include="Cache\AsyncStaticCache.cs" />
-    <Compile Include="Cache\AsyncStaticTimeoutCache.cs" />
-    <Compile Include="Cache\ILRUCache.cs" />
-    <Compile Include="Cache\LargeLRUCache.cs" />
-    <Compile Include="Cache\SmallLRUCache.cs" />
-    <Compile Include="Collections\SafeList.cs" />
-    <Compile Include="Collections\SafeDictionary.cs" />
-    <Compile Include="CollectionUtils.cs" />
-    <Compile Include="Conversion\Conversion.cs" />
-    <Compile Include="Events\DelayedEvent.cs" />
-    <Compile Include="Graphics\ImageUtilities.cs" />
-    <Compile Include="Network\Netbios\NbName.cs" />
-    <Compile Include="Network\Netbios\NbNsClient.cs" />
-    <Compile Include="Network\Netbios\NbNsHeader.cs" />
-    <Compile Include="Network\Netbios\NbNsNodeName.cs" />
-    <Compile Include="Network\Netbios\NbNsNodeStatusRequest.cs" />
-    <Compile Include="Network\Netbios\NbNsNodeStatusResponse.cs" />
-    <Compile Include="Network\Netbios\NbNsNodeStatusResponseResourceRecord.cs" />
-    <Compile Include="Network\Netbios\NbNsPacketBase.cs" />
-    <Compile Include="Network\Netbios\NbNsQuestionEntry.cs" />
-    <Compile Include="Network\Netbios\NbNsResourceRecordBase.cs" />
-    <Compile Include="Network\Netbios\NbNsStatistics.cs" />
-    <Compile Include="Network\Netbios\NbPacketSegmentBase.cs" />
-    <Compile Include="OrdinalStringComparer.cs" />
-    <Compile Include="Pointers\PointerExtensions.cs" />
-    <Compile Include="Process\Ipc.cs" />
-    <Compile Include="Process\IpcClient.cs" />
-    <Compile Include="Process\IpcServer.cs" />
-    <Compile Include="Process\ProcessExecutionResult.cs" />
-    <Compile Include="Screens\FormExtensions.cs" />
-    <Compile Include="Security\SafeThreadHandle.cs" />
-    <Compile Include="Security\SafeTokenHandle.cs" />
-    <Compile Include="SystemAPI\NativeMethods.cs" />
-    <Compile Include="Process\SingleInstanceHelper.cs" />
-    <Compile Include="Network\NetworkConnectionTracker.cs" />
-    <Compile Include="Network\NetworkResourcesEnumerator.cs" />
-    <Compile Include="Network\Share.cs" />
-    <Compile Include="Network\SharesEnumerator.cs" />
-    <Compile Include="Process\ImpersonationHelper.cs" />
-    <Compile Include="Process\ProcessUtils.cs" />
-    <Compile Include="Process\ImpersonationProcess.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Screens\SplashScreen.cs">
+    <Compile Update="Process\ImpersonationProcess.cs" />
+    <Compile Update="Screens\SplashScreen.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="ThreadingUtils.cs" />
-    <Compile Include="DB\InstructionList.cs" />
-    <Compile Include="DB\SQLUtils.cs" />
-    <Compile Include="DeepCopy\CopyManager.cs" />
-    <Compile Include="DeepCopy\ICopyManager.cs" />
-    <Compile Include="DeepCopy\IDeepCopyable.cs" />
-    <Compile Include="Exceptions\Exceptions.cs" />
-    <Compile Include="FileSystem\DriveUtils.cs" />
-    <Compile Include="FileSystem\FileUtils.cs" />
-    <Compile Include="Localization\StringsFile\StringFile.cs" />
-    <Compile Include="Localization\StringsFile\StringLocalized.cs" />
-    <Compile Include="Network\NetworkUtils.cs" />
-    <Compile Include="SystemAPI\MimeTypeDetector.cs" />
-    <Compile Include="ObjectUtils.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
+    <Compile Update="Properties\Resources.Designer.cs">
       <DependentUpon>Resources.resx</DependentUpon>
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
     </Compile>
-    <Compile Include="StringUtils.cs" />
-    <Compile Include="SystemAPI\WindowsAPI.cs" />
-    <Compile Include="Threading\AsyncPriorityLock.cs" />
-    <Compile Include="Threading\AsyncReaderWriterLock.cs" />
-    <Compile Include="Threading\KeyedAsyncReaderWriterLock.cs" />
-    <Compile Include="UPnP\MarshallingHelper.cs" />
-    <Compile Include="Versions.cs" />
-    <Compile Include="Xml\SerializableDictionary.cs" />
-    <Compile Include="Xml\SerializableNetworkCredential.cs" />
-    <Compile Include="Xml\XmlSerialization.cs" />
-    <Compile Include="Xml\XmlWrappingReader.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
+    <EmbeddedResource Update="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Screens\SplashScreen.resx">
+    <EmbeddedResource Update="Screens\SplashScreen.resx">
       <DependentUpon>SplashScreen.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="5.0.0" />
+    <PackageReference Include="System.Management" Version="5.0.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Remove="MimeTypeDetector.cs" />
+  </ItemGroup>
 </Project>

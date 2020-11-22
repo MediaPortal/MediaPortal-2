@@ -1,138 +1,46 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>8.0.30703</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net5.0-windows</TargetFramework>
+        <OutputType>Library</OutputType>
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors</RootNamespace>
-    <AssemblyName>NfoMetadataExtractors</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile />
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisLogFile>bin\x86\Debug\NfoMovieMetadataExtractor.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
     <CodeAnalysisLogFile>bin\x86\Release\NfoMovieMetadataExtractor.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Net.Http" />
     <Reference Include="System.Net.Http.WebRequest" />
-    <Reference Include="System.XML" />
-    <Reference Include="System.Xml.Linq" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Extractors\NfoExtractorBase.cs" />
-    <Compile Include="Extractors\NfoAudioExtractorBase.cs" />
-    <Compile Include="Extractors\NfoMovieExtractorBase.cs" />
-    <Compile Include="Extractors\NfoSeriesExtractorBase.cs" />
-    <Compile Include="FanArtHandlers\AudioFanArtHandler.cs" />
-    <Compile Include="FanArtHandlers\MovieFanArtHandler.cs" />
-    <Compile Include="FanArtHandlers\SeriesFanArtHandler.cs" />
-    <Compile Include="NfoAudioMetadataExtractor.cs" />
-    <Compile Include="NfoReaders\NfoArtistReader.cs" />
-    <Compile Include="NfoReaders\NfoAlbumReader.cs" />
-    <Compile Include="NfoVideoMetadataExtractor.cs" />
-    <Compile Include="RelationshipExtractors\AlbumArtistRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\MovieActorRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\MovieCharacterRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\MovieCollectionRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\MovieDirectorRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\MovieRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\EpisodeActorRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\EpisodeCharacterRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\EpisodeSeriesRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\SeriesActorRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\SeriesCharacterRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\AudioRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\SeriesRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\TrackAlbumArtistRelationshipExtractor.cs" />
-    <Compile Include="RelationshipExtractors\TrackAlbumRelationshipExtractor.cs" />
-    <Compile Include="Settings\NfoAudioMetadataExtractorSettings.cs" />
-    <Compile Include="Stubs\AlbumTrackStub.cs" />
-    <Compile Include="Stubs\AlbumStub.cs" />
-    <Compile Include="Stubs\ArtistStub.cs" />
-    <Compile Include="Utilities\JsonByteArrayConverter.cs" />
-    <Compile Include="Settings\NfoMetadataExtractorSettingsBase.cs" />
-    <Compile Include="NfoReaders\NfoSeriesEpisodeReader.cs" />
-    <Compile Include="NfoReaders\NfoSeriesReader.cs" />
-    <Compile Include="NfoSeriesMetadataExtractor.cs" />
-    <Compile Include="Settings\NfoSeriesMetadataExtractorSettings.cs" />
-    <Compile Include="Settings\NfoMovieMetadataExtractorSettings.cs" />
-    <Compile Include="NfoReaders\NfoMovieReader.cs" />
-    <Compile Include="NfoReaders\NfoReaderBase.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="NfoMovieMetadataExtractor.cs" />
-    <Compile Include="Stubs\AudioStreamDetailsStub.cs" />
-    <Compile Include="Stubs\SeriesEpisodeStub.cs" />
-    <Compile Include="Stubs\SeriesStub.cs" />
-    <Compile Include="Stubs\MovieStub.cs" />
-    <Compile Include="Stubs\PersonStub.cs" />
-    <Compile Include="Stubs\SetStub.cs" />
-    <Compile Include="Stubs\SeriesThumbStub.cs" />
-    <Compile Include="Stubs\StreamDetailsStub.cs" />
-    <Compile Include="Stubs\SubtitleStreamDetailsStub.cs" />
-    <Compile Include="Stubs\VideoStreamDetailsStub.cs" />
-    <Compile Include="Utilities\StubParser.cs" />
-    <Compile Include="Utilities\XmlNfoReader.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -140,27 +48,13 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
-      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
-      <Name>MediaPortal.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\OnlineLibraries\OnlineLibraries.csproj">
-      <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
-      <Name>OnlineLibraries</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="build.targets" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <ProjectReference Include="..\OnlineLibraries\OnlineLibraries.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
       <Version>10.0.3</Version>
     </PackageReference>
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="build.targets" />
 </Project>

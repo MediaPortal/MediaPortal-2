@@ -137,6 +137,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 
     #region Internal methods
 
+    // TODO: Fix usage of WindowsImpersonationContext for .NET 5
+
     /// <summary>
     /// Impersonates the underlying <see cref="WindowsIdentity"/>
     /// </summary>
@@ -150,10 +152,15 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// </remarks>
     internal WindowsImpersonationContextWrapper Impersonate()
     {
+#if NET5_0
+      Interlocked.Increment(ref _usageCount);
+      return new WindowsImpersonationContextWrapper(null, DecrementUsageCount);
+#else
       WindowsImpersonationContext ctx = null;
       if(Interlocked.Increment(ref _usageCount) > 0)
         ctx = WindowsIdentity.Impersonate(_identity.Token);
       return new WindowsImpersonationContextWrapper(ctx, DecrementUsageCount);
+#endif
     }
 
     #endregion

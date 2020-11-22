@@ -1,124 +1,33 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{B3152567-81EE-42F5-BC32-986E0D5A3B25}</ProjectGuid>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UiComponents.Nereus</RootNamespace>
-    <AssemblyName>Nereus</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
     <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation />
-    <TargetFrameworkProfile />
-    <NuGetPackageImportStamp>
-    </NuGetPackageImportStamp>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
-    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <UseWindowsForms>true</UseWindowsForms>
+    <UseWPF>true</UseWPF>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-    <Reference Include="System.Windows.Forms" />
-    <Reference Include="System.Xaml" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Actions\OtherPluginsAction.cs" />
-    <Compile Include="Actions\SkinSettingsAction.cs" />
-    <Compile Include="Controls\HomeTilesScrollContentPresenter.cs" />
-    <Compile Include="Controls\ItemsListFilter.cs" />
-    <Compile Include="Controls\NereusHomeListView.cs" />
-    <Compile Include="Controls\NereusTileControl.cs" />
-    <Compile Include="Converters\StringCaseConverter.cs" />
-    <Compile Include="Converters\ListToGridConverter.cs" />
-    <Compile Include="Converters\ItemsListActionFilter.cs" />
-    <Compile Include="Converters\RoundingFormatConverter.cs" />
-    <Compile Include="Models\HomeContent\AbstractHomeContent.cs" />
-    <Compile Include="Models\HomeContent\WebradioHomeContent.cs" />
-    <Compile Include="Models\HomeContent\OnlineVideosHomeContent.cs" />
-    <Compile Include="Models\HomeContent\LauncherHomeContent.cs" />
-    <Compile Include="Models\HomeContent\OtherPluginsHomeContent.cs" />
-    <Compile Include="Models\HomeContent\DefaultHomeContent.cs" />
-    <Compile Include="Models\HomeContent\VideoHomeContent.cs" />
-    <Compile Include="Models\HomeContent\MediaShortcutItem.cs" />
-    <Compile Include="Models\HomeContent\AudioHomeContent.cs" />
-    <Compile Include="Models\HomeContent\ImageHomeContent.cs" />
-    <Compile Include="Models\HomeContent\TVHomeContent.cs" />
-    <Compile Include="Models\HomeContent\WeatherHomeContent.cs" />
-    <Compile Include="Models\HomeContent\NewsHomeContent.cs" />
-    <Compile Include="Models\HomeContent\SeriesHomeContent.cs" />
-    <Compile Include="Models\HomeContent\MovieHomeContent.cs" />
-    <Compile Include="Models\HomeContent\MediaShortcutListWrapper.cs" />
-    <Compile Include="Models\MenuEditModel.cs" />
-    <Compile Include="Models\HomeMenuModel.cs" />
-    <Compile Include="Models\HomeContent\ItemsListWrapper.cs" />
-    <Compile Include="Models\ScreenModeModel.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Settings\Configuration\BaseGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableHelpTextConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableCertificationLogosConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableMediaItemDetailsViewConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableWatchedFlagsConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableFanartConfiguration.cs" />
-    <Compile Include="Settings\Configuration\MovieGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\Configuration\SeasonGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\Configuration\SeriesGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\NereusSkinSettings.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Language\strings_en.xml" />
+    <Content Include="Skin\Nereus\backgrounds\default-background.xaml" />
+    <Content Include="Skin\Nereus\backgrounds\image-background.xaml" />
+    <Content Include="Skin\Nereus\backgrounds\video-background.xaml" />
     <Content Include="Skin\Nereus\fonts\default-font.xml">
       <SubType>Designer</SubType>
     </Content>
@@ -718,12 +627,43 @@
     <Content Include="Skin\Nereus\images\Weather\64x64\na.png" />
     <Content Include="Skin\Nereus\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\Nereus\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\Nereus\screens\configuration-section.xaml" />
+    <Content Include="Skin\Nereus\screens\CurrentlyPlayingAudio.xaml" />
+    <Content Include="Skin\Nereus\screens\CurrentlyPlayingVideo.xaml" />
+    <Content Include="Skin\Nereus\screens\DialogAddMenuItem.xaml" />
+    <Content Include="Skin\Nereus\screens\DialogEditMenu.xaml" />
+    <Content Include="Skin\Nereus\screens\dialogSystemState.xaml" />
+    <Content Include="Skin\Nereus\screens\dialogSystemStateConfiguration.xaml" />
+    <Content Include="Skin\Nereus\screens\DialogVirtualKeyboard.xaml" />
+    <Content Include="Skin\Nereus\screens\FullScreenContentAudio.xaml" />
+    <Content Include="Skin\Nereus\screens\FullscreenContentDVD.xaml" />
+    <Content Include="Skin\Nereus\screens\FullscreenContentImage.xaml" />
+    <Content Include="Skin\Nereus\screens\FullScreenContentVideo.xaml" />
+    <Content Include="Skin\Nereus\screens\master_bare.xaml" />
+    <Content Include="Skin\Nereus\screens\master_bare_info.xaml" />
+    <Content Include="Skin\Nereus\screens\master_bare_media.xaml" />
+    <Content Include="Skin\Nereus\screens\master_configuration_menu.xaml" />
+    <Content Include="Skin\Nereus\screens\master_dialog_bare.xaml" />
+    <Content Include="Skin\Nereus\screens\master_mediamenu.xaml" />
+    <Content Include="Skin\Nereus\screens\master_nomenu.xaml" />
+    <Content Include="Skin\Nereus\screens\MediaInfoAudio.xaml" />
+    <Content Include="Skin\Nereus\screens\MediaInfoImage.xaml" />
     <Content Include="Skin\Nereus\screens\MediaInfoSeriesDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaInfoAudioDetails.inc" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingAudioDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaInfoMovieDetails.inc" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingSeriesDetails.inc" />
+    <Content Include="Skin\Nereus\screens\MediaInfoVideo.xaml" />
     <Content Include="Skin\Nereus\screens\NotificationsBar.inc" />
+    <Content Include="Skin\Nereus\screens\SharesOverview.xaml" />
+    <Content Include="Skin\Nereus\screens\shares_config_choose_path.xaml" />
+    <Content Include="Skin\Nereus\screens\shares_config_choose_system.xaml" />
+    <Content Include="Skin\Nereus\screens\shares_config_overview.xaml" />
+    <Content Include="Skin\Nereus\screens\shares_config_remove_shares.xaml" />
+    <Content Include="Skin\Nereus\screens\ShowHomeServer.xaml" />
+    <Content Include="Skin\Nereus\screens\SimpleFilterItems.xaml" />
+    <Content Include="Skin\Nereus\screens\SimpleSearch.xaml" />
+    <Content Include="Skin\Nereus\screens\SimpleShowItems.xaml" />
     <Content Include="Skin\Nereus\screens\WindowControlButtons.inc">
       <SubType>Designer</SubType>
     </Content>
@@ -784,6 +724,9 @@
       <SubType>Designer</SubType>
     </Content>
     <Content Include="Skin\Nereus\skin.xml" />
+    <Content Include="Skin\Nereus\superlayers\BusyCursor.xaml" />
+    <Content Include="Skin\Nereus\superlayers\SkipStepOSD.xaml" />
+    <Content Include="Skin\Nereus\superlayers\Volume.xaml" />
     <Content Include="Skin\Nereus\themes\default\styles\Colors.xaml" />
     <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\30715D73-4205-417f-80AA-E82F0834171F.png" />
     <Content Include="Skin\Nereus\themes\simple\images\HomeMenu\30F57CBA-459C-4202-A587-09FFF5098251.png" />
@@ -818,7 +761,6 @@
     <Content Include="Skin\Nereus\fonts\SansBetween.ttf" />
     <Content Include="Skin\Nereus\fonts\SketchyTimes.desc" />
     <Content Include="Skin\Nereus\fonts\SketchyTimes.ttf" />
-    <None Include="Skin\Nereus\fonts\seguisb.ttf" />
     <Content Include="Skin\Nereus\fonts\seguisb.desc" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingMovieDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemListPersonDetails.inc">
@@ -830,292 +772,89 @@
     <Content Include="Skin\Nereus\screens\master_home.xaml" />
     <Content Include="Skin\Nereus\screens\master_homemenu.xaml" />
     <Content Include="Skin\Nereus\themes\default\styles\AnalogClock.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\Animations.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\AudioSpectrumAnalyzer.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\BusyCursor.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\CurrentlyPlayingStyles.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\EditMenuStyles.xaml" />
     <Content Include="Skin\Nereus\themes\default\styles\OSD.xaml" />
     <Content Include="Skin\Nereus\themes\default\styles\Graphics.xaml" />
-    <Content Include="Skin\Nereus\screens\master_bare.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\Nereus\themes\default\styles\HomeContentStyles.xaml" />
     <Content Include="Skin\Nereus\themes\default\styles\MediaStyles.xaml" />
     <Content Include="Skin\Nereus\themes\default\styles\MediaConsts.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\SystemStateStyles.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle_de.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle_fr.xaml" />
     <Content Include="Skin\Nereus\screens\master_menu.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="build.targets" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\..\..\Incubator\HomeEditor\HomeEditor.csproj">
-      <Project>{8a94cde9-eda2-4dd7-b860-0421e578055c}</Project>
-      <Name>HomeEditor</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\..\Incubator\SkinSettings\SkinSettings.csproj">
-      <Project>{61c5a548-5b9b-4750-b98b-8161ec95dead}</Project>
-      <Name>SkinSettings</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
-      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
-      <Name>MediaPortal.Common</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj">
-      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
-      <Name>MediaPortal.UI</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\FanArt\FanArtService.Client\FanArtService.Client.csproj">
-      <Project>{CDA7272F-E218-42A0-A53A-2D44E4015FF7}</Project>
-      <Name>FanArtService.Client</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj">
-      <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
-      <Name>SkinEngine</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\UiComponents\Media\Media.csproj">
-      <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
-      <Name>Media</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj">
-      <Project>{4EFED5BE-2F6A-4944-BB96-053D5945BA1F}</Project>
-      <Name>SkinBase</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\master_dialog_bare.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\master_mediamenu.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SimpleShowItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SimpleFilterItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\backgrounds\video-background.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\configuration-section.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\superlayers\Volume.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\FullScreenContentVideo.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\BusyCursor.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\superlayers\SkipStepOSD.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\backgrounds\image-background.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\backgrounds\default-background.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\shares_config_choose_system.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\shares_config_remove_shares.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\dialogSystemState.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\SystemStateStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\Animations.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\DialogVirtualKeyboard.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\CurrentlyPlayingVideo.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\master_bare_info.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SimpleSearch.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\FullscreenContentImage.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <ProjectReference Include="..\..\..\..\Incubator\HomeEditor\HomeEditor.csproj" />
+    <ProjectReference Include="..\..\..\..\Incubator\SkinSettings\SkinSettings.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <ProjectReference Include="..\..\FanArt\FanArtService.Client\FanArtService.Client.csproj" />
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\..\UiComponents\Media\Media.csproj" />
+    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SharpDX">
       <Version>4.0.1</Version>
     </PackageReference>
+    <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Nereus\screens\CurrentlyPlayingAudio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Compile Remove="Settings\Configuration\FanartOverlayOpacityConfiguration.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Nereus\screens\FullScreenContentAudio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Page Remove="Skin\Nereus\backgrounds\default-background.xaml" />
+    <Page Remove="Skin\Nereus\backgrounds\image-background.xaml" />
+    <Page Remove="Skin\Nereus\backgrounds\video-background.xaml" />
+    <Page Remove="Skin\Nereus\screens\configuration-section.xaml" />
+    <Page Remove="Skin\Nereus\screens\CurrentlyPlayingAudio.xaml" />
+    <Page Remove="Skin\Nereus\screens\CurrentlyPlayingVideo.xaml" />
+    <Page Remove="Skin\Nereus\screens\DialogAddMenuItem.xaml" />
+    <Page Remove="Skin\Nereus\screens\DialogEditMenu.xaml" />
+    <Page Remove="Skin\Nereus\screens\dialogSystemState.xaml" />
+    <Page Remove="Skin\Nereus\screens\dialogSystemStateConfiguration.xaml" />
+    <Page Remove="Skin\Nereus\screens\DialogVirtualKeyboard.xaml" />
+    <Page Remove="Skin\Nereus\screens\FullScreenContentAudio.xaml" />
+    <Page Remove="Skin\Nereus\screens\FullscreenContentDVD.xaml" />
+    <Page Remove="Skin\Nereus\screens\FullscreenContentImage.xaml" />
+    <Page Remove="Skin\Nereus\screens\FullScreenContentVideo.xaml" />
+    <Page Remove="Skin\Nereus\screens\master_bare.xaml" />
+    <Page Remove="Skin\Nereus\screens\master_bare_info.xaml" />
+    <Page Remove="Skin\Nereus\screens\master_bare_media.xaml" />
+    <Page Remove="Skin\Nereus\screens\master_configuration_menu.xaml" />
+    <Page Remove="Skin\Nereus\screens\master_dialog_bare.xaml" />
+    <Page Remove="Skin\Nereus\screens\master_mediamenu.xaml" />
+    <Page Remove="Skin\Nereus\screens\master_nomenu.xaml" />
+    <Page Remove="Skin\Nereus\screens\MediaInfoAudio.xaml" />
+    <Page Remove="Skin\Nereus\screens\MediaInfoImage.xaml" />
+    <Page Remove="Skin\Nereus\screens\MediaInfoVideo.xaml" />
+    <Page Remove="Skin\Nereus\screens\SharesOverview.xaml" />
+    <Page Remove="Skin\Nereus\screens\shares_config_choose_path.xaml" />
+    <Page Remove="Skin\Nereus\screens\shares_config_choose_system.xaml" />
+    <Page Remove="Skin\Nereus\screens\shares_config_overview.xaml" />
+    <Page Remove="Skin\Nereus\screens\shares_config_remove_shares.xaml" />
+    <Page Remove="Skin\Nereus\screens\ShowHomeServer.xaml" />
+    <Page Remove="Skin\Nereus\screens\SimpleFilterItems.xaml" />
+    <Page Remove="Skin\Nereus\screens\SimpleSearch.xaml" />
+    <Page Remove="Skin\Nereus\screens\SimpleShowItems.xaml" />
+    <Page Remove="Skin\Nereus\superlayers\BusyCursor.xaml" />
+    <Page Remove="Skin\Nereus\superlayers\SkipStepOSD.xaml" />
+    <Page Remove="Skin\Nereus\superlayers\Volume.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\Animations.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\AudioSpectrumAnalyzer.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\BusyCursor.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\CurrentlyPlayingStyles.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\EditMenuStyles.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\HomeContentStyles.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\SystemStateStyles.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle_de.xaml" />
+    <Page Remove="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle_fr.xaml" />
   </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\AudioSpectrumAnalyzer.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\CurrentlyPlayingStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\HomeContentStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\master_configuration_menu.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\FullscreenContentDVD.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\master_bare_media.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\master_nomenu.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\ShowHomeServer.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\shares_config_overview.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\SharesOverview.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle_de.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle_fr.xaml">
-      <SubType>Designer</SubType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\DialogEditMenu.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\EditMenuStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\DialogAddMenuItem.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\dialogSystemStateConfiguration.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\shares_config_choose_path.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\MediaInfoVideo.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\MediaInfoAudio.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\MediaInfoImage.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\superlayers\BusyCursor.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <Import Project="build.targets" />
 </Project>
