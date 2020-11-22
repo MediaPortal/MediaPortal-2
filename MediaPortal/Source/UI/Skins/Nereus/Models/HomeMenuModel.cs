@@ -126,7 +126,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
       // Home content for displaying a list of all other plugins
       _homeContent.Add(OtherPluginsAction.ACTION_ID, new OtherPluginsHomeContent(_otherMenuItems));
-      
+
       SubscribeToMessages();
     }
 
@@ -262,7 +262,24 @@ namespace MediaPortal.UiComponents.Nereus.Models
     {
       ListItem item = e.FirstAddedItem as ListItem;
       if (item != null)
+      {
         SelectedItem = item;
+        SaveLastSelectedAction(item);
+      }
+    }
+
+    private void SaveLastSelectedAction(ListItem item)
+    {
+      var action = GetAction(item);
+      if (action != null)
+      {
+        // Get the updated action ids and update the settings, we'll update
+        // the menu automatically when we get the settings changed event.
+        var sm = ServiceRegistration.Get<ISettingsManager>();
+        var settings = sm.Load<NereusSkinSettings>();
+        settings.LastSelectedHomeMenuActionId = action.ActionId.ToString();
+        sm.Save(settings);
+      }
     }
 
     public void SetSelectedHomeTile(object item)
@@ -380,7 +397,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       {
         if (!_isAttachedToMenuItems)
           return;
-        if(_allHomeMenuItems != null)
+        if (_allHomeMenuItems != null)
           _allHomeMenuItems.ObjectChanged -= OnHomeMenuItemsChanged;
         _isAttachedToMenuItems = false;
       }
@@ -399,7 +416,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       // Get the action ids that will be visible in the main menu.
       // All other actions will be placed under 'Other'.
       var actionIds = _currentActionIdSettings = new List<Guid>(_settingsWatcher.Settings.HomeMenuActionIds);
-      
+
       // The list items should be in the same order as the settings, so sort by settings index
       SortedList<int, ListItem> sortedMainItems = new SortedList<int, ListItem>();
 
@@ -417,10 +434,10 @@ namespace MediaPortal.UiComponents.Nereus.Models
             changedOtherItems.Add(item);
         }
       }
-      
+
       // Get the sorted main items into a regular list
       List<ListItem> changedMainItems = new List<ListItem>(sortedMainItems.Values);
-      
+
       // We need to create the other plugins menu item if necessary and
       // add it to the changed main items manually to ensure that the
       // current and changed items are compared correctly.
@@ -441,13 +458,34 @@ namespace MediaPortal.UiComponents.Nereus.Models
       if (RebuildMenuItemsIfNotEqual(_mainMenuItems, changedMainItems))
       {
         // The list has been rebuilt, try and set focus on the previously selected action
-        WorkflowAction previousSelectedAction = previousSelectedItem != null ? GetAction(previousSelectedItem) : null;
+        WorkflowAction previousSelectedAction = null;
+        if (previousSelectedItem == null)
+        {
+          if (!string.IsNullOrEmpty(_settingsWatcher.Settings.LastSelectedHomeMenuActionId))
+            previousSelectedItem = FindListItemByActionId(_settingsWatcher.Settings.LastSelectedHomeMenuActionId);
+        }
+        if (previousSelectedItem != null)
+          previousSelectedAction = GetAction(previousSelectedItem);
         TryRestoreSelectedAction(previousSelectedAction, changedMainItems);
         _mainMenuItems.FireChange();
       }
 
       if (RebuildMenuItemsIfNotEqual(_otherMenuItems, changedOtherItems))
         _otherMenuItems.FireChange();
+    }
+
+    private ListItem FindListItemByActionId(string lastSelectedHomeMenuActionIdString)
+    {
+      Guid lastSelectedHomeMenuActionId;
+      if (!Guid.TryParse(lastSelectedHomeMenuActionIdString, out lastSelectedHomeMenuActionId))
+        return null;
+      foreach (ListItem mainMenuItem in _mainMenuItems)
+      {
+        var action = GetAction(mainMenuItem);
+        if (action?.ActionId == lastSelectedHomeMenuActionId)
+          return mainMenuItem;
+      }
+      return null;
     }
 
     protected bool RebuildMenuItemsIfNotEqual(ItemsList current, IList<ListItem> updated)
@@ -457,7 +495,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
         // Actions are equal so no need to rebuild
         if (ActionIdsAreEqual(current, updated))
           return false;
-        
+
         current.Clear();
         CollectionUtils.AddAll(current, updated);
         return true;
@@ -535,7 +573,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected void UpdateSelectedFanArtItem(ListItem item)
     {
       //if (item == null)
-        //return;
+      //return;
       var fm = GetFanArtBackgroundModel();
       fm.SelectedItem = item;
     }
