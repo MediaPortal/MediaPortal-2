@@ -40,7 +40,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
     public const string DefaultLanguage = "US";
 
     private const string URL_API_BASE = "musicbrainz.org/ws/2/";
-    private const string URL_API_MIRROR = "musicbrainz-mirror.eu:5000/ws/2/";
     private const string URL_FANART_API_BASE = "coverartarchive.org/";
 
     private const string URL_GETRECORDING = "recording/{0}?inc=artist-credits+discids+artist-rels+releases+tags+ratings+isrcs&fmt=json";
@@ -85,7 +84,6 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2
         _downloader.Mirrors.Add("https://" + URL_API_BASE);
       else
         _downloader.Mirrors.Add("http://" + URL_API_BASE);
-      _downloader.Mirrors.Add("http://" + URL_API_MIRROR);
     }
 
     #endregion
