@@ -398,8 +398,6 @@ namespace MediaPortal.UiComponents.Weather.Models
     {
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       userManagement.NotifyUsage("weather", "main").Wait();
-
-      var stats = userManagement.UserProfileDataManagement.GetFeatureUsageStatisticsAsync(userManagement.CurrentUser.ProfileId, "weather").Result;
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
