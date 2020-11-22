@@ -30,7 +30,6 @@
     <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="Fonts\FreeType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\FreeImage.dll" />

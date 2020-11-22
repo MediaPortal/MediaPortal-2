@@ -30,7 +30,9 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
+#if !NET5_0
 using FreeImageAPI;
+#endif
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
@@ -66,7 +68,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     protected float _maxU;
     protected int _allocationSize = 0;
 
-    #region Public properties & events
+#region Public properties & events
 
     public Texture Texture
     {
@@ -97,7 +99,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       get { return _maxV; }
     }
 
-    #endregion
+#endregion
 
     protected void AllocateFromStream_NoLock(Stream stream)
     {
@@ -131,8 +133,12 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       // GDI decoding was measured to be faster in nearly all cases. WIC based was faster, but was missing rotation support and had other dependencies (WPF or SharpDX.WIC).
       // FreeImage decoding is kept in place as fallback to support image formats which are not handled by GDI.
       Texture texture = 
-        AllocateFromImageStream_GDI(dataStream, ref info) ??
-        AllocateFromImageStream_FreeImage(dataStream, ref info);
+        AllocateFromImageStream_GDI(dataStream, ref info)
+#if NET5_0
+       ;
+#else
+        ?? AllocateFromImageStream_FreeImage(dataStream, ref info);
+#endif
       return texture;
     }
 
@@ -182,6 +188,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return texture;
     }
 
+#if !NET5_0
     protected Texture AllocateFromImageStream_FreeImage(Stream dataStream, ref ImageInformation info)
     {
       Texture texture = null;
@@ -259,6 +266,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       FreeImage.UnloadEx(ref fullsizeImage);
       return rescaled;
     }
+#endif
 
     protected virtual void FinalizeAllocation(Texture texture, int fileWidth, int fileHeight)
     {
@@ -284,7 +292,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       }
     }
 
-    #region IAssetCore implementation
+#region IAssetCore implementation
 
     public event AssetAllocationHandler AllocationChanged;
 
@@ -319,7 +327,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       }
     }
 
-    #endregion
+#endregion
 
     protected void FireAllocationChanged(int allocation)
     {
@@ -331,7 +339,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
   public class TextureAssetCore : BaseTextureAssetCore
   {
-    #region Consts / Enums
+#region Consts / Enums
 
     protected enum State
     {
@@ -347,9 +355,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     private const int ASYNCHRONOUS_TIMEOUT_MS = 1000 * 60 * 2;
 
-    #endregion
+#endregion
 
-    #region Internal classes
+#region Internal classes
 
     public abstract class AsyncLoadOperation : IDisposable
     {
@@ -551,9 +559,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       }
     }
 
-    #endregion
+#endregion
 
-    #region Protected fields
+#region Protected fields
 
     protected readonly string _textureName;
     protected bool _useThumbnail = true;
@@ -562,9 +570,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     protected AsyncLoadOperation _asyncLoadOperation;
 
-    #endregion
+#endregion
 
-    #region Ctor
+#region Ctor
 
     /// <summary>
     /// Initializes a new instance of the <see cref="TextureAsset"/> class.
@@ -591,9 +599,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       _decodeHeight = decodeHeight;
     }
 
-    #endregion
+#endregion
 
-    #region Public properties & events
+#region Public properties & events
 
     public bool UseThumbnail
     {
@@ -621,9 +629,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       get { return CheckState(State.Failed); }
     }
 
-    #endregion
+#endregion
 
-    #region Public methods
+#region Public methods
 
     /// <summary>
     /// Loads the specified texture from the source file or URI.
@@ -651,9 +659,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           _state = State.None;
     }
 
-    #endregion
+#endregion
 
-    #region Protected allocation helpers
+#region Protected allocation helpers
 
     /// <summary>
     /// Loads the specified texture from the file or from the URI.
@@ -792,9 +800,9 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       _asyncLoadOperation = new AsyncWebLoadOperation(uri, AsyncOperationComplete);
     }
 
-    #endregion
+#endregion
 
-    #region Asynchronous callbacks
+#region Asynchronous callbacks
 
     protected void AsyncOperationComplete(AsyncLoadOperation operation)
     {
@@ -823,7 +831,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           _state = State.Failed;
     }
 
-    #endregion
+#endregion
 
     public override void Free()
     {
