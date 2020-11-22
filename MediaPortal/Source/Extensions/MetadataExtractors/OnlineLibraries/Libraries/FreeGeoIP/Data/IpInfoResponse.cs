@@ -56,14 +56,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data
 
     public CivicAddress ToCivicAddress()
     {
-      CivicAddress address = new CivicAddress
-      {
-        CountryRegion = Country,
-        StateProvince = Region,
-        City = City,
-        PostalCode = Postal
-      };
-
+      CivicAddress address = new CivicAddress(null, null, null, City, Country, null, Postal, Region);
       return address;
     }
 

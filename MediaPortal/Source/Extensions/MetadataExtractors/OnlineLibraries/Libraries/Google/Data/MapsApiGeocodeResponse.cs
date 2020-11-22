@@ -86,17 +86,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Google.Data
 
     public CivicAddress ToCivicAddress()
     {
-      CivicAddress result = new CivicAddress();
       var city = GetAddressComponent("locality");
-      if (city != null)
-        result.City = city.LongName;
       var state = GetAddressComponent("administrative_area_level_1");
-      if (state != null)
-        result.StateProvince = state.LongName;
       var country = GetAddressComponent("country");
-      if (country != null)
-        result.CountryRegion = country.LongName;
-      return result;
+      CivicAddress address = new CivicAddress(null, null, null, city?.LongName, country?.LongName, null, null, state?.LongName);
+      return address;
     }
 
     #endregion Public methods

@@ -32,28 +32,29 @@ using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
 {
+#if !NET5_0
   /// <summary>
   /// Uses Microsofts GeoCoordinateWatcher to resolve the location of the device and lookup the address of the specified coordinates.
   /// </summary>
   public class GPSLookup : ICoordinateResolver, IAddressResolver, IDisposable
   {
-    #region Private variables
+#region Private variables
 
     private CivicAddress _address;
     private GeoCoordinate _coordinates;
     private GeoCoordinateWatcher _gps = new GeoCoordinateWatcher(GeoPositionAccuracy.High);
 
-    #endregion Private variables
+#endregion Private variables
 
-    #region Ctor
+#region Ctor
 
     public GPSLookup()
     {
     }
 
-    #endregion Ctor
+#endregion Ctor
 
-    #region Private methods
+#region Private methods
 
     private void DisposeGPS()
     {
@@ -109,9 +110,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
       }
     }
 
-    #endregion Private methods
+#endregion Private methods
 
-    #region IAddressResolver implementation
+#region IAddressResolver implementation
 
     /// <summary>
     /// Retrieve the Address based on the coordinates given.
@@ -129,9 +130,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
       return null;
     }
 
-    #endregion IAddressResolver implementation
+#endregion IAddressResolver implementation
 
-    #region ICoordinateResolver implementation
+#region ICoordinateResolver implementation
 
     /// <summary>
     /// Lookup the coordinates of the current device.
@@ -148,15 +149,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
       return null;
     }
 
-    #endregion ICoordinateResolver implementation
+#endregion ICoordinateResolver implementation
 
-    #region IDisposable implementation
+#region IDisposable implementation
 
     public void Dispose()
     {
       DisposeGPS();
     }
 
-    #endregion IDisposable implementation
+#endregion IDisposable implementation
   }
+#endif
 }
