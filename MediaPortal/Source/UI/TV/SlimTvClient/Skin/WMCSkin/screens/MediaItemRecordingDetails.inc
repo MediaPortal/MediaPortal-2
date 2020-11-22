@@ -106,13 +106,15 @@
            HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"/>
     <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:EpisodeAspectWrapper>
+      <media:EpisodeAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="Episode" Margin="10,0,10,0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
-                 TextTrimming="WordEllipsis" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                 Content="{Binding Episode}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" />
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Label x:Name="Episode" Margin="10,0,10,0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"
+                   TextTrimming="WordEllipsis" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                   Content="{Binding Episode}" Opacity="1.3" Color="{ThemeResource MenuTextBackground}" />
+          </Grid>
         </ControlTemplate>
-      </media:EpisodeAspectWrapper>
+      </media:EpisodeAspectWrapper.Template>
     </media:EpisodeAspectWrapper>
   </Grid>
    

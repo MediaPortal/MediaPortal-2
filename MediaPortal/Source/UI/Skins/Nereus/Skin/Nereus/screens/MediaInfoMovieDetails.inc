@@ -67,11 +67,27 @@
   <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" Grid.Row="1">
     <media:VideoAspectWrapper.Template>
       <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Label x:Name="StoryPlot" Wrap="True" Margin="0,40,10,20" TextTrimming="WordEllipsis" Color="{ThemeResource MenuTextBackground}"
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Height="370"
-                 Content="{Binding StoryPlot}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
-        </Grid>
+        <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Disabled" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      Focusable="True" Margin="0,10,10,0" Height="380" Width="460">
+           <ScrollViewer.Triggers>
+             <Trigger Property="HasFocus" Value="True">
+               <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+               <Setter Property="Opacity" Value="1"/>
+             </Trigger>
+             <Trigger Property="HasFocus" Value="False">
+               <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+               <Setter Property="Opacity" Value="0.7"/>
+              </Trigger>
+              </ScrollViewer.Triggers>
+              <ScrollViewer.Resources>
+                  <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+                    <TranslateTransform X="0" />
+                  </ResourceWrapper>
+              </ScrollViewer.Resources>
+            <Label x:Name="StoryPlot" Wrap="True" Color="White"
+                   FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Content="{Binding StoryPlot}"/>
+         </ScrollViewer>
       </ControlTemplate>
     </media:VideoAspectWrapper.Template>
   </media:VideoAspectWrapper>

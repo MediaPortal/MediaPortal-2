@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -132,8 +133,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (MediaItemAspect.TryGetAspect(aspects, AudioAspect.Metadata, out var audioAspect))
       {
         var list = audioAspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS);
-        albumArtist = list.FirstOrDefault();
+        albumArtist = list?.FirstOrDefault();
       }
+
+      if (albumArtist == null)
+        return false;
 
       IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       if (!await TryExtractAlbumArtistMetadataAsync(mediaItemAccessor, albumArtist, nfoLinkedAspects).ConfigureAwait(false))
@@ -187,7 +191,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
 
       IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(AudioAspect.ATTR_ALBUMARTISTS);
-      List<string> nameList = new List<string>(persons);
+      List<string> nameList = new SafeList<string>(persons);
 
       index = nameList.IndexOf(name);
       return index >= 0;

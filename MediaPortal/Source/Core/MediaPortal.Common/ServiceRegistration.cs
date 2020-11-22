@@ -60,7 +60,7 @@ namespace MediaPortal.Common
     /// <summary>
     /// Holds the dictionary of services.
     /// </summary>
-    private readonly IDictionary<Type, object> _services = new ConcurrentDictionary<Type, object>();
+    private readonly ConcurrentDictionary<Type, object> _services = new ConcurrentDictionary<Type, object>();
     private static IItemRegistrationChangeListener _servicesRegistrationChangeListener;
 
     /// <summary>
@@ -169,7 +169,7 @@ namespace MediaPortal.Common
 
     private void RemoveService(Type type)
     {
-      _services.Remove(type);
+      _services.TryRemove(type, out _);
     }
 
     private void RemoveAndDispose(Type type)
@@ -235,7 +235,7 @@ namespace MediaPortal.Common
           }
           if (_services.ContainsKey(item.RegistrationType))
             throw new EnvironmentException("ServiceRegistration: A Service with registration type '{0}' is already registered", item.RegistrationType);
-          _services.Add(item.RegistrationType, item.ServiceInstance);
+          _services.TryAdd(item.RegistrationType, item.ServiceInstance);
           _pluginServices.Add(item.RegistrationType);
         }
         catch (PluginInvalidStateException e)
@@ -247,11 +247,18 @@ namespace MediaPortal.Common
 
     private object GetService(Type type, bool throwIfNotFound)
     {
-      object service;
-      if (_services.TryGetValue(type, out service))
+      if (_services.TryGetValue(type, out object service))
         return service;
+
       if (throwIfNotFound)
-        throw new ServiceNotFoundException(type);
+      {
+        if (!_isShuttingDown)
+          throw new ServiceNotFoundException(type);
+
+        // During shutdown logging may no longer be available which could cause an unhandled exception
+        // If this happens, return null so we will have a smaller stack to trace that is closer to the source
+      }
+
       return null;
     }
 

@@ -46,11 +46,6 @@
     <SkinSettings Id="CC3C2ED3-027A-47EE-A12D-652D79D02676" Name="Nereus" ClassName="MediaPortal.UiComponents.Nereus.Settings.NereusSkinSettings"/>
   </Register>
 
-  <!--Register support for the home editor to ensure its configuration is visible in this skin-->
-  <!--Register Location="/HomeEditor">
-    <HomeEditorRegistration Id="4D0738C3-84BA-4DBC-904D-9951911403C0" SkinName="WMCSkin"/>
-  </Register-->
-
   <Register Location="/Workflow/ViewModes">
     <!-- News list -->
     <WorkflowStateViewModes Skin="Nereus" Id="{84B535A3-4E7E-4560-8FCC-6C542C80DE51}" StateId="7A8AB062-07E9-4727-B9C5-05A65CDD6F12" ViewModes="ListLayout,GridLayout"/>
@@ -101,12 +96,18 @@
         Text="[Nereus.Configuration.EnableFanart]"
         HelpText="[Nereus.Configuration.EnableFanart.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
-    
+
     <ConfigSetting
         Id="NereusFanartOverlayOpacity"
         Text="[Nereus.Configuration.FanartOverlayOpacity]"
         HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableLoopScrolling"
+        Text="[Nereus.Configuration.EnableLoopScrolling]"
+        HelpText="[Nereus.Configuration.EnableLoopScrolling.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableLoopScrollingConfiguration"/>
     
     <ConfigSetting
         Id="NereusEnableWatchedFlags"
@@ -137,12 +138,6 @@
         Text="[Nereus.Configuration.SeasonGridViewType]"
         HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
-
-    <ConfigSetting
-        Id="NereusEnableHomeContent"
-        Text="[Nereus.Configuration.EnableHomeContent]"
-        HelpText="[Nereus.Configuration.EnableHomeContent.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHomeContentConfiguration"/>
 
     <ConfigSetting
         Id="NereusEnableMediaItemDetailsView"

@@ -4,6 +4,8 @@
   <string name="Nereus.Configuration.EnableHelpTexts.Help">Whether to display help texts for menues on the home screen.</string>
   <string name="Nereus.Configuration.EnableFanart">Enable Fanart</string>
   <string name="Nereus.Configuration.EnableFanart.Help">Whether to display background fanart.</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling">Enable loop scrolling</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling.Help">Whether to use loop scrolling in media lists.</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity">Fanart Visibility</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Adjust the opacity of the background fanart overlay. A lower value increases the visibility of fanart (default is 1.0).</string>
   <string name="Nereus.Configuration.EnableWatchedFlags">Enable Watched Flags</string>
@@ -22,8 +24,6 @@
   <string name="Nereus.Configuration.GridViewType.Poster">Posters</string>
   <string name="Nereus.Configuration.GridViewType.Banner">Banners</string>
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Thumbnails</string>
-  <string name="Nereus.Configuration.EnableHomeContent">Enable Home Content</string>
-  <string name="Nereus.Configuration.EnableHomeContent.Help">Whether to enable to show Home Content on the home screen.</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Enable Media Item Details View</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Whether to show media item details instead of playing media item directly.</string>
 

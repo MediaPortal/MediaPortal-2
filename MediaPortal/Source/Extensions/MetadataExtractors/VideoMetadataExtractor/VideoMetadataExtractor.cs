@@ -128,6 +128,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
           MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
                 MediaAspect.Metadata,
+                VideoAspect.Metadata,
                 VideoStreamAspect.Metadata,
                 VideoAudioStreamAspect.Metadata,
                 SubtitleAspect.Metadata,

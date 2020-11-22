@@ -714,6 +714,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (recStatus.HasValue)
           AddRecordingOptions(_dialogActionsList, program, recStatus.Value);
       }
+      else
+        // There can be actions that don't depend on a program
+        AddRecordingOptions(_dialogActionsList, null, RecordingStatus.None);
+
       _dialogActionsList.FireChange();
       return true;
     }

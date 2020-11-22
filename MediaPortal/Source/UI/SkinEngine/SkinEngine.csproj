@@ -30,6 +30,7 @@
     <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Fonts\FreeType.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="Resources\FreeImage.dll" />
@@ -61,17 +62,14 @@
     <PackageReference Include="MediaPortal.FreeImageNET">
       <Version>3.18.3</Version>
     </PackageReference>
+    <PackageReference Include="MediaPortal.FreeType">
+      <Version>2.10.1</Version>
+    </PackageReference>
     <PackageReference Include="SharpDX.Direct3D9">
       <Version>4.0.1</Version>
     </PackageReference>
     <PackageReference Include="SharpDX.Mathematics">
       <Version>4.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="SharpFont">
-      <Version>4.0.1</Version>
-    </PackageReference>
-    <PackageReference Include="SharpFont.Dependencies" GeneratePathProperty="true">
-      <Version>2.6.0</Version>
     </PackageReference>
   </ItemGroup>
 </Project>

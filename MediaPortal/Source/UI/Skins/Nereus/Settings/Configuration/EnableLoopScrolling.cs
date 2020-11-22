@@ -32,9 +32,9 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
 {
-  public class FanartOverlayOpacityConfiguration : LimitedNumberSelect, IDisposable
+  public class EnableLoopScrollingConfiguration : YesNo, IDisposable
   {
-    public FanartOverlayOpacityConfiguration()
+    public EnableLoopScrollingConfiguration()
     {
       SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
@@ -42,18 +42,14 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
     public override void Load()
     {
       base.Load();
-      _lowerLimit = 0.7;
-      _upperLimit = 1.1;
-      _step = 0.1;
-      _type = NumberType.FloatingPoint;
-      _value = SettingsManager.Load<NereusSkinSettings>().FanartOverlayOpacity;
+      _yes = SettingsManager.Load<NereusSkinSettings>().EnableLoopScrolling;
     }
 
     public override void Save()
     {
       base.Save();
       var settings = SettingsManager.Load<NereusSkinSettings>();
-      settings.FanartOverlayOpacity = _value;
+      settings.EnableLoopScrolling = _yes;
       SettingsManager.Save(settings);
     }
 

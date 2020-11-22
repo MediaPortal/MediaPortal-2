@@ -40,6 +40,7 @@ using MediaPortal.UI.Presentation.Workflow;
 #if !DEBUG
 using System.Drawing;
 using System.IO;
+using System.Text.RegularExpressions;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Settings;
@@ -105,7 +106,21 @@ namespace MediaPortal.Client
         }
       }
 
-      Version version = Assembly.GetEntryAssembly().GetName().Version;
+      Assembly assembly = Assembly.GetEntryAssembly();
+      Version version = assembly.GetName().Version;
+      // Default Major.Minor
+      string parsedVersion = $"{version.Major}.{version.Minor}";
+
+      // Try to get revision from Version attribute (git branch or tag name)
+      var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+      if (versionAttribute != null)
+      {
+        Regex reVersion = new Regex("\\d(\\.\\d)+");
+        Match versionMatch = reVersion.Match(versionAttribute.InformationalVersion);
+        if (versionMatch.Success) 
+          parsedVersion = versionMatch.Value;
+      }
+
       SplashScreen result = new SplashScreen
           {
             StartupScreen = startupSettings.StartupScreenNum,
@@ -114,7 +129,7 @@ namespace MediaPortal.Client
             FadeOutDuration = TimeSpan.FromMilliseconds(200),
             SplashBackgroundImage = image,
             UsePictureBox = true,
-            InfoText = $"Version {version.Major}.{version.Minor}"
+            InfoText = "Version " + parsedVersion
           };
       return result;
     }

@@ -57,7 +57,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
     {
       var check = CheckUserRestrictions();
       if (!check.ApplyUserRestrictions)
-        return null;
+        return filter;
 
       return GetUserRestrictionFilter(necessaryMias, check.UserProfile, filter);
     }
@@ -66,7 +66,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
     {
       var check = CheckUserRestrictions();
       if (!check.ApplyUserRestrictions)
-        return null;
+        return filter;
 
       var userFilter = userProfile.GetUserFilter(necessaryMias);
       if (userFilter != null && filter != null)
