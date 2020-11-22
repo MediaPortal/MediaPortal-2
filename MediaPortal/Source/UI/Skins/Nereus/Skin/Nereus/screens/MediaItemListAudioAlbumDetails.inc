@@ -71,7 +71,7 @@
                    IsVisible="{Binding Path=Album,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
             <Label Content="{Binding Path=Artists}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
-                   TextTrimming="WordEllipsis" Wrap="True" IsVisible="{Binding Path=Artists,Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                   TextTrimming="WordEllipsis" Wrap="True" IsVisible="{Binding Path=Artists,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,3,0,3"
                         IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
