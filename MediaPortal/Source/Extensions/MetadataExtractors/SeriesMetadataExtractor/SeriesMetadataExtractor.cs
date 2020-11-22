@@ -271,13 +271,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         EpisodeInfo tempInfo = episodeInfo.Clone();
-        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(tempInfo, _category).ConfigureAwait(false);
-        episodeInfo.CopyIdsFrom(tempInfo);
-        episodeInfo.HasChanged = tempInfo.HasChanged;
+        if (await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(tempInfo, _category).ConfigureAwait(false))
+        {
+          episodeInfo.CopyIdsFrom(tempInfo);
+          episodeInfo.HasChanged = tempInfo.HasChanged;
+        }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Unable to get online ids for resource '{0}'", lfsra.CanonicalLocalResourcePath);
+        }
       }
       else if (!SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, _category).ConfigureAwait(false);
+        var success = await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, _category).ConfigureAwait(false);
+        if (!success)
+          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Unable to get online data for resource '{0}'", lfsra.CanonicalLocalResourcePath);
       }
 
       if (episodeInfo.EpisodeName.IsEmpty)

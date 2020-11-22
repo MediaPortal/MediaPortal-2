@@ -257,8 +257,29 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
           //}
         }
 
-        if(!SkipOnlineSearches && !forceQuickMode)
-          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
+        if (!forceQuickMode)
+        {
+          if (SkipOnlineSearches && !SkipFanArtDownload)
+          {
+            TrackInfo tempInfo = trackInfo.Clone();
+            var success = await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo, _category).ConfigureAwait(false);
+            if (success)
+            {
+              trackInfo.CopyIdsFrom(tempInfo);
+              trackInfo.HasChanged = tempInfo.HasChanged;
+            }
+            else
+            {
+              ServiceRegistration.Get<ILogger>().Debug("BassAudioMetadataExtractor: Unable to get online ids for audio file '{0}'", fsra.CanonicalLocalResourcePath);
+            }
+          }
+          else if (!SkipOnlineSearches)
+          {
+            var success = await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
+            if (!success)
+              ServiceRegistration.Get<ILogger>().Debug("BassAudioMetadataExtractor: Unable to get online data for audio file '{0}'", fsra.CanonicalLocalResourcePath);
+          }
+        }
 
         if (!trackInfo.HasChanged)
           return false;

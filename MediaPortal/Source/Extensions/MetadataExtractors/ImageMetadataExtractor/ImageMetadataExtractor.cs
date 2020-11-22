@@ -275,6 +275,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.CountryRegion);
               updated = true;
             }
+            else
+            {
+              ServiceRegistration.Get<ILogger>().Debug("ImageMetadataExtractor: Failed to get online Geo-location data for resource '{0}')", mediaItemAccessor.CanonicalLocalResourcePath);
+            }
           }
 
           byte[] thumbData;
