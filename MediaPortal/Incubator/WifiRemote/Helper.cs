@@ -631,7 +631,7 @@ namespace MediaPortal.Plugins.WifiRemote
     {
       bool useIPv4 = true;
       bool useIPv6 = false;
-      ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+      Common.Services.ResourceAccess.Settings.ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<Common.Services.ResourceAccess.Settings.ServerSettings>();
       if (settings.UseIPv4) useIPv4 = true;
       if (settings.UseIPv6) useIPv6 = true;
 

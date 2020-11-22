@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
-<OutputType>WinExe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AssemblyName>MP2-ClientLauncher</AssemblyName>
     <ApplicationIcon>MP2.ico</ApplicationIcon>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Source\</SolutionDir>
