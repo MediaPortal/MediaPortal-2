@@ -45,8 +45,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MediaPortal.FreeImageNET">
-      <Version>3.18.3</Version>
-    </PackageReference>
+    <PackageReference Include="FreeImage-dotnet-core" Version="4.3.6" />
   </ItemGroup>
 </Project>

@@ -216,10 +216,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
       FIBITMAP dib = new FIBITMAP();
       try
       {
-        // Check if FreeImage is available
-        if (!FreeImage.IsAvailable())
-          throw new Exception("FreeImage is not available!");
-
         // Load the image from stream, try to read headers only, without decoding
         dib = FreeImage.LoadFromStream(mediaStream, (FREE_IMAGE_LOAD_FLAGS)FIF_LOAD_NOPIXELS);
         if (dib.IsNull)
