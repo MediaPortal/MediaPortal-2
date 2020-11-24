@@ -308,6 +308,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     //Method to change the AllowUnsafeHeaderParsing property of HttpWebRequest.
     private bool SetAllowUnsafeHeaderParsing(bool setState)
     {
+
+#if NET5_0
+      // TODO: Find NET 5 alternative
+      return false;
+#else
       try
       {
         lock (lockingObj)
@@ -361,8 +366,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
         Logger.Error("ScriptableScraperProvider: Unsafe header parsing setting change failed.", e);
         return false;
       }
+#endif
     }
-
     #endregion
   }
 }

@@ -1,21 +1,21 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)</AppDestination>
-  </PropertyGroup>
+  <Target Name="CopyToOutput" AfterTargets="Build">
 
-  <ItemGroup>
-    <References Include="$(TargetDir)log4net.dll"/>
-    <References Include="$(TargetDir)System.Threading.Tasks.Dataflow.dll"/>
-    <References Include="$(TargetDir)Owin.dll"/>
-    <References Include="$(TargetDir)Microsoft.Owin.dll"/>
-    <References Include="$(TargetDir)Microsoft.Owin.Diagnostics.dll"/>
-    <References Include="$(TargetDir)Microsoft.Owin.Host.HttpListener.dll"/>
-    <References Include="$(TargetDir)Newtonsoft.Json.dll"/>
-  </ItemGroup>
+    <PropertyGroup>
+      <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)</AppDestination>
+    </PropertyGroup>
 
-  <Target Name="AfterBuild">
+    <ItemGroup>
+      <References Include="$(TargetDir)log4net.dll"/>
+      <References Include="$(TargetDir)System.Threading.Tasks.Dataflow.dll"/>
+      <References Include="$(TargetDir)Owin.dll"/>
+      <References Include="$(TargetDir)Microsoft.Owin.dll"/>
+      <References Include="$(TargetDir)Microsoft.Owin.Diagnostics.dll"/>
+      <References Include="$(TargetDir)Microsoft.Owin.Host.HttpListener.dll"/>
+      <References Include="$(TargetDir)Newtonsoft.Json.dll"/>
+    </ItemGroup>
+
     <Copy SourceFiles="@(References)" DestinationFolder="$(AppDestination)" />
   </Target>
 

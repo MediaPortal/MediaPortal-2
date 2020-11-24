@@ -1,7 +1,6 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project Sdk="Microsoft.NET.Sdk">
 
-  <Target Name="AfterBuild">
+  <Target Name="CopyToOutput" AfterTargets="Build">
     <PropertyGroup>
       <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\</AppDestination>
     </PropertyGroup>
