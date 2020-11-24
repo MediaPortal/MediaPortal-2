@@ -19,9 +19,6 @@
     <NoWarn>CS0067</NoWarn>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.Web" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
@@ -46,6 +43,7 @@
     <PackageReference Include="MediaPortal.UrlSourceSplitter">
       <Version>2.2.10.5911</Version>
     </PackageReference>
+    <PackageReference Include="MimeMapping" Version="1.0.1.30" />
     <PackageReference Include="SharpDX">
       <Version>4.0.1</Version>
     </PackageReference>

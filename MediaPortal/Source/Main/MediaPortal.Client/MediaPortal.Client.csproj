@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net5.0-windows</TargetFramework>
-<OutputType>WinExe</OutputType>
+    <OutputType>WinExe</OutputType>
     <AssemblyName>MP2-Client</AssemblyName>
     <ApplicationIcon>MP2.ico</ApplicationIcon>
     <OldToolsVersion>3.5</OldToolsVersion>
