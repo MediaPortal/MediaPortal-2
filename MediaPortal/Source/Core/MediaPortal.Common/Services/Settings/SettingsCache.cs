@@ -125,6 +125,9 @@ namespace MediaPortal.Common.Services.Settings
     /// setting (any more).</returns>
     public object Get(Type type)
     {
+      if (type == null)
+        return null;
+
       SettingsObjectWrapper wrapper;
       lock (_syncObj)
         return _cache.TryGetValue(type, out wrapper) ? wrapper.SettingsObject : null;
@@ -157,6 +160,9 @@ namespace MediaPortal.Common.Services.Settings
     /// <param name="type">Type of the settings object to keep in the cache.</param>
     public void Use(Type type)
     {
+      if (type == null)
+        return;
+
       SettingsObjectWrapper wrapper;
       lock (_syncObj)
         if (_cache.TryGetValue(type, out wrapper))
