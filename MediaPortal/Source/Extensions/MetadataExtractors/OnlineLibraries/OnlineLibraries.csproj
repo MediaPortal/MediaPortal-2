@@ -55,4 +55,5 @@
     <Compile Remove="Matches\BaseMatcher.cs" />
     <Compile Remove="Wrappers\ApiWrapper.cs" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

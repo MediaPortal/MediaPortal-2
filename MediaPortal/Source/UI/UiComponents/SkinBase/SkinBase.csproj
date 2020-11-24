@@ -155,4 +155,5 @@
     <Content Include="Skin\default\screens\DialogPlayerChooseSubtitle.xaml" />
     <Content Include="Skin\default\themes\default\styles\VirtualKeyboardStyle_de.xaml" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

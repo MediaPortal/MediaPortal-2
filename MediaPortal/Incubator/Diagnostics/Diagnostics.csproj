@@ -53,13 +53,5 @@
     <Compile Remove="Service\MainWindow.xaml.cs" />
     <Compile Remove="Settings\PlugginSettingsContainer.cs" />
   </ItemGroup>
-  <PropertyGroup />
-  <PropertyGroup>
-    <PostBuildEvent>mkdir "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language"
-
-robocopy "$(ProjectDir)Language" "$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Language" /NP /XD 
-@REM Reset RoboCopy's exit code which is different from 0
-IF %25ERRORLEVEL%25 LSS 8 SET ERRORLEVEL=0
-</PostBuildEvent>
-  </PropertyGroup>
+  <Import Project="build.targets" />
 </Project>

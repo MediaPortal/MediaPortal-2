@@ -47,4 +47,5 @@
   <ItemGroup>
     <PackageReference Include="FreeImage-dotnet-core" Version="4.3.6" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

@@ -40,4 +40,5 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
     <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

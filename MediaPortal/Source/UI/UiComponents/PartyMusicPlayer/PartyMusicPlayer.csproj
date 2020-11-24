@@ -51,4 +51,5 @@
     <Content Include="Skin\default\themes\default\styles\PartyMusicPlayerStyles.xaml" />
     <Content Include="Skin\default\workflow\partymusic-actions.xml" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

@@ -69,4 +69,5 @@
     <Compile Remove="MediaManagement\MLQueries\CertificationAgeFilter.cs" />
     <Compile Remove="Services\MediaManagement\ImportDataflowBlocks\ChangeUnfoldBlock.cs" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

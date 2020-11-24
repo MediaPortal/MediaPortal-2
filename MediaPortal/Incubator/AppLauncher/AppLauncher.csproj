@@ -52,4 +52,5 @@
     <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
   </ItemGroup>
   <PropertyGroup />
+  <Import Project="build.targets" />
 </Project>

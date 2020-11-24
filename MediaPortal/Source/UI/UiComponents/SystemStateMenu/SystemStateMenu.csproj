@@ -65,4 +65,5 @@
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

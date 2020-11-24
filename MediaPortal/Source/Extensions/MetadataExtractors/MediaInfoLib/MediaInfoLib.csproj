@@ -31,4 +31,5 @@
       <Version>19.9.0</Version>
     </PackageReference>
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

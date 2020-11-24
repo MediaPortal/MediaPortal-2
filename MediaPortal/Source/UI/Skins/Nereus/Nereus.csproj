@@ -857,4 +857,5 @@
     <Page Remove="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle_de.xaml" />
     <Page Remove="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle_fr.xaml" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

@@ -44,4 +44,5 @@
       <Version>2.4.12.6</Version>
     </PackageReference>
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

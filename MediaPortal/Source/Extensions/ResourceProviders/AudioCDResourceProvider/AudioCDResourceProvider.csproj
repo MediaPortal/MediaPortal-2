@@ -42,4 +42,5 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
     <ProjectReference Include="..\..\BassLibraries\BassLibraries.csproj" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

@@ -35,4 +35,5 @@
   <ItemGroup>
     <EmbeddedResource Remove="Properties\Resources.resx" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

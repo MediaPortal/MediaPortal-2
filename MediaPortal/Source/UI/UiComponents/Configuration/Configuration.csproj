@@ -45,4 +45,5 @@
     <Content Include="Skin\default\screens\dialog_configuration_numberselect.xaml" />
     <Content Include="Skin\default\workflow\configuration-actions.xml" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

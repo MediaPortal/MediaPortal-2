@@ -40,4 +40,5 @@
     <Content Include="Skin\default\screens\ShowThemeColors.xaml" />
     <Content Include="Skin\default\screens\DialogLoadSkinTheme.xaml" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

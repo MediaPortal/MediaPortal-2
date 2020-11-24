@@ -39,4 +39,5 @@
   <ItemGroup>
     <Folder Include="Skin\Nereus\themes\default\styles\" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

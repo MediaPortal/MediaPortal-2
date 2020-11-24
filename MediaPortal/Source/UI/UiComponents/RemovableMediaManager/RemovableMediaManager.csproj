@@ -29,4 +29,5 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
     <ProjectReference Include="..\Media\Media.csproj" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>

@@ -32,4 +32,5 @@
     <Compile Remove="Debugger.cs" />
     <Compile Remove="IntList.cs" />
   </ItemGroup>
+  <Import Project="build.targets" />
 </Project>
