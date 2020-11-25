@@ -143,7 +143,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
               if (!IsInCache(actor.Item1))
               {
                 var existingThumbs = fanArtCache.GetFanArtFiles(actor.Item1, FanArtTypes.Thumbnail);
-                var actorStub = mainStub?.Actors?.FirstOrDefault(a => string.Equals(a.Name, actor.Item2, StringComparison.InvariantCultureIgnoreCase));
+                var actorStub = mainStub?.Actors?.FirstOrDefault(a => string.Equals(a?.Name, actor.Item2, StringComparison.InvariantCultureIgnoreCase));
                 if (actorStub != null || existingThumbs.Any()) //We have a thumb already or no thumb is available, so no need to check again
                   AddToCache(actor.Item1);
 

@@ -35,6 +35,7 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
@@ -109,6 +110,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
             int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
             if (index.HasValue && actors.Count > index.Value && index.Value >= 0)
               actorName = actors[index.Value];
+            break;
           }
         }
       }
@@ -139,6 +141,49 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
                       select potentialFanArtFile)
                   files.Add(new ResourceLocator(mediaIteamLocator.NativeSystemId, thumbPath));
               }
+            }
+          }
+
+          //Find central actor information folder
+          ResourcePath centralActorFolderPath = LocalFanartHelper.GetCentralPersonFolder(mediaItemDirectoryPath, CentralPersonFolderType.MovieActors);
+          if (centralActorFolderPath != null)
+          {
+            // First get the ResourcePath of the central directory
+            var actorFolderPath = ResourcePathHelper.Combine(centralActorFolderPath, $"{LocalFanartHelper.GetSafePersonFolderName(actorName)}/");
+
+            // Then try to create an IFileSystemResourceAccessor for this directory
+            actorFolderPath.TryCreateLocalResourceAccessor(out var artistNfoDirectoryRa);
+            var directoryFsra = artistNfoDirectoryRa as IFileSystemResourceAccessor;
+            if (directoryFsra != null)
+            {
+              var potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryFsra);
+
+              if (fanArtType == FanArtTypes.Poster || fanArtType == FanArtTypes.Thumbnail)
+              {
+                fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.ARTIST_FILENAMES));
+                fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.POSTER_FILENAMES));
+                fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.THUMB_FILENAMES));
+              }
+
+              if (fanArtType == FanArtTypes.Banner)
+                fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.BANNER_FILENAMES));
+
+              if (fanArtType == FanArtTypes.Logo)
+                fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.LOGO_FILENAMES));
+
+              if (fanArtType == FanArtTypes.ClearArt)
+                fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.CLEARART_FILENAMES));
+
+              if (fanArtType == FanArtTypes.FanArt)
+              {
+                fanArtPaths.AddRange(LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles, LocalFanartHelper.BACKDROP_FILENAMES));
+
+                if (directoryFsra.ResourceExists("ExtraFanArt/"))
+                  using (var extraFanArtDirectoryFsra = directoryFsra.GetResource("ExtraFanArt/"))
+                    fanArtPaths.AddRange(LocalFanartHelper.GetPotentialFanArtFiles(extraFanArtDirectoryFsra));
+              }
+
+              files.AddRange(fanArtPaths.Select(path => new ResourceLocator(mediaIteamLocator.NativeSystemId, path)));
             }
           }
         }

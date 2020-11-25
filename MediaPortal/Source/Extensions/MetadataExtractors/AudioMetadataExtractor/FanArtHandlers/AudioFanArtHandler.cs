@@ -104,13 +104,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       if (!BaseInfo.IsVirtualResource(aspects))
       {
         mediaItemLocator = GetResourceLocator(aspects);
-        if (mediaItemLocator == null)
-          return;
-
+        
         //Whether local fanart should be stored in the fanart cache
         shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
           AudioMetadataExtractor.CacheLocalFanArt, AudioMetadataExtractor.CacheOfflineFanArt);
       }
+
+      if (mediaItemLocator == null)
+        return;
 
       if (!shouldCacheLocal && AudioMetadataExtractor.SkipFanArtDownload)
         return; //Nothing to do
@@ -401,11 +402,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           return;
 
         //Get all fanart paths in the current directory 
-        FanArtPathCollection paths;
+        FanArtPathCollection paths = new FanArtPathCollection();
         using (IResourceAccessor accessor = new ResourceLocator(nativeSystemId, artistDirectory).CreateAccessor())
-          paths = GetArtistFolderFanArt(accessor as IFileSystemResourceAccessor);
+        {
+          foreach(var path in GetArtistFolderFanArt(accessor as IFileSystemResourceAccessor))
+            paths.AddRange(path.Key, path.Value);
+        }
+        
+        //Find central artist information folder
+        ResourcePath centralArtistFolderPath = LocalFanartHelper.GetCentralPersonFolder(artistDirectory, CentralPersonFolderType.AudioArtists);
+        if (centralArtistFolderPath != null)
+        {
+          // First get the ResourcePath of the central directory
+          var artistFolderPath = ResourcePathHelper.Combine(centralArtistFolderPath, $"{LocalFanartHelper.GetSafePersonFolderName(artist.Item2)}/");
+          using (IResourceAccessor accessor = new ResourceLocator(nativeSystemId, artistFolderPath).CreateAccessor())
+          {
+            foreach (var path in GetArtistFolderFanArt(accessor as IFileSystemResourceAccessor))
+              paths.AddRange(path.Key, path.Value);
+          }
+        }
 
-        //Save the fanrt to the IFanArtCache service
+        //Save the fanart to the IFanArtCache service
         await SaveFolderImagesToCache(nativeSystemId, paths, artist.Item1, artist.Item2).ConfigureAwait(false);
       }
       catch (Exception ex)

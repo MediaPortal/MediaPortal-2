@@ -117,13 +117,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!BaseInfo.IsVirtualResource(aspects))
       {
         mediaItemLocator = GetResourceLocator(aspects);
-        if (mediaItemLocator == null)
-          return;
 
         //Whether local fanart should be stored in the fanart cache
         shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
           MovieMetadataExtractor.CacheLocalFanArt, MovieMetadataExtractor.CacheOfflineFanArt);
       }
+
+      if (mediaItemLocator == null)
+        return;
 
       if (!shouldCacheLocal && MovieMetadataExtractor.SkipFanArtDownload)
         return; //Nothing to do
@@ -146,6 +147,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           await ExtractMovieFolderFanArt(mediaItemLocator, mediaItemId, movieInfo.ToString(), actors).ConfigureAwait(false);
         if (!MovieMetadataExtractor.SkipFanArtDownload)
           await OnlineMatcherService.Instance.DownloadMovieFanArtAsync(mediaItemId, movieInfo).ConfigureAwait(false);
+
+        //Find central actor information folder
+        var seriesDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../../");
+        ResourcePath centralActorFolderPath = LocalFanartHelper.GetCentralPersonFolder(seriesDirectory, CentralPersonFolderType.MovieActors);
+        if (shouldCacheLocal && centralActorFolderPath != null && actors != null)
+        {
+          foreach (var actor in actors)
+          {
+            // Check if we already processed this actor
+            if (!AddToCache(actor.Item1))
+              continue;
+
+            // First get the ResourcePath of the central directory
+            var artistFolderPath = ResourcePathHelper.Combine(centralActorFolderPath, $"{LocalFanartHelper.GetSafePersonFolderName(actor.Item2)}/");
+            using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, artistFolderPath).CreateAccessor())
+            {
+              if (accessor is IFileSystemResourceAccessor directoryAccessor)
+              {
+                FanArtPathCollection paths = new FanArtPathCollection();
+                List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryAccessor);
+                ExtractAllFanArtImages(potentialFanArtFiles, paths);
+                await SaveFolderImagesToCache(mediaItemLocator.NativeSystemId, paths, actor.Item1, actor.Item2).ConfigureAwait(false);
+              }
+            }
+          }
+        }
       }
 
       //Collection fanart
