@@ -12,9 +12,9 @@
 
     <!-- This position is required to capture newly copied package references -->
     <ItemGroup>
-      <ReferencesX86 Include="$(TargetDir)x86\*.*" />
-      <ReferencesX64 Include="$(TargetDir)x64\*.*" />
-      <PluginFiles Include="$(TargetDir)FreeImageNet.dll" />
+      <ReferencesX86 Include="$(PkgFreeImage-dotnet-core)\runtimes\win7-x86\native\*.*" />
+      <ReferencesX64 Include="$(PkgFreeImage-dotnet-core)\runtimes\win7-x64\native\*.*" />
+      <PluginFiles Include="$(PkgFreeImage-dotnet-core)\lib\netstandard2.0\FreeImage-dotnet-core.dll" />
     </ItemGroup>
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(ReferencesX86)" DestinationFolder="$(PluginDestination)\x86" />
