@@ -148,10 +148,9 @@ namespace MediaPortal.Utilities.Process
           PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
 
 #if NET5_0
-      var pipe = new NamedPipeServerStream(PipeName,
+      var pipe = NamedPipeServerStreamConstructors.New(PipeName,
         PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
-        PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024);
-      pipe.SetAccessControl(pipeSecurity);
+        PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);
 #else
       var pipe = new NamedPipeServerStream(PipeName,
         PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
