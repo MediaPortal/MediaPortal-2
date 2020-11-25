@@ -44,6 +44,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
   {
     private static readonly Guid[] NECESSARY_MIAS = { VideoStreamAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
     private const double DEFAULT_OPENCV_THUMBNAIL_OFFSET = 1.0 / 3.0;
+    private const double MAX_THUMBNAIL_WIDTH = 512.0;
 
     #region Implementation of IFanArtProvider
 
@@ -123,7 +124,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               }
 
               if (capture.FrameWidth > 0)
-                downscale = capture.FrameWidth / 256.0; //256 is max size of large thumbnail aspect
+                downscale = capture.FrameWidth / MAX_THUMBNAIL_WIDTH;
 
               capture.PosMsec = capturePos;
               using (var mat = capture.RetrieveMat())
