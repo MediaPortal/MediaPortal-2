@@ -7,6 +7,9 @@
 
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(TargetDir)System.ServiceModel.Syndication.dll" />
+      <PluginFiles Include="$(TargetDir)System.ServiceProcess.ServiceController.dll" />
+      <PluginFiles Include="$(TargetDir)System.Web.Http.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
 
