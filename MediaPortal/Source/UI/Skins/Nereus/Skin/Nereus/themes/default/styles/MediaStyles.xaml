@@ -891,7 +891,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="Cover_WatchedFlag_Template">
-    <Grid>
+    <Grid Margin="0,-5,0,0">
       <Grid>
         <Image Source="flag.png" Height="90" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top">
           <Image.IsVisible>
