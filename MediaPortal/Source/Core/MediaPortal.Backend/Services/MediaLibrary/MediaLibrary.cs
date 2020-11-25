@@ -2033,75 +2033,79 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       Stopwatch swImport = new Stopwatch();
       swImport.Start();
+      var relationships = relationshipItems.ToList();
       string name = GetMediaItemTitle(mediaItemAspects, "");
-      IDictionary<Guid, IList<MediaItemAspect>> aspects = MediaItemAspect.GetAspects(mediaItemAspects);
-      IEnumerable<IRelationshipRoleExtractor> itemMatchers =
-        ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.Values.SelectMany(r => r.RoleExtractors).ToArray();
-
       List<MediaItem> result = new List<MediaItem>();
-      HashSet<Guid> updatedItemIds = new HashSet<Guid>();
-      ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-      using (ITransaction transaction = database.BeginTransaction())
+      if (relationships.Any())
       {
-        foreach (var item in relationshipItems)
+        IDictionary<Guid, IList<MediaItemAspect>> aspects = MediaItemAspect.GetAspects(mediaItemAspects);
+        IEnumerable<IRelationshipRoleExtractor> itemMatchers =
+          ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.Values.SelectMany(r => r.RoleExtractors).ToArray();
+
+        HashSet<Guid> updatedItemIds = new HashSet<Guid>();
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        using (ITransaction transaction = database.BeginTransaction())
         {
-          IRelationshipRoleExtractor itemMatcher = itemMatchers.FirstOrDefault(r => r.Role == item.Role && r.LinkedRole == item.LinkedRole);
-          if (itemMatcher == null)
+          foreach (var item in relationships)
           {
-            Logger.Warn("MediaLibrary: No external item matcher found for role {0} and linked role {1}", item.Role, item.LinkedRole);
-            continue;
+            IRelationshipRoleExtractor itemMatcher = itemMatchers.FirstOrDefault(r => r.Role == item.Role && r.LinkedRole == item.LinkedRole);
+            if (itemMatcher == null)
+            {
+              Logger.Warn("MediaLibrary: No external item matcher found for role {0} and linked role {1}", item.Role, item.LinkedRole);
+              continue;
+            }
+
+            Guid linkedId;
+            bool needsUpdate;
+            MediaItem matchedMediaItem = MatchExternalItem(database, transaction, itemMatcher, item.Aspects, out needsUpdate);
+            if (matchedMediaItem != null)
+            {
+              linkedId = matchedMediaItem.MediaItemId;
+              if (needsUpdate)
+                UpdateMediaItem(database, transaction, matchedMediaItem.MediaItemId, item.Aspects.Values.SelectMany(x => x));
+              updatedItemIds.Add(matchedMediaItem.MediaItemId);
+            }
+            else
+            {
+              //new item, add it
+              linkedId = NewMediaItemId();
+              Logger.Debug("MediaLibrary: Adding new media item for extracted item {0}", linkedId);
+              IEnumerable<MediaItemAspect> extractedAspects = MediaItemAspect.GetAspects(item.Aspects);
+              MediaItemAspect pra = CreateProviderResourceAspect(Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(linkedId));
+              linkedId = AddOrUpdateMediaItem(database, transaction, pra, linkedId, extractedAspects, true);
+              result.Add(new MediaItem(linkedId, item.Aspects));
+            }
+
+            AddRelationshipAspect(itemMatcher, linkedId, aspects, item.Aspects);
           }
 
-          Guid linkedId;
-          bool needsUpdate;
-          MediaItem matchedMediaItem = MatchExternalItem(database, transaction, itemMatcher, item.Aspects, out needsUpdate);
-          if (matchedMediaItem != null)
-          { 
-            linkedId = matchedMediaItem.MediaItemId;
-            if (needsUpdate)
-              UpdateMediaItem(database, transaction, matchedMediaItem.MediaItemId, item.Aspects.Values.SelectMany(x => x));
-            updatedItemIds.Add(matchedMediaItem.MediaItemId);
-          }
-          else
+          IList<MediaItemAspect> relationshipAspects;
+          if (aspects.TryGetValue(RelationshipAspect.ASPECT_ID, out relationshipAspects))
           {
-            //new item, add it
-            linkedId = NewMediaItemId();
-            Logger.Debug("MediaLibrary: Adding new media item for extracted item {0}", linkedId);
-            IEnumerable<MediaItemAspect> extractedAspects = MediaItemAspect.GetAspects(item.Aspects);
-            MediaItemAspect pra = CreateProviderResourceAspect(Guid.Empty, _localSystemId, VirtualResourceProvider.ToResourcePath(linkedId));
-            linkedId = AddOrUpdateMediaItem(database, transaction, pra, linkedId, extractedAspects, true);
-            result.Add(new MediaItem(linkedId, item.Aspects));
+            //Get the virtual state to decide whether parent state needs to be updated, virtual items currently don't
+            //effect their parent's state.
+            bool isVirtual;
+            if (!MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, out isVirtual))
+              isVirtual = false;
+            UpdateReconciledItem(database, transaction, mediaItemId, relationshipAspects, !isVirtual);
           }
 
-          AddRelationshipAspect(itemMatcher, linkedId, aspects, item.Aspects);
-        }
+          if (updatedItemIds.Count > 0)
+          {
+            ICollection<MediaItem> items;
+            items = GetMediaItems(database, transaction, updatedItemIds, null, GetManagedMediaItemAspectMetadata().Keys, false, null, true, false);
+            result.AddRange(items);
+          }
 
-        IList<MediaItemAspect> relationshipAspects;
-        if (aspects.TryGetValue(RelationshipAspect.ASPECT_ID, out relationshipAspects))
-        {
-          //Get the virtual state to decide whether parent state needs to be updated, virtual items currently don't
-          //effect their parent's state.
-          bool isVirtual;
-          if (!MediaItemAspect.TryGetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, out isVirtual))
-            isVirtual = false;
-          UpdateReconciledItem(database, transaction, mediaItemId, relationshipAspects, !isVirtual);
+          transaction.Commit();
         }
-
-        if (updatedItemIds.Count > 0)
-        {
-          ICollection<MediaItem> items;
-          items = GetMediaItems(database, transaction, updatedItemIds, null, GetManagedMediaItemAspectMetadata().Keys, false, null, true, false);
-          result.AddRange(items);
-        }
-
-        transaction.Commit();
       }
 
       //Notify listeners that the reconciled item has changed
       MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(mediaItemId);
-
       if (result.Count > 0)
         MediaLibraryMessaging.SendMediaItemsAddedOrUpdatedMessage(result.Select(mi => mi.MediaItemId).ToArray());
+
       Logger.Info("Media item {0} with name {1} reconciled ({2} ms)", mediaItemId, name, swImport.ElapsedMilliseconds);
       return result;
     }
