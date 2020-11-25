@@ -26,7 +26,8 @@
   </ConflictsWith>
 
   <Runtime>
-    <Assembly FileName="SlimTv.Interfaces.dll"/>
+    <!-- Loaded already in .NET Core, caused FileLoadException -->
+    <!--<Assembly FileName="SlimTv.Interfaces.dll"/>-->
     <Assembly FileName="SlimTv.NativeProvider.dll"/>
   </Runtime>
 
