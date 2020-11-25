@@ -22,10 +22,6 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="System.ServiceProcess" />
-    <Reference Include="System.Web" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Update="Services\ResourceAccess\ImpersonationService\AsyncImpersonationProcess.cs">
       <SubType>Component</SubType>
     </Compile>
