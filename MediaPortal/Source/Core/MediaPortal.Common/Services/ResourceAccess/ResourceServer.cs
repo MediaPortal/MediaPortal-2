@@ -39,7 +39,9 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.Network;
 using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
+#if !NET5_0
 using Microsoft.Owin.Security.OAuth;
+#endif
 using Owin;
 using UPnP.Infrastructure.Dv;
 
@@ -77,6 +79,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
         _httpServer = WebApp.Start(startOptions, builder =>
         {
+#if !NET5_0
           // Configure OAuth Authorization Server
           builder.UseOAuthAuthorizationServer(new OAuthAuthorizationServerOptions
           {
@@ -95,7 +98,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
             }
           });
           builder.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
-
+#endif
           // Configure Web API
           HttpConfiguration config = new HttpConfiguration();
 
@@ -126,6 +129,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
+#if !NET5_0
     private Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
     {
       context.Validated();
@@ -172,6 +176,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       context.Rejected();
       context.SetError("invalid_grant", "User management not available.");
     }
+#endif
 
     private string GetPassword(string encoded)
     {
@@ -200,7 +205,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-    #region IResourceServer implementation
+#region IResourceServer implementation
 
     public string GetServiceUrl(IPAddress ipAddress)
     {
@@ -262,6 +267,6 @@ namespace MediaPortal.Common.Services.ResourceAccess
       _middleWares.Remove(moduleType);
     }
 
-    #endregion
+#endregion
   }
 }
