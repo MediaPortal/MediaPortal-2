@@ -128,6 +128,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           ILocalFsResourceAccessor fsra = accessor as ILocalFsResourceAccessor;
           if (fsra != null)
           {
+            fileSystemPath = fsra.LocalFileSystemPath;
             var ext = Path.GetExtension(fsra.LocalFileSystemPath);
             if (!SUPPORTED_EXTENSIONS.Contains(ext))
               return false;
