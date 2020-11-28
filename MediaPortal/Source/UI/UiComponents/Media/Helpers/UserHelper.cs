@@ -41,7 +41,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
     {
       UserProfile userProfile = null;
       bool applyUserRestrictions = false;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>(false);
       if (userProfileDataManagement != null && userProfileDataManagement.IsValidUser)
       {
         userProfile = userProfileDataManagement.CurrentUser;
