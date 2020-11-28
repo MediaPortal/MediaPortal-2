@@ -57,6 +57,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private const int WM_SYSKEYUP = 0x0105;
     private const int WM_ACTIVATE = 0x0006;
     private const int WA_INACTIVE = 0;
+    private const int WM_INPUT = 0x00FF;
 
     private static readonly ConcurrentDictionary<string, InputDevice> _inputDevices = new ConcurrentDictionary<string, InputDevice>();
     private static IScreenControl _screenControl;
@@ -324,7 +325,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
                   _pressedKeys.Clear();
                 }
 
-                _hidHandler?.ProcessInput(ref msg);
+                if (msg.Msg == WM_INPUT)
+                  _hidHandler?.ProcessInput(ref msg);
                 break;
             }
           }
