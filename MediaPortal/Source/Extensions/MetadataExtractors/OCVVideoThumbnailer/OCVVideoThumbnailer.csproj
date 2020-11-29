@@ -86,7 +86,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="OpenCvSharp4.Windows">
-      <Version>4.2.0.20191223</Version>
+      <Version>4.5.0.20201013</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

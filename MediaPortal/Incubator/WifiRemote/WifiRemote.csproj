@@ -212,7 +212,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Arkane.Zeroconf">
-      <Version>1.2.18</Version>
+      <Version>1.2.20</Version>
     </PackageReference>
     <PackageReference Include="Newtonsoft.Json">
       <Version>10.0.3</Version>
