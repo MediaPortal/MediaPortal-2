@@ -48,7 +48,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
       _rootRole = EpisodeAspect.ROLE_EPISODE;
-      _applyUserFilter = false;
+      _applyUserFilter = false; //Is handled by filter tree
     }
 
     public static void NavigateToSeries(Guid seriesId)
