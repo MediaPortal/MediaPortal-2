@@ -68,7 +68,7 @@
     <media:VideoAspectWrapper.Template>
       <ControlTemplate>
         <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Disabled" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                      Focusable="True" Margin="0,30,10,0" Height="360" Width="460">
+                      Focusable="True" Margin="0,30,10,30" Width="460" VerticalAlignment="Bottom">
            <ScrollViewer.Triggers>
              <Trigger Property="HasFocus" Value="True">
                <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
