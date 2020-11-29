@@ -10,8 +10,9 @@
     PluginVersion="3.18"
     ReleaseDate="2018-12-05 01:00:00 GMT+01:00"
     CurrentAPI="1"/>
-  
+
   <Runtime>
+    <Assembly FileName="FreeImageLib.dll"/>
     <Assembly FileName="FreeImageNet.dll"/>
   </Runtime>
 </Plugin>
