@@ -891,7 +891,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="Cover_WatchedFlag_Template">
-    <Grid Margin="0,-5,0,0">
+    <Grid>
       <Grid>
         <Image Source="flag.png" Height="90" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top">
           <Image.IsVisible>
@@ -1563,7 +1563,7 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -1769,7 +1769,7 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -2120,7 +2120,7 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -2359,7 +2359,7 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
