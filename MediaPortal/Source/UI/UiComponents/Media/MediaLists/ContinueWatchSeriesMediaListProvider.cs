@@ -35,8 +35,8 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public ContinueWatchSeriesMediaListProvider()
     {
       _role = SeriesAspect.ROLE_SERIES;
-      _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
       _linkedRole = EpisodeAspect.ROLE_EPISODE;
+      _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
       _necessaryLinkedMias = Consts.NECESSARY_EPISODE_MIAS;
       _playableContainerConverterAction = item => new SeriesFilterItem(item)
       {

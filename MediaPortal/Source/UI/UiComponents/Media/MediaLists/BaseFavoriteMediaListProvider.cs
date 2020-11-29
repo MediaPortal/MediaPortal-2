@@ -28,6 +28,7 @@ using MediaPortal.UI.ContentLists;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -37,19 +38,26 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       IFilter filter = userProfile.HasValue ? await AppendUserFilterAsync(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_COUNT)),
-            _necessaryMias) : null;
+            _necessaryMias) : new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
 
       IFilter navigationFilter = GetNavigationFilter(_navigationInitializerType);
       if (navigationFilter != null)
         filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, navigationFilter);
 
-      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
-      {
-        SortInformation = new List<ISortInformation>
+      List<ISortInformation> sort = userProfile.HasValue ? new List<ISortInformation>
         {
           new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending),
           new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending)
-        }
+        } :
+        new List<ISortInformation>
+        {
+          new AttributeSortInformation(MediaAspect.ATTR_PLAYCOUNT, SortDirection.Descending),
+          new AttributeSortInformation(MediaAspect.ATTR_LASTPLAYED, SortDirection.Descending)
+        };
+
+      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
+      {
+        SortInformation = sort
       };
     }
 
@@ -61,24 +69,33 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
   public abstract class BaseFavoriteRelationshipMediaListProvider : BaseFavoriteMediaListProvider
   {
+    protected Guid _role;
+    protected Guid _linkedRole;
+    protected IEnumerable<Guid> _necessaryLinkedMias;
+
     protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      IFilter filter = userProfile.HasValue ? await AppendUserFilterAsync(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT)),
-            _necessaryMias) : null;
+      IFilter filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(null, _necessaryLinkedMias)),
+        new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT))) :
+        new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
 
-      IFilter navigationFilter = GetNavigationFilter(_navigationInitializerType);
-      if (navigationFilter != null)
-        filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, navigationFilter);
-
-      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
-      {
-        SortInformation = new List<ISortInformation>
+      List<ISortInformation> sort = userProfile.HasValue ? new List<ISortInformation>
         {
           new DataSortInformation(UserDataKeysKnown.KEY_PLAY_MAX_CHILD_COUNT, SortDirection.Descending),
           new DataSortInformation(UserDataKeysKnown.KEY_PLAY_COUNT, SortDirection.Descending),
           new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending)
-        }
+        } :
+        new List<ISortInformation>
+        {
+          new AttributeSortInformation(MediaAspect.ATTR_PLAYCOUNT, SortDirection.Descending),
+          new AttributeSortInformation(MediaAspect.ATTR_LASTPLAYED, SortDirection.Descending)
+        };
+      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
+      {
+        SubqueryFilter = GetNavigationFilter(_navigationInitializerType),
+        SortInformation = sort
       };
     }
   }

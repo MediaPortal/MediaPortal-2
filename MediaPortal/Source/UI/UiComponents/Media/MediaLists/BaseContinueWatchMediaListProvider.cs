@@ -41,15 +41,18 @@ namespace MediaPortal.UiComponents.Media.MediaLists
             new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
             new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100)),
             new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayPercentageString(0))),
-            _necessaryMias) : null;
+            _necessaryMias) : new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
 
       IFilter navigationFilter = GetNavigationFilter(_navigationInitializerType);
       if (navigationFilter != null)
         filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, navigationFilter);
 
+      ISortInformation sort = userProfile.HasValue ? (ISortInformation)new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) :
+        (ISortInformation)new AttributeSortInformation(MediaAspect.ATTR_LASTPLAYED, SortDirection.Descending);
+
       return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
       {
-        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
+        SortInformation = new List<ISortInformation> { sort }
       };
     }
 
@@ -68,15 +71,20 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      return new MediaItemQuery(_necessaryMias, _optionalMias, null)
+      IFilter filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(null, _necessaryLinkedMias)),
+        new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
+        new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100)),
+        new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayPercentageString(0))) :
+        new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
+
+      ISortInformation sort = userProfile.HasValue ? (ISortInformation)new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) :
+        (ISortInformation)new AttributeSortInformation(MediaAspect.ATTR_LASTPLAYED, SortDirection.Descending);
+
+      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
       {
-        Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-              new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
-              new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100)),
-              new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayPercentageString(0))),
-          _necessaryLinkedMias)) : null,
         SubqueryFilter = GetNavigationFilter(_navigationInitializerType),
-        SortInformation = new List<ISortInformation> { new DataSortInformation(UserDataKeysKnown.KEY_PLAY_DATE, SortDirection.Descending) }
+        SortInformation = new List<ISortInformation> { sort }
       };
     }
   }
