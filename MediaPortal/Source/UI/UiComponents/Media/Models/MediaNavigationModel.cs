@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common;
+using MediaPortal.Common.Commands;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -38,6 +39,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.Services.Workflow;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
@@ -464,6 +466,13 @@ namespace MediaPortal.UiComponents.Media.Models
         SaveUIState(oldContext);
         navigationData = GetNavigationData(newContext, false);
         navigationData.Enable();
+
+        if (navigationData.CurrentScreenData.SkipForSingleItem && navigationData.CurrentScreenData.Items.Count == 1)
+        {
+          var command = navigationData.CurrentScreenData.Items.FirstOrDefault()?.Command;
+          if (command != null)
+            newContext.SetContextVariable(WorkflowManager.KEY_NAVIGATION_SKIP_ACTION, command);
+        }
       }
       else
       {
@@ -471,6 +480,15 @@ namespace MediaPortal.UiComponents.Media.Models
         navigationData.Dispose();
         navigationData = GetNavigationData(newContext, false);
         navigationData.Enable();
+
+        if (navigationData.CurrentScreenData.SkipForSingleItem && navigationData.CurrentScreenData.Items.Count == 1)
+        {
+          newContext.SetContextVariable(WorkflowManager.KEY_NAVIGATION_SKIP_ACTION, new MethodDelegateCommand(() =>
+          {
+            var wfManager = ServiceRegistration.Get<IWorkflowManager>(false);
+            wfManager?.NavigatePop(1);
+          }));
+        }
       }
     }
 

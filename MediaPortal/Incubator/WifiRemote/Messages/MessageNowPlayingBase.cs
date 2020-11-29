@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
           return 0;
         }
 
-        IPlayer player = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentPlayer;
+        IPlayer player = ServiceRegistration.Get<IPlayerContextManager>(false)?.CurrentPlayerContext?.CurrentPlayer;
         if (player != null)
         {
           IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
@@ -69,7 +69,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
           return String.Empty;
         }
 
-        return ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext.CurrentPlayer.MediaItemTitle;
+        return ServiceRegistration.Get<IPlayerContextManager>(false)?.PrimaryPlayerContext?.CurrentPlayer?.MediaItemTitle ?? String.Empty;
       }
     }
 
@@ -85,7 +85,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
           return 0;
         }
 
-        IPlayer player = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentPlayer;
+        IPlayer player = ServiceRegistration.Get<IPlayerContextManager>(false)?.CurrentPlayerContext?.CurrentPlayer;
         if (player != null)
         {
           IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
@@ -102,7 +102,9 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       get
       {
-        MediaItem mediaItem = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentMediaItem;
+        MediaItem mediaItem = ServiceRegistration.Get<IPlayerContextManager>(false)?.CurrentPlayerContext?.CurrentMediaItem;
+        if (mediaItem == null)
+          return false;
 
         IList<MultipleMediaItemAspect> providerAspects;
         if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&
@@ -122,7 +124,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     /// </summary>
     public bool IsFullscreen
     {
-      get { return ServiceRegistration.Get<IPlayerContextManager>().IsFullscreenContentWorkflowStateActive; }
+      get { return ServiceRegistration.Get<IPlayerContextManager>(false)?.IsFullscreenContentWorkflowStateActive ?? false; }
     }
   }
 }

@@ -47,6 +47,7 @@ namespace MediaPortal.UI.Services.UserManagement
     private bool _applyRestrictions = false;
     private ICollection<string> _restrictionGroups = new HashSet<string>(StringComparer.CurrentCultureIgnoreCase);
     private SemaphoreSlim _lock = new SemaphoreSlim(1, 1);
+    private UserProfile _defaultUser = null;
 
     public bool IsValidUser
     {
@@ -121,6 +122,9 @@ namespace MediaPortal.UI.Services.UserManagement
 
     public async Task<UserProfile> GetOrCreateDefaultUser()
     {
+      if (_defaultUser != null)
+        return _defaultUser;
+
       await _lock.WaitAsync();
       try
       {
@@ -131,7 +135,10 @@ namespace MediaPortal.UI.Services.UserManagement
 
         var result = await updm.GetProfileAsync(systemId);
         if (result.Success)
-          return result.Result;
+        {
+          _defaultUser = result.Result;
+          return _defaultUser;
+        }
 
         // First check if there is an "old" client profile with same name but different ID. This happens only for older versions.
         // This needs to be done to avoid unique constraint violations when creating the new profile by name.
@@ -143,14 +150,21 @@ namespace MediaPortal.UI.Services.UserManagement
           {
             result = await updm.GetProfileAsync(systemId);
             if (result.Success)
-              return result.Result;
+            {
+              _defaultUser = result.Result;
+              return _defaultUser;
+            }
           }
 
         // Create a login profile which uses the LocalSystemId and the associated ComputerName
         Guid profileId = await updm.CreateClientProfileAsync(systemId, profileName);
         result = await updm.GetProfileAsync(profileId);
         if (result.Success)
-          return result.Result;
+        {
+          _defaultUser = result.Result;
+          return _defaultUser;
+        }
+
         return null;
       }
       finally

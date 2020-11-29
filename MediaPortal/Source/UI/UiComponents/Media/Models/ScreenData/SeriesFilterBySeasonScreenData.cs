@@ -60,5 +60,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       }
       return selected;
     }
+
+    public override bool SkipForSingleItem => true;
   }
 }

@@ -318,11 +318,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           movieInfo.CopyIdsFrom(tempInfo);
           movieInfo.HasChanged = tempInfo.HasChanged;
         }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Unable to get online ids for resource '{0}'", lfsra.CanonicalLocalResourcePath);
+        }
       }
       else if (!SkipOnlineSearches)
       {
         movieInfo.SearchFilePath = lfsra.LocalFileSystemPath;
-        await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(movieInfo, _category).ConfigureAwait(false);
+        var success = await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(movieInfo, _category).ConfigureAwait(false);
+        if (!success)
+          ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Unable to get online data for resource '{0}'", lfsra.CanonicalLocalResourcePath);
       }
 
       //Asign genre ids

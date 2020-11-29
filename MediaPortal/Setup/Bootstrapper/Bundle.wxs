@@ -20,7 +20,6 @@
 
       <PackageGroupRef Id="NetFx471Web"/>
       <PackageGroupRef Id="redist"/>
-      <PackageGroupRef Id="directx9"/>
       <PackageGroupRef Id="dokan"/>
 
       <RollbackBoundary />

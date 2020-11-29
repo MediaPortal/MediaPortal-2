@@ -157,6 +157,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
               track.Album = release.Title;
               track.AlbumBarcode = release.Barcode;
               track.Country = release.Country;
+              track.ReleaseDate = release.Date;
               track.AlbumHasCover = release.CoverArt != null && release.CoverArt.Front;
               track.Artists = new List<string>();
               foreach (TrackArtistCredit artistCredit in Artists)
@@ -187,6 +188,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
             track.Album = release.Title;
             track.AlbumBarcode = release.Barcode;
             track.Country = release.Country;
+            track.ReleaseDate = release.Date;
             track.AlbumHasCover = release.CoverArt != null && release.CoverArt.Front;
             track.Artists = new List<string>();
             foreach (TrackArtistCredit artistCredit in Artists)

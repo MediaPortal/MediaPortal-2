@@ -31,8 +31,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading;
 using MediaPortal.Common;
+using MediaPortal.Common.Commands;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
@@ -91,6 +93,7 @@ namespace MediaPortal.UI.Services.Workflow
 
     public const string MODELS_REGISTRATION_LOCATION = "/Models";
     public const string WORKFLOW_STATES_REGISTRATION_LOCATION = "/Workflow/States";
+    public const string KEY_NAVIGATION_SKIP_ACTION = "MediaNavigationModel: NAVIGATION_SKIP_ACTION";
 
     public const int MODEL_CACHE_MAX_NUM_UNUSED = 50;
 
@@ -619,6 +622,7 @@ namespace MediaPortal.UI.Services.Workflow
         if (delayedExceptions.Count > 0)
           throw delayedExceptions.First();
         WorkflowManagerMessaging.SendStatePushedMessage(newContext);
+        ExecuteSkipAction(newContext);
         return true;
       }
       finally
@@ -643,6 +647,7 @@ namespace MediaPortal.UI.Services.Workflow
     protected bool DoPopNavigationContext(int count, out bool workflowStatePopped)
     {
       EnterWriteLock("DoPopNavigationContext");
+      NavigationContext newContext = null;
       try
       {
         workflowStatePopped = false;
@@ -675,7 +680,7 @@ namespace MediaPortal.UI.Services.Workflow
           // Store model exceptions
           IList<Exception> delayedExceptions = new List<Exception>();
 
-          NavigationContext newContext = _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek();
+          newContext = _navigationContextStack.Count == 0 ? null : _navigationContextStack.Peek();
           Guid? workflowModelId = newContext == null ? null : newContext.WorkflowModelId;
           IWorkflowModel workflowModel = workflowModelId.HasValue ?
               GetOrLoadModel(workflowModelId.Value) as IWorkflowModel : null;
@@ -746,12 +751,36 @@ namespace MediaPortal.UI.Services.Workflow
             throw delayedExceptions.First();
         }
         WorkflowManagerMessaging.SendStatesPoppedMessage(removedContexts);
+        ExecuteSkipAction(newContext);
         return true;
       }
       finally
       {
         ExitWriteLock();
         IterateCache_NoLock();
+      }
+    }
+
+    protected void ExecuteSkipAction(NavigationContext newContext)
+    {
+      if (newContext == null)
+        return;
+
+      try
+      {
+        var command = newContext.GetContextVariable(KEY_NAVIGATION_SKIP_ACTION, false);
+        if (command is ICommand cmd)
+        {
+          // Only skip once
+          newContext.ResetContextVariable(KEY_NAVIGATION_SKIP_ACTION);
+          cmd.Execute();
+        }
+      }
+      catch (Exception e)
+      {
+        ILogger logger = ServiceRegistration.Get<ILogger>();
+        logger.Error("WorkflowManager: Error executing skip command for workflow '{0}'",
+          e, newContext.WorkflowState?.Name ?? "?");
       }
     }
 
