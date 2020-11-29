@@ -64,6 +64,10 @@
       <Project>{1BA81EB2-6556-4213-A7A5-9E5B508F186F}</Project>
       <Name>MediaServer</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\..\Incubator\TranscodingService.Interfaces\TranscodingService.Interfaces.csproj">
+      <Project>{5057EBD5-A262-42A6-A975-360730CFE322}</Project>
+      <Name>TranscodingService.Interfaces</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj">
       <Project>{5B27EB95-B829-40F4-B445-0225CA206F85}</Project>
       <Name>MediaPortal.Backend</Name>
@@ -75,6 +79,10 @@
     <ProjectReference Include="..\..\..\Source\Core\UPnP\UPnP.csproj">
       <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
       <Name>UPnP</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
+      <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
