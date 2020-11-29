@@ -108,13 +108,13 @@
                     DetectCondition="VCRedist2015_2019x64 >= v14.22.27821"
                     Protocol="burn">
         <RemotePayload 
-		                CertificatePublicKey="6608A9DBA86701156A4C17CE63BA99BE8B932F8D" 
-		                CertificateThumbprint="62009AAABDAE749FD47D19150958329BF6FF4B34" 
-		                Description="Microsoft Visual C++ 2015-2019 Redistributable (x64) - 14.22.27821" 
-		                Hash="BE4F7AD520349D9D0683AB9DD171B3A1E4DB426B" 
-		                ProductName="Microsoft Visual C++ 2015-2019 Redistributable (x64) - 14.22.27821" 
-		                Size="15080792" 
-		                Version="14.22.27821.0" />
+                    CertificatePublicKey="6608A9DBA86701156A4C17CE63BA99BE8B932F8D" 
+                    CertificateThumbprint="62009AAABDAE749FD47D19150958329BF6FF4B34" 
+                    Description="Microsoft Visual C++ 2015-2019 Redistributable (x64) - 14.22.27821" 
+                    Hash="BE4F7AD520349D9D0683AB9DD171B3A1E4DB426B" 
+                    ProductName="Microsoft Visual C++ 2015-2019 Redistributable (x64) - 14.22.27821" 
+                    Size="15080792" 
+                    Version="14.22.27821.0" />
         </ExePackage>
       </PackageGroup>
   </Fragment>
