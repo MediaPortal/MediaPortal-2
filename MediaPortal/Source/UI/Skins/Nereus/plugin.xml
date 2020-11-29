@@ -108,6 +108,12 @@
         Text="[Nereus.Configuration.EnableLoopScrolling]"
         HelpText="[Nereus.Configuration.EnableLoopScrolling.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableLoopScrollingConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableAutoScrolling"
+        Text="[Nereus.Configuration.EnableAutoScrolling]"
+        HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"/>
     
     <ConfigSetting
         Id="NereusEnableWatchedFlags"
