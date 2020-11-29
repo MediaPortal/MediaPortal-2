@@ -47,6 +47,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     protected ItemsList _availableItems = new ItemsList();
 
     protected bool _isInit = false;
+    protected bool _listNeedsUpdate = false;
 
     public ItemsList Items
     {
@@ -57,11 +58,43 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       }
     }
 
+    public bool IsInited => _isInit;
+
+    public bool ListNeedsUpdate
+    {
+      get => _listNeedsUpdate;
+      set
+      {
+        if (_isInit)
+          _listNeedsUpdate = value;
+      }
+    }
+
+    protected void PopulateList()
+    {
+      PopulateBackingList();
+      ListNeedsUpdate = false;
+    }
+
+    public void ForceUpdateList()
+    {
+      if (ListNeedsUpdate)
+        ForceUpdateBackingList();
+      ListNeedsUpdate = false;
+    }
+
+
     /// <summary>
     /// Implementations of this method should populate <see cref="_backingList"/>
     /// with the <see cref="ItemsListWrapper"/>s to show.
     /// </summary>
     protected abstract void PopulateBackingList();
+
+    /// <summary>
+    /// Implementations of this method should force a refresh of the <see cref="_backingList"/>
+    /// with the <see cref="ItemsListWrapper"/>s to show.
+    /// </summary>
+    protected abstract void ForceUpdateBackingList();
 
     // Lazily called by the Items property getter,
     // usually by the screen showing this content.
@@ -71,8 +104,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         return;
       _isInit = true;
 
-      // Overridden in derived classes
-      PopulateBackingList();
+      PopulateList();
       AttachItemsListWrappers();
 
       // In some situations the backing list will stay hidden if initially being empty and then 

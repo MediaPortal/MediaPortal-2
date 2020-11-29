@@ -46,7 +46,10 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new NewsSetupShortcut(),
         new NewsRefreshShortcut(),
       }));
+    }
 
+    protected override void ForceUpdateBackingList()
+    {
     }
   }
 

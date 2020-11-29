@@ -167,6 +167,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
               // If we are returning to the home state then we need to manually
               // attach and refresh the items, as we detached and missed any changes when leaving.
               AttachAndRefreshHomeMenuItems();
+              MarkHomeContentUpdate();
             }
             else
             {
@@ -341,6 +342,26 @@ namespace MediaPortal.UiComponents.Nereus.Models
       return GetMenuModel().MenuItems;
     }
 
+    private void MarkHomeContentUpdate()
+    {
+      if (ContentIndex < _contentProperties.Length)
+      {
+        var content = _contentProperties[ContentIndex].GetValue();
+        if (content is AbstractHomeContent ahc)
+        {
+          ahc.ListNeedsUpdate = true;
+          if (ahc.IsInited)
+          {
+            ListItem item = SelectedItem;
+            if (item == null)
+              return;
+            WorkflowAction action = GetAction(item);
+            EnqueueUpdate(action);
+          }
+        }
+      }
+    }
+
     private void AttachAndRefreshHomeMenuItems()
     {
       lock (_syncObj)
@@ -498,6 +519,9 @@ namespace MediaPortal.UiComponents.Nereus.Models
       object nextContent;
       if (action == null || !_homeContent.TryGetValue(action.ActionId, out nextContent))
         nextContent = DEFAULT_HOME_CONTENT;
+
+      if (nextContent is AbstractHomeContent ahc)
+        ahc.ForceUpdateList();
 
       int currentIndex = ContentIndex;
       if (ReferenceEquals(_contentProperties[currentIndex].GetValue(), nextContent))

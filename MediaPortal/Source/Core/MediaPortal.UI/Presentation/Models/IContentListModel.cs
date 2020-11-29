@@ -40,5 +40,11 @@ namespace MediaPortal.UI.Presentation.Models
     /// A list of all available content providers.
     /// </summary>
     ContentListProviderDictionary Lists { get; }
+
+    /// <summary>
+    /// Force update the content of a specific list
+    /// </summary>
+    /// <param name="key"></param>
+    void ForceUpdate(string key);
   }
 }

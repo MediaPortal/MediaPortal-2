@@ -49,6 +49,15 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _backingList.Add(new FavoriteImageList(mlm.Lists["FavoriteImages"].AllItems));
       _backingList.Add(new UnplayedImageList(mlm.Lists["UnplayedImages"].AllItems));
     }
+
+    protected override void ForceUpdateBackingList()
+    {
+      MediaListModel mlm = GetMediaListModel();
+
+      mlm.ForceUpdate("LatestImages");
+      mlm.ForceUpdate("FavoriteImages");
+      mlm.ForceUpdate("UnplayedImages");
+    }
   }
 
   public class LatestImageList : ItemsListWrapper

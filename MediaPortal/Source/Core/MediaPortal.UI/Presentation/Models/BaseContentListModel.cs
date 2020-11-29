@@ -102,6 +102,11 @@ namespace MediaPortal.UI.Presentation.Models
       Task.Run(UpdateAllProvidersAsync);
     }
 
+    public void ForceUpdate(string key)
+    {
+      _listProviders.Update(key);
+    }
+
     protected virtual async Task<bool> UpdateAllProvidersAsync()
     {
       try
@@ -385,10 +390,23 @@ namespace MediaPortal.UI.Presentation.Models
       }
     }
 
+    public void Update(string key)
+    {
+      ProviderWrapper providerWrapper;
+      if (!_providers.TryGetValue(key, out providerWrapper))
+        return;
+
+      bool update = providerWrapper.NextUpdateTime < DateTime.Now;
+      if (update)
+        providerWrapper.NextUpdateTime = DateTime.Now.AddSeconds(UPDATE_THRESHOLD_SEC);
+
+      if (update)
+        OnProviderRequested(providerWrapper.Provider);
+    }
+
     protected IContentListProvider GetProvider(string key)
     {
       ProviderWrapper providerWrapper;
-      bool update;
       lock (_syncObj)
       {
         if (!_providers.TryGetValue(key, out providerWrapper))
@@ -398,13 +416,9 @@ namespace MediaPortal.UI.Presentation.Models
           ServiceRegistration.Get<ILogger>().Info("Enabling IContentListProvider '{0}'", key);
           _enabledProviders[key] = providerWrapper.Provider;
         }
-        update = providerWrapper.NextUpdateTime < DateTime.Now;
-        if (update)
-          providerWrapper.NextUpdateTime = DateTime.Now.AddSeconds(UPDATE_THRESHOLD_SEC);
       }
 
-      if (update)
-        OnProviderRequested(providerWrapper.Provider);
+      Update(key);
       return providerWrapper.Provider;
     }
   }
