@@ -7,7 +7,11 @@
   <string name="Nereus.Configuration.EnableLoopScrolling">Enable loop scrolling</string>
   <string name="Nereus.Configuration.EnableLoopScrolling.Help">Whether to use loop scrolling in media lists.</string>
   <string name="Nereus.Configuration.EnableAutoScrolling">Enable auto scrolling</string>
-  <string name="Nereus.Configuration.EnableAutoScrolling.Help">Whether to use auto scrolling instead of scroll views.</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling.Help">Whether to use auto scrolling instead of manual scrolling in scroll views.</string>
+  <string name="Nereus.Configuration.AutoScrolling">Auto scrolling</string>
+  <string name="Nereus.Configuration.ManualAutoScrolling">Manual scrolling</string>
+  <string name="Nereus.Configuration.AutoScrollSpeed">Scroll Speed</string>
+  <string name="Nereus.Configuration.AutoScrollDelay">Scroll Delay</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity">Fanart Visibility</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Adjust the opacity of the background fanart overlay. A lower value increases the visibility of fanart (default is 1.0).</string>
   <string name="Nereus.Configuration.EnableWatchedFlags">Enable Watched Flags</string>

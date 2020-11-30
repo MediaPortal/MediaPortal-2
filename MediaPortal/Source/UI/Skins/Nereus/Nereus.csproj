@@ -105,10 +105,11 @@
     <Compile Include="Models\HomeMenuModel.cs" />
     <Compile Include="Models\HomeContent\ItemsListWrapper.cs" />
     <Compile Include="Models\ScreenModeModel.cs" />
+    <Compile Include="Models\AutoScrollConfigurationModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\BaseGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableAutoScrolling.cs" />
-    <Compile Include="Settings\Configuration\EnableLoopScrolling.cs" />
+    <Compile Include="Settings\Configuration\EnableAutoScrollingConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableLoopScrollingConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableHelpTextConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableCertificationLogosConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableMediaItemDetailsViewConfiguration.cs" />
@@ -1116,6 +1117,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Nereus\superlayers\BusyCursor.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\dialogAutoScrollSettings.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

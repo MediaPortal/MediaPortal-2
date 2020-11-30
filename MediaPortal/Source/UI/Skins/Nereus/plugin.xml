@@ -31,6 +31,16 @@
     <Model Id="CED34107-565C-48D9-BEC8-195F7969F90F" Name="NereusHomeMenuModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeMenuModel"/>
     <Model Id="6A232D95-9BDE-4005-905E-69CB092B012B" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScreenModeModel"/>
     <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
+    <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="AutoScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.AutoScrollConfigurationModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- AutoScrollConfiguration Dialog -->
+    <DialogState Id="E3DABC33-4339-446B-A495-AE1A8C630B2B"
+                 Name="dialogAutoScrollSettings"
+                 DialogScreen="dialogAutoScrollSettings"
+                 DisplayLabel="[Nereus.Configuration.EnableAutoScrolling]"
+                 WorkflowModel="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925"/>
   </Register>
   
   <!-- Language resources -->
@@ -109,11 +119,12 @@
         HelpText="[Nereus.Configuration.EnableLoopScrolling.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableLoopScrollingConfiguration"/>
 
-    <ConfigSetting
-        Id="NereusEnableAutoScrolling"
-        Text="[Nereus.Configuration.EnableAutoScrolling]"
-        HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"/>
+    <CustomConfigSetting
+      Id="NereusEnableAutoScrollingDialog"
+      Text="[Nereus.Configuration.EnableAutoScrolling]"
+      HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
+      ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"
+      AdditionalData="WorkflowState=E3DABC33-4339-446B-A495-AE1A8C630B2B,ConfAppPanel=..."/>
     
     <ConfigSetting
         Id="NereusEnableWatchedFlags"

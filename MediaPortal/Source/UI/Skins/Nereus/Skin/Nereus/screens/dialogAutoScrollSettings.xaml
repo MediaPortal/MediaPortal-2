@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.EnableAutoScrolling]"/>
+
+    <!-- AutoScrollConfigurationModel -->
+    <Model x:Key="AutoScrollConfigurationModel"
+           Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" />
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel DataContext="{Binding Source={StaticResource AutoScrollConfigurationModel}}">
+
+        <!--Auto Scrolling-->
+        <RadioButton Grid.Row="0" Grid.Column="0" x:Name="AutoScroll" Margin="10,1,0,1" VerticalAlignment="Center"
+                     IsChecked="{Binding Path=UseAutoScroll,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.AutoScrolling]"/>
+        <RadioButton Grid.Row="1" Grid.Column="0" x:Name="ManualScroll" Margin="10,1,0,1" VerticalAlignment="Center"
+                     IsChecked="{Binding Path=UseManualScroll,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.ManualAutoScrolling]"/>
+
+        <!-- Scroll Speed -->
+        <Grid Height="10"/>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollSpeed]" Color="{ThemeResource TextColor}" Margin="5,0,5,0"/>
+          <TextBox x:Name="AutoScrollSpeed" Text="{Binding Path=ScrollSpeed,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140" HorizontalAlignment="Right"/>
+        </Grid>
+
+        <!-- Scroll Delay -->
+        <Grid Height="10"/>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollDelay]" Color="{ThemeResource TextColor}" Margin="5,0,5,0"/>
+          <TextBox x:Name="AutoScrollDelay" Text="{Binding Path=ScrollDelay,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140" HorizontalAlignment="Right"/>
+        </Grid>
+
+        <!-- OK & Cancel button -->
+        <Grid Height="10"/>
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Button Name="ButtonOk" Grid.Column="0" Grid.Row="0"
+                  Style="{ThemeResource DialogButtonStyle}" Margin="20,0,20,0"
+                  Content="[System.Ok]" HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings" />
+                <Command Source="{Service ScreenManager}"
+                         Path="CloseTopmostDialog" />
+              </CommandList>
+            </Button.Command>
+          </Button>
+
+          <Button Name="ButtonCancel" Grid.Column="1" Grid.Row="0" Margin="20,0,20,0"
+                  SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Cancel]" HorizontalAlignment="Center"
+                  Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+        </Grid>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

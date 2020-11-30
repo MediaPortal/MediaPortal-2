@@ -23,39 +23,10 @@
 #endregion
 
 using MediaPortal.Common.Configuration.ConfigurationClasses;
-using SkinSettings;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
 {
-  public class EnableAutoScrollingConfiguration : YesNo, IDisposable
+  public class EnableAutoScrollingConfiguration : CustomConfigSetting
   {
-    public EnableAutoScrollingConfiguration()
-    {
-      SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
-    }
-
-    public override void Load()
-    {
-      base.Load();
-      _yes = SettingsManager.Load<NereusSkinSettings>().EnableAutoScrolling;
-    }
-
-    public override void Save()
-    {
-      base.Save();
-      var settings = SettingsManager.Load<NereusSkinSettings>();
-      settings.EnableAutoScrolling = _yes;
-      SettingsManager.Save(settings);
-    }
-
-    public void Dispose()
-    {
-      SkinChangeMonitor.Instance.UnregisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
-    }
   }
 }
