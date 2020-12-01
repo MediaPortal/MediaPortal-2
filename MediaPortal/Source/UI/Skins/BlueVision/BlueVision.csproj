@@ -1112,7 +1112,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SharpDX">
-      <Version>4.0.1</Version>
+      <Version>4.2.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

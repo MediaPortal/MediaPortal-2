@@ -8,7 +8,7 @@ using System.Reflection;
 [assembly: AssemblyCopyright("Copyright © Team MediaPortal 2007 - 2020")]
 // Note: Following two line will be modified by AssemblyInfoHelper in build process:
 // The version number will have format: 2.YY.MM.{BuildNumber}
-[assembly: AssemblyVersion("2.3.2010.13341")]
-[assembly: AssemblyFileVersion("2.3.2010.13341")]
+[assembly: AssemblyVersion("2.3.2011.13404")]
+[assembly: AssemblyFileVersion("2.3.2011.13404")]
 // Note: This line will be filled by AssemblyInfoHelper in build process.
-[assembly: AssemblyInformationalVersion("MP2.3_Final-bd2b8b")]
+[assembly: AssemblyInformationalVersion("origin/Branch_WIP_2.3.1_TVE_downgrade-5e7070")]

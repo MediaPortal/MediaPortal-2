@@ -10,7 +10,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(TargetDir)taglib-sharp.dll" />
+    <References Include="$(TargetDir)TagLibSharp.dll" />
   </ItemGroup>
 
   <Target Name="AfterBuild">
