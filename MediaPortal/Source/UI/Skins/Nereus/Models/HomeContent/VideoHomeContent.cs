@@ -58,6 +58,16 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _backingList.Add(new FavoriteVideoList(mlm.Lists["FavoriteVideo"].AllItems));
       _backingList.Add(new UnplayedVideoList(mlm.Lists["UnplayedVideo"].AllItems));
     }
+
+    protected override void ForceUpdateBackingList()
+    {
+      MediaListModel mlm = GetMediaListModel();
+
+      mlm.ForceUpdate("LatestVideo");
+      mlm.ForceUpdate("ContinuePlayVideo");
+      mlm.ForceUpdate("FavoriteVideo");
+      mlm.ForceUpdate("UnplayedVideo");
+    }
   }
 
   // Separate classes for each type of media shortcut and media list to

@@ -50,6 +50,16 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _backingList.Add(new FavoriteSeriesList(mlm.Lists["FavoriteSeries"].AllItems));
       _backingList.Add(new UnplayedSeriesList(mlm.Lists["UnplayedSeries"].AllItems));
     }
+
+    protected override void ForceUpdateBackingList()
+    {
+      MediaListModel mlm = GetMediaListModel();
+
+      mlm.ForceUpdate("LatestEpisodes");
+      mlm.ForceUpdate("ContinuePlaySeries");
+      mlm.ForceUpdate("FavoriteSeries");
+      mlm.ForceUpdate("UnplayedSeries");
+    }
   }
 
   public class LatestEpisodeList : ItemsListWrapper

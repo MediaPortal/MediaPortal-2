@@ -50,7 +50,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Height="80" MaxWidth="150" Margin="0,-10,15,10">
+          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Height="80" MaxWidth="150" Margin="0,-10,15,30">
             <Image.Source>
               <ImageSourceWrapper Delay="0" DelayInOut="false" VerticalTextureAlignment="Bottom" HorizontalTextureAlignment="Right">
                 <ImageSourceWrapper.Source>
@@ -64,11 +64,12 @@
     </media:MovieAspectWrapper.Template>
   </media:MovieAspectWrapper>
 
-  <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" Grid.Row="1">
+  <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" Grid.Row="1" 
+                            IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableAutoScrolling}">
     <media:VideoAspectWrapper.Template>
       <ControlTemplate>
         <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Disabled" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                      Focusable="True" Margin="0,30,10,0" Height="360" Width="460">
+                      Focusable="True" Margin="0,30,10,30" Width="460" MaxHeight="300" VerticalAlignment="Bottom">
            <ScrollViewer.Triggers>
              <Trigger Property="HasFocus" Value="True">
                <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
@@ -88,6 +89,18 @@
                    FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                    Content="{Binding StoryPlot}"/>
          </ScrollViewer>
+      </ControlTemplate>
+    </media:VideoAspectWrapper.Template>
+  </media:VideoAspectWrapper>
+
+  <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" Grid.Row="1" 
+                            IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAutoScrolling}">
+    <media:VideoAspectWrapper.Template>
+      <ControlTemplate>
+            <Label x:Name="StoryPlot" Wrap="True" Color="White" Width="460" MaxHeight="300" Margin="0,30,10,30"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Scroll="Auto" Opacity="0.7"
+                   FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Content="{Binding StoryPlot}"/>
       </ControlTemplate>
     </media:VideoAspectWrapper.Template>
   </media:VideoAspectWrapper>

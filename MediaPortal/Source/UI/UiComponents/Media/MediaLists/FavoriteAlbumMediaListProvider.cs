@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
@@ -33,6 +34,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteAlbumMediaListProvider()
     {
+      _role = AudioAlbumAspect.ROLE_ALBUM;
+      _linkedRole = AudioAspect.ROLE_TRACK;
+      _necessaryLinkedMias = Consts.NECESSARY_AUDIO_MIAS;
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
       _playableContainerConverterAction = item => new AlbumFilterItem(item)
       {

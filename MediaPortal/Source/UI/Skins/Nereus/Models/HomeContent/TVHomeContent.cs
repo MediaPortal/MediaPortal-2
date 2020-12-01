@@ -52,6 +52,16 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _backingList.Add(new CurrentTVList(mlm.Lists["CurrentPrograms"].AllItems));
       _backingList.Add(new CurrentSchedulesList(mlm.Lists["CurrentSchedules"].AllItems));
     }
+
+    protected override void ForceUpdateBackingList()
+    {
+      MediaListModel mlm = GetMediaListModel();
+
+      mlm.ForceUpdate("LastPlayTV");
+      mlm.ForceUpdate("FavoriteTV");
+      mlm.ForceUpdate("CurrentPrograms");
+      mlm.ForceUpdate("CurrentSchedules");
+    }
   }
 
   public class LastPlayTVList : ItemsListWrapper

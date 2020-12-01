@@ -173,10 +173,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BASS.NET">
-      <Version>2.4.12.5</Version>
+      <Version>2.4.14.1</Version>
     </PackageReference>
     <PackageReference Include="BassRegistration">
-      <Version>2.4.12.6</Version>
+      <Version>2.4.14.1</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
@@ -34,7 +35,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteSeriesMediaListProvider()
     {
+      _role = SeriesAspect.ROLE_SERIES;
+      _linkedRole = EpisodeAspect.ROLE_EPISODE;
       _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
+      _necessaryLinkedMias = Consts.NECESSARY_EPISODE_MIAS;
       _playableContainerConverterAction = item => new SeriesFilterItem(item)
       {
         Command = new MethodDelegateCommand(() => SeriesNavigationInitializer.NavigateToSeries(item.MediaItemId))

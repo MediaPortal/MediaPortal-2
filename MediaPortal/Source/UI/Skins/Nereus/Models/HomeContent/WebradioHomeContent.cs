@@ -39,6 +39,14 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _backingList.Add(new LastPlayedWebradioList(alm.Lists["LastPlayedWebradio"].AllItems));
       _backingList.Add(new TopPlayedWebradioList(alm.Lists["TopPlayedWebradio"].AllItems));
     }
+
+    protected override void ForceUpdateBackingList()
+    {
+      var alm = GetWebradioListModel();
+
+      alm.ForceUpdate("LastPlayedWebradio");
+      alm.ForceUpdate("TopPlayedWebradio");
+    }
   }
 
   public class LastPlayedWebradioList : ItemsListWrapper
