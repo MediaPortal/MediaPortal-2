@@ -19,10 +19,11 @@
       <StackPanel DataContext="{Binding Source={StaticResource AutoScrollConfigurationModel}}">
 
         <!--Auto Scrolling-->
-        <RadioButton Grid.Row="0" Grid.Column="0" x:Name="AutoScroll" Margin="10,1,0,1" VerticalAlignment="Center"
-                     IsChecked="{Binding Path=UseAutoScroll,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.AutoScrolling]"/>
-        <RadioButton Grid.Row="1" Grid.Column="0" x:Name="ManualScroll" Margin="10,1,0,1" VerticalAlignment="Center"
+        <RadioButton Grid.Row="0" Grid.Column="0" x:Name="ManualScroll" Margin="10,1,0,1" VerticalAlignment="Center"
                      IsChecked="{Binding Path=UseManualScroll,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.ManualAutoScrolling]"/>
+        <RadioButton Grid.Row="1" Grid.Column="0" x:Name="AutoScroll" Margin="10,1,0,1" VerticalAlignment="Center"
+                     IsChecked="{Binding Path=UseAutoScroll,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.AutoScrolling]"/>
+
 
         <!-- Scroll Speed -->
         <Grid Height="10"/>
@@ -34,8 +35,9 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
-          <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollSpeed]" Color="{ThemeResource TextColor}" Margin="5,0,5,0"/>
-          <TextBox x:Name="AutoScrollSpeed" Text="{Binding Path=ScrollSpeed,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140" HorizontalAlignment="Right"/>
+          <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollSpeed]" Color="{ThemeResource TextColor}" Margin="5,0,25,0"/>
+          <TextBox x:Name="AutoScrollSpeed" Text="{Binding Path=ScrollSpeed,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140"
+                   HorizontalAlignment="Right" IsEnabled="{Binding Path=UseAutoScroll}"/>
         </Grid>
 
         <!-- Scroll Delay -->
@@ -48,8 +50,9 @@
             <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
-          <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollDelay]" Color="{ThemeResource TextColor}" Margin="5,0,5,0"/>
-          <TextBox x:Name="AutoScrollDelay" Text="{Binding Path=ScrollDelay,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140" HorizontalAlignment="Right"/>
+          <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollDelay]" Color="{ThemeResource TextColor}" Margin="5,0,25,0"/>
+          <TextBox x:Name="AutoScrollDelay" Text="{Binding Path=ScrollDelay,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140"
+                   HorizontalAlignment="Right" IsEnabled="{Binding Path=UseAutoScroll}"/>
         </Grid>
 
         <!-- OK & Cancel button -->
