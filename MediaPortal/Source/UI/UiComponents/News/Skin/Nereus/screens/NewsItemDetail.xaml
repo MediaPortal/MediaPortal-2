@@ -50,6 +50,7 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Image Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="50,20,20,50">
@@ -60,15 +61,15 @@
           </Image.Source>
         </Image>
 
-        <Image Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="50,50,20,100" MaxHeight="200">
+        <Image Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="50,50,20,100" MaxHeight="180" Grid.Row="1">
           <Image.Source>
             <ImageSourceWrapper Delay="0" DelayInOut="true" Transition="transitions\dissolve" FallbackSource="RssIcon.png"
-                                  TransitionDuration="0" VerticalTextureAlignment="Top" HorizontalTextureAlignment="Left"
-                                  Source="{Binding SelectedItem.Feed.Icon}"/>
+                                TransitionDuration="0" VerticalTextureAlignment="Top" HorizontalTextureAlignment="Left"
+                                Source="{Binding SelectedItem.Feed.Icon}"/>
           </Image.Source>
         </Image>
 
-        <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="70,10,0,100">
+        <Grid Grid.Column="1" Grid.RowSpan="2"  HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="70,10,0,100">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -99,13 +100,19 @@
           </Grid>
 
           <ScrollViewer Grid.Row="3" CanContentScroll="True" Margin="0,30,20,30" VerticalScrollBarVisibility="Hidden"
+                        IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableAutoScrolling}"
                         HorizontalScrollBarVisibility="Disabled" Focusable="True" Height="600">
             <ScrollViewer.Resources>
               <ResourceWrapper x:Key="VerticalScrollbarRenderTransform" Value="{ThemeResource VerticalScrollbarRenderTransform}" />
             </ScrollViewer.Resources>
-            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Opacity="0.8"
+            <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Opacity="0.7"
                    Content="{Binding SelectedItem.Summary}" Wrap="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </ScrollViewer>
+          <Label Grid.Row="3" Margin="0,30,20,30" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAutoScrolling}" Scroll="Auto"
+                 ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
+                 ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
+                 Content="{Binding SelectedItem.Summary}" Wrap="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"  Opacity="0.7"/>
         </Grid>
 
         <!-- Updating Overlay -->

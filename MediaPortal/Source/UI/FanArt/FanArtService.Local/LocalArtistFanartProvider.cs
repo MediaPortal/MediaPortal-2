@@ -35,15 +35,13 @@ using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
   public class LocalArtistFanartProvider : IFanArtProvider
   {
     private readonly static Guid[] NECESSARY_MIAS = { ProviderResourceAspect.ASPECT_ID };
-    private const string ARTIST_INFO_FOLDER = "ArtistInfo";
-
+    
     public FanArtProviderSource Source { get { return FanArtProviderSource.File; } }
 
     /// <summary>
@@ -148,6 +146,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
               int? index = (int?)relation[RelationshipAspect.ATTR_RELATIONSHIP_INDEX];
               if (index.HasValue && artists.Count > index.Value && index.Value >= 0)
                 artistName = artists[index.Value];
+              break;
             }
           }
         }
@@ -220,33 +219,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
           }
 
           //Find central artist information folder
-          ResourcePath centralArtistFolderPath = null;
-          for (int level = 1; level <= 3; level++) //Look for central artist folder
-          {
-            // First get the ResourcePath of the central directory for the current level
-            var centralArtistNfoDirectoryResourcePath = artistMediaItemPath;
-            for (int addLevel = 0; addLevel < level; addLevel++)
-              centralArtistNfoDirectoryResourcePath = ResourcePathHelper.Combine(centralArtistNfoDirectoryResourcePath, "../");
-            if (centralArtistNfoDirectoryResourcePath.BasePathSegment.Path.Length < 3)
-              break; //Path no longer valid
-            centralArtistNfoDirectoryResourcePath = ResourcePathHelper.Combine(centralArtistNfoDirectoryResourcePath, $"{ARTIST_INFO_FOLDER}/");
-
-            // Then try to create an IFileSystemResourceAccessor for this directory
-            centralArtistNfoDirectoryResourcePath.TryCreateLocalResourceAccessor(out var artistNfoDirectoryRa);
-            var artistNfoDirectoryFsra = artistNfoDirectoryRa as IFileSystemResourceAccessor;
-            if (artistNfoDirectoryFsra != null)
-            {
-              using (artistNfoDirectoryFsra)
-              {
-                centralArtistFolderPath = centralArtistNfoDirectoryResourcePath;
-                break;
-              }
-            }
-          }
+          ResourcePath centralArtistFolderPath = LocalFanartHelper.GetCentralPersonFolder(artistMediaItemPath, CentralPersonFolderType.AudioArtists);
           if (centralArtistFolderPath != null)
           {
             // First get the ResourcePath of the central directory
-            var artistFolderPath = ResourcePathHelper.Combine(centralArtistFolderPath, $"{FileUtils.GetSafeFilename(artistName, '�').Replace("�", "")}/");
+            var artistFolderPath = ResourcePathHelper.Combine(centralArtistFolderPath, $"{LocalFanartHelper.GetSafePersonFolderName(artistName)}/");
 
             // Then try to create an IFileSystemResourceAccessor for this directory
             artistFolderPath.TryCreateLocalResourceAccessor(out var artistNfoDirectoryRa);

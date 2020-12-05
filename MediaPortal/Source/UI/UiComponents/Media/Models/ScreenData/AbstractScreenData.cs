@@ -89,6 +89,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     }
 
     /// <summary>
+    /// Specifies if the screen should be skipped if there is only 1 item
+    /// </summary>
+    public virtual bool SkipForSingleItem { get; } = false;
+
+
+    /// <summary>
     /// Returns a hint text that more than our maximum number of shown items should be preented.
     /// Can be overridden in sub classes to modify the text to be shown.
     /// </summary>

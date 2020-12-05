@@ -199,9 +199,6 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       //Get the relations
       ICollection<ExtractedRelation> relations = await ExtractRelationshipMetadata(mediaItemAccessor, mediaItemId, aspects).ConfigureAwait(false);
 
-      if (relations.Count == 0)
-        return;
-
       //Update the item and add any new relations to the database
       ICollection<MediaItem> updatedMediaItems = await ReconcileRelationships(mediaItemId, aspects, relations).ConfigureAwait(false);
 
@@ -259,6 +256,13 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
     protected async Task<ICollection<MediaItem>> ReconcileRelationships(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspects, ICollection<ExtractedRelation> relations)
     {
       ICollection<MediaItem> newMediaItems = new List<MediaItem>();
+      if (relations.Count == 0)
+      {
+        // Inform media library that there are no relationships
+        await ReconcileMediaItemRelationships(mediaItemId, MediaItemAspect.GetAspects(aspects), new List<RelationshipItem>()).ConfigureAwait(false);
+        return newMediaItems;
+      }
+
       int cacheMisses = 0;
       await _cacheSync.WaitAsync(_ct).ConfigureAwait(false);
       try

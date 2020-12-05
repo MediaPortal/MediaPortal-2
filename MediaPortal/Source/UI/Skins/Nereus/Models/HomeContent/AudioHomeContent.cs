@@ -50,7 +50,18 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _backingList.Add(new FavoriteAudioList(mlm.Lists["FavoriteAudio"].AllItems));
       _backingList.Add(new UnplayedAlbumList(mlm.Lists["UnplayedAlbum"].AllItems));
     }
+
+    protected override void ForceUpdateBackingList()
+    {
+      MediaListModel mlm = GetMediaListModel();
+
+      mlm.ForceUpdate("LatestAudio");
+      mlm.ForceUpdate("ContinuePlayAlbum");
+      mlm.ForceUpdate("FavoriteAudio");
+      mlm.ForceUpdate("UnplayedAlbum");
+    }
   }
+
 
   public class LatestAudioList : ItemsListWrapper
   {

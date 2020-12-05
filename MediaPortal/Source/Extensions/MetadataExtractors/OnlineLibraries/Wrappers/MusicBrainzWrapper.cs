@@ -100,8 +100,55 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         info.Languages.Add(track.Country);
         tracks.Add(info);
       }
+      if (tracks?.Count > 1)
+        tracks = MergeSimilarSearchResults(tracks);
 
       return tracks;
+    }
+
+    private List<TrackInfo> MergeSimilarSearchResults(IList<TrackInfo> searchResult)
+    {
+      Dictionary<string, Dictionary<string, TrackInfo>> mergedTracks = new Dictionary<string, Dictionary<string, TrackInfo>>();
+      List<TrackInfo> merged = new List<TrackInfo>();
+      foreach (var track in searchResult)
+      {
+        var id = track.MusicBrainzId.ToUpperInvariant();
+        var lang = track.Languages.FirstOrDefault() ?? "";
+        if (!mergedTracks.ContainsKey(id))
+        {
+          mergedTracks.Add(id, new Dictionary<string, TrackInfo>());
+          mergedTracks[id].Add(lang, track);
+          merged.Add(track);
+        }
+        else if (!mergedTracks[id].ContainsKey(lang))
+        {
+          mergedTracks[id].Add(lang, track);
+          merged.Add(track);
+        }
+        else
+        {
+          var existingTrack = mergedTracks[id][lang];
+          if (string.Equals(existingTrack.AlbumMusicBrainzId, track.AlbumMusicBrainzId, StringComparison.InvariantCultureIgnoreCase))
+          {
+            existingTrack.MergeWith(track, true, true);
+            existingTrack.Compilation = existingTrack.Compilation | track.Compilation;
+            existingTrack.AlbumHasBarcode = existingTrack.AlbumHasBarcode | track.AlbumHasBarcode;
+            existingTrack.AlbumHasOnlineCover = existingTrack.AlbumHasOnlineCover | track.AlbumHasOnlineCover;
+          }
+          else if (string.Equals(existingTrack.Album, track.Album, StringComparison.InvariantCultureIgnoreCase) && existingTrack.ReleaseDate?.Year == track.ReleaseDate?.Year &&
+                   string.Equals(existingTrack.TrackName, track.TrackName, StringComparison.InvariantCultureIgnoreCase) &&
+                   (existingTrack.TrackNum == track.TrackNum || existingTrack.TrackNum == 0 || track.TrackNum == 0))
+          {
+            existingTrack.MergeWith(track, true, true);
+          }
+          else
+          {
+            merged.Add(track);
+          }
+        }
+      }
+
+      return merged;
     }
 
     public override async Task<List<AlbumInfo>> SearchTrackAlbumAsync(AlbumInfo albumSearch, string language)

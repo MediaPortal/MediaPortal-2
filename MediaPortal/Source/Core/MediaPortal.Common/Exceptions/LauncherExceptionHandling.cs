@@ -23,6 +23,8 @@
 #endregion
 
 using System;
+using System.IO;
+using System.Net;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -36,6 +38,8 @@ namespace MediaPortal.Common.Exceptions
   /// </summary>
   public class LauncherExceptionHandling
   {
+    public static string LogPath { get; set; }
+
     public static void Application_ThreadException(object sender, ThreadExceptionEventArgs e)
     {
       HandleException("Unhandled Thread Exception", string.Format("Unhandled thread exception in thread '{0}'", sender), e.Exception);
@@ -48,7 +52,7 @@ namespace MediaPortal.Common.Exceptions
 
     public static void TaskScheduler_UnobservedTaskException(object sender, UnobservedTaskExceptionEventArgs e)
     {
-      HandleException("Unhandled Exception", "Unhandled exception in application", e.Exception);
+      HandleException("Unhandled Task Exception", "Unhandled task exception in application", e.Exception);
     }
 
     public static void HandleException(string caption, string text, Exception ex)
@@ -62,25 +66,47 @@ namespace MediaPortal.Common.Exceptions
           return;
         }
       }
+      catch {}
+
+      try
+      {
+        if (Directory.Exists(LogPath))
+        {
+          var file = Path.Combine(LogPath, "UnhandledException.log");
+          StringBuilder sb = new StringBuilder();
+          sb.AppendLine($"[{DateTime.Now}] - {caption}");
+          sb.AppendLine(ExceptionInfo(text, ex, true));
+          File.AppendAllText(file, sb.ToString());
+          return;
+        }
+      }
       catch { }
-      MessageBox.Show(ExceptionInfo(text, ex), caption);
+
+      MessageBox.Show(ExceptionInfo(text, ex, false), caption);
     }
 
-    public static string ExceptionInfo(string text, Exception ex)
+    public static string ExceptionInfo(string text, Exception ex, bool full)
     {
       StringBuilder exceptionInfo = new StringBuilder();
       exceptionInfo.AppendLine(text);
-      exceptionInfo.AppendLine("Exception: " + ex.GetType());
+      exceptionInfo.AppendLine("  Exception: " + ex.GetType());
       exceptionInfo.AppendLine("  Message: " + ex.Message);
       exceptionInfo.AppendLine("  Site   : " + ex.TargetSite);
       exceptionInfo.AppendLine("  Source : " + ex.Source);
-      if (ex.InnerException != null)
-      {
-        exceptionInfo.AppendLine("Inner Exception(s):");
-        exceptionInfo.AppendLine(WriteInnerException(ex.InnerException));
-      }
       exceptionInfo.AppendLine("Stack Trace:");
       exceptionInfo.AppendLine(ex.StackTrace);
+      if (ex.InnerException != null)
+      {
+        if (!full)
+        {
+          exceptionInfo.AppendLine("Inner Exception(s):");
+          exceptionInfo.AppendLine(WriteInnerException(ex.InnerException));
+        }
+        else
+        {
+          exceptionInfo.AppendLine(ExceptionInfo("Inner Exception:", ex.InnerException, true));
+        }
+      }
 
       return exceptionInfo.ToString();
     }

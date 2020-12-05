@@ -57,10 +57,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      return new MediaItemQuery(_necessaryMias, _optionalMias, null)
+      IFilter filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(null, _necessaryLinkedMias)) : null;
+      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
       {
-        Filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(null,
-          _necessaryLinkedMias)) : null,
         SubqueryFilter = GetNavigationFilter(_navigationInitializerType),
         SortInformation = new List<ISortInformation> { new ChildAggregateAttributeSortInformation(_role, _linkedRole, ImporterAspect.ATTR_DATEADDED, AggregateFunction.Max, SortDirection.Descending) }
       };

@@ -45,5 +45,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       return new AudioFilterByDiscNumberScreenData();
     }
+
+    public override bool SkipForSingleItem => true;
   }
 }

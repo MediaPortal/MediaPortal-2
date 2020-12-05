@@ -968,6 +968,17 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
+    private bool IsHighVolumeMessage(Message m)
+    {
+      const int WM_MOUSEMOVE = 0x0200;
+      const int WM_SETCURSOR = 0x0020;
+      const int WM_NCHITTEST = 0x0084;
+      if (m.Msg == WM_MOUSEMOVE || m.Msg == WM_SETCURSOR || m.Msg == WM_NCHITTEST)
+        return true;
+
+      return false;
+    }
+
     protected override void WndProc(ref Message m)
     {
       const long WM_SIZING = 0x214;
@@ -1093,9 +1104,15 @@ namespace MediaPortal.UI.SkinEngine.GUI
           }
         }
       }
-      // Send windows message through the system if any component needs to access windows messages
-      if (WindowsMessaging.BroadcastWindowsMessage(ref m))
-        return;
+
+      // Don't broadcast high volume messages (like mouse move) to avoid overload
+      if (!IsHighVolumeMessage(m))
+      {
+        // Send windows message through the system if any component needs to access windows messages
+        if (WindowsMessaging.BroadcastWindowsMessage(ref m))
+          return;
+      }
+
       base.WndProc(ref m);
     }
 

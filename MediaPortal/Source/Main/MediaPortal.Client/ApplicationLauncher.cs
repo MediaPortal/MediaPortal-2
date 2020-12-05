@@ -37,11 +37,11 @@ using MediaPortal.Common.Services.Logging;
 using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
+using System.IO;
+using MediaPortal.Common.PathManager;
 #if !DEBUG
 using System.Drawing;
-using System.IO;
 using System.Text.RegularExpressions;
-using MediaPortal.Common.PathManager;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Settings;
 #endif
@@ -158,10 +158,8 @@ namespace MediaPortal.Client
         Environment.Exit(2);
       }
 
-#if !DEBUG
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Client\Log");
-#endif
-
+      LauncherExceptionHandling.LogPath = logPath;
       Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
       TaskScheduler.UnobservedTaskException += LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;
@@ -190,10 +188,9 @@ namespace MediaPortal.Client
 
           logger = ServiceRegistration.Get<ILogger>();
 
-#if !DEBUG
           IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
           logPath = pathManager.GetPath("<LOG>");
-#endif
+          LauncherExceptionHandling.LogPath = logPath;
 
           UiExtension.RegisterUiServices();
         }

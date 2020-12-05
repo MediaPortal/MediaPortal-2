@@ -22,29 +22,11 @@
 
 #endregion
 
+using MediaPortal.Common.Configuration.ConfigurationClasses;
 
-namespace MediaPortal.UI.Presentation.Models
+namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
 {
-  /// <summary>
-  /// A content list model provides a list of content providers created from content defined by content 
-  /// paths in the plugin XML file.
-  /// </summary>
-  public interface IContentListModel
+  public class EnableAutoScrollingConfiguration : CustomConfigSetting
   {
-    /// <summary>
-    /// A limit for the maximum number of content items the content providers should return.
-    /// </summary>
-    int Limit { get; set; }
-
-    /// <summary>
-    /// A list of all available content providers.
-    /// </summary>
-    ContentListProviderDictionary Lists { get; }
-
-    /// <summary>
-    /// Force update the content of a specific list
-    /// </summary>
-    /// <param name="key"></param>
-    void ForceUpdate(string key);
   }
 }

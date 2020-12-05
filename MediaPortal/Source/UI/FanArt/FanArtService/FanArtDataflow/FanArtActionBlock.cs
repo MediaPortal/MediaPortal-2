@@ -232,15 +232,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
         if (items != null && items.Count > 0)
         {
           foreach (var item in items)
-            foreach (var action in actions)
-              if (action.MediaItemId == item.MediaItemId)
-              {
-                action.Aspects = item.Aspects;
-                break;
-              }
+          foreach (var action in actions)
+            if (action.MediaItemId == item.MediaItemId)
+            {
+              action.Aspects = item.Aspects;
+              break;
+            }
         }
         else
+        {
           ServiceRegistration.Get<ILogger>().Warn("FanArtActionBlock: Unable to load aspects, no matching media items were found in the media library");
+        }
       }
       catch (Exception ex)
       {
@@ -303,7 +305,16 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.FanArtDataflow
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         IEnumerable<IMediaFanArtHandler> handlers = mediaAccessor.LocalFanArtHandlers.Values.Where(h => h.FanArtAspects.Any(a => aspects.ContainsKey(a)));
         foreach (IMediaFanArtHandler handler in handlers)
-          await handler.CollectFanArtAsync(mediaItemId, aspects);
+        {
+          try
+          {
+            await handler.CollectFanArtAsync(mediaItemId, aspects);
+          }
+          catch (Exception ex)
+          {
+            ServiceRegistration.Get<ILogger>().Error("FanArtActionBlock: Error collecting fanart by handler {0} for media item {1}", ex, handler.Metadata.Name, mediaItemId);
+          }
+        }
       }
       catch (Exception ex)
       {

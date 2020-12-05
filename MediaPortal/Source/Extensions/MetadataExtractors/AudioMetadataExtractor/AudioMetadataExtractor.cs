@@ -869,13 +869,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if (SkipOnlineSearches && !SkipFanArtDownload)
           {
             TrackInfo tempInfo = trackInfo.Clone();
-            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo, _category).ConfigureAwait(false);
-            trackInfo.CopyIdsFrom(tempInfo);
-            trackInfo.HasChanged = tempInfo.HasChanged;
+            var success = await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo, _category).ConfigureAwait(false);
+            if (success)
+            {
+              trackInfo.CopyIdsFrom(tempInfo);
+              trackInfo.HasChanged = tempInfo.HasChanged;
+            }
+            else
+            {
+              ServiceRegistration.Get<ILogger>().Debug("AudioMetadataExtractor: Unable to get online ids for audio file '{0}'", fsra.CanonicalLocalResourcePath);
+            }
           }
           else if (!SkipOnlineSearches)
           {
-            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
+            var success = await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
+            if (!success)
+              ServiceRegistration.Get<ILogger>().Debug("AudioMetadataExtractor: Unable to get online data for audio file '{0}'", fsra.CanonicalLocalResourcePath);
           }
         }
 

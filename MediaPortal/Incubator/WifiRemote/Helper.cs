@@ -57,8 +57,8 @@ namespace MediaPortal.Plugins.WifiRemote
     internal static bool IsNowPlaying()
     {
       bool isPlaying = false;
-      if (ServiceRegistration.Get<IPlayerManager>().NumActiveSlots > 0)
-        isPlaying = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext?.CurrentPlayer != null;
+      if (ServiceRegistration.Get<IPlayerManager>(false)?.NumActiveSlots > 0)
+        isPlaying = ServiceRegistration.Get<IPlayerContextManager>(false)?.CurrentPlayerContext?.CurrentPlayer != null;
         //isPlaying = ServiceRegistration.Get<IPlayerContextManager>().PrimaryPlayerContext.PlaybackState == PlaybackState.Playing;
       return isPlaying;
     }
@@ -435,9 +435,12 @@ namespace MediaPortal.Plugins.WifiRemote
 
     private static async Task<IList<MediaItem>> SearchAsync(Guid? userId, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, IFilter filter, uint? limit = null, uint? offset = null, IList<ISortInformation> sort = null)
     {
-      var scm = ServiceRegistration.Get<IServerConnectionManager>();
-      var library = scm.ContentDirectory;
-      var userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      var scm = ServiceRegistration.Get<IServerConnectionManager>(false);
+      var library = scm?.ContentDirectory;
+      var userProfileDataManagement = ServiceRegistration.Get<IUserManagement>(false);
+      if (library == null || userProfileDataManagement == null)
+        return new List<MediaItem>();
+
       UserProfile user = null;
       if (userId == null)
         user = userProfileDataManagement?.CurrentUser;
@@ -445,7 +448,6 @@ namespace MediaPortal.Plugins.WifiRemote
         user = (await userProfileDataManagement?.UserProfileDataManagement.GetProfileAsync(userId.Value))?.Result;
       if (user != null)
       {
-        ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
         IDictionary<Guid, Share> serverShares = new Dictionary<Guid, Share>();
         var userFilter = user.GetUserFilter(necessaryMIATypes);
         filter = filter == null ? userFilter : userFilter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : filter;
@@ -519,9 +521,12 @@ namespace MediaPortal.Plugins.WifiRemote
       optionalMIATypes.Add(SeriesAspect.ASPECT_ID);
       optionalMIATypes.Add(ImageAspect.ASPECT_ID);
 
+      IList<MediaItem> items = new List<MediaItem>();
       IFilter searchFilter = new MediaItemIdFilter(mediaItemGuid);
       MediaItemQuery searchQuery = new MediaItemQuery(necessaryMIATypes, optionalMIATypes, searchFilter) { Limit = 1 };
-      IList<MediaItem> items = await ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory.SearchAsync(searchQuery, false, null, false);
+      var cd = ServiceRegistration.Get<IServerConnectionManager>(false);
+      if (cd?.ContentDirectory != null)
+        items = await cd.ContentDirectory.SearchAsync(searchQuery, false, null, false);
 
       if (items.Count == 0)
       {
@@ -542,7 +547,7 @@ namespace MediaPortal.Plugins.WifiRemote
     /// <param name="absolute">absolute or relative to current position</param>
     internal static void SetPositionPercent(int position, bool absolute)
     {
-      IPlayer player = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentPlayer;
+      IPlayer player = ServiceRegistration.Get<IPlayerContextManager>(false)?.CurrentPlayerContext?.CurrentPlayer;
       IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
       if (mediaPlaybackControl != null)
       {
@@ -566,7 +571,7 @@ namespace MediaPortal.Plugins.WifiRemote
     /// <param name="absolute">absolute or relative to current position</param>
     internal static void SetPosition(double position, bool absolute)
     {
-      IPlayer player = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentPlayer;
+      IPlayer player = ServiceRegistration.Get<IPlayerContextManager>(false)?.CurrentPlayerContext?.CurrentPlayer;
       IMediaPlaybackControl mediaPlaybackControl = player as IMediaPlaybackControl;
       if (mediaPlaybackControl != null)
       {
@@ -604,27 +609,27 @@ namespace MediaPortal.Plugins.WifiRemote
 
       // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
       string url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}&name={3}&width={4}&height={5}",
-        GetBaseResourceURL(), mediaType, fanartImageType, item.MediaItemId,
+        GetBaseResourceUrl(), mediaType, fanartImageType, item.MediaItemId,
         320, 480);
       return url;
     }
 
-    internal static string GetImageBaseURL(IChannel channel, string fanartType = null, string imageType = null)
+    internal static string GetImageBaseUrl(IChannel channel, string fanartType = null, string imageType = null)
     {
       string mediaType = fanartType ?? FanArtMediaTypes.ChannelTv;
       string fanartImageType = imageType ?? FanArtTypes.Banner;
 
       // Using MP2's FanArtService provides access to all kind of resources, thumbnails from ML and also local fanart from filesystem
       string url = string.Format("{0}/FanartService?mediatype={1}&fanarttype={2}&name={3}&width={4}&height={5}",
-        GetBaseResourceURL(), mediaType, fanartImageType, channel.Name,
+        GetBaseResourceUrl(), mediaType, fanartImageType, channel.Name,
         320, 480);
       return url;
     }
 
-    internal static string GetBaseResourceURL()
+    internal static string GetBaseResourceUrl()
     {
-      var rs = ServiceRegistration.Get<IResourceServer>();
-      return rs.GetServiceUrl(GetLocalIp());
+      var rs = ServiceRegistration.Get<IResourceServer>(false);
+      return rs?.GetServiceUrl(GetLocalIp()) ?? "";
     }
 
     internal static IPAddress GetLocalIp()

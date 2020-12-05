@@ -35,6 +35,14 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _backingList.Add(new LatestLaunchedAppList(alm.Lists["LastLaunchApps"].AllItems));
       _backingList.Add(new FavoriteAppList(alm.Lists["FavoriteApps"].AllItems));
     }
+
+    protected override void ForceUpdateBackingList()
+    {
+      var alm = GetAppListModel();
+
+      alm.ForceUpdate("LastLaunchApps");
+      alm.ForceUpdate("FavoriteApps");
+    }
   }
 
   public class LatestLaunchedAppList : ItemsListWrapper

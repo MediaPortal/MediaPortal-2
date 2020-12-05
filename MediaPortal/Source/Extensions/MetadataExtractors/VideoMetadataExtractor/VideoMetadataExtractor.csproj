@@ -46,10 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.TagLib">
-      <Version>2.1.0.5</Version>
+      <Version>2.2.0.2</Version>
     </PackageReference>
     <PackageReference Include="OpenCvSharp4.Windows">
-      <Version>4.3.0.20200421</Version>
+      <Version>4.5.0.20201013</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="build.targets" />

@@ -31,7 +31,7 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
     <PackageReference Include="OpenCvSharp4.Windows">
-      <Version>4.3.0.20200421</Version>
+      <Version>4.5.0.20201013</Version>
     </PackageReference>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>

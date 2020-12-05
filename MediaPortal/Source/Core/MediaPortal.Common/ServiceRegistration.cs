@@ -251,13 +251,7 @@ namespace MediaPortal.Common
         return service;
 
       if (throwIfNotFound)
-      {
-        if (!_isShuttingDown)
-          throw new ServiceNotFoundException(type);
-
-        // During shutdown logging may no longer be available which could cause an unhandled exception
-        // If this happens, return null so we will have a smaller stack to trace that is closer to the source
-      }
+        throw new ServiceNotFoundException(type);
 
       return null;
     }

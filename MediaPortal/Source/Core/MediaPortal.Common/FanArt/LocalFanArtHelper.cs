@@ -24,14 +24,29 @@
 
 using MediaPortal.Common.ResourceAccess;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.FileSystem;
 
 namespace MediaPortal.Common.FanArt
 {
+  public enum CentralPersonFolderType
+  {
+    AudioArtists,
+    SeriesActors,
+    MovieActors
+  }
+
   public static class LocalFanartHelper
   {
+    private static readonly ConcurrentDictionary<ResourcePath, bool> CENTRAL_ARTIST_FOLDER_CACHE = new ConcurrentDictionary<ResourcePath, bool>();
+    private static readonly ConcurrentDictionary<ResourcePath, bool> CENTRAL_ACTOR_FOLDER_CACHE = new ConcurrentDictionary<ResourcePath, bool>();
+
     public static readonly ICollection<String> EXTENSIONS = new HashSet<string>(StringComparer.OrdinalIgnoreCase) { ".jpg", ".png", ".tbn" };
+    public const string ARTIST_INFO_FOLDER = "ArtistInfo";
+    public const string ACTOR_INFO_FOLDER = "ActorInfo";
 
     public static readonly string[] THUMB_FILENAMES = new[] { "thumb", "landscape" };
     public static readonly string[] POSTER_FILENAMES = new[] { "poster", "folder", "cover", "keyart" };
@@ -213,6 +228,75 @@ namespace MediaPortal.Common.FanArt
         prefixes.Add($"season{seasonNumber:00}");
       prefixes.Add(seasonNumber == 0 ? "season-specials" : "season-all");
       return prefixes.ToArray();
+    }
+
+    public static ResourcePath GetCentralPersonFolder(ResourcePath startPath, CentralPersonFolderType folderType)
+    {
+      ResourcePath centralPersonFolderPath = null;
+      var folderName = folderType == CentralPersonFolderType.AudioArtists ? ARTIST_INFO_FOLDER : ACTOR_INFO_FOLDER;
+      var cache = folderType == CentralPersonFolderType.AudioArtists ? CENTRAL_ARTIST_FOLDER_CACHE : CENTRAL_ACTOR_FOLDER_CACHE;
+
+      //Find cached central person information folder
+      foreach (var folder in cache)
+      {
+        if (folder.Key.IsSameOrParentOf(startPath))
+        {
+          if (folder.Value)
+          {
+            //Reuse previously found central artist folder
+            centralPersonFolderPath = ResourcePathHelper.Combine(folder.Key, $"{folderName}/");
+            break;
+          }
+          else
+          {
+            //Hierarchy has already been searched
+            return null;
+          }
+        }
+      }
+
+      if (centralPersonFolderPath == null)
+      {
+        ResourcePath lastPath = startPath;
+
+        //Find central person information folder
+        for (int level = 0; level < 10; level++)
+        {
+          lastPath = ResourcePathHelper.Combine(lastPath, "../");
+
+          if (lastPath.BasePathSegment.Path.Length < 3)
+            break; //Path no longer valid
+
+          // Try to create an IFileSystemResourceAccessor for this directory
+          var centralResourcePath = ResourcePathHelper.Combine(lastPath, $"{folderName}/");
+          if (centralResourcePath.TryCreateLocalResourceAccessor(out var centralDirectoryRa) && centralDirectoryRa is IFileSystemResourceAccessor fsra)
+          {
+            using (fsra)
+            {
+              centralPersonFolderPath = centralResourcePath;
+              break;
+            }
+          }
+        }
+
+        if (centralPersonFolderPath != null)
+        {
+          //Store path for reuse
+          cache.TryAdd(lastPath, true);
+        }
+        else
+        {
+          //Store last valid path to avoid path hierarchy to be searched again
+          cache.TryAdd(lastPath, false);
+        }
+      }
+
+      return centralPersonFolderPath;
+    }
+
+    public static string GetSafePersonFolderName(string personName)
+    {
+      return FileUtils.GetSafeFilename(personName, '|').Replace("|", "");
     }
   }
 }

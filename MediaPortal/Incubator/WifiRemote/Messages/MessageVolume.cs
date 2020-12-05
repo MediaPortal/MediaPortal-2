@@ -47,11 +47,11 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       {
         try
         {
-          return ServiceRegistration.Get<IPlayerManager>().Volume;
+          return ServiceRegistration.Get<IPlayerManager>(false)?.Volume ?? -1;
         }
         catch (Exception)
         {
-          return 101;
+          return -1;
         }
       }
     }
@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     /// </summary>
     public bool IsMuted
     {
-      get { return ServiceRegistration.Get<IPlayerManager>().Muted; }
+      get { return ServiceRegistration.Get<IPlayerManager>(false)?.Muted ?? false; }
     }
   }
 }

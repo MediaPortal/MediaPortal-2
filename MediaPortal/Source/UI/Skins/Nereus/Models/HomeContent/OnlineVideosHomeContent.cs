@@ -37,6 +37,15 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _backingList.Add(new FavoriteOnlineVideoSiteList(onlineVideosModel.Lists["FavoriteOnlineVideoSites"].AllItems));
       
     }
+
+    protected override void ForceUpdateBackingList()
+    {
+      var onlineVideosModel = GetOnlineVideosListModel();
+
+      onlineVideosModel.ForceUpdate("TopLanguagesOnlineVideoSites");
+      onlineVideosModel.ForceUpdate("LastOnlineVideoSites");
+      onlineVideosModel.ForceUpdate("FavoriteOnlineVideoSites");
+    }
   }
 
   public class LastOnlineVideoSiteList : ItemsListWrapper

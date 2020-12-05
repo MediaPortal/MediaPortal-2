@@ -147,7 +147,7 @@ namespace MediaPortal.Utilities.Network
 
       public ShareType ShareType
       {
-        get { return (ShareType) (bShareType & 0x7F); }
+        get { return (ShareType)(bShareType & 0x7F); }
       }
     }
 
@@ -166,7 +166,7 @@ namespace MediaPortal.Utilities.Network
 
       public ShareType ShareType
       {
-        get { return (ShareType) (bShareType & 0x7FFF); }
+        get { return (ShareType)(bShareType & 0x7FFF); }
       }
     }
 
@@ -298,17 +298,17 @@ namespace MediaPortal.Utilities.Network
           Type t = (2 == level) ? typeof(ShareInfo2) : typeof(ShareInfo1);
           int offset = Marshal.SizeOf(t);
 
-          for (int i = 0, lpItem = pBuffer.ToInt32(); i < entriesRead; i++, lpItem += offset)
+          IntPtr pItem = pBuffer;
+          for (int i = 0; i < entriesRead; i++, pItem += offset)
           {
-            IntPtr pItem = new IntPtr(lpItem);
             if (1 == level)
             {
-              ShareInfo1 si = (ShareInfo1) Marshal.PtrToStructure(pItem, t);
+              ShareInfo1 si = (ShareInfo1)Marshal.PtrToStructure(pItem, t);
               result.Add(new Share(server, si.NetName, string.Empty, si.ShareType, si.Remark));
             }
             else
             {
-              ShareInfo2 si = (ShareInfo2) Marshal.PtrToStructure(pItem, t);
+              ShareInfo2 si = (ShareInfo2)Marshal.PtrToStructure(pItem, t);
               result.Add(new Share(server, si.NetName, si.Path, si.ShareType, si.Remark));
             }
           }
