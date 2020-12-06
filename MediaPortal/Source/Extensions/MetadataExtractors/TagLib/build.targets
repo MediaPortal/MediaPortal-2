@@ -11,7 +11,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <References Include="$(TargetDir)taglib-sharp.dll" />
+      <References Include="$(TargetDir)TagLibSharp.dll" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
