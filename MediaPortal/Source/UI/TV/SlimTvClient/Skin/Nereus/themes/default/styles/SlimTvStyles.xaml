@@ -181,7 +181,9 @@
                    Color="{DynamicResource ProgramFontColor}"/>
 
             <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,15,0"
-                   Wrap="True" Scroll="Auto" Content="{Binding Description}" Color="{ThemeResource TextColor}" ScrollSpeed="15" Opacity="0.6"/>
+                   ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
+                   ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
+                   Wrap="True" Scroll="Auto" Content="{Binding Description}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
 
             <!-- Dummy button which makes the panel focusable -->
             <Button Grid.Column="2" VerticalAlignment="Bottom" Style="{ThemeResource EmptyStyle}" SetFocusPrio="{DynamicResource ButtonFocus}"/>
