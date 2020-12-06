@@ -1213,7 +1213,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}"/>
+          <StackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
