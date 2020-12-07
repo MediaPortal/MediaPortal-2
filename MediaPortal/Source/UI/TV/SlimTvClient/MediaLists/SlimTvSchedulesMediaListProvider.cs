@@ -114,13 +114,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
     public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
     {
-      if (!TryInitTvHandler() || _tvHandler.ScheduleControl == null)
+      if (!TryInitTvHandler())
+        return false;
+      var tvHandlerScheduleControl = _tvHandler.ScheduleControl;
+      if (tvHandlerScheduleControl == null)
         return false;
 
       if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
         return true;
 
-      var scheduleResult = await _tvHandler.ScheduleControl.GetSchedulesAsync();
+      var scheduleResult = await tvHandlerScheduleControl.GetSchedulesAsync();
       if (!scheduleResult.Success)
         return false;
 
@@ -128,7 +131,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       var scheduleSortList = new List<Tuple<ISchedule, ProgramProperties>>();
       foreach (ISchedule schedule in schedules)
       {
-        var programResult = await _tvHandler.ScheduleControl.GetProgramsForScheduleAsync(schedule);
+        var programResult = await tvHandlerScheduleControl.GetProgramsForScheduleAsync(schedule);
         if (!programResult.Success || programResult.Result.Count == 0)
           continue;
         ProgramProperties programProperties = new ProgramProperties();
@@ -142,7 +145,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       if (_currentSchedules.Select(s => s.Item1.ScheduleId).SequenceEqual(scheduleList.Select(s => s.Item1.ScheduleId)))
         return true;
 
-      ListItem[]  items = scheduleList.Select(s => CreateScheduleItem(s.Item1, s.Item2)).ToArray();
+      ListItem[] items = scheduleList.Select(s => CreateScheduleItem(s.Item1, s.Item2)).ToArray();
       lock (_allItems.SyncRoot)
       {
         _currentSchedules = scheduleList;
