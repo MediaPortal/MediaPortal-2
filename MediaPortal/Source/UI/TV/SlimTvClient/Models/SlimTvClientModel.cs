@@ -1160,6 +1160,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       return new Program
       {
+        ProgramId =  -1,
         ChannelId = channelId,
         Title = loc.ToString("[SlimTvClient.NoProgram]"),
         StartTime = from,
