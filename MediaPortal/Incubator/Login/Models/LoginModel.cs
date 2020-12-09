@@ -427,7 +427,7 @@ namespace MediaPortal.UiComponents.Login.Models
       if (userProfile == null)
         logger?.Debug("Login: User logged out");
       else
-        logger?.Debug($"Login: User {userProfile.ProfileId} logged in");
+        logger?.Debug($"Login: User {userProfile.Name} ({userProfile.ProfileId}) logged in");
 
       if (userProfile != null && userProfile != UserManagement.UNKNOWN_USER)
       {

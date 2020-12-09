@@ -70,7 +70,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
         return filter;
 
       ILogger logger = ServiceRegistration.Get<ILogger>(false);
-      logger?.Debug($"Media: Applying filter for user: {userProfile.ProfileId}");
+      logger?.Debug($"Media: Applying filter for user: {userProfile.Name} ({userProfile.ProfileId})");
 
       var userFilter = userProfile.GetUserFilter(necessaryMias);
       if (userFilter != null && filter != null)
