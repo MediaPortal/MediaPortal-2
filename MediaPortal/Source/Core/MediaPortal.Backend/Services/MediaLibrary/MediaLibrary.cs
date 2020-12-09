@@ -2542,10 +2542,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               //Find children play count
               command.CommandText = _preparedStatements.SelectPlayDataFromParentIdSQL;
-              float nonVirtualChildCount = 0;
-              float watchedCount = 0;
               int playCountSum = 0;
               int maxPlayCount = 0;
+              float? watchPercentage = null;
+              float watchCount = 0;
               using (IDataReader reader = command.ExecuteReader())
               {
                 while (reader.Read())
@@ -2561,24 +2561,28 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   bool? childVirtual = database.ReadDBValue<bool?>(reader, 0);
                   if (childVirtual == false)
                   {
-                    nonVirtualChildCount++;
-
                     //Only non-virtual items can be counted as watched
                     playCountSum += playCount;
-                    if (playPercentage >= 100)
-                      watchedCount++;
+                    watchPercentage = (watchPercentage ?? 0) + playPercentage;
+                    watchCount++;
                   }
                 }
               }
 
               //Update parent
               command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
-              int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
-              if (watchPercentage >= 100)
+              if (watchPercentage.HasValue)
+              {
+                watchPercentage = watchPercentage / watchCount;
+                if (watchPercentage >= 100)
+                  watchPercentage = 100;
+              }
+              else
+              {
                 watchPercentage = 100;
-
+              }
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_PERCENTAGE;
-              valueParam.Value = UserDataKeysKnown.GetSortablePlayPercentageString(watchPercentage);
+              valueParam.Value = UserDataKeysKnown.GetSortablePlayPercentageString(Convert.ToInt32(watchPercentage.Value));
               if (command.ExecuteNonQuery() == 0)
               {
                 command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
@@ -2871,7 +2875,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       NotifyPlayback(mediaItemId, percentage >= 100);
 
-      bool updateParents = false;
+      bool updateParents = true; //Always update parent
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       using (ITransaction transaction = database.BeginTransaction())
       {
@@ -2890,7 +2894,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
           }
           count++;
-          updateParents = true;
+          //updateParents = true;
 
           //Update play count
           SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, UserDataKeysKnown.GetSortablePlayCountString(count));
@@ -2911,7 +2915,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
         else
         {
-          updateParents = true;
+          //updateParents = true;
 
           //Reset percentage
           SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, UserDataKeysKnown.GetSortablePlayPercentageString(0));
