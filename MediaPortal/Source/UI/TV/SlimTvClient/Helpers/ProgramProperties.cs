@@ -37,6 +37,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
   {
     private bool _settingProgram;
 
+    public AbstractProperty NoProgramDataProperty { get; set; }
     public AbstractProperty ProgramIdProperty { get; set; }
     public AbstractProperty IsScheduledProperty { get; set; }
     public AbstractProperty IsSeriesScheduledProperty { get; set; }
@@ -148,6 +149,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     }
 
     /// <summary>
+    /// Gets or Sets an indicator if there is no current program data available and this item is only a placeholder.
+    /// </summary>
+    public bool NoProgramData
+    {
+      get { return (bool)NoProgramDataProperty.GetValue(); }
+      set { NoProgramDataProperty.SetValue(value); }
+    }
+
+    /// <summary>
     /// Gets or Sets an indicator if the program is scheduled or currently recording.
     /// </summary>
     public int ProgramId
@@ -221,6 +231,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     public ProgramProperties()
     {
+      NoProgramDataProperty = new WProperty(typeof(bool), false);
       ProgramIdProperty = new WProperty(typeof(int), 0);
       IsScheduledProperty = new WProperty(typeof(bool), false);
       IsSeriesScheduledProperty = new WProperty(typeof(bool), false);
@@ -314,7 +325,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         }
         else
         {
-          ProgramId = 0;
+          ProgramId = -1;
           Title = string.Empty;
           Description = string.Empty;
           StartTime = DateTime.Now.GetDay();
@@ -323,6 +334,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           EpgGenreId = 0;
           EpgGenreColor = string.Empty;
         }
+
+        NoProgramData = ProgramId == -1;
         UpdateDuration();
       }
       finally

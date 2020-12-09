@@ -71,8 +71,12 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
+      IFilter linkedFilter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, 
+        new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE), 
+        new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100))) :
+        null;
       IFilter filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(null, _necessaryLinkedMias)),
+        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(linkedFilter, _necessaryLinkedMias)),
         new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
         new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100)),
         new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayPercentageString(0))) :

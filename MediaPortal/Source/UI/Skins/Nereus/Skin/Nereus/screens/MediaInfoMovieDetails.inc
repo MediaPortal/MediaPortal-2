@@ -98,6 +98,8 @@
     <media:VideoAspectWrapper.Template>
       <ControlTemplate>
             <Label x:Name="StoryPlot" Wrap="True" Color="White" Width="460" MaxHeight="300" Margin="0,30,10,30"
+                   ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
+                   ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Scroll="Auto" Opacity="0.7"
                    FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                    Content="{Binding StoryPlot}"/>

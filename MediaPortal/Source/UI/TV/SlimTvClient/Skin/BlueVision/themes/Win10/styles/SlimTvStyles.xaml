@@ -1091,7 +1091,7 @@
       
       <!-- Shows the progress of current time in relation to the current playing program -->
       <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="4" Grid.Row="0" Height="20" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Value="{Binding Programs[0].Progress}" Style="{ThemeResource TVProgressBarStyle}"/>
+                    Value="{Binding Programs[0].Progress}" Style="{ThemeResource TVProgressBarStyle}" IsVisible="{Binding !Programs[0].Program.NoProgramData}"/>
     </Grid>
   </DataTemplate>
 

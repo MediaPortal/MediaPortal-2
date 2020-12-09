@@ -222,9 +222,11 @@
             <media:VideoAspectWrapper.Template>
               <ControlTemplate>
                     <Label x:Name="StoryPlot" Wrap="True" Color="White" Width="460" MaxHeight="380" Margin="0,30,10,30"
-                           DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Scroll="Auto" Opacity="0.7"
+                           DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Scroll="Auto" 
+                           ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
+                           ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
                            FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                           Content="{Binding StoryPlot}"/>
+                           Content="{Binding StoryPlot}" Opacity="0.7"/>
               </ControlTemplate>
             </media:VideoAspectWrapper.Template>
           </media:VideoAspectWrapper>

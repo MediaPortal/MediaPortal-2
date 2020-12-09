@@ -40,7 +40,9 @@
     </StackPanel>
 
     <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-           Wrap="True" Scroll="Auto" ScrollDelay="5" ScrollSpeed="10" Opacity="0.6"
+           Wrap="True" Scroll="Auto" Opacity="0.6"
+           ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
+           ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
            Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}" Margin="0,0,10,5"/>
   </Grid>
 </DockPanel>
