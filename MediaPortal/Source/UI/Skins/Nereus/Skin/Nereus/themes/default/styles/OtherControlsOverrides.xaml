@@ -1013,38 +1013,71 @@
     </Setter>
   </Style>
 
+  <!-- Container style for a share item in a button -->
+  <Style x:Key="ShareOverview1ContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Style.Triggers>
+      <Trigger Property="Selected" Value="True">
+        <!-- Hack: It is sufficient to set the attached ZIndex property for one panel type; the MP2 SkinEngine maps it to the
+             same internal property for all panel types -->
+        <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+        <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
+        <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+        <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
+        <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+        <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+        <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+        <Setter TargetName="Grid3" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+      </Trigger>
+    </Style.Triggers>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource EmptyButtonStyle}" Command="{Binding Command}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="OnlineState_1" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="OnlineState_2" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ReImportLabel" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter TargetName="Grid3" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter TargetName="Grid4" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <DataTemplate x:Key="ShareOverview1ItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl">
       <Grid.RowDefinitions>
-        <RowDefinition Height="*"/>
+        <RowDefinition Height="60"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="250"/>
+        <ColumnDefinition Width="350"/>
         <ColumnDefinition Width="500"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="250"/>
       </Grid.ColumnDefinitions>
 
-      <Rectangle Grid.Column="0" StrokeThickness="0" Fill="Black" Margin="4,4,1,1" Opacity="0.2"
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-      <Rectangle Grid.Column="1" Grid.ColumnSpan="2" StrokeThickness="0" Fill="Black" Margin="4,4,1,1" Opacity="0.2"
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-      <Rectangle Grid.Column="3" StrokeThickness="0" Fill="Black" Margin="4,4,1,1" Opacity="0.2"
+      <Rectangle Grid.ColumnSpan="4" StrokeThickness="0" Fill="Black" Margin="-2,-2.5,-2.5,-2.5" Stroke="Black"
                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
-      <Rectangle Grid.Column="0" StrokeThickness="0" Fill="Black" Margin="5,5,3,3" Opacity="0.4"
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="2" RadiusY="2"/>
-      <Rectangle Grid.Column="1" Grid.ColumnSpan="2" StrokeThickness="0" Fill="Black" Margin="5,5,3,3" Opacity="0.4"
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="2" RadiusY="2"/>
-      <Rectangle Grid.Column="3" StrokeThickness="0" Fill="Black" Margin="5,5,3,3" Opacity="0.4"
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RadiusX="2" RadiusY="2"/>
-
-      <Rectangle Grid.Column="0" StrokeThickness="0" Fill="{ThemeResource NereusColorMedium}" Margin="5" 
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-      <Rectangle Grid.Column="1" Grid.ColumnSpan="2" StrokeThickness="0" Fill="{ThemeResource NereusColorMedium}" Margin="5" 
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-      <Rectangle Grid.Column="3" StrokeThickness="0" Fill="{ThemeResource NereusColorMedium}" Margin="5" 
-                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="0" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
+                 x:Name="Grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="1" Grid.ColumnSpan="2" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
+                 x:Name="Grid2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="3" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
+                 x:Name="Grid4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
       <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
              HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
@@ -1052,15 +1085,20 @@
              HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
 
       <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" VerticalAlignment="Center">
-        <Label Content="[Shares.Importing]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+        <Label x:Name="OnlineState_1" Content="[Shares.Importing]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
+        <Label x:Name="OnlineState_2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="0,0,10,0"
                IsVisible="{Binding Path=AdditionalProperties[ImportingProgress],Converter={StaticResource ReferenceToBoolConverter}}">
           <Label.Content>
             <Binding Path="AdditionalProperties[ImportingProgress]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} {0:F0}%"/>
           </Label.Content>
         </Label>
       </StackPanel>
-      <Button x:Name="ReImportButton" Grid.Column="3" Content="[Shares.ReImport]" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}" Command="{Binding Command}" Margin="4,4,4,3"/>
+      
+      <Button x:Name="ReImportButton" Grid.Column="3" Content=""
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}" Command="{Binding Command}" Margin="0,1.5,2.5,2.5"/>
+      
+      <Label x:Name="ReImportLabel" Grid.Column="3" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
 
       <!--Rectangle Grid.ColumnSpan="4" StrokeThickness="1" Fill="White" Height="2" HorizontalAlignment="Stretch" Margin="0,10,0,0" VerticalAlignment="Bottom" Opacity="0.4"/-->
 
@@ -1080,7 +1118,7 @@
       </Setter.Value>
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareOverview1ItemDataTemplate}"/>
-    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource ShareOverview1ContainerStyle}"/>
   </Style>
 
   <DataTemplate x:Key="SystemShares1ItemDataTemplate" DataType="{x:Type collections:ListItem}">
@@ -1182,7 +1220,92 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
   </Style>
 
-  
+  <!-- Data template for a simple share entry in the shares list -->
+  <DataTemplate x:Key="ShareItem1DataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="60"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="350"/>
+        <ColumnDefinition Width="350"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Rectangle Grid.ColumnSpan="3" StrokeThickness="0" Fill="Black" Margin="-2,-2.5,-2.5,-2.5" Stroke="Black"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+      <Rectangle Grid.Column="0" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
+                 x:Name="Grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="1" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
+                 x:Name="Grid2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="2" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
+                 x:Name="Grid3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,10,0" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" Margin="10,0,10,0"
+             Color="{ThemeResource TextColor}" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="SharePath" Grid.Column="2" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,10,0" Color="{ThemeResource TextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Container style for a share item in a button -->
+  <Style x:Key="SelectableShare1ContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource EmptyButtonStyle}" Command="{Binding Command}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter TargetName="Grid3" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="SharesConfigList1ViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                          Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource ShareItem1DataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ShareItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SelectableShare1ContainerStyle}"/>
+  </Style>
+
   <!-- ListView style to be used for menus which display an image with a label -->
 
   <Style x:Key="ImageDialogContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
