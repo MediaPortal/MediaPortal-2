@@ -1037,13 +1037,18 @@
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ShareName" Property="Opacity" Value="1"/>
                 <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="Opacity" Value="1"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="Opacity" Value="1"/>
                 <Setter TargetName="OnlineState_1" Property="FontFamily" Value="SegoeUIBold"/>
                 <Setter TargetName="OnlineState_2" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="OnlineState" Property="Opacity" Value="1"/>
                 <Setter TargetName="ReImportLabel" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ReImportLabel" Property="Opacity" Value="1"/>
                 <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid3" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1079,12 +1084,12 @@
       <Rectangle Grid.Column="3" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
                  x:Name="Grid4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
-      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
              HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
-      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}"
+      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
              HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
 
-      <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" VerticalAlignment="Center">
+      <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" VerticalAlignment="Center" Opacity="0.7">
         <Label x:Name="OnlineState_1" Content="[Shares.Importing]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
         <Label x:Name="OnlineState_2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="0,0,10,0"
                IsVisible="{Binding Path=AdditionalProperties[ImportingProgress],Converter={StaticResource ReferenceToBoolConverter}}">
@@ -1098,14 +1103,12 @@
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}" Command="{Binding Command}" Margin="0,1.5,2.5,2.5"/>
       
       <Label x:Name="ReImportLabel" Grid.Column="3" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}"
-             HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
-
-      <!--Rectangle Grid.ColumnSpan="4" StrokeThickness="1" Fill="White" Height="2" HorizontalAlignment="Stretch" Margin="0,10,0,0" VerticalAlignment="Bottom" Opacity="0.4"/-->
+             HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
 
       <!-- Additionally available properties to show here:
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}"
-          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
--->
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/-->
+
     </Grid>
   </DataTemplate>
 
@@ -1242,11 +1245,11 @@
       <Rectangle Grid.Column="2" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
                  x:Name="Grid3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
-      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
+      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
              HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,10,0" Color="{ThemeResource TextColor}"/>
-      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" Margin="10,0,10,0"
+      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" Margin="10,0,10,0"  Opacity="0.7"
              Color="{ThemeResource TextColor}" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="SharePath" Grid.Column="2" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}"
+      <Label x:Name="SharePath" Grid.Column="2" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}"  Opacity="0.7"
              HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,10,0" Color="{ThemeResource TextColor}"/>
     </Grid>
   </DataTemplate>
@@ -1261,10 +1264,13 @@
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ShareName" Property="Opacity" Value="1"/>
                 <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="Opacity" Value="1"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
                 <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="Opacity" Value="1"/>
                 <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid3" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1304,6 +1310,100 @@
     <Setter Property="ItemTemplate" Value="{ThemeResource ShareItem1DataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource ShareItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource SelectableShare1ContainerStyle}"/>
+  </Style>
+
+  <DataTemplate x:Key="ShareItemRemoveDataTemplate" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="60"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="350"/>
+        <ColumnDefinition Width="350"/>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <Rectangle Grid.ColumnSpan="3" StrokeThickness="0" Fill="Black" Margin="-2,-4.5,-2.5,-4.5" Stroke="Black"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+      <Rectangle Grid.Column="0" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5,0.5,2.5,0.5" Stroke="Black"
+                 x:Name="Grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="1" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5,0.5,2.5,0.5" Stroke="Black"
+                 x:Name="Grid2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Rectangle Grid.Column="2" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5,0.5,2.5,0.5" Stroke="Black"
+                 x:Name="Grid3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+      <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
+             HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,10,0" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" Margin="10,0,10,0"  Opacity="0.7"
+             Color="{ThemeResource TextColor}" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
+      <Label x:Name="SharePath" Grid.Column="2" Content="{Binding [Path]}" FontSize="{ThemeResource SmallFontSize}"  Opacity="0.7"
+             HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,10,0" Color="{ThemeResource TextColor}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- Container style for a share entry markable with a checkbox in the shares list -->
+  <Style x:Key="MultiMarkableShare1ContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <CheckBox x:Name="ShareMarker" Margin="2,0,0,0" Content="{Binding}" Style="{ThemeResource DefaultCheckBoxStyle}"
+                    IsChecked="{Binding Path=Selected,Mode=TwoWay}" >
+            <CheckBox.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ShareName" Property="Opacity" Value="1"/>
+                <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="Opacity" Value="1"/>
+                <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="Opacity" Value="1"/>
+                <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter TargetName="Grid3" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter TargetName="ItemControl" Property="Background">
+                  <Setter.Value>
+                    <SolidColorBrush Color="{ThemeResource PassiveFocusBackgroundColor}"/>
+                  </Setter.Value>
+                </Setter>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </CheckBox.Triggers>
+          </CheckBox>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ListView style to be used for the shares list -->
+  <Style x:Key="MultiMarkableShares1ListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                          Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource ShareItemRemoveDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ShareItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MultiMarkableShare1ContainerStyle}"/>
   </Style>
 
   <!-- ListView style to be used for menus which display an image with a label -->
