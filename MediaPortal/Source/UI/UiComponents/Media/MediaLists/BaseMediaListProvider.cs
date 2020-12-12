@@ -64,6 +64,8 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected IDictionary<string, IList<IFilter>> _navigationFilters;
     protected Type _navigationInitializerType;
 
+    private MediaListItemComparer _mediaListItemComparer = new MediaListItemComparer();
+
     public BaseMediaListProvider()
     {
       _allItems = new ItemsList();
@@ -122,8 +124,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       var items = await contentDirectory.SearchAsync(query, true, userProfile, showVirtual);
       lock (_allItems.SyncRoot)
       {
-        if (_currentMediaItems != null && _currentMediaItems.Select(m => m.MediaItemId).SequenceEqual(items.Select(m => m.MediaItemId)))
+        if (_currentMediaItems != null && _currentMediaItems.SequenceEqual(items, _mediaListItemComparer))
           return false;
+
         _currentMediaItems = items;
         IEnumerable<ListItem> listItems;
         if (_playableConverterAction != null)
@@ -198,6 +201,36 @@ namespace MediaPortal.UiComponents.Media.MediaLists
         {
           ServiceRegistration.Get<ILogger>().Warn("MediaListProvider: Cannot add Media navigation filter with id '{0}'", e, itemMetadata.Id);
         }
+      }
+    }
+
+    private class MediaListItemComparer : IEqualityComparer<MediaItem>
+    {
+      public bool Equals(MediaItem x, MediaItem y)
+      {
+        if (x == null && y == null)
+          return true;
+        else if (x == null || y == null)
+          return false;
+        else if (x.MediaItemId != y.MediaItemId || x.UserData.Count != y.UserData.Count)
+          return false;
+        else if (x.UserData.Count == 0)
+          return true;
+
+        foreach (var data in x.UserData)
+        {
+          if (!y.UserData.ContainsKey(data.Key))
+            return false;
+          if (y.UserData[data.Key] != data.Value)
+            return false;
+        }
+
+        return true;
+      }
+
+      public int GetHashCode(MediaItem obj)
+      {
+        return obj.MediaItemId.GetHashCode();
       }
     }
   }

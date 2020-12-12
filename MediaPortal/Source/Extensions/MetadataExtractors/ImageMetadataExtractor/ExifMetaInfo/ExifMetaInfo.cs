@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 using FreeImageAPI;
 using FreeImageAPI.Metadata;
+using FreeImageLib;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifMetaInfo
@@ -217,7 +218,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
       try
       {
         // Check if FreeImage is available
-        if (!FreeImage.IsAvailable())
+        if (!FreeImageInit.IsAvailable())
           throw new Exception("FreeImage is not available!");
 
         // Load the image from stream, try to read headers only, without decoding
