@@ -89,6 +89,12 @@ namespace MediaPortal.UI.Presentation.Players
       /// playlist, which is managed by the player context.
       /// </summary>
       RequestNextItem,
+      /// <summary>
+      /// The player is about to be released (after being stopped or ended). This message is immediately sent before <see cref="PlayerStopped"/>
+      /// or <see cref="PlayerEnded"/> and contains progress information as parameter <see cref="PlayerManagerMessaging.KEY_RESUME_STATE"/>.
+      /// instead.
+      /// </summary>
+      PlayerEndProgress,
 
       #endregion
 
@@ -172,6 +178,21 @@ namespace MediaPortal.UI.Presentation.Players
       msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
       msg.MessageData[KEY_MEDIAITEM] = mediaItem;
       msg.MessageData[KEY_RESUME_STATE] = resumeState;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a message which contains information for the progress of the playback.
+    /// </summary>
+    /// <param name="psc">Player slot controller of the player which is involved.</param>
+    /// <param name="mediaItemId">ID of media item that was played.</param>
+    /// <param name="playbackProgress">Playback progress.</param>
+    public static void SendPlayerEndProgressMessage(IPlayerSlotController psc, MediaItem mediaItem, IResumeState playbackProgress)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.PlayerEndProgress);
+      msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
+      msg.MessageData[KEY_MEDIAITEM] = mediaItem;
+      msg.MessageData[KEY_RESUME_STATE] = playbackProgress;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

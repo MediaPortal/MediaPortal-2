@@ -160,13 +160,20 @@ namespace MediaPortal.UI.Services.Players
         // React to player changes
         PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType) message.MessageType;
         IPlayerSlotController psc;
+        MediaItem mediaItem;
         switch (messageType)
         {
           case PlayerManagerMessaging.MessageType.PlayerResumeState:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
             IResumeState resumeState = (IResumeState) message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
-            MediaItem mediaItem = (MediaItem) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM];
+            mediaItem = (MediaItem) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM];
             HandleResumeInfo(psc, mediaItem, resumeState).Wait();
+            break;
+          case PlayerManagerMessaging.MessageType.PlayerEndProgress:
+            psc = (IPlayerSlotController)message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
+            IResumeState progress = (IResumeState)message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
+            mediaItem = (MediaItem)message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM];
+            HandleProgressInfo(psc, mediaItem, progress).Wait();
             break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
@@ -259,10 +266,23 @@ namespace MediaPortal.UI.Services.Players
       if (!mediaItem.UserData.ContainsKey(PlayerContext.KEY_RESUME_STATE))
         mediaItem.UserData.Add(PlayerContext.KEY_RESUME_STATE, "");
       mediaItem.UserData[PlayerContext.KEY_RESUME_STATE] = serialized;
+    }
+
+    protected async Task HandleProgressInfo(IPlayerSlotController psc, MediaItem mediaItem, IResumeState resumeState)
+    {
+      // We can only handle resume info for valid MediaItemIds that are coming from MediaLibrary
+      if (mediaItem == null)
+        return;
+      // Not from local browsing
+      if (mediaItem.MediaItemId == Guid.Empty)
+        return;
+      // And not from stubs
+      if (mediaItem.IsStub)
+        return;
 
       int playPercentage = 0;
       double playDuration = 0;
-      if(TryGetPlayDuration(mediaItem, resumeState, out playPercentage, out playDuration))
+      if (TryGetPlayDuration(mediaItem, resumeState, out playPercentage, out playDuration))
         await NotifyPlayback(mediaItem, playPercentage, playDuration);
     }
 

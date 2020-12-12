@@ -471,7 +471,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         switch (messageType)
         {
           case ClientManagerMessaging.MessageType.ClientOnline:
-            UpdateServerState();
+            UpdateServerImportState();
             break;
         }
       }
@@ -502,7 +502,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   if (!_shareImportStates.ContainsKey(share.ShareId))
                     _shareImportStates.Add(share.ShareId, new ShareImportState { ShareId = share.ShareId, IsImporting = true, Progress = -1 });
                 }
-                UpdateServerState();
+                UpdateServerImportState();
               }
               else
               {
@@ -523,7 +523,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 Task.Run(async () =>
                 {
                   await Task.Delay(1000);
-                  UpdateServerState();
+                  UpdateServerImportState();
                 });
               }
             }
@@ -558,7 +558,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   };
                 }
                 if (anyProgressAvailable)
-                  UpdateServerState();
+                  UpdateServerImportState();
               }
             }
             break;
@@ -569,7 +569,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    protected void UpdateServerState()
+    protected void UpdateServerImportState()
     {
       try
       {
@@ -2521,8 +2521,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             {
               while (reader.Read())
               {
-                if (!parents.ContainsKey(database.ReadDBValue<Guid>(reader, 0)))
-                  parents.Add(database.ReadDBValue<Guid>(reader, 0), 0);
+                var id = database.ReadDBValue<Guid>(reader, 0);
+                if (!parents.ContainsKey(id))
+                  parents.Add(id, 0);
               }
             }
 
@@ -2629,7 +2630,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           transaction.Commit();
         }
 
-        return parents.Count > 0;
+        if (parents.Count > 0)
+        {
+          MediaLibraryMessaging.SendMediaItemUserDataAddedOrUpdateMessage(parents.Keys);
+
+          return true;
+        }
+
+        return false;
       }
       catch (Exception e)
       {
@@ -2719,6 +2727,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         if (childPlayCounts.Count > 0)
         {
+          MediaLibraryMessaging.SendMediaItemUserDataAddedOrUpdateMessage(childPlayCounts.Keys);
+
           //Update parents
           UpdateParentPlayUserData(userProfileId, new[] { mediaItemId }.Concat(childPlayCounts.Keys).ToArray(), updateWatchedDate);
           return true;
@@ -2780,7 +2790,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (!_shareImportStates.ContainsKey(share.ShareId))
           _shareImportStates.Add(share.ShareId, new ShareImportState { ShareId = share.ShareId, IsImporting = true, Progress = -1 });
       }
-      UpdateServerState();
+      UpdateServerImportState();
     }
 
     public void ClientCompletedShareImport(Guid shareId)
@@ -2807,7 +2817,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (_shareImportStates.ContainsKey(share.ShareId))
           _shareImportStates.Remove(share.ShareId);
       }
-      UpdateServerState();
+      UpdateServerImportState();
     }
 
     public ICollection<Guid> GetCurrentlyImportingShareIds()
@@ -2922,6 +2932,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
         transaction.Commit();
       }
+      MediaLibraryMessaging.SendMediaItemUserDataAddedOrUpdateMessage(mediaItemId);
 
       if (updateParents)
       {
