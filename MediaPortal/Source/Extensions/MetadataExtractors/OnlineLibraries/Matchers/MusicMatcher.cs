@@ -57,6 +57,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     
     protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
+    protected const int MAX_CHANGES = 10000;
+    protected object _configSyncObj = new object();
+    protected List<string> _processedAlbumChanges = new List<string>();
+    protected List<string> _processedAudioChanges = new List<string>();
 
     #region Init
 
@@ -1230,15 +1234,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (_wrapper != null)
             {
-              if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+              lock (_configSyncObj)
               {
-                _lastCacheRefresh = DateTime.Now;
-                _config.LastRefresh = _lastCacheRefresh.Value.ToString(dateFormat, CultureInfo.InvariantCulture);
+                if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+                {
+                  _lastCacheRefresh = DateTime.Now;
+                  _config.LastRefresh = _lastCacheRefresh.Value.ToString(dateFormat, CultureInfo.InvariantCulture);
+                }
+                SaveConfig();
               }
             }
           });
         }
-        SaveConfig();
       }
     }
 
@@ -1246,15 +1253,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        if (_event.UpdatedItemType == UpdateType.AudioAlbum)
+        lock (_configSyncObj)
         {
-          _config.LastUpdatedAlbums.AddRange(_event.UpdatedItems);
-          SaveConfig();
-        }
-        if (_event.UpdatedItemType == UpdateType.Audio)
-        {
-          _config.LastUpdatedTracks.AddRange(_event.UpdatedItems);
-          SaveConfig();
+          if (_event.UpdatedItemType == UpdateType.AudioAlbum)
+          {
+            _config.LastUpdatedAlbums.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
+
+          if (_event.UpdatedItemType == UpdateType.Audio)
+          {
+            _config.LastUpdatedTracks.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
         }
       }
       catch (Exception ex)
@@ -1266,16 +1277,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<AlbumInfo> GetLastChangedAudioAlbums()
     {
       List<AlbumInfo> albums = new List<AlbumInfo>();
+      List<string> ids = new List<string>();
 
       if (!InitAsync().Result)
         return albums;
 
-      foreach (string id in _config.LastUpdatedAlbums)
+      lock (_configSyncObj)
       {
-        AlbumInfo a = new AlbumInfo();
-        if (SetTrackAlbumId(a, id) && !albums.Contains(a))
-          albums.Add(a);
+        _processedAlbumChanges.Clear();
+        foreach (string id in _config.LastUpdatedAlbums)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedAlbumChanges.Add(id);
+            AlbumInfo a = new AlbumInfo();
+            if (SetTrackAlbumId(a, id))
+              albums.Add(a);
+          }
+        }
       }
+
       return albums;
     }
 
@@ -1284,22 +1309,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!InitAsync().Result)
         return;
 
-      _config.LastUpdatedAlbums.Clear();
-      SaveConfig();
+      lock (_configSyncObj)
+      {
+        if (_processedAlbumChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedAlbumChanges)
+          _config.LastUpdatedAlbums.Remove(id);
+        _processedAlbumChanges.Clear();
+        SaveConfig();
+      }
     }
 
     public List<TrackInfo> GetLastChangedAudio()
     {
       List<TrackInfo> tracks = new List<TrackInfo>();
+      List<string> ids = new List<string>();
+
       if (!InitAsync().Result)
         return tracks;
 
-      foreach (string id in _config.LastUpdatedTracks)
+      lock (_configSyncObj)
       {
-        TrackInfo t = new TrackInfo();
-        if (SetTrackId(t, id) && !tracks.Contains(t))
-          tracks.Add(t);
+        _processedAudioChanges.Clear();
+        foreach (string id in _config.LastUpdatedTracks)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedAudioChanges.Add(id);
+            TrackInfo t = new TrackInfo();
+            if (SetTrackId(t, id))
+              tracks.Add(t);
+          }
+        }
       }
+
       return tracks;
     }
 
@@ -1308,8 +1356,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!InitAsync().Result)
         return;
 
-      _config.LastUpdatedTracks.Clear();
-      SaveConfig();
+      lock (_configSyncObj)
+      {
+        if (_processedAudioChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedAudioChanges)
+          _config.LastUpdatedTracks.Remove(id);
+        _processedAudioChanges.Clear();
+        SaveConfig();
+      }
     }
 
     #endregion
