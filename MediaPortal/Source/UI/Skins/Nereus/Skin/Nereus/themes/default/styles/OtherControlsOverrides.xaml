@@ -1052,7 +1052,6 @@
                 <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid3" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
-                <Setter TargetName="Grid4" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
               </Trigger>
             </Button.Triggers>
@@ -1069,20 +1068,19 @@
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="350"/>
-        <ColumnDefinition Width="500"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="250"/>
+        <ColumnDefinition Width="350"/>
       </Grid.ColumnDefinitions>
 
-      <Rectangle Grid.ColumnSpan="4" StrokeThickness="0" Fill="Black" Margin="-2,-2.5,-2.5,-2.5" Stroke="Black"
+      <Rectangle Grid.ColumnSpan="3" StrokeThickness="0" Fill="Black" Margin="-2,-2.5,-2.5,-2.5" Stroke="Black"
                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
       <Rectangle Grid.Column="0" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
                  x:Name="Grid1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-      <Rectangle Grid.Column="1" Grid.ColumnSpan="2" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
+      <Rectangle Grid.Column="1" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
                  x:Name="Grid2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
       <Rectangle Grid.Column="3" StrokeThickness="2.5" Fill="{ThemeResource NereusColorMedium}" Margin="2.5" Stroke="Black"
-                 x:Name="Grid4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+                 x:Name="Grid3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
       <Label x:Name="ShareName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
              HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
@@ -1098,12 +1096,13 @@
           </Label.Content>
         </Label>
       </StackPanel>
-      
-      <Button x:Name="ReImportButton" Grid.Column="3" Content=""
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}" Command="{Binding Command}" Margin="0,1.5,2.5,2.5"/>
-      
-      <Label x:Name="ReImportLabel" Grid.Column="3" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}"
-             HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
+
+      <Button x:Name="ReImportButton" Grid.Column="2" Content="" Command="{Binding Command}" Margin="0,1.5,2.5,2.5"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}"/>
+
+      <Label x:Name="ReImportLabel" Grid.Column="3" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}" 
+             IsVisible="{Binding ElementName=OnlineState2,Path=IsEmpty}" Margin="10,0,10,0"
+             HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
       <!-- Additionally available properties to show here:
       <Label x:Name="SharePath" Grid.Column="1" Content="{Binding [Path]}"
