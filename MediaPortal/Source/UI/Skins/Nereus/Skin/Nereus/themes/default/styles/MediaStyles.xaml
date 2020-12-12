@@ -2661,7 +2661,10 @@
       </Border>
       <Image Grid.Row="1" Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
 
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+      <!-- watched indicator -->
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
 
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
@@ -2801,9 +2804,12 @@
         </Label.IsVisible>
       </Label>
 
-        <!-- watched indicator -->
+      <!-- watched indicator -->
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>      
+
     </Grid>
   </ControlTemplate>
 
@@ -2850,6 +2856,12 @@
         </Image.IsVisible>
       </Image>
 
+      <!-- watched indicator -->
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
@@ -2870,6 +2882,7 @@
           </MultiBinding>
         </Label.Color>
       </Label>
+
     </Grid>
   </ControlTemplate>
 
