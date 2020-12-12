@@ -106,7 +106,28 @@
             </Label>
           </Grid>
 
-          <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Margin="0,30,20,0">
+          <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+            <media:UserDataWrapper.Template>
+              <ControlTemplate>
+                <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" >
+                    <Image.Source>
+                      <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}.png"/>
+                    </Image.Source>
+                  </Image>
+                  <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Color="White" FontFamily="SegoeUIBold"
+                         Width="95" Height="95" Margin="0,0,40,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                    <Label.Content>
+                      <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
+                    </Label.Content>
+                  </Label>
+                </Grid>
+              </ControlTemplate>
+            </media:UserDataWrapper.Template>
+          </media:UserDataWrapper>
+          
+          <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Margin="0,60,20,0">
             <media:MediaAspectWrapper.Template>
               <ControlTemplate>
                 <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
@@ -119,7 +140,7 @@
               </ControlTemplate>
             </media:MediaAspectWrapper.Template>
           </media:MediaAspectWrapper>
-
+          
           <Grid Margin="0,0,20,0" IsVisible="{Binding ElementName=TrackLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image Source="HomeContentIcons\track.png" Height="29" Width="28" Stretch="Uniform" Margin="0,0,5,0"
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
