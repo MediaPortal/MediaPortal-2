@@ -1101,7 +1101,7 @@
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}"/>
 
       <Label x:Name="ReImportLabel" Grid.Column="3" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}" 
-             IsVisible="{Binding ElementName=OnlineState2,Path=IsEmpty}" Margin="10,0,10,0"
+             IsVisible="{Binding ElementName=OnlineState_2,Path=IsEmpty}" Margin="10,0,10,0"
              HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
       <!-- Additionally available properties to show here:
