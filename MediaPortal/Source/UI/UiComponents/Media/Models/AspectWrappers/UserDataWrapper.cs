@@ -33,6 +33,8 @@ using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Players.ResumeState;
 using System.Linq;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UiComponents.Media.Helpers;
+using SharpDX;
 
 namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 {
@@ -90,6 +92,7 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
 
     public UserDataWrapper()
     {
+      AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;
       _playPercentageProperty = new SProperty(typeof(int?));
       _playCountProperty = new SProperty(typeof(int?));
       _mediaItemProperty = new SProperty(typeof(MediaItem));
@@ -99,6 +102,12 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     #endregion
 
     #region Members
+
+    private void MediaItemChanged(Guid mediaItemId)
+    {
+      if (MediaItem?.MediaItemId == mediaItemId)
+        Init(MediaItem);
+    }
 
     private void MediaItemChanged(AbstractProperty property, object oldvalue)
     {
@@ -173,6 +182,12 @@ namespace MediaPortal.UiComponents.Media.Models.AspectWrappers
     {
       PlayCount = null;
       PlayPercentage = null;
+    }
+
+    public override void Dispose()
+    {
+      AspectWrapperHelper.Instance.MediaItemChanged -= MediaItemChanged;
+      base.Dispose();
     }
 
     #endregion

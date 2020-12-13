@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
@@ -128,6 +129,7 @@ public MediaItem MediaItem
 
 public SeasonAspectWrapper()
 {
+  AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;
   _seriesNameProperty = new SProperty(typeof(string));
   _seasonProperty = new SProperty(typeof(int?));
   _descriptionProperty = new SProperty(typeof(string));
@@ -140,6 +142,12 @@ public SeasonAspectWrapper()
 #endregion
 
 #region Members
+
+private void MediaItemChanged(Guid mediaItemId)
+{
+  if (MediaItem?.MediaItemId == mediaItemId)
+    Init(MediaItem);
+}
 
 private void MediaItemChanged(AbstractProperty property, object oldvalue)
 {
@@ -169,6 +177,12 @@ public void SetEmpty()
   Description = null;
   AvailEpisodes = null;
   NumEpisodes = null;
+}
+
+public override void Dispose()
+{
+  AspectWrapperHelper.Instance.MediaItemChanged -= MediaItemChanged;
+  base.Dispose();
 }
 
 #endregion

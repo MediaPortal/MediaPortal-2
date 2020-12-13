@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
@@ -104,6 +105,7 @@ public MediaItem MediaItem
 
 public RecordingAspectWrapper()
 {
+  AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;
   _channelProperty = new SProperty(typeof(string));
   _startTimeProperty = new SProperty(typeof(DateTime?));
   _endTimeProperty = new SProperty(typeof(DateTime?));
@@ -114,6 +116,12 @@ public RecordingAspectWrapper()
 #endregion
 
 #region Members
+
+private void MediaItemChanged(Guid mediaItemId)
+{
+  if (MediaItem?.MediaItemId == mediaItemId)
+    Init(MediaItem);
+}
 
 private void MediaItemChanged(AbstractProperty property, object oldvalue)
 {
@@ -139,6 +147,12 @@ public void SetEmpty()
   Channel = null;
   StartTime = null;
   EndTime = null;
+}
+
+public override void Dispose()
+{
+  AspectWrapperHelper.Instance.MediaItemChanged -= MediaItemChanged;
+  base.Dispose();
 }
 
 #endregion
