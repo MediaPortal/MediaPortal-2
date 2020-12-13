@@ -30,6 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.UI.Presentation.Players;
+using MediaPortal.UI.Presentation.Players.ResumeState;
 using MediaPortal.UI.Presentation.UiNotifications;
 using MediaPortal.Utilities.Exceptions;
 
@@ -61,6 +62,7 @@ namespace MediaPortal.UI.Services.Players
     protected float _volumeCoefficient = 100;
     protected bool _isMuted = false;
     protected bool _isClosed = false;
+    protected TimeSpan? _stopPosition;
 
     #endregion
 
@@ -91,7 +93,10 @@ namespace MediaPortal.UI.Services.Players
 
       // Handling of resume data
       NotifyResumeState(player);
-      ResetPlayerEvents_NoLock(player);
+      if (player is IMediaPlaybackControl mpc)
+        _stopPosition = mpc.CurrentTime;
+      else
+        _stopPosition = null;
       IPlayer stopPlayer = null;
       IDisposable disposePlayer;
       lock (_playerManager.SyncObj)
@@ -100,7 +105,9 @@ namespace MediaPortal.UI.Services.Players
           stopPlayer = player;
         disposePlayer = player as IDisposable;
       }
+
       if (stopPlayer != null)
+      {
         try
         {
           stopPlayer.Stop();
@@ -109,7 +116,11 @@ namespace MediaPortal.UI.Services.Players
         {
           ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error stopping player '{0}'", e, _player);
         }
+      }
+      ResetPlayerEvents_NoLock(player);
+
       if (disposePlayer != null)
+      {
         try
         {
           disposePlayer.Dispose();
@@ -118,6 +129,7 @@ namespace MediaPortal.UI.Services.Players
         {
           ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error disposing player '{0}'", e, disposePlayer);
         }
+      }
     }
 
     protected void NotifyResumeState(IPlayer player)
@@ -217,7 +229,7 @@ namespace MediaPortal.UI.Services.Players
 
     internal void OnPlayerStopped(IPlayer player)
     {
-      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
+      PlayerManagerMessaging.SendPlayerStoppedMessage(_stopPosition, this);
     }
 
     internal void OnPlayerEnded(IPlayer player)

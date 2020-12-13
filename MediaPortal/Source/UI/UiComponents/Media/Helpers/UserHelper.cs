@@ -69,8 +69,8 @@ namespace MediaPortal.UiComponents.Media.Helpers
       if (!check.ApplyUserRestrictions)
         return filter;
 
-      ILogger logger = ServiceRegistration.Get<ILogger>(false);
-      logger?.Debug($"Media: Applying filter for user: {userProfile.Name} ({userProfile.ProfileId})");
+      //ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      //logger?.Debug($"Media: Applying filter for user: {userProfile.Name} ({userProfile.ProfileId})");
 
       var userFilter = userProfile.GetUserFilter(necessaryMias);
       if (userFilter != null && filter != null)

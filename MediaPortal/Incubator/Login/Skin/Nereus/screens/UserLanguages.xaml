@@ -15,6 +15,13 @@
     <!-- User language model -->
     <Model x:Key="Model" Id="E26A7613-4B9C-4B84-A982-A7B69D83DC3A"/>
 
+    <!-- Screen background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Image Stretch="Fill" Source="Background.png"/>
+      </Grid>
+    </ControlTemplate>
+
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="0,-10,0,-115">
