@@ -1100,8 +1100,8 @@
       <Button x:Name="ReImportButton" Grid.Column="2" Content="" Command="{Binding Command}" Margin="0,1.5,2.5,2.5"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}"/>
 
-      <Label x:Name="ReImportLabel" Grid.Column="3" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}" 
-             IsVisible="{Binding ElementName=OnlineState_2,Path=IsEmpty}" Margin="10,0,10,0"
+      <Label x:Name="ReImportLabel" Grid.Column="3" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
+             IsVisible="{Binding ElementName=OnlineState_2, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}" Margin="10,0,10,0"
              HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
       <!-- Additionally available properties to show here:
