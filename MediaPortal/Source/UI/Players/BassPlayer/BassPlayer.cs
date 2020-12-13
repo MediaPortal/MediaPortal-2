@@ -23,7 +23,6 @@
 #endregion
 
 using System;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
@@ -33,12 +32,6 @@ using MediaPortal.UI.Players.BassPlayer.Interfaces;
 using MediaPortal.UI.Players.BassPlayer.PlayerComponents;
 using MediaPortal.UI.Presentation.Players;
 using Un4seen.Bass.AddOn.Tags;
-using MediaPortal.UI.Services.UserManagement;
-using MediaPortal.Common.SystemCommunication;
-using MediaPortal.UI.ServerCommunication;
-using MediaPortal.Common.Settings;
-using MediaPortal.Common.UserManagement;
-using MediaPortal.UI.Services.Players.Settings;
 
 namespace MediaPortal.UI.Players.BassPlayer
 {
@@ -156,7 +149,7 @@ namespace MediaPortal.UI.Players.BassPlayer
       lock (_syncObj)
         if (_externalState != PlayerState.Active)
           return;
-      _ = NotifyPlayback();
+
       // Just make MP come up with the next item on its playlist
       FireNextItemRequest();
     }
@@ -216,32 +209,6 @@ namespace MediaPortal.UI.Players.BassPlayer
       RequestNextItemDlgt dlgt = NextItemRequest;
       if (dlgt != null)
         dlgt(this);
-    }
-
-    protected async Task NotifyPlayback()
-    {
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      PlayerManagerSettings settings = settingsManager.Load<PlayerManagerSettings>();
-      int playPercentage = GetCurrentPlayPercentage();
-      bool played = playPercentage >= settings.WatchedPlayPercentage;
-      if (played)
-        playPercentage = 100;
-
-      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      IContentDirectory cd = scm.ContentDirectory;
-      if (_mediaItemId.HasValue && _mediaItemId.Value != Guid.Empty && cd != null)
-      {
-        if (userProfileDataManagement.IsValidUser)
-        {
-          bool updateLastPlayed = (played || playPercentage >= PLAY_THRESHOLD_PERCENT || CurrentTime.TotalSeconds >= PLAY_THRESHOLD_SEC);
-          await cd.NotifyUserPlaybackAsync(userProfileDataManagement.CurrentUser.ProfileId, _mediaItemId.Value, playPercentage, updateLastPlayed);
-        }
-        else
-        {
-          await cd.NotifyPlaybackAsync(_mediaItemId.Value, played);
-        }
-      }
     }
 
     protected int GetCurrentPlayPercentage()
@@ -323,7 +290,6 @@ namespace MediaPortal.UI.Players.BassPlayer
 
     public void Stop()
     {
-      _ = NotifyPlayback();
       lock (_syncObj)
       {
         if (_externalState != PlayerState.Active)

@@ -62,6 +62,7 @@ namespace MediaPortal.UI.Services.Players
     protected float _volumeCoefficient = 100;
     protected bool _isMuted = false;
     protected bool _isClosed = false;
+    protected TimeSpan? _stopPosition;
 
     #endregion
 
@@ -92,7 +93,10 @@ namespace MediaPortal.UI.Services.Players
 
       // Handling of resume data
       NotifyResumeState(player);
-      ResetPlayerEvents_NoLock(player);
+      if (player is IMediaPlaybackControl mpc)
+        _stopPosition = mpc.CurrentTime;
+      else
+        _stopPosition = null;
       IPlayer stopPlayer = null;
       IDisposable disposePlayer;
       lock (_playerManager.SyncObj)
@@ -101,7 +105,9 @@ namespace MediaPortal.UI.Services.Players
           stopPlayer = player;
         disposePlayer = player as IDisposable;
       }
+
       if (stopPlayer != null)
+      {
         try
         {
           stopPlayer.Stop();
@@ -110,7 +116,11 @@ namespace MediaPortal.UI.Services.Players
         {
           ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error stopping player '{0}'", e, _player);
         }
+      }
+      ResetPlayerEvents_NoLock(player);
+
       if (disposePlayer != null)
+      {
         try
         {
           disposePlayer.Dispose();
@@ -119,16 +129,14 @@ namespace MediaPortal.UI.Services.Players
         {
           ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error disposing player '{0}'", e, disposePlayer);
         }
+      }
     }
 
     protected void NotifyResumeState(IPlayer player)
     {
       IResumablePlayer resumablePlayer = player as IResumablePlayer;
       if (resumablePlayer == null)
-      {
-        NotifyEndProgress(player, false);
         return;
-      }
 
       // Get the current MediaItem ID at this time, later the PSC is already closed (in case of PlayerEnded state) and MediaItem information is lost.
       object oContext;
@@ -143,63 +151,12 @@ namespace MediaPortal.UI.Services.Players
       {
         IResumeState resumeState;
         if (resumablePlayer.GetResumeState(out resumeState))
-        {
           PlayerManagerMessaging.SendPlayerResumeStateMessage(this, playerContext.CurrentMediaItem, resumeState);
-          PlayerManagerMessaging.SendPlayerEndProgressMessage(this, playerContext.CurrentMediaItem, resumeState);
-        }
       }
       catch (Exception e)
       {
         ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error getting resume state from player '{0}'", e, resumablePlayer);
       }
-    }
-
-    protected void NotifyEndProgress(IPlayer player, bool ended)
-    {
-      IMediaPlaybackControl playbackPlayer = player as IMediaPlaybackControl;
-      if (playbackPlayer == null)
-        return;
-
-      // Get the current MediaItem ID at this time, later the PSC is already closed (in case of PlayerEnded state) and MediaItem information is lost.
-      object oContext;
-      if (!ContextVariables.TryGetValue(PlayerContext.KEY_PLAYER_CONTEXT, out oContext) || !(oContext is IPlayerContext))
-        return;
-
-      IPlayerContext playerContext = (IPlayerContext)oContext;
-      if (playerContext.CurrentMediaItem == null)
-        return;
-
-      try
-      {
-        if (ended)
-          PlayerManagerMessaging.SendPlayerEndProgressMessage(this, playerContext.CurrentMediaItem, null);
-        else if (GetProgress(playbackPlayer, playerContext.CurrentMediaItem, out var progress))
-          PlayerManagerMessaging.SendPlayerEndProgressMessage(this, playerContext.CurrentMediaItem, progress);
-      }
-      catch (Exception e)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("PlayerSlotController: Error getting progress from player '{0}'", e, playbackPlayer);
-      }
-    }
-
-    public virtual bool GetProgress(IMediaPlaybackControl playbackPlayer, MediaItem mediaItem, out IResumeState progress)
-    {
-      TimeSpan currentTime = playbackPlayer.CurrentTime;
-      // Workaround for TsReader handling on playback end: it reports a negative position, so we treat it to "stream end"
-      if (currentTime.TotalSeconds < 0)
-        currentTime = playbackPlayer.Duration;
-      TimeSpan duration = playbackPlayer.Duration;
-      // If we already played back more then 99%, we indicate that it is finished.
-      if (currentTime.TotalSeconds / duration.TotalSeconds > 0.99)
-        progress = null;
-      else
-        progress = new PositionResumeState
-        {
-          ResumePosition = playbackPlayer.CurrentTime,
-          ActiveResourceLocatorIndex = mediaItem?.ActiveResourceLocatorIndex ?? 0,
-          ActiveEditionIndex = mediaItem?.ActiveEditionIndex ?? 0
-        };
-      return true;
     }
 
     protected void CheckActive()
@@ -272,7 +229,7 @@ namespace MediaPortal.UI.Services.Players
 
     internal void OnPlayerStopped(IPlayer player)
     {
-      PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.PlayerStopped, this);
+      PlayerManagerMessaging.SendPlayerStoppedMessage(_stopPosition, this);
     }
 
     internal void OnPlayerEnded(IPlayer player)
@@ -292,7 +249,6 @@ namespace MediaPortal.UI.Services.Players
 
     internal void OnNextItemRequest(IPlayer player)
     {
-      NotifyEndProgress(player, true);
       PlayerManagerMessaging.SendPlayerMessage(PlayerManagerMessaging.MessageType.RequestNextItem, this);
     }
 

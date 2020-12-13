@@ -169,12 +169,6 @@ namespace MediaPortal.UI.Services.Players
             mediaItem = (MediaItem) message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM];
             HandleResumeInfo(psc, mediaItem, resumeState).Wait();
             break;
-          case PlayerManagerMessaging.MessageType.PlayerEndProgress:
-            psc = (IPlayerSlotController)message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
-            IResumeState progress = (IResumeState)message.MessageData[PlayerManagerMessaging.KEY_RESUME_STATE];
-            mediaItem = (MediaItem)message.MessageData[PlayerManagerMessaging.KEY_MEDIAITEM];
-            HandleProgressInfo(psc, mediaItem, progress).Wait();
-            break;
           case PlayerManagerMessaging.MessageType.PlayerError:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
@@ -182,7 +176,10 @@ namespace MediaPortal.UI.Services.Players
             break;
           case PlayerManagerMessaging.MessageType.PlayerStopped:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
-            HandlePlayerStopped(psc);
+            TimeSpan? position = null;
+            if (message.MessageData.ContainsKey(PlayerManagerMessaging.PLAYER_POSITION))
+              position = (TimeSpan?)message.MessageData[PlayerManagerMessaging.PLAYER_POSITION];
+            HandlePlayerStopped(psc, position);
             break;
           case PlayerManagerMessaging.MessageType.RequestNextItem:
             psc = (IPlayerSlotController) message.MessageData[PlayerManagerMessaging.PLAYER_SLOT_CONTROLLER];
@@ -268,7 +265,7 @@ namespace MediaPortal.UI.Services.Players
       mediaItem.UserData[PlayerContext.KEY_RESUME_STATE] = serialized;
     }
 
-    protected async Task HandleProgressInfo(IPlayerSlotController psc, MediaItem mediaItem, IResumeState resumeState)
+    protected async Task HandleProgress(TimeSpan currentTime, MediaItem mediaItem, bool ended)
     {
       // We can only handle resume info for valid MediaItemIds that are coming from MediaLibrary
       if (mediaItem == null)
@@ -280,59 +277,60 @@ namespace MediaPortal.UI.Services.Players
       if (mediaItem.IsStub)
         return;
 
-      int playPercentage = 0;
+      int playPercentage = 100;
       double playDuration = 0;
-      if (TryGetPlayDuration(mediaItem, resumeState, out playPercentage, out playDuration))
+      if (ended || TryGetPlayDuration(currentTime, mediaItem, out playPercentage, out playDuration))
         await NotifyPlayback(mediaItem, playPercentage, playDuration);
     }
 
-    protected static bool TryGetPlayDuration(MediaItem mediaItem, IResumeState resumeState, out int playPercentage, out double playDuration)
+    protected static bool TryGetPlayDuration(TimeSpan currentTime, MediaItem mediaItem, out int playPercentage, out double playDuration)
     {
       playPercentage = 100;
       playDuration = 0;
-      PositionResumeState positionResume = resumeState as PositionResumeState;
-      if (positionResume != null)
-      {
-        TimeSpan resumePosition = positionResume.ResumePosition;
-        TimeSpan duration = TimeSpan.FromSeconds(0);
-        IList<MediaItemAspect> aspects;
-        if (mediaItem.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out aspects))
-        {
-          var aspect = aspects.First();
-          int? part = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART];
-          int? partSet = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
-          long? dur = null;
-          if (!part.HasValue || part < 0)
-          {
-            dur = (long?)aspect[VideoStreamAspect.ATTR_DURATION];
-          }
-          else if (partSet.HasValue)
-          {
-            dur = aspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
-            aspect[VideoStreamAspect.ATTR_DURATION] != null).Sum(a => (long)a[VideoStreamAspect.ATTR_DURATION]);
-          }
-          if (dur.HasValue)
-            duration = TimeSpan.FromSeconds(dur.Value);
-        }
-        else if (mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspects))
-        {
-          var aspect = aspects.First();
-          long? dur = aspect == null ? null : (long?)aspect[AudioAspect.ATTR_DURATION];
-          if (dur.HasValue)
-            duration = TimeSpan.FromSeconds(dur.Value);
-        }
 
-        if (duration.TotalSeconds > 0)
+      // Workaround for TsReader handling on playback end: it reports a negative position, so we treat it to "stream end"
+      if (currentTime.TotalSeconds < 0)
+        return true;
+
+      TimeSpan duration = TimeSpan.FromSeconds(0);
+      IList<MediaItemAspect> aspects;
+      if (mediaItem.Aspects.TryGetValue(VideoStreamAspect.ASPECT_ID, out aspects))
+      {
+        var aspect = aspects.First();
+        int? part = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART];
+        int? partSet = (int?)aspect[VideoStreamAspect.ATTR_VIDEO_PART_SET];
+        long? dur = null;
+        if (!part.HasValue || part < 0)
         {
-          playPercentage = (int)(resumePosition.TotalSeconds * 100 / duration.TotalSeconds);
-          playDuration = resumePosition.TotalSeconds;
+          dur = (long?)aspect[VideoStreamAspect.ATTR_DURATION];
         }
-        else
+        else if (partSet.HasValue)
         {
-          playPercentage = 0;
-          playDuration = 0;
+          dur = aspects.Where(a => (int?)a[VideoStreamAspect.ATTR_VIDEO_PART_SET] == partSet &&
+                                   aspect[VideoStreamAspect.ATTR_DURATION] != null).Sum(a => (long)a[VideoStreamAspect.ATTR_DURATION]);
         }
+        if (dur.HasValue)
+          duration = TimeSpan.FromSeconds(dur.Value);
       }
+      else if (mediaItem.Aspects.TryGetValue(AudioAspect.ASPECT_ID, out aspects))
+      {
+        var aspect = aspects.First();
+        long? dur = aspect == null ? null : (long?)aspect[AudioAspect.ATTR_DURATION];
+        if (dur.HasValue)
+          duration = TimeSpan.FromSeconds(dur.Value);
+      }
+
+      if (duration.TotalSeconds > 0)
+      {
+        playPercentage = (int)(currentTime.TotalSeconds * 100 / duration.TotalSeconds);
+        playDuration = currentTime.TotalSeconds;
+      }
+      else
+      {
+        playPercentage = 0;
+        playDuration = 0;
+      }
+
       if (playPercentage > 100)
         playPercentage = 100;
       return true;
@@ -402,11 +400,13 @@ namespace MediaPortal.UI.Services.Players
       }
     }
 
-    protected void HandlePlayerStopped(IPlayerSlotController psc)
+    protected void HandlePlayerStopped(IPlayerSlotController psc, TimeSpan? stopPosition)
     {
       IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
       if (pc == null || !pc.IsActive)
         return;
+      if (stopPosition.HasValue)
+        HandleProgress(stopPosition.Value, pc.CurrentMediaItem, false).Wait();
       // We get the player message asynchronously, so we have to check the state of the slot again to ensure
       // we close the correct one
       if (pc.CloseWhenFinished && pc.CurrentPlayer == null)
@@ -419,6 +419,7 @@ namespace MediaPortal.UI.Services.Players
       PlayerContext pc = PlayerContext.GetPlayerContext(psc);
       if (pc == null || !pc.IsActive)
         return;
+      HandleProgress(TimeSpan.FromSeconds(-1), pc.CurrentMediaItem, true).Wait();
       pc.RequestNextItem_NoLock();
     }
 
