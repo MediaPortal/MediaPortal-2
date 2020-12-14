@@ -207,10 +207,10 @@ namespace MediaItemAspectModelBuilder
       List<string> ctors = new List<string> { string.Format("public {0}Wrapper()\r\n{{\r\n  AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;\r\n  {1}\r\n}}", aspectName, string.Join("\r\n  ", _propertyCreation.ToArray())) };
       AppendRegion(result, "Constructor", ctors);
 
-      _members.Add(@"private void MediaItemChanged(Guid mediaItemId)
+      _members.Add(@"private void MediaItemChanged(MediaItem mediaItem)
 {
-  if (MediaItem?.MediaItemId == mediaItemId)
-    Init(MediaItem);
+  if (MediaItem?.MediaItemId == mediaItem?.MediaItemId)
+    Init(mediaItem);
 }");
 
       _members.Add(@"private void MediaItemChanged(AbstractProperty property, object oldvalue)

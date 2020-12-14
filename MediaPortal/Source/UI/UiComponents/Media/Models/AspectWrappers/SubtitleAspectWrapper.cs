@@ -223,10 +223,10 @@ public SubtitleAspectWrapper()
 
 #region Members
 
-private void MediaItemChanged(Guid mediaItemId)
+private void MediaItemChanged(MediaItem mediaItem)
 {
-  if (MediaItem?.MediaItemId == mediaItemId)
-    Init(MediaItem);
+  if (MediaItem?.MediaItemId == mediaItem?.MediaItemId)
+    Init(mediaItem);
 }
 
 private void MediaItemChanged(AbstractProperty property, object oldvalue)

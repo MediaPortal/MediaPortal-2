@@ -69,7 +69,7 @@ namespace MediaPortal.UiComponents.Media.Helpers
             MediaItem mediaItem = (MediaItem)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM];
             ContentDirectoryMessaging.MediaItemChangeType changeType = (ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE];
             if (changeType == ContentDirectoryMessaging.MediaItemChangeType.Updated)
-              MediaItemChanged?.Invoke(mediaItem.MediaItemId);
+              MediaItemChanged?.Invoke(mediaItem);
             break;
         }
       }
@@ -83,5 +83,5 @@ namespace MediaPortal.UiComponents.Media.Helpers
     public MediaItemChangedHandler MediaItemChanged { get; set; }
   }
 
-  public delegate void MediaItemChangedHandler(Guid mediaItemId);
+  public delegate void MediaItemChangedHandler(MediaItem mediaItem);
 }
