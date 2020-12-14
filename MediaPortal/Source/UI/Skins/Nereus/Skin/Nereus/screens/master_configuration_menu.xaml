@@ -62,7 +62,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="-10,-92,0,-265" >
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="480"/>
+            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="90"/>
@@ -73,14 +73,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
           </Grid.Resources>
 
-          <Image Grid.RowSpan="3" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,0,-20,0" RenderTransformOrigin="0.5,0.5">
+          <!--Image Grid.RowSpan="3" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,0,-20,0" RenderTransformOrigin="0.5,0.5">
             <Image.RenderTransform>
               <RotateTransform Angle="180"/>
             </Image.RenderTransform>
-          </Image>
-          <Border Grid.RowSpan="3" Margin="0,0,0,0" Background="Black" Opacity="1"/>
+          </>
+          <Border Grid.RowSpan="3" Margin="0,0,0,0" Background="Black" Opacity="1"/-->
 
-          <ListView x:Name="MainMenu" Grid.Row="1" Margin="30,0,20,0" Style="{ThemeResource MainMenuListViewStyle}"
+          <ListView x:Name="MainMenu" Grid.Row="1" Margin="30,0,20,0" Style="{ThemeResource SettingsMenuListViewStyle}"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
                     ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>

@@ -519,6 +519,52 @@
     </Grid>
   </DataTemplate>
 
+  <!--++++++++++++++++++++++++ SETTINGS LIST STYLE ++++++++++++++++++++++++-->
+
+  <DataTemplate x:Key="SettingsMenuItemDataTemplate">
+    <Grid x:Name="ItemControl" Margin="6">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="80"/>
+        <ColumnDefinition Width="320"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="330"/>
+        <RowDefinition Height="70"/>
+      </Grid.RowDefinitions>
+
+      <Rectangle Fill="#222222" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Image x:Name="ItemImage" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Opacity="0.7">
+        <Image.Source>
+          <Binding Path="AdditionalProperties[MenuModel: Item-Action].DisplayTitle" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}SettingsMenu\{0}.jpg"/>
+        </Image.Source>
+      </Image>
+
+      <Grid x:Name="ItemBandGrid" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Content="{Binding [Name]}"
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="85,-5,5,1"
+               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
+          <!--Label.Content>
+            <Binding Path="AdditionalProperties[MenuModel: Item-Action].DisplayTitle" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}SettingsMenu\{0}.jpg"/>
+          </-->
+        </Label>
+      </Grid>
+
+      <Image x:Name="IconImage" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="6">
+        <Image.Source>
+          <Binding Path="AdditionalProperties[MenuModel: Item-Action].DisplayTitle" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}SettingsMenu\Icon_{0}.png"/>
+        </Image.Source>
+      </Image>
+
+    </Grid>
+  </DataTemplate>
+
   <!--++++++++++++++++++++++++ MEDIAMENU BUTTON STYLE ++++++++++++++++++++++++-->
 
   <DataTemplate x:Key="MediaMenuCoverItemDataTemplate">
@@ -719,6 +765,19 @@
     </Setter>
   </Style>
 
+  <Style x:Key="SettingsItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource SettingsMenuButtonStyle}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="HomeItemContainerStyleHorizontal" BasedOn="{ThemeResource HomeItemContainerStyle}">
     <Setter TargetName="GrowControl" Property="Margin" Value="0,-10"/>
     <Setter TargetName="ButtonContentPresenter" Property="Margin" Value="0,20"/>
@@ -761,6 +820,44 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeMenuItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="SettingsMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource VerticalMediaScrollViewerStyle}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedWrapPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="0,0" Margin="60,50,60,-80"
+                             LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
+            <AnimatedWrapPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedWrapPanel.Resources>
+            <AnimatedWrapPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedWrapPanel.Triggers>
+          </AnimatedWrapPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SettingsMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SettingsItemContainerStyle}"/>
   </Style>
 
   <Style x:Key="MediaMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
