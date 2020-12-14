@@ -552,12 +552,12 @@
   <DataTemplate x:Key="SettingsMenuItemDataTemplate">
     <Grid x:Name="ItemControl" Margin="6">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="82"/>
-        <ColumnDefinition Width="318"/>
+        <ColumnDefinition Width="77"/>
+        <ColumnDefinition Width="278"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
-        <RowDefinition Height="330"/>
-        <RowDefinition Height="70"/>
+        <RowDefinition Height="290"/>
+        <RowDefinition Height="65"/>
       </Grid.RowDefinitions>
 
       <Rectangle Fill="#222222" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
@@ -872,7 +872,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <AnimatedWrapPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="0,0" Margin="60,50,60,-80" Orientation="Horizontal"
+          <AnimatedWrapPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="0,0" Margin="0,50,0,-80" Orientation="Horizontal"
                              LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
             <AnimatedWrapPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
