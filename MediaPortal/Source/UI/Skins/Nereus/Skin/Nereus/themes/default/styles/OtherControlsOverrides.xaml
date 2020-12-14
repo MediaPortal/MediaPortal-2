@@ -237,6 +237,34 @@
     </Setter>
   </Style>
 
+  <Style x:Key="VerticalSettingsScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="1"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="Transparent" Offset="0" />
+                <GradientStop Color="Black" Offset="0.05" />
+                <GradientStop Color="Black" Offset="0.90" />
+                <GradientStop Color="Transparent" Offset="1" />
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!--++++++++++++++++++++++++ LOGIN BUTTON STYLE ++++++++++++++++++++++++-->
   
   <Style x:Key="LoginItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
@@ -524,8 +552,8 @@
   <DataTemplate x:Key="SettingsMenuItemDataTemplate">
     <Grid x:Name="ItemControl" Margin="6">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="80"/>
-        <ColumnDefinition Width="320"/>
+        <ColumnDefinition Width="82"/>
+        <ColumnDefinition Width="318"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="330"/>
@@ -547,7 +575,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
-        <Label x:Name="ItemLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Content="{Binding [Name]}"
+        <Label x:Name="ItemLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Content="{Binding [Name]}" Opacity="0.6"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="85,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
           <!--Label.Content>
@@ -556,7 +584,7 @@
         </Label>
       </Grid>
 
-      <Image x:Name="IconImage" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="6">
+      <Image x:Name="IconImage" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="7" Opacity="0.6">
         <Image.Source>
           <Binding Path="AdditionalProperties[MenuModel: Item-Action].DisplayTitle" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}SettingsMenu\Icon_{0}.png"/>
         </Image.Source>
@@ -772,6 +800,13 @@
           <Button Style="{ThemeResource SettingsMenuButtonStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                <Setter TargetName="IconImage" Property="Opacity" Value="1"/>
+                </Trigger>
+            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -827,9 +862,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Style="{ThemeResource VerticalMediaScrollViewerStyle}"
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource VerticalSettingsScrollViewerStyle}"
                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Center" />
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
@@ -837,7 +872,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <AnimatedWrapPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="0,0" Margin="60,50,60,-80"
+          <AnimatedWrapPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="0,0" Margin="60,50,60,-80" Orientation="Horizontal"
                              LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
             <AnimatedWrapPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
