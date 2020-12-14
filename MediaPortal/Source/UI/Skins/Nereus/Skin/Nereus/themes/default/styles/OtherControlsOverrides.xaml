@@ -1090,7 +1090,7 @@
       <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" VerticalAlignment="Center" Opacity="0.7">
         <Label x:Name="OnlineState_1" Content="[Shares.Importing]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
         <Label x:Name="OnlineState_2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="0,0,10,0"
-               IsVisible="{Binding Path=AdditionalProperties[ImportingProgress],Converter={StaticResource ReferenceToBoolConverter}}">
+               IsVisible="{Binding Path=AdditionalProperties[IsImporting]}">
           <Label.Content>
             <Binding Path="AdditionalProperties[ImportingProgress]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} {0:F0}%"/>
           </Label.Content>
@@ -1100,8 +1100,8 @@
       <Button x:Name="ReImportButton" Grid.Column="2" Content="" Command="{Binding Command}" Margin="0,1.5,2.5,2.5"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}"/>
 
-      <Label x:Name="ReImportLabel" Grid.Column="3" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
-             IsVisible="{Binding ElementName=OnlineState_2, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}" Margin="10,0,10,0"
+      <Label x:Name="ReImportLabel" Grid.Column="2" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
+             IsVisible="{Binding !AdditionalProperties[IsImporting]}" Margin="10,0,10,0"
              HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
       <!-- Additionally available properties to show here:
