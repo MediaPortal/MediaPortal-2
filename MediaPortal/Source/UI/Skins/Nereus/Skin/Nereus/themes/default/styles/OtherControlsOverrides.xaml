@@ -255,7 +255,7 @@
               <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
                 <GradientStop Color="Transparent" Offset="0" />
                 <GradientStop Color="Black" Offset="0.05" />
-                <GradientStop Color="Black" Offset="0.90" />
+                <GradientStop Color="Black" Offset="0.95" />
                 <GradientStop Color="Transparent" Offset="1" />
               </LinearGradientBrush>
             </Grid.OpacityMask>
@@ -550,7 +550,7 @@
   <!--++++++++++++++++++++++++ SETTINGS LIST STYLE ++++++++++++++++++++++++-->
 
   <DataTemplate x:Key="SettingsMenuItemDataTemplate">
-    <Grid x:Name="ItemControl" Margin="6">
+    <Grid x:Name="ItemControl" Margin="8">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="77"/>
         <ColumnDefinition Width="278"/>
@@ -560,8 +560,10 @@
         <RowDefinition Height="65"/>
       </Grid.RowDefinitions>
 
+      <Image Grid.RowSpan="2" Grid.ColumnSpan="2" Source="square_large.png" Stretch="Fill" Opacity="0.7" Margin="-8"/>
+      
       <Rectangle Fill="#222222" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-      <Image x:Name="ItemImage" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Opacity="0.7">
+      <Image x:Name="ItemImage" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Opacity="0.8">
         <Image.Source>
           <Binding Path="AdditionalProperties[MenuModel: Item-Action].DisplayTitle" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}SettingsMenu\{0}.jpg"/>
         </Image.Source>
