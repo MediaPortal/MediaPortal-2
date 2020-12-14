@@ -565,7 +565,7 @@
       <Rectangle Fill="#222222" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
       <Image x:Name="ItemImage" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Opacity="0.8">
         <Image.Source>
-          <Binding Path="AdditionalProperties[MenuModel: Item-Action].DisplayTitle" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}SettingsMenu\{0}.jpg"/>
+          <Binding Converter="{StaticResource ConfigurationRootConverter}" ConverterParameter="{}SettingsMenu\{0}.jpg"/>
         </Image.Source>
       </Image>
 
@@ -588,7 +588,7 @@
 
       <Image x:Name="IconImage" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="7" Opacity="0.6">
         <Image.Source>
-          <Binding Path="AdditionalProperties[MenuModel: Item-Action].DisplayTitle" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}SettingsMenu\Icon_{0}.png"/>
+          <Binding Converter="{StaticResource ConfigurationRootConverter}" ConverterParameter="{}SettingsMenu\Icon_{0}.png"/>
         </Image.Source>
       </Image>
 
