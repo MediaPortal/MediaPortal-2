@@ -268,7 +268,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    private SeriesMatch GetStroredMatch(SeriesInfo episodeSeries)
+    private SeriesMatch GetStoredMatch(SeriesInfo episodeSeries)
     {
       // Load cache or create new list
       List<SeriesMatch> matches = _storage.GetMatches();
@@ -307,7 +307,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
         }
 
-        SeriesMatch match = GetStroredMatch(episodeSeries);
+        SeriesMatch match = GetStoredMatch(episodeSeries);
         if (match != null)
           SetSeriesId(episodeSearch, match.Id);
 
@@ -427,7 +427,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           episodeMatch = episodeInfo.Clone();
           if (string.IsNullOrEmpty(seriesId))
           {
-            SeriesMatch match = GetStroredMatch(episodeSeries);
+            SeriesMatch match = GetStoredMatch(episodeSeries);
             Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
 
             if (match != null)
@@ -440,7 +440,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                return false;
+                //If item was reimported, allow another search
+                if (!episodeSeries.ForceOnlineSearch)
+                  return false;
               }
             }
 

@@ -594,6 +594,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         string artist = null;
         uint? trackNo = null;
         TrackInfo trackInfo = new TrackInfo();
+        if (!extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+          trackInfo.ForceOnlineSearch = true;
         trackInfo.FromMetadata(extractedAspectData);
         if (string.IsNullOrEmpty(trackInfo.TrackName))
         {

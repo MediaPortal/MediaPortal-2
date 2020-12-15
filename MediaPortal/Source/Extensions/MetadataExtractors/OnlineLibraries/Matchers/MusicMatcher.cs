@@ -255,7 +255,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    private TrackMatch GetStroredMatch(TrackInfo trackInfo)
+    private TrackMatch GetStoredMatch(TrackInfo trackInfo)
     {
       // Load cache or create new list
       List<TrackMatch> matches = _storage.GetMatches();
@@ -374,7 +374,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          TrackMatch match = GetStroredMatch(trackInfo);
+          TrackMatch match = GetStoredMatch(trackInfo);
           trackMatch = trackInfo.Clone();
           if (string.IsNullOrEmpty(trackId))
           {
@@ -395,7 +395,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                return false;
+                //If item was reimported, allow another search
+                if (!trackInfo.ForceOnlineSearch)
+                  return false;
               }
             }
           }
@@ -1103,7 +1105,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         //No match was found. Store search to avoid online search again
         _storage.TryAddMatch(new TrackMatch()
         {
-          ItemName = GetUniqueTrackName(trackSearch),
+          ItemName = GetUniqueTrackName(trackSearch)
         });
         return;
       }

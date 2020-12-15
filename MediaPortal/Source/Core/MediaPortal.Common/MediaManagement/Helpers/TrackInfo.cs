@@ -645,6 +645,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.Artists.AddRange(AlbumArtists);
         info.LastChanged = LastChanged;
         info.DateAdded = DateAdded;
+        info.ForceOnlineSearch = ForceOnlineSearch;
         return (T)(object)info;
       }
       return default(T);
