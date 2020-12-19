@@ -20,7 +20,7 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <ListView Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <ListView Margin="10,-40,10,110" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource SharesOverviewListViewStyle}"
                   IsVisible="{Binding IsHomeServerConnected}"
                   ItemsSource="{Binding Path=SharesList,Mode=OneTime}"/>

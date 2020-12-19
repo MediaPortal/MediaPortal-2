@@ -156,6 +156,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         }
         else
         {
+          trackInfo.ForceOnlineSearch = true;
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
           IList<MultipleMediaItemAspect> providerResourceAspect;
           if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspect))

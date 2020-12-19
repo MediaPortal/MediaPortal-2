@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
@@ -152,6 +153,7 @@ public MediaItem MediaItem
 
 public PersonAspectWrapper()
 {
+  AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;
   _personNameProperty = new SProperty(typeof(string));
   _occupationProperty = new SProperty(typeof(string));
   _biographyProperty = new SProperty(typeof(string));
@@ -166,6 +168,12 @@ public PersonAspectWrapper()
 #endregion
 
 #region Members
+
+private void MediaItemChanged(MediaItem mediaItem)
+{
+  if (MediaItem?.MediaItemId == mediaItem?.MediaItemId)
+    Init(mediaItem);
+}
 
 private void MediaItemChanged(AbstractProperty property, object oldvalue)
 {
@@ -199,6 +207,12 @@ public void SetEmpty()
   BornDate = null;
   DeathDate = null;
   IsGroup = null;
+}
+
+public override void Dispose()
+{
+  AspectWrapperHelper.Instance.MediaItemChanged -= MediaItemChanged;
+  base.Dispose();
 }
 
 #endregion

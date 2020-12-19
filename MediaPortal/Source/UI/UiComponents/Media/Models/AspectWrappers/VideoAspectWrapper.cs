@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
@@ -180,6 +181,7 @@ public MediaItem MediaItem
 
 public VideoAspectWrapper()
 {
+  AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;
   _actorsProperty = new SProperty(typeof(IEnumerable<string>));
   _directorsProperty = new SProperty(typeof(IEnumerable<string>));
   _writersProperty = new SProperty(typeof(IEnumerable<string>));
@@ -196,6 +198,12 @@ public VideoAspectWrapper()
 #endregion
 
 #region Members
+
+private void MediaItemChanged(MediaItem mediaItem)
+{
+  if (MediaItem?.MediaItemId == mediaItem?.MediaItemId)
+    Init(mediaItem);
+}
 
 private void MediaItemChanged(AbstractProperty property, object oldvalue)
 {
@@ -233,6 +241,12 @@ public void SetEmpty()
   VideoStreams = EMPTY_VIDEOSTREAMASPECT_COLLECTION;
   VideoAudioStreams = EMPTY_VIDEOAUDIOSTREAMASPECT_COLLECTION;
   Subtitles = EMPTY_SUBTITLEASPECT_COLLECTION;
+}
+
+public override void Dispose()
+{
+  AspectWrapperHelper.Instance.MediaItemChanged -= MediaItemChanged;
+  base.Dispose();
 }
 
 protected void AddVideoStreamAspects(MediaItem mediaItem)

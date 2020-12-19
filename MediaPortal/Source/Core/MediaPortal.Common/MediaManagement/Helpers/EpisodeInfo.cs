@@ -695,7 +695,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SearchSeason = SeasonNumber,
           SearchEpisode = EpisodeNumbers != null && EpisodeNumbers.Count > 0 ? (int?)FirstEpisodeNumber : null,
           LastChanged = LastChanged,
-          DateAdded = DateAdded
+          DateAdded = DateAdded,
+          ForceOnlineSearch = ForceOnlineSearch
         };
         foreach (var keyVal in CustomSeriesIds)
           info.CustomIds[keyVal.Key] = keyVal.Value;
@@ -716,7 +717,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesName = new SimpleTitle(SeriesName.Text, SeriesName.DefaultLanguage),
           SeriesFirstAired = SeriesFirstAired,
           LastChanged = LastChanged,
-          DateAdded = DateAdded
+          DateAdded = DateAdded,
+          ForceOnlineSearch = ForceOnlineSearch
         };
         foreach (var keyVal in CustomSeriesIds)
           info.CustomSeriesIds[keyVal.Key] = keyVal.Value;

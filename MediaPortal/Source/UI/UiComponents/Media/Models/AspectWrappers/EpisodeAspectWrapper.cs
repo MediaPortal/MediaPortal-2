@@ -24,9 +24,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
@@ -165,6 +165,7 @@ public MediaItem MediaItem
 
 public EpisodeAspectWrapper()
 {
+  AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;
   _seriesNameProperty = new SProperty(typeof(string));
   _seasonProperty = new SProperty(typeof(int?));
   _seasonNameProperty = new SProperty(typeof(string));
@@ -180,6 +181,12 @@ public EpisodeAspectWrapper()
 #endregion
 
 #region Members
+
+private void MediaItemChanged(MediaItem mediaItem)
+{
+  if (MediaItem?.MediaItemId == mediaItem?.MediaItemId)
+    Init(mediaItem);
+}
 
 private void MediaItemChanged(AbstractProperty property, object oldvalue)
 {
@@ -198,8 +205,8 @@ public void Init(MediaItem mediaItem)
   SeriesName = (string) aspect[EpisodeAspect.ATTR_SERIES_NAME];
   Season = (int?) aspect[EpisodeAspect.ATTR_SEASON];
   SeasonName = (string) aspect[EpisodeAspect.ATTR_SERIES_SEASON];
-  Episode = ((IEnumerable<int>) aspect[EpisodeAspect.ATTR_EPISODE])?.Distinct().OrderBy(e => e);
-  DvdEpisode = ((IEnumerable<double>) aspect[EpisodeAspect.ATTR_DVDEPISODE])?.Distinct().OrderBy(e => e);
+  Episode = (IEnumerable<int>) aspect[EpisodeAspect.ATTR_EPISODE];
+  DvdEpisode = (IEnumerable<double>) aspect[EpisodeAspect.ATTR_DVDEPISODE];
   EpisodeName = (string) aspect[EpisodeAspect.ATTR_EPISODE_NAME];
   TotalRating = (double?) aspect[EpisodeAspect.ATTR_TOTAL_RATING];
   RatingCount = (int?) aspect[EpisodeAspect.ATTR_RATING_COUNT];
@@ -215,6 +222,12 @@ public void SetEmpty()
   EpisodeName = null;
   TotalRating = null;
   RatingCount = null;
+}
+
+public override void Dispose()
+{
+  AspectWrapperHelper.Instance.MediaItemChanged -= MediaItemChanged;
+  base.Dispose();
 }
 
 #endregion

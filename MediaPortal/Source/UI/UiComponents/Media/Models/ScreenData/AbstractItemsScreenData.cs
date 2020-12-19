@@ -87,7 +87,7 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
       _messageQueue.Start();
     }
 
-    void UnsubscribeFromMessages()
+    private void UnsubscribeFromMessages()
     {
       if (_messageQueue == null)
         return;

@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
@@ -92,6 +93,7 @@ public MediaItem MediaItem
 
 public CharacterAspectWrapper()
 {
+  AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;
   _characterNameProperty = new SProperty(typeof(string));
   _actorNameProperty = new SProperty(typeof(string));
   _mediaItemProperty = new SProperty(typeof(MediaItem));
@@ -101,6 +103,12 @@ public CharacterAspectWrapper()
 #endregion
 
 #region Members
+
+private void MediaItemChanged(MediaItem mediaItem)
+{
+  if (MediaItem?.MediaItemId == mediaItem?.MediaItemId)
+    Init(mediaItem);
+}
 
 private void MediaItemChanged(AbstractProperty property, object oldvalue)
 {
@@ -124,6 +132,12 @@ public void SetEmpty()
 {
   CharacterName = null;
   ActorName = null;
+}
+
+public override void Dispose()
+{
+  AspectWrapperHelper.Instance.MediaItemChanged -= MediaItemChanged;
+  base.Dispose();
 }
 
 #endregion

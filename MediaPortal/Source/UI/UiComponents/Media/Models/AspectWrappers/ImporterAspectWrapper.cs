@@ -26,6 +26,7 @@ using System;
 using System.Collections.Generic;
 using MediaPortal.Common.General;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
 
@@ -104,6 +105,7 @@ public MediaItem MediaItem
 
 public ImporterAspectWrapper()
 {
+  AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;
   _lastImportDateProperty = new SProperty(typeof(DateTime?));
   _dirtyProperty = new SProperty(typeof(bool?));
   _dateAddedProperty = new SProperty(typeof(DateTime?));
@@ -114,6 +116,12 @@ public ImporterAspectWrapper()
 #endregion
 
 #region Members
+
+private void MediaItemChanged(MediaItem mediaItem)
+{
+  if (MediaItem?.MediaItemId == mediaItem?.MediaItemId)
+    Init(mediaItem);
+}
 
 private void MediaItemChanged(AbstractProperty property, object oldvalue)
 {
@@ -139,6 +147,12 @@ public void SetEmpty()
   LastImportDate = null;
   Dirty = null;
   DateAdded = null;
+}
+
+public override void Dispose()
+{
+  AspectWrapperHelper.Instance.MediaItemChanged -= MediaItemChanged;
+  base.Dispose();
 }
 
 #endregion

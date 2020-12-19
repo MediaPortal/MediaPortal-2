@@ -359,7 +359,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                return false;
+                //If item was reimported, allow another search
+                if (!movieInfo.ForceOnlineSearch)
+                  return false;
               }
             }
           }

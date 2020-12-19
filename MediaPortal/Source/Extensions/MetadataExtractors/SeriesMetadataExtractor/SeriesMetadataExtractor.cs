@@ -207,6 +207,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       bool isReimport = extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID);
 
       EpisodeInfo episodeInfo = new EpisodeInfo();
+      if (!extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        episodeInfo.ForceOnlineSearch = true;
       episodeInfo.FromMetadata(extractedAspectData);
 
       if (!isReimport) //Ignore file based information for reimports because they might be the cause of the wrong match

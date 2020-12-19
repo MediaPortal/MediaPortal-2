@@ -211,7 +211,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Runtime, movie.Runtime);
         if (movie.ReleaseDate.HasValue && movie.ReleaseDate.Value.Year > 1800)
         { 
-          if (ReleaseDate > movie.ReleaseDate)
+          if (!ReleaseDate.HasValue || ReleaseDate > movie.ReleaseDate)
           {
             ReleaseDate = movie.ReleaseDate;
             HasChanged = true;
@@ -622,6 +622,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.Languages.AddRange(Languages);
         info.LastChanged = LastChanged;
         info.DateAdded = DateAdded;
+        info.ForceOnlineSearch = ForceOnlineSearch;
         return (T)(object)info;
       }
       return default(T);
