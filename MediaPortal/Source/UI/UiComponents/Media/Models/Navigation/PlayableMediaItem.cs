@@ -139,6 +139,20 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
       WatchPercentage = playPct ?? 0;
       PlayCount = playCnt ?? 0;
 
+      //Update user data
+      if (!ReferenceEquals(_mediaItem, mediaItem))
+      {
+        try
+        {
+          var keys = mediaItem.UserData.Keys.ToList();
+          foreach (var key in keys)
+            _mediaItem.UserData[key] = mediaItem.UserData[key];
+        }
+        catch
+        {
+        }
+      }
+
       FireChange();
     }
 

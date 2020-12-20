@@ -39,13 +39,13 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BASSCombined">
-      <Version>2.4.15</Version>
+      <Version>2.4.13.1</Version>
     </PackageReference>
     <PackageReference Include="BASS.NET">
-      <Version>2.4.14.1</Version>
+      <Version>2.4.12.5</Version>
     </PackageReference>
     <PackageReference Include="BassRegistration">
-      <Version>2.4.14.1</Version>
+      <Version>2.4.12.6</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="build.targets" />

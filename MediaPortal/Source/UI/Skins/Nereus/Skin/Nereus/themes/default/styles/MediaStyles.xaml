@@ -2518,6 +2518,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="80"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
@@ -2536,13 +2537,6 @@
                     <Binding Path="TrackName"/>
                   </MultiBinding>
                 </Label.Content>
-                <!--Label.Color>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                    <Binding Path="!Virtual"/>
-                    <Binding Source="{ThemeResource MediaItemUnwatchedColor}"/>
-                    <Binding Source="{ThemeResource MediaItemOfflineColor}"/>
-                  </MultiBinding>
-                </-->
               </Label>
             </Grid>
           </ControlTemplate>
@@ -2567,16 +2561,11 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Margin="0,0,10,0" FontFamily="SegoeUIBold" 
-             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
-        <!--Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="!Virtual"/>
-            <Binding Source="{ThemeResource MediaItemUnwatchedColor}"/>
-            <Binding Source="{ThemeResource MediaItemOfflineColor}"/>
-          </MultiBinding>
-        </-->
-      </Label>
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Duration}" Margin="0,0,10,0" FontFamily="SegoeUIBold" 
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}" HorizontalAlignment="Right"/>
+
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2661,7 +2650,10 @@
       </Border>
       <Image Grid.Row="1" Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
 
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+      <!-- watched indicator -->
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
 
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
@@ -2696,6 +2688,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="80"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
@@ -2765,8 +2758,12 @@
           </MultiBinding>
         </Image.IsVisible>
       </Image>
-      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding Tracks}" Margin="20,0,10,0" FontFamily="SegoeUIBold"
-             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Tracks}" Margin="20,0,10,0" FontFamily="SegoeUIBold"
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right"/>
+      
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2801,9 +2798,12 @@
         </Label.IsVisible>
       </Label>
 
-        <!-- watched indicator -->
+      <!-- watched indicator -->
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>      
+
     </Grid>
   </ControlTemplate>
 
@@ -2850,6 +2850,12 @@
         </Image.IsVisible>
       </Image>
 
+      <!-- watched indicator -->
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
@@ -2870,6 +2876,7 @@
           </MultiBinding>
         </Label.Color>
       </Label>
+
     </Grid>
   </ControlTemplate>
 

@@ -57,7 +57,7 @@ namespace MediaPortal.UI.Presentation.Players
       PlayerStateReady,
 
       /// <summary>
-      /// The player is about to be released (after beeing stopped or ended). This message is immediately sent before <see cref="PlayerStopped"/>
+      /// The player is about to be released (after being stopped or ended). This message is immediately sent before <see cref="PlayerStopped"/>
       /// or <see cref="PlayerEnded"/> and contains resume information as parameter <see cref="PlayerManagerMessaging.KEY_RESUME_STATE"/>.
       /// </summary>
       PlayerResumeState,
@@ -85,7 +85,7 @@ namespace MediaPortal.UI.Presentation.Players
       /// <summary>
       /// The next item is requested by the player - this enables the player for gapless playback or to crossfade the
       /// next item, if possible.
-      /// The PlayerManager/PlayerSlotController don't process this event theirselves because they are not aware of the
+      /// The PlayerManager/PlayerSlotController don't process this event their selves because they are not aware of the
       /// playlist, which is managed by the player context.
       /// </summary>
       RequestNextItem,
@@ -133,6 +133,7 @@ namespace MediaPortal.UI.Presentation.Players
 
     // Message data
     public const string PLAYER_SLOT_CONTROLLER = "PlayerSlotController"; // Holds the player slot controller (IPlayerSlotController)
+    public const string PLAYER_POSITION = "PlaybackPosition";
 
     /// <summary>
     /// Sends a message which announces a change in a specific player. This method handles all
@@ -144,6 +145,19 @@ namespace MediaPortal.UI.Presentation.Players
     {
       SystemMessage msg = new SystemMessage(type);
       msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a message which announces the player has been stopped.
+    /// </summary>
+    /// <param name="position">The position at which playback was stopped.</param>
+    /// <param name="psc">Player slot controller of the player which was stopped.</param>
+    public static void SendPlayerStoppedMessage(TimeSpan? position, IPlayerSlotController psc)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.PlayerStopped);
+      msg.MessageData[PLAYER_SLOT_CONTROLLER] = psc;
+      msg.MessageData[PLAYER_POSITION] = position;
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
 

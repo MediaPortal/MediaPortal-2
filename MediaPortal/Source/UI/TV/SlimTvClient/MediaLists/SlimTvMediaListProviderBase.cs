@@ -102,9 +102,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       IEnumerable<Tuple<int, string>> channelList = userResult.Result;
 
       //Add favorite channels first
+      var channelAndGroupInfo = _tvHandler.ChannelAndGroupInfo;
       foreach (int channelId in channelList.Select(c => c.Item1))
       {
-        var result = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
+        var result = await channelAndGroupInfo.GetChannelAsync(channelId);
         if (result.Success && result.Result.MediaType == _mediaType)
           userChannels.Add(result.Result);
         if (userChannels.Count >= maxItems)
@@ -116,7 +117,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       {
         foreach (int channelId in ChannelContext.Instance.Channels.Where(c => c.MediaType == _mediaType).Select(c => c.ChannelId).Except(channelList.Select(c => c.Item1)))
         {
-          var result = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
+          var result = await channelAndGroupInfo.GetChannelAsync(channelId);
           if (result.Success)
             userChannels.Add(result.Result);
           if (userChannels.Count >= maxItems)

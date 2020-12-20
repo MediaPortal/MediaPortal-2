@@ -12,6 +12,7 @@
     CurrentAPI="1"/>
 
   <Runtime>
+    <Assembly FileName="FreeImageLib.dll"/>
     <Assembly FileName="FreeImage-dotnet-core.dll"/>
   </Runtime>
 </Plugin>

@@ -31,6 +31,7 @@ using MediaPortal.UI.ServerCommunication;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.Helpers
@@ -67,6 +68,9 @@ namespace MediaPortal.UiComponents.Media.Helpers
       var check = CheckUserRestrictions();
       if (!check.ApplyUserRestrictions)
         return filter;
+
+      //ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      //logger?.Debug($"Media: Applying filter for user: {userProfile.Name} ({userProfile.ProfileId})");
 
       var userFilter = userProfile.GetUserFilter(necessaryMias);
       if (userFilter != null && filter != null)

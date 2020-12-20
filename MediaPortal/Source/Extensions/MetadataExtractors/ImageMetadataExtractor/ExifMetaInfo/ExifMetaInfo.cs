@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 using FreeImageAPI;
 using FreeImageAPI.Metadata;
+using FreeImageLib;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifMetaInfo

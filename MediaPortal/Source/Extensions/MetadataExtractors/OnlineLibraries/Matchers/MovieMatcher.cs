@@ -57,6 +57,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
+    protected const int MAX_CHANGES = 10000;
+    protected  object _configSyncObj = new object();
+    protected List<string> _processedMovieChanges = new List<string>();
+    protected List<string> _processedCollectionChanges = new List<string>();
 
     #region Init
 
@@ -355,7 +359,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                return false;
+                //If item was reimported, allow another search
+                if (!movieInfo.ForceOnlineSearch)
+                  return false;
               }
             }
           }
@@ -1049,15 +1055,18 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (_wrapper != null)
             {
-              if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+              lock (_configSyncObj)
               {
-                _lastCacheRefresh = DateTime.Now;
-                _config.LastRefresh = _lastCacheRefresh.Value.ToString(CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
+                if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+                {
+                  _lastCacheRefresh = DateTime.Now;
+                  _config.LastRefresh = _lastCacheRefresh.Value.ToString(CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
+                }
+                SaveConfig();
               }
             }
           });
         }
-        SaveConfig();
       }
     }
 
@@ -1065,15 +1074,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        if (_event.UpdatedItemType == UpdateType.Movie)
+        lock (_configSyncObj)
         {
-          _config.LastUpdatedMovies.AddRange(_event.UpdatedItems);
-          SaveConfig();
-        }
-        if (_event.UpdatedItemType == UpdateType.MovieCollection)
-        {
-          _config.LastUpdatedMovieCollections.AddRange(_event.UpdatedItems);
-          SaveConfig();
+          if (_event.UpdatedItemType == UpdateType.Movie)
+          {
+            _config.LastUpdatedMovies.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
+
+          if (_event.UpdatedItemType == UpdateType.MovieCollection)
+          {
+            _config.LastUpdatedMovieCollections.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
         }
       }
       catch (Exception ex)
@@ -1085,16 +1098,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<MovieInfo> GetLastChangedMovies()
     {
       List<MovieInfo> movies = new List<MovieInfo>();
+      List<string> ids = new List<string>();
 
       if (!InitAsync().Result)
         return movies;
 
-      foreach (string id in _config.LastUpdatedMovies)
+      lock (_configSyncObj)
       {
-        MovieInfo m = new MovieInfo();
-        if (SetMovieId(m, id) && !movies.Contains(m))
-          movies.Add(m);
+        _processedMovieChanges.Clear();
+        foreach (string id in _config.LastUpdatedMovies)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedMovieChanges.Add(id);
+            MovieInfo m = new MovieInfo();
+            if (SetMovieId(m, id))
+              movies.Add(m);
+          }
+        }
       }
+
       return movies;
     }
 
@@ -1102,22 +1129,44 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!InitAsync().Result)
         return;
-      _config.LastUpdatedMovies.Clear();
-      SaveConfig();
+
+      lock (_configSyncObj)
+      {
+        if (_processedMovieChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedMovieChanges)
+          _config.LastUpdatedMovies.Remove(id);
+        _processedMovieChanges.Clear();
+        SaveConfig();
+      }
     }
 
     public List<MovieCollectionInfo> GetLastChangedMovieCollections()
     {
       List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
+      List<string> ids = new List<string>();
 
       if (!InitAsync().Result)
         return collections;
 
-      foreach (string id in _config.LastUpdatedMovieCollections)
+      lock (_configSyncObj)
       {
-        MovieCollectionInfo c = new MovieCollectionInfo();
-        if (SetMovieCollectionId(c, id) && !collections.Contains(c))
-          collections.Add(c);
+        _processedCollectionChanges.Clear();
+        foreach (string id in _config.LastUpdatedMovieCollections)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedCollectionChanges.Add(id);
+            MovieCollectionInfo c = new MovieCollectionInfo();
+            if (SetMovieCollectionId(c, id))
+              collections.Add(c);
+          }
+        }
       }
       return collections;
     }
@@ -1127,8 +1176,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!InitAsync().Result)
         return;
 
-      _config.LastUpdatedMovieCollections.Clear();
-      SaveConfig();
+      lock (_configSyncObj)
+      {
+        if (_processedCollectionChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedCollectionChanges)
+          _config.LastUpdatedMovieCollections.Remove(id);
+        _processedCollectionChanges.Clear();
+        SaveConfig();
+      }
     }
 
     #endregion

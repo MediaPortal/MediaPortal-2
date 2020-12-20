@@ -67,6 +67,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       set { _hasThumbnail = value; }
     }
 
+    public bool ForceOnlineSearch { get; set; } = false;
+
     public bool HasChanged { get; set; } = false;
 
     public DateTime? LastChanged { get; set; } = null;

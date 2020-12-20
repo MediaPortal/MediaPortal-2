@@ -49,7 +49,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       MediaItemsAddedOrUpdated,
 
       // This message will be sent by the media library when one or more media items have been deleted from the database.
-      MediaItemsDeleted
+      MediaItemsDeleted,
+
+      // This message will be sent by the media library when one or more media items have only their user data updated.
+      MediaItemsUserDataAddedOrUpdated
     }
 
     // Message data
@@ -79,6 +82,24 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     public static void SendMediaItemsDeletedMessage()
     {
       SystemMessage msg = new SystemMessage(MessageType.MediaItemsDeleted);
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
+    }
+
+    /// <summary>
+    /// Sends a media item user data change message.
+    /// </summary>
+    public static void SendMediaItemUserDataAddedOrUpdateMessage(Guid mediaItemId)
+    {
+      SendMediaItemUserDataAddedOrUpdateMessage(new[] { mediaItemId });
+    }
+
+    /// <summary>
+    /// Sends a media item user data change message.
+    /// </summary>
+    public static void SendMediaItemUserDataAddedOrUpdateMessage(IEnumerable<Guid> mediaItemIds)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.MediaItemsUserDataAddedOrUpdated);
+      msg.MessageData[PARAM] = new List<Guid>(mediaItemIds);
       ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }

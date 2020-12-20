@@ -471,7 +471,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         switch (messageType)
         {
           case ClientManagerMessaging.MessageType.ClientOnline:
-            UpdateServerState();
+            UpdateServerImportState();
             break;
         }
       }
@@ -502,7 +502,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   if (!_shareImportStates.ContainsKey(share.ShareId))
                     _shareImportStates.Add(share.ShareId, new ShareImportState { ShareId = share.ShareId, IsImporting = true, Progress = -1 });
                 }
-                UpdateServerState();
+                UpdateServerImportState();
               }
               else
               {
@@ -523,7 +523,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                 Task.Run(async () =>
                 {
                   await Task.Delay(1000);
-                  UpdateServerState();
+                  UpdateServerImportState();
                 });
               }
             }
@@ -558,7 +558,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   };
                 }
                 if (anyProgressAvailable)
-                  UpdateServerState();
+                  UpdateServerImportState();
               }
             }
             break;
@@ -569,7 +569,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
     }
 
-    protected void UpdateServerState()
+    protected void UpdateServerImportState()
     {
       try
       {
@@ -2521,8 +2521,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             {
               while (reader.Read())
               {
-                if (!parents.ContainsKey(database.ReadDBValue<Guid>(reader, 0)))
-                  parents.Add(database.ReadDBValue<Guid>(reader, 0), 0);
+                var id = database.ReadDBValue<Guid>(reader, 0);
+                if (!parents.ContainsKey(id))
+                  parents.Add(id, 0);
               }
             }
 
@@ -2542,10 +2543,10 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
               //Find children play count
               command.CommandText = _preparedStatements.SelectPlayDataFromParentIdSQL;
-              float nonVirtualChildCount = 0;
-              float watchedCount = 0;
               int playCountSum = 0;
               int maxPlayCount = 0;
+              float? watchPercentage = null;
+              float watchCount = 0;
               using (IDataReader reader = command.ExecuteReader())
               {
                 while (reader.Read())
@@ -2561,24 +2562,28 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   bool? childVirtual = database.ReadDBValue<bool?>(reader, 0);
                   if (childVirtual == false)
                   {
-                    nonVirtualChildCount++;
-
                     //Only non-virtual items can be counted as watched
                     playCountSum += playCount;
-                    if (playPercentage >= 100)
-                      watchedCount++;
+                    watchPercentage = (watchPercentage ?? 0) + playPercentage;
+                    watchCount++;
                   }
                 }
               }
 
               //Update parent
               command.CommandText = _preparedStatements.UpdateUserPlayDataFromIdSQL;
-              int watchPercentage = nonVirtualChildCount <= 0 ? 100 : Convert.ToInt32((watchedCount * 100F) / nonVirtualChildCount);
-              if (watchPercentage >= 100)
+              if (watchPercentage.HasValue)
+              {
+                watchPercentage = watchPercentage / watchCount;
+                if (watchPercentage >= 100)
+                  watchPercentage = 100;
+              }
+              else
+              {
                 watchPercentage = 100;
-
+              }
               keyParam.Value = UserDataKeysKnown.KEY_PLAY_PERCENTAGE;
-              valueParam.Value = UserDataKeysKnown.GetSortablePlayPercentageString(watchPercentage);
+              valueParam.Value = UserDataKeysKnown.GetSortablePlayPercentageString(Convert.ToInt32(watchPercentage.Value));
               if (command.ExecuteNonQuery() == 0)
               {
                 command.CommandText = _preparedStatements.InsertUserPlayDataForIdSQL;
@@ -2625,7 +2630,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           transaction.Commit();
         }
 
-        return parents.Count > 0;
+        if (parents.Count > 0)
+        {
+          MediaLibraryMessaging.SendMediaItemUserDataAddedOrUpdateMessage(parents.Keys);
+
+          return true;
+        }
+
+        return false;
       }
       catch (Exception e)
       {
@@ -2715,6 +2727,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
         if (childPlayCounts.Count > 0)
         {
+          MediaLibraryMessaging.SendMediaItemUserDataAddedOrUpdateMessage(childPlayCounts.Keys);
+
           //Update parents
           UpdateParentPlayUserData(userProfileId, new[] { mediaItemId }.Concat(childPlayCounts.Keys).ToArray(), updateWatchedDate);
           return true;
@@ -2776,7 +2790,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (!_shareImportStates.ContainsKey(share.ShareId))
           _shareImportStates.Add(share.ShareId, new ShareImportState { ShareId = share.ShareId, IsImporting = true, Progress = -1 });
       }
-      UpdateServerState();
+      UpdateServerImportState();
     }
 
     public void ClientCompletedShareImport(Guid shareId)
@@ -2803,7 +2817,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         if (_shareImportStates.ContainsKey(share.ShareId))
           _shareImportStates.Remove(share.ShareId);
       }
-      UpdateServerState();
+      UpdateServerImportState();
     }
 
     public ICollection<Guid> GetCurrentlyImportingShareIds()
@@ -2871,7 +2885,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     {
       NotifyPlayback(mediaItemId, percentage >= 100);
 
-      bool updateParents = false;
+      bool updateParents = true; //Always update parent
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       using (ITransaction transaction = database.BeginTransaction())
       {
@@ -2890,7 +2904,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
           }
           count++;
-          updateParents = true;
+          //updateParents = true;
 
           //Update play count
           SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, UserDataKeysKnown.GetSortablePlayCountString(count));
@@ -2911,13 +2925,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
         else
         {
-          updateParents = true;
+          //updateParents = true;
 
           //Reset percentage
           SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, UserDataKeysKnown.GetSortablePlayPercentageString(0));
         }
         transaction.Commit();
       }
+      MediaLibraryMessaging.SendMediaItemUserDataAddedOrUpdateMessage(mediaItemId);
 
       if (updateParents)
       {

@@ -25,7 +25,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
+using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.SkinEngine.MpfElements;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
 using MediaPortal.UI.SkinEngine.Utils;
@@ -405,12 +408,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // If set to true, we'll check available space from the last to first visible child.
           // That is necessary if we want to scroll a specific child to the last visible position.
           bool invertLayouting = false;
-          //Get the scroll margins in scroll direction
+          // Get the scroll margins in scroll direction
           float scrollMarginBefore;
           float scrollMarginAfter;
           GetScrollMargin(out scrollMarginBefore, out scrollMarginAfter);
-          //Percentage of child size to offset child positions
+          // Percentage of child size to offset child positions
           float physicalOffset = _actualPhysicalOffset;
+
+          // Initial setup of list
+          if (ElementState == ElementState.Preparing)
+          {
+            GetScrollIndexFromSelectedItem();
+          }
 
           if (_pendingScrollIndex.HasValue)
           {
@@ -436,7 +445,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           // 1) Calculate scroll indices
           if (_doScroll)
           {
-            //Substract scroll margins from avalable space, additional items in the margin will be added later
+            //Subtract scroll margins from available space, additional items in the margin will be added later
             float spaceLeft = actualExtendsInOrientationDirection - scrollMarginBefore - scrollMarginAfter;
             //Allow space for partially visible items at top and bottom
             if (physicalOffset != 0)
@@ -458,7 +467,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
                 if (spaceLeft + DELTA_DOUBLE < 0)
                 {
-                  
+
                   break; // Found item which is not visible any more
                 }
 
@@ -575,7 +584,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                       spaceLeft -= lastHeaderItemSpace;
                     }
                   }
-                  
+
                   spaceLeft -= GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
                   if (spaceLeft + DELTA_DOUBLE < 0)
                     break; // Found item which is not visible any more
@@ -721,7 +730,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         InvokeScrolled();
     }
 
-    private void ArrangeChild(FrameworkElement item, Vector2 actualPosition, ref float startOffset, 
+    private void ArrangeChild(FrameworkElement item, Vector2 actualPosition, ref float startOffset,
       bool arrangeBefore, float actualExtendsInNonOrientationDirection,
       IList<FrameworkElement> previousArrangedChilds)
     {
@@ -896,6 +905,27 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
           numElementsBeforeAndAfter, numElementsBeforeAndAfter, outElements);
     }
 
+    private void GetScrollIndexFromSelectedItem()
+    {
+      var itemProvider = ItemProvider as ListViewItemGenerator;
+      if (itemProvider != null)
+      {
+        int idx = 0;
+        foreach (var listItem in itemProvider.Items.OfType<ListItem>())
+        {
+          if (listItem.Selected)
+          {
+            // ServiceRegistration.Get<ILogger>().Debug($"VSP: '{Name}' GetScrollIndexFromSelectedItem index: {idx}");
+            _pendingScrollIndex = idx;
+            _scrollToFirst = false; // The item is out of visible range, so scrolling only down that it gets visible at bottom
+            break;
+          }
+
+          idx++;
+        }
+      }
+    }
+
     protected override void SaveChildrenState(IDictionary<string, object> state, string prefix)
     {
       IItemProvider itemProvider = ItemProvider;
@@ -912,6 +942,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         }
         state[prefix + "/ItemsStartIndex"] = index;
         state[prefix + "/NumItems"] = arrangedItemsCopy.Count;
+
         foreach (FrameworkElement child in arrangedItemsCopy)
           child.SaveUIState(state, prefix + "/Child_" + (index++));
       }

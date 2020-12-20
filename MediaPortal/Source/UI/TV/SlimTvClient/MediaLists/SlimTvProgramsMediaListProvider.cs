@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -58,10 +59,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
     public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
     {
-      if (!TryInitTvHandler() || _tvHandler.ProgramInfo == null)
-        return false;
-
-      if (_tvHandler.ProgramInfo == null)
+      IProgramInfoAsync programInfo = null;
+      if (!TryInitTvHandler() || (programInfo = _tvHandler?.ProgramInfo) == null)
         return false;
 
       if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PlaybackComplete) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
@@ -76,7 +75,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       IList<Tuple<IProgram, IChannel>> programs = new List<Tuple<IProgram, IChannel>>();
       foreach (IChannel channel in channels)
       {
-        var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(channel);
+        var result = await programInfo.GetNowNextProgramAsync(channel);
         if (!result.Success)
           continue;
 

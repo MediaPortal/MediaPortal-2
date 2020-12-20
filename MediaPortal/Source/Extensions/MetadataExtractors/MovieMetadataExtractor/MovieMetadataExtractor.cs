@@ -206,6 +206,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       MovieInfo movieInfo = new MovieInfo();
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
         movieInfo.FromMetadata(extractedAspectData);
+      else
+        movieInfo.ForceOnlineSearch = true;
 
       if (movieInfo.MovieName.IsEmpty)
       {
@@ -276,13 +278,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           MovieNameMatcher.CleanupTitle(movieInfo);
         }
 
-        if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
-        {
-          // When searching movie title, the year can be relevant for multiple titles with same name but different years
-          DateTime recordingDate;
-          if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-            movieInfo.ReleaseDate = recordingDate;
-        }
+        // Using the recording time causes the movies to have a wrong year which means no match is found
+        //if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
+        //{
+        //  // When searching movie title, the year can be relevant for multiple titles with same name but different years
+        //  DateTime recordingDate;
+        //  if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+        //    movieInfo.ReleaseDate = recordingDate;
+        //}
 
         try
         {

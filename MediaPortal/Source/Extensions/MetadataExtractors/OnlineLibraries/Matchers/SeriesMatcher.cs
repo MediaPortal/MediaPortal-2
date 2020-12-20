@@ -58,6 +58,10 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
+    protected const int MAX_CHANGES = 10000;
+    protected object _configSyncObj = new object();
+    protected List<string> _processedSeriesChanges = new List<string>();
+    protected List<string> _processedEpisodeChanges = new List<string>();
 
     #region Init
 
@@ -264,7 +268,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    private SeriesMatch GetStroredMatch(SeriesInfo episodeSeries)
+    private SeriesMatch GetStoredMatch(SeriesInfo episodeSeries)
     {
       // Load cache or create new list
       List<SeriesMatch> matches = _storage.GetMatches();
@@ -303,7 +307,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
         }
 
-        SeriesMatch match = GetStroredMatch(episodeSeries);
+        SeriesMatch match = GetStoredMatch(episodeSeries);
         if (match != null)
           SetSeriesId(episodeSearch, match.Id);
 
@@ -423,7 +427,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           episodeMatch = episodeInfo.Clone();
           if (string.IsNullOrEmpty(seriesId))
           {
-            SeriesMatch match = GetStroredMatch(episodeSeries);
+            SeriesMatch match = GetStoredMatch(episodeSeries);
             Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
 
             if (match != null)
@@ -436,7 +440,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                return false;
+                //If item was reimported, allow another search
+                if (!episodeSeries.ForceOnlineSearch)
+                  return false;
               }
             }
 
@@ -1529,31 +1535,48 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (_wrapper != null)
             {
-              if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+              lock (_configSyncObj)
               {
-                _lastCacheRefresh = DateTime.Now;
-                _config.LastRefresh = _lastCacheRefresh.Value.ToString(dateFormat, CultureInfo.InvariantCulture);
+                if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+                {
+                  _lastCacheRefresh = DateTime.Now;
+                  _config.LastRefresh = _lastCacheRefresh.Value.ToString(dateFormat, CultureInfo.InvariantCulture);
+                }
+                SaveConfig();
               }
             }
           });
         }
-        SaveConfig();
       }
     }
 
     public List<SeriesInfo> GetLastChangedSeries()
     {
       List<SeriesInfo> series = new List<SeriesInfo>();
+      List<string> ids = new List<string>();
 
       if (!InitAsync().Result)
         return series;
 
-      foreach (string id in _config.LastUpdatedSeries)
+      lock (_configSyncObj)
       {
-        SeriesInfo s = new SeriesInfo();
-        if (SetSeriesId(s, id) && !series.Contains(s))
-          series.Add(s);
+        _processedSeriesChanges.Clear();
+        foreach (string id in _config.LastUpdatedSeries)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedSeriesChanges.Add(id);
+            SeriesInfo s = new SeriesInfo();
+            if (SetSeriesId(s, id))
+              series.Add(s);
+          }
+        }
       }
+
       return series;
     }
 
@@ -1562,23 +1585,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!InitAsync().Result)
         return;
 
-      _config.LastUpdatedSeries.Clear();
-      SaveConfig();
+      lock (_configSyncObj)
+      {
+        if (_processedSeriesChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedSeriesChanges)
+          _config.LastUpdatedSeries.Remove(id);
+        _processedSeriesChanges.Clear();
+        SaveConfig();
+      }
     }
 
     public List<EpisodeInfo> GetLastChangedEpisodes()
     {
       List<EpisodeInfo> episodes = new List<EpisodeInfo>();
+      List<string> ids = new List<string>();
 
       if (!InitAsync().Result)
         return episodes;
 
-      foreach (string id in _config.LastUpdatedEpisodes)
+      lock (_configSyncObj)
       {
-        EpisodeInfo e = new EpisodeInfo();
-        if (SetSeriesEpisodeId(e, id) && !episodes.Contains(e))
-          episodes.Add(e);
+        _processedEpisodeChanges.Clear();
+        foreach (string id in _config.LastUpdatedEpisodes)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedEpisodeChanges.Add(id);
+            EpisodeInfo e = new EpisodeInfo();
+            if (SetSeriesEpisodeId(e, id))
+              episodes.Add(e);
+          }
+        }
       }
+
       return episodes;
     }
 
@@ -1587,23 +1632,35 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!InitAsync().Result)
         return;
 
-      _config.LastUpdatedEpisodes.Clear();
-      SaveConfig();
+      lock (_configSyncObj)
+      {
+        if (_processedEpisodeChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedEpisodeChanges)
+          _config.LastUpdatedEpisodes.Remove(id);
+        _processedEpisodeChanges.Clear();
+        SaveConfig();
+      }
     }
 
     private void CacheUpdateFinished(UpdateFinishedEventArgs _event)
     {
       try
       {
-        if (_event.UpdatedItemType == UpdateType.Series)
+        lock (_configSyncObj)
         {
-          _config.LastUpdatedSeries.AddRange(_event.UpdatedItems);
-          SaveConfig();
-        }
-        if (_event.UpdatedItemType == UpdateType.Episode)
-        {
-          _config.LastUpdatedEpisodes.AddRange(_event.UpdatedItems);
-          SaveConfig();
+          if (_event.UpdatedItemType == UpdateType.Series)
+          {
+            _config.LastUpdatedSeries.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
+
+          if (_event.UpdatedItemType == UpdateType.Episode)
+          {
+            _config.LastUpdatedEpisodes.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
         }
       }
       catch (Exception ex)

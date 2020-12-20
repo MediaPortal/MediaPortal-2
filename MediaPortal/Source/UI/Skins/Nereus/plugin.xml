@@ -86,7 +86,7 @@
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->
-  <Register Location="/Configuration/Settings/Appearance/Skin">
+  <Register Location="/Configuration/Settings/Appearance">
     <ConfigSection
         Id="SkinSettings"
         Redundant="true"
@@ -94,7 +94,7 @@
   </Register>
 
   <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
-  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
+  <Register Location="/Configuration/Settings/Appearance/SkinSettings">
     <ConfigSetting
         Id="NereusEnableHelpTexts"
         Text="[Nereus.Configuration.EnableHelpTexts]"

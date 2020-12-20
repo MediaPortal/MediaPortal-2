@@ -817,7 +817,7 @@
       </Label>
       <!-- Shows the progress of current time in relation to the current playing program -->
       <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="3" Grid.Row="0" Height="16" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                   Value="{Binding Programs[0].Progress}" Margin="15,0,15,0"/>
+                   Value="{Binding Programs[0].Progress}" Margin="15,0,15,0" IsVisible="{Binding !Programs[0].Program.NoProgramData}"/>
     </Grid>
   </DataTemplate>
 

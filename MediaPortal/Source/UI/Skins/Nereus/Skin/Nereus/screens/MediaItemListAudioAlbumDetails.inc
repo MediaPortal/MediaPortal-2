@@ -5,7 +5,7 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
-  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,280,20,-10"
+  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,200,20,-10"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
@@ -137,6 +137,27 @@
                        IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" VerticalAlignment="Center"/>
               </StackPanel>
             </Grid>
+
+            <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+              <media:UserDataWrapper.Template>
+                <ControlTemplate>
+                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                        IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
+                    <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" >
+                      <Image.Source>
+                        <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}.png"/>
+                      </Image.Source>
+                    </Image>
+                    <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Color="White" FontFamily="SegoeUIBold"
+                           Width="95" Height="95" Margin="0,0,40,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                      <Label.Content>
+                        <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
+                      </Label.Content>
+                    </Label>
+                  </Grid>
+                </ControlTemplate>
+              </media:UserDataWrapper.Template>
+            </media:UserDataWrapper>
 
           </StackPanel>
 
