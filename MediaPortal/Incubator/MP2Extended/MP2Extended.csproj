@@ -7,10 +7,12 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <!--required for assemblies from nuget packages to be copied to output folder, so our build.targets can copy them further -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
   <ItemGroup>
-    <Compile Include="..\..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
-      <Link>Properties\VersionInfo.cs</Link>
-    </Compile>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.WebApi.Owin">

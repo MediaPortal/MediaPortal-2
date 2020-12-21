@@ -7,11 +7,10 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <ItemGroup>
-    <Compile Include="..\..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
-      <Link>Properties\VersionInfo.cs</Link>
-    </Compile>
-  </ItemGroup>
+  <PropertyGroup>
+    <!--required for assemblies from nuget packages to be copied to output folder, so our build.targets can copy them further -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\Debug\</OutputPath>
@@ -26,6 +25,9 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
   </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
+  </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Newtonsoft.Json">
       <Version>12.0.3</Version>

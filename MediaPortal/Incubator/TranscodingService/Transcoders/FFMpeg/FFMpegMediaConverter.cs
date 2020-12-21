@@ -42,7 +42,6 @@ using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata.Streams;
 using MediaPortal.Common.MediaManagement;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net.Configuration;
 using System.Threading.Tasks;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Settings;
 #if !TRANSCODE_CONSOLE_TEST
