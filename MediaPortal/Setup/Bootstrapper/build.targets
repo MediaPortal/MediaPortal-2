@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project>
 
   <ItemGroup>
     <Resources Include="$(ProjectDir)MP2-Setup-Logging.bat"/>

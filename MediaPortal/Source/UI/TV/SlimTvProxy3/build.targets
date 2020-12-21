@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project>
 
   <Target Name="CopyToOutput" AfterTargets="Build">
     <!-- Groups must be defined inside target, so they are evaluated at execution time, not parsing time (where the files are not yet copied!) -->
