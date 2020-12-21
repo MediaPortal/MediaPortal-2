@@ -18,67 +18,59 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "BackendComponents", "Backen
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Database", "Database", "{EFC339EB-9F75-4E5A-937A-A8BECA514715}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoMetadataExtractor", "Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj", "{000C12A6-9734-4ACB-99E9-D3F726C5858F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoMetadataExtractor", "Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj", "{000C12A6-9734-4ACB-99E9-D3F726C5858F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioMetadataExtractor", "Extensions\MetadataExtractors\AudioMetadataExtractor\AudioMetadataExtractor.csproj", "{11FD64F0-97C0-40B5-8AAA-1E56255D3EF7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AudioMetadataExtractor", "Extensions\MetadataExtractors\AudioMetadataExtractor\AudioMetadataExtractor.csproj", "{11FD64F0-97C0-40B5-8AAA-1E56255D3EF7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ImageMetadataExtractor", "Extensions\MetadataExtractors\ImageMetadataExtractor\ImageMetadataExtractor.csproj", "{47B09A95-16F2-4B96-A9FE-4A96363442B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ImageMetadataExtractor", "Extensions\MetadataExtractors\ImageMetadataExtractor\ImageMetadataExtractor.csproj", "{47B09A95-16F2-4B96-A9FE-4A96363442B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ConfigurationManager", "Core\ConfigurationManager\ConfigurationManager.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ConfigurationManager", "Core\ConfigurationManager\ConfigurationManager.csproj", "{9545C4C0-3AF9-49F4-811C-47334FEFDFFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Common", "Core\MediaPortal.Common\MediaPortal.Common.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Common", "Core\MediaPortal.Common\MediaPortal.Common.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Utilities", "Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Server", "Main\MediaPortal.Server\MediaPortal.Server.csproj", "{DBB95772-9A29-443D-A1B1-7A32E27F598B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Server", "Main\MediaPortal.Server\MediaPortal.Server.csproj", "{DBB95772-9A29-443D-A1B1-7A32E27F598B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Backend", "Core\MediaPortal.Backend\MediaPortal.Backend.csproj", "{5B27EB95-B829-40F4-B445-0225CA206F85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Backend", "Core\MediaPortal.Backend\MediaPortal.Backend.csproj", "{5B27EB95-B829-40F4-B445-0225CA206F85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "Core\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UPnP", "Core\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerBase", "Backend\BackendComponents\ServerBase\ServerBase.csproj", "{6406138D-CC7F-4FEA-B971-5E7A60AFDAB4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerBase", "Backend\BackendComponents\ServerBase\ServerBase.csproj", "{6406138D-CC7F-4FEA-B971-5E7A60AFDAB4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassLibraries", "Extensions\BassLibraries\BassLibraries.csproj", "{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BassLibraries", "Extensions\BassLibraries\BassLibraries.csproj", "{B186C33C-7DC6-4F6B-911D-B8D3C6482C39}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TagLib", "Extensions\MetadataExtractors\TagLib\TagLib.csproj", "{4CC18776-125E-4318-9D24-D60110AD9697}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TagLib", "Extensions\MetadataExtractors\TagLib\TagLib.csproj", "{4CC18776-125E-4318-9D24-D60110AD9697}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaInfoLib", "Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj", "{7280C551-DCE2-46B7-943E-8C0D90CDC22C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaInfoLib", "Extensions\MetadataExtractors\MediaInfoLib\MediaInfoLib.csproj", "{7280C551-DCE2-46B7-943E-8C0D90CDC22C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FirebirdDatabase", "Backend\Database\FirebirdDatabase\FirebirdDatabase.csproj", "{6759DACE-15CD-4EB1-8337-8096F35EAEA3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ZipResourceProvider", "Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj", "{33721BC7-193A-4B80-9CFF-DC8A50700443}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLCEDatabase", "Backend\Database\SQLCEDatabase\SQLCEDatabase.csproj", "{91188F73-7361-40C1-93CE-BA24AE50A694}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BluRayMetadataExtractor", "Extensions\MetadataExtractors\BluRayMetadaExtractor\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScimoreDb", "Backend\Database\ScimoreDb\ScimoreDb.csproj", "{99071112-C30D-4EBB-87AD-990DD85118D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AudioCDResourceProvider", "Extensions\ResourceProviders\AudioCDResourceProvider\AudioCDResourceProvider.csproj", "{A492604D-592C-425F-9DDD-A121BD6DE0B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ZipResourceProvider", "Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj", "{33721BC7-193A-4B80-9CFF-DC8A50700443}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IsoResourceProvider", "Extensions\ResourceProviders\IsoResourceProvider\IsoResourceProvider.csproj", "{ABB50339-0CA4-4CB4-8788-EA66C960ABCE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BluRayMetadataExtractor", "Extensions\MetadataExtractors\BluRayMetadaExtractor\BluRayMetadataExtractor.csproj", "{BA0837F8-2626-4378-8BF2-963574C1E133}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NetworkNeighborhoodResourceProvider", "Extensions\ResourceProviders\NetworkNeighborhoodResourceProvider\NetworkNeighborhoodResourceProvider.csproj", "{29184FFE-9BDD-4A49-B326-83D362211004}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AudioCDResourceProvider", "Extensions\ResourceProviders\AudioCDResourceProvider\AudioCDResourceProvider.csproj", "{A492604D-592C-425F-9DDD-A121BD6DE0B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tve3RecordingMetadataExtractor", "Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj", "{BD0AD1E7-48A9-404E-9C82-291CE3B41657}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IsoResourceProvider", "Extensions\ResourceProviders\IsoResourceProvider\IsoResourceProvider.csproj", "{ABB50339-0CA4-4CB4-8788-EA66C960ABCE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OnlineLibraries", "Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj", "{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NetworkNeighborhoodResourceProvider", "Extensions\ResourceProviders\NetworkNeighborhoodResourceProvider\NetworkNeighborhoodResourceProvider.csproj", "{29184FFE-9BDD-4A49-B326-83D362211004}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FanArtService", "UI\FanArt\FanArtService\FanArtService.csproj", "{294C9C0A-FE21-4857-957A-14A433E3254E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tve3RecordingMetadataExtractor", "Extensions\MetadataExtractors\Tve3RecordingMetadataExtractor\Tve3RecordingMetadataExtractor.csproj", "{BD0AD1E7-48A9-404E-9C82-291CE3B41657}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FanArtService.Interfaces", "UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj", "{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OnlineLibraries", "Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj", "{DCA4D19E-75F4-4A8A-B70A-F3F4291DC62B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SeriesMetadataExtractor", "Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj", "{DDD5112C-87CE-4228-9EE4-F78BDBA8DA12}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService", "UI\FanArt\FanArtService\FanArtService.csproj", "{294C9C0A-FE21-4857-957A-14A433E3254E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MatroskaLib", "Extensions\MetadataExtractors\MatroskaLib\MatroskaLib.csproj", "{0DCFE91A-60DE-42BF-A5F9-A925AA45ECD4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Interfaces", "UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj", "{587B806E-9AFC-47D7-A024-1CEC38C4D1D3}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MovieMetadataExtractor", "Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj", "{E73C038E-FD47-40AD-9256-4457316F8A97}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SeriesMetadataExtractor", "Extensions\MetadataExtractors\SeriesMetadataExtractor\SeriesMetadataExtractor.csproj", "{DDD5112C-87CE-4228-9EE4-F78BDBA8DA12}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "VideoThumbnailer", "Extensions\MetadataExtractors\VideoThumbnailer\VideoThumbnailer.csproj", "{29935593-E22E-44A9-A9A2-683D5C0F3E57}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MatroskaLib", "Extensions\MetadataExtractors\MatroskaLib\MatroskaLib.csproj", "{0DCFE91A-60DE-42BF-A5F9-A925AA45ECD4}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MovieMetadataExtractor", "Extensions\MetadataExtractors\MovieMetadataExtractor\MovieMetadataExtractor.csproj", "{E73C038E-FD47-40AD-9256-4457316F8A97}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "VideoThumbnailer", "Extensions\MetadataExtractors\VideoThumbnailer\VideoThumbnailer.csproj", "{29935593-E22E-44A9-A9A2-683D5C0F3E57}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MySQLDatabase", "Backend\Database\MySQLDatabase\MySQLDatabase.csproj", "{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Interfaces", "UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj", "{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimTv.Interfaces", "UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj", "{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Plugins", "Plugins", "{D78DACAE-6316-45F4-B7D7-31A50791E977}"
 EndProject
@@ -86,105 +78,103 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "FanArt", "FanArt", "{1FEC24
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "NativeTv", "NativeTv", "{1D7CBAB2-F708-4A74-8DF9-610497AED552}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Integration", "UI\TV\SlimTvIntegration\SlimTv.Integration.csproj", "{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimTv.Integration", "UI\TV\SlimTvIntegration\SlimTv.Integration.csproj", "{0B970B89-C3D8-4DEA-80DD-C18590FDC3B5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Resources", "UI\TV\SlimTvResources\SlimTv.Resources.csproj", "{9158967E-4FEB-4504-8C1E-02BE96045D34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimTv.Resources", "UI\TV\SlimTvResources\SlimTv.Resources.csproj", "{9158967E-4FEB-4504-8C1E-02BE96045D34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerSettings.Service", "Backend\BackendComponents\ServerSettings.Service\ServerSettings.Service.csproj", "{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerSettings.Service", "Backend\BackendComponents\ServerSettings.Service\ServerSettings.Service.csproj", "{1A1A6ABA-895D-4BEA-A1C9-62A851CD1852}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerSettings", "ServerSettings", "{5086CCE5-ECFD-4C02-95CA-7CC79526E231}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerSettings.Interfaces", "Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj", "{8E15FBE3-F6C8-4B76-A560-F391B4124E9C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerSettings.Interfaces", "Backend\BackendComponents\ServerSettings.Interfaces\ServerSettings.Interfaces.csproj", "{8E15FBE3-F6C8-4B76-A560-F391B4124E9C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Libraries", "Libraries", "{F7CD0109-EDD1-4265-9D15-DA808A6F01F3}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FreeImageLib", "Extensions\MetadataExtractors\FreeImageLib\FreeImageLib.csproj", "{3758657D-A0BF-478A-BE36-93180588CB0C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FreeImageLib", "Extensions\MetadataExtractors\FreeImageLib\FreeImageLib.csproj", "{3758657D-A0BF-478A-BE36-93180588CB0C}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ThumbnailProviders", "ThumbnailProviders", "{35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SQLiteDatabase", "Backend\Database\SQLiteDatabase\SQLiteDatabase.csproj", "{8A791C9C-5D72-42E8-B8D3-ED25ADC24188}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQLiteDatabase", "Backend\Database\SQLiteDatabase\SQLiteDatabase.csproj", "{8A791C9C-5D72-42E8-B8D3-ED25ADC24188}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Local", "UI\FanArt\FanArtService.Local\FanArtService.Local.csproj", "{CCF5076B-FDA7-4174-BBAF-E73EBD96B8B1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FanArtService.Local", "UI\FanArt\FanArtService.Local\FanArtService.Local.csproj", "{CCF5076B-FDA7-4174-BBAF-E73EBD96B8B1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "codeRR", "..\Incubator\1TrueError\codeRR.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "codeRR", "..\Incubator\1TrueError\codeRR.csproj", "{7625B1CE-577D-4E56-83DD-08C6EE9984D4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BassAudioMetadataExtractor", "Extensions\MetadataExtractors\BassAudioMetadataExtractor\BassAudioMetadataExtractor.csproj", "{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BassAudioMetadataExtractor", "Extensions\MetadataExtractors\BassAudioMetadataExtractor\BassAudioMetadataExtractor.csproj", "{192EEFB8-DCE7-4B4A-87A4-C1AD63FFF8DD}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Tests", "_Tests", "{4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NfoMetadataExtractors", "Extensions\MetadataExtractors\NfoMetadataExtractors\NfoMetadataExtractors.csproj", "{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NfoMetadataExtractors", "Extensions\MetadataExtractors\NfoMetadataExtractors\NfoMetadataExtractors.csproj", "{E34B06D1-8DCD-4027-9C2F-26FB29EB58A7}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WICThumbnailProvider", "Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj", "{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WICThumbnailProvider", "Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj", "{7F790D8D-3A5A-499F-B9D3-8D9A1EF4F73A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service3", "UI\TV\SlimTvService3\SlimTv.Service3.csproj", "{C239225E-CA92-4482-AFE7-F54006C48922}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimTv.Service3", "UI\TV\SlimTvService3\SlimTv.Service3.csproj", "{C239225E-CA92-4482-AFE7-F54006C48922}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Service35", "UI\TV\SlimTvService35\SlimTv.Service35.csproj", "{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimTv.Service35", "UI\TV\SlimTvService35\SlimTv.Service35.csproj", "{1C9C13D0-C9F1-475F-96EC-D17AE77D2E1D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Mock", "..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj", "{F1A04140-5C63-4688-8A9E-A195AAF95DE1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Mock", "..\Tests\MediaPortal.Mock\MediaPortal.Mock.csproj", "{F1A04140-5C63-4688-8A9E-A195AAF95DE1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FFMpegLib", "Extensions\MetadataExtractors\FFMpegLib\FFMpegLib.csproj", "{D2416E5A-CF6A-4B45-836D-02300D666127}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FFMpegLib", "Extensions\MetadataExtractors\FFMpegLib\FFMpegLib.csproj", "{D2416E5A-CF6A-4B45-836D-02300D666127}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DevTools", "..\Tools\DevTools\DevTools.csproj", "{98D58DAF-00AE-44BA-94BC-600C35AF77C8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DevTools", "..\Tools\DevTools\DevTools.csproj", "{98D58DAF-00AE-44BA-94BC-600C35AF77C8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FanArtService.Online", "UI\FanArt\FanArtService.Online\FanArtService.Online.csproj", "{81DF4C8D-827C-4998-BE20-86295DE65F6F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FanArtService.Online", "UI\FanArt\FanArtService.Online\FanArtService.Online.csproj", "{81DF4C8D-827C-4998-BE20-86295DE65F6F}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "ServerStateService", "ServerStateService", "{7EE620EE-533A-4D4F-9F7E-AD54CA872B93}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerStateService.Interfaces", "Backend\BackendComponents\ServerStateService\ServerStateService.Interfaces\ServerStateService.Interfaces.csproj", "{1CD36F37-70FF-442F-8B1E-528F41D76F34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerStateService.Interfaces", "Backend\BackendComponents\ServerStateService\ServerStateService.Interfaces\ServerStateService.Interfaces.csproj", "{1CD36F37-70FF-442F-8B1E-528F41D76F34}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ServerStateService", "Backend\BackendComponents\ServerStateService\ServerStateService\ServerStateService.csproj", "{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ServerStateService", "Backend\BackendComponents\ServerStateService\ServerStateService\ServerStateService.csproj", "{1F881ED1-1D27-4B08-BAF7-E9B091C8E3F0}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WakeOnLan", "WakeOnLan", "{7022055E-FF0A-47A6-A6CE-9D80BE64CCDA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakeOnLan.Server", "..\Incubator\WakeOnLan\WakeOnLan.Server\WakeOnLan.Server.csproj", "{1E65B673-2705-4211-BD06-0659DD0415C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WakeOnLan.Server", "..\Incubator\WakeOnLan\WakeOnLan.Server\WakeOnLan.Server.csproj", "{1E65B673-2705-4211-BD06-0659DD0415C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WakeOnLan.Common", "..\Incubator\WakeOnLan\WakeOnLan.Common\WakeOnLan.Common.csproj", "{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WakeOnLan.Common", "..\Incubator\WakeOnLan\WakeOnLan.Common\WakeOnLan.Common.csproj", "{9F6CBAFB-159F-4343-9AFA-65B9D95BF08A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Transcoding", "Transcoding", "{4EC21881-5940-42F8-9B71-201807637C87}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranscodingService", "..\Incubator\TranscodingService\TranscodingService.csproj", "{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranscodingService", "..\Incubator\TranscodingService\TranscodingService.csproj", "{38EDED2D-21CC-4FFC-B1F4-2597E4823B7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TranscodingService.Interfaces", "..\Incubator\TranscodingService.Interfaces\TranscodingService.Interfaces.csproj", "{5057EBD5-A262-42A6-A975-360730CFE322}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TranscodingService.Interfaces", "..\Incubator\TranscodingService.Interfaces\TranscodingService.Interfaces.csproj", "{5057EBD5-A262-42A6-A975-360730CFE322}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer", "..\Incubator\MediaServer\MediaServer.csproj", "{1BA81EB2-6556-4213-A7A5-9E5B508F186F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer", "..\Incubator\MediaServer\MediaServer.csproj", "{1BA81EB2-6556-4213-A7A5-9E5B508F186F}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.Proxy3", "UI\TV\SlimTvProxy3\SlimTv.Proxy3.csproj", "{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimTv.Proxy3", "UI\TV\SlimTvProxy3\SlimTv.Proxy3.csproj", "{E0C8EDE8-7398-4D47-9D5D-73CDA5ECAF25}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StubMetadataExtractors", "Extensions\MetadataExtractors\StubMetadataExtractors\StubMetadataExtractors.csproj", "{B7D9598A-9744-489D-BDED-88BA73AD5DC8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StubMetadataExtractors", "Extensions\MetadataExtractors\StubMetadataExtractors\StubMetadataExtractors.csproj", "{B7D9598A-9744-489D-BDED-88BA73AD5DC8}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Test.TranscodingService", "..\Tests\Test.TranscodingService\Test.TranscodingService.csproj", "{93D2BEA6-4C89-4ED9-81B0-151E3F11B320}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Test.TranscodingService", "..\Tests\Test.TranscodingService\Test.TranscodingService.csproj", "{93D2BEA6-4C89-4ED9-81B0-151E3F11B320}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Web", "Web", "{34807E8F-6902-498A-AEDA-ABD62CFC26C9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GDIThumbnailProvider", "Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj", "{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GDIThumbnailProvider", "Extensions\MetadataExtractors\GDIThumbnailProvider\GDIThumbnailProvider.csproj", "{65CF3575-AC34-4E46-92C3-84E6EDA9BACD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.Server", "..\Tests\Tests.Server\Tests.Server.csproj", "{0C1B59BA-BF96-4803-B83D-9E42C1A3A8C6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.Server", "..\Tests\Tests.Server\Tests.Server.csproj", "{0C1B59BA-BF96-4803-B83D-9E42C1A3A8C6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GenreProviders", "GenreProviders", "{176E2429-8E3B-4557-A16A-253EBF2196E2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GenreProvider", "Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj", "{1973AD5B-EF7E-41DA-A668-58AC37E1154E}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MSSQLDatabase", "Backend\Database\MSSQLDatabase\MSSQLDatabase.csproj", "{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GenreProvider", "Extensions\MetadataExtractors\GenreProvider\GenreProvider.csproj", "{1973AD5B-EF7E-41DA-A668-58AC37E1154E}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "DLNA", "DLNA", "{69ED3BA8-4E60-42BD-9FD3-887358BFB247}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaServer.Interfaces", "..\Incubator\MediaServer.Interfaces\MediaServer.Interfaces.csproj", "{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaServer.Interfaces", "..\Incubator\MediaServer.Interfaces\MediaServer.Interfaces.csproj", "{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OCVVideoThumbnailer", "Extensions\MetadataExtractors\OCVVideoThumbnailer\OCVVideoThumbnailer.csproj", "{9049F675-1A23-46A1-B0A9-BBA94C492AAD}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OCVVideoThumbnailer", "Extensions\MetadataExtractors\OCVVideoThumbnailer\OCVVideoThumbnailer.csproj", "{9049F675-1A23-46A1-B0A9-BBA94C492AAD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP2Extended", "..\Incubator\MP2Extended\MP2Extended.csproj", "{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MP2Extended", "..\Incubator\MP2Extended\MP2Extended.csproj", "{76F39ABC-7CC4-4373-BE19-AAF989C8EAD6}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubtitleMetadataExtractor", "Extensions\MetadataExtractors\SubtitleMetadataExtractor\SubtitleMetadataExtractor.csproj", "{4CBD029B-7F5F-442F-8577-CB830A8F0CF1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubtitleMetadataExtractor", "Extensions\MetadataExtractors\SubtitleMetadataExtractor\SubtitleMetadataExtractor.csproj", "{4CBD029B-7F5F-442F-8577-CB830A8F0CF1}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "SubtitleProviders", "SubtitleProviders", "{1A4364AE-E225-42F8-BE12-811D4E5FCF66}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SubtitleDownloaderProvider", "Extensions\MetadataExtractors\SubtitleDownloaderProvider\SubtitleDownloaderProvider.csproj", "{D83D417B-6EB3-4C09-B0A9-94C219C9A426}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SubtitleDownloaderProvider", "Extensions\MetadataExtractors\SubtitleDownloaderProvider\SubtitleDownloaderProvider.csproj", "{D83D417B-6EB3-4C09-B0A9-94C219C9A426}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ScriptableMetadataExtractor", "Extensions\MetadataExtractors\ScriptableMetadataExtractor\ScriptableMetadataExtractor.csproj", "{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ScriptableMetadataExtractor", "Extensions\MetadataExtractors\ScriptableMetadataExtractor\ScriptableMetadataExtractor.csproj", "{DB95DAB5-29DD-4FDA-B6AE-B642DD20A7A0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OpenCvLib", "Extensions\MetadataExtractors\OpenCvLib\OpenCvLib.csproj", "{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCvLib", "Extensions\MetadataExtractors\OpenCvLib\OpenCvLib.csproj", "{AB3599B3-85C3-47A1-B9C8-DFC3E8F9E10A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.MediaServer", "..\Tests\Tests.MediaServer\Tests.MediaServer\Tests.MediaServer.csproj", "{5B658CDD-2211-4DB5-8765-997D4501BCA2}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.MediaServer", "..\Tests\Tests.MediaServer\Tests.MediaServer\Tests.MediaServer.csproj", "{5B658CDD-2211-4DB5-8765-997D4501BCA2}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -298,18 +288,6 @@ Global
 		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Release|Any CPU.Build.0 = Release|Any CPU
 		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Release|x86.ActiveCfg = Release|x86
 		{7280C551-DCE2-46B7-943E-8C0D90CDC22C}.Release|x86.Build.0 = Release|x86
-		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Debug|x86.ActiveCfg = Debug|x86
-		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{6759DACE-15CD-4EB1-8337-8096F35EAEA3}.Release|x86.ActiveCfg = Release|x86
-		{91188F73-7361-40C1-93CE-BA24AE50A694}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{91188F73-7361-40C1-93CE-BA24AE50A694}.Debug|x86.ActiveCfg = Debug|x86
-		{91188F73-7361-40C1-93CE-BA24AE50A694}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{91188F73-7361-40C1-93CE-BA24AE50A694}.Release|x86.ActiveCfg = Release|x86
-		{99071112-C30D-4EBB-87AD-990DD85118D5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{99071112-C30D-4EBB-87AD-990DD85118D5}.Debug|x86.ActiveCfg = Debug|x86
-		{99071112-C30D-4EBB-87AD-990DD85118D5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{99071112-C30D-4EBB-87AD-990DD85118D5}.Release|x86.ActiveCfg = Release|x86
 		{33721BC7-193A-4B80-9CFF-DC8A50700443}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{33721BC7-193A-4B80-9CFF-DC8A50700443}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{33721BC7-193A-4B80-9CFF-DC8A50700443}.Debug|x86.ActiveCfg = Debug|x86
@@ -410,10 +388,6 @@ Global
 		{29935593-E22E-44A9-A9A2-683D5C0F3E57}.Debug|x86.ActiveCfg = Debug|x86
 		{29935593-E22E-44A9-A9A2-683D5C0F3E57}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{29935593-E22E-44A9-A9A2-683D5C0F3E57}.Release|x86.ActiveCfg = Release|x86
-		{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}.Debug|x86.ActiveCfg = Debug|x86
-		{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0}.Release|x86.ActiveCfg = Release|x86
 		{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}.Debug|x86.ActiveCfg = Debug|x86
@@ -642,10 +616,6 @@ Global
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E}.Release|Any CPU.Build.0 = Release|Any CPU
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E}.Release|x86.ActiveCfg = Release|x86
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E}.Release|x86.Build.0 = Release|x86
-		{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2}.Debug|x86.ActiveCfg = Debug|x86
-		{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2}.Release|x86.ActiveCfg = Release|x86
 		{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC}.Debug|x86.ActiveCfg = Debug|x86
@@ -724,9 +694,6 @@ Global
 		{B186C33C-7DC6-4F6B-911D-B8D3C6482C39} = {F7CD0109-EDD1-4265-9D15-DA808A6F01F3}
 		{4CC18776-125E-4318-9D24-D60110AD9697} = {F7CD0109-EDD1-4265-9D15-DA808A6F01F3}
 		{7280C551-DCE2-46B7-943E-8C0D90CDC22C} = {F7CD0109-EDD1-4265-9D15-DA808A6F01F3}
-		{6759DACE-15CD-4EB1-8337-8096F35EAEA3} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
-		{91188F73-7361-40C1-93CE-BA24AE50A694} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
-		{99071112-C30D-4EBB-87AD-990DD85118D5} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
 		{33721BC7-193A-4B80-9CFF-DC8A50700443} = {985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}
 		{BA0837F8-2626-4378-8BF2-963574C1E133} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{A492604D-592C-425F-9DDD-A121BD6DE0B5} = {985FB6BC-696C-4D4E-8E63-0A4E45CFE32D}
@@ -740,7 +707,6 @@ Global
 		{0DCFE91A-60DE-42BF-A5F9-A925AA45ECD4} = {F7CD0109-EDD1-4265-9D15-DA808A6F01F3}
 		{E73C038E-FD47-40AD-9256-4457316F8A97} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
 		{29935593-E22E-44A9-A9A2-683D5C0F3E57} = {35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}
-		{DAE7E1E5-4168-40E8-9F59-510B5CCEF1E0} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
 		{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{1FEC2432-78BD-4084-B08D-4FC99D808484} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
 		{1D7CBAB2-F708-4A74-8DF9-610497AED552} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
@@ -782,7 +748,6 @@ Global
 		{0C1B59BA-BF96-4803-B83D-9E42C1A3A8C6} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 		{176E2429-8E3B-4557-A16A-253EBF2196E2} = {26B21F24-5C09-4F49-ABE3-C1B3F9059D2B}
 		{1973AD5B-EF7E-41DA-A668-58AC37E1154E} = {176E2429-8E3B-4557-A16A-253EBF2196E2}
-		{EA2BA37F-8DC9-4AB3-A8B9-49C7E66692D2} = {EFC339EB-9F75-4E5A-937A-A8BECA514715}
 		{69ED3BA8-4E60-42BD-9FD3-887358BFB247} = {D78DACAE-6316-45F4-B7D7-31A50791E977}
 		{F367E2D6-DDD7-4F44-AA45-F9BD4D61A4EC} = {69ED3BA8-4E60-42BD-9FD3-887358BFB247}
 		{9049F675-1A23-46A1-B0A9-BBA94C492AAD} = {35DF0F35-CB07-4868-AD8B-146E5D5B5DB0}
