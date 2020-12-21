@@ -35,8 +35,8 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="SubtitleDownloader">
-      <Version>3.0.20.1</Version>
+    <PackageReference Include="SubtitleDownloader" GeneratePathProperty="true">
+      <Version>3.0.20.3</Version>
     </PackageReference>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>

@@ -16,7 +16,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <References Include="$(TargetDir)SubtitleDownloader.dll" />
+      <References Include="$(PkgSubtitleDownloader)\lib\netstandard20\SubtitleDownloader.dll" />
     </ItemGroup>
 
     <ItemGroup>
