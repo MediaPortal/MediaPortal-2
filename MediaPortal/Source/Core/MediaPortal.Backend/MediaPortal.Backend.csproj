@@ -1,151 +1,19 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="12.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{5B27EB95-B829-40F4-B445-0225CA206F85}</ProjectGuid>
-        <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
     <RootNamespace>MediaPortal.Backend</RootNamespace>
-    <AssemblyName>MediaPortal.Backend</AssemblyName>
-    <FileUpgradeFlags>
-    </FileUpgradeFlags>
-    <OldToolsVersion>3.5</OldToolsVersion>
-    <UpgradeBackupLocation>
-    </UpgradeBackupLocation>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
-    <TargetFrameworkProfile />
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>none</DebugType>
-    <PlatformTarget>x86</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-    <Compile Include="BackendServer\IBackendServer.cs" />
-    <Compile Include="ClientCommunication\ClientDescriptor.cs" />
-    <Compile Include="ClientCommunication\ClientManagerMessaging.cs" />
-    <Compile Include="ClientCommunication\IClientManager.cs" />
-    <Compile Include="ClientCommunication\IClientController.cs" />
-    <Compile Include="ClientCommunication\IServerStateService.cs" />
-    <Compile Include="Services\Database\DatabaseMigrationManager.cs" />
-    <Compile Include="Services\Database\DatabaseSubSchemaManager.cs" />
-    <Compile Include="Database\IDatabaseManager.cs" />
-    <Compile Include="Database\ISQLDatabase.cs" />
-    <Compile Include="Exceptions\Exceptions.cs" />
-    <Compile Include="MediaLibrary\IMediaLibrary.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="BackendExtension.cs" />
-    <Compile Include="Services\BackendServer\BackendServer.cs" />
-    <Compile Include="ClientCommunication\ClientConnection.cs" />
-    <Compile Include="Services\ClientCommunication\ClientManager.cs" />
-    <Compile Include="Services\ClientCommunication\ClientManager_SubSchema.cs" />
-    <Compile Include="Services\ClientCommunication\LocalizedUPnPDeviceInformation.cs" />
-    <Compile Include="Services\ClientCommunication\MP2BackendServerDevice.cs" />
-    <Compile Include="Services\ClientCommunication\UPnPBackendServer.cs" />
-    <Compile Include="Services\ClientCommunication\UPnPContentDirectoryServiceImpl.cs" />
-    <Compile Include="Services\ClientCommunication\UPnPServerControllerServiceImpl.cs" />
-    <Compile Include="Services\ClientCommunication\UPnPServerControlPoint.cs" />
-    <Compile Include="Services\ClientCommunication\UPnPClientControllerServiceProxy.cs" />
-    <Compile Include="Services\Database\LoggingDbCommandWrapper.cs" />
-    <Compile Include="Services\Database\SqlScriptPreprocessor.cs" />
-    <Compile Include="Services\MediaLibrary\BindVar.cs" />
-    <Compile Include="Services\MediaLibrary\FirstCharGroupingFunction.cs" />
-    <Compile Include="Services\MediaLibrary\IGroupingFunctionImpl.cs" />
-    <Compile Include="Services\MediaLibrary\MediaLibraryMessaging.cs" />
-    <Compile Include="Services\MediaLibrary\PreparedStatements.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\BaseQueryBuilder.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledGroupedAttributeValueQuery.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledFilter.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledMediaItemQuery.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\CompiledCountItemsQuery.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\BindVarNamespace.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\InverseRelationshipCompiledFilter.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\SubQueryBuilder.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\InverseRelationshipQueryBuilder.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\RequestedAttribute.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\ComplexAttributeQueryBuilder.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\Namespace.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\QueryAttribute.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\MainQueryBuilder.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\MultipleMIAQueryBuilder.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\MIAQueryBuilder.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\TableJoin.cs" />
-    <Compile Include="Services\MediaLibrary\QueryEngine\TableQueryData.cs" />
-    <Compile Include="BackendServer\Settings\BackendServerSettings.cs" />
-    <Compile Include="Services\Database\DatabaseManager.cs" />
-    <Compile Include="Services\Database\MediaPortal_Basis_SubSchema.cs" />
-    <Compile Include="Services\MediaLibrary\MediaLibrary.cs" />
-    <Compile Include="Services\MediaLibrary\MediaLibrary_SubSchema.cs" />
-    <Compile Include="Services\MediaLibrary\MIA_Management.cs" />
-    <Compile Include="Services\MediaLibrary\RelationshipManagement.cs" />
-    <Compile Include="Services\MediaManagement\RelationshipTypeRegistration.cs" />
-    <Compile Include="Services\MediaManagement\MediaItemAspectTypeRegistration.cs" />
-    <Compile Include="Services\Database\DBUtils.cs" />
-    <Compile Include="Services\SystemResolver\SystemResolver.cs" />
-    <Compile Include="Services\UserProfileDataManagement\UPnPUserProfileDataManagementServiceImpl.cs" />
-    <Compile Include="Services\UserProfileDataManagement\UserProfileDataManagement.cs" />
-    <Compile Include="Services\UserProfileDataManagement\UserProfileDataManagement_SubSchema.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj">
-      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
-      <Name>MediaPortal.Common</Name>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
-      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
-      <Name>MediaPortal.Utilities</Name>
-      <Private>True</Private>
-    </ProjectReference>
-    <ProjectReference Include="..\UPnP\UPnP.csproj">
-      <Project>{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}</Project>
-      <Name>UPnP</Name>
-      <Private>True</Private>
-    </ProjectReference>
+    <ProjectReference Include="..\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" /> 
+    <ProjectReference Include="..\UPnP\UPnP.csproj" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
