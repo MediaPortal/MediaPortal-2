@@ -56,6 +56,9 @@
     <LargeAddressAware>true</LargeAddressAware>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="WindowsServiceInstaller.cs" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
