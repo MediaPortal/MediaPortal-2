@@ -27,7 +27,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel DataContext="{Binding Source={StaticResource Model}}">
-        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-475,110,-60,0">
+        <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-430,0,0,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -36,7 +36,7 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <!-- User profile list -->
-          <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Center" SetFocusPrio="Default"
+          <ListView Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Center" HorizontalContentAlignment="Center" SetFocus="True"
                     Style="{ThemeResource LoginListViewStyle}" ItemsSource="{Binding Path=Users}" RestoreFocus="True">
             <ListView.Resources>
               <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectUser"

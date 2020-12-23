@@ -39,7 +39,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <ResourceWrapper x:Key="DefaultContentMargin" Resource="0" />
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -57,11 +57,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </ControlTemplate>
 
     <!-- Client_Template -->
-    <ControlTemplate x:Key="Client_Template" Panel.ZIndex="2">
+    <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True">
+
         <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="-10,-92,0,-265" >
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="480"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="90"/>
@@ -72,103 +73,24 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
           </Grid.Resources>
 
-          <!-- Top Gradient Overlay-->
-          <Border Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Top" BorderThickness="0" Height="100">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Color="#E6000000" Offset="0" />
-                <GradientStop Color="#00000000" Offset="1" />
-              </LinearGradientBrush>
-            </Border.Background>
-          </Border>
-
-          <!-- Bottom Gradient Overlay-->
-          <Border Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100">
-            <Border.Background>
-              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Color="#00000000" Offset="0" />
-                <GradientStop Color="#E6000000" Offset="1" />
-              </LinearGradientBrush>
-            </Border.Background>
-          </Border>
-
           <Image Grid.RowSpan="3" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,0,-20,0" RenderTransformOrigin="0.5,0.5">
             <Image.RenderTransform>
               <RotateTransform Angle="180"/>
             </Image.RenderTransform>
-            <Image.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
-              </MultiBinding>
-            </Image.IsVisible>
           </Image>
-          <Border Grid.RowSpan="3" Margin="0,0,0,0" Background="Black" Opacity="1">
-            <Border.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
-              </MultiBinding>
-            </Border.IsVisible>
-            <Border.Width>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
-                <Binding Source="480" />
-                <Binding Source="{SkinWidth}" />
-              </MultiBinding>
-            </Border.Width>
-          </Border>
+          <Border Grid.RowSpan="3" Margin="0,0,0,0" Background="Black" Opacity="1"/>
 
-          <ListView x:Name="MainMenu" Grid.Row="1" Margin="30,0,20,0"
+          <ListView x:Name="MainMenu" Grid.Row="1" Margin="30,0,20,0" Style="{ThemeResource MainMenuListViewStyle}"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
                     ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
-            <ListView.Style>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
-                <Binding Source="{ThemeResource MainMenuListViewStyle}" />
-                <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
-              </MultiBinding>
-              <!--MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {3})||({0} == {4})||({0} == {5})||({0} == {6})||({0} == {7})) ? {1} : {2}">
-                <Binding Converter="{StaticResource ConfigurationRootConverter}" ConverterParameter="{}{0}"/>
-                <Binding Source="{ThemeResource MainMenuListViewStyle}" />
-                <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
-                <Binding Source="General" />
-                <Binding Source="Media" />
-                <Binding Source="Appearance" />
-                <Binding Source="Players" />
-                <Binding Source="Plugins" />
-              </-->
-            </ListView.Style>
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
-
-          <Grid x:Name="HeaderTextPanel" Grid.Row="2" HorizontalAlignment="Left" Margin="30,0,-400,0" VerticalAlignment="Center">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="10,0,0,10" VerticalAlignment="Center"
-                   Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" Color="White" Opacity="0.2">
-              <Label.FontSize>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
-                <Binding Source="{ThemeResource NormalFontSize}" />
-                <Binding Source="{ThemeResource HeaderFontSize}" />
-              </MultiBinding>
-            </Label.FontSize>
-           </Label>
-          </Grid>
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="-1,-92,0,-265" Panel.ZIndex="1">
-          <Grid.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3">
-              <Binding ElementName="MainMenu" Path="ItemsCount" />
-            </MultiBinding>
-          </Grid.IsVisible>
+        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="-1,-92,0,-265" >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -187,7 +109,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Border>
 
           <!-- Bottom Gradient Overlay-->
-          <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100">
+          <Border Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Color="#00000000" Offset="0" />
