@@ -108,7 +108,7 @@
             <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Opacity="0.7"
                    Content="{Binding SelectedItem.Summary}" Wrap="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
           </ScrollViewer>
-          <Label Grid.Row="3" Margin="0,30,20,30" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+          <Label Grid.Row="3" Margin="0,30,20,30" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Height="600"
                  IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAutoScrolling}" Scroll="Auto"
                  ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
                  ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"

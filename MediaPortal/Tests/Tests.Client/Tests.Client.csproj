@@ -75,6 +75,7 @@
     <Compile Include="Common\TestRelationshipExtraction.cs" />
     <Compile Include="Common\Thumbnailer.cs" />
     <Compile Include="Media\TestMediaViews.cs" />
+    <Compile Include="SkinEngine\ConfigurationConverters.cs" />
     <Compile Include="UPnP\HttpHeaders.cs" />
     <Compile Include="VideoPlayers\ComSkip\ComSkipChaptersTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
