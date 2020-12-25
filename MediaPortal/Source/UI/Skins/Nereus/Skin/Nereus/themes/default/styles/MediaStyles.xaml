@@ -3842,7 +3842,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle_Cover}"
+          <Button Style="{ThemeResource ButtonWideStyle_Cover}" Margin="0,20,0,0"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
                   IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
