@@ -68,8 +68,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="BottomGradient" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-1"
              Template="{DynamicResource ResourceKey=BottomGradient_Template}">
       <Control.IsVisible>
-        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
-                 Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1}) || ({0} == {LayoutType}.{ListLayout})">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableGridDetails"/>
+        </MultiBinding>
       </Control.IsVisible>
     </Control>
 
@@ -144,6 +146,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <mp_special_controls:PlayerControl Margin="10" Style="{ThemeResource NavigationScreenPlayerControlStyle}"
                   AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Stretch"/>
     </Grid>
+
+    <!-- Gridview w/o details-->
+    <Control x:Name="BottomDetails" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="50,0,0,0" Width="950"
+             Template="{DynamicResource ResourceKey=BottomDetails_Template}"/>
+
+    <!-- Coverview w/ details-->
+    <Control x:Name="TopDetails" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="100,0,100,0" Height="270"
+             Template="{DynamicResource ResourceKey=TopDetails_Template}" />
 
     <!-- Window control buttons -->
     <Include Source="screens\WindowControlButtons.inc"/>

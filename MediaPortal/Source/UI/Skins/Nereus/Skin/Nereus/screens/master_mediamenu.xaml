@@ -288,5 +288,85 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid>
     </ControlTemplate>
 
+    <!---Gridview Details w/o details-->
+    <ControlTemplate x:Key="BottomDetails_Template">
+      <Grid>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1}) ">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableGridDetails"/>
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RenderTransform>
+          <TranslateTransform X="0"/>
+        </Grid.RenderTransform>
+
+        <!--Slide content in and out depending on hidden menu state-->
+        <Grid.Triggers>
+          <!--Close the hidden menu when the main content gets focus-->
+          <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+            <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+          </EventTrigger>
+          <MultiTrigger>
+            <MultiTrigger.Conditions>
+              <Condition Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True" />
+              <Condition Value="True">
+                <Condition.Binding>
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
+                           Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+                </Condition.Binding>
+              </Condition>
+            </MultiTrigger.Conditions>
+            <MultiTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideIn" Storyboard="{ThemeResource HiddenMenuSlideIn}"/>
+            </MultiTrigger.EnterActions>
+            <MultiTrigger.ExitActions>
+              <BeginStoryboard x:Name="SlideOut" Storyboard="{ThemeResource HiddenMenuSlideOut}"/>
+              <StopStoryboard BeginStoryboardName="SlideIn"/>
+            </MultiTrigger.ExitActions>
+          </MultiTrigger>
+        </Grid.Triggers>
+        <Control>
+          <Control.TemplateControl>
+            <Include Source="screens\MultiDetailsHome.inc"/>
+          </Control.TemplateControl>
+        </Control>
+      </Grid>
+    </ControlTemplate>
+
+    <!---Coverview Details-->
+    <ControlTemplate x:Key="TopDetails_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.Background>
+          <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+            <GradientStop Color="#00000000" Offset="0" />
+            <GradientStop Color="#80000000" Offset="0.3" />
+            <GradientStop Color="#80000000" Offset="0.7" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </Grid.Background>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} &amp;&amp; {1}">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCoverDetails"/>
+          </MultiBinding>
+        </Grid.IsVisible>
+        <Control x:Name="CoverDetails" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,15,70,15">
+          <Control.TemplateControl>
+            <Include Source="screens\MultiDetailsCover.inc"/>
+          </Control.TemplateControl>
+        </Control>
+      </Grid>
+    </ControlTemplate>
+
   </Include.Resources>
 </Include>

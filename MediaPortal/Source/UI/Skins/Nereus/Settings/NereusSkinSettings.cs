@@ -45,6 +45,12 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     public double FanartOverlayOpacity { get; set; }
 
     [Setting(SettingScope.User, true)]
+    public bool EnableGridDetails { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool EnableCoverDetails { get; set; }
+
+    [Setting(SettingScope.User, true)]
     public bool EnableListWatchedFlags { get; set; }
 
     [Setting(SettingScope.User, true)]

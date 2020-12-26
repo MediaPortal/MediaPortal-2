@@ -2373,17 +2373,23 @@
               CornerRadius="{ThemeResource ButtonControlRadiusX}" Margin="0"
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
-      <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,5,8,0"
-             TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3" MaxHeight="60"
-             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
-            <Binding Source="{ThemeResource MenuTextBackground}"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
+      <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" >
+        <media:MovieAspectWrapper.Template>
+          <ControlTemplate>
+            <Label x:Name="ItemLabel" Content="{Binding MovieName}" Wrap="True" Margin="8,5,8,0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                     TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3" MaxHeight="60"
+                     HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
+              <Label.Color>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+                  <Binding Source="{ThemeResource MenuTextBackground}"/>
+                  <Binding Source="{ThemeResource TextColor}"/>
+                </MultiBinding>
+              </Label.Color>
+            </Label>
+          </ControlTemplate>
+        </media:MovieAspectWrapper.Template>
+      </media:MovieAspectWrapper>
 
     </Grid>
   </ControlTemplate>

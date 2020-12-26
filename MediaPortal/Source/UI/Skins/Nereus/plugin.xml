@@ -108,6 +108,18 @@
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
 
     <ConfigSetting
+        Id="NereusEnableGridDetails"
+        Text="[Nereus.Configuration.EnableGridDetails]"
+        HelpText="[Nereus.Configuration.EnableGridDetails.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableGridDetailsConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableCoverDetails"
+        Text="[Nereus.Configuration.EnableCoverDetails]"
+        HelpText="[Nereus.Configuration.EnableCoverDetails.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableCoverDetailsConfiguration"/>
+
+    <ConfigSetting
         Id="NereusFanartOverlayOpacity"
         Text="[Nereus.Configuration.FanartOverlayOpacity]"
         HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"

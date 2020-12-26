@@ -108,6 +108,8 @@
     <Compile Include="Models\AutoScrollConfigurationModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\BaseGridViewTypeConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableCoverDetailsConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableGridDetailsConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableAutoScrollingConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableLoopScrollingConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableHelpTextConfiguration.cs" />
@@ -727,6 +729,28 @@
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingAudioDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaInfoMovieDetails.inc" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingSeriesDetails.inc" />
+    <Content Include="Skin\Nereus\screens\MediaItemCoverAudioAlbumDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemCoverAudioDetails.inc">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemCoverEpisodeDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemCoverImageDetails.inc" />
+    <Content Include="Skin\Nereus\screens\MediaItemCoverMovieDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemCoverOthersDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemCoverSeriesDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MultiDetailsCover.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\Nereus\screens\NotificationsBar.inc" />
     <Content Include="Skin\Nereus\screens\WindowControlButtons.inc">
       <SubType>Designer</SubType>

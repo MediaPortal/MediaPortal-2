@@ -1,11 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<Grid MinHeight="510"
+<Grid MinHeight="1040"
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}"
     > <!-- Model = MediaNavigationModel -->
   <Grid.Resources>
     <Model x:Key="MediaModel" Id="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>
+    <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
   </Grid.Resources>
   <Grid.RowDefinitions>
     <RowDefinition Height="*"/>
@@ -81,13 +82,56 @@
       </StackPanel.IsVisible>
     </StackPanel>
 
+    <!---GridView w/o Details-->
+    <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100" Width="{SkinWidth}" Margin="-33,0,0,-30">
+      <Border.Background>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <GradientStop Color="#00000000" Offset="0" />
+          <GradientStop Color="#E6000000" Offset="1" />
+        </LinearGradientBrush>
+      </Border.Background>
+      <Border.IsVisible>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1}">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableGridDetails"/>
+        </MultiBinding>
+      </Border.IsVisible>
+    </Border>
+    
+    <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,30,70,-30"
+          DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+      <Label VerticalAlignment="Center" Margin="0,0,10,0"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+            <Binding Source="{StaticResource FanArtBackgroundModel}" Path="SelectedItem"/>
+            <Binding Source="{Binding ElementName=MediaItemsList}" Path="ItemsSource"/>
+          </MultiBinding>
+        </Label.Content>
+      </Label>
+      <Label Content="| " FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColorForeground}" Grid.Column="1"/>
+      <Label Content="{Binding NumItems}" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColorForeground}" Grid.Column="2"/>
+      <Grid.IsVisible>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1}">
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableGridDetails"/>
+        </MultiBinding>
+      </Grid.IsVisible>
+    </Grid>
+
     <Label IsVisible="{Binding ShowListHint}"
        HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
        Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
-    
+
   </Grid>
   <Label IsVisible="{Binding !IsItemsValid}"
          HorizontalAlignment="Center" VerticalAlignment="Center"
          Content="[Media.ViewInvalid]" Color="{ThemeResource ErrorTextColor}"/>
   <KeyBinding Key="F5" Command="{Command Reload}"/>
+  
 </Grid>

@@ -33,8 +33,10 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1}) || ({0} == {LayoutType}.{ListLayout})">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableGridDetails"/>
+            </MultiBinding>
           </Grid.IsVisible>
 
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -74,9 +76,15 @@
             </Border>
           </Grid>
 
-          <!---Listview Details-->
+          <!---Listview and Gridview Details-->
           <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1}) || ({0} == {LayoutType}.{ListLayout})">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableGridDetails"/>
+              </MultiBinding>
+            </Control.IsVisible>
             <Control.TemplateControl>
               <Include Source="screens\MultiListDetails.inc"/>
             </Control.TemplateControl>
