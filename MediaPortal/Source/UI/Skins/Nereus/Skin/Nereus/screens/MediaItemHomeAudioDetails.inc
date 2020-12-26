@@ -26,6 +26,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
+
           <Label x:Name="Title" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                  Content="{Binding TrackName}" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}"/>
         </Grid>
@@ -47,11 +48,11 @@
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
               
-              <Image Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+              <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
                      IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
               <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
                      Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" 
-                     IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0" Opacity="0.6"/>
+                     IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,30,0" Opacity="0.6"/>
             </Grid>
           </ControlTemplate>
         </media:MediaAspectWrapper.Template>
@@ -69,9 +70,9 @@
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
 
-              <Image Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="30,-1,0,1"
+              <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
                      IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
-              <Label x:Name="RatingCountLabel" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Column="1"
+              <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
                      FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
                      IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Label.Content>
@@ -95,10 +96,10 @@
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
 
-              <Image Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="30,-1,0,1"
+              <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
               <Label x:Name="Duration" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
-                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,30,0"
                      Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=mm\:ss}"
                      Grid.Column="1" VerticalAlignment="Center"/>
             </Grid>
@@ -119,9 +120,11 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="HomeContentIcons\watch.png" Stretch="Uniform" Height="35" VerticalAlignment="Center" Margin="30,-1,0,1"/>
-            <Label VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" 
-                   Grid.Column="1" Margin="5,0,0,0" Opacity="0.6">
+            <Image Source="HomeContentIcons\watch.png" Stretch="Uniform" Height="35" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            <Label VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}"
+                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Grid.Column="1" Margin="5,0,30,0" Opacity="0.6">
               <Label.Content>
                 <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
               </Label.Content>
