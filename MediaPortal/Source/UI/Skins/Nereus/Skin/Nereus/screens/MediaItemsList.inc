@@ -98,7 +98,7 @@
       </Border.IsVisible>
     </Border>
     
-    <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,30,70,-30"
+    <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,20,70,-20"
           DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>

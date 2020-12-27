@@ -748,6 +748,24 @@
     <Content Include="Skin\Nereus\screens\MediaItemCoverSeriesDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemCoverSeasonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemCoverPersonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemCoverMovieCollectionDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemHomePersonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemHomeMovieCollectionDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemHomeSeasonDetails.inc">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\Nereus\screens\MultiDetailsCover.inc">
       <SubType>Designer</SubType>
     </Content>

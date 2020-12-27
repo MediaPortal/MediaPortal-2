@@ -2671,17 +2671,32 @@
               CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
-             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis" Width="{StaticResource AUDIO_COVER_WIDTH}"
-             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
-            <Binding Source="{ThemeResource MenuTextBackground}"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
+      <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="2" Grid.Column="0" Margin="8,10,8,0" HorizontalAlignment="Stretch">
+        <media:AudioAspectWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold" Wrap="True"
+                     HorizontalAlignment="Center" Width="{StaticResource AUDIO_COVER_WIDTH}">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
+                    <Binding Path="Track"/>
+                    <Binding Source=" - "/>
+                    <Binding Path="TrackName"/>
+                  </MultiBinding>
+                </Label.Content>
+                <Label.Color>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+                    <Binding Source="{ThemeResource MenuTextBackground}"/>
+                    <Binding Source="{ThemeResource TextColor}"/>
+                  </MultiBinding>
+                </Label.Color>
+              </Label>
+            </Grid>
+          </ControlTemplate>
+        </media:AudioAspectWrapper.Template>
+      </media:AudioAspectWrapper>
+
     </Grid>
   </ControlTemplate>
 

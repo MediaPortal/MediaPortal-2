@@ -6,93 +6,155 @@
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   x:Name="MediaItemDetails" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
+  <Grid.Resources>
+    <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+    <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
+  </Grid.Resources>
   <Grid.RowDefinitions>
-    <RowDefinition Height="Auto"/>
-    <RowDefinition Height="Auto"/>
+    <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="Auto"/>
+    <ColumnDefinition Width="15*"/>
+    <ColumnDefinition Width="35*"/>
+    <ColumnDefinition Width="50*"/>
   </Grid.ColumnDefinitions>
 
-  <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-    <media:MediaAspectWrapper.Template>
-      <ControlTemplate>
-        <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
-               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-               Content="{Binding Title}" Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis"/>
-      </ControlTemplate>
-    </media:MediaAspectWrapper.Template>
-  </media:MediaAspectWrapper>
-
-  <StackPanel Orientation="Horizontal" Grid.Row="1">
-    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:MediaAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
-                   IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
-            <Label x:Name="Year" FontSize="{ThemeResource SmallerFontSize}" Grid.Column="1" Margin="5,0,30,0" Opacity="0.6"
-                   IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
-                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Color="{ThemeResource TextColor}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:MediaAspectWrapper.Template>
-    </media:MediaAspectWrapper>
-            
-    <!--Resolution-->
-    <media:ImageAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+    <media:ImageAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
+                              Grid.Column="1" HorizontalAlignment="Stretch">
       <media:ImageAspectWrapper.Template>
         <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Image x:Name="ResolutionIcon" Source="HomeContentIcons\resolution.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,5,1"
-                   IsVisible="{Binding ElementName=Height, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
-            <Label Content="{Binding AspectWidth}" Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"/>
-            <Label Content=" x " Grid.Column="2" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
-                   IsVisible="{Binding ElementName=Height, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>    
-            <Label Content="{Binding AspectHeight}" Grid.Column="3" Color="{ThemeResource TextColor}"
-                   IsVisible="{Binding ElementName=Height, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
-                   x:Name="Height" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6" Margin="0,0,30,0"/>
-          </Grid>
+          <UniformGrid Columns="2" Rows="4" Margin="0,3,0,50" VerticalAlignment="Top" HorizontalAlignment="Stretch">
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=ImageISOSpeed, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\iso.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="ImageISOSpeed" Grid.Column="1" Margin="40,0,0,0"
+                     Content="{Binding ISOSpeedRating}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
+            </Grid>
+
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=ImageExposureTime, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\exposure.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="ImageExposureTime" Grid.Column="1" Margin="40,0,0,0"
+                     Content="{Binding ExposureTime}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
+            </Grid>
+
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=ImageFNumber, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\fnumber.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="ImageFNumber" Grid.Column="1" Margin="40,0,0,0"
+                     Content="{Binding FNumber}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
+            </Grid>
+
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=ImageMeteringMode, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\metering.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="ImageMeteringMode" Grid.Column="1" Margin="40,0,0,0"
+                     Content="{Binding MeteringMode}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
+            </Grid>
+
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=ImageCountry, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\place.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="ImageCountry" Grid.Column="1" Margin="40,0,0,0"
+                     Content="{Binding Country}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
+            </Grid>
+
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=ImageState, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\place.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="ImageState" Grid.Column="1" Margin="40,0,0,0"
+                     Content="{Binding State}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
+            </Grid>
+
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=AspectHeight, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="40"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <Image Source="HomeContentIcons\resolution.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label Grid.Row="0" Grid.Column="1" Content="{Binding AspectWidth}"
+                     Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
+              <Label Content=" x " Grid.Row="0" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" 
+                     Color="{ThemeResource TextColorForeground}"/>
+              <Label Content="{Binding AspectHeight}" Grid.Row="0" Grid.Column="3" Color="{ThemeResource TextColorForeground}" 
+                     x:Name="AspectHeight" FontSize="{ThemeResource SmallFontSize}"/>
+            </Grid>
+
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=ImageCity, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\place.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="ImageCity" Grid.Column="1" Margin="40,0,0,0"
+                     Content="{Binding City}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
+            </Grid>
+          </UniformGrid>
         </ControlTemplate>
       </media:ImageAspectWrapper.Template>
     </media:ImageAspectWrapper>
 
-    <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
-      <media:UserDataWrapper.Template>
+  <StackPanel Grid.Column="2" Margin="10,0,10,0" VerticalAlignment="Top" Orientation="Vertical">
+
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MediaAspectWrapper.Template>
         <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Image x:Name="WatchIcon" Source="HomeContentIcons\watch.png" Stretch="Uniform" Height="35" VerticalAlignment="Center" Margin="0,-1,0,1"
-                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}"/>
-            <Label VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}"
-                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}" Grid.Column="1" Margin="5,0,30,0" Opacity="0.6">
-              <Label.Content>
-                <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
-              </Label.Content>
-            </Label>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                IsVisible="{Binding ElementName=Title, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
+                   Content="{Binding Title}" Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis" Margin="0,0,0,10"/>
           </Grid>
         </ControlTemplate>
-      </media:UserDataWrapper.Template>
-    </media:UserDataWrapper>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
+
+    <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:MediaAspectWrapper.Template>
+        <ControlTemplate>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Margin="40,0,0,0" />
+          </Grid>
+        </ControlTemplate>
+      </media:MediaAspectWrapper.Template>
+    </media:MediaAspectWrapper>
+
+    <media:ImageAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+      <media:ImageAspectWrapper.Template>
+        <ControlTemplate>
+          <StackPanel>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=CameraMake, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\brand.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="CameraMake" Grid.Column="1" Scroll="Auto" Margin="40,0,0,0"
+                     Content="{Binding EquipmentMake}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
+            </Grid>
+
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
+                  IsVisible="{Binding ElementName=CameraModel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\cameramodel.png" Height="27" Width="27" Stretch="Uniform" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="CameraModel" Grid.Column="1" Margin="40,0,0,0"
+                     Content="{Binding EquipmentModel}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"/>
+            </Grid>
+           </StackPanel>
+
+        </ControlTemplate>
+      </media:ImageAspectWrapper.Template>
+    </media:ImageAspectWrapper>
 
   </StackPanel>
+
 </Grid>

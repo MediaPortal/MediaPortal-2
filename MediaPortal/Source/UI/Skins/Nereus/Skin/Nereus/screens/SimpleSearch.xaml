@@ -101,7 +101,7 @@
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout} ? {1} : {2}">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
               <Binding Source="-15,-80,-50,-240"/>
-              <Binding Source="0,250,-180,-150"/>
+              <Binding Source="0,290,-180,-150"/>
             </MultiBinding>
           </Control.Margin>
         </Control>

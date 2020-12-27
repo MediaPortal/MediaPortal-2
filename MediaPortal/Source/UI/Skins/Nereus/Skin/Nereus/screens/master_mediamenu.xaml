@@ -287,7 +287,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!---Gridview Details w/o details-->
     <ControlTemplate x:Key="BottomDetails_Template">
-      <Grid>
+      <Grid Margin="0,0,0,10">
         <Grid.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1}) ">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
@@ -303,10 +303,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <!--Slide content in and out depending on hidden menu state-->
         <Grid.Triggers>
-          <!--Close the hidden menu when the main content gets focus-->
-          <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-            <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-          </EventTrigger>
           <MultiTrigger>
             <MultiTrigger.Conditions>
               <Condition Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True" />
@@ -337,6 +333,29 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!---Coverview Details-->
     <ControlTemplate x:Key="TopDetails_Template">
       <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.RenderTransform>
+          <TranslateTransform Y="0"/>
+        </Grid.RenderTransform>
+        <Grid.Triggers>
+          <MultiTrigger>
+            <MultiTrigger.Conditions>
+              <Condition Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True" />
+              <Condition Value="True">
+                <Condition.Binding>
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" 
+                           Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}"/>
+                </Condition.Binding>
+              </Condition>
+            </MultiTrigger.Conditions>
+            <MultiTrigger.EnterActions>
+              <BeginStoryboard x:Name="SlideInVertical" Storyboard="{ThemeResource HiddenMenuSlideInVertical}"/>
+            </MultiTrigger.EnterActions>
+            <MultiTrigger.ExitActions>
+              <BeginStoryboard x:Name="SlideOutVertical" Storyboard="{ThemeResource HiddenMenuSlideOutVertical}"/>
+              <StopStoryboard BeginStoryboardName="SlideInVertical"/>
+            </MultiTrigger.ExitActions>
+          </MultiTrigger>
+        </Grid.Triggers>
         <Grid.Background>
           <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
             <GradientStop Color="#00000000" Offset="0" />

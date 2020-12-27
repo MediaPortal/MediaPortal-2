@@ -47,7 +47,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, true)]
     public bool EnableGridDetails { get; set; }
 
-    [Setting(SettingScope.User, false)]
+    [Setting(SettingScope.User, true)]
     public bool EnableCoverDetails { get; set; }
 
     [Setting(SettingScope.User, true)]
