@@ -92,7 +92,18 @@
                     </media:MovieAspectWrapper.IsVisible>
                     <media:MovieAspectWrapper.Template>
                       <ControlTemplate>
-                        <Image Stretch="Uniform" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
+                        <Grid>
+                        <Image x:Name="MovieThumbnail" Stretch="Uniform" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
+                        <Image x:Name="MoviePoster" Stretch="Uniform" Height="145" FallbackSource="{Binding MediaItem}" 
+                               IsVisible="{Binding ElementName=MovieThumbnail, Path=!HasImage}">
+                          <Image.Source>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster"
+                                                fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
+                                                fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+                          </Image.Source>
+                        </Image>    
+                        </Grid>
+
                       </ControlTemplate>
                     </media:MovieAspectWrapper.Template>
                   </media:MovieAspectWrapper>
@@ -106,8 +117,7 @@
                     </media:MovieAspectWrapper.IsVisible>
                     <media:MovieAspectWrapper.Template>
                       <ControlTemplate>
-                        <Image Stretch="Uniform"
-                               Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
+                        <Image Stretch="Uniform" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
                       </ControlTemplate>
                     </media:MovieAspectWrapper.Template>
                   </media:MovieAspectWrapper>
@@ -145,7 +155,7 @@
                             <RowDefinition Height="*"/>
                           </Grid.RowDefinitions>
                           <Label x:Name="StoryPlot" Wrap="True" Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
-                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.6"
+                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.6" Margin="0,0,20,0"
                                  FontSize="{ThemeResource SmallFontSize}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                                  Content="{Binding Path=StoryPlot}" Color="{ThemeResource TextColor}" />
                         </Grid>
