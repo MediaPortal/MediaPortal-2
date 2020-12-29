@@ -1003,7 +1003,7 @@
       <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
           <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
-             fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
@@ -1294,7 +1294,7 @@
       <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
           <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
-             fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 

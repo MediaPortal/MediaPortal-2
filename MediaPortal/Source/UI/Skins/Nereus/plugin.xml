@@ -168,11 +168,11 @@
         HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
 
-    <ConfigSetting
+    <!--ConfigSetting
         Id="NereusEnableMediaItemDetailsView"
         Text="[Nereus.Configuration.EnableMediaItemDetailsView]"
         HelpText="[Nereus.Configuration.EnableMediaItemDetailsView.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/-->
   </Register>
 
 </Plugin>
