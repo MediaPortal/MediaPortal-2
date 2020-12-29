@@ -35,16 +35,20 @@
            DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Content="{Binding SimpleTitle}"
            IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
-    <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}"
-                IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}">
+    <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}"
+          IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}">
+      <Image Source="HomeContentIcons\category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+             IsVisible="{Binding Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"
+             VerticalAlignment="Center" HorizontalAlignment="Left"/>
       <StackPanel Orientation="Horizontal">
         <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding NumItems}"
-               Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"/>
+               Margin="40,0,8,0" Color="{ThemeResource TextColorForeground}"
+               IsVisible="{Binding Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"/>
         <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.MediaItemsHeader]"
                Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"
                IsVisible="{Binding Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"/>
       </StackPanel>
-    </StackPanel>
+    </Grid>
 
     <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:MediaAspectWrapper.Template>
