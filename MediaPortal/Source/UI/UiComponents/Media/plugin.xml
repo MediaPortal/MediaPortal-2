@@ -383,6 +383,11 @@
         Sort="X100"
         Redundant="true"
         Text="[Settings.Media.Certification]"/>
+    <ConfigSection
+        Id="General"
+        Sort="X200"
+        Redundant="true"
+        Text="[Settings.General]"/>
   </Register>
 
   <!-- Contents of '/Players' section -->
@@ -443,7 +448,7 @@
   </Register>
 
   <!-- Contents of '/Media' section -->
-  <Register Location="/Configuration/Settings/Media">
+  <Register Location="/Configuration/Settings/Media/General">
     <ConfigSetting
         Id="ShowVirtual"
         Text="[Settings.Media.ShowVirtual]"
