@@ -83,10 +83,6 @@
         Id="Skin"
         Redundant="true"
         Text="[Settings.Appearance.Skin]"/>
-  </Register>
-
-  <!-- Contents of '/Appearance/Skin' section -->
-  <Register Location="/Configuration/Settings/Appearance">
     <ConfigSection
         Id="SkinSettings"
         Redundant="true"
