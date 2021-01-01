@@ -34,6 +34,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine">
 
   <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
     <!-- Defines the default margins for the content area -->
     <ResourceWrapper x:Key="DefaultContentMargin" Resource="0" />
@@ -121,8 +123,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
                     ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Style>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {2} : {1}">
+                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
                 <Binding Source="{ThemeResource MainMenuListViewStyle}" />
                 <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
               </MultiBinding>
