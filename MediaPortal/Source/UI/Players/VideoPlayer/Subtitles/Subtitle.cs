@@ -1,15 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediaPortal.Common;
+﻿using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.UI.Players.Video.Tools;
 using SharpDX.Direct3D9;
+using System;
+using System.Drawing;
+using System.Drawing.Imaging;
+using System.IO;
 
 namespace MediaPortal.UI.Players.Video.Subtitles
 {
@@ -81,6 +77,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     {
       SubTexture?.Dispose();
       SubTexture = null;
+      SubBitmap?.Dispose();
+      SubBitmap = null;
     }
   }
 }
