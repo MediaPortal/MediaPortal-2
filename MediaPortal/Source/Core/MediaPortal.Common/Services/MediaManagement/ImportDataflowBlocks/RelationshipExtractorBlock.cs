@@ -259,7 +259,7 @@ namespace MediaPortal.Common.Services.MediaManagement.ImportDataflowBlocks
       if (relations.Count == 0)
       {
         // Inform media library that there are no relationships
-        await ReconcileMediaItemRelationships(mediaItemId, MediaItemAspect.GetAspects(aspects), new List<RelationshipItem>()).ConfigureAwait(false);
+        await ReconcileMediaItemRelationships(mediaItemId, MediaItemAspect.GetAspects(aspects), null).ConfigureAwait(false);
         return newMediaItems;
       }
 

@@ -2028,25 +2028,21 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       return mediaItemId;
     }
 
-    public IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects,
-      IEnumerable<RelationshipItem> relationshipItems)
+    public IList<MediaItem> ReconcileMediaItemRelationships(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects, IEnumerable<RelationshipItem> relationshipItems)
     {
       Stopwatch swImport = new Stopwatch();
       swImport.Start();
-      var relationships = relationshipItems.ToList();
       string name = GetMediaItemTitle(mediaItemAspects, "");
       List<MediaItem> result = new List<MediaItem>();
-      if (relationships.Any())
+      if (relationshipItems != null)
       {
         IDictionary<Guid, IList<MediaItemAspect>> aspects = MediaItemAspect.GetAspects(mediaItemAspects);
-        IEnumerable<IRelationshipRoleExtractor> itemMatchers =
-          ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.Values.SelectMany(r => r.RoleExtractors).ToArray();
-
+        IEnumerable<IRelationshipRoleExtractor> itemMatchers = ServiceRegistration.Get<IMediaAccessor>().LocalRelationshipExtractors.Values.SelectMany(r => r.RoleExtractors).ToArray();
         HashSet<Guid> updatedItemIds = new HashSet<Guid>();
         ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
         using (ITransaction transaction = database.BeginTransaction())
         {
-          foreach (var item in relationships)
+          foreach (var item in relationshipItems)
           {
             IRelationshipRoleExtractor itemMatcher = itemMatchers.FirstOrDefault(r => r.Role == item.Role && r.LinkedRole == item.LinkedRole);
             if (itemMatcher == null)
