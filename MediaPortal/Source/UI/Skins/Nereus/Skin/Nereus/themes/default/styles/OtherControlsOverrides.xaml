@@ -584,7 +584,7 @@
         </Grid.RowDefinitions>
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.5"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Opacity="0.6" Content="{Binding [Name]}"
-               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="85,-5,5,1"
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="76,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
           <!--Label.Content>
             <Binding Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}{0}.jpg"/>

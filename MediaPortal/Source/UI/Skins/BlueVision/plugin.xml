@@ -55,7 +55,7 @@
   </Register>
 
   <!-- Contents of '/Appearance/Skin' section -->
-  <Register Location="/Configuration/Settings/Appearance/Skin">
+  <Register Location="/Configuration/Settings/Appearance">
     <ConfigSection
         Id="SkinSettings"
         Redundant="true"
@@ -63,7 +63,7 @@
   </Register>
 
   <!-- Contents of '/Appearance/Skin/SkinSettings' section -->
-  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
+  <Register Location="/Configuration/Settings/Appearance/SkinSettings">
     <CustomConfigSetting
         Id="BlueVisionSetup"
         Text="[BlueVision.Configuration]"

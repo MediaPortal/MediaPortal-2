@@ -83,10 +83,6 @@
         Id="Skin"
         Redundant="true"
         Text="[Settings.Appearance.Skin]"/>
-  </Register>
-
-  <!-- Contents of '/Appearance/Skin' section -->
-  <Register Location="/Configuration/Settings/Appearance">
     <ConfigSection
         Id="SkinSettings"
         Redundant="true"
@@ -156,11 +152,11 @@
         HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
 
-    <ConfigSetting
+    <!--ConfigSetting
         Id="NereusEnableMediaItemDetailsView"
         Text="[Nereus.Configuration.EnableMediaItemDetailsView]"
         HelpText="[Nereus.Configuration.EnableMediaItemDetailsView.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/-->
   </Register>
 
 </Plugin>

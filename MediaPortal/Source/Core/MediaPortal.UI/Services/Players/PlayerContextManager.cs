@@ -327,7 +327,8 @@ namespace MediaPortal.UI.Services.Players
       }
       else
       {
-        playPercentage = 0;
+        //If no duration set them played (like for images)
+        playPercentage = 100;
         playDuration = 0;
       }
 
@@ -390,6 +391,7 @@ namespace MediaPortal.UI.Services.Players
       IPlayerContext pc = PlayerContext.GetPlayerContext(psc);
       if (pc == null || !pc.IsActive)
         return;
+      HandleProgress(TimeSpan.FromSeconds(-1), pc.CurrentMediaItem, true).Wait();
       if (!pc.NextItem())
       {
         if (pc.CloseWhenFinished)

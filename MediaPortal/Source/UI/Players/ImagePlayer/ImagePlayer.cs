@@ -227,6 +227,28 @@ namespace MediaPortal.UI.Players.Image
     }
 
     /// <summary>
+    /// Sets the media item for the new image to be played.
+    /// </summary>
+    /// <param name="mediaItem">MediaItem to-be-played item.</param>
+    public bool SetMediaItem(MediaItem mediaItem)
+    {
+      string mimeType;
+      string title;
+      if (!mediaItem.GetPlayData(out mimeType, out title))
+        return false;
+      IResourceLocator locator = mediaItem.GetResourceLocator();
+      if (locator == null)
+        return false;
+      if (!CanPlay(locator, mimeType))
+        return false;
+      RightAngledRotation rotation = RightAngledRotation.Zero;
+      bool flipX = false;
+      bool flipY = false;
+      SetMediaItemData(locator, title, rotation, flipX, flipY);
+      return true;
+    }
+
+    /// <summary>
     /// Sets the data of the new image to be played.
     /// </summary>
     /// <param name="locator">Resource locator of the image item.</param>
@@ -378,35 +400,7 @@ namespace MediaPortal.UI.Players.Image
 
     public bool NextItem(MediaItem mediaItem, StartTime startTime)
     {
-      string mimeType;
-      string title;
-      if (!mediaItem.GetPlayData(out mimeType, out title))
-        return false;
-      IResourceLocator locator = mediaItem.GetResourceLocator();
-      if (locator == null)
-        return false;
-      if (!CanPlay(locator, mimeType))
-        return false;
-      RightAngledRotation rotation = RightAngledRotation.Zero;
-      bool flipX = false;
-      bool flipY = false;
-      SetMediaItemData(locator, title, rotation, flipX, flipY);
-
-      IServerConnectionManager scm = ServiceRegistration.Get<IServerConnectionManager>();
-      IContentDirectory cd = scm.ContentDirectory;
-      if (cd != null)
-      {
-        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
-        if (userProfileDataManagement.IsValidUser)
-        {
-          cd.NotifyUserPlaybackAsync(userProfileDataManagement.CurrentUser.ProfileId, mediaItem.MediaItemId, 100, true);
-        }
-        else
-        {
-          cd.NotifyPlaybackAsync(mediaItem.MediaItemId, true);
-        }
-      }
-      return true;
+      return SetMediaItem(mediaItem);
     }
 
     #endregion

@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Actions
 {
   public class SkinSettingsAction : AbstractConfigurationAction
   {
-    public const string CONFIG_LOCATION = "/Appearance/Skin/SkinSettings";
+    public const string CONFIG_LOCATION = "/Appearance/SkinSettings";
 
     public override IResourceString DisplayTitle
     {
