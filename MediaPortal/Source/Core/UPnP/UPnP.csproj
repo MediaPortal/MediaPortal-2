@@ -57,6 +57,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNet.WebApi.OwinSelfHost" Version="5.2.7" />
+    <PackageReference Include="Microsoft.Owin.Host.HttpListener" Version="4.1.2-pre" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
