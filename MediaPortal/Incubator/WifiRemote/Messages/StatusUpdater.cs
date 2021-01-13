@@ -52,9 +52,10 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     {
       _statusUpdateThreadRunning = false;
       _statusUpdateThreadSleep?.Set();
-      if (_statusUpdateThread?.Join(UPDATE_INTERVAL) ?? false)
-        _statusUpdateThread?.Abort();
+      var thread = _statusUpdateThread;
       _statusUpdateThread = null;
+      if (thread != null && !thread.Join(UPDATE_INTERVAL))
+        try { thread.Abort(); } catch { }
     }
 
     private static void DoStatusUpdate()
