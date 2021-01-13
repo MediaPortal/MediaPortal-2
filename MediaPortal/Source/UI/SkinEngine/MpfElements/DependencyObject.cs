@@ -40,7 +40,10 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// which is needed for
   /// <see cref="BindingExtension">bindings</see>.
   /// </summary>
+#if !NET5_0
+  // 2021-01-13, morpheus_xx: in .NET Core this converter leads to a StackOverflowException
   [TypeConverter(typeof(MPFConverter<DependencyObject>))]
+#endif
   public class DependencyObject : IDeepCopyable, IInitializable, IDisposable, ISkinEngineManagedObject
   {
     #region Protected fields
@@ -69,7 +72,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public virtual void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
-      DependencyObject d = (DependencyObject) source;
+      DependencyObject d = (DependencyObject)source;
       if (d._attachedProperties != null)
         foreach (KeyValuePair<string, AbstractProperty> kvp in d._attachedProperties)
         {
@@ -120,7 +123,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     /// </summary>
     public BindingExtension DataContext
     {
-      get { return (BindingExtension) _dataContextProperty.GetValue(); }
+      get { return (BindingExtension)_dataContextProperty.GetValue(); }
       set { _dataContextProperty.SetValue(value); }
     }
 
@@ -131,7 +134,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
 
     public DependencyObject LogicalParent
     {
-      get { return (DependencyObject) _logicalParentProperty.GetValue(); }
+      get { return (DependencyObject)_logicalParentProperty.GetValue(); }
       set
       {
         object oldValue = _logicalParentProperty.GetValue();
@@ -228,7 +231,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       if (bindings.Contains(binding))
         return;
       bindings.Add(binding);
-      AddToBindingContainerOrDeposit(new IBinding[] {binding});
+      AddToBindingContainerOrDeposit(new IBinding[] { binding });
     }
 
     public void RemoveFromBindingCollection(BindingBase binding)
@@ -258,7 +261,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     public T GetAttachedPropertyValue<T>(string name, T defaultValue)
     {
       AbstractProperty property = GetAttachedProperty(name);
-      return property == null ? defaultValue : (T) property.GetValue();
+      return property == null ? defaultValue : (T)property.GetValue();
     }
 
     public AbstractProperty GetAttachedProperty(string name)
@@ -297,7 +300,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
     #region IInitializable implementation
 
     public virtual void StartInitialization(IParserContext context)
-    {}
+    { }
 
     public virtual void FinishInitialization(IParserContext context)
     {
@@ -332,7 +335,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
         depObjValue.LogicalParent = targetObject;
     }
 
-    public static void TryDispose<T>(ref T maybeDisposable) where T : class 
+    public static void TryDispose<T>(ref T maybeDisposable) where T : class
     {
       IDisposable d = maybeDisposable as IDisposable;
       if (d == null)
