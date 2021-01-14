@@ -39,9 +39,11 @@ using MediaPortal.ServiceMonitor.UPNP;
 using MediaPortal.ServiceMonitor.Utilities;
 using MediaPortal.ServiceMonitor.View;
 using System.ServiceProcess;
+using System.Windows.Forms;
 using MediaPortal.Common.UI;
 using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.SystemAPI;
+using Application = System.Windows.Application;
 
 namespace MediaPortal.ServiceMonitor.ViewModel
 {
@@ -250,16 +252,17 @@ namespace MediaPortal.ServiceMonitor.ViewModel
       _messageSink.OnWinProc += WndProc;
     }
 
-    private void WndProc(object sender, uint msg, uint wParam, uint lParam)
+    private void WndProc(ref Message m)
     {
+      var msg = m.Msg;
       if (msg == SingleInstanceHelper.SHOW_MP2_SERVICEMONITOR_MESSAGE)
         ShowMainWindow();
 
       if (msg == WM_POWERBROADCAST)
       {
-        ServiceRegistration.Get<ILogger>().Debug("WndProc: [{0}]", wParam);
+        ServiceRegistration.Get<ILogger>().Debug("WndProc: [{0}]", m.WParam);
         var serverConnectionManager = (ServerConnectionManager)ServiceRegistration.Get<IServerConnectionManager>();
-        switch (wParam)
+        switch (m.WParam.ToInt32())
         {
           case PBT_APMSUSPEND:
             ServiceRegistration.Get<ILogger>().Debug("WndProc: Suspend");
@@ -556,7 +559,6 @@ namespace MediaPortal.ServiceMonitor.ViewModel
         return;
 
       _messageSink.OnWinProc -= WndProc;
-      _messageSink.Dispose();
       _messageSink = null;
 
       _taskbarIcon.Visibility = Visibility.Collapsed;
