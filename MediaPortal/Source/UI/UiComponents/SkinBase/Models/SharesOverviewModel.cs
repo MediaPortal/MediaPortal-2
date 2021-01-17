@@ -233,6 +233,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         ICollection<Guid> importingShares = await cd.GetCurrentlyImportingSharesAsync() ?? new List<Guid>();
         ICollection<string> onlineSystems = sc.GetConnectedClients();
         onlineSystems = onlineSystems == null ? new List<string> { scm.HomeServerSystemId } : new List<string>(onlineSystems) { scm.HomeServerSystemId };
+        List<ListItem> list = new List<ListItem>();
         foreach (KeyValuePair<string, ICollection<Share>> system2Shares in systems2Shares)
         {
           string systemId = system2Shares.Key;
@@ -295,9 +296,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
             shareItem.AdditionalProperties[Consts.KEY_REIMPORT_ENABLED] = isConnected;
             sharesItemsList.Add(shareItem);
           }
-          systemSharesItem.AdditionalProperties[Consts.KEY_SYSTEM_SHARES] = sharesItemsList;
-          lock (_syncObj)
-            _sharesList.Add(systemSharesItem);
+          ItemsList orderedSharesItemsList = new ItemsList();
+          foreach(var item in sharesItemsList.OrderBy(i => i.Labels[Consts.KEY_NAME]))
+            orderedSharesItemsList.Add(item);
+          systemSharesItem.AdditionalProperties[Consts.KEY_SYSTEM_SHARES] = orderedSharesItemsList;
+          list.Add(systemSharesItem);
+        }
+
+        lock (_syncObj)
+        {
+          foreach(var item in list.OrderBy(i => i.Labels[Consts.KEY_NAME]))
+            _sharesList.Add(item);
         }
       }
       finally

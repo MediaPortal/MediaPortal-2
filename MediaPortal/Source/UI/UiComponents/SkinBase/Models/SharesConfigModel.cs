@@ -726,6 +726,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       list.Clear();
       bool selectShare = selectFirstItem;
       shareDescriptors.Sort((a, b) => a.Name.CompareTo(b.Name));
+      List<ListItem> items = new List<ListItem>();
       foreach (Share share in shareDescriptors)
       {
         ListItem shareItem = new ListItem(Consts.KEY_NAME, share.Name);
@@ -766,9 +767,15 @@ namespace MediaPortal.UiComponents.SkinBase.Models
           shareItem.Selected = true;
         }
         shareItem.SelectedProperty.Attach(OnShareItemSelectionChanged);
-        lock (_syncObj)
-          list.Add(shareItem);
+        items.Add(shareItem);
       }
+
+      lock (_syncObj)
+      {
+        foreach(var item in items.OrderBy(i => i.Labels[Consts.KEY_NAME]))
+          list.Add(item);
+      }
+
       list.FireChange();
     }
 
