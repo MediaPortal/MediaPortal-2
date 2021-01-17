@@ -33,6 +33,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteRecordingMediaListProvider()
     {
+      _changeAspectId = new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913");
       _necessaryMias = Consts.NECESSARY_RECORDING_MIAS;
       //Needed for calculating play percentage
       _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID };

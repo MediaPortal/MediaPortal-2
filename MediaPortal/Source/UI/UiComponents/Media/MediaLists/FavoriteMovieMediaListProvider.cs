@@ -34,6 +34,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteMovieMediaListProvider()
     {
+      _changeAspectId = MovieAspect.ASPECT_ID;
       _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
       //Needed for calculating play percentage
       _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID };

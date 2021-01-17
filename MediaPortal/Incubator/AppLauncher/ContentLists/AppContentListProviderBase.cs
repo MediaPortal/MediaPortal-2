@@ -53,7 +53,7 @@ namespace MediaPortal.Plugins.AppLauncher.ContentLists
       get { return _allItems; }
     }
 
-    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason);
+    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects);
     
     protected ListItem CreateAppItem(App app)
     {

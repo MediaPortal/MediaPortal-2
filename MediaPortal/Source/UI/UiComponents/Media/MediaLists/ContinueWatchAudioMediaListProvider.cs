@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
@@ -32,6 +33,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public ContinueWatchAudioMediaListProvider()
     {
+      _changeAspectId = AudioAspect.ASPECT_ID;
       _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
       _playableConverterAction = item => new AudioItem(item);
       _navigationInitializerType = typeof(AudioNavigationInitializer);

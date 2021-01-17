@@ -57,17 +57,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       return item;
     }
 
-    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
+    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
       IProgramInfoAsync programInfo = null;
       if (!TryInitTvHandler() || (programInfo = _tvHandler?.ProgramInfo) == null)
         return false;
 
-      if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PlaybackComplete) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
+      if (!ShouldUpdate(updateReason, updatedObjects) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
         return true;
 
       ICollection<IChannel> channels;
-      if (_currentChannels == null || updateReason.HasFlag(UpdateReason.Forced) || updateReason.HasFlag(UpdateReason.PlaybackComplete))
+      if (_currentChannels == null || updateReason.HasFlag(UpdateReason.UserChanged) || updateReason.HasFlag(UpdateReason.PlaybackComplete))
         channels = _currentChannels = await GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, true);
       else
         channels = _currentChannels;

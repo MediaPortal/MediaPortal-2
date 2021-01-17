@@ -27,6 +27,9 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using System;
+using System.Collections.Generic;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.UI.ContentLists;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -34,6 +37,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public ContinueWatchMovieMediaListProvider()
     {
+      _changeAspectId = MovieAspect.ASPECT_ID;
       _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
       //Needed for calculating play percentage
       _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID };

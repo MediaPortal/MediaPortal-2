@@ -29,13 +29,12 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
-using MediaPortal.Common.Threading;
 using MediaPortal.UI.ContentLists;
-using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -61,6 +60,8 @@ namespace MediaPortal.UI.Presentation.Models
     protected Guid _currentUserId;
 
     private bool _providersInititialized = false;
+    private ConcurrentQueue<MediaItem> _changedItems = new ConcurrentQueue<MediaItem>();
+    private ConcurrentQueue<MediaItem> _playedItems = new ConcurrentQueue<MediaItem>();
 
     #endregion
 
@@ -138,10 +139,21 @@ namespace MediaPortal.UI.Presentation.Models
         if (userProfileDataManagement?.CurrentUser != null)
           _currentUserId = userProfileDataManagement.CurrentUser.ProfileId;
         _nextMinute = DateTime.UtcNow.AddMinutes(1);
+        List<object> changedItems = new List<object>();
+        if (updateReason.HasFlag(UpdateReason.MediaItemChanged))
+        {
+          while(_changedItems.TryDequeue(out var item))
+            changedItems.Add(item);
+        }
+        if (updateReason.HasFlag(UpdateReason.PlaybackComplete))
+        {
+          while (_playedItems.TryDequeue(out var item))
+            changedItems.Add(item);
+        }
 
         int maxItems = Limit;
         foreach (var provider in _listProviders.EnabledProviders)
-          await UpdateProviderAsync(provider, maxItems, updateReason);
+          await UpdateProviderAsync(provider, maxItems, updateReason, changedItems);
 
         return true;
       }
@@ -152,11 +164,11 @@ namespace MediaPortal.UI.Presentation.Models
       }
     }
 
-    protected virtual async Task<bool> UpdateProviderAsync(IContentListProvider provider, int maxItems, UpdateReason updateReason)
+    protected virtual async Task<bool> UpdateProviderAsync(IContentListProvider provider, int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
       try
       {
-        return await provider.UpdateItemsAsync(maxItems, updateReason);
+        return await provider.UpdateItemsAsync(maxItems, updateReason, updatedObjects);
       }
       catch (Exception ex)
       {
@@ -229,8 +241,7 @@ namespace MediaPortal.UI.Presentation.Models
     {
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
-        ServerConnectionMessaging.MessageType messageType =
-            (ServerConnectionMessaging.MessageType)message.MessageType;
+        ServerConnectionMessaging.MessageType messageType = (ServerConnectionMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
@@ -249,7 +260,11 @@ namespace MediaPortal.UI.Presentation.Models
             break;
           case ContentDirectoryMessaging.MessageType.MediaItemChanged:
             if ((ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE] != ContentDirectoryMessaging.MediaItemChangeType.None)
+            {
+              var item = message.MessageData["MediaItem"] as MediaItem;
+              AddChangedMediaItem(item);
               _mediaItemUpdatePending = true;
+            }
             break;
         }
       }
@@ -266,21 +281,61 @@ namespace MediaPortal.UI.Presentation.Models
       }
       else if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        PlayerManagerMessaging.MessageType messageType =
-            (PlayerManagerMessaging.MessageType)message.MessageType;
+        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
           case PlayerManagerMessaging.MessageType.PlayerStopped:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
+            IPlayerSlotController psc = (IPlayerSlotController)message.MessageData["PlayerSlotController"];
+            IPlayerContext context = GetPlayerContext(psc);
+            AddPlayedMediaItem(context?.CurrentMediaItem);
             _playbackUpdatePending = true; //Update most played and last played
             break;
         }
       }
     }
 
+    private IPlayerContext GetPlayerContext(IPlayerSlotController psc)
+    {
+      if (psc == null)
+        return null;
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
+      {
+        if (psc.IsClosed)
+          return null;
+
+        if (psc.ContextVariables.TryGetValue("PlayerContext: Assigned PlayerContext", out var result))
+          return result as IPlayerContext;
+      }
+      return null;
+    }
+
+    private void AddChangedMediaItem(MediaItem item)
+    {
+      if (item == null)
+        return;
+
+      if (_changedItems.Count >= 10)
+        return;
+
+      _changedItems.Enqueue(item);
+    }
+
+    private void AddPlayedMediaItem(MediaItem item)
+    {
+      if (item == null)
+        return;
+
+      if (_playedItems.Count >= 10)
+        return;
+
+      _playedItems.Enqueue(item);
+    }
+
     private void OnProviderRequested(object sender, ProviderEventArgs e)
     {
-      Task.Run(() => UpdateProviderAsync(e.Provider, Limit, UpdateReason.Forced));
+      Task.Run(() => UpdateProviderAsync(e.Provider, Limit, UpdateReason.Forced, null));
     }
 
     private void OnLimitChanged(AbstractProperty property, object oldValue)
