@@ -79,9 +79,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Cache used to temporarily store <see cref="SeriesStub"/> objects so that the same tvshow.nfo file
     /// doesn't have to be parsed once for every episode
     /// </summary>
-    private static readonly AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<SeriesStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<SeriesStub>)>(CACHE_TIMEOUT);
+    private static AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<SeriesStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<SeriesStub>)>(CACHE_TIMEOUT);
 
     #endregion
+
+    public static void ClearCache()
+    {
+      CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<SeriesStub>)>(CACHE_TIMEOUT);
+    }
 
     #region Private fields
 

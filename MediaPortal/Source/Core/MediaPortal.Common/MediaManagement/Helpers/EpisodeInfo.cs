@@ -344,7 +344,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       AssignNameId();
-      SetMetadataChanged(aspectData);
       EpisodeName.Text = CleanString(EpisodeName.Text);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
@@ -696,8 +695,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SearchEpisode = EpisodeNumbers != null && EpisodeNumbers.Count > 0 ? (int?)FirstEpisodeNumber : null,
           LastChanged = LastChanged,
           DateAdded = DateAdded,
+          AllowOnlineReSearch = AllowOnlineReSearch,
           ForceOnlineSearch = ForceOnlineSearch
-        };
+      };
         foreach (var keyVal in CustomSeriesIds)
           info.CustomIds[keyVal.Key] = keyVal.Value;
         info.Languages.AddRange(Languages);
@@ -718,8 +718,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesFirstAired = SeriesFirstAired,
           LastChanged = LastChanged,
           DateAdded = DateAdded,
+          AllowOnlineReSearch = AllowOnlineReSearch,
           ForceOnlineSearch = ForceOnlineSearch
-        };
+  };
         foreach (var keyVal in CustomSeriesIds)
           info.CustomSeriesIds[keyVal.Key] = keyVal.Value;
         info.Languages.AddRange(Languages);

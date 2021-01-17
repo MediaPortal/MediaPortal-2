@@ -75,9 +75,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Cache used to temporarily store <see cref="SeriesEpisodeStub"/> objects so that the same episode.nfo file
     /// doesn't have to be parsed once for every episode
     /// </summary>
-    private static readonly AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<SeriesEpisodeStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<SeriesEpisodeStub>)>(CACHE_TIMEOUT);
+    private static AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<SeriesEpisodeStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<SeriesEpisodeStub>)>(CACHE_TIMEOUT);
 
     #endregion
+
+    public static void ClearCache()
+    {
+      CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<SeriesEpisodeStub>)>(CACHE_TIMEOUT);
+    }
 
     #region Private fields
 
@@ -1469,7 +1474,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to read a album nfo-file into <see cref="AlbumStub"/> objects (or gets them from cache)
+    /// Tries to read a episode nfo-file into <see cref="SeriesEpisodeStub"/> objects (or gets them from cache)
     /// </summary>
     /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>

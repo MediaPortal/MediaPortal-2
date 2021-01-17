@@ -38,8 +38,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -180,6 +182,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
       MaximumActorCount = _settingWatcher.Settings.MaximumActorCount;
       MaximumCharacterCount = _settingWatcher.Settings.MaximumCharacterCount;
+
+      if (_settingWatcher.Settings.MovieYearPatterns.FirstOrDefault()?.Regex.ToString() == MovieNameMatcher.REGEXP_TITLE_YEAR[0].ToString())
+      {
+        //Update to new regex
+        _settingWatcher.Settings.MovieYearPatterns[0] = new SerializableRegex(MovieNameMatcher.REGEXP_TITLE_YEAR[1].ToString(), RegexOptions.IgnoreCase);
+        ISettingsManager settings = ServiceRegistration.Get<ISettingsManager>();
+        settings.Save(_settingWatcher.Settings);
+      }
     }
 
     private void SettingsChanged(object sender, EventArgs e)
@@ -205,9 +215,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       MovieInfo movieInfo = new MovieInfo();
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+      {
         movieInfo.FromMetadata(extractedAspectData);
+        movieInfo.ForceOnlineSearch = movieInfo.IsDirty;
+      }
       else
-        movieInfo.ForceOnlineSearch = true;
+      {
+        movieInfo.AllowOnlineReSearch = true;
+      }
 
       if (movieInfo.MovieName.IsEmpty)
       {
@@ -215,8 +230,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
           !string.IsNullOrEmpty(title) && !lfsra.ResourceName.StartsWith(title, StringComparison.InvariantCultureIgnoreCase))
         {
-          //The title may still contain tags and other noise, try and parse it for a title and year.
-          MovieNameMatcher.MatchTitleYear(title, movieInfo);
+          //The title may still contain tags and other noise. Don't parse for a year as the title may contain a year other than the actual production date.
+          movieInfo.MovieName = title;
         }
       }
       if (movieInfo.MovieNameSort.IsEmpty)

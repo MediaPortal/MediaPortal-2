@@ -301,7 +301,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       AssignNameId();
-      SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       if (!string.IsNullOrEmpty(TrackNameSort)) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, TrackNameSort);
@@ -645,6 +644,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.Artists.AddRange(AlbumArtists);
         info.LastChanged = LastChanged;
         info.DateAdded = DateAdded;
+        info.AllowOnlineReSearch = AllowOnlineReSearch;
         info.ForceOnlineSearch = ForceOnlineSearch;
         return (T)(object)info;
       }

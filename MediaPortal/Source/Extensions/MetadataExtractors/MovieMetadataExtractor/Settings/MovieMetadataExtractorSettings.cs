@@ -41,7 +41,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Setti
       // Init default patterns.
       MovieYearPatterns = new SerializableRegex[]
       {
-        new SerializableRegex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase),
+        new SerializableRegex(@"(?<title>[^\\|\/]+?\s*[(\.|\s)(19|20)\d{2}]*)[\.|\s][\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase),
       };
     }
 
