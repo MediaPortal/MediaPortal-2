@@ -134,14 +134,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
 
-          <Grid x:Name="HeaderTextPanel" Grid.Row="2" HorizontalAlignment="Left" Margin="30,0,-400,0" VerticalAlignment="Center">
+          <Grid x:Name="HeaderTextPanel" Grid.Row="2" HorizontalAlignment="Left" Margin="30,-100,-400,0" VerticalAlignment="Center">
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="10,0,0,10" VerticalAlignment="Center"
+            <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="10,0,0,10" VerticalAlignment="Bottom" Wrap="True"
                    Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" Color="White" Opacity="0.2">
               <Label.FontSize>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
@@ -150,7 +150,14 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <Binding Source="{ThemeResource HeaderFontSize}" />
               </MultiBinding>
             </Label.FontSize>
-           </Label>
+              <Label.Width>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
+                  <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+                  <Binding Source="400" />
+                  <Binding Source="1400" />
+                </MultiBinding>
+              </Label.Width>
+            </Label>
           </Grid>
         </Grid>
 
