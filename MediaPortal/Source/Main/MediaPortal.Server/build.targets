@@ -2,7 +2,7 @@
 
   <Target Name="CopyToOutput" AfterTargets="Build">
     <PropertyGroup>
-      <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\</AppDestination>
+      <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\net5.0-windows\</AppDestination>
     </PropertyGroup>
 
     <ItemGroup>

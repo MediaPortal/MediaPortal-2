@@ -1,31 +1,32 @@
 <Project>
 
-  <PropertyGroup>
-    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(ProjectDir)plugin.xml" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <References Include="$(TargetDir)System.Data.SQLite.dll" />
-    <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SQLiteInterop64 Include="$(TargetDir)x64\SQLite.Interop.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <SQLiteInterop86 Include="$(TargetDir)x86\SQLite.Interop.dll" />
-  </ItemGroup>
-
   <Target Name="CopyToOutput" AfterTargets="Build">
+
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <References Include="$(TargetDir)System.Data.SQLite.dll" />
+      <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <SQLiteInterop64 Include="$(TargetDir)x64\SQLite.Interop.dll" />
+    </ItemGroup>
+    <ItemGroup>
+      <SQLiteInterop86 Include="$(TargetDir)x86\SQLite.Interop.dll" />
+    </ItemGroup>
+
     <!-- The following target is imported by (and defined in) the System.Data.SQLite Core NuGet package.
          It needs to be called here, because by default it is executed only after the AfterBuild event-->
     <CallTarget Targets="CopySQLiteInteropFiles" />
