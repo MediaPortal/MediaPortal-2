@@ -14,7 +14,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <UniformGrid Columns="1" DataContext="{Binding Source={StaticResource Model}}">
+      <UniformGrid Columns="1" DataContext="{Binding Source={StaticResource Model}}" Margin="0,0,20,0">
         <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -23,8 +23,30 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Margin="10" Content="[SharesConfig.GlobalShares]" Color="{ThemeResource TextColor}"/>
-          <ListView Name="ServerSharesList" Margin="10,10,20,10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+          <Label Margin="10" Content="[SharesConfig.GlobalShares]" Color="{ThemeResource TextColor}"/>
+          <StackPanel HorizontalAlignment="Right" Margin="0,20,25,0" Orientation="Horizontal">
+            <StackPanel.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                <Binding ElementName="ServerSharesList" Path="ItemsCount" />
+              </MultiBinding>
+            </StackPanel.IsVisible>
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="ServerSharesList" Path="CurrentItem"/>
+                  <Binding ElementName="ServerSharesList" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+            <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <Binding ElementName="ServerSharesList" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+          <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="10,0,30,10" Background="White" BorderThickness="0" Height="4"/>
+          <ListView Name="ServerSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     Style="{ThemeResource SharesConfigList1ViewStyle}"
                     IsVisible="{Binding IsHomeServerConnected}"
                     ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
@@ -41,7 +63,29 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Label Margin="10" Grid.Row="0" Content="[SharesConfig.LocalShares]" Color="{ThemeResource TextColor}"/>
-          <ListView Name="ClientSharesList" Margin="10,10,20,10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+          <StackPanel HorizontalAlignment="Right" Margin="0,20,25,0" Orientation="Horizontal">
+            <StackPanel.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                <Binding ElementName="ClientSharesList" Path="ItemsCount" />
+              </MultiBinding>
+            </StackPanel.IsVisible>
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="ClientSharesList" Path="CurrentItem"/>
+                  <Binding ElementName="ClientSharesList" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+            <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <Binding ElementName="ClientSharesList" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+          <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="10,0,30,10" Background="White" BorderThickness="0" Height="4"/>
+          <ListView Name="ClientSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     Style="{ThemeResource SharesConfigList1ViewStyle}"
                     IsVisible="{Binding ShowLocalShares}"
                     ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
