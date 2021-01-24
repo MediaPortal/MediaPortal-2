@@ -8,6 +8,11 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Database\**" />
+    <EmbeddedResource Remove="Database\**" />
+    <None Remove="Database\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
@@ -55,16 +60,11 @@
     <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Database\MP2TVE.s3db">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Core">
-      <Version>1.0.5</Version>
+      <Version>1.1.1.10</Version>
     </PackageReference>
     <PackageReference Include="MediaPortal.TvEngine.Interfaces">
-      <Version>1.0.4</Version>
+      <Version>1.0.6</Version>
     </PackageReference>
     <PackageReference Include="MediaPortal.TvEngine.SetupTv">
       <Version>1.0.5</Version>
