@@ -47,7 +47,7 @@ namespace MediaPortal.UI.Players.Image
       ImagePlayer player = new ImagePlayer();
       try
       {
-        if (!player.NextItem(mediaItem, StartTime.AtOnce))
+        if (!player.SetMediaItem(mediaItem))
         {
           player.Dispose();
           return null;

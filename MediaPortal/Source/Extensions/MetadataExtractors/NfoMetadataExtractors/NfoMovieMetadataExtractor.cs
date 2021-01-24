@@ -25,23 +25,15 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Net;
-using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.PathManager;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Services.Logging;
-using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
-using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
-using MediaPortal.Utilities;
-using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.MediaManagement.TransientAspects;
 using MediaPortal.Utilities.SystemAPI;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Utilities;
@@ -294,6 +286,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
+    protected override void NewImportStarting()
+    {
+      NfoMovieReader.ClearCache();
+    }
+
     #endregion
 
     #region IMetadataExtractor implementation
@@ -308,7 +305,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       InitSettings();
       //if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
       //  return false;
-
+      
       return TryExtractMovieMetadataAsync(mediaItemAccessor, extractedAspectData, forceQuickMode);
     }
 

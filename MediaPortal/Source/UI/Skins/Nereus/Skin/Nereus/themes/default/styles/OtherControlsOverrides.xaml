@@ -584,7 +584,7 @@
         </Grid.RowDefinitions>
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.5"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Opacity="0.6" Content="{Binding [Name]}"
-               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="85,-5,5,1"
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="76,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
           <!--Label.Content>
             <Binding Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}{0}.jpg"/>
@@ -1270,7 +1270,8 @@
 
   <DataTemplate x:Key="SystemShares1ItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel Margin="5" LastChildFill="True">
-      <DockPanel DockPanel.Dock="Top">
+      <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+        <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,-20,10,10" Background="White" BorderThickness="0" Height="4"/>
         <Label x:Name="SystemName" DockPanel.Dock="Left" Content="{Binding [Name]}">
           <Label.Color>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1332,6 +1333,27 @@
             </MultiBinding>
           </Label.Color>
         </Label>
+        <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0,10,10,20" Orientation="Horizontal">
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="SystemSharesList" Path="ItemsCount" />
+            </MultiBinding>
+          </StackPanel.IsVisible>
+          <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding ElementName="SystemSharesList" Path="CurrentItem"/>
+                <Binding ElementName="SystemSharesList" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+          <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <Binding ElementName="SystemSharesList" Path="ItemsCount" />
+            </Label.Content>
+          </Label>
+        </StackPanel>
       </DockPanel>
       <ListView x:Name="SystemSharesList" Margin="0,10,10,10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
                 DockPanel.Dock="Top" Style="{ThemeResource SystemShares1ListViewStyle}"

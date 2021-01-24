@@ -34,6 +34,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public LastWatchedAlbumMediaListProvider()
     {
+      _changeAspectId = AudioAspect.ASPECT_ID;
       _role = AudioAlbumAspect.ROLE_ALBUM;
       _linkedRole = AudioAspect.ROLE_TRACK;
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;

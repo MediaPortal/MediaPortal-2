@@ -337,6 +337,11 @@
             </Grid.IsVisible>
 
             <Grid Margin="200,10,0,-5">
+              <Grid.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="subtitlelist" Path="Items.Count" />
+                </MultiBinding>
+              </Grid.IsVisible>
               <Image Source="HomeContentIcons\language.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Subtitles" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
@@ -346,9 +351,8 @@
             <media:VideoAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}" Grid.Row="1">
               <media:VideoAspectWrapper.Template>
                 <ControlTemplate>
-                  <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
-                            Style="{ThemeResource SubtitleCPListViewStyle}"
-                            ItemsSource="{TemplateBinding Subtitles}"/>
+                  <ListView x:Name="subtitlelist" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
+                            Style="{ThemeResource SubtitleCPListViewStyle}" ItemsSource="{TemplateBinding Subtitles}"/>
                 </ControlTemplate>
               </media:VideoAspectWrapper.Template>
             </media:VideoAspectWrapper>
@@ -365,14 +369,19 @@
             </Grid.ColumnDefinitions>
 
             <Grid Margin="200,10,0,-5">
-              <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
-                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Grid.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="actorlist" Path="Items.Count" />
+                </MultiBinding>
+              </Grid.IsVisible>
+              <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left" />
               <Label x:Name="Actors" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
                      Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Actors"/>
             </Grid>
 
-            <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+            <ListView x:Name="actorlist" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
               <ListView.ItemsSource>
                 <RelationshipQuery
                        NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
@@ -394,14 +403,19 @@
             </Grid.ColumnDefinitions>
 
             <Grid Margin="200,10,0,-5">
+              <Grid.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="directorlist" Path="Items.Count" />
+                </MultiBinding>
+              </Grid.IsVisible>
               <Image Source="HomeContentIcons\director.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Director" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
                      Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Director"/>
             </Grid>
 
-            <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+            <ListView x:Name="directorlist" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
               <ListView.ItemsSource>
                 <RelationshipQuery
                        NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"

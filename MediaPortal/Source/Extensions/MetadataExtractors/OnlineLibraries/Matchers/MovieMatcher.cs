@@ -326,7 +326,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         bool matchFound = false;
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
 
-        if (GetMovieId(movieInfo, out movieId))
+        if (GetMovieId(movieInfo, out movieId) && !movieInfo.ForceOnlineSearch)
         {
           // Prefer memory cache
           CheckCacheAndRefresh();
@@ -359,8 +359,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                //If item was reimported, allow another search
-                if (!movieInfo.ForceOnlineSearch)
+                //If item was forced, allow another search
+                if (!movieInfo.AllowOnlineReSearch && !movieInfo.ForceOnlineSearch)
                   return false;
               }
             }
@@ -374,7 +374,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound)
+          if (!matchFound || movieInfo.ForceOnlineSearch)
           {
             Logger.Debug(_id + ": Search for movie {0} online", movieInfo.ToString());
 

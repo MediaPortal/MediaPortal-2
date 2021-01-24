@@ -46,7 +46,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
     public const string GROUP_YEAR = "year";
     public static readonly IList<Regex> REGEXP_TITLE_YEAR = new List<Regex>
       {
-        new Regex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase), // For LocalFileSystemPath & CanonicalLocalResourcePath
+        new Regex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase),
+        new Regex(@"(?<title>[^\\|\/]+?\s*[(\.|\s)(19|20)\d{2}]*)[\.|\s][\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase), // For LocalFileSystemPath & CanonicalLocalResourcePath
         // Can be extended
       };
 
@@ -90,8 +91,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
           {
             ServiceRegistration.Get<ILogger>().Info("MovieNameMatcher: Found title '{0}' and year {1}", match.Groups[GROUP_TITLE].Value, match.Groups[GROUP_YEAR].Value);
             string title = match.Groups[GROUP_TITLE].Value.Trim(new[] { ' ', '-' });
-            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, title, true);
-            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, new DateTime(int.Parse(match.Groups[GROUP_YEAR].Value), 1, 1));
+            //We should trust the regex and overwrite title and year
+            movieInfo.MovieName = title;
+            movieInfo.ReleaseDate = new DateTime(int.Parse(match.Groups[GROUP_YEAR].Value), 1, 1);
+            movieInfo.HasChanged = true;
             return true;
           }
         }

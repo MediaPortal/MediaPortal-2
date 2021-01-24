@@ -395,7 +395,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         bool seriesMatchFound = false;
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
 
-        if (GetSeriesId(episodeSeries, out seriesId))
+        if (GetSeriesId(episodeSeries, out seriesId) && !episodeInfo.ForceOnlineSearch)
         {
           seriesMatchFound = true;
 
@@ -412,7 +412,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           altEpisodeId = seriesId + "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.FirstEpisodeNumber;
         }
-        if (GetSeriesEpisodeId(episodeInfo, out episodeId))
+        if (GetSeriesEpisodeId(episodeInfo, out episodeId) && !episodeInfo.ForceOnlineSearch)
         {
           // Prefer memory cache
           CheckCacheAndRefresh();
@@ -440,8 +440,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                //If item was reimported, allow another search
-                if (!episodeSeries.ForceOnlineSearch)
+                //If item was forced, allow another search
+                if (!episodeSeries.AllowOnlineReSearch && !episodeSeries.ForceOnlineSearch)
                   return false;
               }
             }
@@ -457,7 +457,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound)
+          if (!matchFound || episodeSeries.ForceOnlineSearch)
           {
             Logger.Debug(_id + ": Search for episode {0} online", episodeInfo.ToString());
 
@@ -577,7 +577,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Match probably stored with invalid Id to avoid retries. 
               //Searching for this series by name only failed so stop trying.
-              return false;
+              //If item was forced, allow another search
+              if (!seriesInfo.AllowOnlineReSearch && !seriesInfo.ForceOnlineSearch)
+                return false;
             }
           }
         }

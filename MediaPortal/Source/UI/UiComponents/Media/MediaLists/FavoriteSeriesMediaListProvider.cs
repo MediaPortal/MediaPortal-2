@@ -35,6 +35,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteSeriesMediaListProvider()
     {
+      _changeAspectId = EpisodeAspect.ASPECT_ID;
       _role = SeriesAspect.ROLE_SERIES;
       _linkedRole = EpisodeAspect.ROLE_EPISODE;
       _necessaryMias = Consts.NECESSARY_SERIES_MIAS;

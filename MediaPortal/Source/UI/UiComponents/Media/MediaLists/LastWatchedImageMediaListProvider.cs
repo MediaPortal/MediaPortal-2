@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
@@ -32,6 +33,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public LastWatchedImageMediaListProvider()
     {
+      _changeAspectId = ImageAspect.ASPECT_ID;
       _necessaryMias = Consts.NECESSARY_IMAGE_MIAS;
       _playableConverterAction = item => new ImageItem(item);
       _navigationInitializerType = typeof(ImagesNavigationInitializer);

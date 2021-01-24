@@ -34,6 +34,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine">
 
   <Include.Resources>
+    <!-- Configuration model -->
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
     <!-- Defines the default margins for the content area -->
     <ResourceWrapper x:Key="DefaultContentMargin" Resource="0" />
@@ -97,20 +99,20 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <RotateTransform Angle="180"/>
             </Image.RenderTransform>
             <Image.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
+                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
               </MultiBinding>
             </Image.IsVisible>
           </Image>
           <Border Grid.RowSpan="3" Margin="0,0,0,0" Background="Black" Opacity="1">
             <Border.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
+                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
               </MultiBinding>
             </Border.IsVisible>
             <Border.Width>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
+                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
                 <Binding Source="480" />
                 <Binding Source="{SkinWidth}" />
               </MultiBinding>
@@ -121,52 +123,49 @@ Parameters which have to be accessible by a DynamicResource lookup:
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
                     ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Style>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {2} : {1}">
+                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
                 <Binding Source="{ThemeResource MainMenuListViewStyle}" />
                 <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
               </MultiBinding>
-              <!--MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {3})||({0} == {4})||({0} == {5})||({0} == {6})||({0} == {7})) ? {1} : {2}">
-                <Binding Converter="{StaticResource ConfigurationRootConverter}" ConverterParameter="{}{0}"/>
-                <Binding Source="{ThemeResource MainMenuListViewStyle}" />
-                <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
-                <Binding Source="General" />
-                <Binding Source="Media" />
-                <Binding Source="Appearance" />
-                <Binding Source="Players" />
-                <Binding Source="Plugins" />
-              </-->
             </ListView.Style>
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
 
-          <Grid x:Name="HeaderTextPanel" Grid.Row="2" HorizontalAlignment="Left" Margin="30,0,-400,0" VerticalAlignment="Center">
+          <Grid x:Name="HeaderTextPanel" Grid.Row="2" HorizontalAlignment="Left" Margin="30,-100,-400,0" VerticalAlignment="Center">
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="10,0,0,10" VerticalAlignment="Center"
+            <Label x:Name="HeaderLabel" HorizontalAlignment="Right" Margin="10,0,0,10" VerticalAlignment="Bottom" Wrap="True"
                    Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" Color="White" Opacity="0.2">
               <Label.FontSize>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3 ? {1} : {2}">
-                <Binding ElementName="MainMenu" Path="ItemsCount" />
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
+                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
                 <Binding Source="{ThemeResource NormalFontSize}" />
                 <Binding Source="{ThemeResource HeaderFontSize}" />
               </MultiBinding>
             </Label.FontSize>
-           </Label>
+              <Label.Width>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
+                  <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+                  <Binding Source="400" />
+                  <Binding Source="1400" />
+                </MultiBinding>
+              </Label.Width>
+            </Label>
           </Grid>
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
         <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="-1,-92,0,-265" Panel.ZIndex="1">
           <Grid.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 3">
-              <Binding ElementName="MainMenu" Path="ItemsCount" />
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
+              <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
             </MultiBinding>
           </Grid.IsVisible>
           <Grid.ColumnDefinitions>

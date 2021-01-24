@@ -362,7 +362,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         bool matchFound = false;
         TLang language = FindBestMatchingLanguage(trackInfo.Languages);
 
-        if (GetTrackId(trackInfo, out trackId))
+        if (GetTrackId(trackInfo, out trackId) && !trackInfo.ForceOnlineSearch)
         {
           // Prefer memory cache
           CheckCacheAndRefresh();
@@ -395,8 +395,8 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                //If item was reimported, allow another search
-                if (!trackInfo.ForceOnlineSearch)
+                //If item was forced, allow another search
+                if (!trackInfo.AllowOnlineReSearch && !trackInfo.ForceOnlineSearch)
                   return false;
               }
             }
@@ -410,7 +410,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound)
+          if (!matchFound || trackInfo.ForceOnlineSearch)
           {
             Logger.Debug(_id + ": Search for track {0} online", trackInfo.ToString());
 
@@ -980,7 +980,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Match probably stored with invalid Id to avoid retries. 
               //Searching for this album by name only failed so stop trying.
-              return false;
+              //If item was forced, allow another search
+              if (!albumInfo.AllowOnlineReSearch && !albumInfo.ForceOnlineSearch)
+                return false;
             }
           }
         }
