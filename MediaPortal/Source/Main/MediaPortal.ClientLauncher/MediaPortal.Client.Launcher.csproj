@@ -1,59 +1,60 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <TargetFramework>net5.0-windows</TargetFramework>
     <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
     <AssemblyName>MP2-ClientLauncher</AssemblyName>
-    <ApplicationIcon>MP2.ico</ApplicationIcon>
-    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\Source\</SolutionDir>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>MediaPortal.Client.Launcher</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-    <UseWindowsForms>true</UseWindowsForms>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GenerateResourceUsePreserializedResources>true</GenerateResourceUsePreserializedResources>
   </PropertyGroup>
-  <PropertyGroup>
-    <!--required for assemblies from nuget packages to be copied to output folder, so our build.targets can copy them further -->
-    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <DefineConstants></DefineConstants>
-    <DebugType>none</DebugType>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-  </PropertyGroup>
-  <PropertyGroup>
-    <StartupObject>MediaPortal.Client.Launcher.ApplicationLauncher</StartupObject>
-  </PropertyGroup>
+
   <ItemGroup>
-    <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
-      <Link>Properties\VersionInfo.cs</Link>
-    </Compile>
+    <None Remove="Defaults\Paths.xml" />
+    <None Remove="Defaults\StartCodes.xml" />
+    <None Remove="MP2.ico" />
+    <None Remove="Resources\Images\AddSmall.png" />
+    <None Remove="Resources\Images\QuitSmall.png" />
+    <None Remove="Resources\Images\RemoveSmall.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Include="Defaults\Paths.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Defaults\StartCodes.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
-    <Content Include="MP2.ico" />
   </ItemGroup>
+
+  <ItemGroup>
+    <Compile DependentUpon="%(Filename)" SubType="Code" Update="**\obj\**\*.g$(DefaultLanguageSourceExtension)" />
+    <Compile DependentUpon="%(Filename)" SubType="Designer" Update="**\*.xaml$(DefaultLanguageSourceExtension)" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.18" />
+    <PackageReference Include="System.Resources.Extensions" Version="4.6.0" PrivateAssets="All" />
+    <PackageReference Include="CommandLineParser" Version="1.9.71" />
+    <PackageReference Include="SharpLibHid" Version="1.4.4" />
+  </ItemGroup>
+
   <ItemGroup>
     <ProjectReference Include="..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Update="build.targets">
-      <SubType>Designer</SubType>
-    </None>
+    <Resource Include="Resources\Images\AddSmall.png" />
+    <Resource Include="Resources\Images\QuitSmall.png" />
+    <Resource Include="Resources\Images\RemoveSmall.png" />
+    <Resource Include="Resources\MP2.ico" />
   </ItemGroup>
-  <ItemGroup>
-    <PackageReference Include="CommandLineParser">
-      <Version>1.9.71</Version>
-    </PackageReference>
-    <PackageReference Include="SharpLibHid">
-      <Version>1.4.4</Version>
-    </PackageReference>
-  </ItemGroup>
+
   <Import Project="build.targets" />
 </Project>
