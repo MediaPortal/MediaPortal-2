@@ -9,33 +9,20 @@
       <References Include="$(ProjectDir)MP2 Client Splashscreen.jpg" />
     </ItemGroup>
 
-    <!--Points to MP2-Client.exe(.config) -->
-    <ItemGroup Condition="'$(PlatformName)' == 'x64'">
-      <Executable Include="$(TargetPath)" />
-      <ExecutableConfig Include="$(TargetPath).config" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(PlatformName)' == 'x86'">
-      <TargetFiles Include="$(TargetPath)" />
-      <TargetFiles Include="$(TargetPath).config" />
-    </ItemGroup>
-
     <ItemGroup>
       <BaseFiles Include="$(SolutionDir)Base\Client\**\*.*" />
     </ItemGroup>
 
     <ItemGroup>
       <TargetFiles Include="$(TargetDir)*.dll" />
+      <TargetFiles Include="$(TargetDir)*.exe" />
+      <TargetFiles Include="$(TargetDir)*.exe.config" />
     </ItemGroup>
 
     <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
       <PluginFiles Include="$(TargetDir)*.pdb" />
       <PluginFiles Include="$(TargetDir)*.xml" />
     </ItemGroup>
-
-    <!-- Manual copy process to different target file name for x64 executable -->
-    <Copy SourceFiles="@(Executable)" DestinationFiles="$(ExeDestination)\MP2-Client (x64).exe"/>
-    <Copy SourceFiles="@(ExecutableConfig)" DestinationFiles="$(ExeDestination)\MP2-Client (x64).exe.config"/>
 
     <Copy SourceFiles="@(References)" DestinationFolder="$(ExeDestination)" />
     <Copy SourceFiles="@(TargetFiles)" DestinationFolder="$(ExeDestination)" />

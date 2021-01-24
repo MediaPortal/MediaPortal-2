@@ -9,6 +9,13 @@
     <UseWindowsForms>true</UseWindowsForms>
     <LargeAddressAware>true</LargeAddressAware>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <Prefer32Bit>false</Prefer32Bit>
+    <OutputPath>..\..\..\Bin\MP2-Client\bin\Debug\</OutputPath>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>..\..\..\Bin\MP2-Client\bin\Release\</OutputPath>
+  </PropertyGroup>
   <ItemGroup>
     <Compile Include="..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
