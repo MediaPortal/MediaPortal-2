@@ -149,8 +149,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return null;
       Program program = new Program
         {
-          ChannelId = tvProgram.IdChannel,
-          ProgramId = tvProgram.IdProgram,
+          ChannelId = tvProgram.ChannelId,
+          ProgramId = tvProgram.ProgramId,
           Title = tvProgram.Title,
           Description = tvProgram.Description,
           Genre = tvProgram.ProgramCategory?.Category,
@@ -186,9 +186,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public static IChannel ToChannel(this Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
     {
-      return new Channel
+      return tvChannel == null ? null : new Channel
       {
-        ChannelId = tvChannel.IdChannel,
+        ChannelId = tvChannel.ChannelId,
         ChannelNumber = tvChannel.ChannelNumber,
         Name = tvChannel.DisplayName,
         MediaType = (MediaType)tvChannel.MediaType,
@@ -199,20 +199,20 @@ namespace MediaPortal.Plugins.SlimTv.Service
         TimesWatched = tvChannel.TimesWatched,
         TotalTimeWatched = tvChannel.TotalTimeWatched,
         VisibleInGuide = tvChannel.VisibleInGuide,
-        GroupNames = tvChannel.GroupMaps.Select(group => group.ChannelGroup.GroupName).ToList()
+        GroupNames = tvChannel.GroupMaps?.Select(group => group.ChannelGroup?.GroupName).ToList()
       };
     }
 
     public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup radioGroup)
     {
-      return new ChannelGroup { ChannelGroupId = radioGroup.IdGroup, Name = radioGroup.GroupName, MediaType = radioGroup.MediaType == 0 ? MediaType.TV : MediaType.Radio, SortOrder = radioGroup.SortOrder};
+      return new ChannelGroup { ChannelGroupId = radioGroup.ChannelGroupId, Name = radioGroup.GroupName, MediaType = radioGroup.MediaType == 0 ? MediaType.TV : MediaType.Radio, SortOrder = radioGroup.SortOrder};
     }
 
     public static ISchedule ToSchedule(this Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule)
     {
       return new Schedule
       {
-        ChannelId = schedule.IdChannel,
+        ChannelId = schedule.ChannelId,
         Name = schedule.ProgramName,
         KeepDate = schedule.KeepDate,
         KeepMethod = (KeepMethodType)schedule.KeepMethod,
@@ -221,8 +221,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
         Priority = (PriorityType)schedule.Priority,
         StartTime = schedule.StartTime,
         EndTime = schedule.EndTime,
-        ScheduleId = schedule.IdSchedule,
-        ParentScheduleId = schedule.IdParentSchedule,
+        ScheduleId = schedule.ScheduleId,
+        ParentScheduleId = schedule.ParentScheduleId,
         RecordingType = (ScheduleRecordingType)schedule.ScheduleType
       };
     }
@@ -236,7 +236,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     //  IProgram[] programs = new IProgram[2]; // 0: now; 1: next
     //  programs[0] = new Program
     //  {
-    //    ChannelId = nowAndNext.IdChannel,
+    //    ChannelId = nowAndNext.ChannelId,
     //    ProgramId = nowAndNext.IdProgramNow,
     //    Title = nowAndNext.TitleNow,
     //    Description = nowAndNext.DescriptionNow,
@@ -245,7 +245,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     //  };
     //  programs[1] = new Program
     //  {
-    //    ChannelId = nowAndNext.IdChannel,
+    //    ChannelId = nowAndNext.ChannelId,
     //    ProgramId = nowAndNext.IdProgramNext,
     //    Title = nowAndNext.TitleNext,
     //    Description = nowAndNext.DescriptionNext,
@@ -273,7 +273,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     //      foreach (Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule in allSchedules)
     //      {
     //        ScheduleBLL scheduleBll = new ScheduleBLL(schedule);
-    //        if (scheduleBll.IsSerieIsCanceled(program.StartTime, program.IdChannel))
+    //        if (scheduleBll.IsSerieIsCanceled(program.StartTime, program.ChannelId))
     //          program.State = 0;
     //      }
     //    }
