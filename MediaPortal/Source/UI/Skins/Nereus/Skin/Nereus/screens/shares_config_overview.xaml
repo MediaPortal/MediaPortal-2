@@ -14,7 +14,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <UniformGrid Columns="1" DataContext="{Binding Source={StaticResource Model}}" Margin="0,0,20,0">
+      <UniformGrid Columns="1" DataContext="{Binding Source={StaticResource Model}}" Margin="5,0,20,0">
         <Grid>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
