@@ -182,14 +182,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
       MaximumActorCount = _settingWatcher.Settings.MaximumActorCount;
       MaximumCharacterCount = _settingWatcher.Settings.MaximumCharacterCount;
-
-      if (_settingWatcher.Settings.MovieYearPatterns.FirstOrDefault()?.Regex.ToString() == MovieNameMatcher.REGEXP_TITLE_YEAR[0].ToString())
-      {
-        //Update to new regex
-        _settingWatcher.Settings.MovieYearPatterns[0] = new SerializableRegex(MovieNameMatcher.REGEXP_TITLE_YEAR[1].ToString(), RegexOptions.IgnoreCase);
-        ISettingsManager settings = ServiceRegistration.Get<ISettingsManager>();
-        settings.Save(_settingWatcher.Settings);
-      }
     }
 
     private void SettingsChanged(object sender, EventArgs e)

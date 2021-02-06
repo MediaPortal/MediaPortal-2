@@ -98,7 +98,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 
         //Update custom user agent
         if (!string.IsNullOrWhiteSpace(_scriptableSettingWatcher.Settings.DefaultUserAgent))
-        _defaultUserAgent = _scriptableSettingWatcher.Settings.DefaultUserAgent;
+          _defaultUserAgent = _scriptableSettingWatcher.Settings.DefaultUserAgent;
       };
       _scriptableSettingWatcher.Refresh();
 

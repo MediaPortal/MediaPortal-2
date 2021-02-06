@@ -91,7 +91,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       language = language ?? PreferredLanguage;
 
       SeriesInfo seriesSearch = null;
-      if (episodeSearch.SeriesMovieDbId <= 0 && !string.IsNullOrEmpty(episodeSearch.SeriesImdbId) && episodeSearch.SeriesTvdbId <= 0 && episodeSearch.SeriesTvRageId <= 0)
+      if (episodeSearch.SeriesMovieDbId <= 0 && string.IsNullOrEmpty(episodeSearch.SeriesImdbId) && episodeSearch.SeriesTvdbId <= 0 && episodeSearch.SeriesTvRageId <= 0)
       {
         seriesSearch = episodeSearch.CloneBasicInstance<SeriesInfo>();
         if (!await SearchSeriesUniqueAndUpdateAsync(seriesSearch, language).ConfigureAwait(false))
@@ -773,10 +773,11 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
             info.Writers = ConvertToPersons(episodeDetail.Crew.Where(p => p.Job == "Writer").ToList(), PersonAspect.OCCUPATION_WRITER, episodeDetail.Name, seriesDetail.Name);
 
             episodeDetails.Add(info);
+
+            if (!episode.DataProviders.Contains(_name))
+              episode.DataProviders.Add(_name);
           }
         }
-        if (!episode.DataProviders.Contains(_name))
-          episode.DataProviders.Add(_name);
 
         if (episodeDetails.Count > 1)
         {

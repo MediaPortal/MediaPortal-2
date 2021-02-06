@@ -87,7 +87,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public float Popularity = 0;
     public long Budget = 0;
     public long Revenue = 0;
-    public double Score = 0;
+    public float Score = 0;
     public SimpleRating Rating = new SimpleRating();
     public int Order = int.MaxValue;
 

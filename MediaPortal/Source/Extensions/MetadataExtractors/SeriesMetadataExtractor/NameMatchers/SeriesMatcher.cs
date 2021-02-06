@@ -42,6 +42,51 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
   /// </summary>
   public class SeriesMatcher
   {
+    public static readonly IList<Replacement> REGEXP_REPLACEMENTS = new List<Replacement>
+    {
+      new Replacement { Enabled = true, BeforeMatch = true, Pattern = "720p", ReplaceBy = "", IsRegex = false },
+      new Replacement { Enabled = true, BeforeMatch = true, Pattern = "1080i", ReplaceBy = "", IsRegex = false },
+      new Replacement { Enabled = true, BeforeMatch = true, Pattern = "1080p", ReplaceBy = "", IsRegex = false },
+      new Replacement { Enabled = true, BeforeMatch = true, Pattern = "x264", ReplaceBy = "", IsRegex = false },
+      new Replacement { Enabled = true, BeforeMatch = true, Pattern = @"(?<!(?:S\d+.?E\\d+\-E\d+.*|S\d+.?E\d+.*|\s\d+x\d+.*))P[ar]*t[\s|\.|\-|_]?(\d+)(\s?of\s\d{1,2})?", ReplaceBy = "S01E${1}", IsRegex = true },
+    };
+
+    public static readonly IList<Regex> REGEXP_SERIES = new List<Regex>
+    {
+      // Multi-episodes pattern
+      // "Series S1E01-E02 - Episodes"
+      new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)[\-_]?)+E(?<endepisodenum>\d+)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
+      // "Series.Name.S01E01-E02.Episode.Or.Release.Info"
+      new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)[\-|_]?)+E(?<endepisodenum>\d+)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
+      // Series\Season...\S01E01-E02* or Series\Season...\1x01-02*
+      new Regex(@"(?<series>[^\\]*)\\[^\\]*(?<seasonnum>\d+)[^\\]*\\S*(?<seasonnum>\d+)[EX]((?<episodenum>\d+)[\-|_]?)+[EX](?<endepisodenum>\d+)*(?<episode>.*)\.", RegexOptions.IgnoreCase),
+
+      // Series\Season...\S01E01* or Series\Season...\1x01*
+      new Regex(@"(?<series>[^\\]*)\\[^\\]*(?<seasonnum>\d+)[^\\]*\\S*(?<seasonnum>\d+)[EX](?<episodenum>\d+)*(?<episode>.*)\.", RegexOptions.IgnoreCase),
+      // MP1 EpisodeScanner recommendations for recordings: Series - (Episode) S1E1, also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
+      new Regex(@"(?<series>[^\\]+) - \((?<episode>.*)\) S(?<seasonnum>[0-9]+?)[\s|\.|\-|_]{0,1}E(?<episodenum>[0-9]+?)", RegexOptions.IgnoreCase),
+      // "Series 1x1 - Episode" and multi-episodes "Series 1x1_2 - Episodes"
+      new Regex(@"(?<series>[^\\]+)\W(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
+      // "Series S1E01 - Episode" and multi-episodes "Series S1E01_02 - Episodes", also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
+      new Regex(@"(?<series>[^\\]+)\WS(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+ - (?<episode>.*)\.", RegexOptions.IgnoreCase),
+      // "Series.Name.1x01.Episode.Or.Release.Info"
+      new Regex(@"(?<series>[^\\]+).(?<seasonnum>\d+)x((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
+      // "Series.Name.S01E01.Episode.Or.Release.Info", also "S1 E1", "S1-E1", "S1.E1", "S1_E1"
+      new Regex(@"(?<series>[^\\]+).S(?<seasonnum>\d+)[\s|\.|\-|_]{0,1}E((?<episodenum>\d+)_?)+(?<episode>.*)\.", RegexOptions.IgnoreCase),
+
+      // Folder + filename pattern
+      // "Series\1\11 - Episode" "Series\Staffel 2\11 - Episode" "Series\Season 3\12 Episode" "Series\3. Season\13-Episode"
+      new Regex(@"(?<series>[^\\]*)\\[^\\|\d]*(?<seasonnum>\d+)\D*\\(?<episodenum>\d+)\s*-\s*(?<episode>[^\\]+)\.", RegexOptions.IgnoreCase),
+      // "Series.Name.101.Episode.Or.Release.Info", attention: this expression can lead to false matches for every filename with nnn included
+      new Regex(@"(?<series>[^\\]+)\D(?<seasonnum>\d{1})(?<episodenum>\d{2})\D(?<episode>.*)\.", RegexOptions.IgnoreCase),
+    };
+
+    public static readonly IList<Regex> REGEXP_SERIES_YEAR = new List<Regex>
+    {
+      //new Regex(@"(?<series>.*)[( .-_]+(?<year>\d{4})", RegexOptions.IgnoreCase),
+      new Regex(@"(?<series>[^\\|\/]+?\s*[(\.|\s)(19|20)\d{2}]*)[\.|\s][\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase)
+    };
+
     private const string GROUP_SERIES = "series";
     private const string GROUP_SEASONNUM = "seasonnum";
     private const string GROUP_EPISODENUM = "episodenum";
@@ -77,60 +122,85 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Name
       Regex re = new Regex(remoteResourcePattern, RegexOptions.IgnoreCase | RegexOptions.Multiline);
       folderOrFileName = re.Replace(folderOrFileName, "");
 
+      List<Replacement> replacements = new List<Replacement>();
+      if (settings.ReplacementPatternUsage == PatternUsageMode.UseInternal || settings.ReplacementPatternUsage == PatternUsageMode.UseInternalAndSettings)
+        replacements.AddRange(REGEXP_REPLACEMENTS);
+      if (settings.ReplacementPatternUsage == PatternUsageMode.UseSettings || settings.ReplacementPatternUsage == PatternUsageMode.UseInternalAndSettings)
+        replacements.AddRange(settings.Replacements);
+
+      List<Regex> titleYearRegexes = new List<Regex>();
+      if (settings.SeriesYearPatternUsage == PatternUsageMode.UseInternal || settings.SeriesYearPatternUsage == PatternUsageMode.UseInternalAndSettings)
+        titleYearRegexes.AddRange(REGEXP_SERIES_YEAR);
+      if (settings.SeriesYearPatternUsage == PatternUsageMode.UseSettings || settings.SeriesYearPatternUsage == PatternUsageMode.UseInternalAndSettings)
+        titleYearRegexes.AddRange(settings.SeriesYearPatterns.Select(p => p.GetRegex(out var regex) ? regex : null).Where(r => r != null));
+
+      List<Regex> episodeRegexes = new List<Regex>();
+      if (settings.SeriesPatternUsage == PatternUsageMode.UseInternal || settings.SeriesPatternUsage == PatternUsageMode.UseInternalAndSettings)
+        episodeRegexes.AddRange(REGEXP_SERIES);
+      if (settings.SeriesPatternUsage == PatternUsageMode.UseSettings || settings.SeriesPatternUsage == PatternUsageMode.UseInternalAndSettings)
+        episodeRegexes.AddRange(settings.SeriesPatterns.Select(p => p.GetRegex(out var regex) ? regex : null).Where(r => r != null));
+
       // First do replacements before match
-      foreach (var replacement in settings.Replacements.Where(r => r.BeforeMatch))
+      foreach (var replacement in replacements.Where(r => r.BeforeMatch && r.Enabled))
       {
         replacement.Replace(ref folderOrFileName);
       }
 
-      foreach (var pattern in settings.SeriesPatterns)
+      foreach (var pattern in episodeRegexes)
       {
         // Calling EnsureLocalFileSystemAccess not necessary; only string operation
-        Regex matcher;
-        if (pattern.GetRegex(out matcher))
+        Match ma = pattern.Match(folderOrFileName);
+        ParseSeries(ma, episodeInfo);
+        if (episodeInfo.IsBaseInfoPresent)
         {
-          Match ma = matcher.Match(folderOrFileName);
-          ParseSeries(ma, episodeInfo);
-          if (episodeInfo.IsBaseInfoPresent)
+          // Do replacements after successful match
+          foreach (var replacement in replacements.Where(r => !r.BeforeMatch && r.Enabled))
           {
-            // Do replacements after successful match
-            foreach (var replacement in settings.Replacements.Where(r => !r.BeforeMatch))
-            {
-              string tmp;
-              if (!episodeInfo.SeriesName.IsEmpty)
-              {
-                tmp = episodeInfo.SeriesName.Text;
-                replacement.Replace(ref tmp);
-                episodeInfo.SeriesName.Text = tmp;
-              }
-
-              if (!episodeInfo.EpisodeName.IsEmpty)
-              {
-                tmp = episodeInfo.EpisodeName.Text;
-                replacement.Replace(ref tmp);
-                episodeInfo.EpisodeName.Text = tmp;
-              }
-            }
+            string tmp;
             if (!episodeInfo.SeriesName.IsEmpty)
             {
-              Match yearMa = settings.SeriesYearPattern.Regex.Match(episodeInfo.SeriesName.Text);
+              tmp = episodeInfo.SeriesName.Text;
+              replacement.Replace(ref tmp);
+              episodeInfo.SeriesName.Text = tmp;
+            }
+
+            if (!episodeInfo.EpisodeName.IsEmpty)
+            {
+              tmp = episodeInfo.EpisodeName.Text;
+              replacement.Replace(ref tmp);
+              episodeInfo.EpisodeName.Text = tmp;
+            }
+          }
+
+          if (!episodeInfo.SeriesName.IsEmpty)
+          {
+            foreach (var regex in titleYearRegexes)
+            {
+              Match yearMa = regex.Match(episodeInfo.SeriesName.Text);
               if (yearMa.Success)
               {
                 //episodeInfo.SeriesName = new SimpleTitle(EpisodeInfo.CleanupWhiteSpaces(yearMa.Groups[GROUP_SERIES].Value), episodeInfo.SeriesName.DefaultLanguage);
                 MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value), 1, 1));
+                break;
               }
-              yearMa = settings.SeriesYearPattern.Regex.Match(folderOrFileName);
+
+              yearMa = regex.Match(folderOrFileName);
               if (yearMa.Success)
               {
                 int year = Convert.ToInt32(yearMa.Groups[GROUP_YEAR].Value);
                 if (year >= 1940 && year <= (DateTime.Now.Year + 1) && !folderOrFileName.EndsWith(year.ToString())) //It is a valid year and not the episode title
+                {
                   MetadataUpdater.SetOrUpdateValue(ref episodeInfo.SeriesFirstAired, new DateTime(year, 1, 1));
+                  break;
+                }
               }
             }
-            return true;
           }
+
+          return true;
         }
       }
+
       return false;
     }
 
