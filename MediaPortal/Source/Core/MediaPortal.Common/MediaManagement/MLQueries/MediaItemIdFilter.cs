@@ -36,6 +36,8 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   public class MediaItemIdFilter : IFilter
   {
     protected List<Guid> _mediaItemIds;
+    protected string _subQueryTable;
+    protected string _subQueryColumn;
 
     public MediaItemIdFilter(IEnumerable<Guid> mediaItemIds)
     {
@@ -45,6 +47,42 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     public MediaItemIdFilter(Guid mediaItemId)
     {
       _mediaItemIds = new List<Guid> {mediaItemId};
+    }
+
+    public MediaItemIdFilter(string subQueryTable, string subQueryColumn)
+    {
+      _mediaItemIds = new List<Guid>();
+      _subQueryTable = subQueryTable.Replace(" ", "");
+      _subQueryColumn = subQueryColumn.Replace(" ", "");
+    }
+
+    public bool TryGetSubQuery(out string query)
+    {
+      if (!string.IsNullOrWhiteSpace(_subQueryTable) && !string.IsNullOrWhiteSpace(_subQueryColumn))
+      {
+        query = $"SELECT {_subQueryColumn} FROM {_subQueryTable}";
+        return true;
+      }
+      query = null;
+      return false;
+    }
+
+    /// <summary>
+    /// Returns the table name which holds Id's which the filtered items must match.
+    /// </summary>
+    public string SubQueryTableName
+    {
+      get { return _subQueryTable; }
+      set { _subQueryTable = value.Replace(" ", ""); }
+    }
+
+    /// <summary>
+    /// Returns the table column name which holds Id's which the filtered items must match.
+    /// </summary>
+    public string SubQueryColumnName
+    {
+      get { return _subQueryColumn; }
+      set { _subQueryColumn = value.Replace(" ", ""); }
     }
 
     /// <summary>
@@ -59,6 +97,8 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
 
     public override string ToString()
     {
+      if (TryGetSubQuery(out var q))
+        return $"MEDIA_ITEM_ID IN ({q})";
       if (_mediaItemIds.Count == 0)
         return "1 = 2";
       if (_mediaItemIds.Count == 1)
