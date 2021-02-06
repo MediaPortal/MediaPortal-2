@@ -36,8 +36,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     {
       _changeAspectId = VideoAspect.ASPECT_ID;
       _necessaryMias = Consts.NECESSARY_VIDEO_MIAS;
-      //Needed for calculating play percentage
-      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID };
+      _optionalMias = Consts.OPTIONAL_VIDEO_MIAS;
       _playableConverterAction = item => new VideoItem(item);
       _navigationInitializerType = typeof(VideosNavigationInitializer);
     }

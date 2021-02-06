@@ -35,8 +35,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public LatestMovieMediaListProvider()
     {
       _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
-      //Needed for calculating play percentage
-      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID };
+      _optionalMias = Consts.OPTIONAL_MOVIES_MIAS;
       _playableConverterAction = item => new MovieItem(item);
       _navigationInitializerType = typeof(MoviesNavigationInitializer);
     }

@@ -636,6 +636,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] OPTIONAL_VIDEO_MIAS = new Guid[]
       {
+          //Needed for calculating play percentage
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
@@ -682,6 +683,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] OPTIONAL_EPISODE_MIAS = new Guid[]
       {
+          //Needed for calculating play percentage
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
@@ -709,6 +711,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] OPTIONAL_MOVIES_MIAS = new Guid[]
       {
+          //Needed for calculating play percentage
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
