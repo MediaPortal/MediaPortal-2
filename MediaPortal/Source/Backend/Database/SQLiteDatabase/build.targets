@@ -27,9 +27,6 @@
       <SQLiteInterop86 Include="$(TargetDir)x86\SQLite.Interop.dll" />
     </ItemGroup>
 
-    <!-- The following target is imported by (and defined in) the System.Data.SQLite Core NuGet package.
-         It needs to be called here, because by default it is executed only after the AfterBuild event-->
-    <CallTarget Targets="CopySQLiteInteropFiles" />
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(SQLiteInterop64)" DestinationFolder="$(PluginDestination)x64\" />
