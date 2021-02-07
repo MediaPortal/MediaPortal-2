@@ -7,6 +7,8 @@
 
     <ItemGroup>
       <PluginFiles Include="$(TargetPath)" />
+      <PluginFiles Include="$(TargetDir)$(TargetName).exe" />
+      <PluginFiles Include="$(TargetDir)$(TargetName).runtimeconfig.json" />
       <PluginFiles Include="$(TargetPath).config" />
     </ItemGroup>
 

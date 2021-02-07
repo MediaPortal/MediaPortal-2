@@ -23,7 +23,6 @@
 #endregion
 
 using CommandLine;
-using CommandLine.Text;
 
 namespace MediaPortal.ServiceMonitor
 {
@@ -34,11 +33,5 @@ namespace MediaPortal.ServiceMonitor
 
     [Option('c', "command", Required = false, HelpText = "Defines the command which should be executed on startup. Example: command=RestartService")]
     public string Command { get; set; }
-
-    [HelpOption]
-    public string GetUsage()
-    {
-      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-    }
   }
 }

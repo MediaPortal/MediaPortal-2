@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.Eventing.Reader;
 using System.IO;
+using CommandLine;
 using Ionic.Zip;
 
 namespace MediaPortal.LogCollector
@@ -36,10 +37,13 @@ namespace MediaPortal.LogCollector
     static void Main(string[] args)
     {
       // Parse command line options
-      var mpOptions = new CommandLineOptions();
-      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
-      parser.ParseArgumentsStrict(args, mpOptions, () => Environment.Exit(1));
+      Parser.Default.ParseArguments<CommandLineOptions>(args)
+        .WithParsed(Run)
+        .WithNotParsed(err => Environment.Exit(1));
+    }
 
+    static void Run(CommandLineOptions mpOptions)
+    {
       List<string> products = new List<string>
       {
         "MediaPortal Setup TV", // Legacy folders for TVE3 support

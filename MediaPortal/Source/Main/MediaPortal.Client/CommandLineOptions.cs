@@ -23,7 +23,6 @@
 #endregion
 
 using CommandLine;
-using CommandLine.Text;
 
 namespace MediaPortal.Client
 {
@@ -34,11 +33,5 @@ namespace MediaPortal.Client
 
     [Option('a', "Autostart", Required = false, HelpText = "Indicates that program was started via Windows auto start.")]
     public bool AutoStart { get; set; }
-
-    [HelpOption]
-    public string GetUsage()
-    {
-      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-    }
   }
 }

@@ -38,6 +38,7 @@ using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
 using System.IO;
+using CommandLine;
 using MediaPortal.Common.PathManager;
 #if !DEBUG
 using System.Drawing;
@@ -143,9 +144,10 @@ namespace MediaPortal.Client
       Thread.CurrentThread.Name = "Main";
 
       // Parse command line options
-      var mpOptions = new CommandLineOptions();
-      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
-      parser.ParseArgumentsStrict(args, mpOptions, () => Environment.Exit(1));
+      CommandLineOptions mpOptions = new CommandLineOptions();
+      Parser.Default.ParseArguments<CommandLineOptions>(args)
+        .WithParsed(parsed => mpOptions = parsed)
+        .WithNotParsed(err => Environment.Exit(1));
 
       // Check if another instance is already running
       if (SingleInstanceHelper.IsAlreadyRunning(MUTEX_ID, out _mutex))

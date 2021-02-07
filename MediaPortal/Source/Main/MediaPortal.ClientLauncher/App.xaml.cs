@@ -5,6 +5,7 @@ using MediaPortal.Utilities.Process;
 using System;
 using System.Threading;
 using System.Windows;
+using CommandLine;
 
 namespace MediaPortal.Client.Launcher
 {
@@ -23,11 +24,11 @@ namespace MediaPortal.Client.Launcher
       //create the notifyicon (it's a resource declared in NotifyIconResources.xaml
       _notifyIcon = (TaskbarIcon)FindResource("NotifyIcon");
 
-
       // Parse command line options
-      var mpOptions = new CommandLineOptions();
-      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
-      parser.ParseArgumentsStrict(e.Args, mpOptions, () => Environment.Exit(1));
+      CommandLineOptions mpOptions = new CommandLineOptions();
+      Parser.Default.ParseArguments<CommandLineOptions>(e.Args)
+        .WithParsed(args => mpOptions = args)
+        .WithNotParsed(err => Environment.Exit(1));
 
       // Check if another instance is already running
       if (SingleInstanceHelper.IsAlreadyRunning(ApplicationLauncher.MUTEX_ID, out _mutex))
