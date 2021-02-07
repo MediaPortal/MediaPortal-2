@@ -114,7 +114,8 @@ namespace MediaPortal.Utilities.Process
         {
           try
           {
-            pipe.Flush();
+            if (pipe.IsConnected)
+              pipe.Flush();
           }
           catch
           {
