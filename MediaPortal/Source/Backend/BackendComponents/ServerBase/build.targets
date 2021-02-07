@@ -1,10 +1,11 @@
 <Project>
 
-  <PropertyGroup>
-    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
-  </PropertyGroup>
-
   <Target Name="CopyToOutput" AfterTargets="Build">
+
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    </PropertyGroup>
+
     <ItemGroup>
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />

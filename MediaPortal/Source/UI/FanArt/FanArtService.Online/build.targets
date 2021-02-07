@@ -1,24 +1,25 @@
 <Project>
 
-  <PropertyGroup>
-    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(ProjectDir)plugin.xml" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
-    <PluginFiles Include="$(TargetDir)FanArtService.Interfaces.pdb" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
-  </ItemGroup>
-
   <Target Name="CopyToOutput" AfterTargets="Build">
+
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+      <PluginFiles Include="$(TargetDir)FanArtService.Interfaces.pdb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>
