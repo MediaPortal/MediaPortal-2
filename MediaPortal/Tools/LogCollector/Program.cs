@@ -116,7 +116,8 @@ namespace MediaPortal.LogCollector
 
       CleanupTempEventLogFiles(outputPath);
 
-      Process.Start(outputPath); // Opens output folder
+      var psi = new ProcessStartInfo { FileName = outputPath, UseShellExecute = true };
+      Process.Start(psi); // Opens output folder
     }
 
     private static string CollectEventLog(string pathToFile, string logType)
