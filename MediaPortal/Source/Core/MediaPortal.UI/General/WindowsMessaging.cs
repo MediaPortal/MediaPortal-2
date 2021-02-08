@@ -41,11 +41,13 @@ namespace MediaPortal.UI.General
     public enum MessageType
     {
       WindowsBroadcast,
+      HidBroadcast
     }
 
     // Message data
     public const string MESSAGE = "Message"; // Windows message stored as System.Windows.Forms.Message - Take care to copy the message back to the message data after modifying it, else the auto unboxing will prevent applying the new values
     public const string HANDLED = "Handled"; // Indication of handled state
+    public const string HID_EVENT = "HidEvent"; // USB HID event data
 
     public static bool BroadcastWindowsMessage(ref Message message)
     {
@@ -56,6 +58,13 @@ namespace MediaPortal.UI.General
       // Copy message back to the ref message
       message = (Message)msg.MessageData[MESSAGE];
       return (bool)msg.MessageData[HANDLED];
+    }
+
+    public static void BroadcastHidMessage(object hidEvent)
+    {
+      SystemMessage msg = new SystemMessage(MessageType.HidBroadcast);
+      msg.MessageData[HID_EVENT] = hidEvent;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
   }
 }

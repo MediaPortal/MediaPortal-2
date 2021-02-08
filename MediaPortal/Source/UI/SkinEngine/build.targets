@@ -27,6 +27,8 @@
       <References Include="$(TargetDir)SharpDX.dll" />
       <References Include="$(TargetDir)SharpDX.Direct3D9.dll" />
       <References Include="$(TargetDir)SharpDX.Mathematics.dll" />
+      <References Include="$(TargetDir)SharpLibHid.dll" />
+      <References Include="$(TargetDir)SharpLibWin32.dll" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
