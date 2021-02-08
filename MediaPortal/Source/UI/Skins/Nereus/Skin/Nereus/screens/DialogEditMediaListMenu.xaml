@@ -18,8 +18,15 @@
 
         <Button Style="{ThemeResource NextChapterButtonStyle}" Margin="-5,0,0,0"
                 HorizontalAlignment="Left" VerticalAlignment="Top"
-                Command="{Command Source={Service ScreenManager}, Path=ShowDialog, Parameters=DialogAddMediaListMenuItem}"/>
-
+                Command="{Command Source={Service ScreenManager}, Path=ShowDialog, Parameters=DialogAddMediaListMenuItem}"
+                IsVisible="{Binding Source={StaticResource HomeMenuModel}, Path=MenuEditModel.OtherMediaListItems.ItemsCount, Converter={StaticResource ReferenceToBoolConverter}}">
+          <!--Button.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
+              <Binding Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.OtherMediaListItems.ItemsCount" />
+            </MultiBinding>
+          </-->
+        </Button>
+        
         <ListView x:Name="DialogMenu" Style="{ThemeResource EditMenuListViewStyle}"
                   ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MenuEditModel.MediaListItems, Mode=OneTime}" SetFocusPrio="DefaultLow"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>

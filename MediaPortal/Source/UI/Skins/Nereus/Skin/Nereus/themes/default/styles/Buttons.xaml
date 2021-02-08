@@ -2076,6 +2076,9 @@
               <Setter TargetName="image" Property="Source" Value="configure.focus.PNG"/>
               <Setter TargetName="image" Property="Opacity" Value="1"/>
             </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="image" Property="Opacity" Value="0"/>
+            </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
