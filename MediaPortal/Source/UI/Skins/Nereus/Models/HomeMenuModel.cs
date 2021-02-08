@@ -83,6 +83,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     protected SettingsChangeWatcher<NereusSkinSettings> _settingsWatcher;
     protected IList<Guid> _currentActionIdSettings;
+    protected IList<string> _currentActionMediaListSettings;
 
     protected ItemsList _allHomeMenuItems;
     protected ItemsList _mainMenuItems = new ItemsList();
@@ -143,12 +144,43 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     private void OnSettingsChanged(object sender, EventArgs e)
     {
-      // Check whether the configured action ids have changed,
+      // Check whether the configured settings have changed,
       var currentIds = _currentActionIdSettings;
-      if (currentIds == null || currentIds.SequenceEqual(_settingsWatcher.Settings.HomeMenuActionIds))
+      var currentMediaLists = _currentActionMediaListSettings;
+      if ((currentIds == null || currentIds.SequenceEqual(_settingsWatcher.Settings.HomeMenuActionIds)) &&
+          (currentMediaLists == null || currentMediaLists.SequenceEqual(_settingsWatcher.Settings.HomeMenuActionMediaLists)))
         return;
+
       // If so, rebuild the items
       OnHomeMenuItemsChanged(_allHomeMenuItems);
+    }
+
+    private IDictionary<Guid, IList<string>> GetActionMediaListDictionary(IEnumerable<string> settings)
+    {
+      if (settings == null)
+        return null;
+
+      Dictionary<Guid, IList<string>> actionMediaLists = new Dictionary<Guid, IList<string>>();
+      foreach (var list in settings)
+      {
+        string[] mainParts = list.Split(':');
+        if (mainParts?.Length == 2 && Guid.TryParse(mainParts[0].Trim(), out var g))
+        {
+          actionMediaLists[g] = new List<string>();
+          string[] listParts = mainParts[1].Split(',');
+          foreach (var mediaListKey in listParts)
+            actionMediaLists[g].Add(mediaListKey.Trim());
+        }
+      }
+      return actionMediaLists;
+    }
+
+    private IList<string> GetActionMediaListSetting(IDictionary<Guid, IList<string>> actionMediaLists)
+    {
+      List<string> lists = new List<string>();
+      foreach (var actionMediaList in actionMediaLists)
+        lists.Add($"{actionMediaList.Key}:{string.Join(",", actionMediaList.Value)}");
+      return lists;
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -282,8 +314,10 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     public void BeginMenuEdit()
     {
+      IDictionary<Guid, IList<string>> actionMediaLists = GetActionMediaListDictionary(_settingsWatcher.Settings.HomeMenuActionMediaLists);
+
       // The dialog binds to the edit model, which handles editing the list 
-      MenuEditModel = new MenuEditModel(HOME_STATE_ID, _settingsWatcher.Settings.HomeMenuActionIds);
+      MenuEditModel = new MenuEditModel(HOME_STATE_ID, _settingsWatcher.Settings.HomeMenuActionIds, actionMediaLists, _homeContent);
 
       // Show the dialog and set a callback to clear the edit model when it closes
       var sm = ServiceRegistration.Get<IScreenManager>();
@@ -297,11 +331,14 @@ namespace MediaPortal.UiComponents.Nereus.Models
       if (editModel == null)
         return;
 
-      // Get the updated action ids and update the settings, we'll update
+      // Get the settings and update them, we'll update
       // the menu automatically when we get the settings changed event.
       var sm = ServiceRegistration.Get<ISettingsManager>();
       var settings = sm.Load<NereusSkinSettings>();
       settings.HomeMenuActionIds = editModel.GetCurrentActionIds().ToArray();
+      var mediaLists = GetActionMediaListSetting(editModel.GetMediaLists());
+      settings.HomeMenuActionMediaLists = mediaLists.ToArray();
+
       sm.Save(settings);
     }
 
@@ -396,10 +433,24 @@ namespace MediaPortal.UiComponents.Nereus.Models
       // and focus it again if the list is rebuilt
       ListItem previousSelectedItem = SelectedItem;
 
+      //Update backing list if changed
+      IDictionary<Guid, IList<string>> changedActionMediaLists;
+      if (_currentActionMediaListSettings == null)
+        changedActionMediaLists = GetActionMediaListDictionary(_settingsWatcher.Settings.HomeMenuActionMediaLists);
+      else
+        changedActionMediaLists = GetActionMediaListDictionary(_settingsWatcher.Settings.HomeMenuActionMediaLists.Except(_currentActionMediaListSettings));
+      foreach (var content in _homeContent)
+      {
+        if (changedActionMediaLists?.ContainsKey(content.Key) ?? false)
+          if (content.Value is AbstractHomeContent ahc)
+            ahc.UpdateLists(changedActionMediaLists[content.Key]);
+      }
+      _currentActionMediaListSettings = new List<string>(_settingsWatcher.Settings.HomeMenuActionMediaLists);
+
       // Get the action ids that will be visible in the main menu.
       // All other actions will be placed under 'Other'.
       var actionIds = _currentActionIdSettings = new List<Guid>(_settingsWatcher.Settings.HomeMenuActionIds);
-      
+
       // The list items should be in the same order as the settings, so sort by settings index
       SortedList<int, ListItem> sortedMainItems = new SortedList<int, ListItem>();
 

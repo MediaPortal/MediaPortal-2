@@ -22,41 +22,28 @@
 
 #endregion
 
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UiComponents.SkinBase.General;
+using System.Collections.Generic;
 using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
-  public class WebradioHomeContent : AbstractHomeContent
+  /// <summary>
+  /// Container for a group of <see cref="ListItem"/>s to be displayed on the home screen.
+  /// </summary>
+  public class MediaListItemsListWrapper : ItemsListWrapper
   {
-    public WebradioHomeContent()
+    public MediaListItemsListWrapper(string mediaListKey, string name)
+      : base(name)
     {
-      _availableLists.Add(new LastPlayedWebradioList());
-      _availableLists.Add(new TopPlayedWebradioList());
+      MediaListKey = mediaListKey;
+      Name = name;
     }
 
-    protected override void PopulateBackingList()
-    {
-      UpdateListsFromAvailableLists();
-    }
+    public string MediaListKey { get; }
 
-    protected override IContentListModel GetContentListModel()
-    {
-      return GetWebradioListModel();
-    }
-  }
-
-  public class LastPlayedWebradioList : MediaListItemsListWrapper
-  {
-    public LastPlayedWebradioList()
-      : base("LastPlayedWebradio", "[Nereus.Home.LatestPlayed]")
-    { }
-  }
-
-  public class TopPlayedWebradioList : MediaListItemsListWrapper
-  {
-    public TopPlayedWebradioList()
-      : base("TopPlayedWebradio", "[Nereus.Home.Favorites]")
-    { }
+    public string Name { get; }
   }
 }

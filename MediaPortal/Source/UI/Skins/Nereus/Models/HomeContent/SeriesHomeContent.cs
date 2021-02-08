@@ -27,15 +27,22 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class SeriesHomeContent : AbstractHomeContent
   {
+    public SeriesHomeContent()
+    {
+      _availableLists.Add(new LatestEpisodeList());
+      _availableLists.Add(new ContinueSeriesList());
+      _availableLists.Add(new FavoriteSeriesList());
+      _availableLists.Add(new UnplayedSeriesList());
+    }
+
     protected override void PopulateBackingList()
     {
-      MediaListModel mlm = GetMediaListModel();
-
       _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new SeriesGenreShortcut(),
@@ -45,48 +52,40 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new SeriesSearchShortcut()
       }));
 
-      _backingList.Add(new LatestEpisodeList(mlm.Lists["LatestEpisodes"].AllItems));
-      _backingList.Add(new ContinueSeriesList(mlm.Lists["ContinuePlaySeries"].AllItems));
-      _backingList.Add(new FavoriteSeriesList(mlm.Lists["FavoriteSeries"].AllItems));
-      _backingList.Add(new UnplayedSeriesList(mlm.Lists["UnplayedSeries"].AllItems));
+      UpdateListsFromAvailableLists();
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
-      MediaListModel mlm = GetMediaListModel();
-
-      mlm.ForceUpdate("LatestEpisodes");
-      mlm.ForceUpdate("ContinuePlaySeries");
-      mlm.ForceUpdate("FavoriteSeries");
-      mlm.ForceUpdate("UnplayedSeries");
+      return GetMediaListModel();
     }
   }
 
-  public class LatestEpisodeList : ItemsListWrapper
+  public class LatestEpisodeList : MediaListItemsListWrapper
   {
-    public LatestEpisodeList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestAdded]")
+    public LatestEpisodeList()
+      : base("LatestEpisodes", "[Nereus.Home.LatestAdded]")
     { }
   }
 
-  public class ContinueSeriesList : ItemsListWrapper
+  public class ContinueSeriesList : MediaListItemsListWrapper
   {
-    public ContinueSeriesList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.ContinuePlayed]")
+    public ContinueSeriesList()
+      : base("ContinuePlaySeries", "[Nereus.Home.ContinuePlayed]")
     { }
   }
 
-  public class FavoriteSeriesList : ItemsListWrapper
+  public class FavoriteSeriesList : MediaListItemsListWrapper
   {
-    public FavoriteSeriesList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteSeriesList()
+      : base("FavoriteSeries", "[Nereus.Home.Favorites]")
     { }
   }
 
-  public class UnplayedSeriesList : ItemsListWrapper
+  public class UnplayedSeriesList : MediaListItemsListWrapper
   {
-    public UnplayedSeriesList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Unplayed]")
+    public UnplayedSeriesList()
+      : base("UnplayedSeries", "[Nereus.Home.Unplayed]")
     { }
   }
 

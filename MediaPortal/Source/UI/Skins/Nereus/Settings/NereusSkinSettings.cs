@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.Settings;
 using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Settings
 {
@@ -89,7 +90,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, true)]
     public bool EnableHelpTexts { get; set; }
 
-    static readonly Guid[] DEFAULT_HOME_MENU_ACTION_IDS = new []
+    private static readonly Guid[] DEFAULT_HOME_MENU_ACTION_IDS = new []
     {
       // Audio
       new Guid("30715d73-4205-417f-80aa-e82f0834171f"),
@@ -117,7 +118,8 @@ namespace MediaPortal.UiComponents.Nereus.Settings
       new Guid("873EB147-C998-4632-8F86-D5E24062BE2E")
     };
 
-    Guid[] _homeMenuActionIds = null;
+    private Guid[] _homeMenuActionIds = null;
+    private string[] _homeMenuMediaLists = null;
 
     [Setting(SettingScope.User, null)]
     public Guid[] HomeMenuActionIds
@@ -130,6 +132,19 @@ namespace MediaPortal.UiComponents.Nereus.Settings
         return actionIds;
       }
       set { _homeMenuActionIds = value; }
+    }
+
+    [Setting(SettingScope.User, null)]
+    public string[] HomeMenuActionMediaLists
+    {
+      get
+      {
+        var mediaLists = _homeMenuMediaLists;
+        if (mediaLists == null || mediaLists.Length == 0)
+          _homeMenuMediaLists = mediaLists = new string[0];
+        return mediaLists;
+      }
+      set { _homeMenuMediaLists = value; }
     }
   }
 }

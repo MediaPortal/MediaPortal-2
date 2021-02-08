@@ -27,15 +27,22 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class MovieHomeContent : AbstractHomeContent
   {
+    public MovieHomeContent()
+    {
+      _availableLists.Add(new LatestMovieList());
+      _availableLists.Add(new ContinueMovieList());
+      _availableLists.Add(new FavoriteMovieList());
+      _availableLists.Add(new UnplayedMovieList());
+    }
+
     protected override void PopulateBackingList()
     {
-      MediaListModel mlm = GetMediaListModel();
-
       _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new MovieGenreShortcut(),
@@ -45,48 +52,40 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new MovieSearchShortcut()
       }));
 
-      _backingList.Add(new LatestMovieList(mlm.Lists["LatestMovies"].AllItems));
-      _backingList.Add(new ContinueMovieList(mlm.Lists["ContinuePlayMovies"].AllItems));
-      _backingList.Add(new FavoriteMovieList(mlm.Lists["FavoriteMovies"].AllItems));
-      _backingList.Add(new UnplayedMovieList(mlm.Lists["UnplayedMovies"].AllItems));
+      UpdateListsFromAvailableLists();
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
-      MediaListModel mlm = GetMediaListModel();
-
-      mlm.ForceUpdate("LatestMovies");
-      mlm.ForceUpdate("ContinuePlayMovies");
-      mlm.ForceUpdate("FavoriteMovies");
-      mlm.ForceUpdate("UnplayedMovies");
+      return GetMediaListModel();
     }
   }
 
-  public class LatestMovieList : ItemsListWrapper
+  public class LatestMovieList : MediaListItemsListWrapper
   {
-    public LatestMovieList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestAdded]")
+    public LatestMovieList()
+      : base("LatestMovies", "[Nereus.Home.LatestAdded]")
     { }
   }
 
-  public class ContinueMovieList : ItemsListWrapper
+  public class ContinueMovieList : MediaListItemsListWrapper
   {
-    public ContinueMovieList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.ContinuePlayed]")
+    public ContinueMovieList()
+      : base("ContinuePlayMovies", "[Nereus.Home.ContinuePlayed]")
     { }
   }
 
-  public class FavoriteMovieList : ItemsListWrapper
+  public class FavoriteMovieList : MediaListItemsListWrapper
   {
-    public FavoriteMovieList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteMovieList()
+      : base("FavoriteMovies", "[Nereus.Home.Favorites]")
     { }
   }
 
-  public class UnplayedMovieList : ItemsListWrapper
+  public class UnplayedMovieList : MediaListItemsListWrapper
   {
-    public UnplayedMovieList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Unplayed]")
+    public UnplayedMovieList()
+      : base("UnplayedMovies", "[Nereus.Home.Unplayed]")
     { }
   }
 

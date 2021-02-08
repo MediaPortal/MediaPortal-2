@@ -76,4 +76,7 @@
   <string name="Nereus.Dialog.EditMenu.Header">Edit menu</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Add menu item</string>
 
+  <string name="Nereus.Dialog.EditMediaList.Header">Edit home content</string>
+  <string name="Nereus.Dialog.AddMediaListItem.Header">Add home content</string>
+
 </resources>

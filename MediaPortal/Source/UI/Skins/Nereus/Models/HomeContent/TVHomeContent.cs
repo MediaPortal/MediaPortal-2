@@ -29,15 +29,22 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Models;
 using System;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class TVHomeContent : AbstractHomeContent
   {
+    public TVHomeContent()
+    {
+      _availableLists.Add(new LastPlayTVList());
+      _availableLists.Add(new FavoriteTVList());
+      _availableLists.Add(new CurrentTVList());
+      _availableLists.Add(new CurrentSchedulesList());
+    }
+
     protected override void PopulateBackingList()
     {
-      MediaListModel mlm = GetMediaListModel();
-
       _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new LiveTVShortcut(),
@@ -47,48 +54,40 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new TVSearchShortcut()
       }));
 
-      _backingList.Add(new LastPlayTVList(mlm.Lists["LastPlayTV"].AllItems));
-      _backingList.Add(new FavoriteTVList(mlm.Lists["FavoriteTV"].AllItems));
-      _backingList.Add(new CurrentTVList(mlm.Lists["CurrentPrograms"].AllItems));
-      _backingList.Add(new CurrentSchedulesList(mlm.Lists["CurrentSchedules"].AllItems));
+      UpdateListsFromAvailableLists();
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
-      MediaListModel mlm = GetMediaListModel();
-
-      mlm.ForceUpdate("LastPlayTV");
-      mlm.ForceUpdate("FavoriteTV");
-      mlm.ForceUpdate("CurrentPrograms");
-      mlm.ForceUpdate("CurrentSchedules");
+      return GetMediaListModel();
     }
   }
 
-  public class LastPlayTVList : ItemsListWrapper
+  public class LastPlayTVList : MediaListItemsListWrapper
   {
-    public LastPlayTVList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestPlayed]")
+    public LastPlayTVList()
+      : base("LastPlayTV", "[Nereus.Home.LatestPlayed]")
     { }
   }
 
-  public class FavoriteTVList : ItemsListWrapper
+  public class FavoriteTVList : MediaListItemsListWrapper
   {
-    public FavoriteTVList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteTVList()
+      : base("FavoriteTV", "[Nereus.Home.Favorites]")
     { }
   }
 
-  public class CurrentTVList : ItemsListWrapper
+  public class CurrentTVList : MediaListItemsListWrapper
   {
-    public CurrentTVList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.CurrentPrograms]")
+    public CurrentTVList()
+      : base("CurrentPrograms", "[Nereus.Home.CurrentPrograms]")
     { }
   }
 
-  public class CurrentSchedulesList : ItemsListWrapper
+  public class CurrentSchedulesList : MediaListItemsListWrapper
   {
-    public CurrentSchedulesList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.CurrentSchedules]")
+    public CurrentSchedulesList()
+      : base("CurrentSchedules", "[Nereus.Home.CurrentSchedules]")
     { }
   }
 
