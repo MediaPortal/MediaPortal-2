@@ -5,6 +5,7 @@ using MediaPortal.UiComponents.SkinBase.General;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UiComponents.Nereus.Models.HomeContent;
 
@@ -23,7 +24,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     public const string BACKING_LIST_KEY = "BackingListKey";
 
-    protected Guid _actionStateId; 
+    protected Guid _actionStateId;
+    protected Guid? _startMenuActionId;
     protected Guid _selectedActionId; 
     protected IList<Guid> _menuActionIds;
     protected IList<ListItem> _sortedActionItems; 
@@ -35,10 +37,13 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected ItemsList _otherItems;
     protected ItemsList _mediaListItems;
     protected ItemsList _otherMediaListItems;
+    protected AbstractProperty _hasOtherItemsProperty;
+    protected AbstractProperty _hasOtherMediaListItemsProperty;
 
-    public MenuEditModel(Guid actionStateId, IEnumerable<Guid> homeMenuActionIds, IDictionary<Guid, IList<string>>  mediaLists, IDictionary<Guid, object> allHomeContent)
+    public MenuEditModel(Guid actionStateId, Guid? startMenuActionId, IEnumerable<Guid> homeMenuActionIds, IDictionary<Guid, IList<string>>  mediaLists, IDictionary<Guid, object> allHomeContent)
     {
       _actionStateId = actionStateId;
+      _startMenuActionId = startMenuActionId;
       _menuActionIds = new List<Guid>(homeMenuActionIds);
       _allHomeContent = allHomeContent;
       _items = new ItemsList();
@@ -46,6 +51,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _mediaListItems = new ItemsList();
       _otherMediaListItems = new ItemsList();
       _mediaLists = mediaLists;
+      _hasOtherItemsProperty = new WProperty(typeof(bool), false);
+      _hasOtherMediaListItemsProperty = new WProperty(typeof(bool), false);
     }
 
     public ItemsList Items
@@ -81,6 +88,32 @@ namespace MediaPortal.UiComponents.Nereus.Models
         return _otherMediaListItems;
       }
     }
+
+    #region GUI properties
+
+    public bool HasOtherItems
+    {
+      get { return (bool)_hasOtherItemsProperty.GetValue(); }
+      set { _hasOtherItemsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty HasOtherItemsProperty
+    {
+      get { return _hasOtherItemsProperty; }
+    }
+
+    public bool HasOtherMediaListItems
+    {
+      get { return (bool)_hasOtherMediaListItemsProperty.GetValue(); }
+      set { _hasOtherMediaListItemsProperty.SetValue(value); }
+    }
+
+    public AbstractProperty HasOtherMediaListItemsProperty
+    {
+      get { return _hasOtherMediaListItemsProperty; }
+    }
+
+    #endregion
 
     #region Action menu handling
 
@@ -151,7 +184,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _items[index].AdditionalProperties[IS_CONFIG_FOCUSED_KEY] = true;
       _items.FireChange();
 
-      CheckMediaListsItemsCreated();
+      UpdateMediaListsItems();
       var sm = ServiceRegistration.Get<IScreenManager>();
       sm.ShowDialog("DialogEditMediaListMenu");
     }
@@ -168,6 +201,16 @@ namespace MediaPortal.UiComponents.Nereus.Models
       CreateActionItemsForState(_actionStateId);
       UpdateMenuItems(_menuActionIds);
       UpdateOtherItems();
+
+      if (_startMenuActionId.HasValue)
+      {
+        var item = _items.FirstOrDefault(i => i.AdditionalProperties[Consts.KEY_ITEM_ACTION] is WorkflowAction a && a.ActionId == _startMenuActionId);
+        if (item != null)
+        {
+          item.AdditionalProperties[IS_UP_FOCUSED_KEY] = true;
+          item.Selected = true;
+        }
+      }
     }
 
     protected void UpdateMenuItems(IList<Guid> actionIds)
@@ -175,7 +218,13 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _items.Clear();
       foreach (Guid actionId in actionIds)
         if (_actionItemsById.TryGetValue(actionId, out ListItem item))
+        {
           _items.Add(item);
+
+          bool selected = actionId == _startMenuActionId;
+          item.AdditionalProperties[IS_UP_FOCUSED_KEY] = selected;
+          item.Selected = selected;
+        }
       _items.FireChange();
     }
 
@@ -186,6 +235,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
         if (!_items.Contains(item))
           _otherItems.Add(item);
       _otherItems.FireChange();
+
+      HasOtherItems = _otherItems.Count > 0;
     }
 
     protected void CreateActionItemsForState(Guid workflowStateId)
@@ -325,7 +376,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       UpdateOtherMediaListItems();
     }
 
-    protected void CheckMediaListsItemsCreated()
+    protected void UpdateMediaListsItems()
     {
       UpdateMediaListMenuItems();
       UpdateOtherMediaListItems();
@@ -366,6 +417,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
         if (!_mediaListItems.Contains(item))
           _otherMediaListItems.Add(item);
       _otherMediaListItems.FireChange();
+
+      HasOtherMediaListItems = _otherMediaListItems.Count > 0;
     }
 
     protected ListItem CreateMediaListItem(MediaListItemsListWrapper list)

@@ -315,9 +315,13 @@ namespace MediaPortal.UiComponents.Nereus.Models
     public void BeginMenuEdit()
     {
       IDictionary<Guid, IList<string>> actionMediaLists = GetActionMediaListDictionary(_settingsWatcher.Settings.HomeMenuActionMediaLists);
+      WorkflowAction action = null;
+      ListItem item = SelectedItem;
+      if (item != null)
+        action = GetAction(item);
 
       // The dialog binds to the edit model, which handles editing the list 
-      MenuEditModel = new MenuEditModel(HOME_STATE_ID, _settingsWatcher.Settings.HomeMenuActionIds, actionMediaLists, _homeContent);
+      MenuEditModel = new MenuEditModel(HOME_STATE_ID, action?.ActionId, _settingsWatcher.Settings.HomeMenuActionIds, actionMediaLists, _homeContent);
 
       // Show the dialog and set a callback to clear the edit model when it closes
       var sm = ServiceRegistration.Get<IScreenManager>();

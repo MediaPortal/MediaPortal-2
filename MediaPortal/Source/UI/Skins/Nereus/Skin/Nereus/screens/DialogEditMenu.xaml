@@ -18,6 +18,7 @@
 
         <Button Style="{ThemeResource NextChapterButtonStyle}" Margin="-5,0,0,0"
                 HorizontalAlignment="Left" VerticalAlignment="Top"
+                IsVisible="{Binding Source={StaticResource HomeMenuModel}, Path=MenuEditModel.HasOtherItems}"
                 Command="{Command Source={Service ScreenManager}, Path=ShowDialog, Parameters=DialogAddMenuItem}"/>
 
         <ListView x:Name="DialogMenu" Style="{ThemeResource EditMenuListViewStyle}"
