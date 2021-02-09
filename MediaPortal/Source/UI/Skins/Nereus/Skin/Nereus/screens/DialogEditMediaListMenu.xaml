@@ -22,8 +22,6 @@
                 Command="{Command Source={Service ScreenManager}, Path=ShowDialog, Parameters=DialogAddMediaListMenuItem}">
         </Button>
 
-        <ListView x:Name="DummyMenu" ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MenuEditModel.OtherMediaListItems, Mode=OneTime}" IsVisible="False"/>
-
         <ListView x:Name="DialogMenu" Style="{ThemeResource EditMenuListViewStyle}"
                   ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MenuEditModel.MediaListItems, Mode=OneTime}" SetFocusPrio="DefaultLow"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
