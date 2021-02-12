@@ -201,7 +201,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       CreateActionItemsForState(_actionStateId);
       UpdateMenuItems(_menuActionIds);
       UpdateOtherItems();
-
+      ResetActionItemProperties(_items);
       if (_startMenuActionId.HasValue)
       {
         var item = _items.FirstOrDefault(i => i.AdditionalProperties[Consts.KEY_ITEM_ACTION] is WorkflowAction a && a.ActionId == _startMenuActionId);
@@ -220,10 +220,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
         if (_actionItemsById.TryGetValue(actionId, out ListItem item))
         {
           _items.Add(item);
-
-          bool selected = actionId == _startMenuActionId;
-          item.AdditionalProperties[IS_UP_FOCUSED_KEY] = selected;
-          item.Selected = selected;
+          item.AdditionalProperties[IS_UP_FOCUSED_KEY] = false;
         }
       _items.FireChange();
     }
@@ -407,6 +404,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
         foreach (var item in _allMediaListItems)
           _mediaListItems.Add(item);
       }
+      ResetMediaListItemProperties(_mediaListItems);
       _mediaListItems.FireChange();
     }
 
