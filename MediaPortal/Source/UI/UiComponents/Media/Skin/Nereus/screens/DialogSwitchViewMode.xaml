@@ -1,0 +1,548 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Media.SwitchViewModeDialogTitle]"/>
+
+    <Model x:Key="ViewModeModel" Id="6997CD35-63F0-4F96-8997-E18C9382E2DC"/>
+
+    <!--ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+        Resource="{Binding Source={StaticResource ViewModeModel},Path=ViewModeItemsList,Mode=OneTime}"/-->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="1"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="1"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="0.5"/>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="1"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        
+        <!-- LIST VIEW -->
+        <Grid Margin="0,0,10,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="List" HorizontalAlignment="Center" GroupName="ViewModes"/>
+            <Label Grid.Column="1" Content="List" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="List" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+          </Grid>
+
+          <Grid Grid.Row="1" Grid.Column="0" Margin="10,10,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ListSmall" GroupName="ListViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=List, Path=IsChecked}"/>
+            <Label Grid.Column="1" Content="Small" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="ListSmall" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="ListSmall" Path="IsChecked"/>
+                  <Binding Source="ViewMode\List.small.focus.png"/>
+                  <Binding Source="ViewMode\List.small.nofocus.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="ListSmall" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+
+          <Grid Grid.Row="2" Grid.Column="0" Margin="10,10,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ListMedium" GroupName="ListViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=List, Path=IsChecked}"/>
+            <Label Grid.Column="1" Content="Medium" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="ListMedium" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="ListMedium" Path="IsChecked"/>
+                  <Binding Source="ViewMode\List.medium.focus.png"/>
+                  <Binding Source="ViewMode\List.medium.nofocus.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="ListMedium" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+
+          <Grid Grid.Row="3" Grid.Column="0" Margin="10,10,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="ListLarge" GroupName="ListViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=List, Path=IsChecked}"/>
+            <Label Grid.Column="1" Content="Large" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="ListLarge" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="ListLarge" Path="IsChecked"/>
+                  <Binding Source="ViewMode\List.large.focus.png"/>
+                  <Binding Source="ViewMode\List.large.nofocus.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="ListLarge" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+
+        </Grid>
+
+        <!-- GRID VIEW -->
+        <Grid Grid.Column="2" Margin="5,0,10,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Grid Grid.Row="0" Grid.Column="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="Grid" HorizontalAlignment="Center" GroupName="ViewModes"/>
+            <Label Grid.Column="1" Content="Grid" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Grid" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+          </Grid>
+
+          <Grid Grid.Row="1" Grid.Column="0" Margin="10,10,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="Poster" GroupName="GridViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Grid, Path=IsChecked}"/>
+            <Label Grid.Column="1" Content="Poster" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Poster" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Poster" Path="IsChecked"/>
+                  <Binding Source="ViewMode\Grid.Poster.focus.png"/>
+                  <Binding Source="ViewMode\Grid.Poster.nofocus.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Poster" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+
+          <Grid Grid.Row="2" Grid.Column="0" Margin="10,10,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="Thumbnail" GroupName="GridViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Grid, Path=IsChecked}"/>
+            <Label Grid.Column="1" Content="Thumbnail" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Thumbnail" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Thumbnail" Path="IsChecked"/>
+                  <Binding Source="ViewMode\Grid.Thumbnail.focus.png"/>
+                  <Binding Source="ViewMode\Grid.Thumbnail.nofocus.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Thumbnail" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+
+          <Grid Grid.Row="3" Grid.Column="0" Margin="10,10,0,0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <RadioButton x:Name="Banner" GroupName="GridViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Grid, Path=IsChecked}"/>
+            <Label Grid.Column="1" Content="Banner" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Banner" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Banner" Path="IsChecked"/>
+                  <Binding Source="ViewMode\Grid.Banner.focus.png"/>
+                  <Binding Source="ViewMode\Grid.Banner.nofocus.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Banner" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+
+        </Grid>
+
+        <!-- COVERFLOW VIEW -->
+        <Grid Grid.Column="4" Margin="5,0,10,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <RadioButton x:Name="Coverflow" HorizontalAlignment="Center" GroupName="ViewModes"/>
+          <Label Grid.Column="1" Content="Coverflow" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="Coverflow" Path="HasFocus"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+          <Image Grid.Row="1" Grid.Column="1" Height="70" Width="210" Stretch="Fill" HorizontalAlignment="Left">
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="Coverflow" Path="IsChecked"/>
+                <Binding Source="ViewMode\Coverflow.focus.png"/>
+                <Binding Source="ViewMode\Coverflow.nofocus.png"/>
+              </MultiBinding>
+            </Image.Source>
+            <Image.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="Coverflow" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Image.Opacity>
+          </Image>
+        </Grid>
+
+        <!-- LIST MEDIA DETAILS -->
+        <Grid Grid.Column="0" Grid.Row="2" Margin="5,5,10,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <CheckBox x:Name="ListExtendedMediaDetails" HorizontalAlignment="Center" IsChecked="True" IsEnabled="False" Opacity="0.5"/>
+          <Label Grid.Column="1" Content="Extended Media Details" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
+                 Opacity="0.25" VerticalAlignment="Center">
+          </Label>
+          <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="ListExtendedMediaDetails" Path="!IsChecked"/>
+                <Binding Source="ViewMode\Grid.Details.png"/>
+                <Binding Source="ViewMode\Grid.Details.Extended.png"/>
+              </MultiBinding>
+            </Image.Source>
+            <Image.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="ListExtendedMediaDetails" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Image.Opacity>
+          </Image>
+        </Grid>
+
+        <!-- GRID MEDIA DETAILS -->
+        <Grid Grid.Column="2" Grid.Row="2" Margin="5,5,10,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <CheckBox x:Name="GridExtendedMediaDetails" HorizontalAlignment="Center"/>
+          <Label Grid.Column="1" Content="Extended Media Details" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="GridExtendedMediaDetails" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Label.Opacity>
+          </Label>
+          <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="GridExtendedMediaDetails" Path="!IsChecked"/>
+                <Binding Source="ViewMode\Grid.Details.png"/>
+                <Binding Source="ViewMode\Grid.Details.Extended.png"/>
+              </MultiBinding>
+            </Image.Source>
+            <Image.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="GridExtendedMediaDetails" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Image.Opacity>
+          </Image>
+        </Grid>
+
+        <!-- COVERFLOW MEDIA DETAILS -->
+        <Grid Grid.Column="4" Grid.Row="2" Margin="5,5,10,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <CheckBox x:Name="CoverExtendedMediaDetails" HorizontalAlignment="Center"/>
+          <Label Grid.Column="1" Content="Extended Media Details" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="CoverExtendedMediaDetails" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Label.Opacity>
+          </Label>
+          <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="CoverExtendedMediaDetails" Path="!IsChecked"/>
+                <Binding Source="ViewMode\Coverflow.Details.png"/>
+                <Binding Source="ViewMode\Coverflow.Details.Extended.png"/>
+              </MultiBinding>
+            </Image.Source>
+            <Image.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="CoverExtendedMediaDetails" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Image.Opacity>
+          </Image>
+        </Grid>
+
+        <!-- LIST WATCHED FLAGS -->
+        <Grid Grid.Column="0" Grid.Row="4" Margin="5,5,10,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <CheckBox x:Name="ListWatchedFlags" HorizontalAlignment="Center"/>
+          <Label Grid.Column="1" Content="Show Watched Flags" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="ListWatchedFlags" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Label.Opacity>
+          </Label>
+        </Grid>
+
+        <!-- GRID WATCHED FLAGS -->
+        <Grid Grid.Column="2" Grid.Row="4" Margin="5,5,10,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <CheckBox x:Name="GridWatchedFlags" HorizontalAlignment="Center"/>
+          <Label Grid.Column="1" Content="Show Watched Flags" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="GridWatchedFlags" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Label.Opacity>
+          </Label>
+        </Grid>
+
+        <!-- COVERFLOW WATCHED FLAGS -->
+        <Grid Grid.Column="4" Grid.Row="4" Margin="5,5,10,10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <CheckBox x:Name="CoverflowWatchedFlags" HorizontalAlignment="Center"/>
+          <Label Grid.Column="1" Content="Show Watched Flags" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="CoverflowWatchedFlags" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Label.Opacity>
+          </Label>
+        </Grid>
+
+        <Grid Grid.Column="1" Grid.RowSpan="5" Background="White" VerticalAlignment="Stretch" Margin="0,-10,0,-10" Opacity="0.5" Width="1"/>
+        <Grid Grid.Column="3" Grid.RowSpan="5" Background="White" VerticalAlignment="Stretch" Margin="0,-10,0,-10" Opacity="0.5" Width="1"/>
+        
+        <Grid Grid.Row="1" Grid.ColumnSpan="5" Background="White" HorizontalAlignment="Stretch" Margin="-10,0,-10,0" Opacity="0.5" Height="1"/>
+        <Grid Grid.Row="3" Grid.ColumnSpan="5" Background="White" HorizontalAlignment="Stretch" Margin="-10,0,-10,0" Opacity="0.5" Height="1"/>
+
+      </Grid>
+    </ControlTemplate>
+
+
+    <!-- Menu_Command >
+    <CommandList x:Key="Menu_Command">
+      <CommandBridge Command="{Binding Command}"/>
+      <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+    </CommandList-->
+  </Include.Resources>
+</Include>
