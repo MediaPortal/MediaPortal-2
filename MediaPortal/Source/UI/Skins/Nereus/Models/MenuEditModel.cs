@@ -167,7 +167,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       if (index >= _items.Count && _items.Count > 0)
         index = _items.Count - 1;
       ResetActionItemProperties(_items);
-      if (index >= 0)
+      if (index >= 0 && index < _items.Count)
         _items[index].AdditionalProperties[IS_REMOVE_FOCUSED_KEY] = true;
       _items.FireChange();
       UpdateOtherItems();
@@ -367,7 +367,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       if (index >= _mediaListItems.Count && _mediaListItems.Count > 0)
         index = _mediaListItems.Count - 1;
       ResetMediaListItemProperties(_mediaListItems);
-      if (index >= 0)
+      if (index >= 0 && index < _mediaListItems.Count)
         _mediaListItems[index].AdditionalProperties[IS_REMOVE_FOCUSED_KEY] = true;
       _mediaListItems.FireChange();
       UpdateOtherMediaListItems();

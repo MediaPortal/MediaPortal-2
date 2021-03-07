@@ -77,8 +77,11 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     public void UpdateLists(IEnumerable<string> listKeys)
     {
       _listKeys = new List<string>(listKeys);
-      UpdateListsFromAvailableLists();
-      _listNeedsUpdate = true;
+      if (!_isInit)
+        Init();
+      else
+        UpdateListsFromAvailableLists();
+      ListNeedsUpdate = false;
     }
 
     protected void PopulateList()
@@ -102,7 +105,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       }
     }
 
-    protected void UpdateListsFromAvailableLists()
+    protected async void UpdateListsFromAvailableLists(bool initialUpdate = false)
     {
       var model = GetContentListModel();
       if (model == null)
@@ -149,6 +152,14 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         }
         AttachItemsListWrappers();
 
+        if (initialUpdate)
+        {
+          // In some situations the backing list will stay hidden if initially being empty and then 
+          // almost immediately after being filled with items.
+          // TODO: This delay seems to fix it but should be removed when a better solution is found.
+          await Task.Delay(500);
+        }
+
         UpdateAvailableItems();
       }
     }
@@ -182,21 +193,14 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 
     // Lazily called by the Items property getter,
     // usually by the screen showing this content.
-    protected async void Init()
+    protected void Init()
     {
       if (_isInit)
         return;
       _isInit = true;
 
       PopulateList();
-      AttachItemsListWrappers();
-
-      // In some situations the backing list will stay hidden if initially being empty and then 
-      // almost immediately after being filled with items.
-      // TODO: This delay seems to fix it but should be removed when a better solution is found.
-      await Task.Delay(500);
-
-      UpdateAvailableItems();
+      UpdateListsFromAvailableLists(true);
     }
 
     protected void AttachItemsListWrappers()
