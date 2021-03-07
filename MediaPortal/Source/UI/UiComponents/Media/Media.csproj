@@ -258,6 +258,7 @@
     <Compile Include="Models\MediaInfoModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaGroupingModel.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByYearScreenData.cs" />
     <Compile Include="Models\SubtitleMatchModel.cs" />
     <Compile Include="Models\MediaListModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
@@ -809,6 +810,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\MediaInfoImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByYear.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
