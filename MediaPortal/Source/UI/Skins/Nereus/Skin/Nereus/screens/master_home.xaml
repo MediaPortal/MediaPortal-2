@@ -144,23 +144,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
             </EventTrigger-->
           </StackPanel.Triggers>
-          <Button Style="{ThemeResource HomeMenuButtonStyle}" VerticalAlignment="Center"
-                  Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}">
+          <Button Style="{ThemeResource HomeMenuButtonStyle}" VerticalAlignment="Center">
             <Button.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}">
                 <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
+              </MultiBinding>
+            </Button.IsVisible>
+            <Button.Command>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
+                <Binding Source="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+                <Binding Source="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
               </MultiBinding>
-            </Button.IsVisible>
-          </Button>
-          <Button Style="{ThemeResource HomeMenuCollapsedButtonStyle}" VerticalAlignment="Center"
-                  Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}">
-            <Button.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
-                <Binding Source="{StaticResource MenuModel}" Path="!IsMenuOpen"/>
-              </MultiBinding>
-            </Button.IsVisible>
+            </Button.Command>
           </Button>
           <Button Style="{ThemeResource PowerButtonStyle}" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>

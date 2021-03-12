@@ -17,6 +17,7 @@
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.12"/>
   <Model x:Key="ScreenModeModel" Id="6A232D95-9BDE-4005-905E-69CB092B012B"/>
   <Model x:Key="LoginModel" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
+  <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
@@ -1755,35 +1756,11 @@
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="80" Height="80">
             <Image x:Name="HomeMenuIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="10">
               <Image.Source>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({1} ? {2} : {3}) : ({1} ? {4} : {5})">
+                  <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
                   <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
                   <Binding Source="NotificationMenu\Menu_focus.png"/>
                   <Binding Source="NotificationMenu\Menu.png"/>
-                </MultiBinding>
-              </Image.Source>
-              <Image.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-                  <Binding Source="1"/>
-                  <Binding Source="0.6"/>
-                </MultiBinding>
-              </Image.Opacity>
-            </Image>
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
-  <Style x:Key="HomeMenuCollapsedButtonStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate TargetType="{x:Type Button}">
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="80" Height="80">
-            <Image x:Name="HomeMenuCollapsedIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="10">
-              <Image.Source>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
                   <Binding Source="NotificationMenu\Menu.collapsed_focus.png"/>
                   <Binding Source="NotificationMenu\Menu.collapsed.png"/>
                 </MultiBinding>
