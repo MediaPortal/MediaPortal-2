@@ -608,16 +608,6 @@
                 <BeginStoryboard x:Name="Focus_EndStoryboard" Storyboard="{ThemeResource NotFocusedNereusStoryboard}"/>
               </Trigger.ExitActions>
             </Trigger>
-            <Trigger Property="IsChecked" Value="True">
-              <Trigger.EnterActions>
-                <BeginStoryboard x:Name="Checked_BeginStoryboard" Storyboard="{ThemeResource FocusedNereusStoryboard}"/>
-                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-              </Trigger.EnterActions>
-              <Trigger.ExitActions>
-                <StopStoryboard BeginStoryboardName="Checked_BeginStoryboard"/>
-                <BeginStoryboard x:Name="Checked_EndStoryboard" Storyboard="{ThemeResource NotFocusedNereusStoryboard}"/>
-              </Trigger.ExitActions>
-            </Trigger>
             <Trigger Property="IsPressed" Value="True">
               <Trigger.EnterActions>
                 <!--BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_Poster}"/-->
