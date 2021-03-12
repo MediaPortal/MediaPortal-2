@@ -578,7 +578,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="NereusListButtonStyle" TargetType="{x:Type Button}">
+  <Style x:Key="NereusListButtonStyle" TargetType="{x:Type RadioButton}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
@@ -605,6 +605,16 @@
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
                 <BeginStoryboard x:Name="Focus_EndStoryboard" Storyboard="{ThemeResource NotFocusedNereusStoryboard}"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsChecked" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Checked_BeginStoryboard" Storyboard="{ThemeResource FocusedNereusStoryboard}"/>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Checked_BeginStoryboard"/>
+                <BeginStoryboard x:Name="Checked_EndStoryboard" Storyboard="{ThemeResource NotFocusedNereusStoryboard}"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
@@ -1722,6 +1732,60 @@
                   <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
                   <Binding Source="NotificationMenu\Power_focus.png"/>
                   <Binding Source="NotificationMenu\Power.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.6"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeMenuButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="80" Height="80">
+            <Image x:Name="HomeMenuIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="10">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="NotificationMenu\Menu_focus.png"/>
+                  <Binding Source="NotificationMenu\Menu.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.6"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="HomeMenuCollapsedButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="80" Height="80">
+            <Image x:Name="HomeMenuCollapsedIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="10">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="NotificationMenu\Menu.collapsed_focus.png"/>
+                  <Binding Source="NotificationMenu\Menu.collapsed.png"/>
                 </MultiBinding>
               </Image.Source>
               <Image.Opacity>
