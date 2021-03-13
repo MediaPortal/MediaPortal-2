@@ -175,7 +175,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     }
 
     /// <summary>
-    /// Retursn a <see cref="string"/> representation of the current <see cref="WatchedPath"/>.
+    /// Returns a <see cref="string"/> representation of the current <see cref="WatchedPath"/>.
     /// </summary>
     /// <returns></returns>
     public override string ToString()
