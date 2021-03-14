@@ -547,8 +547,8 @@
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
       </Grid>
-      
-      <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
+
+      <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch"
                  IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
   </DataTemplate>

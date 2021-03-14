@@ -579,7 +579,7 @@
     </Setter>
   </Style>
 
-  <Style x:Key="NereusListButtonStyle" TargetType="{x:Type RadioButton}">
+  <Style x:Key="NereusListButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>

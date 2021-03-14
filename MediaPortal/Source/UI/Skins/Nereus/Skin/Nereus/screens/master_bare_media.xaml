@@ -38,6 +38,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
   </Screen.Resources>
   <Screen.Triggers>
+    <EventTrigger RoutedEvent="Screen.Show">
+      <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+    </EventTrigger>
     <EventTrigger RoutedEvent="Screen.Hide">
       <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
     </EventTrigger>
@@ -89,9 +92,24 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!--Slide content in and out depending on hidden menu state-->
       <Grid.Triggers>
         <!--Close the hidden menu when the main content gets focus-->
-        <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+        <!--EventTrigger RoutedEvent="FrameworkElement.GotFocus">
           <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-        </EventTrigger>
+        </-->
+        <MultiTrigger>
+          <MultiTrigger.Conditions>
+            <Condition Property="IsKeyboardFocusWithin" Value="False" />
+            <Condition Property="IsMouseOver" Value="False" />
+            <Condition Value="False">
+              <Condition.Binding>
+                <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
+              </Condition.Binding>
+            </Condition>
+          </MultiTrigger.Conditions>
+          <MultiTrigger.EnterActions>
+            <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+          </MultiTrigger.EnterActions>
+        </MultiTrigger>
+        
         <MultiTrigger>
           <MultiTrigger.Conditions>
             <Condition Binding="{Binding Source={StaticResource MenuModel},Path=IsMenuOpen}" Value="True" />
@@ -113,6 +131,20 @@ Parameters which have to be accessible by a DynamicResource lookup:
       </Grid.Triggers>
 
       <StackPanel Orientation="Horizontal">
+        <Button Style="{ThemeResource HomeMenuButtonStyle}" VerticalAlignment="Center">
+          <Button.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}">
+              <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
+            </MultiBinding>
+          </Button.IsVisible>
+          <Button.Command>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
+              <Binding Source="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+              <Binding Source="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
+            </MultiBinding>
+          </Button.Command>
+        </Button>
         <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
           <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}" Margin="10"/>
