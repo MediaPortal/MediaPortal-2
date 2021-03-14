@@ -119,8 +119,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <!--Close the hidden menu when the main content gets focus-->
             <MultiTrigger>
               <MultiTrigger.Conditions>
-                <Condition Property="IsKeyboardFocusWithin" Value="False" />
-                <Condition Property="IsMouseOver" Value="False" />
+                <Condition Property="IsKeyboardFocusWithin" Value="True" />
                 <Condition Value="False">
                   <Condition.Binding>
                     <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
@@ -130,9 +129,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <MultiTrigger.EnterActions>
                 <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
               </MultiTrigger.EnterActions>
-              <MultiTrigger.ExitActions>
-                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
-              </MultiTrigger.ExitActions>
+            </MultiTrigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="True" />
+                <Condition Value="False">
+                  <Condition.Binding>
+                    <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
+                  </Condition.Binding>
+                </Condition>
+              </MultiTrigger.Conditions>
+              <MultiTrigger.EnterActions>
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+              </MultiTrigger.EnterActions>
             </MultiTrigger>
 
 
@@ -306,8 +315,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <!--Open the menu when the grid gets focus-->
             <MultiTrigger>
               <MultiTrigger.Conditions>
-                <Condition Property="IsKeyboardFocusWithin" Value="False" />
-                <Condition Property="IsMouseOver" Value="False" />
+                <Condition Property="IsKeyboardFocusWithin" Value="True" />
                 <Condition Value="False">
                   <Condition.Binding>
                     <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
@@ -315,11 +323,21 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 </Condition>
               </MultiTrigger.Conditions>
               <MultiTrigger.EnterActions>
-                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-              </MultiTrigger.EnterActions>
-              <MultiTrigger.ExitActions>
                 <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
-              </MultiTrigger.ExitActions>
+              </MultiTrigger.EnterActions>
+            </MultiTrigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="True" />
+                <Condition Value="False">
+                  <Condition.Binding>
+                    <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
+                  </Condition.Binding>
+                </Condition>
+              </MultiTrigger.Conditions>
+              <MultiTrigger.EnterActions>
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
+              </MultiTrigger.EnterActions>
             </MultiTrigger>
             <!--EventTrigger RoutedEvent="FrameworkElement.GotFocus">
               <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
