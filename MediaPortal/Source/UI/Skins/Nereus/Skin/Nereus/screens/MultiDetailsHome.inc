@@ -19,6 +19,7 @@
     <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
     <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
     <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
+    <ReferenceNull_BoolConverter x:Key="EmptyReferenceToBoolConverter"/>
   </Grid.Resources>
 
   <Control x:Name="AudioDetails">
@@ -140,35 +141,37 @@
     </Control.TemplateControl>
   </Control>
 
-  <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens-->
-  <Grid x:Name="Helptext">
-    <Grid.IsVisible>
-      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
-        <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
-        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
-      </MultiBinding>
-    </Grid.IsVisible>
-    
-    <Grid.Resources>
-      <Storyboard x:Key="StartStoryboard">
-        <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0"
-                         Duration="0:0:2" AutoReverse="False" Storyboard.TargetName="Helptext"/>
-        </Storyboard>
-    </Grid.Resources>
-    
-    <Grid.Triggers>
-      <EventTrigger RoutedEvent="Binding.TargetUpdated">
-        <EventTrigger.Actions>
-          <BeginStoryboard x:Name="BeginStoryboard" Storyboard="{ThemeResource StartStoryboard}"/>
-        </EventTrigger.Actions>
-      </EventTrigger>
-    </Grid.Triggers>
+  <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens -->
+  <Grid x:Name="Helptext" IsVisible="{Binding Source={StaticResource FanArtBackgroundModel}, Path=MediaItem, Converter={StaticResource EmptyReferenceToBoolConverter}}">
+    <Grid>
+      <Grid.IsVisible>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
+          <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
+        </MultiBinding>
+      </Grid.IsVisible>
 
-    <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
-           IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
-           VerticalAlignment="Top" HorizontalAlignment="Left"/>
-    <Label x:Name="HelpLabel" DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Opacity="0.6" Margin="38,5,0,-5"
-           Content="{Binding Path=[Help], NotifyOnTargetUpdated=True}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/> 
+      <Grid.Resources>
+        <Storyboard x:Key="StartStoryboard">
+          <DoubleAnimation Storyboard.TargetProperty="Opacity" From="0.0" To="1.0"
+                           Duration="0:0:2" AutoReverse="False" Storyboard.TargetName="Helptext"/>
+        </Storyboard>
+      </Grid.Resources>
+
+      <Grid.Triggers>
+        <EventTrigger RoutedEvent="Binding.TargetUpdated">
+          <EventTrigger.Actions>
+            <BeginStoryboard x:Name="BeginStoryboard" Storyboard="{ThemeResource StartStoryboard}"/>
+          </EventTrigger.Actions>
+        </EventTrigger>
+      </Grid.Triggers>
+
+      <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
+             IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
+             VerticalAlignment="Top" HorizontalAlignment="Left"/>
+      <Label x:Name="HelpLabel" DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Opacity="0.6" Margin="38,5,0,-5"
+             Content="{Binding Path=[Help], NotifyOnTargetUpdated=True}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+    </Grid>
   </Grid>
 
 </Grid>
