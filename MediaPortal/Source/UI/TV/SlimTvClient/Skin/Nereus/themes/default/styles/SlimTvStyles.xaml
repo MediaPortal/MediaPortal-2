@@ -879,7 +879,7 @@
     <Setter Property="GroupButtonTemplate">
       <Setter.Value>
         <ControlTemplate>
-          <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" VerticalAlignment="Stretch">
+          <Button x:Name="GroupButton" Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" VerticalAlignment="Stretch">
             <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                    Opacity="0.5" Content="{Binding GroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
               <Label.LayoutTransform>

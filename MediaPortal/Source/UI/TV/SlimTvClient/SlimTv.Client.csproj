@@ -218,7 +218,6 @@
     <Compile Include="MediaExtensions\RecordingsFilterByChannelScreenData.cs" />
     <Content Include="Skin\Nereus\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\Nereus\screens\ProgramInfo.inc" />
-    <Content Include="Skin\Nereus\screens\ProgramInfoSlim.inc" />
     <Content Include="Skin\BlueVision\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\BlueVision\screens\ProgramInfo.inc" />
     <Content Include="Skin\BlueVision\screens\ProgramInfoSlim.inc" />

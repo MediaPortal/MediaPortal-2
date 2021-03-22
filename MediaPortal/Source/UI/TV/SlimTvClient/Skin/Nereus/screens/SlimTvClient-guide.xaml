@@ -46,7 +46,7 @@
           </Label.Resources>
         </Label>
 
-        <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
+        <Button x:Name="GroupButton" Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
                 VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,22">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  Opacity="0.5" Content="{Binding GroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
@@ -78,9 +78,46 @@
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
+          <ListView.Triggers>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="False" />
+                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
+              </MultiTrigger.Conditions>
+              <Setter TargetName="ProgramInfoPanel" Property="IsVisible" Value="False"/>
+            </MultiTrigger>
+          </ListView.Triggers>
         </ListView>
 
-        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="Description_details" 
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,30,30,0" VerticalAlignment="Top"
+              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableHelpTexts}">
+          <Grid x:Name="HelpText">
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Binding="{Binding ElementName=PrevChannelButton,Path=HasFocus}" Value="False"/>
+                  <Condition Binding="{Binding ElementName=NextChannelButton,Path=HasFocus}" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="HelpText" Property="IsVisible" Value="False"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+            <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
+                   IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
+                   VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <Label x:Name="HelpLabel" Opacity="0.6" Margin="38,5,0,-5"
+                   Content="Change the channels within selected channel group" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+          </Grid>
+
+          <Grid x:Name="HelpText_Group" IsVisible="{Binding ElementName=GroupButton, Path=HasFocus}">
+            <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
+                   IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel2, Path=Content}"
+                   VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <Label x:Name="HelpLabel2" Opacity="0.6" Margin="38,5,0,-5"
+                   Content="Shows the current channel group, press to select another channel group" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+          </Grid>
+        </Grid>
+
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="ProgramInfoPanel" 
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
