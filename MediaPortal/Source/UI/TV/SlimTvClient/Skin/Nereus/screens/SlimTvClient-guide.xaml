@@ -117,8 +117,15 @@
           </Grid>
         </Grid>
 
-        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="ProgramInfoPanel" 
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="ProgramInfoPanel"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1} &amp;&amp; {2}">
+              <Binding ElementName="GroupButton" Path="!HasFocus"/>
+              <Binding ElementName="PrevChannelButton" Path="!HasFocus"/>
+              <Binding ElementName="NextChannelButton" Path="!HasFocus"/>
+            </MultiBinding>
+          </Grid.IsVisible>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

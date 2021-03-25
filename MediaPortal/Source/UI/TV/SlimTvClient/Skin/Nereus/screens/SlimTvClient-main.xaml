@@ -108,7 +108,7 @@
           </Grid>
         </Grid>
 
-        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="ProgramInfoPanel" 
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="ProgramInfoPanel" IsVisible="{Binding ElementName=GroupButton, Path=!HasFocus}"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>

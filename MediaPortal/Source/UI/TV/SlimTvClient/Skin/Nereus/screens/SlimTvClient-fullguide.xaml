@@ -166,11 +166,17 @@
           </Grid>
         </Grid>
 
-
         <Grid x:Name="ProgramInfoPanel" Height="170" Margin="40,0,40,-190" Grid.Row="1" Grid.ColumnSpan="4" 
               HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
               DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
-
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1} &amp;&amp; {2} &amp;&amp; {3}">
+              <Binding ElementName="ScrollBackwardButton" Path="!HasFocus"/>
+              <Binding ElementName="ScrollForwardButton" Path="!HasFocus"/>
+              <Binding ElementName="ScrollDoubleBackwardButton" Path="!HasFocus"/>
+              <Binding ElementName="ScrollDoubleForwardButton" Path="!HasFocus"/>
+            </MultiBinding>
+          </Grid.IsVisible>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
