@@ -28,13 +28,16 @@ using MediaPortal.UI.ContentLists;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseLastWatchedMediaListProvider : BaseMediaListProvider
   {
-    protected override async Task<MediaItemQuery> CreateQueryAsync()
+    protected Guid? _changeAspectId;
+
+    protected override async Task<MediaItemQuery> CreateQueryAsync(int maxItems)
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       IFilter filter = userProfile.HasValue ? await AppendUserFilterAsync(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
@@ -53,9 +56,29 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       };
     }
 
-    protected override bool ShouldUpdate(UpdateReason updateReason)
+    protected override bool ShouldUpdate(UpdateReason updateReason, ICollection<object> updatedObjects)
     {
-      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || updateReason.HasFlag(UpdateReason.UserChanged) || base.ShouldUpdate(updateReason);
+      bool update = updateReason.HasFlag(UpdateReason.UserChanged) || base.ShouldUpdate(updateReason, updatedObjects);
+      if (updateReason.HasFlag(UpdateReason.MediaItemChanged))
+      {
+        if (updatedObjects?.Count > 0 && _changeAspectId.HasValue)
+        {
+          foreach (MediaItem item in updatedObjects)
+          {
+            if (item.Aspects.ContainsKey(_changeAspectId.Value))
+            {
+              update = true;
+              break;
+            }
+          }
+        }
+        else
+        {
+          update = true;
+        }
+      }
+
+      return update;
     }
   }
 
@@ -65,13 +88,13 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected Guid _linkedRole;
     protected IEnumerable<Guid> _necessaryLinkedMias;
 
-    protected override async Task<MediaItemQuery> CreateQueryAsync()
+    protected override async Task<MediaItemQuery> CreateQueryAsync(int maxItems)
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       IFilter linkedFilter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)) :
         null;
       IFilter filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(linkedFilter, _necessaryLinkedMias)),
+        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(linkedFilter, _necessaryLinkedMias), maxItems),
         new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE))) :
         new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
 

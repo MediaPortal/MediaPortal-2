@@ -30,6 +30,7 @@ using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Models;
 
@@ -39,8 +40,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     protected override void PopulateBackingList()
     {
-      MediaListModel mlm = GetMediaListModel();
-
       _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new LocationShortcut(),
@@ -49,8 +48,9 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       }));
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
+      return null;
     }
   }
 

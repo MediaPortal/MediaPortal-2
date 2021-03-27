@@ -1019,7 +1019,12 @@
                 </TransformGroup>
               </Grid.RenderTransform>
               <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center"
-                     Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallerFontSize}" Margin="5,-2,0,-2" MinWidth="50">
+                     Color="{ThemeResource MenuTextBackground}" Margin="5,-2,0,-2" MinWidth="50">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
                 <Label.IsVisible>
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
                 </Label.IsVisible>
@@ -1037,7 +1042,12 @@
               </Image>
 
               <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Opacity="0.5" Margin="5,0,0,0" ScrollDelay="0"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+                     Color="{ThemeResource TextColor}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
                 <Label.IsVisible>
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
                 </Label.IsVisible>
@@ -1067,14 +1077,34 @@
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-              <Label x:Name="ProgramLabel" Content="{Binding [Name]}" VerticalAlignment="Center" IsVisible="{Binding !IsRunning}" Opacity="0.65"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-              <Label x:Name="ProgramLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" IsVisible="{Binding IsRunning}" Opacity="1.2" FontFamily="SegoeUIBold"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" IsVisible="{Binding !IsRunning}" Opacity="0.65"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,0,0"/>
-              <Label x:Name="SeriesLabel2" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" IsVisible="{Binding IsRunning}" Opacity="1.2"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,0,0"/>
+              <Label x:Name="ProgramLabel" Content="{Binding [Name]}" VerticalAlignment="Center" IsVisible="{Binding !IsRunning}" Opacity="0.65" Color="{ThemeResource TextColor}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
+              <Label x:Name="ProgramLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" IsVisible="{Binding IsRunning}" Opacity="1.2" FontFamily="SegoeUIBold" Color="{ThemeResource TextColor}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
+              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" IsVisible="{Binding !IsRunning}" Opacity="0.65" Color="{ThemeResource TextColor}" Margin="10,0,0,0">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
+              <Label x:Name="SeriesLabel2" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" IsVisible="{Binding IsRunning}" Opacity="1.2" Color="{ThemeResource TextColor}" Margin="10,0,0,0">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
             </Grid>
             <Button.ContextMenuCommand>
               <Command Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>

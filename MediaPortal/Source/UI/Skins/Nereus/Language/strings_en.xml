@@ -6,6 +6,10 @@
   <string name="Nereus.Configuration.EnableFanart.Help">Whether to display background fanart.</string>
   <string name="Nereus.Configuration.EnableLoopScrolling">Enable loop scrolling</string>
   <string name="Nereus.Configuration.EnableLoopScrolling.Help">Whether to use loop scrolling in media lists.</string>
+  <string name="Nereus.Configuration.EnableGridDetails">Enable grid details</string>
+  <string name="Nereus.Configuration.EnableGridDetails.Help">Whether to show right sided media item details for grid views. When disabled simplified details are shown in the bottom.</string>
+  <string name="Nereus.Configuration.EnableCoverDetails">Enable cover details</string>
+  <string name="Nereus.Configuration.EnableCoverDetails.Help">Whether to show media item details for cover views.</string>
   <string name="Nereus.Configuration.EnableAutoScrolling">Enable auto scrolling</string>
   <string name="Nereus.Configuration.EnableAutoScrolling.Help">Whether to use auto scrolling instead of manual scrolling in scroll views.</string>
   <string name="Nereus.Configuration.AutoScrolling">Auto scrolling</string>
@@ -71,5 +75,8 @@
   
   <string name="Nereus.Dialog.EditMenu.Header">Edit menu</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Add menu item</string>
+
+  <string name="Nereus.Dialog.EditMediaList.Header">Edit home content</string>
+  <string name="Nereus.Dialog.AddMediaListItem.Header">Add home content</string>
 
 </resources>

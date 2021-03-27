@@ -73,7 +73,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public Int32 ScreenWidth;
     public Int32 ScreenHeight;
 
-    // Subtitle timestmap
+    // Subtitle timestamp
     public UInt64 TimeStamp;
 
     // How long to display subtitle
@@ -587,7 +587,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       NativeSubtitle nativeSub = (NativeSubtitle)Marshal.PtrToStructure(nativeSubPtr, typeof(NativeSubtitle));
       Subtitle subtitle = new Subtitle(_device)
       {
-        SubBitmap = new Bitmap(nativeSub.Width, nativeSub.Height, PixelFormat.Format32bppArgb),
         TimeOut = nativeSub.TimeOut,
         PresentTime = ((double)nativeSub.TimeStamp / 1000.0f) + _startPos,
         Height = (uint)nativeSub.Height,
@@ -598,31 +597,28 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         HorizontalPosition = nativeSub.HorizontalPosition,
         Id = _subCounter++
       };
-      CopyBits(nativeSub.Bits, ref subtitle.SubBitmap, nativeSub.Width, nativeSub.Height, nativeSub.WidthBytes);
+      CopyBits(nativeSub, subtitle);
       return subtitle;
     }
 
-    protected static void CopyBits(IntPtr srcBits, ref Bitmap destBitmap, int width, int height, int widthBytes)
+    protected static void CopyBits(NativeSubtitle nativeSubtitle, Subtitle subtitle)
     {
-      // get bits of allocated image
-      BitmapData bmData = destBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-      int newSize = bmData.Stride * height;
-      int size = widthBytes * height;
+      var bitmap = subtitle.SubBitmap = new Bitmap((int)subtitle.Width, (int)subtitle.Height, PixelFormat.Format32bppArgb);
+      BitmapData bmData = bitmap.LockBits(new Rectangle(0, 0, (int)subtitle.Width, (int)subtitle.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+      int newSize = bmData.Stride * (int)subtitle.Height;
+      int size = nativeSubtitle.WidthBytes * (int)subtitle.Height;
 
       if (newSize != size)
       {
         ServiceRegistration.Get<ILogger>().Error("SubtitleRenderer: newSize != size : {0} != {1}", newSize, size);
       }
+
       // Copy to new bitmap
-      //Marshal.Copy(sub.Bits,bmData.Scan0, 0, newSize);
-      byte[] srcData = new byte[size];
-
-
-      // could be done in one copy, but no IntPtr -> IntPtr Marshal.Copy method exists?
-      Marshal.Copy(srcBits, srcData, 0, size);
-      Marshal.Copy(srcData, 0, bmData.Scan0, newSize);
-
-      destBitmap.UnlockBits(bmData);
+      unsafe
+      {
+        Buffer.MemoryCopy(nativeSubtitle.Bits.ToPointer(), bmData.Scan0.ToPointer(), newSize, size);
+      }
+      bitmap.UnlockBits(bmData);
     }
 
     #endregion
@@ -655,7 +651,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
               if (_textBuffer == null)
                 _textBuffer = new TextBuffer(FontManager.DefaultFontFamily, fontSize);
               _textBuffer.Text = currentSubtitle.Text;
-              
+
               RectangleF rectangleF = new RectangleF(0, 0, SkinContext.WindowSize.Width, SkinContext.WindowSize.Height);
 
               HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Center;
@@ -701,7 +697,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         _onTextureInvalidated?.Invoke();
       }
     }
-    
+
     #endregion
 
     #region Subtitle queue handling

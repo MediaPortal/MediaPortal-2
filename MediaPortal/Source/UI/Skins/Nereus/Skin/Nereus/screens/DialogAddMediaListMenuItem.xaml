@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\simple_dialog_menu.xaml"
+  >
+  <Include.Resources>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Dialog.AddMediaListItem.Header]"/>
+
+    <Model x:Key="HomeMenuModel" Id="CED34107-565C-48D9-BEC8-195F7969F90F"/>
+
+    <ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
+                     Resource="{Binding Source={StaticResource HomeMenuModel},Path=MenuEditModel.OtherMediaListItems,Mode=OneTime}"/>
+
+    <!-- Command -->
+    <CommandStencil x:Key="Execute_Command_Stencil"
+                    Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.AddMediaList"/>
+  </Include.Resources>
+</Include>

@@ -103,6 +103,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
         // C# doesn't like it to have an assignment inside a collection initializer
         _defaultScreen,
+        new SeriesFilterByYearScreenData(),
         new SeriesFilterBySeasonScreenData(),
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),

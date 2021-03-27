@@ -26,6 +26,7 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.SkinBase.General;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -34,17 +35,27 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   /// </summary>
   public class ItemsListWrapper : ListItem
   {
+    protected bool _initialized = false;
     protected AbstractProperty _hasItemsProperty = new WProperty(typeof(bool), false);
 
     public ItemsListWrapper(IList<ListItem> itemsList)
       : this(itemsList, string.Empty)
-    { }
+    {
+    }
 
     public ItemsListWrapper(IList<ListItem> itemsList, string name)
       : base(Consts.KEY_NAME, name)
     {
       AdditionalProperties["SubItems"] = itemsList;
-      AttachToItemsList(itemsList);
+      AttachToItemsList();
+
+      _initialized = true;
+    }
+
+    public ItemsListWrapper(string name)
+      : base(Consts.KEY_NAME, name)
+    {
+      _initialized = false;
     }
 
     #region GUI Properties
@@ -62,13 +73,34 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 
     #endregion
 
-    public void AttachToItemsList(IList<ListItem> list)
+    public bool Initialized => _initialized;
+
+    public void Initialize(IList<ListItem> itemsList)
     {
-      IObservable observable = list as IObservable;
+      if (!_initialized)
+      {
+        AdditionalProperties["SubItems"] = itemsList;
+        AttachToItemsList();
+
+        _initialized = true;
+      }
+    }
+
+    public void AttachToItemsList()
+    {
+      DetachFromItemsList();
+
+      IObservable observable = AdditionalProperties["SubItems"] as IObservable;
       if (observable != null)
         observable.ObjectChanged += OnAttachedItemsChanged;
 
-      UpdateHasItemsProperty(list);
+      UpdateHasItemsProperty(observable as IList<ListItem>);
+    }
+
+    public void DetachFromItemsList()
+    {
+      if (AdditionalProperties["SubItems"] is IObservable o)
+        o.ObjectChanged -= OnAttachedItemsChanged;
     }
 
     private void OnAttachedItemsChanged(IObservable observable)

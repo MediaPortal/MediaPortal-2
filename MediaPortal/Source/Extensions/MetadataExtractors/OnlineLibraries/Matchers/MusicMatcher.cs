@@ -255,7 +255,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    private TrackMatch GetStroredMatch(TrackInfo trackInfo)
+    private TrackMatch GetStoredMatch(TrackInfo trackInfo)
     {
       // Load cache or create new list
       List<TrackMatch> matches = _storage.GetMatches();
@@ -362,7 +362,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         bool matchFound = false;
         TLang language = FindBestMatchingLanguage(trackInfo.Languages);
 
-        if (GetTrackId(trackInfo, out trackId))
+        if (GetTrackId(trackInfo, out trackId) && !trackInfo.ForceOnlineSearch)
         {
           // Prefer memory cache
           CheckCacheAndRefresh();
@@ -374,7 +374,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          TrackMatch match = GetStroredMatch(trackInfo);
+          TrackMatch match = GetStoredMatch(trackInfo);
           trackMatch = trackInfo.Clone();
           if (string.IsNullOrEmpty(trackId))
           {
@@ -395,7 +395,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                return false;
+                //If item was forced, allow another search
+                if (!trackInfo.AllowOnlineReSearch && !trackInfo.ForceOnlineSearch)
+                  return false;
               }
             }
           }
@@ -408,7 +410,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound)
+          if (!matchFound || trackInfo.ForceOnlineSearch)
           {
             Logger.Debug(_id + ": Search for track {0} online", trackInfo.ToString());
 
@@ -978,7 +980,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Match probably stored with invalid Id to avoid retries. 
               //Searching for this album by name only failed so stop trying.
-              return false;
+              //If item was forced, allow another search
+              if (!albumInfo.AllowOnlineReSearch && !albumInfo.ForceOnlineSearch)
+                return false;
             }
           }
         }
@@ -1103,7 +1107,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         //No match was found. Store search to avoid online search again
         _storage.TryAddMatch(new TrackMatch()
         {
-          ItemName = GetUniqueTrackName(trackSearch),
+          ItemName = GetUniqueTrackName(trackSearch)
         });
         return;
       }

@@ -45,17 +45,25 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
   /// <summary>
   /// MediaPortal 2 base scriptable metadata extractor implementation.
   /// </summary>
-  public abstract class BaseScriptableMovieMetadataExtractor : MovieMetadataExtractor.MovieMetadataExtractor
+  public abstract class BaseScriptableMovieMetadataExtractor : IMetadataExtractor
   {
     #region Constants
+
+    public const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
 
     private static ConcurrentBag<string> _metadataExtractorCustomCategories = null;
     private static SettingsChangeWatcher<ScriptableMetadataExtractorSettings> _scriptableSettingWatcher = null;
     private static ConcurrentDictionary<string, string> _customSettings = new ConcurrentDictionary<string, string>();
     private static string _defaultUserAgent = null;
+    private static Dictionary<string, List<ScriptableScraperMovieMatcher>> _matchers = new Dictionary<string, List<ScriptableScraperMovieMatcher>>();
 
     private const string SAMPLE_KEY = "Setting";
     private const string SAMPLE_VALUE = "Value";
+
+    private string _category;
+    private MetadataExtractorMetadata _metadata;
+
+    public MetadataExtractorMetadata Metadata => _metadata;
 
     #endregion
 
@@ -98,7 +106,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 
         //Update custom user agent
         if (!string.IsNullOrWhiteSpace(_scriptableSettingWatcher.Settings.DefaultUserAgent))
-        _defaultUserAgent = _scriptableSettingWatcher.Settings.DefaultUserAgent;
+          _defaultUserAgent = _scriptableSettingWatcher.Settings.DefaultUserAgent;
       };
       _scriptableSettingWatcher.Refresh();
 
@@ -123,6 +131,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 
         _metadata = new MetadataExtractorMetadata(new Guid(id), $"Scriptable movie metadata extractor ({(loaded ? _category : "Disabled")})", MetadataExtractorPriority.External, true,
             mediaCategories, new MediaItemAspectMetadata[] { MediaAspect.Metadata, MovieAspect.Metadata });
+
+        if (loaded && _matchers.ContainsKey(_category))
+          OnlineMatcherService.RegisterMovieMatchers(_matchers[_category].ToArray(), _category);
       }
       catch (Exception ex)
       {
@@ -138,8 +149,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 
         //Load latest version of scripts
         Assembly assembly = Assembly.GetExecutingAssembly();
-        Dictionary<string, List<ScriptableScraperMovieMatcher>> matchers = new Dictionary<string, List<ScriptableScraperMovieMatcher>>();
-        List<string> categories = new List<string>();
         Dictionary<int, ScriptableScript> scripts = new Dictionary<int, ScriptableScript>();
         foreach (var file in Directory.EnumerateFiles(Path.Combine(Path.GetDirectoryName(assembly.Location), "MovieScraperScripts\\"), "*.xml"))
         {
@@ -159,25 +168,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
         //Categorize scripts
         foreach (var script in scripts.Values)
         {
-          if (!matchers.ContainsKey(script.Category))
-            matchers.Add(script.Category, new List<ScriptableScraperMovieMatcher>());
-          matchers[script.Category].Add(new ScriptableScraperMovieMatcher(script));
+          if (!_matchers.ContainsKey(script.Category))
+            _matchers.Add(script.Category, new List<ScriptableScraperMovieMatcher>());
+          _matchers[script.Category].Add(new ScriptableScraperMovieMatcher(script));
         }
 
-        //Register movie matchers
-        foreach (var matcher in matchers)
+        //Store custom MDE movie categories
+        foreach (var matcher in _matchers)
         {
-          if (!matcher.Key.Equals(MEDIA_CATEGORY_NAME_MOVIE, StringComparison.OrdinalIgnoreCase))
-          {
-            if (!categories.Contains(matcher.Key))
-            {
-              //Store custom MDE movie category
-              categories.Add(matcher.Key);
-              _metadataExtractorCustomCategories.Add(matcher.Key);
-            }
-          }
-
-          OnlineMatcherService.RegisterMovieMatchers(matcher.Value.ToArray(), matcher.Key);
+          if (!_metadataExtractorCustomCategories.Contains(matcher.Key))
+            _metadataExtractorCustomCategories.Add(matcher.Key);
         }
       }
       catch (Exception ex)
@@ -186,9 +186,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
       }
     }
 
-    public override void Dispose()
+    public void Dispose()
     {
-      base.Dispose();
       _scriptableSettingWatcher.Dispose();
     }
 
@@ -203,6 +202,41 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor
 
       if (!string.IsNullOrWhiteSpace(_defaultUserAgent))
         paramList["settings.defaultuseragent"] = _defaultUserAgent;
+    }
+
+    public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    {
+      return Task.FromResult(false);
+    }
+
+    public bool IsDirectorySingleResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool IsStubResource(IResourceAccessor mediaItemAccessor)
+    {
+      return false;
+    }
+
+    public bool TryExtractStubItems(IResourceAccessor mediaItemAccessor, ICollection<IDictionary<Guid, IList<MediaItemAspect>>> extractedStubAspectData)
+    {
+      return false;
+    }
+
+    public Task<IList<MediaItemSearchResult>> SearchForMatchesAsync(IDictionary<Guid, IList<MediaItemAspect>> searchAspectData, ICollection<string> searchCategories)
+    {
+      return Task.FromResult<IList<MediaItemSearchResult>>(null);
+    }
+
+    public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

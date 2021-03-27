@@ -200,7 +200,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
           movie.CollectionName = new StringList(value).FirstOrDefault();
           return true;
         case "score":
-          movie.Score = Convert.ToDouble(value, CultureInfo.InvariantCulture);
+          movie.Score = Convert.ToSingle(value, CultureInfo.InvariantCulture);
           return true;
         case "popularity":
           movie.Popularity = Convert.ToSingle(value, CultureInfo.InvariantCulture);

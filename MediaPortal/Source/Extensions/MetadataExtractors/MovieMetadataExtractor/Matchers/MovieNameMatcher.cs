@@ -26,13 +26,11 @@ using System;
 using System.Collections.Generic;
 using System.Text.RegularExpressions;
 using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Extensions.OnlineLibraries;
-using System.Globalization;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings;
-using MediaPortal.Common.MediaManagement;
+using System.Linq;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Matchers
 {
@@ -45,23 +43,24 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
     public const string GROUP_TITLE = "title";
     public const string GROUP_YEAR = "year";
     public static readonly IList<Regex> REGEXP_TITLE_YEAR = new List<Regex>
-      {
-        new Regex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase), // For LocalFileSystemPath & CanonicalLocalResourcePath
-        // Can be extended
-      };
+    {
+      //new Regex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase),
+      new Regex(@"(?<title>[^\\|\/]+?\s*[(\.|\s)(19|20)\d{2}]*)[\.|\s][\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase), // For LocalFileSystemPath & CanonicalLocalResourcePath
+      // Can be extended
+    };
 
     public static readonly IList<Regex> REGEXP_CLEANUPS = new List<Regex>
-      {
-        // Removing "disc n" from name, this can be used in future to detect multipart titles!
-        new Regex(@"(\s|-|_)*(Disc|CD|DVD)\s*\d{1,2}", RegexOptions.IgnoreCase),
-        new Regex(@"\s*(Blu-ray|BD|3D|®|™)", RegexOptions.IgnoreCase), 
-        // If source is an ISO or ZIP medium, remove the extensions for lookup
-        new Regex(@".(iso|zip)$", RegexOptions.IgnoreCase),
-        new Regex(@"(\s|-)*$", RegexOptions.IgnoreCase),
-        // Common tags regex from MovingPictures
-        new Regex(@"(([\(\{\[]|\b)((576|720|1080)[pi]|dvd([r59]|rip|scr)|(avc)?hd|wmv|ntsc|pal|mpeg|dsr|r[1-5]|bd[59]|dts|ac3|blu(-)?ray|[hp]dtv|stv|hddvd|xvid|divx|x264|dxva)([\]\)\}]|\b)(-[^\s]+$)?)", RegexOptions.IgnoreCase),
-        // Can be extended
-      };
+    {
+      // Removing "disc n" from name, this can be used in future to detect multipart titles!
+      new Regex(@"(\s|-|_)*(Disc|CD|DVD)\s*\d{1,2}", RegexOptions.IgnoreCase),
+      new Regex(@"\s*(Blu-ray|BD|3D|®|™)", RegexOptions.IgnoreCase), 
+      // If source is an ISO or ZIP medium, remove the extensions for lookup
+      new Regex(@".(iso|zip)$", RegexOptions.IgnoreCase),
+      new Regex(@"(\s|-)*$", RegexOptions.IgnoreCase),
+      // Common tags regex from MovingPictures
+      new Regex(@"(([\(\{\[]|\b)((576|720|1080)[pi]|dvd([r59]|rip|scr)|(avc)?hd|wmv|ntsc|pal|mpeg|dsr|r[1-5]|bd[59]|dts|ac3|blu(-)?ray|[hp]dtv|stv|hddvd|xvid|divx|x264|dxva)([\]\)\}]|\b)(-[^\s]+$)?)", RegexOptions.IgnoreCase),
+      // Can be extended
+    };
 
     protected static Regex _cleanUpWhiteSpaces = new Regex(@"[\.|_](\S|$)");
     protected static Regex _trimWhiteSpaces = new Regex(@"\s{2,}");
@@ -83,15 +82,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
 
         var settings = ServiceRegistration.Get<ISettingsManager>().Load<MovieMetadataExtractorSettings>();
 
-        foreach (SerializableRegex regex in settings.MovieYearPatterns)
+        List<Regex> titleYearRegexes = new List<Regex>();
+        if (settings.MovieYearPatternUsage == PatternUsageMode.UseInternal || settings.MovieYearPatternUsage == PatternUsageMode.UseInternalAndSettings)
+          titleYearRegexes.AddRange(REGEXP_TITLE_YEAR);
+        if (settings.MovieYearPatternUsage == PatternUsageMode.UseSettings || settings.MovieYearPatternUsage == PatternUsageMode.UseInternalAndSettings)
+          titleYearRegexes.AddRange(settings.MovieYearPatterns.Select(p => p.Regex).Where(r => r != null));
+
+        foreach (Regex regex in titleYearRegexes)
         {
-          Match match = regex.Regex.Match(path);
+          Match match = regex.Match(path);
           if (match.Groups[GROUP_TITLE].Length > 0 || match.Groups[GROUP_YEAR].Length > 0)
           {
             ServiceRegistration.Get<ILogger>().Info("MovieNameMatcher: Found title '{0}' and year {1}", match.Groups[GROUP_TITLE].Value, match.Groups[GROUP_YEAR].Value);
             string title = match.Groups[GROUP_TITLE].Value.Trim(new[] { ' ', '-' });
-            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateString(ref movieInfo.MovieName, title, true);
-            movieInfo.HasChanged |= MetadataUpdater.SetOrUpdateValue(ref movieInfo.ReleaseDate, new DateTime(int.Parse(match.Groups[GROUP_YEAR].Value), 1, 1));
+            //We should trust the regex and overwrite title and year
+            movieInfo.MovieName = title;
+            movieInfo.ReleaseDate = new DateTime(int.Parse(match.Groups[GROUP_YEAR].Value), 1, 1);
+            movieInfo.HasChanged = true;
             return true;
           }
         }

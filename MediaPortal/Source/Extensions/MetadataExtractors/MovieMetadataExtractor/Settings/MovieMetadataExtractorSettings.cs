@@ -28,6 +28,13 @@ using System.Text.RegularExpressions;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Settings
 {
+  public enum PatternUsageMode
+  {
+    UseInternal,
+    UseSettings,
+    UseInternalAndSettings
+  }
+
   /// <summary>
   /// Settings class for the MovieMetadataExtractor
   /// </summary>
@@ -39,13 +46,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Setti
     public MovieMetadataExtractorSettings()
     {
       // Init default patterns.
-      MovieYearPatterns = new SerializableRegex[]
-      {
-        new SerializableRegex(@"(?<title>[^\\|\/]+?)\s*[\[\(]?(?<year>(19|20)\d{2})[\]\)]?[\.|\\|\/]*", RegexOptions.IgnoreCase),
-      };
+      MovieYearPatterns = new SerializableRegex[0];
     }
 
     #region Public properties
+
+    /// <summary>
+    /// What movie year patterns to use during movie matching.
+    /// </summary>
+    [Setting(SettingScope.Global, PatternUsageMode.UseInternal)]
+    public PatternUsageMode MovieYearPatternUsage { get; set; }
 
     /// <summary>
     /// Regular expression used to find title and year in the movie name

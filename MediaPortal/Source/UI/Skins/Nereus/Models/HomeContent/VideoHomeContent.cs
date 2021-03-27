@@ -27,15 +27,22 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class VideoHomeContent : AbstractHomeContent
   {
+    public VideoHomeContent()
+    {
+      _availableLists.Add(new LatestVideoList());
+      _availableLists.Add(new ContinuePlayVideoList());
+      _availableLists.Add(new FavoriteVideoList());
+      _availableLists.Add(new FavoriteVideoList());
+    }
+
     protected override void PopulateBackingList()
     {
-      MediaListModel mlm = GetMediaListModel();
-
       // Wrap each group of tiles to show in an ItemsListWrapper and add
       // the wrapper to the backing list.
       // For the media home content, the firat item is a list of shortcuts
@@ -53,51 +60,43 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 
       // Add a wrapper for each video media list, we use a separate type for each wrapper
       // so we can use automatic template selection when they are displayed in an ItemsControl.
-      _backingList.Add(new LatestVideoList(mlm.Lists["LatestVideo"].AllItems));
-      _backingList.Add(new ContinuePlayVideoList(mlm.Lists["ContinuePlayVideo"].AllItems));
-      _backingList.Add(new FavoriteVideoList(mlm.Lists["FavoriteVideo"].AllItems));
-      _backingList.Add(new UnplayedVideoList(mlm.Lists["UnplayedVideo"].AllItems));
+      UpdateListsFromAvailableLists();
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
-      MediaListModel mlm = GetMediaListModel();
-
-      mlm.ForceUpdate("LatestVideo");
-      mlm.ForceUpdate("ContinuePlayVideo");
-      mlm.ForceUpdate("FavoriteVideo");
-      mlm.ForceUpdate("UnplayedVideo");
+      return GetMediaListModel();
     }
   }
 
   // Separate classes for each type of media shortcut and media list to
   // allow automatic template selection when displayed in an ItemsControl.
 
-  public class LatestVideoList : ItemsListWrapper
+  public class LatestVideoList : MediaListItemsListWrapper
   {
-    public LatestVideoList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestAdded]")
+    public LatestVideoList()
+      : base("LatestVideo", "[Nereus.Home.LatestAdded]")
     { }
   }
 
-  public class ContinuePlayVideoList : ItemsListWrapper
+  public class ContinuePlayVideoList : MediaListItemsListWrapper
   {
-    public ContinuePlayVideoList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.ContinuePlayed]")
+    public ContinuePlayVideoList()
+      : base("ContinuePlayVideo", "[Nereus.Home.ContinuePlayed]")
     { }
   }
 
-  public class FavoriteVideoList : ItemsListWrapper
+  public class FavoriteVideoList : MediaListItemsListWrapper
   {
-    public FavoriteVideoList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteVideoList()
+      : base("FavoriteVideo", "[Nereus.Home.Favorites]")
     { }
   }
 
-  public class UnplayedVideoList : ItemsListWrapper
+  public class UnplayedVideoList : MediaListItemsListWrapper
   {
-    public UnplayedVideoList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Unplayed]")
+    public UnplayedVideoList()
+      : base("UnplayedVideo", "[Nereus.Home.Unplayed]")
     { }
   }
 

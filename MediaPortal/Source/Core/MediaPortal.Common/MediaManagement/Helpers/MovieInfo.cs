@@ -87,7 +87,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public float Popularity = 0;
     public long Budget = 0;
     public long Revenue = 0;
-    public double Score = 0;
+    public float Score = 0;
     public SimpleRating Rating = new SimpleRating();
     public int Order = int.MaxValue;
 
@@ -211,7 +211,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         HasChanged |= MetadataUpdater.SetOrUpdateValue(ref Runtime, movie.Runtime);
         if (movie.ReleaseDate.HasValue && movie.ReleaseDate.Value.Year > 1800)
         { 
-          if (ReleaseDate > movie.ReleaseDate)
+          if (!ReleaseDate.HasValue || ReleaseDate > movie.ReleaseDate)
           {
             ReleaseDate = movie.ReleaseDate;
             HasChanged = true;
@@ -263,7 +263,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       AssignNameId();
-      SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       if (!MovieNameSort.IsEmpty) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, MovieNameSort.Text);
@@ -622,6 +621,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.Languages.AddRange(Languages);
         info.LastChanged = LastChanged;
         info.DateAdded = DateAdded;
+        info.AllowOnlineReSearch = AllowOnlineReSearch;
+        info.ForceOnlineSearch = ForceOnlineSearch;
         return (T)(object)info;
       }
       return default(T);

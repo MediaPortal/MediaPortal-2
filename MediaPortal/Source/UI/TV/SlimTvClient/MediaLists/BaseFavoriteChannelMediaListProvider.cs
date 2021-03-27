@@ -36,12 +36,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   {
     protected ICollection<IChannel> _currentChannels = new List<IChannel>();
     
-    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
+    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
       if (!TryInitTvHandler())
         return false;
 
-      if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PlaybackComplete) && !updateReason.HasFlag(UpdateReason.UserChanged))
+      if (!ShouldUpdate(updateReason, updatedObjects))
         return true;
 
       IList<IChannel> channels = await GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT);

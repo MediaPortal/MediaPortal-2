@@ -67,9 +67,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Cache used to temporarily store <see cref="AlbumStub"/> objects so that the same album.nfo file
     /// doesn't have to be parsed once for every episode
     /// </summary>
-    private static readonly AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<AlbumStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<AlbumStub>)>(CACHE_TIMEOUT);
+    private static AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<AlbumStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<AlbumStub>)>(CACHE_TIMEOUT);
 
     #endregion
+
+    public static void ClearCache()
+    {
+      CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<AlbumStub>)>(CACHE_TIMEOUT);
+    }
 
     #region Private fields
 

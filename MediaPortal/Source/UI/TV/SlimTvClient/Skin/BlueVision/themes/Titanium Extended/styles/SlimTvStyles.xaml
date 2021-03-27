@@ -931,9 +931,21 @@
                 </Image.Source>
               </Image>
               <Label x:Name="ChannelNumber" Grid.Column="1" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="DefaultBold" Opacity="0.4"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,-3,5,-1"/>
+                     Color="{ThemeResource TextColor}" Margin="0,-3,5,-1">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
               <Label Grid.Column="2" Grid.Row="0" x:Name="NameLabel" VerticalAlignment="Center" Margin="0,-3,0,-1"
-                     Content="{Binding [Name]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                     Content="{Binding [Name]}" Color="{ThemeResource TextColor}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
             </Grid>
           </Button>
         </ControlTemplate>
@@ -985,12 +997,29 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
 
-              <Label x:Name="ItemLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="2,-1,0,-1" Opacity="0.8" IsVisible="{Binding !IsRunning}"/>
-              <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="2,-1,0,-1" FontFamily="DefaultBold" IsVisible="{Binding IsRunning}"/>
-              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="10,-1,0,-1"/>
+              <Label x:Name="ItemLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
+                     Margin="2,-1,0,-1" Opacity="0.8" IsVisible="{Binding !IsRunning}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
+              <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
+                     Margin="2,-1,0,-1" FontFamily="DefaultBold" IsVisible="{Binding IsRunning}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
+              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,-1,0,-1">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
             </Grid>
           </Button>
         </ControlTemplate>

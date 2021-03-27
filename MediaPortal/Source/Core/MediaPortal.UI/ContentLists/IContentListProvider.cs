@@ -24,6 +24,7 @@
 
 using MediaPortal.UI.Presentation.DataObjects;
 using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 
 namespace MediaPortal.UI.ContentLists
@@ -51,6 +52,6 @@ namespace MediaPortal.UI.ContentLists
     /// Update the list
     /// </summary>
     /// <returns></returns>
-    Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason);
+    Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects);
   }
 }

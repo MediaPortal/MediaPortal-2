@@ -23,39 +23,40 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class LauncherHomeContent : AbstractHomeContent
   {
-    protected override void PopulateBackingList()
+    public LauncherHomeContent()
     {
-      var alm = GetAppListModel();
-
-      _backingList.Add(new LatestLaunchedAppList(alm.Lists["LastLaunchApps"].AllItems));
-      _backingList.Add(new FavoriteAppList(alm.Lists["FavoriteApps"].AllItems));
+      _availableLists.Add(new LatestLaunchedAppList());
+      _availableLists.Add(new FavoriteAppList());
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override void PopulateBackingList()
     {
-      var alm = GetAppListModel();
+      UpdateListsFromAvailableLists();
+    }
 
-      alm.ForceUpdate("LastLaunchApps");
-      alm.ForceUpdate("FavoriteApps");
+    protected override IContentListModel GetContentListModel()
+    {
+      return GetAppListModel();
     }
   }
 
-  public class LatestLaunchedAppList : ItemsListWrapper
+  public class LatestLaunchedAppList : MediaListItemsListWrapper
   {
-    public LatestLaunchedAppList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestLaunched]")
+    public LatestLaunchedAppList()
+      : base("LastLaunchApps", "[Nereus.Home.LatestLaunched]")
     { }
   }
 
-  public class FavoriteAppList : ItemsListWrapper
+  public class FavoriteAppList : MediaListItemsListWrapper
   {
-    public FavoriteAppList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteAppList()
+      : base("FavoriteApps", "[Nereus.Home.Favorites]")
     { }
   }
 }

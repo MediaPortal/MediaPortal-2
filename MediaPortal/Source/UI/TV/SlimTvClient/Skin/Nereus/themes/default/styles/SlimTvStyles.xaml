@@ -912,7 +912,12 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
+                     Color="{ThemeResource TextColor}" Margin="5,-2,0,-2" MinWidth="50">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
                 <Label.IsVisible>
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers"/>
                 </Label.IsVisible>
@@ -927,19 +932,16 @@
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
                 </Image.IsVisible>
               </Image>
-              <!--Label Grid.Column="1" x:Name="NameLabelFallBack" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding ElementName=ChannelLogoImage, Path=!HasImage}">
-                <Label.Triggers>
-                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-                    <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
-                  </DataTrigger>
-                </Label.Triggers>
-              </-->
               <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
+                     Color="{ThemeResource TextColor}">
                 <Label.IsVisible>
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames"/>
                 </Label.IsVisible>
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
                 <Label.Triggers>
                   <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                     <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
@@ -987,14 +989,30 @@
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-
-              <Label x:Name="ItemLabel" Opacity="0.8" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="2,0,0,0" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-              <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
-                     FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="Auto"
-                     Margin="2,0,0,0" FontFamily="SegoeUIBold" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
-              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" 
-                     FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0" Opacity="0.8" />
+              
+              <Label x:Name="ItemLabel" Opacity="0.8" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
+                     Margin="2,0,0,0" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
+              <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" ScrollDelay="0" Scroll="Auto"
+                     Margin="2,0,0,0" FontFamily="SegoeUIBold" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
+              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Opacity="0.8">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
             </Grid>
           </Button>
         </ControlTemplate>

@@ -38,8 +38,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -61,6 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     public const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+    public const string MEDIA_CATEGORY_NAME_VIDEO = "Video";
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
@@ -205,7 +208,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
       MovieInfo movieInfo = new MovieInfo();
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+      {
         movieInfo.FromMetadata(extractedAspectData);
+        movieInfo.ForceOnlineSearch = movieInfo.IsDirty;
+      }
+      else
+      {
+        movieInfo.AllowOnlineReSearch = true;
+      }
 
       if (movieInfo.MovieName.IsEmpty)
       {
@@ -213,8 +223,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
           !string.IsNullOrEmpty(title) && !lfsra.ResourceName.StartsWith(title, StringComparison.InvariantCultureIgnoreCase))
         {
-          //The title may still contain tags and other noise, try and parse it for a title and year.
-          MovieNameMatcher.MatchTitleYear(title, movieInfo);
+          //The title may still contain tags and other noise. Don't parse for a year as the title may contain a year other than the actual production date.
+          movieInfo.MovieName = title;
         }
       }
       if (movieInfo.MovieNameSort.IsEmpty)
@@ -276,13 +286,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           MovieNameMatcher.CleanupTitle(movieInfo);
         }
 
-        if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
-        {
-          // When searching movie title, the year can be relevant for multiple titles with same name but different years
-          DateTime recordingDate;
-          if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-            movieInfo.ReleaseDate = recordingDate;
-        }
+        // Using the recording time causes the movies to have a wrong year which means no match is found
+        //if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
+        //{
+        //  // When searching movie title, the year can be relevant for multiple titles with same name but different years
+        //  DateTime recordingDate;
+        //  if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+        //    movieInfo.ReleaseDate = recordingDate;
+        //}
 
         try
         {
@@ -480,7 +491,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       try
       {
-        if (!(searchCategories?.Contains(_category) ?? true))
+        if (!(searchCategories?.Intersect(new [] { MEDIA_CATEGORY_NAME_MOVIE, MEDIA_CATEGORY_NAME_VIDEO }).Any() ?? true))
+          return null;
+        if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
           return null;
 
         string searchData = null;

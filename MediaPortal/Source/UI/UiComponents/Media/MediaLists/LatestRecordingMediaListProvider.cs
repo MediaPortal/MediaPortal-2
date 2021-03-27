@@ -34,8 +34,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     public LatestRecordingMediaListProvider()
     {
       _necessaryMias = Consts.NECESSARY_RECORDING_MIAS;
-      //Needed for calculating play percentage
-      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID };
+      _optionalMias = Consts.OPTIONAL_VIDEO_MIAS;
       _playableConverterAction = item => new VideoItem(item);
     }
   }

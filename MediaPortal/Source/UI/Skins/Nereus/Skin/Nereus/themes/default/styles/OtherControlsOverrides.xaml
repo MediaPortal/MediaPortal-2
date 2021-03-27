@@ -237,68 +237,102 @@
     </Setter>
   </Style>
 
+  <Style x:Key="VerticalSettingsScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ScrollViewer}">
+          <Grid x:Name="ScrollViewerGridHorizontal">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <!-- Content -->
+            <ScrollContentPresenter Grid.Row="0" Grid.Column="0" Grid.ZIndex="1"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            <Grid.OpacityMask>
+              <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
+                <GradientStop Color="Transparent" Offset="0" />
+                <GradientStop Color="Black" Offset="0.05" />
+                <GradientStop Color="Black" Offset="0.95" />
+                <GradientStop Color="Transparent" Offset="1" />
+              </LinearGradientBrush>
+            </Grid.OpacityMask>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <!--++++++++++++++++++++++++ LOGIN BUTTON STYLE ++++++++++++++++++++++++-->
-  
+
   <Style x:Key="LoginItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <DockPanel x:Name="ItemGroup" Width="320" Height="350" LastChildFill="False">
-            <Button Style="{ThemeResource LoginButtonWideStyle}" Margin="20,0,5,0" DockPanel.Dock="Top" 
-                    Command="{DynamicResource ResourceKey=Menu_Command}" Height="290"
-                    IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
-                  <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
-                  <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
-                  <Setter TargetName="Fallback" Property="Opacity" Value="1.3"/>
-                  <Setter Property="StackPanel.ZIndex" Value="100.0"/>
-                  <Trigger.EnterActions>
-                    <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
-                  </Trigger.EnterActions>
-                </Trigger>
-                <Trigger Property="IsPressed" Value="True">
-                  <Trigger.EnterActions>
-                    <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
-                  </Trigger.EnterActions>
-                </Trigger>
-              </Button.Triggers>
-            </Button>
-            <Label x:Name="ItemLabel" Content="{Binding Name}" DockPanel.Dock="Bottom" TextTrimming="CharacterEllipsis"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,15,0,0" Scroll="None"
-                   Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource NormalFontSize}"/>
-          </DockPanel>
+          <Button Style="{ThemeResource SettingsMenuButtonStyle}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}" 
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
+                <Setter TargetName="ItemBackground" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
+                <Setter TargetName="Fallback" Property="Opacity" Value="1.3"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>
 
   <DataTemplate x:Key="LoginItemDataTemplate">
-    <DockPanel LastChildFill="False">
-      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+    <Grid x:Name="ItemControl" Margin="8">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="355"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="290"/>
+        <RowDefinition Height="65"/>
+      </Grid.RowDefinitions>
+
+      <Image Grid.RowSpan="2" Source="square_large.png" Stretch="Fill" Opacity="0.7" Margin="-8"/>
+
+      <Rectangle x:Name="ItemBackground" Fill="{ThemeResource NereusColorMedium}" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" 
              IsVisible="{Binding Path=Image,Converter={StaticResource ReferenceToBoolConverter}}"
-             Source="{Binding Path=Image}" Width="300" Height="300" Stretch="Uniform" x:Name="ItemControl">
-        <Image.OpacityMask>
-          <VisualBrush>
-            <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="4" BorderThickness="0" BorderBrush="Black"/>
-            </VisualBrush.Visual>
-          </VisualBrush>
-        </Image.OpacityMask>
-      </Image>
-      <Image DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
-             Source="person.png" IsVisible="{Binding ElementName=ItemControl, Path=!HasImage}"
+             Source="{Binding Path=Image}" Opacity="0.8"/>
+      <Image HorizontalAlignment="Center" VerticalAlignment="Center"
+             Source="person.png" IsVisible="{Binding ElementName=ItemImage, Path=!HasImage}"
              Width="300" Height="300" Stretch="Uniform" x:Name="Fallback">
       </Image>
-    </DockPanel>
+
+      <Grid x:Name="ItemBandGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.5"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6" Content="{Binding [Name]}"
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
+               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
+
+        </Label>
+      </Grid>
+    </Grid>
   </DataTemplate>
 
   <Style x:Key="LoginListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="0,0,0,0">
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="0,0,0,0" Margin="0,0,0,0">
             <AnimatedStackPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                 <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
@@ -322,10 +356,10 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource HorizontalMediaScrollViewerStyle}"
-                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+          <ScrollViewer CanContentScroll="True" Margin="0" HorizontalContentAlignment="Center"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource HorizontalMediaScrollViewerStyle}" Width="{SkinWidth}"
                         HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Center"/>
           </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
@@ -516,6 +550,54 @@
       
       <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
                  IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!--++++++++++++++++++++++++ SETTINGS LIST STYLE ++++++++++++++++++++++++-->
+
+  <DataTemplate x:Key="SettingsMenuItemDataTemplate">
+    <Grid x:Name="ItemControl" Margin="8">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="77"/>
+        <ColumnDefinition Width="278"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="290"/>
+        <RowDefinition Height="65"/>
+      </Grid.RowDefinitions>
+
+      <Image Grid.RowSpan="2" Grid.ColumnSpan="2" Source="square_large.png" Stretch="Fill" Opacity="0.7" Margin="-8"/>
+      
+      <Rectangle Fill="#222222" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+      <Image x:Name="ItemImage" Grid.RowSpan="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Opacity="0.8">
+        <Image.Source>
+          <Binding Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}SettingsMenu\{0}.jpg"/>
+        </Image.Source>
+      </Image>
+
+      <Grid x:Name="ItemBandGrid" Grid.Row="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.5"/>
+        <Label x:Name="ItemLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Opacity="0.6" Content="{Binding [Name]}"
+               FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="76,-5,5,1"
+               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
+          <!--Label.Content>
+            <Binding Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}{0}.jpg"/>
+          </-->
+        </Label>
+      </Grid>
+
+      <Image x:Name="IconImage" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Uniform" Margin="7" Opacity="0.6">
+        <Image.Source>
+          <Binding Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}SettingsMenu\Icon_{0}.png"/>
+        </Image.Source>
+      </Image>
+
     </Grid>
   </DataTemplate>
 
@@ -719,6 +801,26 @@
     </Setter>
   </Style>
 
+  <Style x:Key="SettingsItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource SettingsMenuButtonStyle}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
+                <Setter TargetName="IconImage" Property="Opacity" Value="1"/>
+                </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="HomeItemContainerStyleHorizontal" BasedOn="{ThemeResource HomeItemContainerStyle}">
     <Setter TargetName="GrowControl" Property="Margin" Value="0,-10"/>
     <Setter TargetName="ButtonContentPresenter" Property="Margin" Value="0,20"/>
@@ -761,6 +863,44 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeMenuItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="SettingsMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <EventSetter Event="SelectionChanged" Handler="{CommandStencil Source={StaticResource BackgroundManagerModel}, Path=SetSelectedItem}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Style="{ThemeResource VerticalSettingsScrollViewerStyle}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Center" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedWrapPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="0,0" Margin="0,50,0,-80" Orientation="Horizontal"
+                             LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
+            <AnimatedWrapPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
+                                 FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedWrapPanel.Resources>
+            <AnimatedWrapPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedWrapPanel.Triggers>
+          </AnimatedWrapPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SettingsMenuItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SettingsItemContainerStyle}"/>
   </Style>
 
   <Style x:Key="MediaMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
@@ -1067,7 +1207,7 @@
         <RowDefinition Height="60"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="350"/>
+        <ColumnDefinition Width="450"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="350"/>
       </Grid.ColumnDefinitions>
@@ -1087,10 +1227,11 @@
       <Label x:Name="Categories" Grid.Column="1" Content="{Binding [Categories]}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
              HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
 
-      <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" VerticalAlignment="Center" Opacity="0.7">
+      <StackPanel x:Name="OnlineState" Grid.Column="2" Orientation="Horizontal" IsVisible="{Binding AdditionalProperties[IsImporting]}" 
+                  VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.7">
         <Label x:Name="OnlineState_1" Content="[Shares.Importing]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="10,0,10,0"/>
         <Label x:Name="OnlineState_2" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="0,0,10,0"
-               IsVisible="{Binding Path=AdditionalProperties[ImportingProgress],Converter={StaticResource ReferenceToBoolConverter}}">
+               IsVisible="{Binding Path=AdditionalProperties[IsImporting]}">
           <Label.Content>
             <Binding Path="AdditionalProperties[ImportingProgress]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} {0:F0}%"/>
           </Label.Content>
@@ -1100,8 +1241,8 @@
       <Button x:Name="ReImportButton" Grid.Column="2" Content="" Command="{Binding Command}" Margin="0,1.5,2.5,2.5"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding AdditionalProperties[ReImportEnabled]}"/>
 
-      <Label x:Name="ReImportLabel" Grid.Column="3" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
-             IsVisible="{Binding ElementName=OnlineState_2, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}" Margin="10,0,10,0"
+      <Label x:Name="ReImportLabel" Grid.Column="2" Content="[Shares.ReImport]" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7"
+             IsVisible="{Binding !AdditionalProperties[IsImporting]}" Margin="10,0,10,0"
              HorizontalAlignment="Center" VerticalAlignment="Center" Color="{ThemeResource TextColor}"/>
 
       <!-- Additionally available properties to show here:
@@ -1115,7 +1256,11 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ItemsPresenter/>
+          <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                        Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ScrollViewer>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1125,7 +1270,8 @@
 
   <DataTemplate x:Key="SystemShares1ItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel Margin="5" LastChildFill="True">
-      <DockPanel DockPanel.Dock="Top">
+      <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+        <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,-20,10,10" Background="White" BorderThickness="0" Height="4"/>
         <Label x:Name="SystemName" DockPanel.Dock="Left" Content="{Binding [Name]}">
           <Label.Color>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1187,6 +1333,27 @@
             </MultiBinding>
           </Label.Color>
         </Label>
+        <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0,10,10,20" Orientation="Horizontal">
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="SystemSharesList" Path="ItemsCount" />
+            </MultiBinding>
+          </StackPanel.IsVisible>
+          <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding ElementName="SystemSharesList" Path="CurrentItem"/>
+                <Binding ElementName="SystemSharesList" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+          <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <Binding ElementName="SystemSharesList" Path="ItemsCount" />
+            </Label.Content>
+          </Label>
+        </StackPanel>
       </DockPanel>
       <ListView x:Name="SystemSharesList" Margin="0,10,10,10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
                 DockPanel.Dock="Top" Style="{ThemeResource SystemShares1ListViewStyle}"
@@ -1207,10 +1374,12 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer CanContentScroll="False" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                          IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
-                          Background="{ThemeResource ItemsControlShadowBackgroundColor}">
-              <ItemsPresenter x:Name="OverviewPresenter" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                        IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}"
+                        Style="{ThemeResource VerticalSettingsScrollViewerStyle}"
+                        Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter x:Name="OverviewPresenter" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
             </ScrollViewer>
+            <!--ItemsPresenter  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/-->
             <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
                    HorizontalAlignment="Center" VerticalAlignment="Center"
                    Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
@@ -1220,6 +1389,27 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource SystemShares1ItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="0,50,0,50" Margin="0,-10,0,100">
+            <AnimatedStackPanel.Resources>
+              <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.700" 
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+              </Storyboard>
+            </AnimatedStackPanel.Resources>
+            <AnimatedStackPanel.Triggers>
+              <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                <EventTrigger.Actions>
+                  <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                </EventTrigger.Actions>
+              </EventTrigger>
+            </AnimatedStackPanel.Triggers>
+          </AnimatedStackPanel>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <!-- Data template for a simple share entry in the shares list -->

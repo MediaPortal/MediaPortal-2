@@ -125,8 +125,28 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       _userProfileId = userProfileId;
     }
 
-    protected void GenerateSqlStatement(bool groupByValues,
-        IDictionary<MediaItemAspectMetadata, string> miamAliases,
+    protected void GenerateSqlStatement(bool groupByValue,
+      IDictionary<MediaItemAspectMetadata, string> miamAliases,
+      out string mediaItemIdOrGroupSizeAlias,
+      out IDictionary<QueryAttribute, string> attributeAliases,
+      out string statementStr, out IList<BindVar> bindVars)
+    {
+      GenerateSqlStatement(groupByValue, false, miamAliases, 
+        out mediaItemIdOrGroupSizeAlias, out attributeAliases, out statementStr, out bindVars);
+    }
+
+    protected void GenerateDistinctSqlStatement(
+      IDictionary<MediaItemAspectMetadata, string> miamAliases,
+      out string mediaItemIdOrGroupSizeAlias,
+      out IDictionary<QueryAttribute, string> attributeAliases,
+      out string statementStr, out IList<BindVar> bindVars)
+    {
+      GenerateSqlStatement(false, true, miamAliases,
+        out mediaItemIdOrGroupSizeAlias, out attributeAliases, out statementStr, out bindVars);
+    }
+
+    protected void GenerateSqlStatement(bool groupByValues, bool distinctIdOnly, 
+      IDictionary<MediaItemAspectMetadata, string> miamAliases,
         out string mediaItemIdOrGroupSizeAlias,
         out IDictionary<QueryAttribute, string> attributeAliases,
         out string statementStr, out IList<BindVar> bindVars)
@@ -221,12 +241,11 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         if (attr.Attr.ParentMIAM.IsTransientAspect)
           continue;
         RequestedAttribute ra;
-        RequestSimpleAttribute(attr, tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes, miaTypeTableQueries,
-            miaIdAttribute, out ra);
+        RequestSimpleAttribute(attr, tableQueries, tableJoins, "LEFT OUTER JOIN", requestedAttributes, miaTypeTableQueries, miaIdAttribute, out ra);
         string alias;
         selectAttributeDeclarations.Add(_selectProjectionFunction == null ?
-            ra.GetDeclarationWithAlias(ns, out alias) :
-            ra.GetDeclarationWithAlias(ns, _selectProjectionFunction, out alias));
+          ra.GetDeclarationWithAlias(ns, out alias) :
+          ra.GetDeclarationWithAlias(ns, _selectProjectionFunction, out alias));
         attributeAliases.Add(attr, alias);
         qualifiedGroupByAliases.Add(ra.GetAlias(ns));
       }
@@ -280,9 +299,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         result.Append(miaIdAttribute.GetQualifiedName(ns));
         result.Append(" C");
       }
+      else if (distinctIdOnly)
+      {
+        result.Append($"DISTINCT {miaIdAttribute.GetDeclarationWithAlias(ns, out mediaItemIdOrGroupSizeAlias)}");
+      }
       else
       {
-        // Append plain attribute MEDIA_ITEMS.MEDIA_ITEM_ID if no GROUP BY-statement is requested
+        // Append plain attribute MEDIA_ITEMS.MEDIA_ITEM_ID
         result.Append(miaIdAttribute.GetDeclarationWithAlias(ns, out mediaItemIdOrGroupSizeAlias));
 
         // System attributes: Necessary to evaluate if a requested MIA is present for the media item
@@ -299,11 +322,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         }
       }
 
-      // Selected attributes
-      foreach (string selectAttr in selectAttributeDeclarations)
+      if (!distinctIdOnly)
       {
-        result.Append(", ");
-        result.Append(selectAttr);
+        // Selected attributes
+        foreach (string selectAttr in selectAttributeDeclarations)
+        {
+          result.Append(", ");
+          result.Append(selectAttr);
+        }
       }
 
       string whereStr = compiledFilter.CreateSqlFilterCondition(ns, requestedAttributes, out bindVars);

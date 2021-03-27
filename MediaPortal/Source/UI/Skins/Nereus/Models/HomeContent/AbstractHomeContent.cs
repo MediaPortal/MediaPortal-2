@@ -30,6 +30,7 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Models;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
@@ -45,9 +46,12 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 
     // All ItemsListWrappers that currently have items
     protected ItemsList _availableItems = new ItemsList();
+    protected IList<MediaListItemsListWrapper> _availableLists = new List<MediaListItemsListWrapper>();
 
     protected bool _isInit = false;
     protected bool _listNeedsUpdate = false;
+    protected IList<string> _listKeys = null;
+    protected IList<string> _currentListKeys = null;
 
     public ItemsList Items
     {
@@ -70,6 +74,16 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       }
     }
 
+    public void UpdateLists(IEnumerable<string> listKeys)
+    {
+      _listKeys = new List<string>(listKeys);
+      if (!_isInit)
+        Init();
+      else
+        UpdateListsFromAvailableLists();
+      ListNeedsUpdate = false;
+    }
+
     protected void PopulateList()
     {
       PopulateBackingList();
@@ -83,6 +97,74 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       ListNeedsUpdate = false;
     }
 
+    public IList<MediaListItemsListWrapper> Lists
+    {
+      get
+      {
+        return _availableLists;
+      }
+    }
+
+    protected async void UpdateListsFromAvailableLists(bool initialUpdate = false)
+    {
+      var model = GetContentListModel();
+      if (model == null)
+        return;
+
+      if (_availableLists.Count == 0)
+        return;
+
+      bool updated = false;
+      if (_listKeys == null)
+      {
+        _listKeys = _availableLists.Select(l => l.MediaListKey).ToList();
+        updated = true;
+      }
+      else if (_currentListKeys == null)
+      {
+        updated = true;
+      }
+      else
+      {
+        updated = !_currentListKeys.SequenceEqual(_listKeys);
+      }
+
+      if (updated)
+      {
+        //Remove all lists and add them in the right order
+        DetachItemsListWrappers();
+        foreach (var list in _backingList.Where(l => l is MediaListItemsListWrapper).ToList())
+        {
+          list.DetachFromItemsList();
+          _backingList.Remove(list);
+        }
+        _currentListKeys = _listKeys.ToList();
+        foreach (var listKey in _currentListKeys)
+        {
+          var list = _availableLists.FirstOrDefault(l => l is MediaListItemsListWrapper mlw && mlw.MediaListKey == listKey);
+          if (list != null)
+          {
+            if (!list.Initialized)
+              list.Initialize(model.Lists[listKey].AllItems);
+
+            _backingList.Add(list);
+          }
+        }
+        AttachItemsListWrappers();
+
+        if (initialUpdate)
+        {
+          // In some situations the backing list will stay hidden if initially being empty and then 
+          // almost immediately after being filled with items.
+          // TODO: This delay seems to fix it but should be removed when a better solution is found.
+          await Task.Delay(500);
+        }
+
+        UpdateAvailableItems();
+      }
+    }
+
+    protected abstract IContentListModel GetContentListModel();
 
     /// <summary>
     /// Implementations of this method should populate <see cref="_backingList"/>
@@ -94,25 +176,31 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     /// Implementations of this method should force a refresh of the <see cref="_backingList"/>
     /// with the <see cref="ItemsListWrapper"/>s to show.
     /// </summary>
-    protected abstract void ForceUpdateBackingList();
+    protected void ForceUpdateBackingList()
+    {
+      UpdateListsFromAvailableLists();
+
+      var model = GetContentListModel();
+      if (model == null)
+        return;
+
+      foreach (var list in _backingList.OfType<MediaListItemsListWrapper>())
+      {
+        if (!string.IsNullOrEmpty(list.MediaListKey))
+          model.ForceUpdate(list.MediaListKey);
+      }
+    }
 
     // Lazily called by the Items property getter,
     // usually by the screen showing this content.
-    protected async void Init()
+    protected void Init()
     {
       if (_isInit)
         return;
       _isInit = true;
 
       PopulateList();
-      AttachItemsListWrappers();
-
-      // In some situations the backing list will stay hidden if initially being empty and then 
-      // almost immediately after being filled with items.
-      // TODO: This delay seems to fix it but should be removed when a better solution is found.
-      await Task.Delay(500);
-
-      UpdateAvailableItems();
+      UpdateListsFromAvailableLists(true);
     }
 
     protected void AttachItemsListWrappers()
@@ -129,7 +217,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         wrapper.HasItemsProperty.Detach(OnHasItemsChanged);
     }
 
-    void OnHasItemsChanged(AbstractProperty property, object oldValue)
+    private void OnHasItemsChanged(AbstractProperty property, object oldValue)
     {
       UpdateAvailableItems();
     }

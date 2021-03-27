@@ -172,6 +172,7 @@
     <Compile Include="FilterTrees\RelationshipFilterTree.cs" />
     <Compile Include="FilterTrees\SimpleFilterTree.cs" />
     <Compile Include="General\Consts.cs" />
+    <Compile Include="Helpers\AspectWrapperHelper.cs" />
     <Compile Include="Helpers\UserHelper.cs" />
     <Compile Include="MediaItemActions\AbstractMediaItemAction.cs" />
     <Compile Include="MediaItemActions\AddSingleToPlaylist.cs" />
@@ -257,6 +258,7 @@
     <Compile Include="Models\MediaInfoModel.cs" />
     <Compile Include="Models\MediaFilterModel.cs" />
     <Compile Include="Models\MediaGroupingModel.cs" />
+    <Compile Include="Models\ScreenData\SeriesFilterByYearScreenData.cs" />
     <Compile Include="Models\SubtitleMatchModel.cs" />
     <Compile Include="Models\MediaListModel.cs" />
     <Compile Include="Models\MediaSortingModel.cs" />
@@ -763,7 +765,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BASS.NET">
-      <Version>2.4.14.1</Version>
+      <Version>2.4.12.5</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
@@ -808,6 +810,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\MediaInfoImage.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SeriesFilterByYear.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

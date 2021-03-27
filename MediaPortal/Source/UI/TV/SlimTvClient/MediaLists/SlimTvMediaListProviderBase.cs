@@ -37,6 +37,8 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.UI.ContentLists;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -56,7 +58,37 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       get { return _allItems; }
     }
 
-    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason);
+    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects);
+
+    protected bool ShouldUpdate(UpdateReason updateReason, ICollection<object> updatedObjects)
+    {
+      if (updateReason.HasFlag(UpdateReason.Forced) || updateReason.HasFlag(UpdateReason.UserChanged))
+        return true;
+
+      bool update = false;
+      if (updateReason.HasFlag(UpdateReason.PlaybackComplete))
+      {
+        if (updatedObjects?.Count > 0)
+        {
+          foreach (MediaItem item in updatedObjects)
+          {
+            if (!item.GetPlayData(out string mimeType, out string title))
+              continue;
+            if (mimeType == LiveTvMediaItem.MIME_TYPE_TV || mimeType == LiveTvMediaItem.MIME_TYPE_RADIO)
+            {
+              update = true;
+              break;
+            }
+          }
+        }
+        else
+        {
+          update = true;
+        }
+      }
+
+      return update;
+    }
     
     protected ListItem CreateChannelItem(IChannel channel)
     {

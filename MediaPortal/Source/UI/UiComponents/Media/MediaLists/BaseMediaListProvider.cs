@@ -76,12 +76,12 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       get { return _allItems; }
     }
 
-    protected virtual bool ShouldUpdate(UpdateReason updateReason)
+    protected virtual bool ShouldUpdate(UpdateReason updateReason, ICollection<object> updatedObjects)
     {
       return updateReason.HasFlag(UpdateReason.Forced);
     }
 
-    protected abstract Task<MediaItemQuery> CreateQueryAsync();
+    protected abstract Task<MediaItemQuery> CreateQueryAsync(int maxItems);
 
     public UserProfile CurrentUserProfile
     {
@@ -101,9 +101,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       return UserHelper.GetUserRestrictionFilter(filterMias.ToList(), filter);
     }
 
-    public virtual async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
+    public virtual async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
-      if (!ShouldUpdate(updateReason))
+      if (!ShouldUpdate(updateReason, updatedObjects))
         return false;
 
       if (_playableConverterAction == null && _playableContainerConverterAction == null)
@@ -113,7 +113,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       if (contentDirectory == null)
         return false;
 
-      MediaItemQuery query = await CreateQueryAsync();
+      MediaItemQuery query = await CreateQueryAsync(maxItems);
       if (query == null)
         return false;
       query.Limit = (uint)maxItems;

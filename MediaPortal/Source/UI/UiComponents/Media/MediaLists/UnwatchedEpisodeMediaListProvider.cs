@@ -34,9 +34,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public UnwatchedEpisodeMediaListProvider()
     {
+      _changeAspectId = EpisodeAspect.ASPECT_ID;
       _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
-      //Needed for calculating play percentage
-      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID };
+      _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _playableConverterAction = item => new EpisodeItem(item);
       _navigationInitializerType = typeof(SeriesNavigationInitializer);
     }

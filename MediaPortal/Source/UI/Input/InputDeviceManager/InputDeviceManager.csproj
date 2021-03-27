@@ -180,11 +180,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="SharpLibHid">
-      <Version>1.4.4</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\default\screens\ConfigScreenAddDefaultKeys.xaml">
       <SubType>Designer</SubType>
     </Content>

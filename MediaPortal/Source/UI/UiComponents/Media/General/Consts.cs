@@ -423,6 +423,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_MOVIES_FILTER_BY_CERTIFICATION = "MovieFilterByCertification";
     public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";
     public const string SCREEN_SERIES_FILTER_BY_NAME = "SeriesFilterByName";
+    public const string SCREEN_SERIES_FILTER_BY_YEAR = "SeriesFilterByYear";
     public const string SCREEN_SERIES_FILTER_BY_SEASON = "SeriesFilterBySeason";
     public const string SCREEN_SERIES_FILTER_BY_ACTOR = "SeriesFilterByActor";
     public const string SCREEN_SERIES_FILTER_BY_CHARACTER = "SeriesFilterByCharacter";
@@ -636,6 +637,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] OPTIONAL_VIDEO_MIAS = new Guid[]
       {
+          //Needed for calculating play percentage
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
@@ -682,6 +684,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] OPTIONAL_EPISODE_MIAS = new Guid[]
       {
+          //Needed for calculating play percentage
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
@@ -709,6 +712,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] OPTIONAL_MOVIES_MIAS = new Guid[]
       {
+          //Needed for calculating play percentage
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,

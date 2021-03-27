@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Dialog title -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Dialog.EditMediaList.Header]"/>
+
+    <Model x:Key="HomeMenuModel" Id="CED34107-565C-48D9-BEC8-195F7969F90F"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel Orientation="Vertical">
+
+        <Button Style="{ThemeResource NextChapterButtonStyle}" Margin="-5,0,0,0"
+                HorizontalAlignment="Left" VerticalAlignment="Top"
+                IsVisible="{Binding Source={StaticResource HomeMenuModel}, Path=MenuEditModel.HasOtherMediaListItems}"
+                Command="{Command Source={Service ScreenManager}, Path=ShowDialog, Parameters=DialogAddMediaListMenuItem}">
+        </Button>
+
+        <ListView x:Name="DialogMenu" Style="{ThemeResource EditMenuListViewStyle}"
+                  ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MenuEditModel.MediaListItems, Mode=OneTime}" SetFocusPrio="DefaultLow"
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+        <Button Style="{ThemeResource DialogButtonStyle}" Margin="11,0,11,0"
+                HorizontalAlignment="Stretch" Content="[System.Ok]">
+          <Button.Command>
+            <CommandList>
+              <Command Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.SaveMediaListEdit"/>
+              <Command Source="{Service ScreenManager}" Path="CloseDialog"
+                       Parameters="{LateBoundValue BindingValue={Binding RelativeSource={RelativeSource TemplatedParent},Path=Screen.ScreenInstanceId}}"/>
+            </CommandList>
+          </Button.Command>
+        </Button>
+
+      </StackPanel>
+    </ControlTemplate>
+
+    <!-- Command -->
+    <Command x:Key="MoveUp_Command" Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.MoveMediaListUp"
+             Parameters="{LateBoundValue BindingValue={Binding}}"/>
+    <Command x:Key="MoveDown_Command" Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.MoveMediaListDown"
+             Parameters="{LateBoundValue BindingValue={Binding}}"/>
+    <Command x:Key="Remove_Command" Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.RemoveMediaList"
+             Parameters="{LateBoundValue BindingValue={Binding}}"/>
+
+  </Include.Resources>
+</Include>

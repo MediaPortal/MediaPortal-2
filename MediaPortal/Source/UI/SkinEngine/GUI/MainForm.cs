@@ -23,10 +23,12 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
+using System.Net.Configuration;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;
@@ -54,6 +56,8 @@ using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.Screens;
 using MediaPortal.Utilities.SystemAPI;
 using SharpDX.Direct3D9;
+using SharpLib.Hid;
+using SharpLib.Win32;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
 namespace MediaPortal.UI.SkinEngine.GUI
@@ -63,6 +67,201 @@ namespace MediaPortal.UI.SkinEngine.GUI
   public partial class MainForm : TouchForm, IScreenControl
   {
     protected delegate void Dlgt();
+
+    private Handler _hidHandler;
+    private const bool CAPTURE_ONLY_IN_FOREGROUND = true;
+    private RawMouseButtonFlags _lastMouseFlags = RawMouseButtonFlags.None;
+
+    private class MessageRateInfo
+    {
+      public DateTime LastEvaluation { get; set; } = DateTime.UtcNow;
+      public long MessageCount { get; set; }
+      public bool Logged { get; set; }
+    }
+
+    #region RAW input handling
+
+    private void InitializeHidHandling()
+    {
+      RawInputDeviceFlags flags = CAPTURE_ONLY_IN_FOREGROUND ? 0 : SharpLib.Win32.RawInputDeviceFlags.RIDEV_INPUTSINK;
+      //SharpLib.Win32.RawInputDeviceFlags flags = SharpLib.Win32.RawInputDeviceFlags.RIDEV_EXINPUTSINK;
+      //SharpLib.Win32.RawInputDeviceFlags flags = SharpLib.Win32.RawInputDeviceFlags.RIDEV_INPUTSINK;
+      IntPtr handle = Handle;
+      List<RAWINPUTDEVICE> devices = new List<RAWINPUTDEVICE>();
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.WindowsMediaCenter.WindowsMediaCenterRemoteControl,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      //devices.Add(new RAWINPUTDEVICE
+      //{
+      //  usUsagePage = (ushort)SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl,
+      //  usUsage = (ushort)SharpLib.Hid.UsageCollection.WindowsMediaCenter.WindowsMediaCenterLowLevel,
+      //  dwFlags = flags,
+      //  hwndTarget = handle
+      //});
+
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ConsumerControl,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ApplicationLaunchButtons,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.FunctionButtons,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.GenericGuiApplicationControls,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.MediaSelection,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.NumericKeyPad,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.PlaybackSpeed,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ProgrammableButtons,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.SelectDisc,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.Selection,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.SystemControl,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.GamePad,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Joystick,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Keyboard,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.KeyPad,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+      devices.Add(new RAWINPUTDEVICE
+      {
+        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
+        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Mouse,
+        dwFlags = flags,
+        hwndTarget = handle
+      });
+
+      _hidHandler = new Handler(devices.ToArray(), true, -1, -1);
+      _hidHandler.OnHidEvent += new Handler.HidEventHandler(OnHidEvent);
+    }
+
+    private void OnHidEvent(object sender, Event hidEvent)
+    {
+      try
+      {
+        if (hidEvent == null)
+          return;
+
+        if (CAPTURE_ONLY_IN_FOREGROUND && hidEvent.IsBackground)
+          return;
+
+        if (!hidEvent.IsValid)
+        {
+          ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: HID Event Invalid");
+          return;
+        }
+
+        var hid = new HidEvent(hidEvent);
+        if (!IsHidEventNeeded(hid))
+          return;
+
+        WindowsMessaging.BroadcastHidMessage(new HidEvent(hidEvent));
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: HID event failed", ex);
+      }
+    }
+
+    private bool IsHidEventNeeded(HidEvent hidEvent)
+    {
+      if (hidEvent.IsMouse)
+      {
+        if (_lastMouseFlags == hidEvent.MouseButtonFlags)
+          return false; //Only send button event changes for mouse to avoid overloading the message queue with mouse move etc.
+
+        _lastMouseFlags = hidEvent.MouseButtonFlags;
+      }
+      return true;
+    }
+
+    #endregion
 
     /// <summary>
     /// Maximum time between frames when our render thread is synchronized to the video player thread.
@@ -75,7 +274,30 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public static int VIDEO_PLAYER_MAX_WAIT_FOR_RENDER_MS = 10;
 
     private const string SCREEN_SAVER_SCREEN = "ScreenSaver";
-
+    private const int WM_SIZING = 0x214;
+    private const int WMSZ_LEFT = 1;
+    private const int WMSZ_RIGHT = 2;
+    private const int WMSZ_TOP = 3;
+    private const int WMSZ_TOPLEFT = 4;
+    private const int WMSZ_TOPRIGHT = 5;
+    private const int WMSZ_BOTTOM = 6;
+    private const int WMSZ_BOTTOMLEFT = 7;
+    private const int WMSZ_BOTTOMRIGHT = 8;
+    private const int WM_SYSCHAR = 0x106;
+    private const int WM_DISPLAYCHANGE = 0x007E;
+    private const int WM_ACTIVATE = 0x0006;
+    private const int WM_ACTIVATEAPP = 0x001C;
+    private const int WM_KEYDOWN = 0x100;
+    private const int WM_KEYUP = 0x101;
+    private const int WM_SYSKEYDOWN = 0x0104;
+    private const int WM_SYSKEYUP = 0x0105;
+    private const int WA_INACTIVE = 0;
+    private const int WM_INPUT = 0x00FF;
+    private const int WM_APPCOMMAND = 0x0319;
+    private const int WM_MOUSEMOVE = 0x0200;
+    private const int WM_SETCURSOR = 0x0020;
+    private const int WM_NCHITTEST = 0x0084;
+    
     private bool _renderThreadStopped;
     private ISharpDXVideoPlayer _synchronizedVideoPlayer = null;
     private readonly AutoResetEvent _videoRenderFrameEvent = new AutoResetEvent(false);
@@ -93,11 +315,25 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private bool _forceOnTop = false;
     private bool _hasFocus = false;
     private readonly ScreenManager _screenManager;
+    private IDictionary<int, MessageRateInfo> _highVolumeMessageCheck = new Dictionary<int,MessageRateInfo>();
+
+
     protected bool _isScreenSaverEnabled = true;
     protected bool _isScreenSaverActive = false;
     protected ScreenSaverController _screenSaverController = null;
     protected SuspendLevel _applicationSuspendLevel = SuspendLevel.None;
     protected SuspendLevel _playerSuspendLevel = SuspendLevel.None;
+    protected readonly List<int> _internalMessages = new List<int>()
+    {
+      WM_ACTIVATE,
+      WM_ACTIVATEAPP,
+      WA_INACTIVE,
+      WM_KEYDOWN,
+      WM_KEYUP,
+      WM_SYSKEYDOWN,
+      WM_SYSKEYUP,
+      WM_APPCOMMAND,
+    };
 
     /// <summary>
     /// Timespan from the last user input to the start of the screen saver.
@@ -192,6 +428,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
       TouchDown += MainForm_OnTouchDown;
       TouchMove += MainForm_OnTouchMove;
       TouchUp += MainForm_OnTouchUp;
+
+      InitializeHidHandling();
     }
 
     private Point ValidatePosition(Point value, Size availableSize, ref Size desiredWindowedSize)
@@ -537,11 +775,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
           {
             string clPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Tools", "MP2-ClientLauncher", "MP2-ClientLauncher.exe");
             Process.Start(clPath);
-            int waitCounter = 10;
+            int waitCounter = 50;
             // Wait until process is running and the pipe was created.
             while (waitCounter-- > 0 && !IpcClient.GetRunningApps().Contains("ClientLauncher"))
             {
-              Thread.Sleep(200);
+              Thread.Sleep(100);
             }
           }
           // Sends a command to tray launcher that we want to be restarted.
@@ -770,6 +1008,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       try
       {
         logger.Debug("SkinEngine MainForm: Stopping");
+        _hidHandler?.Dispose();
         StoreClientBounds();
         StopUI();
         UIResourcesHelper.ReleaseUIResources();
@@ -798,7 +1037,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in TouchDown handler", ex);
       }
-
     }
 
     private void MainForm_OnTouchMove(object sender, TouchMoveEvent uiTouchEventArgs)
@@ -968,31 +1206,41 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private bool IsHighVolumeMessage(Message m)
+    /// <summary>
+    /// Check if the message should be broadcast to other plugins.
+    /// We broadcast only known kinds as any unknown high volume kind of messages can slow down the UI and overload the broadcast queue.
+    /// </summary>
+    private bool IsInternalMessage(Message m)
     {
-      const int WM_MOUSEMOVE = 0x0200;
-      const int WM_SETCURSOR = 0x0020;
-      const int WM_NCHITTEST = 0x0084;
-      if (m.Msg == WM_MOUSEMOVE || m.Msg == WM_SETCURSOR || m.Msg == WM_NCHITTEST)
+      if (_internalMessages.Contains(m.Msg))
         return true;
 
       return false;
     }
 
+    private void CheckMessageRate(ref Message m)
+    {
+      if (!_highVolumeMessageCheck.ContainsKey(m.Msg))
+        _highVolumeMessageCheck[m.Msg] = new MessageRateInfo();
+
+      if (_highVolumeMessageCheck[m.Msg].Logged)
+        return;
+
+      _highVolumeMessageCheck[m.Msg].MessageCount++;
+      var duration = (DateTime.UtcNow - _highVolumeMessageCheck[m.Msg].LastEvaluation).TotalSeconds;
+      if (duration >= 1)
+      {
+        var rate = _highVolumeMessageCheck[m.Msg].MessageCount / duration;
+        if (rate >= 100)
+        {
+          ServiceRegistration.Get<ILogger>().Warn($"SkinEngine MainForm: Message 0x{m.Msg:x} has rate of {rate:F1} which can cause UI unresponsiveness");
+          _highVolumeMessageCheck[m.Msg].Logged = true;
+        }
+      }
+    }
+
     protected override void WndProc(ref Message m)
     {
-      const long WM_SIZING = 0x214;
-      const int WMSZ_LEFT = 1;
-      const int WMSZ_RIGHT = 2;
-      const int WMSZ_TOP = 3;
-      const int WMSZ_TOPLEFT = 4;
-      const int WMSZ_TOPRIGHT = 5;
-      const int WMSZ_BOTTOM = 6;
-      const int WMSZ_BOTTOMLEFT = 7;
-      const int WMSZ_BOTTOMRIGHT = 8;
-      const int WM_SYSCHAR = 0x106;
-      const int WM_DISPLAYCHANGE = 0x007E;
-
       // Hande 'beep'
       if (m.Msg == WM_SYSCHAR)
         return;
@@ -1105,9 +1353,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
         }
       }
 
-      // Don't broadcast high volume messages (like mouse move) to avoid overload
-      if (!IsHighVolumeMessage(m))
+      if (m.Msg == WM_INPUT)
+        _hidHandler?.ProcessInput(ref m);
+
+      if (IsInternalMessage(m))
       {
+        CheckMessageRate(ref m);
+
         // Send windows message through the system if any component needs to access windows messages
         if (WindowsMessaging.BroadcastWindowsMessage(ref m))
           return;

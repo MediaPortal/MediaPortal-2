@@ -67,6 +67,12 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       set { _hasThumbnail = value; }
     }
 
+    public bool AllowOnlineReSearch { get; set; } = false;
+
+    public bool ForceOnlineSearch { get; set; } = false;
+
+    public bool IsDirty { get; private set; } = false;
+
     public bool HasChanged { get; set; } = false;
 
     public DateTime? LastChanged { get; set; } = null;
@@ -246,22 +252,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       SingleMediaItemAspect importerAspect;
       if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
       {
+        IsDirty = importerAspect.GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
         HasChanged = importerAspect.GetAttributeValue<bool>(ImporterAspect.ATTR_DIRTY);
         LastChanged = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_LAST_IMPORT_DATE);
         DateAdded = importerAspect.GetAttributeValue<DateTime?>(ImporterAspect.ATTR_DATEADDED);
-      }
-    }
-
-    protected void SetMetadataChanged(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
-    {
-      SingleMediaItemAspect importerAspect;
-      if (MediaItemAspect.TryGetAspect(aspectData, ImporterAspect.Metadata, out importerAspect))
-      {
-        if (HasChanged)
-        {
-          //Set to dirty to mark it as changed
-          importerAspect.SetAttribute(ImporterAspect.ATTR_DIRTY, HasChanged);
-        }
       }
     }
 

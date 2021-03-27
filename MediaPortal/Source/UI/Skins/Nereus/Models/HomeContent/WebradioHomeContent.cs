@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -30,36 +31,32 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public WebradioHomeContent()
     {
-      
+      _availableLists.Add(new LastPlayedWebradioList());
+      _availableLists.Add(new TopPlayedWebradioList());
     }
+
     protected override void PopulateBackingList()
     {
-      var alm = GetWebradioListModel();
-
-      _backingList.Add(new LastPlayedWebradioList(alm.Lists["LastPlayedWebradio"].AllItems));
-      _backingList.Add(new TopPlayedWebradioList(alm.Lists["TopPlayedWebradio"].AllItems));
+      UpdateListsFromAvailableLists();
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
-      var alm = GetWebradioListModel();
-
-      alm.ForceUpdate("LastPlayedWebradio");
-      alm.ForceUpdate("TopPlayedWebradio");
+      return GetWebradioListModel();
     }
   }
 
-  public class LastPlayedWebradioList : ItemsListWrapper
+  public class LastPlayedWebradioList : MediaListItemsListWrapper
   {
-    public LastPlayedWebradioList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestPlayed]")
+    public LastPlayedWebradioList()
+      : base("LastPlayedWebradio", "[Nereus.Home.LatestPlayed]")
     { }
   }
 
-  public class TopPlayedWebradioList : ItemsListWrapper
+  public class TopPlayedWebradioList : MediaListItemsListWrapper
   {
-    public TopPlayedWebradioList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public TopPlayedWebradioList()
+      : base("TopPlayedWebradio", "[Nereus.Home.Favorites]")
     { }
   }
 }

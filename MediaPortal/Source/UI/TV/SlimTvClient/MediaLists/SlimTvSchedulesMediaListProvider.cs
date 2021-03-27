@@ -112,7 +112,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       workflowManager.NavigatePush(WF_STATE_ID_SCHEDULE_LIST);
     }
 
-    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
+    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
       if (!TryInitTvHandler())
         return false;

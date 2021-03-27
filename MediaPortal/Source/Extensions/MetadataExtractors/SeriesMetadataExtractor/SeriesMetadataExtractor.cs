@@ -63,6 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
+    public const string MEDIA_CATEGORY_NAME_VIDEO = "Video";
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
@@ -208,6 +209,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       EpisodeInfo episodeInfo = new EpisodeInfo();
       episodeInfo.FromMetadata(extractedAspectData);
+      if (!extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        episodeInfo.AllowOnlineReSearch = true;
+      episodeInfo.ForceOnlineSearch = episodeInfo.IsDirty;
 
       if (!isReimport) //Ignore file based information for reimports because they might be the cause of the wrong match
       {
@@ -362,13 +366,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       try
       {
-        if (!(searchCategories?.Contains(_category) ?? true))
+        if (!(searchCategories?.Intersect(new[] { MEDIA_CATEGORY_NAME_SERIES, MEDIA_CATEGORY_NAME_VIDEO }).Any() ?? true))
           return null;
 
         string searchData = null;
         var reimportAspect = MediaItemAspect.GetAspect(searchAspectData, ReimportAspect.Metadata);
         if (reimportAspect != null)
           searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
+        if (string.IsNullOrEmpty(searchData) && !searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID) && !searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
+          return null;
 
         ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
 
