@@ -157,7 +157,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </MultiBinding>
           </Button.Command>
         </Button>
-        <StackPanel Orientation="Horizontal" Context="{Service Window}" IsVisible="{Binding Source={StaticResource MouseModel},Path=IsMouseUsed}">
+        <StackPanel Orientation="Horizontal" Context="{Service Window}">
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+              <Binding Source="{StaticResource MouseModel}" Path="IsMouseUsed"/>
+              <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
+            </MultiBinding>
+          </StackPanel.IsVisible>
           <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}" Margin="10"/>
           <Button x:Name="HomeButton" Style="{ThemeResource HomeButtonStyle}" HorizontalAlignment="Left" VerticalAlignment="Center"
