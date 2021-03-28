@@ -95,20 +95,6 @@
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
-          <!--ListView.Triggers>
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="IsMouseOver" Value="False" />
-                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
-              </MultiTrigger.Conditions>
-              <Setter TargetName="Channel" Property="IsVisible" Value="False"/>
-              <Setter TargetName="ChannelLogo" Property="IsVisible" Value="False"/>
-              <Setter TargetName="Program" Property="IsVisible" Value="False"/>
-              <Setter TargetName="DurationLabel" Property="IsVisible" Value="False"/>
-              <Setter TargetName="SeriesGridLabel" Property="IsVisible" Value="False"/>
-              <Setter TargetName="Description" Property="IsVisible" Value="False"/>
-            </MultiTrigger>
-          </-->
         </ListView>
 
         <!-- Details -->

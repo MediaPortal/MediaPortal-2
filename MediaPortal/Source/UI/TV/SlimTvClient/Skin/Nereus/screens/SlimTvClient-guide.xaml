@@ -70,7 +70,7 @@
                   Command="{Command NextChannel}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1"/>
         </StackPanel>
 
-        <ListView Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" 
+        <ListView x:Name="SingleChannelGuideList" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" 
                   Margin="20,5,-10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource SingleChannelWithLogoAndProgramListViewStyle}"
                   ItemsSource="{Binding Path=ProgramsList}"
@@ -78,15 +78,6 @@
           <ListView.Resources>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
-          <ListView.Triggers>
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="IsMouseOver" Value="False" />
-                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
-              </MultiTrigger.Conditions>
-              <Setter TargetName="ProgramInfoPanel" Property="IsVisible" Value="False"/>
-            </MultiTrigger>
-          </ListView.Triggers>
         </ListView>
 
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,30,30,0" VerticalAlignment="Top"
@@ -120,10 +111,11 @@
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="ProgramInfoPanel"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
           <Grid.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1} &amp;&amp; {2}">
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1} &amp;&amp; {2} &amp;&amp; ({3}!= 0)">
               <Binding ElementName="GroupButton" Path="!HasFocus"/>
               <Binding ElementName="PrevChannelButton" Path="!HasFocus"/>
               <Binding ElementName="NextChannelButton" Path="!HasFocus"/>
+              <Binding ElementName="ListIndex" Path="Content"/>
             </MultiBinding>
           </Grid.IsVisible>
           <Grid.RowDefinitions>
@@ -134,6 +126,14 @@
             <ColumnDefinition Width="420"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
+          <Label x:Name="ListIndex" IsVisible="False">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding ElementName="SingleChannelGuideList" Path="CurrentItem"/>
+                <Binding ElementName="SingleChannelGuideList" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
           <StackPanel Orientation="Vertical" Grid.RowSpan="2">
             <!-- Common control for program duration formatting -->
             <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}" />

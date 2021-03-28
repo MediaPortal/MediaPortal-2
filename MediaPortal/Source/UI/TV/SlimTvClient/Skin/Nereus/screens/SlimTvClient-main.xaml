@@ -83,16 +83,16 @@
             </ResourceWrapper>
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
-          <ListView.Triggers>
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="IsMouseOver" Value="False" />
-                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
-              </MultiTrigger.Conditions>
-              <Setter TargetName="ProgramInfoPanel" Property="IsVisible" Value="False"/>
-            </MultiTrigger>
-          </ListView.Triggers>
         </ListView>
+
+        <Label x:Name="ListIndex" IsVisible="False">
+          <Label.Content>
+            <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+              <Binding ElementName="ProgramsListView" Path="CurrentItem"/>
+              <Binding ElementName="ProgramsListView" Path="ItemsSource"/>
+            </MultiBinding>
+          </Label.Content>
+        </Label>
 
         <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
         <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
@@ -108,8 +108,14 @@
           </Grid>
         </Grid>
 
-        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="ProgramInfoPanel" IsVisible="{Binding ElementName=GroupButton, Path=!HasFocus}"
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="ProgramInfoPanel"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; ({1}!= 0)">
+              <Binding ElementName="GroupButton" Path="!HasFocus"/>
+              <Binding ElementName="ListIndex" Path="Content"/>
+            </MultiBinding>
+          </Grid.IsVisible>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
