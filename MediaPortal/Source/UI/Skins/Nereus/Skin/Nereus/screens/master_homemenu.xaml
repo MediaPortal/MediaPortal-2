@@ -295,7 +295,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                  Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,0"/>
 
           <nc:NereusHomeListView x:Name="MainMenu" Style="{ThemeResource HomeMenuListViewStyle}" Height="1200"
-                    HorizontalAlignment="Center" VerticalAlignment="Stretch" SetFocusPrio="DefaultHigh"
+                    HorizontalAlignment="Center" VerticalAlignment="Stretch"
                     ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MainMenuItems, Mode=OneTime}"
                     SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}"
                     RestoreFocusItem="{Binding Source={StaticResource HomeMenuModel}, Path=SelectedItem}">
