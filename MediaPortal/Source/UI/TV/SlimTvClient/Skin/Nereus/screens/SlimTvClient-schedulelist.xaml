@@ -117,7 +117,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,0,0,100">
+          <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,30,0,100">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
               <CheckBox x:Name="EnableSeriesModeCheckbox" Margin="-5,5,0,5" Style="{ThemeResource DefaultCheckBoxStyle}"
                         IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}" Content="{Binding}" VerticalAlignment="Center" />
