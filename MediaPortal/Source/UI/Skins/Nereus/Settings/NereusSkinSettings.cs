@@ -93,6 +93,9 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, true)]
     public bool EnableHelpTexts { get; set; }
 
+    [Setting(SettingScope.User, null)]
+    public string LastSelectedHomeMenuActionId { get; set; }
+
     private static readonly Guid[] DEFAULT_HOME_MENU_ACTION_IDS = new []
     {
       // Audio
