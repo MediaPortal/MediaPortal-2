@@ -153,7 +153,7 @@
                    VerticalAlignment="Top" HorizontalAlignment="Left"/>
             <Label x:Name="HelpLabel2" Opacity="0.6" Margin="38,5,0,-5" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}">
               <Label.Content>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}({1}/2){2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + ({1}/2) + {2}">
                   <Binding Source="Scroll time axis in " />
                   <Binding Path="VisibleHours" />
                   <Binding Source=" hour increments" />
