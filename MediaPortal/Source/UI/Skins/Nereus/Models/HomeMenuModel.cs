@@ -73,6 +73,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected AbstractProperty _contentIndexProperty;
     protected AbstractProperty _selectedItemProperty;
 
+    protected AbstractProperty _isMenuSelectedProperty;
+
     protected AbstractProperty _menuEditModelProperty;
 
     protected DelayedEvent _updateEvent;
@@ -109,6 +111,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
       _contentIndexProperty = new WProperty(typeof(int), 0);
       _selectedItemProperty = new WProperty(typeof(ListItem), null);
+      _isMenuSelectedProperty = new WProperty(typeof(bool), false);
 
       _menuEditModelProperty = new WProperty(typeof(MenuEditModel), null);
 
@@ -285,6 +288,17 @@ namespace MediaPortal.UiComponents.Nereus.Models
       set { _selectedItemProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsMenuSelectedProperty
+    {
+      get { return _isMenuSelectedProperty; }
+    }
+
+    public bool IsMenuSelected
+    {
+      get { return (bool)_isMenuSelectedProperty.GetValue(); }
+      set { _isMenuSelectedProperty.SetValue(value); }
+    }
+
     public AbstractProperty MenuEditModelProperty
     {
       get { return _menuEditModelProperty; }
@@ -299,6 +313,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
       ListItem item = e.FirstAddedItem as ListItem;
+      IsMenuSelected = item != null;
       if (item != null)
         SelectedItem = item;
     }
@@ -592,8 +607,12 @@ namespace MediaPortal.UiComponents.Nereus.Models
       // If so, store this item as the last selected item.
       if (_hasSelectionChanged)
         SaveLastSelectedAction(item);
-      // Now that the item has been selected reset this so it doesn't interfere with future focus handling 
-      item.Selected = false;
+
+      lock (_mainMenuItems.SyncRoot)
+        foreach (var menuItem in _mainMenuItems)
+          menuItem.Selected = false;
+
+      item.Selected = true;
 
       WorkflowAction action = GetAction(item);
       EnqueueUpdate(action);
