@@ -115,17 +115,7 @@
         </Grid>
 
         <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,5,0,20"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HeaderWidth="{StaticResource DynamicMultiGuideHeaderWidth}">
-          <tv:EpgGrid.Triggers>
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="IsMouseOver" Value="False" />
-                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
-              </MultiTrigger.Conditions>
-              <Setter TargetName="ProgramInfoPanel" Property="IsVisible" Value="False"/>
-            </MultiTrigger>
-          </tv:EpgGrid.Triggers>
-        </tv:EpgGrid>
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HeaderWidth="{StaticResource DynamicMultiGuideHeaderWidth}"/>
 
         <!-- All KeyBindings are included from shared resource -->
         <Include Source="screens\TvGuideKeybindings.inc"/>
@@ -161,8 +151,15 @@
             <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
                    IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel2, Path=Content}"
                    VerticalAlignment="Top" HorizontalAlignment="Left"/>
-            <Label x:Name="HelpLabel2" Opacity="0.6" Margin="38,5,0,-5"
-                   Content="Scroll time axis in hour increments" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+            <Label x:Name="HelpLabel2" Opacity="0.6" Margin="38,5,0,-5" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}({1}/2){2}">
+                  <Binding Source="Scroll time axis in " />
+                  <Binding Path="VisibleHours" />
+                  <Binding Source=" hour increments" />
+                </MultiBinding>
+              </Label.Content>
+            </Label>
           </Grid>
         </Grid>
 
@@ -170,13 +167,16 @@
               HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
               DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
           <Grid.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1} &amp;&amp; {2} &amp;&amp; {3}">
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1} &amp;&amp; {2} &amp;&amp; {3} &amp;&amp; ({4}||{5})">
               <Binding ElementName="ScrollBackwardButton" Path="!HasFocus"/>
               <Binding ElementName="ScrollForwardButton" Path="!HasFocus"/>
               <Binding ElementName="ScrollDoubleBackwardButton" Path="!HasFocus"/>
               <Binding ElementName="ScrollDoubleForwardButton" Path="!HasFocus"/>
+              <Binding ElementName="EpgGrid" Path="IsMouseOver"/>
+              <Binding ElementName="EpgGrid" Path="IsKeyboardFocusWithin"/>
             </MultiBinding>
           </Grid.IsVisible>
+
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
