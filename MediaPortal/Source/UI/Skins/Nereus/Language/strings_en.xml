@@ -36,6 +36,8 @@
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Thumbnails</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Enable Media Item Details View</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Whether to show media item details instead of playing media item directly.</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay">Enable touch display support</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay.Help">Whether to deactivate the automatic slide menues and force displaying navigation buttons for better touch display support.</string>
 
   <string name="Nereus.Home.LatestAdded">Latest Added</string>
   <string name="Nereus.Home.LatestPlayed">Latest Played</string>
