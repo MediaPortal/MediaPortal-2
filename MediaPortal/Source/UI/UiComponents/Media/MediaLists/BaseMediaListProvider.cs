@@ -135,7 +135,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
           listItems = items.Select(mi =>
           {
             PlayableMediaItem listItem = _playableConverterAction(mi);
-            listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
+            // Don't overwrite existing command if set, some plugins (e.g. Emulators) have their own special handling for starting playback
+            if (listItem.Command == null)
+              listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
             return listItem;
           });
         }
