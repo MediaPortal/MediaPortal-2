@@ -133,7 +133,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _homeContent.Add(new Guid("873eb147-c998-4632-8f86-d5e24062be2e"), new LauncherHomeContent());
       _homeContent.Add(new Guid("c33e39cc-910e-41c8-bffd-9eccd340b569"), new OnlineVideosHomeContent());
       _homeContent.Add(new Guid("2ded75c0-5eae-4e69-9913-6b50a9ab2956"), new WebradioHomeContent());
-      _homeContent.Add(new Guid("FFAC513C-40B3-4FB0-8CBC-1683B4B7395C"), new EmulatorsHomeContent());
+      _homeContent.Add(new Guid("A24958E2-538A-455E-A1DB-A7BB241AF7EC"), new EmulatorsHomeContent());
 
       // Home content for displaying a list of all other plugins
       _homeContent.Add(OtherPluginsAction.ACTION_ID, new OtherPluginsHomeContent(_otherMenuItems));
