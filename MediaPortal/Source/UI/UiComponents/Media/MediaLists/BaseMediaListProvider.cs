@@ -29,10 +29,11 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.ContentLists;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.Models;
@@ -42,8 +43,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.Common.UserManagement;
-using MediaPortal.UI.ContentLists;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -134,7 +133,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
           listItems = items.Select(mi =>
           {
             PlayableMediaItem listItem = _playableConverterAction(mi);
-            listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
+            // Don't overwrite existing command if set, some plugins (e.g. Emulators) have their own special handling for starting playback
+            if (listItem.Command == null)
+              listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
             return listItem;
           });
         }
