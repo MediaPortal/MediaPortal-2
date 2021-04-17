@@ -2968,18 +2968,9 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Border VerticalAlignment="Stretch" HorizontalAlignment="Stretch" CornerRadius="4" BorderThickness="0" 
-              IsVisible="{Binding ElementName=thumb, Path=!HasImage}">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-            <GradientStop Color="#F2447da7" Offset="0"/>
-            <GradientStop Color="#F2124273" Offset="1"/>
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-      <Label x:Name="ItemLabel" Content="{Binding Title}" HorizontalAlignment="Center" Wrap="True"
-          Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
-      <Image x:Name="thumb"  Stretch="Uniform" Source="{Binding MediaItem}" />
+      <Label x:Name="ItemLabel" Content="{Binding Title}" HorizontalAlignment="Center" Wrap="True" Margin="5"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Image x:Name="thumb"  Stretch="Uniform" Source="{Binding MediaItem}" Margin="3" />
     </Grid>
   </ControlTemplate>
 
