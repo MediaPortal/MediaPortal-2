@@ -29,10 +29,11 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.ContentLists;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.Models;
@@ -42,8 +43,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.Common.UserManagement;
-using MediaPortal.UI.ContentLists;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
@@ -51,6 +50,11 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public delegate PlayableMediaItem PlayableMediaItemToListItemAction(MediaItem mediaItem);
     public delegate PlayableContainerMediaItem PlayableContainerMediaItemToListItemAction(MediaItem mediaItem);
+       
+    // Static so that we only create the filters once across all list providers
+    protected static object _navigationFilterSync = new object();
+    protected static FixedItemStateTracker _tracker;
+    protected static IDictionary<string, IList<IFilter>> _navigationFilters;
 
     protected IList<MediaItem> _currentMediaItems;
     protected ItemsList _allItems;
@@ -59,9 +63,6 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected PlayableMediaItemToListItemAction _playableConverterAction;
     protected PlayableContainerMediaItemToListItemAction _playableContainerConverterAction;
 
-    protected object _navigationFilterSync = new object();
-    protected FixedItemStateTracker _tracker;
-    protected IDictionary<string, IList<IFilter>> _navigationFilters;
     protected Type _navigationInitializerType;
 
     private MediaListItemComparer _mediaListItemComparer = new MediaListItemComparer();
@@ -157,7 +158,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     /// </summary>
     /// <param name="navigationInitializerType">The type of the derived <see cref="MediaPortal.UiComponents.Media.Models.NavigationModel.IMediaNavigationInitializer"/></param>
     /// <returns></returns>
-    protected IFilter GetNavigationFilter(Type navigationInitializerType)
+    protected static IFilter GetNavigationFilter(Type navigationInitializerType)
     {
       if (navigationInitializerType != null)
         lock (_navigationFilterSync)
@@ -169,7 +170,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       return null;
     }
 
-    private void InitNavigationFilters()
+    private static void InitNavigationFilters()
     {
       if (_tracker != null)
         return;
