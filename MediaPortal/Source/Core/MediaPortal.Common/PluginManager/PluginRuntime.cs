@@ -271,7 +271,6 @@ namespace MediaPortal.Common.PluginManager
             {
               ServiceRegistration.Get<ILogger>().Warn("Error disposing duplicate plugin object '{0}' in plugin '{1}' (id '{2}')", e,
                   typeName, _pluginMetadata.Name, _pluginMetadata.PluginId);
-              throw;
             }
           }
         }
