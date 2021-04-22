@@ -760,6 +760,7 @@
     <Content Include="Skin\Nereus\screens\MediaItemCoverMovieCollectionDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemHomeGameDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemHomePersonDetails.inc">
       <SubType>Designer</SubType>
     </Content>

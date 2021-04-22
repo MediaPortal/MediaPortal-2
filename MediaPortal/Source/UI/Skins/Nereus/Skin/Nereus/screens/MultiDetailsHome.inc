@@ -123,7 +123,7 @@
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
         <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
-        <Binding Source="{x:Static aspect:GameAspect.ASPECT_ID}" />
+        <Binding Source="71D500E8-F2C3-4DAF-8CE6-A89DFE8FD96E" />
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
