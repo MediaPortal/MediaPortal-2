@@ -119,17 +119,6 @@
       <Include Source="screens\MediaItemListPersonDetails.inc"/>
     </Control.TemplateControl>
   </Control>
-  <Control x:Name="GameDetails">
-    <Control.IsVisible>
-      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
-        <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
-        <Binding Source="{x:Static aspect:GameAspect.ASPECT_ID}" />
-      </MultiBinding>
-    </Control.IsVisible>
-    <Control.TemplateControl>
-      <Include Source="screens\MediaItemGameDetails.inc"/>
-    </Control.TemplateControl>
-  </Control>
   <Control x:Name="AllOtherDetails">
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}"
@@ -143,7 +132,6 @@
         <Binding ElementName="SeasonDetails" Path="Visibility" />
         <Binding ElementName="EpisodeDetails" Path="Visibility" />
         <Binding ElementName="PersonDetails" Path="Visibility" />
-        <Binding ElementName="GameDetails" Path="Visibility" />
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
