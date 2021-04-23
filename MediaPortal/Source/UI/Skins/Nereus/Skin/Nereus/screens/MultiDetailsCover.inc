@@ -123,7 +123,7 @@
   <Control x:Name="AllOtherDetails">
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}"
-         ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible})||({5}=={VisibilityEnum}.{Visible})||({6}=={VisibilityEnum}.{Visible})||({7}=={VisibilityEnum}.{Visible})||({8}=={VisibilityEnum}.{Visible})||({9}=={VisibilityEnum}.{Visible}))">
+         ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible})||({5}=={VisibilityEnum}.{Visible})||({6}=={VisibilityEnum}.{Visible})||({7}=={VisibilityEnum}.{Visible})||({8}=={VisibilityEnum}.{Visible}))">
         <Binding ElementName="AudioDetails" Path="Visibility" />
         <Binding ElementName="AudioAlbumDetails" Path="Visibility" />
         <Binding ElementName="ImageDetails" Path="Visibility" />
