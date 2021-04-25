@@ -15,8 +15,7 @@
   </Grid.ColumnDefinitions>
 
   <Grid.Resources>
-    <Model x:Key="BackgroundManagerModel" Id="1F4CAEDE-7108-483d-B5C8-18BEC7EC58E5"/>
-    <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+    <Model x:Key="HomeMenuModel" Id="CED34107-565C-48D9-BEC8-195F7969F90F"/>
     <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
     <EmptyString2FalseConverter x:Key="EmptyStringToFalseConverter"/>
   </Grid.Resources>
@@ -120,10 +119,21 @@
       <Include Source="screens\MediaItemHomePersonDetails.inc"/>
     </Control.TemplateControl>
   </Control>
+  <Control x:Name="GameDetails">
+    <Control.IsVisible>
+      <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+        <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+        <Binding Source="71D500E8-F2C3-4DAF-8CE6-A89DFE8FD96E" />
+      </MultiBinding>
+    </Control.IsVisible>
+    <Control.TemplateControl>
+      <Include Source="screens\MediaItemHomeGameDetails.inc"/>
+    </Control.TemplateControl>
+  </Control>
   <Control x:Name="AllOtherDetails">
     <Control.IsVisible>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}"
-         ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible})||({5}=={VisibilityEnum}.{Visible})||({6}=={VisibilityEnum}.{Visible})||({7}=={VisibilityEnum}.{Visible})||({8}=={VisibilityEnum}.{Visible}))">
+         ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible})||({5}=={VisibilityEnum}.{Visible})||({6}=={VisibilityEnum}.{Visible})||({7}=={VisibilityEnum}.{Visible})||({8}=={VisibilityEnum}.{Visible})||({9}=={VisibilityEnum}.{Visible}))">
         <Binding ElementName="AudioDetails" Path="Visibility" />
         <Binding ElementName="AudioAlbumDetails" Path="Visibility" />
         <Binding ElementName="ImageDetails" Path="Visibility" />
@@ -133,6 +143,7 @@
         <Binding ElementName="SeasonDetails" Path="Visibility" />
         <Binding ElementName="EpisodeDetails" Path="Visibility" />
         <Binding ElementName="PersonDetails" Path="Visibility" />
+        <Binding ElementName="GameDetails" Path="Visibility" />
       </MultiBinding>
     </Control.IsVisible>
     <Control.TemplateControl>
@@ -140,11 +151,11 @@
     </Control.TemplateControl>
   </Control>
 
-  <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens-->
+  <!-- Show help label only in "Home" workflow state to avoid overlapping with contents in other screens -->
   <Grid x:Name="Helptext">
     <Grid.IsVisible>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1}">
-        <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
+        <Binding Source="{StaticResource HomeMenuModel}" Path="IsMenuSelected"/>
         <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableHelpTexts"/>
       </MultiBinding>
     </Grid.IsVisible>
@@ -167,7 +178,7 @@
     <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
            IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
            VerticalAlignment="Top" HorizontalAlignment="Left"/>
-    <Label x:Name="HelpLabel" DataContext="{Binding Source={StaticResource BackgroundManagerModel}, Path=SelectedItem}" Opacity="0.6" Margin="38,5,0,-5"
+    <Label x:Name="HelpLabel" DataContext="{Binding Source={StaticResource HomeMenuModel}, Path=SelectedItem}" Opacity="0.6" Margin="38,5,0,-5"
            Content="{Binding Path=[Help], NotifyOnTargetUpdated=True}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/> 
   </Grid>
 

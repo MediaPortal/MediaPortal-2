@@ -25,7 +25,6 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
@@ -74,6 +73,8 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected AbstractProperty _contentIndexProperty;
     protected AbstractProperty _selectedItemProperty;
 
+    protected AbstractProperty _isMenuSelectedProperty;
+
     protected AbstractProperty _menuEditModelProperty;
 
     protected DelayedEvent _updateEvent;
@@ -95,6 +96,13 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     private const int CONTENT_LIST_LIMIT = 6;
 
+    // We try to focus the last selected item on startup, but this item might not yet be available
+    // if it's a server menu item. In this case we have to focus a default item instead.
+    // We use these variables to tell if the focus has been changed manually from the initial item,
+    // and if not we focus the last menu item if/when it becomes available.
+    private bool _hasSelectionChanged = false;
+    private Guid? _initialSelectedActionId = null;
+
     public HomeMenuModel()
     {
       _content1Property = new WProperty(typeof(object), null);
@@ -103,6 +111,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
       _contentIndexProperty = new WProperty(typeof(int), 0);
       _selectedItemProperty = new WProperty(typeof(ListItem), null);
+      _isMenuSelectedProperty = new WProperty(typeof(bool), false);
 
       _menuEditModelProperty = new WProperty(typeof(MenuEditModel), null);
 
@@ -124,10 +133,11 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _homeContent.Add(new Guid("873eb147-c998-4632-8f86-d5e24062be2e"), new LauncherHomeContent());
       _homeContent.Add(new Guid("c33e39cc-910e-41c8-bffd-9eccd340b569"), new OnlineVideosHomeContent());
       _homeContent.Add(new Guid("2ded75c0-5eae-4e69-9913-6b50a9ab2956"), new WebradioHomeContent());
+      _homeContent.Add(new Guid("A24958E2-538A-455E-A1DB-A7BB241AF7EC"), new EmulatorsHomeContent());
 
       // Home content for displaying a list of all other plugins
       _homeContent.Add(OtherPluginsAction.ACTION_ID, new OtherPluginsHomeContent(_otherMenuItems));
-      
+
       SubscribeToMessages();
     }
 
@@ -192,7 +202,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
         {
           var context = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext;
 
-          if (context != null && context.WorkflowState.StateId == HOME_STATE_ID)
+          if (context != null)
           {
             if (context.WorkflowState.StateId == HOME_STATE_ID)
             {
@@ -279,6 +289,17 @@ namespace MediaPortal.UiComponents.Nereus.Models
       set { _selectedItemProperty.SetValue(value); }
     }
 
+    public AbstractProperty IsMenuSelectedProperty
+    {
+      get { return _isMenuSelectedProperty; }
+    }
+
+    public bool IsMenuSelected
+    {
+      get { return (bool)_isMenuSelectedProperty.GetValue(); }
+      set { _isMenuSelectedProperty.SetValue(value); }
+    }
+
     public AbstractProperty MenuEditModelProperty
     {
       get { return _menuEditModelProperty; }
@@ -293,6 +314,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
     public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
     {
       ListItem item = e.FirstAddedItem as ListItem;
+      IsMenuSelected = item != null;
       if (item != null)
         SelectedItem = item;
     }
@@ -421,7 +443,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       {
         if (!_isAttachedToMenuItems)
           return;
-        if(_allHomeMenuItems != null)
+        if (_allHomeMenuItems != null)
           _allHomeMenuItems.ObjectChanged -= OnHomeMenuItemsChanged;
         _isAttachedToMenuItems = false;
       }
@@ -432,10 +454,6 @@ namespace MediaPortal.UiComponents.Nereus.Models
       var items = observable as ItemsList;
       if (items == null)
         return;
-
-      // Get the currently selected item so we can try
-      // and focus it again if the list is rebuilt
-      ListItem previousSelectedItem = SelectedItem;
 
       //Update backing list if changed
       IDictionary<Guid, IList<string>> changedActionMediaLists;
@@ -472,10 +490,10 @@ namespace MediaPortal.UiComponents.Nereus.Models
             changedOtherItems.Add(item);
         }
       }
-      
+
       // Get the sorted main items into a regular list
       List<ListItem> changedMainItems = new List<ListItem>(sortedMainItems.Values);
-      
+
       // We need to create the other plugins menu item if necessary and
       // add it to the changed main items manually to ensure that the
       // current and changed items are compared correctly.
@@ -496,13 +514,29 @@ namespace MediaPortal.UiComponents.Nereus.Models
       if (RebuildMenuItemsIfNotEqual(_mainMenuItems, changedMainItems))
       {
         // The list has been rebuilt, try and set focus on the previously selected action
+        ListItem previousSelectedItem = FindListItemByActionId(_settingsWatcher.Settings.LastSelectedHomeMenuActionId);
         WorkflowAction previousSelectedAction = previousSelectedItem != null ? GetAction(previousSelectedItem) : null;
+
         TryRestoreSelectedAction(previousSelectedAction, changedMainItems);
         _mainMenuItems.FireChange();
       }
 
       if (RebuildMenuItemsIfNotEqual(_otherMenuItems, changedOtherItems))
         _otherMenuItems.FireChange();
+    }
+
+    private ListItem FindListItemByActionId(string lastSelectedHomeMenuActionIdString)
+    {
+      Guid lastSelectedHomeMenuActionId;
+      if (string.IsNullOrEmpty(lastSelectedHomeMenuActionIdString) || !Guid.TryParse(lastSelectedHomeMenuActionIdString, out lastSelectedHomeMenuActionId))
+        return null;
+      foreach (ListItem mainMenuItem in _mainMenuItems)
+      {
+        var action = GetAction(mainMenuItem);
+        if (action?.ActionId == lastSelectedHomeMenuActionId)
+          return mainMenuItem;
+      }
+      return null;
     }
 
     protected bool RebuildMenuItemsIfNotEqual(ItemsList current, IList<ListItem> updated)
@@ -512,7 +546,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
         // Actions are equal so no need to rebuild
         if (ActionIdsAreEqual(current, updated))
           return false;
-        
+
         current.Clear();
         CollectionUtils.AddAll(current, updated);
         return true;
@@ -539,13 +573,25 @@ namespace MediaPortal.UiComponents.Nereus.Models
       {
         // Shortcut if we've already selected an item
         if (hasSelected)
+        {
           item.Selected = false;
+        }
         else
         {
-          // Select either the first item if there's no previous action, or the action with the same id as the previous action. 
-          hasSelected = previousSelectedAction == null || previousSelectedAction.ActionId == GetAction(item)?.ActionId;
+          Guid? itemActionId = GetAction(item)?.ActionId;
+          // Select either the first item if there's no previous action, or the action with the same id as the previous action.
+          hasSelected = previousSelectedAction == null || previousSelectedAction.ActionId == itemActionId;
           // Always update the property so previously selected items are reset.
           item.Selected = hasSelected;
+
+          // If previous selected action is null then the actual previous item might not be available yet,
+          // e.g. if the server isn't connected yet. Mark this item as the initial selection, so we can try
+          // and focus the actual previous item when it becomes available if the selection hasn't been changed from this item.
+          if (hasSelected && previousSelectedAction == null)
+          {
+            _hasSelectionChanged = false;
+            _initialSelectedActionId = itemActionId;
+          }
         }
       }
     }
@@ -554,9 +600,37 @@ namespace MediaPortal.UiComponents.Nereus.Models
     {
       ListItem item = SelectedItem;
       if (item == null)
-        return;
+        return;      
+
+      // If the selection hasn't been changed yet, see if this changes it.
+      if (!_hasSelectionChanged)
+        _hasSelectionChanged = GetAction(item)?.ActionId != _initialSelectedActionId;
+      // If so, store this item as the last selected item.
+      if (_hasSelectionChanged)
+        SaveLastSelectedAction(item);
+
+      lock (_mainMenuItems.SyncRoot)
+        foreach (var menuItem in _mainMenuItems)
+          menuItem.Selected = false;
+
+      item.Selected = true;
+
       WorkflowAction action = GetAction(item);
       EnqueueUpdate(action);
+    }
+
+    private void SaveLastSelectedAction(ListItem item)
+    {
+      var action = GetAction(item);
+      if (action != null)
+      {
+        // Get the updated action ids and update the settings, we'll update
+        // the menu automatically when we get the settings changed event.
+        var sm = ServiceRegistration.Get<ISettingsManager>();
+        var settings = sm.Load<NereusSkinSettings>();
+        settings.LastSelectedHomeMenuActionId = action.ActionId.ToString();
+        sm.Save(settings);
+      }
     }
 
     private void EnqueueUpdate(WorkflowAction action)
@@ -590,7 +664,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected void UpdateSelectedFanArtItem(ListItem item)
     {
       //if (item == null)
-        //return;
+      //return;
       var fm = GetFanArtBackgroundModel();
       fm.SelectedItem = item;
     }
