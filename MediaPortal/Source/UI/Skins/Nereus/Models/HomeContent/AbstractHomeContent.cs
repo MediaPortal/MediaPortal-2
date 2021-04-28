@@ -107,51 +107,53 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 
     protected async void UpdateListsFromAvailableLists(bool initialUpdate = false)
     {
-      var model = GetContentListModel();
-      if (model == null)
-        return;
-
-      if (_availableLists.Count == 0)
-        return;
-
       bool updated = false;
-      if (_listKeys == null)
+      var model = GetContentListModel();
+      if (_availableLists.Count > 0 && model != null)
       {
-        _listKeys = _availableLists.Select(l => l.MediaListKey).ToList();
-        updated = true;
-      }
-      else if (_currentListKeys == null)
-      {
-        updated = true;
-      }
-      else
-      {
-        updated = !_currentListKeys.SequenceEqual(_listKeys);
-      }
-
-      if (updated)
-      {
-        //Remove all lists and add them in the right order
-        DetachItemsListWrappers();
-        foreach (var list in _backingList.Where(l => l is MediaListItemsListWrapper).ToList())
+        if (_listKeys == null)
         {
-          list.DetachFromItemsList();
-          _backingList.Remove(list);
+          _listKeys = _availableLists.Select(l => l.MediaListKey).ToList();
+          updated = true;
         }
-        _currentListKeys = _listKeys.ToList();
-        foreach (var listKey in _currentListKeys)
+        else if (_currentListKeys == null)
         {
-          var list = _availableLists.FirstOrDefault(l => l is MediaListItemsListWrapper mlw && mlw.MediaListKey == listKey);
-          if (list != null)
+          updated = true;
+        }
+        else
+        {
+          updated = !_currentListKeys.SequenceEqual(_listKeys);
+        }
+
+        if (updated)
+        {
+          //Remove all lists and add them in the right order
+          DetachItemsListWrappers();
+          foreach (var list in _backingList.Where(l => l is MediaListItemsListWrapper).ToList())
           {
-            if (!list.Initialized)
-              list.Initialize(model.Lists[listKey].AllItems);
-
-            _backingList.Add(list);
+            list.DetachFromItemsList();
+            _backingList.Remove(list);
           }
-        }
-        AttachItemsListWrappers();
 
+          _currentListKeys = _listKeys.ToList();
+          foreach (var listKey in _currentListKeys)
+          {
+            var list = _availableLists.FirstOrDefault(l => l is MediaListItemsListWrapper mlw && mlw.MediaListKey == listKey);
+            if (list != null && model.Lists.ContainsKey(listKey))
+            {
+              if (!list.Initialized)
+                list.Initialize(model.Lists[listKey].AllItems);
+
+              _backingList.Add(list);
+            }
+          }
+
+          AttachItemsListWrappers();
+        }
+      }
+
+      if (updated || initialUpdate)
+      {
         if (initialUpdate)
         {
           // In some situations the backing list will stay hidden if initially being empty and then 
@@ -164,13 +166,17 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       }
     }
 
-    protected abstract IContentListModel GetContentListModel();
+    protected virtual IContentListModel GetContentListModel()
+    {
+      return null;
+    }
 
     /// <summary>
     /// Implementations of this method should populate <see cref="_backingList"/>
     /// with the <see cref="ItemsListWrapper"/>s to show.
     /// </summary>
-    protected abstract void PopulateBackingList();
+    protected virtual void PopulateBackingList()
+    { }
 
     /// <summary>
     /// Implementations of this method should force a refresh of the <see cref="_backingList"/>
