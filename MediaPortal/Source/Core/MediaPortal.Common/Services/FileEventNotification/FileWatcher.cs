@@ -236,21 +236,19 @@ namespace MediaPortal.Common.Services.FileEventNotification
       if (_isDisposed)
         return;
       _isDisposed = true;
-      string path = _watchedPath != null ? _watchedPath.Path.FullName : null;
-      _notifyTimer.Enabled = false;
+      string path = _watchedPath?.Path?.FullName;
       if (_notifyTimer != null)
+      {
+        _notifyTimer.Enabled = false;
         _notifyTimer.Dispose();
-      if (_watchedPath != null)
-        _watchedPath.Dispose();
-      if (_watcher != null)
-        _watcher.Dispose();
-      if (_events != null)
-        _events.Clear();
+      }
+      _watchedPath?.Dispose();
+      _watcher?.Dispose();
+      _events?.Clear();
       _watching = false;
       if (path != null)
         RaiseSingleEvent(path, FileWatchChangeType.Disposed);
-      if (Disposed != null)
-        Disposed(this, new EventArgs());
+      Disposed?.Invoke(this, new EventArgs());
     }
 
     #endregion

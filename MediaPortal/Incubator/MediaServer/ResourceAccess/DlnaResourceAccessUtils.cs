@@ -132,7 +132,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
     {
       targetCodec = SubtitleCodec.Unknown;
       targetMime = "text/plain";
-      if (client.Profile.MediaTranscoding.SubtitleSettings.SubtitleMode == SubtitleSupport.SoftCoded)
+      if (client.Profile.MediaTranscoding?.SubtitleSettings?.SubtitleMode == SubtitleSupport.SoftCoded)
       {
         targetCodec = client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Format;
         if (string.IsNullOrEmpty(client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Mime) == false)
