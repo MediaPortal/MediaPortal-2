@@ -2958,6 +2958,56 @@
     </ListView>
   </DataTemplate>
 
+  <!--++++++++++ Emulators +++++++++++-->
+
+  <ControlTemplate x:Key="EmulatorDataTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Label x:Name="ItemLabel" Content="{Binding Title}" HorizontalAlignment="Center" Wrap="True" Margin="5"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
+      <Image x:Name="thumb"  Stretch="Uniform" Source="{Binding MediaItem}" Margin="3" />
+    </Grid>
+  </ControlTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:LastPlayedGameList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout2Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:FavoritedGameList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:UnplayedGameList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout1Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:EmulatorsHomeContent}">
+    <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource EmulatorDataTemplate}"/>
+      </ListView.Resources>
+    </ListView>
+  </DataTemplate>
+
   <!--++++++++++ TV +++++++++++-->
 
   <!--Live TV shortcut button-->

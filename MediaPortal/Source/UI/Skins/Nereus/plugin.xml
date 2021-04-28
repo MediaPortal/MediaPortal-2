@@ -104,6 +104,12 @@
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
 
     <ConfigSetting
+        Id="NereusEnableTouchDisplay"
+        Text="[Nereus.Configuration.EnableTouchDisplay]"
+        HelpText="[Nereus.Configuration.EnableTouchDisplay.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableTouchDisplayConfiguration"/>
+
+    <ConfigSetting
         Id="NereusEnableGridDetails"
         Text="[Nereus.Configuration.EnableGridDetails]"
         HelpText="[Nereus.Configuration.EnableGridDetails.Help]"
