@@ -75,6 +75,7 @@
     <Compile Include="Settings\ConfigScreenKeys.cs" />
     <Compile Include="Settings\HomeScreenScreens.cs" />
     <Compile Include="Settings\ConfigScreenScreens.cs" />
+    <Compile Include="Utils\HidUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="DefaultRemoteMap.xml">

@@ -36,6 +36,7 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.InputDeviceManager.Models;
 using MediaPortal.Plugins.InputDeviceManager.RawInput;
+using MediaPortal.Plugins.InputDeviceManager.Utils;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.General;
 using MediaPortal.UI.Presentation.Screens;
@@ -331,6 +332,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
       code = 0;
       buttonUp = hidEvent.IsButtonUp;
       buttonDown = hidEvent.IsButtonDown;
+      // Maps the usage page to a usage enum type, used for determining the name of a usage.
+      Type usageEnumType = HidUtils.UsageType(hidEvent.UsagePageEnum);
 
       //Below code snippet logs all HID events (except mouse movement) and should only be used for debugging
       //if ((hidEvent.IsMouse && hidEvent.RawInput.mouse.buttonsStr.usButtonFlags > 0) || !hidEvent.IsMouse)
@@ -501,81 +504,13 @@ namespace MediaPortal.Plugins.InputDeviceManager
               code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
             }
           }
-          else if (hidEvent.UsagePageEnum == UsagePage.Consumer)
+          else if (usageEnumType != null)
           {
             if (buttonDown || buttonUp)
             {
-              string usage = id.ToString();
-              if (Enum.IsDefined(typeof(ConsumerControl), id))
-                usage = Enum.GetName(typeof(ConsumerControl), id);
-              else
-              {
-                IgnoreKey(id, hidEvent);
-                return false;
-              }
-
-              name = $"{usage}";
-              code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
-            }
-          }
-          else if (hidEvent.UsagePageEnum == UsagePage.GameControls)
-          {
-            if (buttonDown || buttonUp)
-            {
-              string usage = id.ToString();
-              if (Enum.IsDefined(typeof(GameControl), id))
-                usage = Enum.GetName(typeof(GameControl), id);
-              else
-              {
-                IgnoreKey(id, hidEvent);
-                return false;
-              }
-
-              name = $"{usage}";
-              code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
-            }
-          }
-          else if (hidEvent.UsagePageEnum == UsagePage.SimulationControls)
-          {
-            if (buttonDown || buttonUp)
-            {
-              string usage = id.ToString();
-              if (Enum.IsDefined(typeof(SimulationControl), id))
-                usage = Enum.GetName(typeof(SimulationControl), id);
-              else
-              {
-                IgnoreKey(id, hidEvent);
-                return false;
-              }
-
-              name = $"{usage}";
-              code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
-            }
-          }
-          else if (hidEvent.UsagePageEnum == UsagePage.Telephony)
-          {
-            if (buttonDown || buttonUp)
-            {
-              string usage = id.ToString();
-              if (Enum.IsDefined(typeof(TelephonyDevice), id))
-                usage = Enum.GetName(typeof(TelephonyDevice), id);
-              else
-              {
-                IgnoreKey(id, hidEvent);
-                return false;
-              }
-
-              name = $"{usage}";
-              code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
-            }
-          }
-          else if (hidEvent.UsagePageEnum == UsagePage.GenericDesktopControls)
-          {
-            if (buttonDown || buttonUp)
-            {
-              string usage = id.ToString();
-              if (Enum.IsDefined(typeof(GenericDesktop), id))
-                usage = Enum.GetName(typeof(GenericDesktop), id);
+              string usage;
+              if (Enum.IsDefined(usageEnumType, id))
+                usage = Enum.GetName(usageEnumType, id);
               else
               {
                 IgnoreKey(id, hidEvent);
