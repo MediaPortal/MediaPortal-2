@@ -272,7 +272,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         AddDefaultConfig(RES_DEFAULT_KEYBOARD_TEXT, GetDefaultKeyboardMap());
         AddDefaultConfig(RES_DEFAULT_REMOTE_TEXT, GetDefaultRemoteMap());
       }
-      InputDeviceManager.Instance.RegisterExternalKeyHandling(OnKeyPressed);
+      ServiceRegistration.Get<IInputDeviceManager>().RegisterExternalKeyHandling(OnKeyPressed);
       return Task.CompletedTask;
     }
 
@@ -288,7 +288,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       ShowInputDeviceSelection = false;
       ShowKeyMapping = false;
       if (removeOnKeyPressed)
-        InputDeviceManager.Instance.UnRegisterExternalKeyHandling(OnKeyPressed);
+        ServiceRegistration.Get<IInputDeviceManager>().UnRegisterExternalKeyHandling(OnKeyPressed);
     }
 
     protected void AddDefaultConfig(string text, List<MappedKeyCode> config)
@@ -589,7 +589,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       settingsManager.Save(settings);
 
       // update settings in the main plugin
-      InputDeviceManager.Instance.UpdateLoadedSettings(settings);
+      ServiceRegistration.Get<IInputDeviceManager>().UpdateLoadedSettings(settings);
     }
 
     /// <summary>
@@ -645,7 +645,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       {
         UpdateSettings(defaultKeys, true);
       }
-      if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice.Type, out device))
+      if (ServiceRegistration.Get<IInputDeviceManager>().InputDevices.TryGetValue(_currentInputDevice.Type, out device))
       {
         mappedKeys = device.KeyMap.ToList();
       }
@@ -734,7 +734,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           if (dialogResult == DialogResult.Yes && selectedItem != null)
           {
             InputDevice device;
-            if (InputDeviceManager.InputDevices.TryGetValue(_currentInputDevice.Type, out device))
+            if (ServiceRegistration.Get<IInputDeviceManager>().InputDevices.TryGetValue(_currentInputDevice.Type, out device))
             {
               MappedKeyCode mappedKeyCode = device.KeyMap.FirstOrDefault(k => k.Key == (string)selectedItem.AdditionalProperties[KEY_KEYMAP_DATA]);
               if (mappedKeyCode != null)
@@ -749,7 +749,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
                   inputDevice.KeyMap = device.KeyMap;
                   settingsManager.Save(settings);
                   // update settings in the main plugin
-                  InputDeviceManager.Instance.UpdateLoadedSettings(settings);
+                  ServiceRegistration.Get<IInputDeviceManager>().UpdateLoadedSettings(settings);
                   // this brings us back to the add key menu
                   UpdateKeymapping();
                 }

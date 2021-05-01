@@ -65,6 +65,8 @@
     </Compile>
     <Compile Include="Hid\HidManager.cs" />
     <Compile Include="Hid\HidWatcher.cs" />
+    <Compile Include="IInputDeviceManager.cs" />
+    <Compile Include="InputDeviceManagerPlugin.cs" />
     <Compile Include="InputDevices.cs" />
     <Compile Include="InputDeviceManager.cs" />
     <Compile Include="InputManagerSettings.cs" />

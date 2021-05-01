@@ -51,7 +51,7 @@ using SharpLib.Win32;
 
 namespace MediaPortal.Plugins.InputDeviceManager
 {
-  public class InputDeviceManager : IPluginStateTracker
+  public class InputDeviceManager : IInputDeviceManager, IDisposable
   {
     private const bool SUPPORT_REPEATS = true;
     private const int WM_KEYDOWN = 0x100;
@@ -62,13 +62,6 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private const int WA_INACTIVE = 0;
     private const int WM_INPUT = 0x00FF;
 
-    private static readonly ConcurrentDictionary<string, InputDevice> _inputDevices = new ConcurrentDictionary<string, InputDevice>();
-    private static readonly ConcurrentDictionary<string, long> _pressedKeys = new ConcurrentDictionary<string, long>();
-    private static List<Action<object, string, string, IDictionary<string, long>>> _externalKeyPressHandlers = new List<Action<object, string, string, IDictionary<string, long>>>();
-    private static object _listSyncObject = new object();
-    private static ConcurrentDictionary<long, (string Name, long Code)> _genericKeyDownEvents = new ConcurrentDictionary<long, (string Name, long Code)>();
-    private static bool _nextKeyEventHandled = false;
-    private static List<MappedKeyCode> _defaultRemoteKeyCodes = new List<MappedKeyCode>();
     private static readonly List<long> _navigationKeyboardKeys = new List<long>
     {
       (long)Keys.Return,
@@ -107,25 +100,40 @@ namespace MediaPortal.Plugins.InputDeviceManager
       GetUniqueGenericKeyCode(true, false, (long)Keys.VolumeDown),
       GetUniqueGenericKeyCode(true, false, (long)Keys.VolumeMute),
     };
-    private static ConcurrentDictionary<long, object> _ignoredKeys = new ConcurrentDictionary<long, object>();
+
+    private readonly ConcurrentDictionary<string, InputDevice> _inputDevices = new ConcurrentDictionary<string, InputDevice>();
+    private readonly ConcurrentDictionary<string, long> _pressedKeys = new ConcurrentDictionary<string, long>();
+    private List<Action<object, string, string, IDictionary<string, long>>> _externalKeyPressHandlers = new List<Action<object, string, string, IDictionary<string, long>>>();
+    private object _listSyncObject = new object();
+    private ConcurrentDictionary<long, (string Name, long Code)> _genericKeyDownEvents = new ConcurrentDictionary<long, (string Name, long Code)>();
+    private bool _nextKeyEventHandled = false;
+    private List<MappedKeyCode> _defaultRemoteKeyCodes = new List<MappedKeyCode>();
+    private ConcurrentDictionary<long, object> _ignoredKeys = new ConcurrentDictionary<long, object>();
 
     private HidManager _hidManager;
     private SynchronousMessageQueue _messageQueue;
 
-    public static InputDeviceManager Instance { get; private set; }
-    public static IDictionary<string, InputDevice> InputDevices
+    public IDictionary<string, InputDevice> InputDevices
     {
       get { return _inputDevices; }
     }
 
-    #region Initialization
+    #region Initialization/Deinitialization
 
-    public InputDeviceManager()
+    public void Init(PluginRuntime pluginRuntime)
     {
-      _hidManager = new HidManager();
-      Instance = this;
+      if (_hidManager == null)
+        _hidManager = new HidManager();
+      LoadSettings();
+      LoadDefaulRemoteMaps(pluginRuntime);
+      SubscribeToMessages();
     }
-    
+
+    public void Dispose()
+    {
+      _hidManager?.Dispose();
+    }
+
     #endregion
 
     #region Form key handling
@@ -339,7 +347,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
-    private static bool TryDecodeEvent(Event hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown)
+    private bool TryDecodeEvent(Event hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown)
     {
       device = "";
       name = "";
@@ -566,7 +574,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return keyMapping.All(c => pressedKeys.Contains(c)) && pressedKeys.All(c => keyMapping.Contains(c));
     }
 
-    private static void IgnoreKey(ushort id, Event hidEvent)
+    private void IgnoreKey(ushort id, Event hidEvent)
     {
       if (_ignoredKeys.TryAdd(GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id), null))
         ServiceRegistration.Get<ILogger>().Debug(GetLogEventData("Ignored unknown key", hidEvent));
@@ -587,7 +595,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return key;
     }
 
-    private static bool CheckMappedKeys(InputDevice device, IEnumerable<long> codes, bool isRepeat, bool handleKeyPressIfFound)
+    private bool CheckMappedKeys(InputDevice device, IEnumerable<long> codes, bool isRepeat, bool handleKeyPressIfFound)
     {
       if (device?.KeyMap.Count > 0)
       {
@@ -602,7 +610,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return false;
     }
 
-    private static bool CheckDefaultRemoteKeys(IEnumerable<long> codes, bool isRepeat, bool handleKeyPressIfFound)
+    private bool CheckDefaultRemoteKeys(IEnumerable<long> codes, bool isRepeat, bool handleKeyPressIfFound)
     {
       var keyMappings = _defaultRemoteKeyCodes.Where(m => KeyCombinationsMatch(m.Codes.Select(c => c.Code), codes));
       if (keyMappings?.Count() > 0)
@@ -623,7 +631,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         code == GetUniqueGenericKeyCode(true, false, (long)Keys.LWin);
     }
 
-    private static bool AddPressedKey(string name, long code)
+    private bool AddPressedKey(string name, long code)
     {
       if (_pressedKeys.Values.Any(c => !IsModifierKey(c)) && !IsModifierKey(code) && !_pressedKeys.Values.Any(c => c == code))
       {
@@ -637,12 +645,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
-    private static void RemovePressedKey(string name)
+    private void RemovePressedKey(string name)
     {
       _pressedKeys.TryRemove(name, out _);
     }
 
-    private static bool CheckKeyPresses(string type, string deviceName, bool isGeneric, bool isRepeat, IEnumerable<KeyCode> keys, bool buttonUp, bool buttonDown)
+    private bool CheckKeyPresses(string type, string deviceName, bool isGeneric, bool isRepeat, IEnumerable<KeyCode> keys, bool buttonUp, bool buttonDown)
     {
       bool handleKeyPress = (SUPPORT_REPEATS && buttonDown) || (!SUPPORT_REPEATS && buttonUp);
 
@@ -687,7 +695,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           lock (_listSyncObject)
           {
             foreach (var action in _externalKeyPressHandlers)
-              action.Invoke(Instance, deviceName, type, _pressedKeys);
+              action.Invoke(this, deviceName, type, _pressedKeys);
           }
         }
 
@@ -704,7 +712,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return keyHandled;
     }
 
-    private static bool HandleKeyPress(IEnumerable<MappedKeyCode> keyMappings, bool isRepeat, bool handleKeyPressIfFound)
+    private bool HandleKeyPress(IEnumerable<MappedKeyCode> keyMappings, bool isRepeat, bool handleKeyPressIfFound)
     {
       if (!(keyMappings?.Count() > 0))
         return false;
@@ -905,72 +913,6 @@ namespace MediaPortal.Plugins.InputDeviceManager
       {
         _externalKeyPressHandlers.Clear();
       }
-    }
-
-    #endregion
-
-    #region Implementation of IPluginStateTracker
-
-    /// <summary>
-    /// Will be called when the plugin is started. This will happen as a result of a plugin auto-start
-    /// or an item access which makes the plugin active.
-    /// This method is called after the plugin's state was set to <see cref="PluginState.Active"/>.
-    /// </summary>
-    public void Activated(PluginRuntime pluginRuntime)
-    {
-      LoadSettings();
-      LoadDefaulRemoteMaps(pluginRuntime);
-      SubscribeToMessages();
-    }
-
-    /// <summary>
-    /// Schedules the stopping of this plugin. This method returns the information
-    /// if this plugin can be stopped. Before this method is called, the plugin's state
-    /// will be changed to <see cref="PluginState.EndRequest"/>.
-    /// </summary>
-    /// <remarks>
-    /// This method is part of the first phase in the two-phase stop procedure.
-    /// After this method returns <c>true</c> and all item's clients also return <c>true</c>
-    /// as a result of their stop request, the plugin's state will change to
-    /// <see cref="PluginState.Stopping"/>, then all uses of items by clients will be canceled,
-    /// then this plugin will be stopped by a call to method <see cref="IPluginStateTracker.Stop"/>.
-    /// If either this method returns <c>false</c> or one of the items clients prevent
-    /// the stopping, the plugin will continue to be active and the method <see cref="IPluginStateTracker.Continue"/>
-    /// will be called.
-    /// </remarks>
-    /// <returns><c>true</c>, if this plugin can be stopped at this time, else <c>false</c>.
-    /// </returns>
-    public bool RequestEnd()
-    {
-      return true;
-    }
-
-    /// <summary>
-    /// Second step of the two-phase stopping procedure. This method stops this plugin,
-    /// i.e. removes the integration of this plugin into the system, which was triggered
-    /// by the <see cref="IPluginStateTracker.Activated"/> method.
-    /// </summary>
-    public void Stop()
-    {
-      UnsubscribeFromMessages();
-    }
-
-    /// <summary>
-    /// Revokes the end request which was triggered by a former call to the
-    /// <see cref="IPluginStateTracker.RequestEnd"/> method and restores the active state. After this call, the plugin remains active as
-    /// it was before the call of <see cref="IPluginStateTracker.RequestEnd"/> method.
-    /// </summary>
-    public void Continue()
-    {
-    }
-
-    /// <summary>
-    /// Will be called before the plugin manager shuts down. The plugin can perform finalization
-    /// tasks here. This method will called independently from the plugin state, i.e. it will also be called when the plugin
-    /// was disabled or not started at all.
-    /// </summary>
-    public void Shutdown()
-    {
     }
 
     #endregion
