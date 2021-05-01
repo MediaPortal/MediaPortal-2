@@ -38,8 +38,11 @@ using MediaPortal.Plugins.InputDeviceManager.Models;
 using MediaPortal.Plugins.InputDeviceManager.RawInput;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.General;
+using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UI.SkinEngine.Controls.Visuals;
 using MediaPortal.UI.SkinEngine.InputManagement;
+using MediaPortal.UI.SkinEngine.ScreenManagement;
 
 namespace MediaPortal.Plugins.InputDeviceManager
 {
@@ -163,6 +166,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
                 break;
               case WindowsMessaging.MessageType.HidBroadcast:
                 HidEvent hidEvent = (HidEvent)message.MessageData[WindowsMessaging.HID_EVENT];
+
+                // If the current focus is in a control that handles text input, e.g. a text box, don't map the key
+                if (hidEvent.IsKeyboard && DoesCurrentFocusedControlNeedTextInput())
+                  return;
+
                 if (!TryDecodeEvent(hidEvent, out string type, out string name, out long code, out bool buttonUp, out bool buttonDown))
                   return;
 
@@ -835,6 +843,28 @@ namespace MediaPortal.Plugins.InputDeviceManager
             return true;
           }
         }
+      }
+      return false;
+    }
+
+    /// <summary>
+    /// Checks if the currently focused control requires text input.
+    /// </summary>
+    /// <returns><c>True</c> if the focused control requires text input.</returns>
+    private static bool DoesCurrentFocusedControlNeedTextInput()
+    {
+      var sm = ServiceRegistration.Get<IScreenManager>(false) as ScreenManager;
+      if (sm == null)
+        return false;
+
+      Visual focusedElement = sm.FocusedScreen?.FocusedElement;
+      while (focusedElement != null)
+      {
+        // Currently only the TextControl requires text input but ideally this check would be extensible
+        // as a plugin could potentially add a new control which wouldn't be handled here.
+        if (focusedElement is TextControl)
+          return true;
+        focusedElement = focusedElement.VisualParent;
       }
       return false;
     }
