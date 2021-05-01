@@ -22,26 +22,26 @@
 
 #endregion
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Timers;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
-using MediaPortal.UiComponents.SkinBase.General;
+using MediaPortal.Plugins.InputDeviceManager.RawInput;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.SkinBase.General;
+using SharpLib.Hid;
+using SharpLib.Hid.Usage;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.Plugins.InputDeviceManager.RawInput;
-using MediaPortal.UI.SkinEngine.InputManagement;
+using System.Timers;
 using Keys = System.Windows.Forms.Keys;
 
 namespace MediaPortal.Plugins.InputDeviceManager.Models

@@ -56,8 +56,6 @@ using MediaPortal.Utilities.Process;
 using MediaPortal.Utilities.Screens;
 using MediaPortal.Utilities.SystemAPI;
 using SharpDX.Direct3D9;
-using SharpLib.Hid;
-using SharpLib.Win32;
 using Screen = MediaPortal.UI.SkinEngine.ScreenManagement.Screen;
 
 namespace MediaPortal.UI.SkinEngine.GUI
@@ -68,200 +66,12 @@ namespace MediaPortal.UI.SkinEngine.GUI
   {
     protected delegate void Dlgt();
 
-    private Handler _hidHandler;
-    private const bool CAPTURE_ONLY_IN_FOREGROUND = true;
-    private RawMouseButtonFlags _lastMouseFlags = RawMouseButtonFlags.None;
-
     private class MessageRateInfo
     {
       public DateTime LastEvaluation { get; set; } = DateTime.UtcNow;
       public long MessageCount { get; set; }
       public bool Logged { get; set; }
     }
-
-    #region RAW input handling
-
-    private void InitializeHidHandling()
-    {
-      RawInputDeviceFlags flags = CAPTURE_ONLY_IN_FOREGROUND ? 0 : SharpLib.Win32.RawInputDeviceFlags.RIDEV_INPUTSINK;
-      //SharpLib.Win32.RawInputDeviceFlags flags = SharpLib.Win32.RawInputDeviceFlags.RIDEV_EXINPUTSINK;
-      //SharpLib.Win32.RawInputDeviceFlags flags = SharpLib.Win32.RawInputDeviceFlags.RIDEV_INPUTSINK;
-      IntPtr handle = Handle;
-      List<RAWINPUTDEVICE> devices = new List<RAWINPUTDEVICE>();
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.WindowsMediaCenter.WindowsMediaCenterRemoteControl,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      //devices.Add(new RAWINPUTDEVICE
-      //{
-      //  usUsagePage = (ushort)SharpLib.Hid.UsagePage.WindowsMediaCenterRemoteControl,
-      //  usUsage = (ushort)SharpLib.Hid.UsageCollection.WindowsMediaCenter.WindowsMediaCenterLowLevel,
-      //  dwFlags = flags,
-      //  hwndTarget = handle
-      //});
-
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ConsumerControl,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ApplicationLaunchButtons,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.FunctionButtons,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.GenericGuiApplicationControls,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.MediaSelection,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.NumericKeyPad,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.PlaybackSpeed,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.ProgrammableButtons,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.SelectDisc,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.Consumer,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.Consumer.Selection,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.SystemControl,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.GamePad,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Joystick,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Keyboard,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.KeyPad,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-      devices.Add(new RAWINPUTDEVICE
-      {
-        usUsagePage = (ushort)SharpLib.Hid.UsagePage.GenericDesktopControls,
-        usUsage = (ushort)SharpLib.Hid.UsageCollection.GenericDesktop.Mouse,
-        dwFlags = flags,
-        hwndTarget = handle
-      });
-
-      _hidHandler = new Handler(devices.ToArray(), true, -1, -1);
-      _hidHandler.OnHidEvent += new Handler.HidEventHandler(OnHidEvent);
-    }
-
-    private void OnHidEvent(object sender, Event hidEvent)
-    {
-      try
-      {
-        if (hidEvent == null)
-          return;
-
-        if (CAPTURE_ONLY_IN_FOREGROUND && hidEvent.IsBackground)
-          return;
-
-        if (!hidEvent.IsValid)
-        {
-          ServiceRegistration.Get<ILogger>().Debug("SkinEngine MainForm: HID Event Invalid");
-          return;
-        }
-
-        var hid = new HidEvent(hidEvent);
-        if (!IsHidEventNeeded(hid))
-          return;
-
-        WindowsMessaging.BroadcastHidMessage(new HidEvent(hidEvent));
-      }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: HID event failed", ex);
-      }
-    }
-
-    private bool IsHidEventNeeded(HidEvent hidEvent)
-    {
-      if (hidEvent.IsMouse)
-      {
-        if (_lastMouseFlags == hidEvent.MouseButtonFlags)
-          return false; //Only send button event changes for mouse to avoid overloading the message queue with mouse move etc.
-
-        _lastMouseFlags = hidEvent.MouseButtonFlags;
-      }
-      return true;
-    }
-
-    #endregion
 
     /// <summary>
     /// Maximum time between frames when our render thread is synchronized to the video player thread.
@@ -428,8 +238,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       TouchDown += MainForm_OnTouchDown;
       TouchMove += MainForm_OnTouchMove;
       TouchUp += MainForm_OnTouchUp;
-
-      InitializeHidHandling();
     }
 
     private Point ValidatePosition(Point value, Size availableSize, ref Size desiredWindowedSize)
@@ -1008,7 +816,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       try
       {
         logger.Debug("SkinEngine MainForm: Stopping");
-        _hidHandler?.Dispose();
         StoreClientBounds();
         StopUI();
         UIResourcesHelper.ReleaseUIResources();
@@ -1352,9 +1159,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
           }
         }
       }
-
-      if (m.Msg == WM_INPUT)
-        _hidHandler?.ProcessInput(ref m);
 
       if (IsInternalMessage(m))
       {

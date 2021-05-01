@@ -34,6 +34,8 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.InputDeviceManager.Hid;
+using MediaPortal.Plugins.InputDeviceManager.Messaging;
 using MediaPortal.Plugins.InputDeviceManager.Models;
 using MediaPortal.Plugins.InputDeviceManager.RawInput;
 using MediaPortal.Plugins.InputDeviceManager.Utils;
@@ -42,8 +44,10 @@ using MediaPortal.UI.General;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
-using MediaPortal.UI.SkinEngine.InputManagement;
 using MediaPortal.UI.SkinEngine.ScreenManagement;
+using SharpLib.Hid;
+using SharpLib.Hid.Usage;
+using SharpLib.Win32;
 
 namespace MediaPortal.Plugins.InputDeviceManager
 {
@@ -105,6 +109,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     };
     private static ConcurrentDictionary<long, object> _ignoredKeys = new ConcurrentDictionary<long, object>();
 
+    private HidManager _hidManager;
     private SynchronousMessageQueue _messageQueue;
 
     public static InputDeviceManager Instance { get; private set; }
@@ -117,6 +122,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     public InputDeviceManager()
     {
+      _hidManager = new HidManager();
       Instance = this;
     }
     
@@ -165,8 +171,16 @@ namespace MediaPortal.Plugins.InputDeviceManager
                   _pressedKeys.Clear();
                 }
                 break;
-              case WindowsMessaging.MessageType.HidBroadcast:
-                HidEvent hidEvent = (HidEvent)message.MessageData[WindowsMessaging.HID_EVENT];
+            }
+          }
+          else if (message.ChannelName == InputDeviceMessaging.CHANNEL)
+          {
+            InputDeviceMessaging.MessageType messageType = (InputDeviceMessaging.MessageType)message.MessageType;
+            switch (messageType)
+            {
+
+              case InputDeviceMessaging.MessageType.HidBroadcast:
+                Event hidEvent = (Event)message.MessageData[InputDeviceMessaging.HID_EVENT];
 
                 // If the current focus is in a control that handles text input, e.g. a text box, don't map the key
                 if (hidEvent.IsKeyboard && DoesCurrentFocusedControlNeedTextInput())
@@ -192,7 +206,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     {
       if (_messageQueue != null)
         return;
-      _messageQueue = new SynchronousMessageQueue(this, new[] { WindowsMessaging.CHANNEL });
+      _messageQueue = new SynchronousMessageQueue(this, new[] { WindowsMessaging.CHANNEL, InputDeviceMessaging.CHANNEL });
       _messageQueue.MessagesAvailable += OnPreviewMessage;
       _messageQueue.RegisterAtAllMessageChannels();
     }
@@ -209,7 +223,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     #region Logging   
 
-    private static string GetLogEventData(string info, HidEvent hidEvent)
+    private static string GetLogEventData(string info, Event hidEvent)
     {
       string str = string.IsNullOrEmpty(info) ? "" : $"{info} ";
       str += "HID Event";
@@ -221,11 +235,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
       {
         str += ", Generic";
         for (int aIndex = 0; aIndex < hidEvent.Usages.Count; ++aIndex)
-          str += ", Usage: " + hidEvent.UsageNameAndValues[aIndex];
-        str += ", UsagePage: " + hidEvent.UsagePageNameAndValue + ", UsageCollection: " + hidEvent.UsageCollectionNameAndValue + ", Input Report: 0x" + hidEvent.InputReportString;
+          str += ", Usage: " + hidEvent.UsageNameAndValue(aIndex);
+        str += ", UsagePage: " + hidEvent.UsagePageNameAndValue() + ", UsageCollection: " + hidEvent.UsageCollectionNameAndValue() + ", Input Report: 0x" + hidEvent.InputReportString();
         if (hidEvent.Device?.IsGamePad ?? false)
         {
-          str += ", GamePad, DirectionState: " + hidEvent.DirectionPadState;
+          str += ", GamePad, DirectionState: " + hidEvent.GetDirectionPadState();
         }
         else if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl)
         {
@@ -247,7 +261,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       else if (hidEvent.IsKeyboard)
         str += ", Keyboard" + (object)", Virtual Key: " + hidEvent.VirtualKey.ToString();
       else if (hidEvent.IsMouse)
-        str += ", Mouse, Flags: " + hidEvent.MouseButtonFlags;
+        str += ", Mouse, Flags: " + hidEvent.RawInput.data.mouse.mouseData.buttonsStr.usButtonFlags;
       if (hidEvent.IsBackground)
         str += ", Background";
       if (hidEvent.IsRepeat)
@@ -276,7 +290,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return str;
     }
 
-    private static void LogEvent(string info, HidEvent hidEvent)
+    private static void LogEvent(string info, Event hidEvent)
     {
       ServiceRegistration.Get<ILogger>().Debug(GetLogEventData(info, hidEvent));
     }
@@ -325,7 +339,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
-    private static bool TryDecodeEvent(HidEvent hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown)
+    private static bool TryDecodeEvent(Event hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown)
     {
       device = "";
       name = "";
@@ -373,36 +387,35 @@ namespace MediaPortal.Plugins.InputDeviceManager
       else if (hidEvent.IsMouse)
       {
         int id = 0;
-        switch (hidEvent.MouseButtonFlags)
+        switch (hidEvent.RawInput.data.mouse.mouseData.buttonsStr.usButtonFlags)
         {
-          case RawMouseButtonFlags.LeftButtonDown:
-          case RawMouseButtonFlags.LeftButtonUp:
-          case RawMouseButtonFlags.RightButtonDown:
-          case RawMouseButtonFlags.RightButtonUp:
-          case RawMouseButtonFlags.MouseWheel:
-          case RawMouseButtonFlags.MouseHorizontalWheel:
+          case RawInputMouseButtonFlags.RI_MOUSE_LEFT_BUTTON_DOWN:
+          case RawInputMouseButtonFlags.RI_MOUSE_LEFT_BUTTON_UP:
+          case RawInputMouseButtonFlags.RI_MOUSE_RIGHT_BUTTON_DOWN:
+          case RawInputMouseButtonFlags.RI_MOUSE_RIGHT_BUTTON_UP:
+          case RawInputMouseButtonFlags.RI_MOUSE_WHEEL:
             return false; //Reserve these events for navigation purposes
-          case RawMouseButtonFlags.MiddleButtonDown:
+          case RawInputMouseButtonFlags.RI_MOUSE_MIDDLE_BUTTON_DOWN:
             buttonDown = true;
             id = 3;
             break;
-          case RawMouseButtonFlags.MiddleButtonUp:
+          case RawInputMouseButtonFlags.RI_MOUSE_MIDDLE_BUTTON_UP:
             buttonUp = true;
             id = 3;
             break;
-          case RawMouseButtonFlags.Button4Down:
+          case RawInputMouseButtonFlags.RI_MOUSE_BUTTON_4_DOWN:
             buttonDown = true;
             id = 4;
             break;
-          case RawMouseButtonFlags.Button4Up:
+          case RawInputMouseButtonFlags.RI_MOUSE_BUTTON_4_UP:
             buttonUp = true;
             id = 4;
             break;
-          case RawMouseButtonFlags.Button5Down:
+          case RawInputMouseButtonFlags.RI_MOUSE_BUTTON_5_DOWN:
             buttonDown = true;
             id = 5;
             break;
-          case RawMouseButtonFlags.Button5Up:
+          case RawInputMouseButtonFlags.RI_MOUSE_BUTTON_5_UP:
             buttonUp = true;
             id = 5;
             break;
@@ -429,7 +442,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
             {
               //Button down never happened so presume this is it if possible
               //because sometimes button down events are triggered as button up events
-              var state = hidEvent.DirectionPadState;
+              var state = hidEvent.GetDirectionPadState();
               if (state != DirectionPadState.Rest)
               {
                 name = $"Pad{state.ToString()}";
@@ -473,7 +486,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
           if (hidEvent.Device?.IsGamePad == true)
           {
-            var state = hidEvent.DirectionPadState;
+            var state = hidEvent.GetDirectionPadState();
             if (state != DirectionPadState.Rest)
             {
               name = $"Pad{state.ToString()}";
@@ -553,7 +566,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       return keyMapping.All(c => pressedKeys.Contains(c)) && pressedKeys.All(c => keyMapping.Contains(c));
     }
 
-    private static void IgnoreKey(ushort id, HidEvent hidEvent)
+    private static void IgnoreKey(ushort id, Event hidEvent)
     {
       if (_ignoredKeys.TryAdd(GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id), null))
         ServiceRegistration.Get<ILogger>().Debug(GetLogEventData("Ignored unknown key", hidEvent));

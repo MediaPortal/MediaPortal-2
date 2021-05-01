@@ -22,7 +22,8 @@
 
 #endregion
 
-using MediaPortal.UI.SkinEngine.InputManagement;
+using SharpLib.Hid;
+using SharpLib.Hid.Usage;
 using System;
 
 namespace MediaPortal.Plugins.InputDeviceManager.Utils
