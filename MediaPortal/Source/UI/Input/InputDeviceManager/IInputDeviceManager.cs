@@ -27,6 +27,8 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.InputDeviceManager
 {
+  public delegate bool ExternalKeyPressHandler(object sender, string name, string device, IDictionary<string, long> pressedKeys);
+
   public interface IInputDeviceManager
   {
     /// <summary>
@@ -37,16 +39,16 @@ namespace MediaPortal.Plugins.InputDeviceManager
     /// <summary>
     /// Registers an external key handler that will be called instead of any mapped keys/actions.
     /// </summary>
-    /// <param name="hidEvent">Key handler action to call on a HID event.</param>
+    /// <param name="keyPressHandler">Key press handler to call on a HID event.</param>
     /// <returns><c>True</c> if the key handler was added.</returns>
-    bool RegisterExternalKeyHandling(Action<object, string, string, IDictionary<string, long>> hidEvent);
+    bool RegisterExternalKeyHandling(ExternalKeyPressHandler keyPressHandler);
 
     /// <summary>
     /// Unregisters an external key handler previously added with a call to <see cref="RegisterExternalKeyHandling"/>.
     /// </summary>
-    /// <param name="hidEvent"></param>
+    /// <param name="keyPressHandler">Key press handler to remove.</param>
     /// <returns><c>True</c> if the key handler was removed.</returns>
-    bool UnRegisterExternalKeyHandling(Action<object, string, string, IDictionary<string, long>> hidEvent);
+    bool UnRegisterExternalKeyHandling(ExternalKeyPressHandler keyPressHandler);
 
     /// <summary>
     /// Updates the inpute device configuration using the specified <paramref name="settings"/>.

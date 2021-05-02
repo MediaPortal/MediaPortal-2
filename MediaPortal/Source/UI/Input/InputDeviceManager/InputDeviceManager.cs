@@ -62,32 +62,6 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private const int WA_INACTIVE = 0;
     private const int WM_INPUT = 0x00FF;
 
-    private static readonly List<long> _navigationKeyboardKeys = new List<long>
-    {
-      (long)Keys.Return,
-      (long)Keys.Escape,
-      (long)Keys.Left,
-      (long)Keys.Right,
-      (long)Keys.Up,
-      (long)Keys.Down,
-      (long)Keys.PageDown,
-      (long)Keys.PageUp,
-      (long)Keys.Home,
-      (long)Keys.End,
-    };
-    private static readonly List<Key> _navigationMp2Keys = new List<Key>
-    {
-      Key.Ok,
-      Key.Escape,
-      Key.Left,
-      Key.Right,
-      Key.Up,
-      Key.Down,
-      Key.PageDown,
-      Key.PageUp,
-      Key.Fwd,
-      Key.Rew
-    };
     //Windows is automatically generating keyboard codes for some consumer usages. We need to ignore those, 
     //because they lack device information needed to map them.
     private static readonly List<long> _windowsGeneratedKeys = new List<long>
@@ -103,7 +77,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     private readonly ConcurrentDictionary<string, InputDevice> _inputDevices = new ConcurrentDictionary<string, InputDevice>();
     private readonly ConcurrentDictionary<string, long> _pressedKeys = new ConcurrentDictionary<string, long>();
-    private List<Action<object, string, string, IDictionary<string, long>>> _externalKeyPressHandlers = new List<Action<object, string, string, IDictionary<string, long>>>();
+    private List<ExternalKeyPressHandler> _externalKeyPressHandlers = new List<ExternalKeyPressHandler>();
     private object _listSyncObject = new object();
     private ConcurrentDictionary<long, (string Name, long Code)> _genericKeyDownEvents = new ConcurrentDictionary<long, (string Name, long Code)>();
     private bool _nextKeyEventHandled = false;
@@ -666,9 +640,14 @@ namespace MediaPortal.Plugins.InputDeviceManager
         }
       }
 
-      //Check mapped keys
       bool keyHandled = false;
-      if (_inputDevices.TryGetValue(type, out var device))
+
+      // Try external handlers first
+      if (handleKeyPress && !isRepeat)
+        keyHandled = InvokeExternalKeyHandlers(deviceName, type, _pressedKeys);
+
+      //Check mapped keys
+      if (!keyHandled && _inputDevices.TryGetValue(type, out var device))
       {
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + device.Name);
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
@@ -688,22 +667,6 @@ namespace MediaPortal.Plugins.InputDeviceManager
           keyHandled = true;
       }
 
-      if (_externalKeyPressHandlers.Count > 0)
-      {
-        if (handleKeyPress && !isRepeat) //Only send handled presses and no repeats for better consistency
-        {
-          lock (_listSyncObject)
-          {
-            foreach (var action in _externalKeyPressHandlers)
-              action.Invoke(this, deviceName, type, _pressedKeys);
-          }
-        }
-
-        //Allow navigation keys if unhandled
-        if (isGeneric || !keys.All(k => _navigationKeyboardKeys.Contains(k.Code)))
-          keyHandled = true;
-      }
-
       if (buttonUp)
       {
         foreach (var key in keys)
@@ -714,53 +677,46 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     private bool HandleKeyPress(IEnumerable<MappedKeyCode> keyMappings, bool isRepeat, bool handleKeyPressIfFound)
     {
-      if (!(keyMappings?.Count() > 0))
+      if (keyMappings == null)
         return false;
 
       bool keyHandled = false;
-      bool externalHandling = _externalKeyPressHandlers.Count > 0;
       foreach (var keyMapping in keyMappings)
       {
         string[] actionArray = keyMapping.Key.Split('.');
-        if (actionArray.Length >= 2)
+        if (actionArray.Length < 2)
+          continue;
+
+        if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
         {
-          if (keyMapping.Key.StartsWith(InputDeviceModel.KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+          if (handleKeyPressIfFound)
           {
-            if (_navigationMp2Keys.Any(k => k.Name == actionArray[1]) || !externalHandling) //Only allow navigation key during external handling
+            ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing key action: '{0}'", actionArray[1]);
+            if (!actionArray[1].Equals("None", StringComparison.InvariantCultureIgnoreCase))
             {
-              if (handleKeyPressIfFound)
-              {
-                ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Executing key action: '{0}'", actionArray[1]);
-                if (!actionArray[1].Equals("None", StringComparison.InvariantCultureIgnoreCase))
-                {
-                  var key = Key.GetSpecialKeyByName(actionArray[1]);
-                  if (key != null) //It is a special key
-                    ServiceRegistration.Get<IInputManager>().KeyPress(key);
-                  else //Presume it is a printable key
-                    ServiceRegistration.Get<IInputManager>().KeyPress(new Key(actionArray[1][0]));
-                }
-              }
-              keyHandled = true;
+              var key = Key.GetSpecialKeyByName(actionArray[1]);
+              if (key != null) //It is a special key
+                ServiceRegistration.Get<IInputManager>().KeyPress(key);
+              else //Presume it is a printable key
+                ServiceRegistration.Get<IInputManager>().KeyPress(new Key(actionArray[1][0]));
             }
           }
-          else if (!externalHandling) //Don't interfere with external handlers by executing actions
-          {
-            if (keyMapping.Key.StartsWith(InputDeviceModel.ACTION_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-            {
-              HandleAction(handleKeyPressIfFound, isRepeat, actionArray[1]);
-              keyHandled = true;
-            }
-            else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-            {
-              HandleAction(handleKeyPressIfFound, isRepeat, actionArray[1], InputDeviceModel.HOME_STATE_ID);
-              keyHandled = true;
-            }
-            else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
-            {
-              HandleAction(handleKeyPressIfFound, isRepeat, actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID);
-              keyHandled = true;
-            }
-          }
+          keyHandled = true;
+        }
+        else if (keyMapping.Key.StartsWith(InputDeviceModel.ACTION_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+        {
+          HandleAction(handleKeyPressIfFound, isRepeat, actionArray[1]);
+          keyHandled = true;
+        }
+        else if (keyMapping.Key.StartsWith(InputDeviceModel.HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+        {
+          HandleAction(handleKeyPressIfFound, isRepeat, actionArray[1], InputDeviceModel.HOME_STATE_ID);
+          keyHandled = true;
+        }
+        else if (keyMapping.Key.StartsWith(InputDeviceModel.CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+        {
+          HandleAction(handleKeyPressIfFound, isRepeat, actionArray[1], InputDeviceModel.CONFIGURATION_STATE_ID);
+          keyHandled = true;
         }
       }
       return keyHandled;
@@ -880,27 +836,27 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     #region External event handling
 
-    public bool RegisterExternalKeyHandling(Action<object, string, string, IDictionary<string, long>> hidEvent)
+    public bool RegisterExternalKeyHandling(ExternalKeyPressHandler keyPressHandler)
     {
       lock (_listSyncObject)
       {
-        if (!_externalKeyPressHandlers.Contains(hidEvent))
+        if (!_externalKeyPressHandlers.Contains(keyPressHandler))
         {
-          _externalKeyPressHandlers.Add(hidEvent);
+          _externalKeyPressHandlers.Add(keyPressHandler);
           return true;
         }
       }
       return false;
     }
 
-    public bool UnRegisterExternalKeyHandling(Action<object, string, string, IDictionary<string, long>> hidEvent)
+    public bool UnRegisterExternalKeyHandling(ExternalKeyPressHandler keyPressHandler)
     {
       lock (_listSyncObject)
       {
-        if (_externalKeyPressHandlers.Contains(hidEvent))
+        if (_externalKeyPressHandlers.Contains(keyPressHandler))
         {
           _nextKeyEventHandled = false;
-          _externalKeyPressHandlers.Remove(hidEvent);
+          _externalKeyPressHandlers.Remove(keyPressHandler);
           return true;
         }
       }
@@ -913,6 +869,23 @@ namespace MediaPortal.Plugins.InputDeviceManager
       {
         _externalKeyPressHandlers.Clear();
       }
+    }
+
+    protected bool InvokeExternalKeyHandlers(string name, string device, IDictionary<string, long> pressedKeys)
+    {
+      List<ExternalKeyPressHandler> handlers = null;
+      lock (_listSyncObject)
+        if (_externalKeyPressHandlers.Count > 0)
+          handlers = new List<ExternalKeyPressHandler>(_externalKeyPressHandlers);
+
+      if (handlers == null)
+        return false;
+
+      bool handled = false;
+      foreach (var handler in handlers)
+        handled |= handler.Invoke(this, name, device, pressedKeys);
+
+      return handled;
     }
 
     #endregion

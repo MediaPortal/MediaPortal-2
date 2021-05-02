@@ -386,27 +386,25 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     #region Key input handling
 
-    private void OnKeyPressed(object sender, string name, string device, IDictionary<string, long> pressedKeys)
+    private bool OnKeyPressed(object sender, string name, string device, IDictionary<string, long> pressedKeys)
     {
       try
       {
-        if (_inWorkflowAddKey)
+        //Add key screen
+        if (_inWorkflowAddKey && _currentInputDevice.Type == device)
         {
-          //Add key screen
-          if (_currentInputDevice.Type == device)
+          if (pressedKeys.Count > _maxPressedKeys)
           {
-            if (pressedKeys.Count > _maxPressedKeys)
-            {
-              _pressedAddKeyCombo = pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
-              //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
-              //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
-              _maxPressedKeys = pressedKeys.Count;
-              _endTime = DateTime.Now.AddSeconds(5);
-              if (!_keyInputTimer.Enabled)
-                _keyInputTimer.Start();
-            }
-            AddKeyLabel = String.Join(" + ", string.Join(" + ", _pressedAddKeyCombo.Select(kv => kv.Key.ToString())));
+            _pressedAddKeyCombo = pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
+            //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
+            //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
+            _maxPressedKeys = pressedKeys.Count;
+            _endTime = DateTime.Now.AddSeconds(5);
+            if (!_keyInputTimer.Enabled)
+              _keyInputTimer.Start();
           }
+          AddKeyLabel = String.Join(" + ", string.Join(" + ", _pressedAddKeyCombo.Select(kv => kv.Key.ToString())));
+          return true;
         }
         else if (!ShowKeyMapping)
         {
@@ -414,12 +412,15 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           _currentInputDevice = (device, name ?? "?");
           SelectedInputName = name ?? "?";
           UpdateKeymapping();
+          return true;
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("InputDeviceManager: Key press failed", ex);
       }
+
+      return false;
     }
 
     #endregion
