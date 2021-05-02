@@ -300,41 +300,50 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     protected void AddKey(string key)
     {
+      string keyMapData = KEY_PREFIX + key;
+      if (_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], keyMapData, true) == 0))
+        return;
+
       var listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_KEY_TEXT)} \"{key}\"")
       {
-        Command = new MethodDelegateCommand(() => ChooseKeyAction(KEY_PREFIX + key))
+        Command = new MethodDelegateCommand(() => ChooseKeyAction(keyMapData))
       };
       listItem.SetLabel(KEY_KEYMAP, "");
       listItem.SetLabel(KEY_KEYMAP_NAME, key);
-      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = KEY_PREFIX + key;
-      if (!_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], (string)listItem.AdditionalProperties[KEY_KEYMAP_DATA], true) == 0))
-        _items.Add(listItem);
+      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = keyMapData;
+      _items.Add(listItem);
     }
 
     protected void AddAction(WorkflowAction item)
     {
+      string keyMapData = ACTION_PREFIX + item.Name;
+      if (_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], keyMapData, true) == 0))
+        return;
+
       var listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_ACTION_TEXT)} \"{item.DisplayTitle}\"")
       {
-        Command = new MethodDelegateCommand(() => ChooseKeyAction(ACTION_PREFIX + item.Name))
+        Command = new MethodDelegateCommand(() => ChooseKeyAction(keyMapData))
       };
       listItem.SetLabel(KEY_KEYMAP, "");
       listItem.SetLabel(KEY_KEYMAP_NAME, item.DisplayTitle);
-      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = ACTION_PREFIX + item.Name;
-      if (!_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], (string)listItem.AdditionalProperties[KEY_KEYMAP_DATA], true) == 0))
-        _items.Add(listItem);
+      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = keyMapData;
+      _items.Add(listItem);
     }
 
     protected void AddScreen(WorkflowAction item, string prefix)
     {
+      string keyMapData = prefix + item.Name;
+      if (_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], keyMapData, true) == 0))
+        return;
+
       ListItem listItem = new ListItem(Consts.KEY_NAME, $"{LocalizationHelper.Translate(RES_SCREEN_TEXT)} \"{item.DisplayTitle}\"")
       {
-        Command = new MethodDelegateCommand(() => ChooseKeyAction(prefix + item.Name))
+        Command = new MethodDelegateCommand(() => ChooseKeyAction(keyMapData))
       };
       listItem.SetLabel(KEY_KEYMAP, "");
       listItem.SetLabel(KEY_KEYMAP_NAME, item.DisplayTitle);
-      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = prefix + item.Name;
-      if (!_items.Any(i => string.Compare((string)i.AdditionalProperties[KEY_KEYMAP_DATA], (string)listItem.AdditionalProperties[KEY_KEYMAP_DATA], true) == 0))
-        _items.Add(listItem);
+      listItem.AdditionalProperties[KEY_KEYMAP_DATA] = keyMapData;
+      _items.Add(listItem);
     }
 
     protected List<ListItem> UpdateMenu(NavigationContext context)
@@ -569,7 +578,8 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
         foreach (var action in actions)
         {
-          device.KeyMap.RemoveAll(k => k.Key == action.Key);
+          // Remove any mappings for both the same mapped key and same input combination
+          device.KeyMap.RemoveAll(k => k.Key == action.Key || k.Codes.Select(c => c.Code).Intersect(action.Codes.Select(c => c.Code)).Count() == k.Codes.Count);
           device.KeyMap.Add(action);
         }
       }
@@ -640,23 +650,23 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
     /// </summary>
     private void UpdateKeymapping(List<MappedKeyCode> defaultKeys = null)
     {
+      if (defaultKeys != null)
+        UpdateSettings(defaultKeys, true);
+
       InputDevice device;
       List<MappedKeyCode> mappedKeys = null;
-      if (defaultKeys != null)
-      {
-        UpdateSettings(defaultKeys, true);
-      }
       if (ServiceRegistration.Get<IInputDeviceManager>().InputDevices.TryGetValue(_currentInputDevice.Type, out device))
-      {
         mappedKeys = device.KeyMap.ToList();
-      }
-      if (mappedKeys != null)
+      else
+        mappedKeys = new List<MappedKeyCode>();
+
+      lock (_items.SyncRoot)
       {
         //Update labels
         foreach (var item in _items)
         {
           var itemMap = (string)item.AdditionalProperties[KEY_KEYMAP_DATA];
-          var keyMapping = device.KeyMap.FirstOrDefault(k => k.Key.Equals(itemMap, StringComparison.InvariantCultureIgnoreCase));
+          var keyMapping = device?.KeyMap.FirstOrDefault(k => k.Key.Equals(itemMap, StringComparison.InvariantCultureIgnoreCase));
           if (keyMapping?.Codes?.Count > 0)
             item.SetLabel(KEY_KEYMAP, string.Join(" + ", keyMapping.Codes.Select(c => c.Key)));
           else
@@ -675,32 +685,44 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       }
       _items.FireChange();
 
-      _keyItems.Clear();
-      foreach (var item in _items.
-          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
-          OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
-        _keyItems.Add(item);
+      lock (_keyItems.SyncRoot)
+      {
+        _keyItems.Clear();
+        foreach (var item in _items.
+            Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(KEY_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+            OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
+          _keyItems.Add(item);
+      }
       _keyItems.FireChange();
 
-      _actionItems.Clear();
-      foreach (var item in _items.
-        Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(ACTION_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
-        OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
-        _actionItems.Add(item);
+      lock (_actionItems.SyncRoot)
+      {
+        _actionItems.Clear();
+        foreach (var item in _items.
+          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(ACTION_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+          OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
+          _actionItems.Add(item);
+      }
       _actionItems.FireChange();
 
-      _homeScreenItems.Clear();
-      foreach (var item in _items.
-          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
-          OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
-        _homeScreenItems.Add(item);
+      lock (_homeScreenItems.SyncRoot)
+      {
+        _homeScreenItems.Clear();
+        foreach (var item in _items.
+            Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(HOME_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+            OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
+          _homeScreenItems.Add(item);
+      }
       _homeScreenItems.FireChange();
 
-      _configScreenItems.Clear();
-      foreach (var item in _items.
-          Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
-          OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
-        _configScreenItems.Add(item);
+      lock (_configScreenItems.SyncRoot)
+      {
+        _configScreenItems.Clear();
+        foreach (var item in _items.
+            Where(i => ((string)i.AdditionalProperties[KEY_KEYMAP_DATA]).StartsWith(CONFIG_PREFIX, StringComparison.InvariantCultureIgnoreCase)).
+            OrderBy(i => i.Labels[Consts.KEY_NAME].Evaluate()))
+          _configScreenItems.Add(item);
+      }
       _configScreenItems.FireChange();
 
       ShowKeyMappingScreen();
