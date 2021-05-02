@@ -61,5 +61,22 @@ namespace MediaPortal.Plugins.InputDeviceManager.Utils
           return null;
       }
     }
+
+    /// <summary>
+    /// Tries to get the <see cref="DirectionPadState"/> from the specified <paramref name="hidEvent"/>.
+    /// </summary>
+    /// <param name="hidEvent">The <see cref="Event"/> to try and get the <see cref="DirectionPadState"/> from.</param>
+    /// <returns>The <see cref="DirectionPadState"/> or <see cref="DirectionPadState.Rest"/> if the state is unavailable.</returns>
+    public static DirectionPadState GetDirectionPadStateOrDefault(Event hidEvent)
+    {
+      try
+      {
+        return hidEvent.GetDirectionPadState();
+      }
+      catch
+      {
+        return DirectionPadState.Rest;
+      }
+    }
   }
 }

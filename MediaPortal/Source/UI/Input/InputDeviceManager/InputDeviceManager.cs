@@ -247,7 +247,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
         str += ", UsagePage: " + hidEvent.UsagePageNameAndValue() + ", UsageCollection: " + hidEvent.UsageCollectionNameAndValue() + ", Input Report: 0x" + hidEvent.InputReportString();
         if (hidEvent.Device?.IsGamePad ?? false)
         {
-          str += ", GamePad, DirectionState: " + hidEvent.GetDirectionPadState();
+          str += ", GamePad, DirectionState: " + HidUtils.GetDirectionPadStateOrDefault(hidEvent);
         }
         else if (hidEvent.UsagePageEnum == UsagePage.WindowsMediaCenterRemoteControl)
         {
@@ -450,7 +450,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
             {
               //Button down never happened so presume this is it if possible
               //because sometimes button down events are triggered as button up events
-              var state = hidEvent.GetDirectionPadState();
+              var state = HidUtils.GetDirectionPadStateOrDefault(hidEvent);
               if (state != DirectionPadState.Rest)
               {
                 name = $"Pad{state.ToString()}";
@@ -494,7 +494,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
           if (hidEvent.Device?.IsGamePad == true)
           {
-            var state = hidEvent.GetDirectionPadState();
+            var state = HidUtils.GetDirectionPadStateOrDefault(hidEvent);
             if (state != DirectionPadState.Rest)
             {
               name = $"Pad{state.ToString()}";
