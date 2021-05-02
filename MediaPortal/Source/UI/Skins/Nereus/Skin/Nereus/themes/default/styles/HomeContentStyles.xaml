@@ -3310,6 +3310,13 @@
               <Binding Source="None"/>
             </MultiBinding>
           </Label.Scroll>
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Label.Opacity>
         </Label>
       </Grid>
 
