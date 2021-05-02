@@ -36,42 +36,42 @@ namespace MediaPortal.Plugins.InputDeviceManager.Hid
 {
   public class HidWatcher : NativeWindow, IDisposable
   {
+    protected readonly object _syncObj = new object();
     protected Handler _handler;
 
     internal void Create()
     {
-      if (Handle != IntPtr.Zero)
+      lock (_syncObj)
       {
-        return;
-      }
+        if (Handle != IntPtr.Zero)
+          return;
 
-      CreateParams Params = new CreateParams();
-      Params.ExStyle = 0x80;
-      Params.Style = unchecked((int)0x80000000);
-      CreateHandle(Params);
+        CreateParams Params = new CreateParams();
+        Params.ExStyle = 0x80;
+        Params.Style = unchecked((int)0x80000000);
+        CreateHandle(Params);
+      }
     }
 
     public void RegisterInputDevices(IEnumerable<RAWINPUTDEVICE> inputDevices, int repeatDelay = -1, int repeatSpeed = -1)
     {
-      UnregisterInputDevices();
+      lock (_syncObj)
+      {
+        DisposeHandler();
 
-      _handler = new Handler(inputDevices.ToArray(), true, repeatDelay, repeatSpeed);
+        _handler = new Handler(inputDevices.ToArray(), true, repeatDelay, repeatSpeed);
 
-      if (_handler.IsRegistered)
-        _handler.OnHidEvent += OnHidEvent;
-      else
-        Logger.Error("HidWatcher: Failed to register raw input devices: " + Marshal.GetLastWin32Error().ToString());
+        if (_handler.IsRegistered)
+          _handler.OnHidEvent += OnHidEvent;
+        else
+          Logger.Error("HidWatcher: Failed to register raw input devices: " + Marshal.GetLastWin32Error().ToString());
+      }
     }
 
     public void UnregisterInputDevices()
     {
-      var handler = _handler;
-      if (_handler == null)
-        return;
-      _handler = null;
-
-      handler.OnHidEvent -= OnHidEvent;
-      handler.Dispose();
+      lock (_syncObj)
+        DisposeHandler();
     }
 
     public event Handler.HidEventHandler HidEvent;
@@ -88,10 +88,22 @@ namespace MediaPortal.Plugins.InputDeviceManager.Hid
       base.WndProc(ref m);
     }
 
+    protected void DisposeHandler()
+    {
+      if (_handler == null)
+        return;
+      _handler.OnHidEvent -= OnHidEvent;
+      _handler.Dispose();
+      _handler = null;
+    }
+
     public void Dispose()
     {
-      UnregisterInputDevices();
-      DestroyHandle();
+      lock (_syncObj)
+      {
+        DisposeHandler();
+        DestroyHandle();
+      }
     }
 
     protected static ILogger Logger
