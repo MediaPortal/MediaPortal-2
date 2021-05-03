@@ -50,7 +50,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     protected IList<MediaListItemsListWrapper> _availableLists = new List<MediaListItemsListWrapper>();
 
     protected bool _isInit = false;
-    protected bool _listNeedsUpdate = false;
     protected IList<string> _listKeys = null;
     protected IList<string> _currentListKeys = null;
 
@@ -63,18 +62,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       }
     }
 
-    public bool IsInited => _isInit;
-
-    public bool ListNeedsUpdate
-    {
-      get => _listNeedsUpdate;
-      set
-      {
-        if (_isInit)
-          _listNeedsUpdate = value;
-      }
-    }
-
     public void UpdateLists(IEnumerable<string> listKeys)
     {
       _listKeys = new List<string>(listKeys);
@@ -82,20 +69,17 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         Init();
       else
         UpdateListsFromAvailableLists();
-      ListNeedsUpdate = false;
     }
 
     protected void PopulateList()
     {
       PopulateBackingList();
-      ListNeedsUpdate = false;
     }
 
     public void ForceUpdateList()
     {
-      if (ListNeedsUpdate)
+      if (_isInit)
         ForceUpdateBackingList();
-      ListNeedsUpdate = false;
     }
 
     public IList<MediaListItemsListWrapper> Lists
