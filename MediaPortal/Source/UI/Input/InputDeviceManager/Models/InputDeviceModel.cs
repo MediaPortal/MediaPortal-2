@@ -395,19 +395,22 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     #region Key input handling
 
-    private bool OnKeyPressed(object sender, string deviceName, string deviceFriendlyName, string deviceId, IDictionary<string, long> pressedKeys)
+    private bool OnKeyPressed(object sender, KeyPressHandlerEventArgs e)
     {
+      if (e.IsRepeat)
+        return false;
+
       try
       {
         //Add key screen
-        if (_inWorkflowAddKey && _currentInputDevice.Type == deviceId)
+        if (_inWorkflowAddKey && _currentInputDevice.Type == e.DeviceId)
         {
-          if (pressedKeys.Count > _maxPressedKeys)
+          if (e.PressedKeys.Count > _maxPressedKeys)
           {
-            _pressedAddKeyCombo = pressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
+            _pressedAddKeyCombo = e.PressedKeys.ToDictionary(pair => pair.Key, pair => pair.Value);
             //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped keys: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Key)));
             //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Currently mapped codes: " + string.Join(", ", _pressedAddKeyCombo.Select(k => k.Value)));
-            _maxPressedKeys = pressedKeys.Count;
+            _maxPressedKeys = e.PressedKeys.Count;
             _endTime = DateTime.Now.AddSeconds(5);
             if (!_keyInputTimer.Enabled)
               _keyInputTimer.Start();
@@ -418,8 +421,8 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         else if (!ShowKeyMapping)
         {
           //Device selection screen
-          _currentInputDevice = (deviceId, deviceFriendlyName ?? "?");
-          SelectedInputName = deviceFriendlyName ?? "?";
+          _currentInputDevice = (e.DeviceId, e.DeviceFriendlyName ?? "?");
+          SelectedInputName = e.DeviceFriendlyName ?? "?";
           UpdateKeymapping();
           return true;
         }

@@ -22,13 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Windows.Forms;
-using System.Xml.Serialization;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
@@ -48,6 +41,13 @@ using MediaPortal.UI.SkinEngine.ScreenManagement;
 using SharpLib.Hid;
 using SharpLib.Hid.Usage;
 using SharpLib.Win32;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Windows.Forms;
+using System.Xml.Serialization;
 
 namespace MediaPortal.Plugins.InputDeviceManager
 {
@@ -643,8 +643,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
       bool keyHandled = false;
 
       // Try external handlers first
-      if (handleKeyPress && !isRepeat)
-        keyHandled = InvokeExternalKeyHandlers(deviceName, deviceFriendlyName, deviceId, _pressedKeys);
+      if (handleKeyPress)
+        keyHandled = InvokeExternalKeyHandlers(deviceName, deviceFriendlyName, deviceId, _pressedKeys, isRepeat);
 
       //Check mapped keys
       if (!keyHandled && _inputDevices.TryGetValue(deviceId, out var device))
@@ -871,7 +871,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
-    protected bool InvokeExternalKeyHandlers(string deviceName, string deviceFriendlyName, string deviceId, IDictionary<string, long> pressedKeys)
+    protected bool InvokeExternalKeyHandlers(string deviceName, string deviceFriendlyName, string deviceId, IDictionary<string, long> pressedKeys, bool isRepeat)
     {
       List<ExternalKeyPressHandler> handlers = null;
       lock (_listSyncObject)
@@ -881,9 +881,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
       if (handlers == null)
         return false;
 
+      KeyPressHandlerEventArgs e = new KeyPressHandlerEventArgs(deviceName, deviceFriendlyName, deviceId, pressedKeys, isRepeat);
+
       bool handled = false;
       foreach (var handler in handlers)
-        handled |= handler.Invoke(this, deviceName, deviceFriendlyName, deviceId, pressedKeys);
+        handled |= handler.Invoke(this, e);
 
       return handled;
     }
