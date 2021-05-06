@@ -395,12 +395,12 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     #region Key input handling
 
-    private bool OnKeyPressed(object sender, string name, string device, IDictionary<string, long> pressedKeys)
+    private bool OnKeyPressed(object sender, string deviceName, string deviceFriendlyName, string deviceId, IDictionary<string, long> pressedKeys)
     {
       try
       {
         //Add key screen
-        if (_inWorkflowAddKey && _currentInputDevice.Type == device)
+        if (_inWorkflowAddKey && _currentInputDevice.Type == deviceId)
         {
           if (pressedKeys.Count > _maxPressedKeys)
           {
@@ -418,8 +418,8 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         else if (!ShowKeyMapping)
         {
           //Device selection screen
-          _currentInputDevice = (device, name ?? "?");
-          SelectedInputName = name ?? "?";
+          _currentInputDevice = (deviceId, deviceFriendlyName ?? "?");
+          SelectedInputName = deviceFriendlyName ?? "?";
           UpdateKeymapping();
           return true;
         }

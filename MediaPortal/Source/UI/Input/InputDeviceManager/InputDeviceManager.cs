@@ -168,10 +168,10 @@ namespace MediaPortal.Plugins.InputDeviceManager
                 if (hidEvent.IsKeyboard && DoesCurrentFocusedControlNeedTextInput())
                   return;
 
-                if (!TryDecodeEvent(hidEvent, out string type, out string name, out long code, out bool buttonUp, out bool buttonDown))
+                if (!TryDecodeEvent(hidEvent, out string deviceId, out string inputName, out long code, out bool buttonUp, out bool buttonDown))
                   return;
 
-                if (CheckKeyPresses(type, hidEvent.Device?.FriendlyName, hidEvent.IsGeneric, hidEvent.IsRepeat, new[] { new KeyCode(name, code) }, buttonUp, buttonDown) && hidEvent.IsKeyboard)
+                if (CheckKeyPresses(deviceId, hidEvent.Device?.Name, hidEvent.Device?.FriendlyName, hidEvent.IsGeneric, hidEvent.IsRepeat, new[] { new KeyCode(inputName, code) }, buttonUp, buttonDown) && hidEvent.IsKeyboard)
                   _nextKeyEventHandled = true;
                 break;
             }
@@ -321,10 +321,10 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
-    private bool TryDecodeEvent(Event hidEvent, out string device, out string name, out long code, out bool buttonUp, out bool buttonDown)
+    private bool TryDecodeEvent(Event hidEvent, out string deviceId, out string inputName, out long code, out bool buttonUp, out bool buttonDown)
     {
-      device = "";
-      name = "";
+      deviceId = "";
+      inputName = "";
       code = 0;
       buttonUp = hidEvent.IsButtonUp;
       buttonDown = hidEvent.IsButtonDown;
@@ -342,8 +342,8 @@ namespace MediaPortal.Plugins.InputDeviceManager
         //LogEvent("Invalid device", hidEvent);
         return false;
       }
-      long deviceId = (hidEvent.Device.VendorId << 16) | hidEvent.Device.ProductId;
-      device = deviceId.ToString("X");
+      long deviceIdNumber = (hidEvent.Device.VendorId << 16) | hidEvent.Device.ProductId;
+      deviceId = deviceIdNumber.ToString("X");
 
       if (hidEvent.IsKeyboard)
       {
@@ -352,7 +352,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           if (hidEvent.VirtualKey != Keys.Escape)
           {
             var key = ConvertSystemKey(hidEvent.VirtualKey);
-            name = KeyMapper.GetMicrosoftKeyName((int)key);
+            inputName = KeyMapper.GetMicrosoftKeyName((int)key);
             code = GetUniqueGenericKeyCode(true, false, (long)key);
           }
           else
@@ -404,7 +404,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           default:
             return false; //Unsupported
         }
-        name = $"Button{id}";
+        inputName = $"Button{id}";
         code = GetUniqueGenericKeyCode(false, true, id);
       }
       else if (hidEvent.IsGeneric)
@@ -427,7 +427,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
               var state = HidUtils.GetDirectionPadStateOrDefault(hidEvent);
               if (state != DirectionPadState.Rest)
               {
-                name = $"Pad{state.ToString()}";
+                inputName = $"Pad{state.ToString()}";
                 code = -(long)state;
                 buttonDown = true;
                 handled = true;
@@ -442,7 +442,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
           else
           {
-            name = button.Name;
+            inputName = button.Name;
             code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, button.Code);
           }
         }
@@ -451,7 +451,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           buttonDown = true;
 
           var id = hidEvent.Usages.FirstOrDefault();
-          if (string.IsNullOrEmpty(device) || id == 0)
+          if (string.IsNullOrEmpty(deviceId) || id == 0)
           {
             LogEvent("Invalid usage", hidEvent);
             return false;
@@ -471,12 +471,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
             var state = HidUtils.GetDirectionPadStateOrDefault(hidEvent);
             if (state != DirectionPadState.Rest)
             {
-              name = $"Pad{state.ToString()}";
+              inputName = $"Pad{state.ToString()}";
               code = -(long)state;
             }
             else if (buttonDown || buttonUp)
             {
-              name = $"PadButton{id}";
+              inputName = $"PadButton{id}";
               code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
             }
           }
@@ -495,7 +495,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
                 return false;
               }
 
-              name = $"Remote{usage}";
+              inputName = $"Remote{usage}";
               code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
             }
           }
@@ -512,7 +512,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
                 return false;
               }
 
-              name = $"{usage}";
+              inputName = $"{usage}";
               code = GetUniqueGenericKeyCode(hidEvent.UsagePageEnum, id);
             }
           }
@@ -528,7 +528,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
           }
 
           //Save so it can be used for button up
-          _genericKeyDownEvents.TryAdd(usageCategoryId, (name, id));
+          _genericKeyDownEvents.TryAdd(usageCategoryId, (inputName, id));
         }
       }
       else
@@ -624,7 +624,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       _pressedKeys.TryRemove(name, out _);
     }
 
-    private bool CheckKeyPresses(string type, string deviceName, bool isGeneric, bool isRepeat, IEnumerable<KeyCode> keys, bool buttonUp, bool buttonDown)
+    private bool CheckKeyPresses(string deviceId, string deviceName, string deviceFriendlyName, bool isGeneric, bool isRepeat, IEnumerable<KeyCode> keys, bool buttonUp, bool buttonDown)
     {
       bool handleKeyPress = (SUPPORT_REPEATS && buttonDown) || (!SUPPORT_REPEATS && buttonUp);
 
@@ -644,12 +644,12 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
       // Try external handlers first
       if (handleKeyPress && !isRepeat)
-        keyHandled = InvokeExternalKeyHandlers(deviceName, type, _pressedKeys);
+        keyHandled = InvokeExternalKeyHandlers(deviceName, deviceFriendlyName, deviceId, _pressedKeys);
 
       //Check mapped keys
-      if (!keyHandled && _inputDevices.TryGetValue(type, out var device))
+      if (!keyHandled && _inputDevices.TryGetValue(deviceId, out var device))
       {
-        //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + device.Name);
+        //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking mapping for device: " + deviceName);
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking keys: " + string.Join(", ", _pressedKeys.Select(k => k.Key)));
         //ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Checking codes: " + string.Join(", ", _pressedKeys.Select(k => k.Value)));
 
@@ -871,7 +871,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
       }
     }
 
-    protected bool InvokeExternalKeyHandlers(string name, string device, IDictionary<string, long> pressedKeys)
+    protected bool InvokeExternalKeyHandlers(string deviceName, string deviceFriendlyName, string deviceId, IDictionary<string, long> pressedKeys)
     {
       List<ExternalKeyPressHandler> handlers = null;
       lock (_listSyncObject)
@@ -883,7 +883,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
       bool handled = false;
       foreach (var handler in handlers)
-        handled |= handler.Invoke(this, name, device, pressedKeys);
+        handled |= handler.Invoke(this, deviceName, deviceFriendlyName, deviceId, pressedKeys);
 
       return handled;
     }

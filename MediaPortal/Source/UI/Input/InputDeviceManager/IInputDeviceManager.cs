@@ -27,7 +27,7 @@ using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.InputDeviceManager
 {
-  public delegate bool ExternalKeyPressHandler(object sender, string name, string device, IDictionary<string, long> pressedKeys);
+  public delegate bool ExternalKeyPressHandler(object sender, string deviceName, string deviceFriendlyName, string deviceId, IDictionary<string, long> pressedKeys);
 
   public interface IInputDeviceManager
   {
