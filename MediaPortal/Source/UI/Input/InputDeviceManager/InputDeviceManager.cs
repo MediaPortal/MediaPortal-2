@@ -337,12 +337,9 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
       //Windows is automatically generating keyboard codes for some consumer usages. We need to ignore those, 
       //because they lack device information needed to map them.
-      if (hidEvent.Device == null)
-      {
-        //LogEvent("Invalid device", hidEvent);
-        return false;
-      }
-      long deviceIdNumber = (hidEvent.Device.VendorId << 16) | hidEvent.Device.ProductId;
+
+      // Key presses sent by EventGhost do not contain a device, we'll still handle them here but with a default device id
+      long deviceIdNumber = hidEvent.Device != null ? (hidEvent.Device.VendorId << 16) | hidEvent.Device.ProductId : -1;
       deviceId = deviceIdNumber.ToString("X");
 
       if (hidEvent.IsKeyboard)
