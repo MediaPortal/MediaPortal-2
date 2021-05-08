@@ -213,7 +213,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     #region Initialization
 
-    private Task InitModel()
+    private void InitModel()
     {
       _inputDevicesProperty = new WProperty(typeof(string), "TEST");
       _addKeyLabelProperty = new WProperty(typeof(string), "No Keys");
@@ -272,11 +272,19 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         AddDefaultConfig(RES_DEFAULT_KEYBOARD_TEXT, GetDefaultKeyboardMap());
         AddDefaultConfig(RES_DEFAULT_REMOTE_TEXT, GetDefaultRemoteMap());
       }
-      ServiceRegistration.Get<IInputDeviceManager>().KeyPressed += OnKeyPressed;
-      return Task.CompletedTask;
     }
 
-    private void ResetCompleteModel(bool removeOnKeyPressed = true)
+    private void Attach()
+    {
+      ServiceRegistration.Get<IInputDeviceManager>().KeyPressed += OnKeyPressed;
+    }
+
+    private void Detach()
+    {
+      ServiceRegistration.Get<IInputDeviceManager>().KeyPressed -= OnKeyPressed;
+    }
+
+    private void ResetCompleteModel()
     {
       ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Reset model");
 
@@ -287,8 +295,6 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       _currentInputDevice = ("", "");
       ShowInputDeviceSelection = false;
       ShowKeyMapping = false;
-      if (removeOnKeyPressed)
-        ServiceRegistration.Get<IInputDeviceManager>().KeyPressed -= OnKeyPressed;
     }
 
     protected void AddDefaultConfig(string text, List<MappedKeyCode> config)
@@ -740,7 +746,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     public void CancelMapping()
     {
-      ResetCompleteModel(false);
+      ResetCompleteModel();
     }
 
     public void DeleteKeyMapping()
@@ -811,11 +817,13 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      InitModel().Wait();
+      InitModel();
+      Attach();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
+      Detach();
       ResetCompleteModel();
     }
 
@@ -826,12 +834,14 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     public void Deactivate(NavigationContext oldContext, NavigationContext newContext)
     {
+      Detach();
       ResetCompleteModel();
     }
 
     public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
     {
       ShowInputDeviceSelection = true;
+      Attach();
     }
 
     public void UpdateMenuActions(NavigationContext context, IDictionary<Guid, WorkflowAction> actions)
