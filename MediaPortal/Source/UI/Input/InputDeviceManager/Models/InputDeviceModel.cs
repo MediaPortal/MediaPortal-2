@@ -272,7 +272,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
         AddDefaultConfig(RES_DEFAULT_KEYBOARD_TEXT, GetDefaultKeyboardMap());
         AddDefaultConfig(RES_DEFAULT_REMOTE_TEXT, GetDefaultRemoteMap());
       }
-      ServiceRegistration.Get<IInputDeviceManager>().RegisterExternalKeyHandling(OnKeyPressed);
+      ServiceRegistration.Get<IInputDeviceManager>().KeyPressed += OnKeyPressed;
       return Task.CompletedTask;
     }
 
@@ -288,7 +288,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       ShowInputDeviceSelection = false;
       ShowKeyMapping = false;
       if (removeOnKeyPressed)
-        ServiceRegistration.Get<IInputDeviceManager>().UnRegisterExternalKeyHandling(OnKeyPressed);
+        ServiceRegistration.Get<IInputDeviceManager>().KeyPressed -= OnKeyPressed;
     }
 
     protected void AddDefaultConfig(string text, List<MappedKeyCode> config)
@@ -395,10 +395,10 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
 
     #region Key input handling
 
-    private bool OnKeyPressed(object sender, KeyPressHandlerEventArgs e)
+    private void OnKeyPressed(object sender, KeyPressHandlerEventArgs e)
     {
       if (e.IsRepeat)
-        return false;
+        return;
 
       try
       {
@@ -416,7 +416,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
               _keyInputTimer.Start();
           }
           AddKeyLabel = String.Join(" + ", string.Join(" + ", _pressedAddKeyCombo.Select(kv => kv.Key.ToString())));
-          return true;
+          e.Handled = true;
         }
         else if (!ShowKeyMapping)
         {
@@ -424,15 +424,13 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
           _currentInputDevice = (e.DeviceId, e.DeviceFriendlyName ?? "?");
           SelectedInputName = e.DeviceFriendlyName ?? "?";
           UpdateKeymapping();
-          return true;
+          e.Handled = true;
         }
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("InputDeviceManager: Key press failed", ex);
       }
-
-      return false;
     }
 
     #endregion

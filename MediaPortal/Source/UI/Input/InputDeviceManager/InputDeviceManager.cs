@@ -78,7 +78,6 @@ namespace MediaPortal.Plugins.InputDeviceManager
     private readonly ConcurrentDictionary<string, InputDevice> _inputDevices = new ConcurrentDictionary<string, InputDevice>();
     private readonly ConcurrentDictionary<string, long> _pressedKeys = new ConcurrentDictionary<string, long>();
     private List<ExternalKeyPressHandler> _externalKeyPressHandlers = new List<ExternalKeyPressHandler>();
-    private object _listSyncObject = new object();
     private ConcurrentDictionary<long, (string Name, long Code)> _genericKeyDownEvents = new ConcurrentDictionary<long, (string Name, long Code)>();
     private bool _nextKeyEventHandled = false;
     private List<MappedKeyCode> _defaultRemoteKeyCodes = new List<MappedKeyCode>();
@@ -641,7 +640,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
       // Try external handlers first
       if (handleKeyPress)
-        keyHandled = InvokeExternalKeyHandlers(deviceName, deviceFriendlyName, deviceId, _pressedKeys, isRepeat);
+        keyHandled = OnKeyPressed(deviceName, deviceFriendlyName, deviceId, _pressedKeys, isRepeat);
 
       //Check mapped keys
       if (!keyHandled && _inputDevices.TryGetValue(deviceId, out var device))
@@ -833,58 +832,17 @@ namespace MediaPortal.Plugins.InputDeviceManager
 
     #region External event handling
 
-    public bool RegisterExternalKeyHandling(ExternalKeyPressHandler keyPressHandler)
-    {
-      lock (_listSyncObject)
-      {
-        if (!_externalKeyPressHandlers.Contains(keyPressHandler))
-        {
-          _externalKeyPressHandlers.Add(keyPressHandler);
-          return true;
-        }
-      }
-      return false;
-    }
+    public event EventHandler<KeyPressHandlerEventArgs> KeyPressed;
 
-    public bool UnRegisterExternalKeyHandling(ExternalKeyPressHandler keyPressHandler)
+    protected virtual bool OnKeyPressed(string deviceName, string deviceFriendlyName, string deviceId, IDictionary<string, long> pressedKeys, bool isRepeat)
     {
-      lock (_listSyncObject)
-      {
-        if (_externalKeyPressHandlers.Contains(keyPressHandler))
-        {
-          _nextKeyEventHandled = false;
-          _externalKeyPressHandlers.Remove(keyPressHandler);
-          return true;
-        }
-      }
-      return false;
-    }
-
-    public void RemoveAllExternalKeyHandling()
-    {
-      lock (_listSyncObject)
-      {
-        _externalKeyPressHandlers.Clear();
-      }
-    }
-
-    protected bool InvokeExternalKeyHandlers(string deviceName, string deviceFriendlyName, string deviceId, IDictionary<string, long> pressedKeys, bool isRepeat)
-    {
-      List<ExternalKeyPressHandler> handlers = null;
-      lock (_listSyncObject)
-        if (_externalKeyPressHandlers.Count > 0)
-          handlers = new List<ExternalKeyPressHandler>(_externalKeyPressHandlers);
-
-      if (handlers == null)
+      var keyPressed = KeyPressed;
+      if (keyPressed == null)
         return false;
 
       KeyPressHandlerEventArgs e = new KeyPressHandlerEventArgs(deviceName, deviceFriendlyName, deviceId, pressedKeys, isRepeat);
-
-      bool handled = false;
-      foreach (var handler in handlers)
-        handled |= handler.Invoke(this, e);
-
-      return handled;
+      keyPressed.Invoke(this, e);
+      return e.Handled;
     }
 
     #endregion

@@ -45,6 +45,7 @@ namespace MediaPortal.Plugins.InputDeviceManager
     public string DeviceId { get; protected set; }
     public IDictionary<string, long> PressedKeys { get; protected set; }
     public bool IsRepeat { get; protected set; }
+    public bool Handled { get; set; }
   }
 
   public interface IInputDeviceManager
@@ -55,18 +56,11 @@ namespace MediaPortal.Plugins.InputDeviceManager
     IDictionary<string, InputDevice> InputDevices { get; }
 
     /// <summary>
-    /// Registers an external key handler that will be called instead of any mapped keys/actions.
+    /// Event that gets fired before the <see cref="IInputDeviceManager"/> handles a key press.
+    /// Event handlers can set <see cref="KeyPressHandlerEventArgs.Handled"/> to true to prevent
+    /// the <see cref="IInputDeviceManager"/> from handling the key press.
     /// </summary>
-    /// <param name="keyPressHandler">Key press handler to call on a HID event.</param>
-    /// <returns><c>True</c> if the key handler was added.</returns>
-    bool RegisterExternalKeyHandling(ExternalKeyPressHandler keyPressHandler);
-
-    /// <summary>
-    /// Unregisters an external key handler previously added with a call to <see cref="RegisterExternalKeyHandling"/>.
-    /// </summary>
-    /// <param name="keyPressHandler">Key press handler to remove.</param>
-    /// <returns><c>True</c> if the key handler was removed.</returns>
-    bool UnRegisterExternalKeyHandling(ExternalKeyPressHandler keyPressHandler);
+    event EventHandler<KeyPressHandlerEventArgs> KeyPressed;
 
     /// <summary>
     /// Updates the inpute device configuration using the specified <paramref name="settings"/>.
