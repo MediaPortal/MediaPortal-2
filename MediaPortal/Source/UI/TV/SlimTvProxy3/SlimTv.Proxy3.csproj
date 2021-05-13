@@ -112,9 +112,6 @@
     </Compile>
     <Compile Include="COMRegistration.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="..\SlimTvService\TvEntityExtensions.cs">
-      <Link>TvEntityExtensions.cs</Link>
-    </Compile>
     <Compile Include="Settings\SlimTvProxySettings.cs" />
     <Compile Include="SlimTvProxyPlugin.cs" />
     <Compile Include="SlimTvProxy3.cs" />

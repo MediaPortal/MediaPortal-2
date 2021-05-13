@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,23 +22,15 @@
 
 #endregion
 
-using System.Collections.Generic;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System;
-using System.Threading.Tasks;
-using MediaPortal.Common.Async;
+using System.Collections.Generic;
 
-namespace MediaPortal.Plugins.SlimTv.Interfaces
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
-  /// <summary>
-  /// ITunerInfo defines all actions and properties for getting tuner information.
-  /// </summary>
-  public interface ITunerInfoAsync
+  public interface IScheduleRuleTarget
   {
-    Task<AsyncResult<IList<ICard>>> GetCardsAsync();
-
-    Task<AsyncResult<IList<IVirtualCard>>> GetActiveVirtualCardsAsync();
-
-    Task<AsyncResult<ITuningDetail>> GetTuningDetailsAsync(ICard card, IChannel channel);
+    string SearchText { get; set; }
+    RuleSearchMatch SearchMatch { get; set; }
+    RuleSearchTarget SearchTarget { get; set; }
   }
 }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,19 +27,29 @@ using System;
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
   /// <summary>
-  /// IProgram represents a single program on a channel.
+  /// IRecording represents a recording.
   /// </summary>
-  public interface IProgram
+  public interface IRecording
   {
     /// <summary>
-    /// Gets or Sets the Program ID.
+    /// Gets or Sets the Recording ID.
     /// </summary>
-    int ProgramId { get; set; }
+    int RecordingId { get; set; }
 
     /// <summary>
     /// Gets or Sets the Channel ID where this program is on.
     /// </summary>
-    int ChannelId { get; set; }
+    int? ChannelId { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the Schedule ID.
+    /// </summary>
+    int? ScheduleId { get; set; }
+
+    /// <summary>
+    /// Gets or Sets whether it is a manual recording or not.
+    /// </summary>
+    bool IsManual { get; set; }
 
     /// <summary>
     /// Gets or Sets the Title.
@@ -57,16 +67,6 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     String Genre { get; set; }
 
     /// <summary>
-    /// Gets or Sets the EPG Genre Id.
-    /// </summary>
-    int EpgGenreId { get; set; }
-
-    /// <summary>
-    /// Gets or Sets the EPG Genre Color.
-    /// </summary>
-    string EpgGenreColor { get; set; }
-
-    /// <summary>
     /// Gets or Sets the Start time.
     /// </summary>
     DateTime StartTime { get; set; }
@@ -77,23 +77,13 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     DateTime EndTime { get; set; }
 
     /// <summary>
-    /// Gets or Sets the Original Air Date.
+    /// Gets or sets the keep method.
     /// </summary>
-    DateTime? OriginalAirDate { get; set; }
+    KeepMethodType KeepMethod { get; set; }
 
     /// <summary>
-    /// Gets or Sets the Classification.
+    /// Gets or sets the "keep until" date.
     /// </summary>
-    String Classification { get; set; }
-
-    /// <summary>
-    /// Gets or Sets the Parental Rating.
-    /// </summary>
-    int ParentalRating { get; set; }
-
-    /// <summary>
-    /// Gets or Sets the Star Rating.
-    /// </summary>
-    int StarRating { get; set; }
+    DateTime? KeepDate { get; set; }
   }
 }

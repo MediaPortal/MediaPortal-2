@@ -23,22 +23,79 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
+  public enum RuleSearchMatch
+  {
+    Exact,
+    Include,
+    Exclude,
+    Regex
+  }
+
+  public enum RuleSearchTarget
+  {
+    Titel,
+    Description,
+    Genre,
+    StarRating
+  }
+
+  public enum RuleRecordingType
+  {
+    Once,
+    All,
+    AllOnSameChannel,
+    AllOnSameChannelAndDay,
+    AllOnSameDay,
+  }
+
+  public enum RuleEpisodeInfoFallback
+  {
+    None,
+    TitleIsEpisodeName,
+    DescriptionIsEpisodeName,
+    TitleContainsSeasonEpisodeRegEx,
+    DescriptionContainsSeasonEpisodeRegex,
+    EpisodeTitleContainsSeasonEpisodeRegEx,
+    TitleContainsEpisodeTitleRegEx,
+    DescriptionContainsEpisodeTitleRegex,
+    EpisodeTitleContainsEpisodeTitleRegEx,
+  }
+
   public interface IScheduleRule
   {
-    int RuleId { get; set; }
-    int ScheduleControlId { get; set; }
+    int RuleId { get; }
     string Name { get; set; }
+    bool Active { get; set; }
+
+    IList<IScheduleRuleTarget> Targets { get; set; }
+
+    int? ChannelGroupId { get; set; }
+    int? ChannelId { get; set; }
+
+    bool IsSeries { get; set; }
+    string SeriesName { get; set; }
+    string SeasonNumber { get; set; }
+    string EpisodeNumber { get; set; }
+    string EpisodeTitle { get; set; }
+    string EpisodeInfoFallback { get; set; }
+    RuleEpisodeInfoFallback EpisodeInfoFallbackType { get; set; }
+
+    DateTime? StartFromTime { get; set; }
+    DateTime? StartToTime { get; set; }
+    DayOfWeek? StartOnOrAfterDay { get; set; }
+    DayOfWeek? StartOnOrBeforeDay { get; set; }
 
     PriorityType Priority { get; set; }
 
+    RuleRecordingType RecordingType { get; set; }
     TimeSpan PreRecordInterval { get; set; }
     TimeSpan PostRecordInterval { get; set; }
 
     KeepMethodType KeepMethod { get; set; }
-    DateTime KeepDate { get; set; }
-    //TODO
+    DateTime? KeepDate { get; set; }
   }
 }

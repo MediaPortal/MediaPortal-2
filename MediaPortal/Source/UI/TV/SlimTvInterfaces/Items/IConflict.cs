@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2015 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2015 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,34 +23,45 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.ComponentModel;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
-  public interface IProgramSeries: IProgram
+
+  /// <summary>
+  /// ICard represents a card.
+  /// </summary>
+  public interface IConflict
   {
     /// <summary>
-    /// Gets or Sets the Season number of an Episode.
-    /// </summary>
-    String SeasonNumber { get; set; }
+    /// Gets the Conflict ID.
+    /// </summary>    
+    int ConflictId { get; }
 
     /// <summary>
-    /// Gets or Sets the Number of an Episode. Format: [Episode]/[Total Episodes] or [Episode]
-    /// </summary>
-    String EpisodeNumber { get; set; }
+    /// Gets the Card ID.
+    /// </summary>    
+    int CardId { get; }
 
     /// <summary>
-    /// Gets or Sets the Number of an Episode. Format: [Season].[Episode]/[Total Episodes].[Part]/[Total Parts]
-    /// </summary>
-    String EpisodeNumberDetailed { get; set; }
+    /// Gets the Channel ID.
+    /// </summary>    
+    int ChannelId { get; }
 
     /// <summary>
-    /// Gets or Sets the Part of an Episode.
+    /// Gets the Schedule's ID.
     /// </summary>
-    String EpisodePart { get; set; }
+    int ScheduleId { get; }
 
     /// <summary>
-    /// Gets or Sets the Title of an Episode.
+    /// Gets the Program's start time.
     /// </summary>
-    String EpisodeTitle { get; set; }
+    DateTime ProgramStartTime { get; }
+
+    /// <summary>
+    /// Gets the conflicting Schedule's ID.
+    /// </summary>
+    int ConflictingScheduleId { get; }
   }
 }

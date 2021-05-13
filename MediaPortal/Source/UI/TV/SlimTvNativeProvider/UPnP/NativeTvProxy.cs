@@ -47,7 +47,8 @@ using UPnP.Infrastructure.CP.DeviceTree;
 
 namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
 {
-  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable, ITvProvider, ITimeshiftControlAsync, IProgramInfoAsync, IChannelAndGroupInfoAsync, IScheduleControlAsync
+  public class NativeTvProxy : UPnPServiceProxyBase, IDisposable,
+    ITvProvider, ITimeshiftControlAsync, IProgramInfoAsync, IChannelAndGroupInfoAsync, IScheduleControlAsync, IScheduleRuleControlAsync, IConflictInfoAsync
   {
     #region Protected fields
 
@@ -414,13 +415,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return new AsyncResult<IList<IProgram>>(false, null);
     }
 
-    //public bool GetProgramsForSchedule(ISchedule schedule, out IList<IProgram> programs)
-    //{
-    //  var result = GetProgramsForScheduleAsync(schedule).Result;
-    //  programs = result.Result;
-    //  return result.Success;
-    //}
-
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
     {
       try
@@ -443,22 +437,30 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return new AsyncResult<IList<IProgram>>(false, null);
     }
 
-    public bool GetScheduledPrograms(IChannel channel, out IList<IProgram> programs)
-    {
-      throw new NotImplementedException();
-    }
-
     public async Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program)
     {
       return await GetChannelAsync(program.ChannelId);
     }
 
-    public bool GetProgram(int programId, out IProgram program)
+    public async Task<AsyncResult<IProgram>> GetProgramAsync(int programId)
     {
-      throw new NotImplementedException();
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_PROGRAM);
+        IList<object> inParameters = new List<object> { programId };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool success = (bool)outParameters[0];
+        IProgram program = (IProgram)outParameters[1];
+        if (success)
+          return new AsyncResult<IProgram>(true, program);
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return new AsyncResult<IProgram>(false, null);
     }
 
-    //public bool GetChannelGroups(out IList<IChannelGroup> groups)
     public async Task<AsyncResult<IList<IChannelGroup>>> GetChannelGroupsAsync()
     {
       try
@@ -481,7 +483,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return new AsyncResult<IList<IChannelGroup>>(false, null);
     }
 
-    //public bool GetChannel(int channelId, out IChannel channel)
     public async Task<AsyncResult<IChannel>> GetChannelAsync(int channelId)
     {
       IChannel channel;
@@ -509,7 +510,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return new AsyncResult<IChannel>(false, null);
     }
 
-    //public bool GetChannels(IChannelGroup group, out IList<IChannel> channels)
     public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
     {
       try
@@ -564,7 +564,36 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    //public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
+    public int SelectedRadioChannelId
+    {
+      get
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        return settings.LastRadioChannelId;
+      }
+      set
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        settings.LastRadioChannelId = value;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
+    }
+
+    public int SelectedRadioChannelGroupId
+    {
+      get
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        return settings.LastRadioChannelGroupId;
+      }
+      set
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        settings.LastRadioChannelGroupId = value;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
+    }
+
     public async Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       try
@@ -588,7 +617,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return await CreateScheduleByTimeAsync(channel, "Manual", from, to, recordingType);
     }
 
-    //public bool CreateScheduleByTime(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType, out ISchedule schedule)
     public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
       try
@@ -607,17 +635,53 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority)
+    public async Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority)
     {
-      throw new NotImplementedException();
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE_DETAILED);
+        IList<object> inParameters = new List<object> { channel.ChannelId, title, from, to, (int)recordingType, preRecordInterval, postRecordInterval, directory ?? "", priority };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool result = (bool)outParameters[0];
+        var schedule = result ? (ISchedule)outParameters[1] : null;
+        return new AsyncResult<ISchedule>(result, schedule);
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return new AsyncResult<ISchedule>(false, null);
+      }
     }
 
-    public Task<bool> EditScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    public async Task<bool> EditScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
-      throw new NotImplementedException();
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_EDIT_SCHEDULE);
+        IList<object> inParameters = new List<object>
+        {
+          schedule,
+          channel?.ChannelId ?? schedule.ChannelId,
+          title ?? schedule.Name,
+          from ?? schedule.StartTime,
+          to ?? schedule.EndTime,
+          (int)(recordingType ?? schedule.RecordingType),
+          preRecordInterval ?? Convert.ToInt32(schedule.PreRecordInterval.TotalMinutes),
+          postRecordInterval ?? Convert.ToInt32(schedule.PostRecordInterval.TotalMinutes),
+          directory ?? "",
+          priority ?? (int)schedule.Priority
+        };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool result = (bool)outParameters[0];
+        return result;
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
     }
 
-    //public bool RemoveScheduleForProgram(IProgram program, ScheduleRecordingType recordingType)
     public async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       try
@@ -634,7 +698,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    //public bool RemoveSchedule(ISchedule schedule)
     public async Task<bool> RemoveScheduleAsync(ISchedule schedule)
     {
       try
@@ -651,12 +714,66 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public Task<bool> UnCancelScheduleAsync(IProgram program)
+    public async Task<AsyncResult<IList<IProgram>>> GetCanceledSchedulesAsync()
     {
-      throw new NotImplementedException();
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_CANCELLED_SCHEDULES);
+        IList<object> inParameters = new List<object>();
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool success = (bool)outParameters[0];
+        IList<Program> programList = (List<Program>)outParameters[1];
+        if (success)
+        {
+          var programs = programList.Cast<IProgram>().ToList();
+          return new AsyncResult<IList<IProgram>>(true, programs);
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return new AsyncResult<IList<IProgram>>(false, null);
     }
 
-    //public bool GetRecordingStatus(IProgram program, out RecordingStatus recordingStatus)
+    public async Task<AsyncResult<IList<IProgram>>> GetConflictsForScheduleAsync(ISchedule schedule)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_CONFLICTS_FOR_SCHEDULE);
+        IList<object> inParameters = new List<object> { schedule };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool success = (bool)outParameters[0];
+        if (success)
+        {
+          IList<Program> programList = (IList<Program>)outParameters[1];
+          var programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
+          return new AsyncResult<IList<IProgram>>(true, programs);
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return new AsyncResult<IList<IProgram>>(false, null);
+    }
+
+    public async Task<bool> UnCancelScheduleAsync(IProgram program)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_UNCANCEL_SCHEDULE);
+        IList<object> inParameters = new List<object> { program };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        return (bool)outParameters[0];
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
+    }
+
     public async Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
       try
@@ -675,7 +792,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    //public bool GetRecordingFileOrStream(IProgram program, out string fileOrStream)
     public async Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)
     {
       try
@@ -694,7 +810,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    //public bool GetSchedules(out IList<ISchedule> schedules)
     public async Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
     {
       try
@@ -717,7 +832,6 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return new AsyncResult<IList<ISchedule>>(false, null);
     }
 
-    //public bool IsCurrentlyRecording(string fileName, out ISchedule schedule)
     public async Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
     {
       try
@@ -736,7 +850,241 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    #region Exeption handling
+    public async Task<AsyncResult<IScheduleRule>> CreateScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? @from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE_RULE);
+        IList<object> inParameters = new List<object>
+        {
+          title,
+          targets ?? new List<IScheduleRuleTarget>(),
+          channelGroup?.ChannelGroupId ?? 0,
+          channel?.ChannelId ?? 0,
+          from ?? DateTime.MinValue,
+          to ?? DateTime.MinValue,
+          (int?)afterDay ?? -1,
+          (int?)beforeDay ?? -1,
+          (int)recordingType,
+          preRecordInterval,
+          postRecordInterval,
+          priority,
+          (int)keepMethod,
+          keepDate ?? DateTime.MinValue,
+        };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool result = (bool)outParameters[0];
+        var scheduleRule = result ? (IScheduleRule)outParameters[1] : null;
+        return new AsyncResult<IScheduleRule>(result, scheduleRule);
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return new AsyncResult<IScheduleRule>(false, null);
+      }
+    }
+
+    public async Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? @from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType, RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_CREATE_SCHEDULE_SERIES_RULE);
+        IList<object> inParameters = new List<object>
+        {
+          title,
+          targets ?? new List<IScheduleRuleTarget>(),
+          channelGroup?.ChannelGroupId ?? 0,
+          channel?.ChannelId ?? 0,
+          from ?? DateTime.MinValue,
+          to ?? DateTime.MinValue,
+          (int?)afterDay ?? -1,
+          (int?)beforeDay ?? -1,
+          seriesName,
+          seasonNumber,
+          episodeNumber,
+          episodeTitle,
+          episodeInfoFallback,
+          (int)episodeInfoFallbackType,
+          (int)recordingType,
+          preRecordInterval,
+          postRecordInterval,
+          priority,
+          (int)keepMethod,
+          keepDate ?? DateTime.MinValue,
+        };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool result = (bool)outParameters[0];
+        var scheduleRule = result ? (IScheduleRule)outParameters[1] : null;
+        return new AsyncResult<IScheduleRule>(result, scheduleRule);
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return new AsyncResult<IScheduleRule>(false, null);
+      }
+    }
+
+    public async Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? @from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType, RuleRecordingType? recordingType, int? preRecordInterval, int? postRecordInterval, int? priority, KeepMethodType? keepMethod, DateTime? keepDate)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_EDIT_SCHEDULE_RULE);
+        IList<object> inParameters = new List<object>
+        {
+          scheduleRule,
+          title,
+          targets ?? new List<IScheduleRuleTarget>(),
+          channelGroup?.ChannelGroupId ?? 0,
+          channel?.ChannelId ?? 0,
+          from ?? DateTime.MinValue,
+          to ?? DateTime.MinValue,
+          (int?)afterDay ?? -1,
+          (int?)beforeDay ?? -1,
+          isSeries.HasValue ? isSeries.Value ? 1 : 0 : -1,
+          seriesName,
+          seasonNumber,
+          episodeNumber,
+          episodeTitle,
+          episodeInfoFallback,
+          (int)(episodeInfoFallbackType ?? scheduleRule.EpisodeInfoFallbackType),
+          (int)(recordingType ?? scheduleRule.RecordingType),
+          preRecordInterval ?? Convert.ToInt32(scheduleRule.PreRecordInterval.TotalMinutes),
+          postRecordInterval ?? Convert.ToInt32(scheduleRule.PostRecordInterval.TotalMinutes),
+          priority ?? (int)scheduleRule.Priority,
+          (int)(keepMethod ?? scheduleRule.KeepMethod),
+          keepDate ?? DateTime.MinValue,
+        };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        return (bool)outParameters[0];
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
+    }
+
+    public async Task<bool> RemoveScheduleRuleAsync(IScheduleRule scheduleRule)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_REMOVE_SCHEDULE_RULE);
+        IList<object> inParameters = new List<object> { scheduleRule };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        return (bool)outParameters[0];
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
+    }
+
+    public async Task<AsyncResult<IList<IScheduleRule>>> GetScheduleRulesAsync()
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_SCHEDULE_RULES);
+        IList<object> inParameters = new List<object>();
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool success = (bool)outParameters[0];
+        IList<ScheduleRule> scheduleRuleList = (List<ScheduleRule>)outParameters[1];
+        if (success)
+        {
+          var scheduleRules = scheduleRuleList.Cast<IScheduleRule>().ToList();
+          return new AsyncResult<IList<IScheduleRule>>(true, scheduleRules);
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return new AsyncResult<IList<IScheduleRule>>(false, null);
+    }
+
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleRuleAsync(IScheduleRule scheduleRule)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_PROGRAMS_FOR_SCHEDULE_RULE);
+        IList<object> inParameters = new List<object> { scheduleRule };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool success = (bool)outParameters[0];
+        if (success)
+        {
+          IList<Program> programList = (IList<Program>)outParameters[1];
+          var programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
+          return new AsyncResult<IList<IProgram>>(true, programs);
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return new AsyncResult<IList<IProgram>>(false, null);
+    }
+
+    public async Task<AsyncResult<IList<IProgram>>> GetConflictsForScheduleRuleAsync(IScheduleRule scheduleRule)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_CONFLICTS_FOR_SCHEDULE_RULE);
+        IList<object> inParameters = new List<object> { scheduleRule };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool success = (bool)outParameters[0];
+        if (success)
+        {
+          IList<Program> programList = (IList<Program>)outParameters[1];
+          var programs = programList.Distinct(ProgramComparer.Instance).ToList(); // Using custom comparer to filter out duplicated programs.
+          return new AsyncResult<IList<IProgram>>(true, programs);
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return new AsyncResult<IList<IProgram>>(false, null);
+    }
+
+    public async Task<bool> UpdateScheduleRuleActivationAsync(IScheduleRule scheduleRule, bool active)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_ACTIVATE_SCHEDULE_RULE);
+        IList<object> inParameters = new List<object> { scheduleRule, active };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        return (bool)outParameters[0];
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+        return false;
+      }
+    }
+
+    public async Task<AsyncResult<IList<IConflict>>> GetConflictsAsync()
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_CONFLICTS);
+        IList<object> inParameters = new List<object>();
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool success = (bool)outParameters[0];
+        if (success)
+        {
+          IList<Conflict> conflictList = (IList<Conflict>)outParameters[1];
+          var conflicts = conflictList.Cast<IConflict>().ToList();
+          return new AsyncResult<IList<IConflict>>(true, conflicts);
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return new AsyncResult<IList<IConflict>>(false, null);
+    }
+
+    #region Exception handling
 
     private void NotifyException(Exception ex, string localizationMessage = null)
     {

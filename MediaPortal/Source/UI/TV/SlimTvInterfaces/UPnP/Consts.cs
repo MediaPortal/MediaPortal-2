@@ -29,6 +29,10 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string SLIMTV_SERVICE_TYPE = "schemas-team-mediaportal-com:service:SlimTv";
     public const int SLIMTV_SERVICE_TYPE_VERSION = 1;
     public const string SLIMTV_SERVICE_ID = "urn:team-mediaportal-com:serviceId:SlimTv";
+    public const string MANUAL_RECORDING_TITLE = "Manual";
+    public const string MANUAL_RECORDING_TITLE_PREFIX = "[Manual]";
+    public const string LOCAL_USERNAME = "Local";
+    public const string TVDB_NAME = "MP2TVE";
 
     public const string ACTION_START_TIMESHIFT = "StartTimeshift";
     public const string ACTION_STOP_TIMESHIFT = "StopTimeshift";
@@ -36,6 +40,7 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_GET_CHANNELGROUPS = "GetChannelGroups";
     public const string ACTION_GET_CHANNEL = "GetChannel";
     public const string ACTION_GET_CHANNELS = "GetChannels";
+    public const string ACTION_GET_PROGRAM = "GetProgram";
     public const string ACTION_GET_PROGRAMS = "GetPrograms";
     public const string ACTION_GET_PROGRAMS_BY_TITLE = "GetProgramsByTitle";
     public const string ACTION_GET_PROGRAMS_GROUP = "GetProgramsGroup";
@@ -43,6 +48,9 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_GET_NOW_NEXT_PROGRAM = "GetNowNextProgram";
     public const string ACTION_GET_NOW_NEXT_PROGRAM_FOR_GROUP = "GetNowNextProgramForGroup";
     public const string ACTION_GET_SCHEDULES = "GetSchedules";
+    public const string ACTION_GET_CANCELLED_SCHEDULES = "GetCancelledSchedules";
+    public const string ACTION_UNCANCEL_SCHEDULE = "UncancelSchedule";
+    public const string ACTION_GET_CONFLICTS_FOR_SCHEDULE = "GetConflictsForSchedule";
     public const string ACTION_CREATE_SCHEDULE = "CreateSchedule";
     public const string ACTION_CREATE_SCHEDULE_DETAILED = "CreateScheduleDetailed";
     public const string ACTION_CREATE_SCHEDULE_BY_TIME = "CreateScheduleByTime";
@@ -52,5 +60,14 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_GET_REC_STATUS = "GetRecordingStatus";
     public const string ACTION_GET_REC_FILE_OR_STREAM = "GetRecordingFileOrStream";
     public const string ACTION_GET_IS_CURRENT_REC = "IsCurrentlyRecording";
+    public const string ACTION_GET_SCHEDULE_RULES = "GetScheduleRules";
+    public const string ACTION_CREATE_SCHEDULE_RULE = "CreateScheduleRule";
+    public const string ACTION_CREATE_SCHEDULE_SERIES_RULE = "CreateScheduleSeriesRule";
+    public const string ACTION_EDIT_SCHEDULE_RULE = "EditScheduleRule";
+    public const string ACTION_REMOVE_SCHEDULE_RULE = "RemoveScheduleRule";
+    public const string ACTION_ACTIVATE_SCHEDULE_RULE = "ActivateScheduleRule";
+    public const string ACTION_GET_PROGRAMS_FOR_SCHEDULE_RULE = "GetProgramsForScheduleRule";
+    public const string ACTION_GET_CONFLICTS_FOR_SCHEDULE_RULE = "GetConflictsForScheduleRule";
+    public const string ACTION_GET_CONFLICTS = "GetConflicts";
   }
 }

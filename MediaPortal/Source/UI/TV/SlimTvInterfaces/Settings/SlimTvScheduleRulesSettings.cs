@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,22 +23,20 @@
 #endregion
 
 using System.Collections.Generic;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using System;
-using System.Threading.Tasks;
-using MediaPortal.Common.Async;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 
-namespace MediaPortal.Plugins.SlimTv.Interfaces
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Settings
 {
-  /// <summary>
-  /// ITunerInfo defines all actions and properties for getting tuner information.
-  /// </summary>
-  public interface ITunerInfoAsync
+  public class SlimTvScheduleRulesSettings
   {
-    Task<AsyncResult<IList<ICard>>> GetCardsAsync();
+    private List<ScheduleRule> _rules = new List<ScheduleRule>();
 
-    Task<AsyncResult<IList<IVirtualCard>>> GetActiveVirtualCardsAsync();
-
-    Task<AsyncResult<ITuningDetail>> GetTuningDetailsAsync(ICard card, IChannel channel);
+    [Setting(SettingScope.Global)]
+    public List<ScheduleRule> ScheduleRules
+    {
+      get { return _rules; }
+      set { _rules = new List<ScheduleRule>(value); }
+    }
   }
 }

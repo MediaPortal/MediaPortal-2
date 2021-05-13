@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2018 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2018 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,18 +27,20 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System;
 using System.Threading.Tasks;
 using MediaPortal.Common.Async;
+using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
-  /// <summary>
-  /// ITunerInfo defines all actions and properties for getting tuner information.
-  /// </summary>
-  public interface ITunerInfoAsync
+
+  public interface IConflictInfoAsync
   {
-    Task<AsyncResult<IList<ICard>>> GetCardsAsync();
-
-    Task<AsyncResult<IList<IVirtualCard>>> GetActiveVirtualCardsAsync();
-
-    Task<AsyncResult<ITuningDetail>> GetTuningDetailsAsync(ICard card, IChannel channel);
+    /// <summary>
+    /// Gets a list of currently known conflicts.
+    /// </summary>
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one conflict could be found.
+    /// <see cref="AsyncResult{T}.Result"/> conflicts.
+    /// </returns>
+    Task<AsyncResult<IList<IConflict>>> GetConflictsAsync();
   }
 }

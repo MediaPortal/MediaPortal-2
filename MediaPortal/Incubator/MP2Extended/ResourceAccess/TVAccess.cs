@@ -95,18 +95,20 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return groupChannels;
     }
 
-    internal static Task<IProgram> GetProgramAsync(IOwinContext context, int id)
+    internal static async Task<IProgram> GetProgramAsync(IOwinContext context, int id)
     {
-      if (ProgramInfo.GetProgram(id, out IProgram prog))
-        return Task.FromResult(prog);
-      return Task.FromResult<IProgram>(null);
+      var result = await ProgramInfo.GetProgramAsync(id);
+      if (result.Success)
+        return result.Result;
+      return null;
     }
 
     internal static async Task<RecordingStatus> GetProgramRecordingStatusAsync(IOwinContext context, int id)
     {
-      if (ProgramInfo.GetProgram(id, out IProgram prog))
+      var result = await ProgramInfo.GetProgramAsync(id);
+      if (result.Success)
       {
-        var status = await ScheduleControl.GetRecordingStatusAsync(prog);
+        var status = await ScheduleControl.GetRecordingStatusAsync(result.Result);
         if (status.Success)
           return status.Result;
       }
@@ -295,25 +297,28 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return true;
     }
 
-    internal static Task<IList<ICard>> GetTunerCardsAsync(IOwinContext context)
+    internal static async Task<IList<ICard>> GetTunerCardsAsync(IOwinContext context)
     {
-      if (TunerInfo.GetCards(out List<ICard> cards))
-        return Task.FromResult<IList<ICard>>(cards);
-      return Task.FromResult<IList<ICard>>(new List<ICard>());
+      var result = await TunerInfo.GetCardsAsync();
+      if (result.Success)
+        return result.Result;
+      return new List<ICard>();
     }
 
-    internal static Task<IList<IVirtualCard>> GetVirtualCardsAsync(IOwinContext context)
+    internal static async Task<IList<IVirtualCard>> GetVirtualCardsAsync(IOwinContext context)
     {
-      if (TunerInfo.GetActiveVirtualCards(out List<IVirtualCard> cards))
-        return Task.FromResult<IList<IVirtualCard>>(cards);
-      return Task.FromResult<IList<IVirtualCard>>(new List<IVirtualCard>());
+      var result = await TunerInfo.GetActiveVirtualCardsAsync();
+      if (result.Success)
+        return result.Result;
+      return new List<IVirtualCard>();
     }
 
     internal static async Task<bool> GetProgramIsScheduledOnChannel(IOwinContext context, int channelId, int programId)
     {
-      if (ProgramInfo.GetProgram(programId, out IProgram prog))
+      var result = await ProgramInfo.GetProgramAsync(programId);
+      if (result.Success)
       {
-        var channel = await ProgramInfo.GetChannelAsync(prog);
+        var channel = await ProgramInfo.GetChannelAsync(result.Result);
         return channel.Success && channel.Result.ChannelId == channelId;
       }
       return false;
@@ -329,9 +334,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return freeIndexes.First();
     }
 
-    internal static ITunerInfo TunerInfo
+    internal static ITunerInfoAsync TunerInfo
     {
-      get { return ServiceRegistration.Get<ITvProvider>() as ITunerInfo; }
+      get { return ServiceRegistration.Get<ITvProvider>() as ITunerInfoAsync; }
     }
 
     internal static IScheduleControlAsync ScheduleControl

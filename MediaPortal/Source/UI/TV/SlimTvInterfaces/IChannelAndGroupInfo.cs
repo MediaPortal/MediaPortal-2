@@ -73,5 +73,15 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// Gets or Sets the ID of the current selected channel group.
     /// </summary>
     int SelectedChannelGroupId { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the ID of the current selected radio channel.
+    /// </summary>
+    int SelectedRadioChannelId { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the ID of the current selected radio channel group.
+    /// </summary>
+    int SelectedRadioChannelGroupId { get; set; }
   }
 }

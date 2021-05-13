@@ -35,7 +35,6 @@ using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using Mediaportal.TV.Server.TVDatabase.Entities.Enums;
 using Mediaportal.TV.Server.TVLibrary.IntegrationProvider.Interfaces;
 using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
-using ILogger = MediaPortal.Common.Logging.ILogger;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
 using MediaPortal.Common.Utils;
 using MediaPortal.Plugins.SlimTv.Service.Helpers;
@@ -71,10 +70,15 @@ using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common.Async;
 using System.Threading.Tasks;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Plugins.SlimTv.UPnP;
+using Mediaportal.TV.Server.TVLibrary.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
-  public class SlimTvService : AbstractSlimTvService
+  public class SlimTvService : 
+    AbstractSlimTvService<Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup, Mediaportal.TV.Server.TVDatabase.Entities.Channel,
+      Mediaportal.TV.Server.TVDatabase.Entities.Program, Mediaportal.TV.Server.TVDatabase.Entities.Schedule, ScheduleRule, Mediaportal.TV.Server.TVDatabase.Entities.Recording, 
+      Mediaportal.TV.Server.TVDatabase.Entities.TuningDetail, Mediaportal.TV.Server.TVDatabase.Entities.Conflict>
   {
     private TvServiceThread _tvServiceThread;
     protected readonly Dictionary<string, IUser> _tvUsers = new Dictionary<string, IUser>();
@@ -95,7 +99,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override void PrepareConnection(ITransaction transaction)
     {
-      if (transaction.Connection.GetCloneFactory(TVDB_NAME, out _dbProviderFactory, out _cloneConnection))
+      if (transaction.Connection.GetCloneFactory(Consts.TVDB_NAME, out _dbProviderFactory, out _cloneConnection))
       {
         EntityFrameworkHelper.AssureKnownFactory(_dbProviderFactory);
         // Register our factory to create new cloned connections
@@ -114,13 +118,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       _tvServiceThread.Start();
       if (!_tvServiceThread.InitializedEvent.WaitOne(MAX_WAIT_MS))
       {
-        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to start TV service thread within {0} seconds.", MAX_WAIT_MS / 1000);
+        Logger.Error("SlimTvService: Failed to start TV service thread within {0} seconds.", MAX_WAIT_MS / 1000);
       }
 
       // Handle events from TvEngine
       if (!RegisterEvents())
       {
-        ServiceRegistration.Get<ILogger>().Error("SlimTvService: Failed to register events. This happens only if startup failed. Stopping plugin now.");
+        Logger.Error("SlimTvService: Failed to register events. This happens only if startup failed. Stopping plugin now.");
         DeInit();
       }
     }
@@ -141,6 +145,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public override bool DeInit()
     {
+      base.DeInit();
       if (_tvServiceThread != null)
       {
         _tvServiceThread.Stop(MAX_WAIT_MS);
@@ -160,7 +165,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       IList<ISchedule> currentlyRecordingSchedules = recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.TV)
         .Union(recordings.ListAllActiveRecordingsByMediaType(MediaTypeEnum.Radio))
         .Where(r => r.Schedule != null)
-        .Select(r => r.Schedule.ToSchedule()).ToList();
+        .Select(r => (ISchedule)ConvertToSchedule(r.Schedule)).ToList();
 
       TvServerState state = new TvServerState
       {
@@ -196,14 +201,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
           var recording = ServiceAgents.Instance.RecordingServiceAgent.GetRecording(tvEvent.Recording);
           if (recording != null)
           {
-            ServiceRegistration.Get<ILogger>().Info("SlimTvService: {0}: {1}", tvEvent.EventType, recording.FileName);
+            Logger.Info("SlimTvService: {0}: {1}", tvEvent.EventType, recording.FileName);
             ImportRecording(recording.FileName);
           }
+        }
+        if (tvEvent.EventType == TvServerEventType.ImportEpgPrograms || tvEvent.EventType == TvServerEventType.ProgramUpdated || tvEvent.EventType == TvServerEventType.EpgGrabbingStopped)
+        {
+          _ = ProgramsChangedAsync();
         }
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn("SlimTvService: Exception while handling TvServerEvent", ex);
+        Logger.Warn("SlimTvService: Exception while handling TvServerEvent", ex);
       }
     }
 
@@ -222,7 +231,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     #region ITvProvider implementation
 
-    public override Task<bool> StopTimeshiftAsync(string userName, int slotIndex)
+    protected override Task<bool> StopProviderTimeshiftAsync(string userName, int slotIndex)
     {
       IUser user;
       IInternalControllerService control = GlobalServiceProvider.Instance.Get<IInternalControllerService>();
@@ -231,16 +240,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(result);
     }
 
-    public override async Task<MediaItem> CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
+    protected override async Task<MediaItem> CreateMediaItemAsync(int slotIndex, string streamUrl, IChannel channel)
     {
       // Channel is usually only passed as placeholder with ID only, so query the details here
       IChannelService channelService = GlobalServiceProvider.Instance.Get<IChannelService>();
       Channel fullChannel = channelService.GetChannel(channel.ChannelId);
       bool isTv = fullChannel.MediaType == 0;
-      return await CreateMediaItem(slotIndex, streamUrl, channel, isTv, fullChannel.ToChannel());
+      return await CreateMediaItemAsync(slotIndex, streamUrl, channel, isTv, ConvertToChannel(fullChannel));
     }
 
-    public override Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
+    protected override Task<AsyncResult<IProgram[]>> GetProviderNowNextProgramAsync(IChannel channel)
     {
       IProgram programNow = null;
       IProgram programNext = null;
@@ -255,7 +264,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<IProgram[]>(success, new[] { programNow, programNext }));
     }
 
-    public override Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(IChannel channel, DateTime from, DateTime to)
+    protected override Task<AsyncResult<IList<IProgram>>> GetProviderProgramsAsync(IChannel channel, DateTime from, DateTime to)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       var programs = programService.GetProgramsByChannelAndStartEndTimes(channel.ChannelId, from, to)
@@ -266,7 +275,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
 
-    public override Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime from, DateTime to)
+    protected override Task<AsyncResult<IList<IProgram>>> GetProviderProgramsAsync(string title, DateTime from, DateTime to)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       // TVE3.5 does a "equal" comparision by default, while TVE3 did use "starts with". To emulate old behavior, we add a trailing %
@@ -278,7 +287,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
 
-    public override Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to)
+    protected override Task<AsyncResult<IList<IProgram>>> GetProviderProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
@@ -291,7 +300,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
 
-    public override Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
+    protected override Task<AsyncResult<IList<IProgram>>> GetProviderProgramsForScheduleAsync(ISchedule schedule)
     {
       var programs = new List<IProgram>();
       Schedule scheduleEntity = ScheduleManagement.GetSchedule(schedule.ScheduleId);
@@ -303,63 +312,123 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<IList<IProgram>>(success, programs));
     }
 
-    public override Task<AsyncResult<IChannel>> GetChannelAsync(IProgram program)
+    protected override Task<AsyncResult<IChannel>> GetProviderChannelAsync(IProgram program)
     {
       IChannelService channelService = GlobalServiceProvider.Instance.Get<IChannelService>();
-      var channel = channelService.GetChannel(program.ChannelId).ToChannel();
+      var channel = ConvertToChannel(channelService.GetChannel(program.ChannelId));
       return Task.FromResult(new AsyncResult<IChannel>(true, channel));
     }
 
-    public override bool GetProgram(int programId, out IProgram program)
+    protected override Task<AsyncResult<ITuningDetail>> GetProviderTuningDetailsAsync(ICard card, IChannel channel)
     {
-      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
-      program = GetProgram(programService.GetProgram(programId));
-      return program != null;
+      if (!card.Enabled)
+        return Task.FromResult(new AsyncResult<ITuningDetail>(false, null));
+
+      IChannelService channelService = GlobalServiceProvider.Instance.Get<IChannelService>();
+      var cl = channelService.GetChannel(channel.ChannelId);
+      if (!(cl?.TuningDetails?.Count > 0))
+        return Task.FromResult(new AsyncResult<ITuningDetail>(false, null));
+
+      IInternalControllerService control = GlobalServiceProvider.Instance.Get<IInternalControllerService>();
+      if (!control.CardCollection.TryGetValue(card.CardId, out var cd))
+        return Task.FromResult(new AsyncResult<ITuningDetail>(false, null));
+
+      var dbCd = CardManagement.GetCard(card.CardId);
+      if (dbCd == null)
+        return Task.FromResult(new AsyncResult<ITuningDetail>(false, null));
+
+      if (!CardManagement.CanViewTvChannel(dbCd, channel.ChannelId))
+        return Task.FromResult(new AsyncResult<ITuningDetail>(false, null));
+
+      var tuningDetail = cl.TuningDetails.FirstOrDefault(d => (d.ChannelType == 0 && cd.Card.TunerType == CardType.Analog) ||
+                                                              (d.ChannelType == 1 && cd.Card.TunerType == CardType.Atsc) ||
+                                                              (d.ChannelType == 2 && cd.Card.TunerType == CardType.DvbC) ||
+                                                              (d.ChannelType == 3 && cd.Card.TunerType == CardType.DvbS) ||
+                                                              (d.ChannelType == 4 && cd.Card.TunerType == CardType.DvbT) ||
+                                                              (d.ChannelType == 7 && cd.Card.TunerType == CardType.DvbIP));
+
+      return Task.FromResult(new AsyncResult<ITuningDetail>(tuningDetail != null, ConvertToTuningDetail(tuningDetail)));
     }
 
-    public override Task<AsyncResult<IList<IChannelGroup>>> GetChannelGroupsAsync()
+    protected override Task<AsyncResult<IProgram>> GetProviderProgramAsync(int programId)
+    {
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
+      var program = GetProgram(programService.GetProgram(programId));
+      return Task.FromResult(new AsyncResult<IProgram>(program != null, program));
+    }
+
+    protected override Task<AsyncResult<IList<IChannelGroup>>> GetProviderChannelGroupsAsync()
     {
       IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
       var groups = channelGroupService.ListAllChannelGroups()
         .OrderBy(tvGroup => tvGroup.MediaType)
         .ThenBy(tvGroup => tvGroup.SortOrder)
-        .Select(tvGroup => tvGroup.ToChannelGroup())
+        .Select(tvGroup => (IChannelGroup)ConvertToChannelGroup(tvGroup))
         .ToList();
       return Task.FromResult(new AsyncResult<IList<IChannelGroup>>(true, groups));
     }
 
-    public override Task<AsyncResult<IChannel>> GetChannelAsync(int channelId)
+    protected override Task<AsyncResult<IChannel>> GetProviderChannelAsync(int channelId)
     {
       IChannelService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelService>();
-      var channel = channelGroupService.GetChannel(channelId).ToChannel();
+      var channel = ConvertToChannel(channelGroupService.GetChannel(channelId));
       return Task.FromResult(new AsyncResult<IChannel>(channel != null, channel));
     }
 
-    public override Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
+    protected override Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync(IChannelGroup group)
     {
       IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
       var channels = channelGroupService.GetChannelGroup(group.ChannelGroupId).GroupMaps
         .Where(groupMap => groupMap.Channel.VisibleInGuide)
         .OrderBy(groupMap => groupMap.SortOrder)
-        .Select(groupMap => groupMap.Channel.ToChannel())
+        .Select(groupMap => (IChannel)ConvertToChannel(groupMap.Channel))
         .ToList();
       return Task.FromResult(new AsyncResult<IList<IChannel>>(true, channels));
     }
 
-    public override Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
+    protected override Task<AsyncResult<IList<IRecording>>> GetProviderRecordingsAsync(string name)
+    {
+      IRecordingService recordingService = GlobalServiceProvider.Instance.Get<IRecordingService>();
+      var recordings = recordingService.ListAllRecordingsByMediaType(MediaTypeEnum.TV).Select(s => (IRecording)ConvertToRecording(s)).ToList();
+      recordings.Concat(recordingService.ListAllRecordingsByMediaType(MediaTypeEnum.Radio).Select(s => (IRecording)ConvertToRecording(s)).ToList());
+      return Task.FromResult(new AsyncResult<IList<IRecording>>(true, recordings));
+    }
+
+    protected override Task<AsyncResult<IList<ISchedule>>> GetProviderSchedulesAsync()
     {
       IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
-      var schedules = scheduleService.ListAllSchedules().Select(s => s.ToSchedule()).ToList();
+      var schedules = scheduleService.ListAllSchedules().Select(s => (ISchedule)ConvertToSchedule(s)).ToList();
       return Task.FromResult(new AsyncResult<IList<ISchedule>>(true, schedules));
     }
 
-    public override Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
+    protected override Task<AsyncResult<IList<ISchedule>>> GetProviderCanceledSchedulesAsync()
+    {
+      var canceledSchedules = ScheduleManagement.ListAllSchedules(ScheduleIncludeRelationEnum.CanceledSchedules);
+      return Task.FromResult(new AsyncResult<IList<ISchedule>>(canceledSchedules.Count > 0, canceledSchedules.Select(s => (ISchedule)ConvertToSchedule(s)).ToList()));
+
+      //IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
+      //IList<ISchedule> canceledSchedules = new List<ISchedule>();
+      //foreach (var s in scheduleService.ListAllSchedules())
+      //{
+      //  var duration = s.EndTime - s.StartTime;
+      //  foreach (var canceledSchedule in s.CanceledSchedules)
+      //  {
+      //    var schedule = ScheduleFactory.Clone(s);
+      //    schedule.StartTime = canceledSchedule.CancelDateTime;
+      //    schedule.EndTime = schedule.StartTime;
+
+      //    canceledSchedules.Add(schedule.ToSchedule());
+      //  }
+      //}
+    }
+
+    protected override Task<AsyncResult<ISchedule>> IsProviderCurrentlyRecordingAsync(string fileName)
     {
       // TODO:
       return Task.FromResult(new AsyncResult<ISchedule>(false, null));
     }
 
-    public override Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
+    protected override Task<AsyncResult<ISchedule>> CreateProviderScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
       Schedule tvschedule = ScheduleFactory.CreateSchedule(program.ChannelId, program.Title, program.StartTime, program.EndTime);
@@ -367,18 +436,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
       tvschedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
       tvschedule.ScheduleType = (int)recordingType;
       scheduleService.SaveSchedule(tvschedule);
-      var schedule = tvschedule.ToSchedule();
+      var schedule = ConvertToSchedule(tvschedule);
       var success = schedule != null;
       return Task.FromResult(new AsyncResult<ISchedule>(success, schedule));
 
     }
 
-    public override Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
+    protected override Task<AsyncResult<ISchedule>> CreateProviderScheduleByTimeAsync(IChannel channel, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
-      return CreateScheduleByTimeAsync(channel, "Manual", from, to, recordingType);
+      return CreateScheduleByTimeAsync(channel, $"{Consts.MANUAL_RECORDING_TITLE_PREFIX}{Consts.MANUAL_RECORDING_TITLE}", from, to, recordingType);
     }
 
-    public override Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType)
+    protected override Task<AsyncResult<ISchedule>> CreateProviderScheduleByTimeAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
       Schedule tvSchedule = ScheduleFactory.CreateSchedule(channel.ChannelId, title, from, to);
@@ -386,11 +455,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       tvSchedule.PostRecordInterval = ServiceAgents.Instance.SettingServiceAgent.GetValue("postRecordInterval", 5);
       tvSchedule.ScheduleType = (int)recordingType;
       scheduleService.SaveSchedule(tvSchedule);
-      var schedule = tvSchedule.ToSchedule();
+      var schedule = ConvertToSchedule(tvSchedule);
       return Task.FromResult(new AsyncResult<ISchedule>(true, schedule));
     }
 
-    public override Task<AsyncResult<ISchedule>> CreateScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority)
+    protected override Task<AsyncResult<ISchedule>> CreateProviderScheduleDetailedAsync(IChannel channel, string title, DateTime from, DateTime to, ScheduleRecordingType recordingType, int preRecordInterval, int postRecordInterval, string directory, int priority)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
       Schedule tvSchedule = ScheduleFactory.CreateSchedule(channel.ChannelId, title, from, to);
@@ -410,15 +479,15 @@ namespace MediaPortal.Plugins.SlimTv.Service
       tvSchedule.Directory = directory;
       tvSchedule.Priority = priority;
       scheduleService.SaveSchedule(tvSchedule);
-      ISchedule schedule = tvSchedule.ToSchedule();
+      ISchedule schedule = ConvertToSchedule(tvSchedule);
       return Task.FromResult(new AsyncResult<ISchedule>(true, schedule));
     }
 
-    public override Task<bool> EditScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    protected override Task<bool> EditProviderScheduleAsync(ISchedule schedule, IChannel channel = null, string title = null, DateTime? from = null, DateTime? to = null, ScheduleRecordingType? recordingType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
       try
       {
-        ServiceRegistration.Get<ILogger>().Debug("Editing schedule {0} on channel {1} for {2}, {3} till {4}, type {5}", schedule.ScheduleId, channel.ChannelId, title, from, to, recordingType);
+        Logger.Debug("SlimTvService: Editing schedule {0} on channel {1} for {2}, {3} till {4}, type {5}", schedule.ScheduleId, channel.ChannelId, title, from, to, recordingType);
         IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
         Schedule tvSchedule = scheduleService.GetSchedule(schedule.ScheduleId);
 
@@ -466,12 +535,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn(String.Format("Failed to edit schedule {0}", schedule.ScheduleId), ex);
+        Logger.Warn(String.Format("SlimTvService: Failed to edit schedule {0}", schedule.ScheduleId), ex);
         return Task.FromResult(false);
       }
     }
 
-    public override Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
+    protected override Task<bool> RemoveProviderScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
@@ -504,7 +573,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(true);
     }
 
-    public override Task<bool> RemoveScheduleAsync(ISchedule schedule)
+    protected override Task<bool> RemoveProviderScheduleAsync(ISchedule schedule)
     {
       IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
       if (scheduleService == null)
@@ -514,14 +583,14 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(true);
     }
 
-    public override Task<bool> UnCancelScheduleAsync(IProgram program)
+    protected override Task<bool> UnCancelProviderScheduleAsync(IProgram program)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       IScheduleService scheduleService = GlobalServiceProvider.Instance.Get<IScheduleService>();
       var tvProgram = programService.GetProgram(program.ProgramId);
       try
       {
-        ServiceRegistration.Get<ILogger>().Debug("Uncancelling schedule for programId {0}", tvProgram.IdProgram);
+        Logger.Debug("SlimTvService: Uncancelling schedule for programId {0}", tvProgram.IdProgram);
         foreach (Schedule schedule in scheduleService.ListAllSchedules().Where(schedule => schedule.StartTime == program.StartTime && schedule.IdChannel == tvProgram.IdChannel))
         {
           scheduleService.UnCancelSerie(schedule, program.StartTime, tvProgram.IdChannel);
@@ -531,12 +600,76 @@ namespace MediaPortal.Plugins.SlimTv.Service
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Warn(String.Format("Failed to uncancel schedule for programId {0}", program.ProgramId), ex);
+        Logger.Warn(String.Format("SlimTvService: Failed to uncancel schedule for programId {0}", program.ProgramId), ex);
         return Task.FromResult(false);
       }
     }
 
-    private static void CancelSingleSchedule(Schedule schedule, Program canceledProgram)
+    protected override Task<AsyncResult<IList<IConflict>>> GetProviderConflictsAsync()
+    {
+      IConflictService conflictService = GlobalServiceProvider.Instance.Get<IConflictService>();
+      var conflictList = conflictService.ListAllConflicts();
+      var conflicts = conflictList.Select(c => (IConflict)ConvertToConflict(c)).ToList();
+      return Task.FromResult(new AsyncResult<IList<IConflict>>(conflicts.Count > 0, conflicts));
+    }
+
+    protected override Task<bool> RemoveAllProviderConflictsAsync()
+    {
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
+      IConflictService conflictService = GlobalServiceProvider.Instance.Get<IConflictService>();
+
+      //Clear all existing program conflicts
+      var programList = programService.GetProgramsByState(ProgramState.Conflict);
+      foreach (var program in programList)
+      {
+        ProgramState state = (ProgramState)program.State;
+        program.State = (int)(state & ~ProgramState.Conflict);
+        programService.SaveProgram(program);
+      }
+
+      // Clear all conflicts
+      var conflictList = conflictService.ListAllConflicts();
+      foreach (var conflict in conflictList)
+        ConflictManagement.DeleteConflict(conflict.IdConflict);
+
+      return Task.FromResult(true);
+    }
+
+    protected override Task<bool> SaveProviderConflictsAsync(IList<IConflict> conflicts)
+    {
+      IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
+      IConflictService conflictService = GlobalServiceProvider.Instance.Get<IConflictService>();
+
+      //Add new program conflicts
+      foreach (var conflict in conflicts)
+      {
+        var prg = programService.GetProgramAt(conflict.ProgramStartTime, conflict.ChannelId);
+        if (prg == null)
+          continue;
+
+        ProgramState state = (ProgramState)prg.State;
+        prg.State = (int)(state | ProgramState.Conflict);
+        programService.SaveProgram(prg);
+      }
+
+      // Add new conflicts
+      foreach (var conflict in conflicts.Where(c => c.ConflictingScheduleId > 0))
+      {
+        Mediaportal.TV.Server.TVDatabase.Entities.Conflict newConflict = new Mediaportal.TV.Server.TVDatabase.Entities.Conflict
+        {
+          IdCard = conflict.CardId,
+          IdChannel = conflict.ChannelId,
+          IdSchedule = conflict.ScheduleId,
+          IdConflictingSchedule = conflict.ConflictingScheduleId,
+          ConflictDate = conflict.ProgramStartTime
+        };
+        conflictService.SaveConflict(newConflict);
+      }
+
+      return Task.FromResult(true);
+    }
+
+    private void CancelSingleSchedule(Schedule schedule, Program canceledProgram)
     {
       ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Instance.Get<ICanceledScheduleService>();
 
@@ -554,7 +687,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       DeleteEntireOrOnceSchedule(currentSchedule, parentSchedule);
     }
 
-    private static void GetParentAndSpawnSchedule(ref Schedule schedule, out Schedule parentSchedule)
+    private void GetParentAndSpawnSchedule(ref Schedule schedule, out Schedule parentSchedule)
     {
       parentSchedule = schedule.ParentSchedule;
       if (parentSchedule != null)
@@ -566,7 +699,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         schedule = spawn;
     }
 
-    private static bool StopRecording(Schedule schedule)
+    private bool StopRecording(Schedule schedule)
     {
       bool stoppedRec = false;
       bool isRec = ServiceAgents.Instance.ScheduleServiceAgent.IsScheduleRecording(schedule.IdSchedule);
@@ -591,7 +724,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         }
         catch (Exception ex)
         {
-          ServiceRegistration.Get<ILogger>().Error("Error deleting schedule with ID '{0}'", ex,
+          Logger.Error("SlimTvService: Error deleting schedule with ID '{0}'", ex,
             currentSchedule != null ? currentSchedule.IdSchedule.ToString() : "<null>");
         }
       }
@@ -608,16 +741,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
-    public override Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
+    protected override Task<AsyncResult<RecordingStatus>> GetProviderRecordingStatusAsync(IProgram program)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
       IProgramRecordingStatus recProgram = (IProgramRecordingStatus)GetProgram(programService.GetProgram(program.ProgramId), true);
       return Task.FromResult(new AsyncResult<RecordingStatus>(true, recProgram.RecordingStatus));
     }
 
-    public override Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)
+    protected override Task<AsyncResult<string>> GetProviderRecordingFileOrStreamAsync(IProgram program)
     {
-      Recording recording;
+      Mediaportal.TV.Server.TVDatabase.Entities.Recording recording;
       if (!GetRecording(program, out recording))
         return Task.FromResult(new AsyncResult<string>(false, null));
 
@@ -625,45 +758,45 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<string>(true, recording.FileName));
     }
 
-    private static bool GetRecording(IProgram program, out Recording recording)
+    private static bool GetRecording(IProgram program, out Mediaportal.TV.Server.TVDatabase.Entities.Recording recording)
     {
       IRecordingService recordingService = GlobalServiceProvider.Instance.Get<IRecordingService>();
       recording = recordingService.GetActiveRecordingByTitleAndChannel(program.Title, program.ChannelId);
       return recording != null;
     }
 
-    protected override string SwitchTVServerToChannel(string userName, int channelId)
+    protected override Task<string> SwitchProviderToChannelAsync(string userName, int channelId)
     {
       if (String.IsNullOrEmpty(userName))
       {
-        ServiceRegistration.Get<ILogger>().Error("Called SwitchTVServerToChannel with empty userName");
+        Logger.Error("SlimTvService: Called SwitchTVServerToChannel with empty userName");
         throw new ArgumentNullException("userName");
       }
 
       IUser currentUser = UserFactory.CreateBasicUser(userName, -1);
-      ServiceRegistration.Get<ILogger>().Debug("Starting timeshifiting with username {0} on channel id {1}", userName, channelId);
+      Logger.Debug("SlimTvService: Starting timeshifiting with username {0} on channel id {1}", userName, channelId);
 
       IInternalControllerService control = GlobalServiceProvider.Instance.Get<IInternalControllerService>();
 
       IVirtualCard card;
       IUser user;
       TvResult result = control.StartTimeShifting(currentUser.Name, channelId, out card, out user);
-      ServiceRegistration.Get<ILogger>().Debug("Tried to start timeshifting, result {0}", result);
+      Logger.Debug("SlimTvService: Tried to start timeshifting, result {0}", result);
 
       if (result != TvResult.Succeeded)
       {
         // TODO: should we retry?
-        ServiceRegistration.Get<ILogger>().Error("Starting timeshifting failed with result {0}", result);
-        throw new Exception("Failed to start tv stream: " + result);
+        Logger.Error("SlimTvService: Starting timeshifting failed with result {0}", result);
+        return null;
       }
-      return userName.StartsWith(LOCAL_USERNAME + "-") ? card.TimeShiftFileName : card.RTSPUrl;
+      return Task.FromResult(userName.StartsWith(Consts.LOCAL_USERNAME + "-") ? card.TimeShiftFileName : card.RTSPUrl);
     }
 
     protected IUser GetUserByUserName(string userName, bool create = false)
     {
       if (userName == null)
       {
-        ServiceRegistration.Get<ILogger>().Warn("Used user with null name");
+        Logger.Warn("SlimTvService: Used user with null name");
         return null;
       }
 
@@ -675,7 +808,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return _tvUsers[userName];
     }
 
-    public override Task<AsyncResult<List<ICard>>> GetCardsAsync()
+    protected override Task<AsyncResult<IList<ICard>>> GetProviderCardsAsync()
     {
       IInternalControllerService control = GlobalServiceProvider.Instance.Get<IInternalControllerService>();
       List<ICard> cards = control.CardCollection.Select(card => new SlimTvCard()
@@ -693,10 +826,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
         Priority = card.Value.DataBaseCard.Priority
       }).Cast<ICard>().ToList();
 
-      return Task.FromResult(new AsyncResult<List<ICard>>(cards.Count > 0, cards));
+      return Task.FromResult(new AsyncResult<IList<ICard>>(cards.Count > 0, cards));
     }
 
-    public override Task<AsyncResult<List<SlimTvIVirtualCard>>> GetActiveVirtualCardsAsync()
+    protected override Task<AsyncResult<IList<SlimTvIVirtualCard>>> GetProviderActiveVirtualCardsAsync()
     {
       List<SlimTvIVirtualCard> cards = new List<SlimTvIVirtualCard>();
       foreach (var card in ServiceAgents.Instance.CardServiceAgent.ListAllCards())
@@ -764,7 +897,184 @@ namespace MediaPortal.Plugins.SlimTv.Service
         }
       }
 
-      return Task.FromResult(new AsyncResult<List<SlimTvIVirtualCard>>(cards.Count > 0, cards));
+      return Task.FromResult(new AsyncResult<IList<SlimTvIVirtualCard>>(cards.Count > 0, cards));
+    }
+
+    #endregion
+
+    #region Conversion
+
+    protected override Interfaces.UPnP.Items.Program ConvertToProgram(Mediaportal.TV.Server.TVDatabase.Entities.Program tvProgram, bool includeRecordingStatus = false)
+    {
+      if (tvProgram == null)
+        return null;
+      Interfaces.UPnP.Items.Program program = new Interfaces.UPnP.Items.Program
+      {
+        ChannelId = tvProgram.IdChannel,
+        ProgramId = tvProgram.IdProgram,
+        Title = tvProgram.Title,
+        Description = tvProgram.Description,
+        Genre = tvProgram.ProgramCategory?.Category,
+        StartTime = tvProgram.StartTime,
+        EndTime = tvProgram.EndTime,
+        OriginalAirDate = tvProgram.OriginalAirDate,
+        Classification = tvProgram.Classification,
+        ParentalRating = tvProgram.ParentalRating,
+        StarRating = tvProgram.StarRating,
+        SeasonNumber = tvProgram.SeriesNum,
+        EpisodeNumber = tvProgram.EpisodeNum,
+        EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
+        EpisodePart = tvProgram.EpisodePart,
+        EpisodeTitle = tvProgram.EpisodeName,
+      };
+
+      ProgramBLL programLogic = new ProgramBLL(tvProgram);
+      program.RecordingStatus = programLogic.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
+      if (programLogic.IsRecordingOncePending || programLogic.IsRecordingOnce)
+        program.RecordingStatus |= RecordingStatus.Scheduled;
+      if (programLogic.IsRecordingSeriesPending || programLogic.IsRecordingSeries)
+        program.RecordingStatus |= RecordingStatus.SeriesScheduled;
+      if (programLogic.IsRecordingOnce)
+        program.RecordingStatus |= RecordingStatus.RecordingOnce;
+      if (programLogic.IsRecordingSeries)
+        program.RecordingStatus |= RecordingStatus.RecordingSeries;
+      if (programLogic.IsRecordingManual)
+        program.RecordingStatus |= RecordingStatus.RecordingManual;
+      program.HasConflict = programLogic.HasConflict;
+
+      return program;
+    }
+
+    protected override Interfaces.UPnP.Items.Channel ConvertToChannel(Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
+    {
+      return new Interfaces.UPnP.Items.Channel
+      {
+        ChannelId = tvChannel.IdChannel,
+        ChannelNumber = tvChannel.ChannelNumber,
+        Name = tvChannel.DisplayName,
+        MediaType = (MediaType)tvChannel.MediaType,
+        EpgHasGaps = tvChannel.EpgHasGaps,
+        ExternalId = tvChannel.ExternalId,
+        GrapEpg = tvChannel.GrabEpg,
+        LastGrabTime = tvChannel.LastGrabTime,
+        TimesWatched = tvChannel.TimesWatched,
+        TotalTimeWatched = tvChannel.TotalTimeWatched,
+        VisibleInGuide = tvChannel.VisibleInGuide,
+        GroupNames = tvChannel.GroupMaps.Select(group => group.ChannelGroup.GroupName).ToList()
+      };
+    }
+
+    protected override Interfaces.UPnP.Items.ChannelGroup ConvertToChannelGroup(Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup tvGroup)
+    {
+      if (tvGroup == null)
+        return null;
+
+      return new Interfaces.UPnP.Items.ChannelGroup
+      {
+        ChannelGroupId = tvGroup.IdGroup,
+        Name = tvGroup.GroupName,
+        MediaType = tvGroup.MediaType == 0 ? MediaType.TV : MediaType.Radio,
+        SortOrder = tvGroup.SortOrder
+      };
+    }
+
+    protected override Interfaces.UPnP.Items.Schedule ConvertToSchedule(Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule)
+    {
+      return new Interfaces.UPnP.Items.Schedule
+      {
+        ChannelId = schedule.IdChannel,
+        Name = schedule.ProgramName,
+        KeepDate = schedule.KeepDate,
+        KeepMethod = (Interfaces.Items.KeepMethodType)schedule.KeepMethod,
+        PreRecordInterval = TimeSpan.FromMinutes(schedule.PreRecordInterval),
+        PostRecordInterval = TimeSpan.FromMinutes(schedule.PostRecordInterval),
+        Priority = (PriorityType)schedule.Priority,
+        StartTime = schedule.StartTime,
+        EndTime = schedule.EndTime,
+        ScheduleId = schedule.IdSchedule,
+        ParentScheduleId = schedule.IdParentSchedule,
+        RecordingType = (ScheduleRecordingType)schedule.ScheduleType
+      };
+    }
+
+    protected override Interfaces.UPnP.Items.TuningDetail ConvertToTuningDetail(Mediaportal.TV.Server.TVDatabase.Entities.TuningDetail tuningDetail)
+    {
+      return new Interfaces.UPnP.Items.TuningDetail
+      {
+        TuningDetailId = tuningDetail.IdTuning,
+        InnerFecRate = tuningDetail.InnerFecRate,
+        ChannelId = tuningDetail.IdChannel,
+        Name = tuningDetail.Name,
+        Provider = tuningDetail.Provider,
+        ChannelType = tuningDetail.ChannelType == 0 ? ChannelType.Analog :
+          tuningDetail.ChannelType == 1 ? ChannelType.Atsc :
+          tuningDetail.ChannelType == 2 ? ChannelType.DvbC :
+          tuningDetail.ChannelType == 3 ? ChannelType.DvbS :
+          tuningDetail.ChannelType == 4 ? ChannelType.DvbT :
+          tuningDetail.ChannelType == 7 ? ChannelType.DvbIP : ChannelType.Unsupported,
+        PhysicalChannelNumber = tuningDetail.ChannelNumber,
+        Frequency = tuningDetail.Frequency,
+        CountryId = tuningDetail.CountryId,
+        MediaType = (MediaType)tuningDetail.MediaType,
+        NetworkId = tuningDetail.NetworkId,
+        TransportId = tuningDetail.TransportId,
+        ServiceId = tuningDetail.ServiceId,
+        PmtPid = tuningDetail.PmtPid,
+        IsEncrypted = !tuningDetail.FreeToAir,
+        Modulation = tuningDetail.Modulation,
+        Polarisation = tuningDetail.Polarisation,
+        Symbolrate = tuningDetail.Symbolrate,
+        Bandwidth = tuningDetail.Bandwidth,
+        LogicalChannelNumber = $"{tuningDetail.MajorChannel}.{tuningDetail.MinorChannel}",
+        VideoSource = tuningDetail.VideoSource,
+        AudioSource = tuningDetail.AudioSource,
+        IsVCRSignal = tuningDetail.IsVCRSignal,
+        TuningSource = tuningDetail.TuningSource,
+        Pilot = tuningDetail.Pilot,
+        RollOff = tuningDetail.RollOff,
+        Url = tuningDetail.Url,
+      };
+    }
+
+    protected override Interfaces.UPnP.Items.Recording ConvertToRecording(Mediaportal.TV.Server.TVDatabase.Entities.Recording recording)
+    {
+      return new Interfaces.UPnP.Items.Recording
+      {
+        RecordingId = recording.IdRecording,
+        ChannelId = recording.IdChannel,
+        ScheduleId = recording.IdSchedule,
+        Title = recording.Title,
+        Description = recording.Description,
+        Genre = recording.ProgramCategory?.Category,
+        StartTime = recording.StartTime,
+        EndTime = recording.EndTime,
+        IsManual = IsManualTitle(recording.Title),
+        SeasonNumber = recording.SeriesNum,
+        EpisodeNumber = recording.EpisodeNum,
+        EpisodeNumberDetailed = $"S{recording.SeriesNum}E{recording.EpisodeNum}",
+        EpisodePart = recording.EpisodePart,
+        EpisodeTitle = recording.EpisodeName,
+        KeepDate = recording.KeepUntilDate,
+        KeepMethod = (Interfaces.Items.KeepMethodType)recording.KeepUntil
+      };
+    }
+
+    protected override Interfaces.UPnP.Items.ScheduleRule ConvertToScheduleRule(Interfaces.UPnP.Items.ScheduleRule scheduleRule)
+    {
+      return scheduleRule;
+    }
+
+    protected override Interfaces.UPnP.Items.Conflict ConvertToConflict(Mediaportal.TV.Server.TVDatabase.Entities.Conflict conflict)
+    {
+      return new Interfaces.UPnP.Items.Conflict
+      {
+        ConflictId = conflict.IdConflict,
+        CardId = conflict.IdCard ?? 0,
+        ChannelId = conflict.IdChannel,
+        ScheduleId = conflict.IdSchedule,
+        ProgramStartTime = conflict.ConflictDate,
+        ConflictingScheduleId = conflict.IdConflictingSchedule,
+      };
     }
 
     #endregion

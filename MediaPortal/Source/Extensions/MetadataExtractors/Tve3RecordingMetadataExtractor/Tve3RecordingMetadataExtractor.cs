@@ -39,6 +39,7 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Serialization;
+using MediaPortal.Plugins.SlimTv.UPnP;
 
 namespace MediaPortal.Extensions.MetadataExtractors
 {
@@ -287,13 +288,14 @@ namespace MediaPortal.Extensions.MetadataExtractors
         }
 
         //Assign all tags to the aspects for both tv and radio recordings
-        string value;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-        if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
+        if (TryGet(tags, TAG_TITLE, out string value) && !string.IsNullOrEmpty(value))
         {
-          if (value.Equals("manual", StringComparison.InvariantCultureIgnoreCase))
+          if (value.StartsWith(Consts.MANUAL_RECORDING_TITLE_PREFIX, StringComparison.InvariantCultureIgnoreCase))
+            value = value.Substring(Consts.MANUAL_RECORDING_TITLE_PREFIX.Length);
+          if (value.Equals(Consts.MANUAL_RECORDING_TITLE, StringComparison.InvariantCultureIgnoreCase))
             value = ResourcePathHelper.GetFileNameWithoutExtension(metaFileAccessor.Path);
-          
+
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
         }
