@@ -58,7 +58,7 @@
         <Label x:Name="NextProgramLabel" Grid.Column="3" Content="[SlimTvClient.NextProgram]" VerticalAlignment="Center"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="-5,5,10,5"/>
 
-        <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
+        <Button x:Name="GroupButton" Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
                 VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,22">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  Opacity="0.5" Content="{Binding CurrentGroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
@@ -73,11 +73,11 @@
           </Label>
         </Button>
 
-        <ListView  x:Name="ProgramsListView" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" 
-                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,5,-10,0"
-                   Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
-                   ItemsSource="{Binding Path=CurrentGroupChannels}" RestoreFocus="True"
-                   SelectionChanged="{CommandStencil UpdateProgram}">
+        <ListView x:Name="ProgramsListView" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" 
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,5,-10,0"
+                  Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
+                  ItemsSource="{Binding Path=CurrentGroupChannels}" RestoreFocus="True"
+                  SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
             <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
               <TranslateTransform X="15" />
@@ -86,11 +86,37 @@
           </ListView.Resources>
         </ListView>
 
+        <Label x:Name="ListIndex" IsVisible="False">
+          <Label.Content>
+            <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+              <Binding ElementName="ProgramsListView" Path="CurrentItem"/>
+              <Binding ElementName="ProgramsListView" Path="ItemsSource"/>
+            </MultiBinding>
+          </Label.Content>
+        </Label>
+
         <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
         <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
 
-        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="Description_details" 
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,30,30,0" VerticalAlignment="Top"
+              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableHelpTexts}">
+          <Grid x:Name="HelpText_Group" IsVisible="{Binding ElementName=GroupButton, Path=HasFocus}">
+            <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
+                   IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
+                   VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <Label x:Name="HelpLabel" Opacity="0.6" Margin="38,5,0,-5"
+                   Content="Shows the current channel group, press to select another channel group" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+          </Grid>
+        </Grid>
+
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="ProgramInfoPanel"
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; ({1}!= 0)">
+              <Binding ElementName="GroupButton" Path="!HasFocus"/>
+              <Binding ElementName="ListIndex" Path="Content"/>
+            </MultiBinding>
+          </Grid.IsVisible>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>

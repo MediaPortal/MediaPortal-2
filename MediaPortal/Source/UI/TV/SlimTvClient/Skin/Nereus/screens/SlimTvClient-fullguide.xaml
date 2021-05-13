@@ -4,6 +4,7 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_nomenu.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Controls;assembly=SlimTv.Client"
     >
   <Include.Resources>
@@ -118,11 +119,107 @@
 
         <!-- All KeyBindings are included from shared resource -->
         <Include Source="screens\TvGuideKeybindings.inc"/>
-      </Grid>
-    </ControlTemplate>
 
-    <ControlTemplate x:Key="NoMenu_Footer_Template">
-      <Include Source="screens\ProgramInfoSlim.inc"/>
+        <Grid Grid.Row="1" Grid.ColumnSpan="4" Margin="40,0,0,-60" VerticalAlignment="Bottom" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableHelpTexts}">
+          <Grid x:Name="HelpText_DoubleArrow">
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Binding="{Binding ElementName=ScrollDoubleBackwardButton,Path=HasFocus}" Value="False"/>
+                  <Condition Binding="{Binding ElementName=ScrollDoubleForwardButton,Path=HasFocus}" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="HelpText_DoubleArrow" Property="IsVisible" Value="False"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+            <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
+                   IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
+                   VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <Label x:Name="HelpLabel" Opacity="0.6" Margin="38,5,0,-5"
+                   Content="Scroll time axis in day increments" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/>
+          </Grid>
+
+          <Grid x:Name="HelpText_Arrow">
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Binding="{Binding ElementName=ScrollBackwardButton,Path=HasFocus}" Value="False"/>
+                  <Condition Binding="{Binding ElementName=ScrollForwardButton,Path=HasFocus}" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter TargetName="HelpText_Arrow" Property="IsVisible" Value="False"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+            <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
+                   IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel2, Path=Content}"
+                   VerticalAlignment="Top" HorizontalAlignment="Left"/>
+            <Label x:Name="HelpLabel2" Opacity="0.6" Margin="38,5,0,-5" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + ({1}/2) + {2}">
+                  <Binding Source="Scroll time axis in " />
+                  <Binding Path="VisibleHours" />
+                  <Binding Source=" hour increments" />
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+          </Grid>
+        </Grid>
+
+        <Grid x:Name="ProgramInfoPanel" Height="170" Margin="40,0,40,-190" Grid.Row="1" Grid.ColumnSpan="4" 
+              HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+              DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} &amp;&amp; {1} &amp;&amp; {2} &amp;&amp; {3} &amp;&amp; ({4}||{5})">
+              <Binding ElementName="ScrollBackwardButton" Path="!HasFocus"/>
+              <Binding ElementName="ScrollForwardButton" Path="!HasFocus"/>
+              <Binding ElementName="ScrollDoubleBackwardButton" Path="!HasFocus"/>
+              <Binding ElementName="ScrollDoubleForwardButton" Path="!HasFocus"/>
+              <Binding ElementName="EpgGrid" Path="IsMouseOver"/>
+              <Binding ElementName="EpgGrid" Path="IsKeyboardFocusWithin"/>
+            </MultiBinding>
+          </Grid.IsVisible>
+
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="420"/>
+            <ColumnDefinition Width="1400"/>
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Orientation="Vertical" Grid.RowSpan="2">
+            <!-- Common control for program duration formatting -->
+            <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}" />
+            <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
+                   HorizontalAlignment="Left"/>
+            <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
+                   Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
+                                    fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+              </Image.Source>
+            </Image>
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
+            <Label x:Name="Program" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Content="{Binding CurrentProgram.Title}" Color="{ThemeResource TextColor}"/>    
+            <Label x:Name="SeriesLabel" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Opacity="0.6"
+                   IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Label.Content>
+                <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+              </Label.Content>
+            </Label>
+          </StackPanel>
+
+          <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Wrap="True" Scroll="Auto" Opacity="0.6" Content="{Binding Path=CurrentProgram.Description}"
+                 ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
+                 ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
+                 Color="{ThemeResource TextColor}" Margin="0,0,0,-40"/>
+        </Grid>
+
+      </Grid>
     </ControlTemplate>
 
   </Include.Resources>

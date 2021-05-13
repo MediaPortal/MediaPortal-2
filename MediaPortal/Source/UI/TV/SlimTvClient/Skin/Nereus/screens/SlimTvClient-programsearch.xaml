@@ -101,10 +101,6 @@
         <Grid Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,50,0,80">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
@@ -149,54 +145,69 @@
           </Grid>
 
           <!-- Common control for program duration formatting -->
-          <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
-                 IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}" Grid.Row="1"/>
-          <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="1"
-                 Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
-            <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
+          <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{} {0} != 0">
+                <Binding ElementName="ListIndex" Path="Content"/>
+              </MultiBinding>
+            </Grid.IsVisible>
+            <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
+                   IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}" Grid.Row="0"/>
+            <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="0"
+                   Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
+
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
                                         fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-            </Image.Source>
-          </Image>
+              </Image.Source>
+            </Image>
 
-          <Label x:Name="Program" Grid.Row="2" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
-                 Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+            <Label x:Name="Program" Grid.Row="1" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+                   Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
 
-          <Grid Grid.Row="3" DataContext="{Binding Path=CurrentProgram}"
-                IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-            <Image Source="HomeContentIcons\duration.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+            <Grid x:Name="DurationLabel" Grid.Row="2" DataContext="{Binding Path=CurrentProgram}"
+                  IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\duration.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="40,0,0,0" >
-              <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColorForeground}"
+              <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="40,0,0,0" >
+                <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColorForeground}"
                      Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
-              <Label x:Name="Delimiter" Margin="10,0,10,0"  Color="{ThemeResource TextColorForeground}" Content="-"
+                <Label x:Name="Delimiter" Margin="10,0,10,0"  Color="{ThemeResource TextColorForeground}" Content="-"
                      IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
-              <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
+                <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
                      Color="{ThemeResource TextColorForeground}"/>
-            </StackPanel>
-          </Grid>
+              </StackPanel>
+            </Grid>
 
-          <Grid Grid.Row="4" Grid.ColumnSpan="2" IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource EmptyStringToFalseConverter}}">
-            <Image Source="HomeContentIcons\series.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+            <Grid x:Name="SeriesGridLabel" Grid.Row="3" IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource EmptyStringToFalseConverter}}">
+              <Image Source="HomeContentIcons\series.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Label HorizontalAlignment="Stretch" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" x:Name="SeriesLabel" >
-              <Label.Content>
-                <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
-              </Label.Content>
-            </Label>
-          </Grid>
+              <Label HorizontalAlignment="Stretch" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" x:Name="SeriesLabel" >
+                <Label.Content>
+                  <Binding Path="CurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
+                </Label.Content>
+              </Label>
+            </Grid>
 
-          <Label x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 Wrap="True" Scroll="Auto" Opacity="0.6" Grid.Row="5"
+            <Label x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Wrap="True" Scroll="Auto" Opacity="0.6" Grid.Row="4"
                  ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
                  ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
                  Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}" Margin="0,0,0,75" />
+          </Grid>
         </Grid>
 
         <!-- Actual Item / Total items -->
         <DockPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" IsVisible="{Binding IsItemsValid}">
           <StackPanel DockPanel.Dock="Right" Margin="65,-80,25,90" Orientation="Horizontal">
-            <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
+            <Label x:Name="ListIndex" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
