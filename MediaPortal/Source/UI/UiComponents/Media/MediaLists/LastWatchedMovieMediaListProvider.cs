@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public LastWatchedMovieMediaListProvider()
     {
-      _changeAspectId = MovieAspect.ASPECT_ID;
+      _changeAspectIds = new[] { MovieAspect.ASPECT_ID };
       _necessaryMias = Consts.NECESSARY_MOVIES_MIAS;
       _optionalMias = Consts.OPTIONAL_MOVIES_MIAS;
       _playableConverterAction = item => new MovieItem(item);

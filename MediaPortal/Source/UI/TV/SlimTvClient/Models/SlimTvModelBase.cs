@@ -62,6 +62,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected AbstractProperty _dialogHeaderProperty = null;
     protected readonly ItemsList _dialogActionsList = new ItemsList();
+    protected MediaMode _mediaMode = MediaMode.All;
+
+    public enum MediaMode
+    {
+      All,
+      Tv,
+      Radio
+    }
 
     public struct TvExtension
     {
@@ -75,7 +83,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected SlimTvModelBase()
       : this(5000)
-    { }
+    {
+    }
 
     protected SlimTvModelBase(long updateInterval)
       : base(true, updateInterval)
@@ -101,7 +110,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       get
       {
-        return ChannelContext.Instance.ChannelGroups.Current;
+        var groups = GetGroupNavigationList();
+        return groups.Current;
       }
     }
 
@@ -110,7 +120,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void NextGroup()
     {
-      ChannelContext.Instance.ChannelGroups.MoveNext();
+      var groups = GetGroupNavigationList();
+      groups.MoveNext();
       SetGroup();
     }
 
@@ -119,7 +130,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void PrevGroup()
     {
-      ChannelContext.Instance.ChannelGroups.MovePrevious();
+      var groups = GetGroupNavigationList();
+      groups.MovePrevious();
       SetGroup();
     }
 
@@ -132,20 +144,36 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void SelectGroup()
     {
+      SelectGroupByType();
+    }
+
+    private void SelectGroupByType()
+    {
+      var groups = GetGroupNavigationList();
       ChannelGroupList.Clear();
-      for (int index = 0; index < ChannelContext.Instance.ChannelGroups.Count; index++)
+      for (int index = 0; index < groups.Count; index++)
       {
-        var channelGroup = ChannelContext.Instance.ChannelGroups[index];
+        var channelGroup = groups[index];
+        if (channelGroup == null)
+          continue;
+        if (_mediaMode == MediaMode.Tv && channelGroup.MediaType != MediaType.TV)
+          continue;
+        if (_mediaMode == MediaMode.Radio && channelGroup.MediaType != MediaType.Radio)
+          continue;
+
         int groupIndex = index;
         ListItem channel = new ListItem(Consts.KEY_NAME, channelGroup.Name)
         {
-          Command = new MethodDelegateCommand(() => ChannelContext.Instance.ChannelGroups.SetIndex(groupIndex)),
-          Selected = groupIndex == ChannelContext.Instance.ChannelGroups.CurrentIndex
+          Command = new MethodDelegateCommand(() => groups.SetIndex(groupIndex)),
+          Selected = groupIndex == groups.CurrentIndex
         };
         ChannelGroupList.Add(channel);
       }
       ChannelGroupList.FireChange();
-      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseGroup");
+      if (_mediaMode == MediaMode.Radio)
+        ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseGroupRadio");
+      else
+        ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseGroup");
     }
 
     /// <summary>
@@ -155,7 +183,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       get
       {
-        return ChannelContext.Instance.Channels.Current;
+        var channels = GetChannelNavigationList();
+        return channels.Current;
       }
     }
 
@@ -164,7 +193,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void NextChannel()
     {
-      ChannelContext.Instance.Channels.MoveNext();
+      var channels = GetChannelNavigationList();
+      channels.MoveNext();
       SetChannel();
     }
 
@@ -173,7 +203,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void PrevChannel()
     {
-      ChannelContext.Instance.Channels.MovePrevious();
+      var channels = GetChannelNavigationList();
+      channels.MovePrevious();
       SetChannel();
     }
 
@@ -186,9 +217,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public static async Task TuneChannel(IChannel channel)
     {
+      var modelId = channel.MediaType == MediaType.Radio ? SlimTvRadioClientModel.MODEL_ID : SlimTvClientModel.MODEL_ID;
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      SlimTvClientModel model = workflowManager.GetModel(SlimTvClientModel.MODEL_ID) as SlimTvClientModel;
-      if (model != null)
+      if (workflowManager.GetModel(modelId) is SlimTvClientModelBase model)
       {
         await model.Tune(channel);
         // Always switch to fullscreen
@@ -251,20 +282,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void FillChannelGroupList()
     {
+      var groups = GetGroupNavigationList();
       _channelGroupList.Clear();
-      for (int idx = 0; idx < ChannelContext.Instance.ChannelGroups.Count; idx++)
+      for (int idx = 0; idx < groups.Count; idx++)
       {
-        IChannelGroup group = ChannelContext.Instance.ChannelGroups[idx];
+        IChannelGroup group = groups[idx];
         ListItem channelGroupItem = new ListItem(Consts.KEY_NAME, group.Name)
         {
           Command = new MethodDelegateCommand(() =>
           {
-            if (ChannelContext.Instance.ChannelGroups.MoveTo(g => g == group))
+            if (groups.MoveTo(g => g == group))
             {
               //SetGroup();
             }
           }),
-          Selected = group == ChannelContext.Instance.ChannelGroups.Current
+          Selected = group == groups.Current
         };
         _channelGroupList.Add(channelGroupItem);
       }
@@ -273,26 +305,40 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void GetCurrentChannelGroup()
     {
-      if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId != 0)
-        ChannelContext.Instance.ChannelGroups.MoveTo(group => group.ChannelGroupId == _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId);
+      var groups = GetGroupNavigationList();
+      var selectedChannelGroupId = GetSelectedChannelGroupId();
+      if (_tvHandler.ChannelAndGroupInfo != null && selectedChannelGroupId != 0)
+        groups.MoveTo(group => group.ChannelGroupId == selectedChannelGroupId);
     }
 
     protected void GetCurrentChannel()
     {
-      if (_tvHandler.ChannelAndGroupInfo != null && _tvHandler.ChannelAndGroupInfo.SelectedChannelId != 0)
-        ChannelContext.Instance.Channels.MoveTo(channel => channel.ChannelId == _tvHandler.ChannelAndGroupInfo.SelectedChannelId);
+      var channels = GetChannelNavigationList();
+      var selectedChannelId = GetSelectedChannelId();
+      if (_tvHandler.ChannelAndGroupInfo != null && selectedChannelId != 0)
+        channels.MoveTo(channel => channel.ChannelId == selectedChannelId);
     }
 
     protected void SetCurrentChannelGroup()
     {
       if (_tvHandler.ChannelAndGroupInfo != null && CurrentChannelGroup != null)
-        _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId = CurrentChannelGroup.ChannelGroupId;
+      {
+        if (_mediaMode == MediaMode.Radio)
+          _tvHandler.ChannelAndGroupInfo.SelectedRadioChannelGroupId = CurrentChannelGroup.ChannelGroupId;
+        else
+          _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId = CurrentChannelGroup.ChannelGroupId;
+      }
     }
 
     protected void SetCurrentChannel()
     {
       if (_tvHandler.ChannelAndGroupInfo != null && CurrentChannel != null)
-        _tvHandler.ChannelAndGroupInfo.SelectedChannelId = CurrentChannel.ChannelId;
+      {
+        if (_mediaMode == MediaMode.Radio)
+          _tvHandler.ChannelAndGroupInfo.SelectedRadioChannelId = CurrentChannel.ChannelId;
+        else
+          _tvHandler.ChannelAndGroupInfo.SelectedChannelId = CurrentChannel.ChannelId;
+      }
     }
 
     #endregion
@@ -345,8 +391,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             });
         }
       }
+
       if (_programExtensions == null)
         BuildExtensions();
+
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
       foreach (KeyValuePair<Guid, TvExtension> programExtension in _programExtensions)
       {
@@ -498,6 +546,42 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     //  }
     //}
 
+    protected NavigationList<IChannel> GetChannelNavigationList()
+    {
+      if (_mediaMode == MediaMode.Tv)
+        return ChannelContext.Instance.TvChannels;
+      else if (_mediaMode == MediaMode.Radio)
+        return ChannelContext.Instance.RadioChannels;
+
+      return ChannelContext.Instance.Channels;
+    }
+
+    protected NavigationList<IChannelGroup> GetGroupNavigationList()
+    {
+      if (_mediaMode == MediaMode.Tv)
+        return ChannelContext.Instance.TvChannelGroups;
+      else if (_mediaMode == MediaMode.Radio)
+        return ChannelContext.Instance.RadioChannelGroups;
+
+      return ChannelContext.Instance.ChannelGroups;
+    }
+
+    protected int GetSelectedChannelGroupId()
+    {
+      if (_mediaMode == MediaMode.Radio)
+        return _tvHandler.ChannelAndGroupInfo.SelectedRadioChannelGroupId;
+
+      return _tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId;
+    }
+
+    protected int GetSelectedChannelId()
+    {
+      if (_mediaMode == MediaMode.Radio)
+        return _tvHandler.ChannelAndGroupInfo.SelectedRadioChannelId;
+
+      return _tvHandler.ChannelAndGroupInfo.SelectedChannelId;
+    }
+
     #endregion
 
     #endregion
@@ -539,18 +623,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void Attach()
     {
-      ChannelContext.Instance.ChannelGroups.OnListChanged += OnChannelGroupsChanged;
-      ChannelContext.Instance.ChannelGroups.OnCurrentChanged += OnCurrentGroupChanged;
-      ChannelContext.Instance.Channels.OnListChanged += OnChannelsChanged;
-      ChannelContext.Instance.Channels.OnCurrentChanged += OnCurrentChannelChanged;
+      var groups = GetGroupNavigationList();
+      var channels = GetChannelNavigationList();
+      groups.OnListChanged += OnChannelGroupsChanged;
+      groups.OnCurrentChanged += OnCurrentGroupChanged;
+      channels.OnListChanged += OnChannelsChanged;
+      channels.OnCurrentChanged += OnCurrentChannelChanged;
     }
 
     private void Detach()
     {
-      ChannelContext.Instance.ChannelGroups.OnListChanged -= OnChannelGroupsChanged;
-      ChannelContext.Instance.ChannelGroups.OnCurrentChanged -= OnCurrentGroupChanged;
-      ChannelContext.Instance.Channels.OnListChanged -= OnChannelsChanged;
-      ChannelContext.Instance.Channels.OnCurrentChanged -= OnCurrentChannelChanged;
+      var groups = GetGroupNavigationList();
+      var channels = GetChannelNavigationList();
+      groups.OnListChanged -= OnChannelGroupsChanged;
+      groups.OnCurrentChanged -= OnCurrentGroupChanged;
+      channels.OnListChanged -= OnChannelsChanged;
+      channels.OnCurrentChanged -= OnCurrentChannelChanged;
     }
 
     protected virtual void OnChannelGroupsChanged(object sender, EventArgs e)

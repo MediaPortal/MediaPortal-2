@@ -92,6 +92,7 @@
     <Compile Include="Models\HomeContent\LauncherHomeContent.cs" />
     <Compile Include="Models\HomeContent\OtherPluginsHomeContent.cs" />
     <Compile Include="Models\HomeContent\DefaultHomeContent.cs" />
+    <Compile Include="Models\HomeContent\RadioHomeContent.cs" />
     <Compile Include="Models\HomeContent\VideoHomeContent.cs" />
     <Compile Include="Models\HomeContent\MediaShortcutItem.cs" />
     <Compile Include="Models\HomeContent\AudioHomeContent.cs" />
@@ -125,7 +126,9 @@
     <Compile Include="Settings\NereusSkinSettings.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\Nereus\fonts\default-font.xml">
       <SubType>Designer</SubType>
     </Content>

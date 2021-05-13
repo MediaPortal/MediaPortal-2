@@ -84,6 +84,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     public bool AutoStartTV { get; set; }
 
     /// <summary>
+    /// If set to <c>true</c>, Radio gets started when entering Radio home state.
+    /// </summary>
+    [Setting(SettingScope.User, DefaultValue = false)]
+    public bool AutoStartRadio { get; set; }
+
+    /// <summary>
     /// If set to <c>true</c>, series info will be shown in program details.
     /// </summary>
     [Setting(SettingScope.User, DefaultValue = true)]

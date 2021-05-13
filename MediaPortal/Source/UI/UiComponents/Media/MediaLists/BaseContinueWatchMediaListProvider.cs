@@ -28,6 +28,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UI.ContentLists;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common.MediaManagement;
 
@@ -35,7 +36,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseContinueWatchMediaListProvider : BaseMediaListProvider
   {
-    protected Guid? _changeAspectId;
+    protected Guid[] _changeAspectIds;
 
     protected override async Task<MediaItemQuery> CreateQueryAsync(int maxItems)
     {
@@ -64,11 +65,11 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       bool update = updateReason.HasFlag(UpdateReason.UserChanged) || base.ShouldUpdate(updateReason, updatedObjects);
       if (updateReason.HasFlag(UpdateReason.MediaItemChanged))
       {
-        if (updatedObjects?.Count > 0 && _changeAspectId.HasValue)
+        if (updatedObjects?.Count > 0 && _changeAspectIds != null)
         {
           foreach (MediaItem item in updatedObjects)
           {
-            if (item.Aspects.ContainsKey(_changeAspectId.Value))
+            if (_changeAspectIds.All(i => item.Aspects.ContainsKey(i)))
             {
               update = true;
               break;

@@ -39,5 +39,17 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Settings
     /// </summary>
     [Setting(SettingScope.User)]
     public int LastChannelId { get; set; }
+
+    /// <summary>
+    /// Holds the last selected radio channel group ID.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public int LastRadioChannelGroupId { get; set; }
+
+    /// <summary>
+    /// Holds the last selected radio channel ID.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public int LastRadioChannelId { get; set; }
   }
 }

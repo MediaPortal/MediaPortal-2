@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   {
     public SlimTvContinueWatchRecordingsMediaListProvider()
     {
-      _changeAspectId = RecordingAspect.ASPECT_ID;
+      _changeAspectIds = new[] { RecordingAspect.ASPECT_ID };
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
       _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
       _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };

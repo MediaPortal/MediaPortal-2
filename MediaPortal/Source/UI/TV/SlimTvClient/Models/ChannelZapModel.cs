@@ -62,12 +62,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _zapTimer.Dispose();
     }
 
-  #region GUI Properties
+    #region GUI Properties
 
-  /// <summary>
-  /// Contains the user inputs of numbers which are either treated as channel index or absolute (logical) channel number.
-  /// </summary>
-  public string ChannelNumberOrIndex
+    /// <summary>
+    /// Contains the user inputs of numbers which are either treated as channel index or absolute (logical) channel number.
+    /// </summary>
+    public string ChannelNumberOrIndex
     {
       get { return (string) _channelNumberOrIndexProperty.GetValue(); }
       internal set { _channelNumberOrIndexProperty.SetValue(value); }

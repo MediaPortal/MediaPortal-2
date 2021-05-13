@@ -49,9 +49,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
     public static void RegisterOnMediaLibrary()
     {
       MediaNavigationModel.RegisterMediaNavigationInitializer(new RecordingsLibrary());
-      // All non-default media item aspects must be registered
-      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
-      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(RecordingAspect.Metadata);
     }
 
     public RecordingsLibrary()
@@ -59,8 +56,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       _mediaNavigationMode = SlimTvConsts.MEDIA_NAVIGATION_MODE;
       _mediaNavigationRootState = SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE;
       _viewName = SlimTvConsts.RES_RECORDINGS_VIEW_NAME;
-      _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
-      _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
+      _necessaryMias = SlimTvConsts.NECESSARY_TV_RECORDING_MIAS;
+      _optionalMias = SlimTvConsts.OPTIONAL_TV_RECORDING_MIAS;
     }
 
     protected override async Task PrepareAsync()
@@ -102,11 +99,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       {
         MovieAspect.ASPECT_ID,
         EpisodeAspect.ASPECT_ID,
-        AudioAspect.ASPECT_ID,
         VideoAspect.ASPECT_ID,
         VideoStreamAspect.ASPECT_ID,
         VideoAudioStreamAspect.ASPECT_ID,
-        ImageAspect.ASPECT_ID,
         GenreAspect.ASPECT_ID
       }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 

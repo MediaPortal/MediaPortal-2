@@ -43,11 +43,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
   public class ChannelContext : IDisposable
   {
     protected static readonly object _syncObj = new object();
+    protected static readonly object _initSyncObj = new object();
     protected static ChannelContext _channelContext;
 
     private UserMessageHandler _userMessageHandler;
     protected bool _isChannelGroupsInitialized = false;
-    protected NavigationList<IChannelGroup> _channelGroups;
+    protected bool _isTvChannelGroupsSet = false;
+    protected bool _isRadioChannelGroupsSet = false;
+    protected NavigationList<IChannelGroup> _channelTvGroups;
+    protected NavigationList<IChannelGroup> _channelRadioGroups;
+    protected NavigationList<IChannel> _channelsTv;
+    protected NavigationList<IChannel> _channelsRadio;
 
     #region Static instance
 
@@ -67,35 +73,90 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     #endregion
 
-    public NavigationList<IChannelGroup> ChannelGroups
+    public NavigationList<IChannelGroup> ChannelGroups => TvChannelGroups;
+
+    public NavigationList<IChannelGroup> TvChannelGroups
     {
       get
       {
-        if (!_isChannelGroupsInitialized)
-          InitChannelGroups().Wait();
-        return _channelGroups;
+        PrepareChannelGroups(_channelTvGroups, false, ref _isTvChannelGroupsSet);
+        return _channelTvGroups;
       }
     }
 
-    public NavigationList<IChannel> Channels { get; internal set; }
+    public NavigationList<IChannelGroup> RadioChannelGroups
+    {
+      get
+      {
+        PrepareChannelGroups(_channelRadioGroups, true, ref _isRadioChannelGroupsSet);
+        return _channelRadioGroups;
+      }
+    }
+
+    public NavigationList<IChannel> Channels => TvChannels;
+
+    public NavigationList<IChannel> TvChannels
+    {
+      get
+      {
+        PrepareChannelGroups(_channelTvGroups, false, ref _isTvChannelGroupsSet);
+        return _channelsTv;
+      }
+    }
+
+    public NavigationList<IChannel> RadioChannels
+    {
+      get
+      {
+        PrepareChannelGroups(_channelRadioGroups, true, ref _isRadioChannelGroupsSet);
+        return _channelsRadio;
+      }
+    }
 
     public ChannelContext()
     {
-      Channels = new NavigationList<IChannel>();
-      _channelGroups = new NavigationList<IChannelGroup>();
-      _channelGroups.OnCurrentChanged += ReloadChannels;
+      _channelsTv = new NavigationList<IChannel>();
+      _channelsRadio = new NavigationList<IChannel>();
+
+      _channelTvGroups = new NavigationList<IChannelGroup>();
+      _channelTvGroups.OnCurrentChanged += ReloadTvChannels;
+      _channelRadioGroups = new NavigationList<IChannelGroup>();
+      _channelRadioGroups.OnCurrentChanged += ReloadRadioChannels;
+
       _userMessageHandler = new UserMessageHandler();
       _userMessageHandler.RequestRestrictions += OnRegisterRestrictions;
       _userMessageHandler.UserChanged += OnUserChanged;
       InitChannelGroups().Wait();
     }
 
+    private void PrepareChannelGroups(NavigationList<IChannelGroup> groupList, bool isRadio, ref bool isGroupSet)
+    {
+      if (!_isChannelGroupsInitialized)
+      {
+        lock(_initSyncObj)
+          InitChannelGroups().Wait();
+      }
+
+      if (!isGroupSet)
+      {
+        lock (_initSyncObj)
+          InitSelectedGroup(groupList, isRadio, ref isGroupSet);
+      }
+    }
+
     public async Task InitChannelGroups()
     {
+      if (_isChannelGroupsInitialized)
+        return;
+
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
       if (tvHandler != null && tvHandler.ChannelAndGroupInfo != null)
       {
-        _channelGroups.Clear();
+        _isTvChannelGroupsSet = false;
+        _isRadioChannelGroupsSet = false;
+
+        _channelTvGroups.Clear();
+        _channelRadioGroups.Clear();
         var result = await tvHandler.ChannelAndGroupInfo.GetChannelGroupsAsync();
 
         //Reset initialized statue on failure so we can retry later 
@@ -104,19 +165,40 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           return;
 
         var channelGroups = result.Result;
-
         RegisterRestrictions(channelGroups);
 
-        Channels?.Clear();
-        _channelGroups.AddRange(FilterGroups(channelGroups));
-        _channelGroups.FireListChanged();
-
-        int selectedChannelGroupId = tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId;
-        if (tvHandler.ChannelAndGroupInfo != null && selectedChannelGroupId != 0)
-          _channelGroups.MoveTo(group => group.ChannelGroupId == selectedChannelGroupId);
-
-        _channelGroups.FireCurrentChanged(-1);
+        InitGroup(_channelsTv, _channelTvGroups, FilterGroups(channelGroups, MediaType.TV));
+        InitGroup(_channelsRadio, _channelRadioGroups, FilterGroups(channelGroups, MediaType.Radio));
       }
+    }
+
+    private void InitGroup(NavigationList<IChannel> channelList, NavigationList<IChannelGroup> groupList, IList<IChannelGroup> serverGroups)
+    {
+      channelList?.Clear();
+
+      groupList.AddRange(serverGroups);
+      groupList.FireListChanged();
+    }
+
+    private void InitSelectedGroup(NavigationList<IChannelGroup> groupList, bool isRadio, ref bool isGroupSet)
+    {
+      if (isGroupSet)
+        return;
+
+      var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
+      var selectedChannelGroupId = (isRadio ? tvHandler?.ChannelAndGroupInfo?.SelectedRadioChannelGroupId : tvHandler?.ChannelAndGroupInfo?.SelectedChannelGroupId);
+      if (selectedChannelGroupId.HasValue)
+      {
+        isGroupSet = groupList.MoveTo(group => group.ChannelGroupId == selectedChannelGroupId);
+        if (!isGroupSet)
+        {
+          groupList.CurrentIndex = 0;
+          isGroupSet = groupList.CurrentIndex == 0;
+        }
+      }
+
+      if (isGroupSet)
+        groupList.FireCurrentChanged(-1);
     }
 
     public static bool IsSameChannel(IChannel channel1, IChannel channel2)
@@ -145,7 +227,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     /// </summary>
     /// <param name="channelGroups">Groups</param>
     /// <returns>Filtered groups</returns>
-    private static IList<IChannelGroup> FilterGroups(IList<IChannelGroup> channelGroups)
+    private static IList<IChannelGroup> FilterGroups(IList<IChannelGroup> channelGroups, MediaType? type = null)
     {
       IList<IChannelGroup> filteredGroups = new List<IChannelGroup>();
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
@@ -155,7 +237,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         IUserRestriction restriction = channelGroup as IUserRestriction;
         if (restriction != null && !userManagement.CheckUserAccess(restriction))
           continue;
-        filteredGroups.Add(channelGroup);
+
+        //if (channelGroup.Name == "All Channels")
+        //  filteredGroups.Add(channelGroup);
+        if (!type.HasValue)
+          filteredGroups.Add(channelGroup);
+        else if (channelGroup.MediaType == type)
+          filteredGroups.Add(channelGroup);
       }
       return filteredGroups;
     }
@@ -175,31 +263,59 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     /// </summary>
     /// <param name="oldindex">Index of previous selected entry</param>
     /// <param name="newindex">Index of current selected entry</param>
-    private async void ReloadChannels(int oldindex, int newindex)
+    private async void ReloadTvChannels(int oldindex, int newindex)
     {
+      await ReloadChannelsAsync(_channelsTv, _channelTvGroups, MediaType.TV, oldindex, newindex);
+    }
+    private async void ReloadRadioChannels(int oldindex, int newindex)
+    {
+      await ReloadChannelsAsync(_channelsRadio, _channelRadioGroups, MediaType.Radio, oldindex, newindex);
+    }
+
+    private async Task ReloadChannelsAsync(NavigationList<IChannel> channelList, NavigationList<IChannelGroup> groupList, MediaType? type, int oldindex, int newindex)
+    {
+      if (groupList?.Current == null)
+        return;
+
+      SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
       if (tvHandler != null)
       {
-        var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(_channelGroups.Current);
+        if (type == MediaType.Radio)
+          tvHandler.ChannelAndGroupInfo.SelectedRadioChannelGroupId = groupList.Current.ChannelGroupId;
+        else
+          tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId = groupList.Current.ChannelGroupId;
+
+        int? selectedChannelId;
+        if (type == MediaType.Radio)
+          selectedChannelId = tvHandler.ChannelAndGroupInfo?.SelectedRadioChannelId;
+        else
+          selectedChannelId = tvHandler.ChannelAndGroupInfo?.SelectedChannelId;
+
+        IList<IChannel> channels = null;
+        var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(groupList.Current);
         if (!result.Success)
           return;
 
-        IList<IChannel> channels = result.Result;
+        channels = result.Result;
+        if (type == MediaType.TV)
+          channels = channels.Where(c => c.MediaType != MediaType.Radio).ToList();
+        else if (type == MediaType.Radio)
+          channels = channels.Where(c => c.MediaType != MediaType.TV).ToList();
 
-        Channels.ClearAndReset();
-        Channels.AddRange(channels);
-        Channels.FireListChanged();
-        // Check user zapping setting for channel index vs. number preferance
-        SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+        channelList.ClearAndReset();
+        channelList.AddRange(channels);
+        channelList.FireListChanged();
+        // Check user zapping setting for channel index vs. number preference
         if (settings.ZapByChannelIndex)
         {
-          for (int i = 0; i < Channels.Count; i++)
-            Channels[i].ChannelNumber = i + 1;
+          for (int i = 0; i < channelList.Count; i++)
+            channelList[i].ChannelNumber = i + 1;
         }
+
         // Check if the current channel is part of new group and select it
-        int selectedChannelId = tvHandler.ChannelAndGroupInfo.SelectedChannelId;
-        if (tvHandler.ChannelAndGroupInfo != null && selectedChannelId != 0)
-          Channels.MoveTo(channel => channel.ChannelId == selectedChannelId);
+        if (selectedChannelId.HasValue)
+          channelList.MoveTo(channel => channel.ChannelId == selectedChannelId);
       }
     }
 
@@ -229,7 +345,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     public T Current
     {
-      get { return Count > 0 && _current < Count ? this[_current] : default(T); }
+      get { return _current >= 0 && Count > 0 && _current < Count ? this[_current] : default(T); }
     }
 
     public int CurrentIndex

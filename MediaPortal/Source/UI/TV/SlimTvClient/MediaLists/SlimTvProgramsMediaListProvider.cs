@@ -22,80 +22,9 @@
 
 #endregion
 
-using MediaPortal.Common.Commands;
-using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Plugins.SlimTv.Client.Helpers;
-using MediaPortal.Plugins.SlimTv.Client.Models;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.UI.ContentLists;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UiComponents.Media.MediaLists;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using MediaPortal.Plugins.SlimTv.Interfaces;
-
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public class SlimTvProgramsMediaListProvider : SlimTvMediaListProviderBase
+  public class SlimTvProgramsMediaListProvider : BaseProgramsMediaListProvider
   {
-    protected ICollection<IChannel> _currentChannels;
-    protected ICollection<Tuple<IProgram, IChannel>> _currentPrograms = new List<Tuple<IProgram, IChannel>>();
-
-    private ListItem CreateProgramItem(IProgram program, IChannel channel)
-    {
-      ProgramProperties programProperties = new ProgramProperties();
-      programProperties.SetProgram(program, channel);
-
-      ProgramListItem item = new ProgramListItem(programProperties)
-      {
-        Command = new AsyncMethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
-      };
-      item.SetLabel("ChannelName", channel.Name);
-      item.AdditionalProperties["PROGRAM"] = program;
-      return item;
-    }
-
-    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
-    {
-      IProgramInfoAsync programInfo = null;
-      if (!TryInitTvHandler() || (programInfo = _tvHandler?.ProgramInfo) == null)
-        return false;
-
-      if (!ShouldUpdate(updateReason, updatedObjects) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
-        return true;
-
-      ICollection<IChannel> channels;
-      if (_currentChannels == null || updateReason.HasFlag(UpdateReason.UserChanged) || updateReason.HasFlag(UpdateReason.PlaybackComplete))
-        channels = _currentChannels = await GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, true);
-      else
-        channels = _currentChannels;
-
-      IList<Tuple<IProgram, IChannel>> programs = new List<Tuple<IProgram, IChannel>>();
-      foreach (IChannel channel in channels)
-      {
-        var result = await programInfo.GetNowNextProgramAsync(channel);
-        if (!result.Success)
-          continue;
-
-        IProgram currentProgram = result.Result[0];
-
-        if (currentProgram != null)
-          programs.Add(new Tuple<IProgram, IChannel>(currentProgram, channel));
-      }
-
-      lock (_allItems.SyncRoot)
-      {
-        if (_currentPrograms.Select(p => p.Item1.ProgramId).SequenceEqual(programs.Select(p => p.Item1.ProgramId)))
-          return true;
-        _currentPrograms = programs;
-        _allItems.Clear();
-        foreach (var program in programs)
-          _allItems.Add(CreateProgramItem(program.Item1, program.Item2));
-      }
-      _allItems.FireChange();
-      return true;
-    }
   }
 }

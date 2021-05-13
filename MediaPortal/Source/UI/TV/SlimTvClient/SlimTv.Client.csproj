@@ -143,10 +143,27 @@
     <Compile Include="Helpers\ProgramProperties.cs" />
     <Compile Include="Helpers\ResourceHelper.cs" />
     <Compile Include="Actions\DeleteAllRecordings.cs" />
+    <Compile Include="MediaExtensions\RadioRecordingsLibrary.cs" />
     <Compile Include="MediaItemActions\DeleteRecordingFromStorage.cs" />
     <Compile Include="MediaLists\BaseFavoriteChannelMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvContinueWatchRadioRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvContinueWatchTVRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvFavoriteRadioRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvFavoriteTVRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLastWatchedRadioRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLastWatchedTVRecordingsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvLastWatchedRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLatestRadioRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvLatestTVRecordingsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvMediaListProviderBase.cs" />
+    <Compile Include="MediaLists\BaseProgramsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvRadioProgramsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvRadioSchedulesMediaListProvider.cs" />
+    <Compile Include="MediaLists\BaseSchedulesMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvTVSchedulesMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvTVProgramsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvUnwatchedRadioRecordingsMediaListProvider.cs" />
+    <Compile Include="MediaLists\SlimTvUnwatchedTVRecordingsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvUnwatchedRecordingsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvProgramsMediaListProvider.cs" />
     <Compile Include="MediaLists\SlimTvSchedulesMediaListProvider.cs" />
@@ -168,6 +185,18 @@
     <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsShowItemsScreenData.cs" />
+    <Compile Include="Models\SlimTvRadioManualScheduleModel.cs" />
+    <Compile Include="Models\SlimTvManualScheduleModelBase.cs" />
+    <Compile Include="Models\SlimTvRadioProgramSearchModel.cs" />
+    <Compile Include="Models\SlimTvProgramSearchModelBase.cs" />
+    <Compile Include="Models\SlimTvRadioMultiChannelGuideModel.cs" />
+    <Compile Include="Models\SlimTvMultiChannelGuideModelBase.cs" />
+    <Compile Include="Models\SlimTvRadioClientModel.cs" />
+    <Compile Include="Models\SlimTvRadioSingleChannelGuideModel.cs" />
+    <Compile Include="Models\SlimTvRadioScheduleManagement.cs" />
+    <Compile Include="Models\SlimTvScheduleManagementBase.cs" />
+    <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
+    <Compile Include="Models\SlimTvClientModel.cs" />
     <Compile Include="Models\SlimTvSettingsModel.cs" />
     <Compile Include="Models\SlimTvManualScheduleModel.cs" />
     <Compile Include="Models\SlimTvNotificationModel.cs" />
@@ -177,7 +206,7 @@
     <Compile Include="Models\SlimTvMultiChannelGuideModel.cs" />
     <Compile Include="Models\SlimTvGuideModelBase.cs" />
     <Compile Include="Models\SlimTvScheduleManagement.cs" />
-    <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
+    <Compile Include="Models\SlimTvSingleChannelGuideModelBase.cs" />
     <Compile Include="Models\Sorting\SortByRecordingDateDesc.cs" />
     <Compile Include="Notifications\ISlimTvNotification.cs" />
     <Compile Include="Notifications\ISlimTvNotificationService.cs" />
@@ -189,7 +218,7 @@
     <Compile Include="Player\WTVPlayer.cs" />
     <Compile Include="Player\LiveTvPlayer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Models\SlimTvClientModel.cs" />
+    <Compile Include="Models\SlimTvClientModelBase.cs" />
     <Compile Include="Settings\Configuration\EpgGenreColor.cs" />
     <Compile Include="Settings\Configuration\ChannelLogoStyle.cs" />
     <Compile Include="Settings\Configuration\RecordingNotificationDuration.cs" />
@@ -235,7 +264,9 @@
     <Content Include="Skin\default\screens\MediaItemRecordingDetails.inc" />
     <Content Include="Skin\default\screens\TvGuideKeybindings.inc" />
     <Content Include="Skin\default\shortcuts\SlimTvClient-shortcuts.xml" />
-    <Content Include="Skin\default\workflow\SlimTvClient-actions.xml" />
+    <Content Include="Skin\default\workflow\SlimTvClient-actions.xml">
+      <SubType>Designer</SubType>
+    </Content>
     <Content Include="Skin\default\screens\SlimTvClient-main.xaml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingTv.xaml" />
     <Content Include="Skin\default\screens\FullScreenContentTv.xaml" />
@@ -683,6 +714,86 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Nereus\screens\FullScreenContentRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\SlimTvClient-main-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\SlimTvClient-guide-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\SlimTvClient-fullguide-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\SlimTvClient-schedulelist-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\SlimTvClient-programsearch-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\SlimTvClient-manualschedule-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-schedulelist-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-programsearch-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-manualschedule-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-main-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-guide-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-fullguide-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogManualScheduleRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogScheduleManagementRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogClientModelRadio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\DialogChooseGroupRadio.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

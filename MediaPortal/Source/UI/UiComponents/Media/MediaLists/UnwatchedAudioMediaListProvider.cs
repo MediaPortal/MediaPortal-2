@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public UnwatchedAudioMediaListProvider()
     {
-      _changeAspectId = AudioAspect.ASPECT_ID;
+      _changeAspectIds = new[] { AudioAspect.ASPECT_ID };
       _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
       _playableConverterAction = item => new AudioItem(item);
       _navigationInitializerType = typeof(AudioNavigationInitializer);

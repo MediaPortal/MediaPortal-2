@@ -35,7 +35,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public UnwatchedSeriesMediaListProvider()
     {
-      _changeAspectId = EpisodeAspect.ASPECT_ID;
+      _changeAspectIds = new[] { EpisodeAspect.ASPECT_ID };
       _role = SeriesAspect.ROLE_SERIES;
       _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
       _linkedRole = EpisodeAspect.ROLE_EPISODE;

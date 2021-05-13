@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public ContinueWatchRecordingMediaListProvider()
     {
-      _changeAspectId = new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913");
+      _changeAspectIds = new[] { new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913") };
       _necessaryMias = Consts.NECESSARY_RECORDING_MIAS;
       _optionalMias = Consts.OPTIONAL_VIDEO_MIAS;
       _playableConverterAction = item => new VideoItem(item);

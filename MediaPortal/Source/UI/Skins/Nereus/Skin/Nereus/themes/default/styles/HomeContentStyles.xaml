@@ -3055,6 +3055,103 @@
     </ListView>
   </DataTemplate>
 
+  <!--++++++++++ Radio +++++++++++-->
+
+  <!--Live Radio shortcut button-->
+  <Style x:Key="LiveRadioShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.LiveRadio]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\LiveTV.png"/>
+    </Style.Resources>
+  </Style>
+
+  <!--EPG shortcut button-->
+  <Style x:Key="RadioEPGShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.RadioGuide]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\EPG.png"/>
+    </Style.Resources>
+  </Style>
+
+  <!--Schedules shortcut button-->
+  <Style x:Key="RadioSchedulesShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Schedules]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\schedules.png"/>
+    </Style.Resources>
+  </Style>
+
+  <!--Recordings shortcut button-->
+  <Style x:Key="RadioRecordingsShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
+    <Style.Resources>
+      <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.Recordings]"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\Recordings.png"/>
+    </Style.Resources>
+  </Style>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:LiveRadioShortcut}">
+    <Control Style="{ThemeResource LiveRadioShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:RadioEPGShortcut}">
+    <Control Style="{ThemeResource RadioEPGShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:RadioSchedulesShortcut}">
+    <Control Style="{ThemeResource RadioSchedulesShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:RadioRecordingsShortcut}">
+    <Control Style="{ThemeResource RadioRecordingsShortcutItemControlStyle}"/>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:LastPlayRadioList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthVeryNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout3Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:FavoriteRadioList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthTiny}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource SquareTileLayout4Template}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:CurrentRadioList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Wide_Tile_Template" Value="{ThemeResource TVProgramTileTemplate}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource WideTileLayoutTemplate}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:CurrentRadioSchedulesList}">
+    <Control Style="{ThemeResource MediaGridTemplateStyle}" Width="{ThemeResource TileGroupWidthNarrow}">
+      <Control.Resources>
+        <ResourceWrapper x:Key="Wide_Tile_Template" Value="{ThemeResource TVScheduleTileTemplate}"/>
+        <ResourceWrapper x:Key="Tile_Layout_Template" Value="{ThemeResource WideTileLayoutTemplate}"/>
+      </Control.Resources>
+    </Control>
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type nereus_home_content:RadioHomeContent}">
+    <ListView Style="{ThemeResource HomeTilesListViewStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              IsEnabled="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=IsEnabled}"
+              ItemsSource="{Binding Items}">
+      <ListView.Resources>
+        <ResourceWrapper x:Key="Square_Tile_Template" Value="{ThemeResource TVChannelTileTemplate}"/>
+        <ResourceWrapper x:Key="Thumbnail_Tile_Template" Value="{ThemeResource TVChannelTileTemplate}"/>
+        <ResourceWrapper x:Key="Poster_Tile_Template" Value="{ThemeResource TVChannelTileTemplate}"/>
+        <ResourceWrapper x:Key="Banner_Tile_Template" Value="{ThemeResource TVChannelTileTemplate}"/>
+      </ListView.Resources>
+    </ListView>
+  </DataTemplate>
+
   <!--++++++++++ Image +++++++++++-->
   
   <!--Image location shortcut button-->

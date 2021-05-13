@@ -144,7 +144,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
           var list = _availableLists.FirstOrDefault(l => l is MediaListItemsListWrapper mlw && mlw.MediaListKey == listKey);
           if (list != null)
           {
-            if (!list.Initialized)
+            if (!list.Initialized && model.Lists.ContainsKey(listKey))
               list.Initialize(model.Lists[listKey].AllItems);
 
             _backingList.Add(list);

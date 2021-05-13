@@ -32,6 +32,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     public const string MEDIA_NAVIGATION_MODE = "Recordings";
 
     public static Guid WF_MEDIA_NAVIGATION_ROOT_STATE = new Guid("9D5B01A7-035F-46CF-8246-3C158C6CA960");
+    public static Guid WF_RADIO_MEDIA_NAVIGATION_ROOT_STATE = new Guid("714970E9-A7EB-4F9C-B372-1E60E3671A8F");
     public static Guid[] NECESSARY_RECORDING_MIAS = new []
       {
           ProviderResourceAspect.ASPECT_ID,
@@ -45,6 +46,27 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       VideoAspect.Metadata.AspectId,  // Needed for playing TV recording
       AudioAspect.Metadata.AspectId   // Needed for playing Radio recording
     };
+    public static Guid[] NECESSARY_TV_RECORDING_MIAS = new[]
+    {
+      ProviderResourceAspect.ASPECT_ID,
+      MediaAspect.ASPECT_ID,
+      VideoAspect.Metadata.AspectId,
+      new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913") /* RecordingAspect.ASPECT_ID*/
+    };
+
+    public static Guid[] OPTIONAL_TV_RECORDING_MIAS = new[]
+    {
+      VideoStreamAspect.ASPECT_ID,    // Needed for calculating play percentage
+    };
+    public static Guid[] NECESSARY_RADIO_RECORDING_MIAS = new[]
+    {
+      ProviderResourceAspect.ASPECT_ID,
+      MediaAspect.ASPECT_ID,
+      AudioAspect.Metadata.AspectId,
+      new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913") /* RecordingAspect.ASPECT_ID*/
+    };
+
+    public static Guid[] OPTIONAL_RADIO_RECORDING_MIAS = new Guid[0];
 
     public const string KEY_CHANNEL = "Channel";
     public const string KEY_STARTTIME = "StartTime";

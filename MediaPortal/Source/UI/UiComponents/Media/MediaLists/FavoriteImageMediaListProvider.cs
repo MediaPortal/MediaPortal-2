@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteImageMediaListProvider()
     {
-      _changeAspectId = ImageAspect.ASPECT_ID;
+      _changeAspectIds = new[] { ImageAspect.ASPECT_ID };
       _necessaryMias = Consts.NECESSARY_IMAGE_MIAS;
       _playableConverterAction = item => new ImageItem(item);
       _navigationInitializerType = typeof(ImagesNavigationInitializer);

@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public ContinueWatchAlbumMediaListProvider()
     {
-      _changeAspectId = AudioAspect.ASPECT_ID;
+      _changeAspectIds = new[] { AudioAspect.ASPECT_ID };
       _role = AudioAlbumAspect.ROLE_ALBUM;
       _linkedRole = AudioAspect.ROLE_TRACK;
       _necessaryLinkedMias = Consts.NECESSARY_AUDIO_MIAS;

@@ -43,17 +43,35 @@
         DisplayLabel="[SlimTvClient.Main]"
         WorkflowModel="8BEC1372-1C76-484c-8A69-C7F3103708EC"/> <!-- Workflow model = SlimTvClient Model -->
 
+    <WorkflowState Id="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+       Name="SlimTvClientMainRadio"
+       MainScreen="SlimTvClient-main-radio"
+       DisplayLabel="[SlimTvClient.Radio]"
+       WorkflowModel="152F6137-AC1E-40CA-949B-BAEE2C346CB6"/> <!-- Workflow model = SlimTvRadioClient Model -->
+
     <WorkflowState Id="A40F05BB-022E-4247-8BEE-16EB3E0B39C5"
       Name="SlimTvClientSingleChannelGuide"
       MainScreen="SlimTvClient-guide"
       DisplayLabel="[SlimTvClient.SingleChannelGuide]"
       WorkflowModel="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/>   <!-- Workflow model = SlimTvSingleChannelGuide Model -->
 
+    <WorkflowState Id="7365DA33-4687-43F4-9652-F6652468D4B8"
+      Name="SlimTvClientSingleChannelGuideRadio"
+      MainScreen="SlimTvClient-guide-radio"
+      DisplayLabel="[SlimTvClient.SingleChannelGuide]"
+      WorkflowModel="45235AE7-0329-483F-A1B1-945DF0D998CE"/>   <!-- Workflow model = SlimTvRadioSingleChannelGuide Model -->
+
     <WorkflowState Id="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
       Name="SlimTvClientMultiChannelGuide"
       MainScreen="SlimTvClient-fullguide"
       DisplayLabel="[SlimTvClient.TvGuide]"
       WorkflowModel="5054408D-C2A9-451f-A702-E84AFCD29C10"/>   <!-- Workflow model = SlimTvMultiChannelGuide Model -->
+
+    <WorkflowState Id="64AEE61A-7E45-450D-AA65-F4C109E3A7B3"
+      Name="SlimTvClientMultiChannelGuideRadio"
+      MainScreen="SlimTvClient-fullguide-radio"
+      DisplayLabel="[SlimTvClient.TvGuide]"
+      WorkflowModel="2B5A4CF0-9DBC-4F01-80B9-3C7DA607C188"/>   <!-- Workflow model = SlimTvRadioMultiChannelGuide Model -->
 
     <WorkflowState Id="3C6081CB-88DC-44A7-9E17-8D7BFE006EE5"
       Name="SlimTvClientExtSchedule"
@@ -67,14 +85,31 @@
       DisplayLabel="[SlimTvClient.ProgramSearch]"
       WorkflowModel="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>   <!-- Workflow model = SlimTvProgramSearch Model -->
 
+    <WorkflowState Id="F6B76F5F-1E37-4C4D-BB32-79AFB7A67951"
+      Name="SlimTvClientProgramSearchRadio"
+      MainScreen="SlimTvClient-programsearch-radio"
+      DisplayLabel="[SlimTvClient.ProgramSearch]"
+      WorkflowModel="FA188F55-D725-4361-9FD5-568DB2BE71B3"/>   <!-- Workflow model = SlimTvRadioProgramSearch Model -->
+
     <WorkflowState Id="88842E97-2EF9-4658-AD35-8D74E3C689A4"
       Name="SlimTvClientScheduleList"
       MainScreen="SlimTvClient-schedulelist"
       DisplayLabel="[SlimTvClient.ScheduleManagement]"
       WorkflowModel="7610403A-4488-47A4-8C27-FD1FE833E52B"/>   <!-- Workflow model = SlimTvScheduleManagement Model -->
 
+    <WorkflowState Id="9C095D73-D65D-42E6-9997-EF328C33F7F8"
+      Name="SlimTvClientScheduleListRadio"
+      MainScreen="SlimTvClient-schedulelist-radio"
+      DisplayLabel="[SlimTvClient.ScheduleManagement]"
+      WorkflowModel="8886D686-5559-486B-9110-A499F2E81FFE"/>   <!-- Workflow model = SlimTvRadioScheduleManagement Model -->
+
     <WorkflowState Id="9D5B01A7-035F-46CF-8246-3C158C6CA960"
       Name="RecordingsNavigation-Root"
+      DisplayLabel="[SlimTvClient.RecordingsMenuItem]"
+      WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>   <!-- Workflow model = Media model -->
+
+    <WorkflowState Id="714970E9-A7EB-4F9C-B372-1E60E3671A8F"
+      Name="RadioRecordingsNavigation-Root"
       DisplayLabel="[SlimTvClient.RecordingsMenuItem]"
       WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>   <!-- Workflow model = Media model -->
     
@@ -83,6 +118,12 @@
       DisplayLabel="[SlimTvClient.ManualSchedule]"
       DialogScreen="SlimTvClient-manualschedule"
       WorkflowModel="B2428C91-6B70-42E1-9519-1D5AA9D558A3"/>  <!-- Workflow model = SlimTvManualSchedule Model -->
+
+    <DialogState Id="DF5741CC-3B1A-485C-AFA4-15ADA4FFACFF"
+      Name="ManualScheduleRadio"
+      DisplayLabel="[SlimTvClient.ManualSchedule]"
+      DialogScreen="SlimTvClient-manualschedule-radio"
+      WorkflowModel="005C8C85-C0A6-48A8-83AC-E826AF2DF99D"/>  <!-- Workflow model = SlimTvRadioManualSchedule Model -->
 
   </Register>
 
@@ -140,6 +181,14 @@
     <Model Id="71F1D594-21BF-4639-9F8A-3CE8D8170333" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvProgramSearchModel"/>
     <Model Id="7610403A-4488-47A4-8C27-FD1FE833E52B" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvScheduleManagement"/>
     <Model Id="B2428C91-6B70-42E1-9519-1D5AA9D558A3" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvManualScheduleModel"/>
+
+    <Model Id="152F6137-AC1E-40CA-949B-BAEE2C346CB6" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioClientModel"/>
+    <Model Id="45235AE7-0329-483F-A1B1-945DF0D998CE" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioSingleChannelGuideModel"/>
+    <Model Id="2B5A4CF0-9DBC-4F01-80B9-3C7DA607C188" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioMultiChannelGuideModel"/>
+    <Model Id="FA188F55-D725-4361-9FD5-568DB2BE71B3" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioProgramSearchModel"/>
+    <Model Id="8886D686-5559-486B-9110-A499F2E81FFE" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioScheduleManagement"/>
+    <Model Id="005C8C85-C0A6-48A8-83AC-E826AF2DF99D" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioManualScheduleModel"/>
+
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
     <Model Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375" Name="ChannelZapModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.ChannelZapModel" />
     <Model Id="7F283468-27E9-46B9-8B3B-17E3143AFEEB" Name="SlimTvNotificationModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvNotificationModel" />
@@ -152,26 +201,40 @@
     <ContentList Id="{CA352306-B1EA-4E72-BF68-BF219C405A65}" Key="FavoriteRadio" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRadioMediaListProvider"/>
     <ContentList Id="{994927E6-691E-432D-BB2C-5F06DC5A7FCF}" Key="FavoriteTV" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteTVMediaListProvider"/>
     <ContentList Id="{53211093-E181-4D16-AB4A-7F9D3B560D25}" Key="FavoriteRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRecordingsMediaListProvider"/>
+    <ContentList Id="{0C49851B-84F5-449C-98B4-063EB2096F35}" Key="FavoriteTVRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteTVRecordingsMediaListProvider"/>
+    <ContentList Id="{BB299608-F6CA-422C-BCAB-72493E39FF73}" Key="FavoriteRadioRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvFavoriteRadioRecordingsMediaListProvider"/>
 
     <!--Latest media lists-->
     <ContentList Id="{2D43CC5B-10A1-48CA-8A56-9F266934189C}" Key="LatestRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLatestRecordingsMediaListProvider"/>
+    <ContentList Id="{480BD1F3-DA37-4454-AF57-0901F1E1C4D9}" Key="LatestTVRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLatestTVRecordingsMediaListProvider"/>
+    <ContentList Id="{76E6F30F-D4E9-4630-8CD5-7AB408B10E2F}" Key="LatestRadioRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLatestRadioRecordingsMediaListProvider"/>
 
     <!--Latest watched media lists-->
     <ContentList Id="{D53AD53E-2AFE-4A49-80C2-2079EC468329}" Key="LastPlayRadio" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRadioMediaListProvider"/>
     <ContentList Id="{C9DE8D8D-5F58-4E8D-B172-23CC98AD7D76}" Key="LastPlayTV" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedTVMediaListProvider"/>
     <ContentList Id="{B08EE0CD-7074-4C34-9D7A-650543FCBBDB}" Key="LastPlayRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRecordingsMediaListProvider"/>
+    <ContentList Id="{6A767AB5-38DD-4E51-AC72-F2C931FF1202}" Key="LastPlayTVRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedTVRecordingsMediaListProvider"/>
+    <ContentList Id="{821E1D7B-3437-4B3B-A5D3-868B3AEBA1FC}" Key="LastPlayRadioRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvLastWatchedRadioRecordingsMediaListProvider"/>
 
     <!--Continue watch media lists-->
     <ContentList Id="{9FCD4E71-3330-4AED-9CAF-8C5D3D6932BF}" Key="ContinuePlayRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvContinueWatchRecordingsMediaListProvider"/>
+    <ContentList Id="{49BD7683-78DB-4521-99DB-DD670B0F79BE}" Key="ContinuePlayTVRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvContinueWatchTVRecordingsMediaListProvider"/>
+    <ContentList Id="{21FC4827-C094-4386-84E3-10F072B0112B}" Key="ContinuePlayRadioRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvContinueWatchRadioRecordingsMediaListProvider"/>
 
     <!--Unwatched media lists-->
     <ContentList Id="{598EFAFB-C5D3-46F8-B2BF-D4F7CB35CB38}" Key="UnplayedRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvUnwatchedRecordingsMediaListProvider"/>
+    <ContentList Id="{D0FA1953-B8E2-4C0B-B8F9-38448BE6E86A}" Key="UnplayedTVRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvUnwatchedTVRecordingsMediaListProvider"/>
+    <ContentList Id="{A4A14AB8-7EC4-4C0E-A2D7-20F8501D7B5C}" Key="UnplayedRadioRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvUnwatchedRadioRecordingsMediaListProvider"/>
 
     <!--Current schedules-->
     <ContentList Id="{E401E030-1717-486E-9206-AE9BD61E2F97}" Key="CurrentSchedules" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvSchedulesMediaListProvider"/>
+    <ContentList Id="{6A3B5AC8-EC96-4B7A-BDBD-E5FAD2BEE188}" Key="CurrentTvSchedules" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvTVSchedulesMediaListProvider"/>
+    <ContentList Id="{EAA028EE-BAEF-48A2-A6AC-9138E01214E3}" Key="CurrentRadioSchedules" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvRadioSchedulesMediaListProvider"/>
 
     <!--Current programs-->
     <ContentList Id="{220D10D9-25D5-4A98-B491-C52F199C86A8}" Key="CurrentPrograms" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvProgramsMediaListProvider"/>
+    <ContentList Id="{4D1DCECC-8600-47B9-8DB4-EAD59C251BAD}" Key="CurrentTVPrograms" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvTVProgramsMediaListProvider"/>
+    <ContentList Id="{AF23F2CF-7D80-4846-957C-4D1DC206F543}" Key="CurrentRadioPrograms" ClassName="MediaPortal.Plugins.SlimTv.Client.MediaLists.SlimTvRadioProgramsMediaListProvider"/>
   </Register>
 
   <Register Location="/Resources/Skin">

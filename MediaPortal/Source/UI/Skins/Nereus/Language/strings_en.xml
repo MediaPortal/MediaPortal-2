@@ -60,7 +60,9 @@
   <string name="Nereus.Shortcut.Track">Track</string>
   <string name="Nereus.Shortcut.Album">Album</string>
   <string name="Nereus.Shortcut.LiveTV">Live TV</string>
+  <string name="Nereus.Shortcut.LiveRadio">Live Radio</string>
   <string name="Nereus.Shortcut.TVGuide">TV-Guide</string>
+  <string name="Nereus.Shortcut.RadioGuide">Radio-Guide</string>
   <string name="Nereus.Shortcut.Schedules">Schedules</string>
   <string name="Nereus.Shortcut.Recordings">Recordings</string>
   <string name="Nereus.Shortcut.Place">Place</string>

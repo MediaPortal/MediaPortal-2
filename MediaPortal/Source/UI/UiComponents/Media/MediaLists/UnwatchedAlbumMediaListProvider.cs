@@ -34,7 +34,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public UnwatchedAlbumMediaListProvider()
     {
-      _changeAspectId = AudioAspect.ASPECT_ID;
+      _changeAspectIds = new[] { AudioAspect.ASPECT_ID };
       _role = AudioAlbumAspect.ROLE_ALBUM;
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
       _linkedRole = AudioAspect.ROLE_TRACK;

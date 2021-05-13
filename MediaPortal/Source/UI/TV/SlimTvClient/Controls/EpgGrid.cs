@@ -825,13 +825,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       }
     }
 
-    private static SlimTvMultiChannelGuideModel SlimTvMultiChannelGuideModel
+    private static SlimTvMultiChannelGuideModelBase SlimTvMultiChannelGuideModel
     {
       get
       {
         try
         {
-          SlimTvMultiChannelGuideModel model = (SlimTvMultiChannelGuideModel)ServiceRegistration.Get<IWorkflowManager>().GetModel(SlimTvMultiChannelGuideModel.MODEL_ID);
+          IWorkflowManager manager = ServiceRegistration.Get<IWorkflowManager>(false);
+          if (manager?.CurrentNavigationContext?.WorkflowModelId == null)
+            return null;
+
+          var model = manager.GetModel(manager.CurrentNavigationContext.WorkflowModelId.Value) as SlimTvMultiChannelGuideModelBase;
           return model;
         }
         catch (WorkflowManagerLockException) { }

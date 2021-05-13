@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
   public abstract class SlimTvMediaListProviderBase : IContentListProvider
   {
-    protected MediaType _mediaType = MediaType.TV;
+    protected MediaType? _mediaType;
     protected ITvHandler _tvHandler;
     protected ItemsList _allItems;
 
@@ -74,7 +74,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
           {
             if (!item.GetPlayData(out string mimeType, out string title))
               continue;
-            if (mimeType == LiveTvMediaItem.MIME_TYPE_TV || mimeType == LiveTvMediaItem.MIME_TYPE_RADIO)
+            if (_mediaType == null && (mimeType == LiveTvMediaItem.MIME_TYPE_TV || mimeType == LiveTvMediaItem.MIME_TYPE_RADIO))
+            {
+              update = true;
+              break;
+            }
+            else if (_mediaType == MediaType.TV && mimeType == LiveTvMediaItem.MIME_TYPE_TV)
+            {
+              update = true;
+              break;
+            }
+            else if (_mediaType == MediaType.Radio && mimeType == LiveTvMediaItem.MIME_TYPE_RADIO)
             {
               update = true;
               break;
@@ -138,7 +148,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       foreach (int channelId in channelList.Select(c => c.Item1))
       {
         var result = await channelAndGroupInfo.GetChannelAsync(channelId);
-        if (result.Success && result.Result.MediaType == _mediaType)
+        if (result.Success && (result.Result.MediaType == _mediaType || _mediaType == null))
           userChannels.Add(result.Result);
         if (userChannels.Count >= maxItems)
           break;
@@ -147,7 +157,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       //Add any remaining channels
       if (fillList && userChannels.Count < maxItems)
       {
-        foreach (int channelId in ChannelContext.Instance.Channels.Where(c => c.MediaType == _mediaType).Select(c => c.ChannelId).Except(channelList.Select(c => c.Item1)))
+        foreach (int channelId in ChannelContext.Instance.Channels.Where(c => c.MediaType == _mediaType || _mediaType == null).Select(c => c.ChannelId).Except(channelList.Select(c => c.Item1)))
         {
           var result = await channelAndGroupInfo.GetChannelAsync(channelId);
           if (result.Success)

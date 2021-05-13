@@ -23,12 +23,14 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.MediaExtensions;
 using MediaPortal.Plugins.SlimTv.Client.Notifications;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.SlimTv.Client
 {
@@ -40,11 +42,19 @@ namespace MediaPortal.Plugins.SlimTv.Client
     {
       ServiceRegistration.Set<ITvHandler>(new SlimTvHandler());
       ServiceRegistration.Set<ISlimTvNotificationService>(new SlimTvNotificationService());
+
+      // All non-default media item aspects must be registered
+      IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(RecordingAspect.Metadata);
+
       // Register recording section in MediaLibrary
       RecordingsLibrary.RegisterOnMediaLibrary();
+      RadioRecordingsLibrary.RegisterOnMediaLibrary();
 
       // Dummy call to static instance which creates required message handlers
-      var channels = ChannelContext.Instance.Channels;
+      //var channels = ChannelContext.Instance.Channels;
+      var tvChannels = ChannelContext.Instance.TvChannels;
+      var radioChannels = ChannelContext.Instance.RadioChannels;
     }
 
     public bool RequestEnd()

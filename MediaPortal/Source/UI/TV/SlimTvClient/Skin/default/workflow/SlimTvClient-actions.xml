@@ -1,10 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Workflow DescriptorVersion="1.0">
   <MenuActions>
+
+    <!-- Combined TV and Radio navigation -->
     <PushNavigationTransition Id="B4A9199F-6DD4-4bda-A077-DE9C081F7703"
       Name="Home->SlimTvClient"
       DisplayCategory="A-SlimTvClient"
-      SortOrder="a"
+      SortOrder="aa"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="C7646667-5E63-48c7-A490-A58AC9518CFA"
       DisplayTitle="[SlimTvClient.Main]"
@@ -14,7 +16,7 @@
     <PushNavigationTransition Id="480CA8AE-FF20-4be0-80E3-9896D7996140"
       Name="SlimTvClient->Guide"
       DisplayCategory="A-0SlimTvClientSingleChannelGuide"
-      SortOrder="a"
+      SortOrder="ad"
       SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
       TargetState="A40F05BB-022E-4247-8BEE-16EB3E0B39C5"
       DisplayTitle="Single TV Guide"/>-->
@@ -22,7 +24,7 @@
     <PushNavigationTransition Id="FA056DED-1122-42bd-A3DE-CB6CF2A59C66"
       Name="SlimTvClient->Guide"
       DisplayCategory="A-1SlimTvClientMultiChannelGuide"
-      SortOrder="b"
+      SortOrder="ba"
       SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
       TargetState="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
       DisplayTitle="[SlimTvClient.TvGuide]"/>
@@ -30,7 +32,7 @@
     <PushNavigationTransition Id="DE81847F-5736-4331-970C-B4F65B57B2F1"
       Name="SlimTvClient->Schedules"
       DisplayCategory="A-1SlimTvClientSchedules"
-      SortOrder="c"
+      SortOrder="ca"
       SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
       TargetState="88842E97-2EF9-4658-AD35-8D74E3C689A4"
       DisplayTitle="[SlimTvClient.Schedules]"/>
@@ -38,7 +40,7 @@
     <PushNavigationTransition Id="6CC60A38-08E3-4B7E-BEDD-964E5C1175E5"
       Name="SlimTvClient->ProgramSearch"
       DisplayCategory="A-2SlimTvClientProgramSearch"
-      SortOrder="c"
+      SortOrder="cb"
       SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
       TargetState="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
       DisplayTitle="[SlimTvClient.ProgramSearch]"/>
@@ -46,16 +48,57 @@
     <WorkflowContributorAction Id="E6AB0765-6671-480F-9C9F-A517CE04934A"
       Name="SlimTvClient->Recordings"
       DisplayCategory="A-3Recordings"
-      SortOrder="d"
+      SortOrder="da"
       SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
       ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"/>    <!-- Recordings action -->
 
     <WorkflowContributorAction Id="786E1F62-58B8-4FE2-8C6E-111B2E0F167D"
-        Name="*->DeleteAllRecordings"
-        DisplayCategory="a-Recordings"
-        SortOrder="h"
-        SourceStates="*"
-        ContributorModelId="3E826CA9-5C0B-4B16-9025-FA8273A5B7E4"/>
-    <!-- AddToPlaylist action -->
+       Name="*->DeleteAllRecordings"
+       DisplayCategory="a-Recordings"
+       SortOrder="ha"
+       SourceStates="*"
+       ContributorModelId="3E826CA9-5C0B-4B16-9025-FA8273A5B7E4"/> <!-- AddToPlaylist action -->
+
+    <!-- Radio only navigation -->
+    <PushNavigationTransition Id="E3BBC989-99DB-40E9-A15F-CCB50B17A4C8"
+      Name="Home->SlimTvClientRadio"
+      DisplayCategory="A-SlimTvClientRadio"
+      SortOrder="ac"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+      DisplayTitle="[SlimTvClient.Radio]"
+      HelpText="[SlimTvClient.Radio.Help]"/>
+
+    <PushNavigationTransition Id="0040F059-DCFB-4148-BAD6-CCB8FCE9C72F"
+      Name="SlimTvClientRadio->Guide"
+      DisplayCategory="A-1SlimTvClientMultiChannelGuideRadio"
+      SortOrder="ba"
+      SourceStates="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+      TargetState="64AEE61A-7E45-450D-AA65-F4C109E3A7B3"
+      DisplayTitle="[SlimTvClient.RadioGuide]"/>
+
+    <PushNavigationTransition Id="C0BE589F-CA1B-48E3-8A0F-7B039E348B3B"
+      Name="SlimTvClientRadio->SchedulesRadio"
+      DisplayCategory="A-1SlimTvClientSchedulesRadio"
+      SortOrder="ca"
+      SourceStates="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+      TargetState="9C095D73-D65D-42E6-9997-EF328C33F7F8"
+      DisplayTitle="[SlimTvClient.Schedules]"/>
+
+    <PushNavigationTransition Id="AF2869CF-E9DE-41AC-8390-D12B311B5A42"
+      Name="SlimTvClientRadio->ProgramSearchRadio"
+      DisplayCategory="A-2SlimTvClientProgramSearchRadio"
+      SortOrder="cb"
+      SourceStates="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+      TargetState="F6B76F5F-1E37-4C4D-BB32-79AFB7A67951"
+      DisplayTitle="[SlimTvClient.ProgramSearch]"/>
+
+    <WorkflowContributorAction Id="36FADF11-46D7-4E8F-B086-1689064D78BD"
+      Name="SlimTvClientRadio->RecordingsRadio"
+      DisplayCategory="A-3RecordingsRadio"
+      SortOrder="da"
+      SourceStates="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+      ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"/> <!-- Recordings action -->
+
   </MenuActions>
 </Workflow>

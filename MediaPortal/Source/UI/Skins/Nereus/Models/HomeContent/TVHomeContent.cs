@@ -80,14 +80,14 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   public class CurrentTVList : MediaListItemsListWrapper
   {
     public CurrentTVList()
-      : base("CurrentPrograms", "[Nereus.Home.CurrentPrograms]")
+      : base("CurrentTVPrograms", "[Nereus.Home.CurrentPrograms]")
     { }
   }
 
   public class CurrentSchedulesList : MediaListItemsListWrapper
   {
     public CurrentSchedulesList()
-      : base("CurrentSchedules", "[Nereus.Home.CurrentSchedules]")
+      : base("CurrentTVSchedules", "[Nereus.Home.CurrentSchedules]")
     { }
   }
 

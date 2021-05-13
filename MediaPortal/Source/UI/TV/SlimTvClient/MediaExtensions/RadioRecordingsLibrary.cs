@@ -1,0 +1,107 @@
+#region Copyright (C) 2007-2020 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2020 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using MediaPortal.Common;
+using MediaPortal.Common.Commands;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
+using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
+using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
+using MediaPortal.Plugins.SlimTv.Client.TvHandler;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
+using MediaPortal.UiComponents.Media.FilterTrees;
+using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Helpers;
+using MediaPortal.UiComponents.Media.Models;
+using MediaPortal.UiComponents.Media.Models.NavigationModel;
+using MediaPortal.UiComponents.Media.Models.ScreenData;
+using MediaPortal.UiComponents.Media.Models.Sorting;
+
+namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
+{
+  public class RadioRecordingsLibrary : BaseNavigationInitializer
+  {
+    public static void RegisterOnMediaLibrary()
+    {
+      MediaNavigationModel.RegisterMediaNavigationInitializer(new RadioRecordingsLibrary());
+    }
+
+    public RadioRecordingsLibrary()
+    {
+      _mediaNavigationMode = SlimTvConsts.MEDIA_NAVIGATION_MODE;
+      _mediaNavigationRootState = SlimTvConsts.WF_RADIO_MEDIA_NAVIGATION_ROOT_STATE;
+      _viewName = SlimTvConsts.RES_RECORDINGS_VIEW_NAME;
+      _necessaryMias = SlimTvConsts.NECESSARY_RADIO_RECORDING_MIAS;
+      _optionalMias = SlimTvConsts.OPTIONAL_RADIO_RECORDING_MIAS;
+    }
+
+    protected override async Task PrepareAsync()
+    {
+      await base.PrepareAsync();
+
+      AbstractItemsScreenData.PlayableItemCreatorDelegate picd = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+
+      _defaultScreen = new RecordingsShowItemsScreenData(picd);
+      _availableScreens = new List<AbstractScreenData>
+        {
+          _defaultScreen,
+          new RecordingsFilterByChannelScreenData(),
+          new RecordingsSimpleSearchScreenData(picd),
+        };
+
+      _defaultSorting = new SortByRecordingDateDesc();
+      _availableSortings = new List<Sorting>
+        {
+          _defaultSorting,
+          new SortByTitle(),
+          //new SortBySystem(),
+        };
+
+      var optionalMias = new[]
+      {
+        AudioAspect.ASPECT_ID,
+        GenreAspect.ASPECT_ID
+      }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
+
+      IFilterTree filterTree = new SimpleFilterTree();
+      if (_filter != null)
+        filterTree.AddFilter(_filter);
+      if (_applyUserFilter)
+      {
+        var userFilter = UserHelper.GetUserRestrictionFilter(_necessaryMias.ToList());
+        if (userFilter != null)
+         filterTree.AddFilter(userFilter);
+      }
+
+      _customRootViewSpecification = new StackingViewSpecification(_viewName, filterTree, _necessaryMias, optionalMias, true)
+      {
+        MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
+      };
+    }
+  }
+}
