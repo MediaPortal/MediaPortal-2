@@ -1172,6 +1172,23 @@ namespace MediaPortal.UI.SkinEngine.GUI
       base.WndProc(ref m);
     }
 
+    // Preprocesses keyboard or input messages within the message loop before they are dispatched.
+    public override bool PreProcessMessage(ref Message m)
+    {
+      // MP2-789 Brownard 16/5/2021: Broadcast input events here, rather than in WndProc, otherwise
+      // the underlying window will always translate WM_KEYDOWN events to WM_CHAR events regardless
+      // of whether they are handled by a plugin.
+      if (IsInternalMessage(m))
+      {
+        CheckMessageRate(ref m);
+
+        // Send input message through the system so components can handle them
+        if (WindowsMessaging.BroadcastWindowsMessage(ref m))
+          return true;
+      }
+      return base.PreProcessMessage(ref m);
+    }
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct Rect
     {
