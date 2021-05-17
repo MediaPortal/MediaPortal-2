@@ -10,7 +10,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide.Radio]"/>
 
     <!-- SlimTvMultiChannelGuide model -->
     <Model x:Key="SlimTvMultiChannelGuide" Id="2B5A4CF0-9DBC-4F01-80B9-3C7DA607C188"/>

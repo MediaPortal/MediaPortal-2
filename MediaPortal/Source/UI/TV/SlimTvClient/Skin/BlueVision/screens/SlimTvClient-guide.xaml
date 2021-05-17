@@ -9,7 +9,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide.Tv]"/>
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvSingleChannelGuide" Id="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/>

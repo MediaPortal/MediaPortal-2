@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="SlimTvClient.Title">Guide</string>
-  <string name="SlimTvClient.Main">TV</string>
-  <string name="SlimTvClient.Main.Help">Here you can watch your favourite TV and Radio programs and switch between the channels.</string>
   <string name="SlimTvClient.Tv">TV</string>
   <string name="SlimTvClient.Tv.Help">Here you can watch your favourite TV programs and switch between the channels.</string>
   <string name="SlimTvClient.Radio">Radio</string>
   <string name="SlimTvClient.Radio.Help">Here you can listen to your favourite Radio programs and switch between the station channels.</string>
-  <string name="SlimTvClient.TvGuide">Guide</string>
-  <string name="SlimTvClient.TvGuide.Help">Browse your Electronic Program Guide and select the programs you like to watch/listen to or schedule for recording.</string>
+  <string name="SlimTvClient.Guide.Tv">TV Guide</string>
+  <string name="SlimTvClient.Guide.Tv.Help">Browse your Electronic Program Guide and select the programs you like to watch or schedule for recording.</string>
+  <string name="SlimTvClient.Guide.Radio">Radio Guide</string>
+  <string name="SlimTvClient.Guide.Radio.Help">Browse your Electronic Program Guide and select the programs you like to listen to or schedule for recording.</string>
   <string name="SlimTvClient.SingleChannelGuide">Channel Guide</string>
 
   <string name="SlimTvClient.CurrentlyPlayingInformationHeader">Program information</string>
@@ -24,7 +24,7 @@
   <string name="SlimTvClient.NextProgram">Next Program</string>
   <string name="SlimTvClient.Progress">Progress</string>
 
-  <string name="SlimTvClient.Guide">TV Guide</string>
+  <string name="SlimTvClient.Guide">Guide</string>
   <string name="SlimTvClient.NoProgram">No program data.</string>
   <string name="SlimTvClient.ChooseProgramAction">Choose program action...</string>
   <string name="SlimTvClient.ChooseChannelGroup">Choose channel group...</string>
@@ -43,8 +43,10 @@
 
   <string name="SlimTvClient.UseContainsQuery">Use "contains"</string>
   <string name="SlimTvClient.UseStartsWithQuery">Use "starts with"</string>
-  <string name="SlimTvClient.ProgramSearch">Search programs</string>
-  <string name="SlimTvClient.ProgramSearch.Help">Search for program titles in the EPG and find your desired shows</string>
+  <string name="SlimTvClient.ProgramSearch.Tv">Search TV programs</string>
+  <string name="SlimTvClient.ProgramSearch.Tv.Help">Search for TV program titles in the EPG and find your desired shows</string>
+  <string name="SlimTvClient.ProgramSearch.Radio">Search radio programs</string>
+  <string name="SlimTvClient.ProgramSearch.Radio.Help">Search for radio program titles in the EPG and find your desired shows</string>
 
   <!-- Extended recording features -->
   <string name="SlimTvClient.RecordActions">Recording actions</string>
@@ -79,8 +81,10 @@
   <string name="SlimTvClient.ScheduleDetails">Schedule details</string>
   <string name="SlimTvClient.ScheduleName">Schedule name</string>
   <string name="SlimTvClient.ScheduleType">Schedule type</string>
-  <string name="SlimTvClient.Schedules">Schedules</string>
-  <string name="SlimTvClient.Schedules.Help">See which schedules for recording you have set up. You may also delete schedules here.</string>
+  <string name="SlimTvClient.Schedules.Tv">TV Schedules</string>
+  <string name="SlimTvClient.Schedules.Tv.Help">See which TV schedules for recording you have set up. You may also delete schedules here.</string>
+  <string name="SlimTvClient.Schedules.Radio">Radio Schedules</string>
+  <string name="SlimTvClient.Schedules.Radio.Help">See which radio schedules for recording you have set up. You may also delete schedules here.</string>
   <string name="SlimTvClient.ExtendedSchedule">Extended scheduling</string>
   <string name="SlimTvClient.ScheduleManagement">Manage schedules</string>
   <string name="SlimTvClient.ScheduleModeSeries">Manage series schedules</string>
@@ -98,10 +102,12 @@
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Channel name</string>
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Channel number</string>
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelLogo">Channel logo</string>
-  <string name="SlimTvClient.ZapFromGuide">Zap from TV Guide</string>
+  <string name="SlimTvClient.ZapFromGuide">Zap from Guide</string>
   <string name="SlimTvClient.ZapFromGuide.Help">If enabled, "OK" on currently running programs tunes the channel</string>
   <string name="SlimTvClient.AutoStartTv">Automatically start TV</string>
   <string name="SlimTvClient.AutoStartTv.Help">If enabled, the last selected channel will be started when entering TV home</string>
+  <string name="SlimTvClient.AutoStartRadio">Automatically start TV</string>
+  <string name="SlimTvClient.AutoStartRadio.Help">If enabled, the last selected channel will be started when entering Radio home</string>
   <string name="SlimTvClient.ShowSeriesInfo">Show series infos</string>
   <string name="SlimTvClient.ShowSeriesInfo.Help">If enabled, the program guide will show series and episode information if available.</string>
   <string name="SlimTvClient.ZapByChannelIndex">Zap by channel index</string>
@@ -141,11 +147,14 @@
   <string name="SlimTvClient.EpgSpecialGenreColor.Help">The color to use for EPG programs manually marked as special.</string>
 
   <string name="SlimTvClient.NoColor">None</string>
-  
+
   <string name="SlimTvClient.RecordingsMenuItem">Recordings</string>
+  <string name="SlimTvClient.Recordings.Tv">TV Recordings</string>
+  <string name="SlimTvClient.Recordings.Tv.Help">Here you can find a list of your recorded TV programs for playback.</string>
+  <string name="SlimTvClient.Recordings.Radio">Radio Recordings</string>
+  <string name="SlimTvClient.Recordings.Radio.Help">Here you can find a list of your recorded radio programs for playback.</string>
   <string name="SlimTvClient.ChannelsMenuItem">Channels</string>
-  <string name="SlimTvClient.Recordings.Help">Here you can find a list of your recorded programs for playback.</string>
-  <string name="SlimTvClient.RecordingsRootViewName">TV recordings</string>
+  <string name="SlimTvClient.RecordingsRootViewName">Recordings</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Channel</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">Channel: {0}</string>
   <string name="SlimTvClient.RecordingsByChannelHeader">Recordings by channel</string>

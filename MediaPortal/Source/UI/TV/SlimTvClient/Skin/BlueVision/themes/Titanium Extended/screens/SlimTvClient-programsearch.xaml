@@ -9,7 +9,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <!--ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.ProgramSearch]"/-->
+    <!--ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.ProgramSearch.Tv]"/-->
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvProgramSearchModel" Id="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>
@@ -33,7 +33,7 @@
         <Image Stretch="Fill" Source="panel_tv_guide_large.png" Grid.Row="0" Grid.RowSpan="3"
                Grid.Column="0" Grid.ColumnSpan="2" Margin="-45,0,-43,-60" ></Image>
 
-        <Label Grid.Row="0" Content="[SlimTvClient.ProgramSearch]" Color="Black" Wrap="True" Margin="20,10,10,10"/>
+        <Label Grid.Row="0" Content="[SlimTvClient.ProgramSearch.Tv]" Color="Black" Wrap="True" Margin="20,10,10,10"/>
         <Label Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Grid.Column="1" Grid.Row="0" Margin="20,0,20,0"
                Color="Black" VerticalAlignment="Center" HorizontalAlignment="Right"/>
 

@@ -40,7 +40,7 @@
     <WorkflowState Id="C7646667-5E63-48c7-A490-A58AC9518CFA"
         Name="SlimTvClientMain" 
         MainScreen="SlimTvClient-main"
-        DisplayLabel="[SlimTvClient.Main]"
+        DisplayLabel="[SlimTvClient.Tv]"
         WorkflowModel="8BEC1372-1C76-484c-8A69-C7F3103708EC"/> <!-- Workflow model = SlimTvClient Model -->
 
     <WorkflowState Id="55F6CC8D-1D98-426F-8733-E6DF2861F706"
@@ -64,13 +64,13 @@
     <WorkflowState Id="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
       Name="SlimTvClientMultiChannelGuide"
       MainScreen="SlimTvClient-fullguide"
-      DisplayLabel="[SlimTvClient.TvGuide]"
+      DisplayLabel="[SlimTvClient.Guide.Tv]"
       WorkflowModel="5054408D-C2A9-451f-A702-E84AFCD29C10"/>   <!-- Workflow model = SlimTvMultiChannelGuide Model -->
 
     <WorkflowState Id="64AEE61A-7E45-450D-AA65-F4C109E3A7B3"
       Name="SlimTvClientMultiChannelGuideRadio"
       MainScreen="SlimTvClient-fullguide-radio"
-      DisplayLabel="[SlimTvClient.TvGuide]"
+      DisplayLabel="[SlimTvClient.Guide.Radio]"
       WorkflowModel="2B5A4CF0-9DBC-4F01-80B9-3C7DA607C188"/>   <!-- Workflow model = SlimTvRadioMultiChannelGuide Model -->
 
     <WorkflowState Id="3C6081CB-88DC-44A7-9E17-8D7BFE006EE5"
@@ -82,13 +82,13 @@
     <WorkflowState Id="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
       Name="SlimTvClientProgramSearch"
       MainScreen="SlimTvClient-programsearch"
-      DisplayLabel="[SlimTvClient.ProgramSearch]"
+      DisplayLabel="[SlimTvClient.ProgramSearch.Tv]"
       WorkflowModel="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>   <!-- Workflow model = SlimTvProgramSearch Model -->
 
     <WorkflowState Id="F6B76F5F-1E37-4C4D-BB32-79AFB7A67951"
       Name="SlimTvClientProgramSearchRadio"
       MainScreen="SlimTvClient-programsearch-radio"
-      DisplayLabel="[SlimTvClient.ProgramSearch]"
+      DisplayLabel="[SlimTvClient.ProgramSearch.Radio]"
       WorkflowModel="FA188F55-D725-4361-9FD5-568DB2BE71B3"/>   <!-- Workflow model = SlimTvRadioProgramSearch Model -->
 
     <WorkflowState Id="88842E97-2EF9-4658-AD35-8D74E3C689A4"
@@ -105,12 +105,12 @@
 
     <WorkflowState Id="9D5B01A7-035F-46CF-8246-3C158C6CA960"
       Name="RecordingsNavigation-Root"
-      DisplayLabel="[SlimTvClient.RecordingsMenuItem]"
+      DisplayLabel="[SlimTvClient.Recordings.Tv]"
       WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>   <!-- Workflow model = Media model -->
 
     <WorkflowState Id="714970E9-A7EB-4F9C-B372-1E60E3671A8F"
       Name="RadioRecordingsNavigation-Root"
-      DisplayLabel="[SlimTvClient.RecordingsMenuItem]"
+      DisplayLabel="[SlimTvClient.Recordings.Radio]"
       WorkflowModel="4CDD601F-E280-43b9-AD0A-6D7B2403C856"/>   <!-- Workflow model = Media model -->
     
     <DialogState Id="DFAFCA6B-92AC-432D-98E7-3E50E3AD2F61"
@@ -190,6 +190,7 @@
     <Model Id="005C8C85-C0A6-48A8-83AC-E826AF2DF99D" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioManualScheduleModel"/>
 
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
+    <Model Id="FE2DFB99-0979-476C-A4E9-867B64267D7E" Name="RadioRecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RadioRecordingsAction"/>
     <Model Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375" Name="ChannelZapModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.ChannelZapModel" />
     <Model Id="7F283468-27E9-46B9-8B3B-17E3143AFEEB" Name="SlimTvNotificationModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvNotificationModel" />
     <Model Id="3E826CA9-5C0B-4B16-9025-FA8273A5B7E4" Name="DeleteAllRecordings" ClassName="MediaPortal.Plugins.SlimTv.Client.Actions.DeleteAllRecordings"/>'

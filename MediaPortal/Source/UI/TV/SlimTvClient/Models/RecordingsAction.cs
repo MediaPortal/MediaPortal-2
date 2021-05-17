@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public static readonly Guid RECORDINGS_CONTRIBUTOR_MODEL_ID = new Guid(RECORDINGS_CONTRIBUTOR_MODEL_ID_STR);
 
-    public const string RES_RECORDINGS_MENU_ITEM = "[SlimTvClient.RecordingsMenuItem]";
+    public const string RES_RECORDINGS_MENU_ITEM = "[SlimTvClient.Recordings.Tv]";
 
     #endregion
 

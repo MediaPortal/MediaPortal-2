@@ -8,7 +8,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.ProgramSearch]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.ProgramSearch.Radio]"/>
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvProgramSearchModel" Id="FA188F55-D725-4361-9FD5-568DB2BE71B3"/>

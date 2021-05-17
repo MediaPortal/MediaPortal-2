@@ -12,7 +12,7 @@
     <ResourceWrapper x:Key="CustomContentMargin" Resource="30,110,0,0" />
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Guide.Radio]"/>
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvMultiChannelGuide" Id="2B5A4CF0-9DBC-4F01-80B9-3C7DA607C188"/>

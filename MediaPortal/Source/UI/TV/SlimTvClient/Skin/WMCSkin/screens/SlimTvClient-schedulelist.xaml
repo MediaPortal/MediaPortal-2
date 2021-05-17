@@ -8,7 +8,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Schedules]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Schedules.Tv]"/>
 
     <!-- SlimTvScheduleManagement model -->
     <Model x:Key="SlimTvScheduleManagement" Id="7610403A-4488-47A4-8C27-FD1FE833E52B"/>

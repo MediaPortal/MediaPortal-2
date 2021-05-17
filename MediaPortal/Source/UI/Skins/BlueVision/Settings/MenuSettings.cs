@@ -40,6 +40,8 @@ namespace MediaPortal.UiComponents.BlueVision.Settings
     public const string MENU_ID_MEDIAHUB = "D887C930-3CFB-4FC5-A559-FFF6C8E30B25";
     public const string MENU_NAME_TV = "[Menu.TV]";
     public const string MENU_ID_TV = "E32BBACF-56C6-406E-9576-EA68271F053C";
+    public const string MENU_NAME_RADIO = "[Menu.Radio]";
+    public const string MENU_ID_RADIO = "34605E48-17F4-40F3-A443-47AA5E404B70";
     public const string MENU_NAME_WEATHER = "[Menu.Weather]";
     public const string MENU_ID_WEATHER = "F0E6117B-CF56-41E0-8171-CAA3F3544CC1";
     public const string MENU_NAME_NEWS = "[Menu.News]";

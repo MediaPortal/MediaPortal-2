@@ -64,15 +64,26 @@ namespace HomeEditor.Groups
             new HomeMenuAction("[Media.BrowseMediaMenuItem]", new Guid("93442DF7-186D-42E5-A0F5-CF1493E68F49"))
           }
         },
-        new HomeMenuGroup("[SlimTvClient.Main]", new Guid("C556242C-A97D-4947-9821-B3E71F866836"))
+        new HomeMenuGroup("[SlimTvClient.Tv]", new Guid("C556242C-A97D-4947-9821-B3E71F866836"))
         {
           Actions = new List<HomeMenuAction>
           {
-            new HomeMenuAction("[SlimTvClient.Main]", new Guid("B4A9199F-6DD4-4BDA-A077-DE9C081F7703")),
-            new HomeMenuAction("[SlimTvClient.TvGuide]", new Guid("A298DFBE-9DA8-4C16-A3EA-A9B354F3910C")),
-            new HomeMenuAction("[SlimTvClient.Schedules]", new Guid("87355E05-A15B-452A-85B8-98D4FC80034E")),
-            new HomeMenuAction("[SlimTvClient.RecordingsMenuItem]", new Guid("7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51")),
-            new HomeMenuAction("[SlimTvClient.ProgramSearch]", new Guid("D91738E9-3F85-443B-ABBD-EF01731734AD"))
+            new HomeMenuAction("[SlimTvClient.Tv]", new Guid("B4A9199F-6DD4-4BDA-A077-DE9C081F7703")),
+            new HomeMenuAction("[SlimTvClient.Guide.Tv]", new Guid("A298DFBE-9DA8-4C16-A3EA-A9B354F3910C")),
+            new HomeMenuAction("[SlimTvClient.Schedules.Tv]", new Guid("87355E05-A15B-452A-85B8-98D4FC80034E")),
+            new HomeMenuAction("[SlimTvClient.Recordings.Tv]", new Guid("7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51")),
+            new HomeMenuAction("[SlimTvClient.ProgramSearch.Tv]", new Guid("D91738E9-3F85-443B-ABBD-EF01731734AD"))
+          }
+        },
+        new HomeMenuGroup("[SlimTvClient.Radio]", new Guid("523868E3-0C79-445E-BD11-19ACA0CC11D4"))
+        {
+          Actions = new List<HomeMenuAction>
+          {
+            new HomeMenuAction("[SlimTvClient.Radio]", new Guid("E3BBC989-99DB-40E9-A15F-CCB50B17A4C8")),
+            new HomeMenuAction("[SlimTvClient.Guide.Radio]", new Guid("B6B524F6-390C-4E7D-B4D2-D4838A55EDE0")),
+            new HomeMenuAction("[SlimTvClient.Schedules.Radio]", new Guid("DA4D3AC1-77C1-4619-8737-E229F9256FCD")),
+            new HomeMenuAction("[SlimTvClient.Recordings.Radio]", new Guid("D5BE3AF8-615E-4C9F-ADF8-ECAD3126A569")),
+            new HomeMenuAction("[SlimTvClient.ProgramSearch.Radio]", new Guid("3840F898-CE0D-4A57-88E3-57D71AEB8115"))
           }
         },
         new HomeMenuGroup("[News.Title]", new Guid("F41D7ACB-EA54-42D3-993C-E9770762931F"))

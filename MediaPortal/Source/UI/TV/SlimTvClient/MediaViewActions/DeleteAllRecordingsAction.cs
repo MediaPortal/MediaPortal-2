@@ -27,8 +27,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaViewActions
     public Task<bool> IsAvailableAsync(View view)
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      return Task.FromResult<bool>(workflowManager.CurrentNavigationContext.WorkflowState.StateId == SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE
-        && !view.IsEmpty);
+      return Task.FromResult<bool>((workflowManager.CurrentNavigationContext.WorkflowState.StateId == SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE || 
+        workflowManager.CurrentNavigationContext.WorkflowState.StateId == SlimTvConsts.WF_RADIO_MEDIA_NAVIGATION_ROOT_STATE) && !view.IsEmpty);
     }
 
     public async Task<bool> ProcessAsync(View view)
