@@ -3061,7 +3061,7 @@
   <Style x:Key="LiveRadioShortcutItemControlStyle" BasedOn="{ThemeResource BaseShortcutItemControlStyle}">
     <Style.Resources>
       <ResourceWrapper x:Key="Shortcut_Item_Label" Value="[Nereus.Shortcut.LiveRadio]"/>
-      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\LiveTV.png"/>
+      <ResourceWrapper x:Key="Shortcut_Item_Image" Value="MediaMenu\LiveRadio.png"/>
     </Style.Resources>
   </Style>
 
