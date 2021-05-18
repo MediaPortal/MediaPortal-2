@@ -104,6 +104,8 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\30F57CBA-459C-4202-A587-09FFF5098251.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\30F57CBA-459C-4202-A587-09FFF5098251_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\36FA3773-8428-4e0c-BE5B-4ECFF5A5E11F_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\3840F898-CE0D-4A57-88E3-57D71AEB8115.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\3840F898-CE0D-4A57-88E3-57D71AEB8115_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\55556593-9FE9-436c-A3B6-A971E10C9D44.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\55556593-9FE9-436c-A3B6-A971E10C9D44_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\7D68C459-EE9B-4EAA-AE2C-C2C365139AEE.jpg" />
@@ -122,6 +124,7 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\A4DF2DF6-8D66-479a-9930-D7106525EB07_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\B6B524F6-390C-4E7D-B4D2-D4838A55EDE0_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\background.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\background_.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\background_blue.png" />
@@ -131,11 +134,17 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\BD93C5B3-402C-40A2-B323-DA891ED5F50E.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\C33E39CC-910E-41C8-BFFD-9ECCD340B569_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\D5BE3AF8-615E-4C9F-ADF8-ECAD3126A569.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\D5BE3AF8-615E-4C9F-ADF8-ECAD3126A569_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\D83604C0-0936-4416-9DE8-7B6D7C50023C.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\DA4D3AC1-77C1-4619-8737-E229F9256FCD.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\DA4D3AC1-77C1-4619-8737-E229F9256FCD_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E00B8442-8230-4D7B-B871-6AC77755A0D5.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E00B8442-8230-4D7B-B871-6AC77755A0D5_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E34FDB62-1F3E-4aa9-8A61-D143E0AF77B5_tile.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E3BBC989-99DB-40E9-A15F-CCB50B17A4C8.jpg" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\E3BBC989-99DB-40E9-A15F-CCB50B17A4C8_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\F6255762-C52A-4231-9E67-14C28735216E_tile.jpg" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\fanart_overlay.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\filmstrip_mask.png" />
