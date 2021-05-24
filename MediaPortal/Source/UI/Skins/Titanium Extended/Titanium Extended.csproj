@@ -219,6 +219,8 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\unwatched_flag.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\video_thumb_focus.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\video_thumb_mask.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\05D4F591-CB92-4204-955A-5FF665BD8727.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\1190A648-90F3-413D-88AC-DA89684E9766.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\0.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\1.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\10.png" />
@@ -270,6 +272,7 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\na.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\permission.txt" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\128x128\WEATHERALERT.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\34605E48-17F4-40F3-A443-47AA5E404B70.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\0.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\1.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\10.png" />
@@ -321,6 +324,13 @@
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\na.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\64x64\WEATHERALERT.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\9AD4076C-8F1F-4353-AF60-4F6C4238DCB7.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\D675D9BA-A27B-44B9-BC6B-8CF2DC7D220F.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\D805F21B-0A1F-4323-BEB5-B108778F89AA.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\D887C930-3CFB-4FC5-A559-FFF6C8E30B25.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\DF153D5E-0CD9-416c-B18B-E09AD5A864D8.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\E1748A80-347C-4E1A-8A26-DABEC246A540.png" />
+    <Content Include="Skin\BlueVision\themes\Titanium Extended\images\Weather\E32BBACF-56C6-406E-9576-EA68271F053C.png" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\FSCWindowButtons.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemAudioDetails.inc" />
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\MediaItemImageDetails.inc" />
