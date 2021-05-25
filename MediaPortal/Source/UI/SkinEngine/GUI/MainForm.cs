@@ -133,16 +133,14 @@ namespace MediaPortal.UI.SkinEngine.GUI
     protected ScreenSaverController _screenSaverController = null;
     protected SuspendLevel _applicationSuspendLevel = SuspendLevel.None;
     protected SuspendLevel _playerSuspendLevel = SuspendLevel.None;
-    protected readonly List<int> _internalMessages = new List<int>()
+
+    // These messages will be broadcasted in the PreProcessMessage override
+    // rather than in WndProc to prevent the form from translating them to
+    // WM_CHAR messages if the broadcasted messages are handled by a plugin.
+    protected readonly List<int> _preProcessedMessages = new List<int>()
     {
-      WM_ACTIVATE,
-      WM_ACTIVATEAPP,
-      WA_INACTIVE,
       WM_KEYDOWN,
-      WM_KEYUP,
-      WM_SYSKEYDOWN,
-      WM_SYSKEYUP,
-      WM_APPCOMMAND,
+      WM_SYSKEYDOWN
     };
 
     /// <summary>
@@ -1014,15 +1012,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
     }
 
     /// <summary>
-    /// Check if the message should be broadcast to other plugins.
-    /// We broadcast only known kinds as any unknown high volume kind of messages can slow down the UI and overload the broadcast queue.
+    /// Check if the message should be pre-processed before being dispatched.
     /// </summary>
-    private bool IsInternalMessage(Message m)
+    private bool IsPreProcessedMessage(Message m)
     {
-      if (_internalMessages.Contains(m.Msg))
-        return true;
-
-      return false;
+      return _preProcessedMessages.Contains(m.Msg);
     }
 
     private void CheckMessageRate(ref Message m)
@@ -1160,7 +1154,8 @@ namespace MediaPortal.UI.SkinEngine.GUI
         }
       }
 
-      if (IsInternalMessage(m))
+      // Pre-processed messages are broadcasted in PreProcessMessage, don't broadcast them again
+      if (!IsPreProcessedMessage(m))
       {
         CheckMessageRate(ref m);
 
@@ -1178,7 +1173,7 @@ namespace MediaPortal.UI.SkinEngine.GUI
       // MP2-789 Brownard 16/5/2021: Broadcast input events here, rather than in WndProc, otherwise
       // the underlying window will always translate WM_KEYDOWN events to WM_CHAR events regardless
       // of whether they are handled by a plugin.
-      if (IsInternalMessage(m))
+      if (IsPreProcessedMessage(m))
       {
         CheckMessageRate(ref m);
 
