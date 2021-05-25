@@ -646,7 +646,7 @@ namespace MediaPortal.Plugins.InputDeviceManager.Models
       _addKeyDialogHandle = ServiceRegistration.Get<IScreenManager>().ShowDialog("ConfigScreenAddKey", (s, g) =>
       {
         ServiceRegistration.Get<ILogger>().Debug("InputDeviceManager: Close key add screen");
-
+        _inWorkflowAddKey = false;
         _addKeyDialogHandle = null;
         _keyInputTimer.Stop();
       });
