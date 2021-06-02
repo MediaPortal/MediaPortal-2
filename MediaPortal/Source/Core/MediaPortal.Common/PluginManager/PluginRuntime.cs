@@ -230,15 +230,49 @@ namespace MediaPortal.Common.PluginManager
             type = GetPluginType(typeName);
             if (type == null)
               return null;
-            reference = _instantiatedObjects[typeName] = new ObjectReference();
+            // MP2-870: Previously we added this ObjectReference to _instatiatedObjects here, but this can mean that a subsequent
+            // thread returns this reference before the actual object has been assigned below and therefore returns null.
+            // Instead we'll create and assign the object before adding it to _instatiatedObjects, this could mean that
+            // the object is created more than once so we'll double check below and dispose any duplicated objects if necessary.
+            reference = new ObjectReference();
           }
           reference.RefCounter++;
         }
         if (type != null)
         {
           object obj = Activator.CreateInstance(type); // Must be done outside the lock because we are calling foreign code
+          // MP2-870: We might have created the same object twice due to threading, if so this will be set to the duplicate instance to dispose.
+          IDisposable disposable = null;
           lock (_syncObj)
-            reference.Object = obj;
+          {
+            // MP2-870: See comment above, another thread may have already instatiated the object whilst we were outside the lock.
+            // Dispose our instance and return the existing in that case.
+            if (_instantiatedObjects.ContainsKey(typeName))
+            {
+              disposable = obj as IDisposable;
+              reference = _instantiatedObjects[typeName];
+              // RefCounter was incremented on the duplicated reference above, so we need to increment this one instead
+              reference.RefCounter++;
+            }
+            else
+            {
+              reference.Object = obj;
+              _instantiatedObjects[typeName] = reference;
+            }
+          }
+
+          if (disposable != null)
+          {
+            try
+            {
+              disposable.Dispose(); // Must be done outside the lock because we are calling foreign code
+            }
+            catch (Exception e)
+            {
+              ServiceRegistration.Get<ILogger>().Warn("Error disposing duplicate plugin object '{0}' in plugin '{1}' (id '{2}')", e,
+                  typeName, _pluginMetadata.Name, _pluginMetadata.PluginId);
+            }
+          }
         }
         return reference.Object;
       }

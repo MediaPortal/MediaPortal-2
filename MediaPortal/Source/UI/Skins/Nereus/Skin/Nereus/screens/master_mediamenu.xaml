@@ -466,7 +466,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCoverDetails"/>
           </MultiBinding>
         </Grid.IsVisible>
-        <Control x:Name="CoverDetails" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,15,70,15">
+        <Control x:Name="CoverDetails" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,15,70,15"
+                 Template="{DynamicResource ResourceKey=CoverDetails_Template}">
           <Control.TemplateControl>
             <Include Source="screens\MultiDetailsCover.inc"/>
           </Control.TemplateControl>

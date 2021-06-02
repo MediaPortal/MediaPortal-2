@@ -53,8 +53,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new AudioArtistShortcut(),
         new AudioYearShortcut()
       }));
-
-      UpdateListsFromAvailableLists();
     }
 
     protected override IContentListModel GetContentListModel()

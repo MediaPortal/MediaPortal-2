@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+﻿#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
     Copyright (C) 2007-2020 Team MediaPortal
@@ -22,36 +22,29 @@
 
 #endregion
 
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
+using MediaPortal.Common;
+using MediaPortal.Common.Messaging;
 
-namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
+namespace MediaPortal.Plugins.InputDeviceManager.Messaging
 {
-  public class LauncherHomeContent : AbstractHomeContent
+  public static class InputDeviceMessaging
   {
-    public LauncherHomeContent()
+    // Message channel name
+    public const string CHANNEL = "InputDevices";
+
+    // Message type
+    public enum MessageType
     {
-      _availableLists.Add(new LatestLaunchedAppList());
-      _availableLists.Add(new FavoriteAppList());
+      HidBroadcast
     }
 
-    protected override IContentListModel GetContentListModel()
+    public const string HID_EVENT = "HidEvent"; // USB HID event data
+
+    public static void BroadcastHidMessage(object hidEvent)
     {
-      return GetAppListModel();
+      SystemMessage msg = new SystemMessage(MessageType.HidBroadcast);
+      msg.MessageData[HID_EVENT] = hidEvent;
+      ServiceRegistration.Get<IMessageBroker>().Send(CHANNEL, msg);
     }
-  }
-
-  public class LatestLaunchedAppList : MediaListItemsListWrapper
-  {
-    public LatestLaunchedAppList()
-      : base("LastLaunchApps", "[Nereus.Home.LatestLaunched]")
-    { }
-  }
-
-  public class FavoriteAppList : MediaListItemsListWrapper
-  {
-    public FavoriteAppList()
-      : base("FavoriteApps", "[Nereus.Home.Favorites]")
-    { }
   }
 }

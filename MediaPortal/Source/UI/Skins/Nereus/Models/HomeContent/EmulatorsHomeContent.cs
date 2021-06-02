@@ -22,36 +22,51 @@
 
 #endregion
 
-using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
-  public class WebradioHomeContent : AbstractHomeContent
+  public class EmulatorsHomeContent : AbstractHomeContent
   {
-    public WebradioHomeContent()
+    public EmulatorsHomeContent()
     {
-      _availableLists.Add(new LastPlayedWebradioList());
-      _availableLists.Add(new TopPlayedWebradioList());
+      _availableLists.Add(new LastPlayedGameList());
+      _availableLists.Add(new FavoritedGameList());
+      _availableLists.Add(new LatestGameList());
+      _availableLists.Add(new UnplayedGameList());
     }
 
     protected override IContentListModel GetContentListModel()
     {
-      return GetWebradioListModel();
+      return GetMediaListModel();
     }
   }
 
-  public class LastPlayedWebradioList : MediaListItemsListWrapper
+  public class LastPlayedGameList : MediaListItemsListWrapper
   {
-    public LastPlayedWebradioList()
-      : base("LastPlayedWebradio", "[Nereus.Home.LatestPlayed]")
+    public LastPlayedGameList()
+      : base("LastPlayedGames", "[Nereus.Home.LatestPlayed]")
     { }
   }
 
-  public class TopPlayedWebradioList : MediaListItemsListWrapper
+  public class FavoritedGameList : MediaListItemsListWrapper
   {
-    public TopPlayedWebradioList()
-      : base("TopPlayedWebradio", "[Nereus.Home.Favorites]")
+    public FavoritedGameList()
+      : base("FavoriteGames", "[Nereus.Home.Favorites]")
+    { }
+  }
+
+  public class LatestGameList : MediaListItemsListWrapper
+  {
+    public LatestGameList()
+      : base("LatestGames", "[Nereus.Home.LatestAdded]")
+    { }
+  }
+
+  public class UnplayedGameList : MediaListItemsListWrapper
+  {
+    public UnplayedGameList()
+      : base("UnplayedGames", "[Nereus.Home.Unplayed]")
     { }
   }
 }

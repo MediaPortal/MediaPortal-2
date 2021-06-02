@@ -87,6 +87,7 @@
     <Compile Include="Converters\RoundingFormatConverter.cs" />
     <Compile Include="Models\HomeContent\AbstractHomeContent.cs" />
     <Compile Include="Models\HomeContent\MediaListItemsListWrapper.cs" />
+    <Compile Include="Models\HomeContent\EmulatorsHomeContent.cs" />
     <Compile Include="Models\HomeContent\WebradioHomeContent.cs" />
     <Compile Include="Models\HomeContent\OnlineVideosHomeContent.cs" />
     <Compile Include="Models\HomeContent\LauncherHomeContent.cs" />
@@ -762,6 +763,7 @@
     <Content Include="Skin\Nereus\screens\MediaItemCoverMovieCollectionDetails.inc">
       <SubType>Designer</SubType>
     </Content>
+    <Content Include="Skin\Nereus\screens\MediaItemHomeGameDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemHomePersonDetails.inc">
       <SubType>Designer</SubType>
     </Content>

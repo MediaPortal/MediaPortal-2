@@ -91,6 +91,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected AbstractProperty _treeSearchModeProperty;
     protected object _lastUpdateValue = null;
 
+    private readonly object _syncObj = new object();
+
     #endregion
 
     #region Ctor
@@ -213,7 +215,8 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     protected void AttachToResources(ResourceDictionary rd)
     {
       rd.ResourcesChanged += OnResourcesChanged;
-      _attachedResources.Add(rd);
+      lock (_syncObj)
+        _attachedResources.Add(rd);
     }
 
     protected void AttachToSkinResources()
@@ -226,24 +229,28 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
     {
       if (sourcePathProperty != null)
       {
-        _attachedPropertiesList.Add(sourcePathProperty);
+        lock (_syncObj)
+          _attachedPropertiesList.Add(sourcePathProperty);
         sourcePathProperty.Attach(OnSourcePathChanged);
       }
     }
 
     protected void ResetEventHandlerAttachments()
     {
-      foreach (ResourceDictionary resources in _attachedResources)
-        resources.ResourcesChanged -= OnResourcesChanged;
-      _attachedResources.Clear();
-      if (_attachedToSkinResources)
+      lock (_syncObj)
       {
-        SkinContext.SkinResourcesChanged -= OnSkinResourcesChanged;
-        _attachedToSkinResources = false;
+        foreach (ResourceDictionary resources in _attachedResources)
+          resources.ResourcesChanged -= OnResourcesChanged;
+        _attachedResources.Clear();
+        if (_attachedToSkinResources)
+        {
+          SkinContext.SkinResourcesChanged -= OnSkinResourcesChanged;
+          _attachedToSkinResources = false;
+        }
+        foreach (AbstractProperty property in _attachedPropertiesList)
+          property.Detach(OnSourcePathChanged);
+        _attachedPropertiesList.Clear();
       }
-      foreach (AbstractProperty property in _attachedPropertiesList)
-        property.Detach(OnSourcePathChanged);
-      _attachedPropertiesList.Clear();
     }
 
 #if DEBUG_DRME

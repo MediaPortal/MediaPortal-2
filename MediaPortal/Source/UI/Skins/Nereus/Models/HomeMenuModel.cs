@@ -134,6 +134,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _homeContent.Add(new Guid("873eb147-c998-4632-8f86-d5e24062be2e"), new LauncherHomeContent());
       _homeContent.Add(new Guid("c33e39cc-910e-41c8-bffd-9eccd340b569"), new OnlineVideosHomeContent());
       _homeContent.Add(new Guid("2ded75c0-5eae-4e69-9913-6b50a9ab2956"), new WebradioHomeContent());
+      _homeContent.Add(new Guid("A24958E2-538A-455E-A1DB-A7BB241AF7EC"), new EmulatorsHomeContent());
 
       // Home content for displaying a list of all other plugins
       _homeContent.Add(OtherPluginsAction.ACTION_ID, new OtherPluginsHomeContent(_otherMenuItems));
@@ -209,7 +210,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
               // If we are returning to the home state then we need to manually
               // attach and refresh the items, as we detached and missed any changes when leaving.
               AttachAndRefreshHomeMenuItems();
-              MarkHomeContentUpdate();
+              UpdateHomeContentLists();
             }
             else
             {
@@ -405,23 +406,13 @@ namespace MediaPortal.UiComponents.Nereus.Models
       return GetMenuModel().MenuItems;
     }
 
-    private void MarkHomeContentUpdate()
+    private void UpdateHomeContentLists()
     {
       if (ContentIndex < _contentProperties.Length)
       {
         var content = _contentProperties[ContentIndex].GetValue();
         if (content is AbstractHomeContent ahc)
-        {
-          ahc.ListNeedsUpdate = true;
-          if (ahc.IsInited)
-          {
-            ListItem item = SelectedItem;
-            if (item == null)
-              return;
-            WorkflowAction action = GetAction(item);
-            EnqueueUpdate(action);
-          }
-        }
+          ahc.ForceUpdateList();
       }
     }
 
@@ -648,9 +639,6 @@ namespace MediaPortal.UiComponents.Nereus.Models
       object nextContent;
       if (action == null || !_homeContent.TryGetValue(action.ActionId, out nextContent))
         nextContent = DEFAULT_HOME_CONTENT;
-
-      if (nextContent is AbstractHomeContent ahc)
-        ahc.ForceUpdateList();
 
       int currentIndex = ContentIndex;
       if (ReferenceEquals(_contentProperties[currentIndex].GetValue(), nextContent))

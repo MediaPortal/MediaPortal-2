@@ -1,6 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
@@ -12,6 +11,7 @@
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <DebugSymbols>true</DebugSymbols>
@@ -63,11 +63,16 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Hid\HidManager.cs" />
+    <Compile Include="Hid\HidWatcher.cs" />
+    <Compile Include="IInputDeviceManager.cs" />
+    <Compile Include="InputDeviceManagerPlugin.cs" />
     <Compile Include="InputDevices.cs" />
     <Compile Include="InputDeviceManager.cs" />
     <Compile Include="InputManagerSettings.cs" />
     <Compile Include="KeyCode.cs" />
     <Compile Include="MappedKeyCode.cs" />
+    <Compile Include="Messaging\InputDeviceMessaging.cs" />
     <Compile Include="Models\InputDeviceModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RawInput\KeyMapper.cs" />
@@ -75,6 +80,7 @@
     <Compile Include="Settings\ConfigScreenKeys.cs" />
     <Compile Include="Settings\HomeScreenScreens.cs" />
     <Compile Include="Settings\ConfigScreenScreens.cs" />
+    <Compile Include="Utils\HidUtils.cs" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="DefaultRemoteMap.xml">
@@ -218,6 +224,11 @@
     <Content Include="Skin\default\screens\ConfigScreenActions.xaml">
       <SubType>Designer</SubType>
     </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="SharpLibHid">
+      <Version>1.4.4</Version>
+    </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
