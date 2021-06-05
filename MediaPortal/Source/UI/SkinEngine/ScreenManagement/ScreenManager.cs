@@ -783,17 +783,26 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     {
       ServiceRegistration.Get<ILogger>().Debug("ScreenManager: Closing dialog '{0}'", dd.DialogName);
       Screen oldDialog = dd.DialogScreen;
-      if (dialogPersistence)
+
+      // We might try and close the same dialog more than once if a dialog is closed then a new screen is pushed immediately after.
+      // The close gets triggered once when closing the dialog, then again when the new screen closes all existing dialogs before being shown.
+      bool dialogAlreadyClosing = oldDialog.ScreenState == Screen.State.Closing || oldDialog.ScreenState == Screen.State.Closed;
+
+      // If not persisting then always dispose the dialog, even if already closing, as the dialog has now
+      // been removed from the dialog stack so will no longer be disposed when the close finishes
+      if (!dialogPersistence)
+      {
+        ScheduleDisposeScreen(oldDialog);
+      }
+      // Otherwise only close if not already closing
+      else if (!dialogAlreadyClosing)
       {
         oldDialog.ScreenState = Screen.State.Closing;
         oldDialog.TriggerScreenClosingEvent();
       }
-      else
-      {
-        ScheduleDisposeScreen(oldDialog);
-      }
-        
-      if (fireCloseDelegates && dd.CloseCallback != null)
+
+      // If the dialog is already closing then the close delegate has already been fired, so don't fire it again
+      if (!dialogAlreadyClosing && fireCloseDelegates && dd.CloseCallback != null)
         dd.CloseCallback(dd.DialogScreen.ResourceName, dd.DialogInstanceId);
     }
 
