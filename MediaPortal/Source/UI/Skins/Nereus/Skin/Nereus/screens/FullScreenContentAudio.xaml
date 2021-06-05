@@ -41,6 +41,7 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
+                <Image Stretch="Fill" Source="Background.png"/>
                 <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" 
                          DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
                   <Image.Source>
