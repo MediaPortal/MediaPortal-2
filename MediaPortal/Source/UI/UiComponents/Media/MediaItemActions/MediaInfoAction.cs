@@ -87,7 +87,5 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       }
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(result, ContentDirectoryMessaging.MediaItemChangeType.None);
     }
-
-    public bool DoesChangeWorkflow { get; set; } = true;
   }
 }
