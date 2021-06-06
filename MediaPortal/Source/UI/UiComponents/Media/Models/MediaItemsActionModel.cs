@@ -71,8 +71,6 @@ namespace MediaPortal.UiComponents.Media.Models
 
       public bool Deferred;
 
-      public abstract bool DoesChangeWorkflow  { get; }
-
       /// <summary>
       /// Checks if this action is available for the given <paramref name="item"/>.
       /// </summary>
@@ -105,9 +103,7 @@ namespace MediaPortal.UiComponents.Media.Models
           Restriction.RestrictionGroup = extension.RestrictionGroup;
         Deferred = _action is IDeferredMediaItemAction;
       }
-
-      public override bool DoesChangeWorkflow => (_action as IDeferredMediaItemAction)?.DoesChangeWorkflow ?? false;
-
+      
       public override string ConfirmationMessage(ListItem item)
       {
         IMediaItemActionConfirmation confirmation = _action as IMediaItemActionConfirmation;
@@ -154,7 +150,6 @@ namespace MediaPortal.UiComponents.Media.Models
           Restriction.RestrictionGroup = extension.RestrictionGroup;
         Deferred = _action is IDeferredMediaViewAction;
       }
-      public override bool DoesChangeWorkflow => false;
 
       public override string ConfirmationMessage(ListItem item)
       {
@@ -300,12 +295,6 @@ namespace MediaPortal.UiComponents.Media.Models
       try
       {
         var result = await action.ProcessAsync(item);
-        if (_deferredAction?.DoesChangeWorkflow ?? false)
-        {
-          IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-          workflowManager.EndBatchUpdate();
-        }
-
         return result;
       }
       catch (Exception ex)
@@ -416,10 +405,6 @@ namespace MediaPortal.UiComponents.Media.Models
     protected void LeaveMediaItemActionState()
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      if (_deferredAction?.DoesChangeWorkflow ?? false)
-      {
-        workflowManager.StartBatchUpdate();
-      }
       workflowManager.NavigatePop(1);
     }
 
