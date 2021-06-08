@@ -38,10 +38,10 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Settings
     public double ScheduleCheckStartTime { get; set; }
 
     /// <summary>
-    /// Gets or sets the scheme to use for checking for existing episodes for a series.
+    /// Gets or sets the default scheme to use for checking for existing episodes for a series.
     /// </summary>
     [Setting(SettingScope.Global, 1)]
-    public int EpisodeManagementScheme { get; set; }
+    public int DefaultEpisodeManagementScheme { get; set; }
 
     /// <summary>
     /// Gets or sets the whether to check for program movement.

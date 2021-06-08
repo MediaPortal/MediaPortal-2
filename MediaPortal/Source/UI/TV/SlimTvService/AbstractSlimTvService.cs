@@ -65,14 +65,6 @@ using MediaPortal.Utilities.Threading;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
-  public enum EpisodeManagementScheme
-  {
-    None,
-    NewEpisodesByEpisodeNumber,
-    MissingEpisodesByEpisodeNumber,
-    MissingEpisodesByEpisodeName
-  }
-
   public abstract class AbstractSlimTvService<TChannelGroup, TChannel, TProgram, TSchedule, TScheduleRule, TRecording, TTuningDetail, TConflict> : 
     ITvProvider, ITimeshiftControlEx, IProgramInfoAsync, IChannelAndGroupInfoAsync, IScheduleControlAsync, IScheduleRuleControlAsync, ITunerInfoAsync, IConflictInfoAsync, IMessageReceiver
   {
@@ -217,7 +209,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
     private Timer _checkScheduleTimer;
     private bool _checkingSchedules = false;
     private TimeSpan _checkScheduleMaxSpan = TimeSpan.FromDays(14);
-    //private IDictionary<int, (string RecordingFolder, string MovieFolder, string SeriesFolder)> _recordingFolders = new Dictionary<int, (string RecordingFolder, string MovieFolder, string SeriesFolder)>();
 
     // Stores a list of connected MP2-Clients. If one disconnects, we can cleanup resources like stopping timeshifting for this client
     protected List<string> _connectedClients = new List<string>();
@@ -491,37 +482,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
     }
 
     /// <summary>
-    /// Initializes recording folders
-    /// </summary>
-    //protected virtual async Task InitRecordingFoldersAsync()
-    //{
-    //  var cardsResult = await GetCardsAsync();
-    //  if (!cardsResult.Success)
-    //    return;
-
-    //  string movieSubfolder = null;
-    //  string seriesSubfolder = null;
-    //  if (GetRecordingConfiguration(out var recordingFolders, out var singlePattern, out var seriesPattern))
-    //  {
-    //    movieSubfolder = GetFixedFolderPart(singlePattern);
-    //    seriesSubfolder = GetFixedFolderPart(seriesPattern);
-    //  }
-
-    //  foreach (ICard card in cardsResult.Result)
-    //  {
-    //    string movieFolder = null;
-    //    if (!string.IsNullOrWhiteSpace(movieSubfolder))
-    //      movieFolder = FileUtils.CheckTrailingPathDelimiter(Path.Combine(card.RecordingFolder, movieSubfolder));
-
-    //    string seriesFolder = null;
-    //    if (!string.IsNullOrWhiteSpace(seriesSubfolder))
-    //      seriesFolder = FileUtils.CheckTrailingPathDelimiter(Path.Combine(card.RecordingFolder, seriesSubfolder));
-
-    //    _recordingFolders[card.CardId] = (card.RecordingFolder, movieFolder, seriesFolder);
-    //  }
-    //}
-
-    /// <summary>
     /// Gets a TV core-version specific folder. This allow to use both TVE3 and TVE3.5 in parallel (only one enabled ofc).
     /// </summary>
     /// <returns></returns>
@@ -619,6 +579,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     }
 
     protected abstract bool GetRecordingConfiguration(out List<string> recordingFolders, out string singlePattern, out string seriesPattern);
+
+    protected abstract string GetRecordingFolderForProgram(int cardId, int programId, bool isSeries);
 
     protected void PrepareMediaSources()
     {
@@ -768,7 +730,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
         var checkTime = new DateTime(_nowTime.Year, _nowTime.Month, _nowTime.Day, Convert.ToInt32(_serverSettings.ScheduleCheckStartTime), 0, 0);
         bool checkBeforeRecord = _nextSchedule.AddMinutes(-_serverSettings.MovedProgramsDetectionOffset) <= _nowTime || !_checkCacheUpToDate;
         bool checkFull = _nextFullScheduleCheck <= _nowTime || !_checkCacheUpToDate;
-        EpisodeManagementScheme seriesCheckScheme = (EpisodeManagementScheme)_serverSettings.EpisodeManagementScheme;
         if (!checkFull && !checkBeforeRecord && _checkCacheUpToDate)
           return;
 
@@ -806,13 +767,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         if (checkFull || checkBeforeRecord)
         {
-          if (seriesCheckScheme != EpisodeManagementScheme.None)
-          {
-            var cancelSchedules = cache.CancelledSchedules.Where(s => _nowTime <= s.StartTime && nextCheckTime > s.StartTime).ToList();
-            var canceledRecordings = await CancelExistingEpisodeSchedulesAsync(cancelSchedules);
-            if (canceledRecordings > 0)
-              Logger.Info($"SlimTvService: Updated schedules. Canceled {canceledRecordings} already recorded episode programs");
-          }
+          var cancelSchedules = cache.CancelledSchedules.Where(s => _nowTime <= s.StartTime && nextCheckTime > s.StartTime).ToList();
+          var canceledRecordings = await CancelExistingEpisodeSchedulesAsync(cancelSchedules);
+          if (canceledRecordings > 0)
+            Logger.Info($"SlimTvService: Updated schedules. Canceled {canceledRecordings} already recorded episode programs");
 
           if (_serverSettings.DetectMovedPrograms)
           {
@@ -834,7 +792,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           var ruleSchedules = cache.CardAssignments
             .SelectMany(a => a.Value)
             .Where(s => s.Schedule.StartTime >= checkTime && s.Schedule.StartTime < nextRuleTime && s.ScheduleRule != null)
-            .Select(s => (s.ScheduleRule, s.Schedule))
+            .Select(s => (s.CardId, s.ScheduleRule, s.Schedule, s.Program))
             .ToList();
           var scheduledRecordings = await CreateRuleSchedulesAsync(ruleSchedules);
           if (scheduledRecordings > 0)
@@ -957,7 +915,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       await _initComplete.Task;
 
       double days = _checkScheduleMaxSpan.TotalDays;
-      EpisodeManagementScheme seriesCheckScheme = (EpisodeManagementScheme)_serverSettings.EpisodeManagementScheme;
+      EpisodeManagementScheme seriesCheckScheme = (EpisodeManagementScheme)_serverSettings.DefaultEpisodeManagementScheme;
       if (seriesCheckScheme == EpisodeManagementScheme.None && schedule.ScheduleId != 0)
       {
         return await GetProviderProgramsForScheduleAsync(schedule);
@@ -973,7 +931,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
           CollectionCache cache = await InitCacheAsync(days, false, schedule);
           List<IProgram> allPrograms = new List<IProgram>();
-          foreach(var ca in cache.CardAssignments)
+          foreach (var ca in cache.CardAssignments)
           {
             foreach (var a in ca.Value)
             {
@@ -1569,6 +1527,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         EpisodeTitle = null,
         EpisodeInfoFallback = null,
         EpisodeInfoFallbackType = RuleEpisodeInfoFallback.None,
+        EpisodeManagementScheme = 0,
 
         StartFromTime = from,
         StartToTime = to,
@@ -1593,8 +1552,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return result;
     }
 
-    public async Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay,
-      string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType,
+    public async Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+      string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType, EpisodeManagementScheme episodeManagementScheme, 
       RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
     {
       await _initComplete.Task;
@@ -1616,6 +1575,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         EpisodeTitle = episodeTitle,
         EpisodeInfoFallback = episodeInfoFallback,
         EpisodeInfoFallbackType = episodeInfoFallbackType,
+        EpisodeManagementScheme = episodeManagementScheme,
 
         StartFromTime = from,
         StartToTime = to,
@@ -1695,8 +1655,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
-    public async Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay,
-      bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType,
+    public async Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+      bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType, EpisodeManagementScheme? episodeManagementScheme, 
       RuleRecordingType? recordingType, int? preRecordInterval, int? postRecordInterval, int? priority, KeepMethodType? keepMethod, DateTime? keepDate)
     {
       await _initComplete.Task;
@@ -1719,6 +1679,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         EpisodeTitle = episodeTitle ?? scheduleRule.EpisodeTitle,
         EpisodeInfoFallback = episodeInfoFallback ?? scheduleRule.EpisodeInfoFallback,
         EpisodeInfoFallbackType = episodeInfoFallbackType ?? scheduleRule.EpisodeInfoFallbackType,
+        EpisodeManagementScheme = episodeManagementScheme ?? scheduleRule.EpisodeManagementScheme,
 
         StartFromTime = from ?? scheduleRule.StartFromTime,
         StartToTime = to ?? scheduleRule.StartToTime,
@@ -1866,7 +1827,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     /// <summary>
     /// Parses the scheduled recordings and updates the conflicting recordings table
     /// </summary>
-    protected async Task<int> CreateRuleSchedulesAsync(IList<(IScheduleRule ScheduleRule, ISchedule Schedule)> ruleSchedules)
+    protected async Task<int> CreateRuleSchedulesAsync(IList<(int CardId, IScheduleRule ScheduleRule, ISchedule Schedule, IProgram Program)> ruleSchedules)
     {
       if (!ruleSchedules.Any())
         return 0;
@@ -1884,10 +1845,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
         IDictionary<int, (IScheduleRule ScheduleRule, ISchedule Schedule)> affectedRules = new Dictionary<int, (IScheduleRule, ISchedule)>();
         foreach (var rs in ruleSchedules)
         {
-          var recordingType = ScheduleRecordingType.Once;
-          //if (rs.Schedule.IsSeries)
-          //  recordingType = ScheduleRecordingType.WeeklyEveryTimeOnThisChannel; //No way to handle it as an episode?
-
           //Get program
           var channelResult = await GetProviderChannelAsync(rs.Schedule.ChannelId);
           if (!channelResult.Success)
@@ -1895,6 +1852,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
             failed++;
             continue;
           }
+
+          //Try to save in series or movie folder if any
+          var recordingType = ScheduleRecordingType.Once;
+          var directory = GetRecordingFolderForProgram(rs.CardId, rs.Program.ProgramId, rs.ScheduleRule.IsSeries);
 
           //Add new schedule
           var result = await CreateProviderScheduleDetailedAsync(channelResult.Result,
@@ -1904,13 +1865,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
             recordingType,
             Convert.ToInt32(rs.Schedule.PreRecordInterval.TotalMinutes),
             Convert.ToInt32(rs.Schedule.PostRecordInterval.TotalMinutes),
-            null,
+            directory,
             (int)rs.Schedule.Priority);
           if (result.Success)
           {
             count++;
             if (!affectedRules.ContainsKey(rs.ScheduleRule.RuleId))
-              affectedRules.Add(rs.ScheduleRule.RuleId, rs);
+              affectedRules.Add(rs.ScheduleRule.RuleId, (rs.ScheduleRule, rs.Schedule));
           }
           else
           {
@@ -2326,7 +2287,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       BaseInfo info = null;
       if ((isSeries && skipDuplicateSeries) || skipDuplicateRecordings)
       {
-        var result = await IsScheduleHandledAsync(schedule, program, cache, skipDuplicateSeries, skipDuplicateRecordings);
+        var result = await IsScheduleHandledAsync(schedule, program, scheduleRule?.EpisodeManagementScheme, cache, skipDuplicateSeries, skipDuplicateRecordings);
         if (result.Handled)
         {
           if (scheduleRule == null)
@@ -2355,18 +2316,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
             cache.ProgramRecordingStatuses.Add(program.ProgramId, status);
           }
         }
-        
-        if (info is EpisodeInfo epInfo)
-        {
-          assignment.CreatedInfo = epInfo;
-          epInfo.Series?.Episodes.Add(epInfo);
-        }
-        else if (info is RecordingInfo recInfo)
-        {
-          assignment.CreatedInfo = recInfo;
-          if (cache.KnownRecordings.Any(r => r.Name.Equals(recInfo.Name, StringComparison.InvariantCultureIgnoreCase)))
-            cache.KnownRecordings.Add(recInfo);
-        }
+
+        assignment.CreatedInfo = info;
         return true;
       }
 
@@ -2750,12 +2701,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
         cache.KnownRecordings.Remove(recInfo);
     }
 
-    protected async Task<(bool Handled, BaseInfo Info)> IsScheduleHandledAsync(ISchedule schedule, IProgram program, CollectionCache cache, bool skipSeries, bool skipRecordings)
+    protected async Task<(bool Handled, BaseInfo Info)> IsScheduleHandledAsync(ISchedule schedule, IProgram program, EpisodeManagementScheme? episodeManagementScheme, CollectionCache cache, bool skipSeries, bool skipRecordings)
     {
       if (skipSeries)
       {
         EpisodeInfo info = null;
-        EpisodeManagementScheme seriesCheckScheme = (EpisodeManagementScheme)_serverSettings.EpisodeManagementScheme;
+        EpisodeManagementScheme seriesCheckScheme = episodeManagementScheme ?? (EpisodeManagementScheme)_serverSettings.DefaultEpisodeManagementScheme;
         if (program is IProgramSeries programSeries)
         {
           await UpdateSeriesEpisodesCacheAsync(programSeries.Title, cache);
@@ -2809,6 +2760,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           Logger.Debug($"ConflictManager: Scheduled {schedule.Name} will be recorded as an unknown episode");
         }
 
+        info?.Series?.Episodes.Add(info);
         return (false, info);
       }
 
@@ -2830,6 +2782,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
           return (true, null);
         }
 
+        recording = new RecordingInfo() { Name = schedule.Name };
+        cache.KnownRecordings.Add(recording);
         return (false, recording);
       }
 
@@ -3395,13 +3349,16 @@ namespace MediaPortal.Plugins.SlimTv.Service
             // Save so we can use it later when checking assignments
             series.EpisodeTitle = series.Description?.Trim();
           }
-          else if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.TitleContainsEpisodeTitleRegEx || schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.DescriptionContainsEpisodeTitleRegex)
+          else if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.TitleContainsEpisodeTitleRegEx || schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.DescriptionContainsEpisodeTitleRegex || 
+                   schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.EpisodeTitleContainsEpisodeTitleRegEx)
           {
             string data = "";
             if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.TitleContainsEpisodeTitleRegEx)
               data = series.Title;
             else if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.DescriptionContainsEpisodeTitleRegex)
               data = series.Description;
+            else if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.EpisodeTitleContainsEpisodeTitleRegEx)
+              data = series.EpisodeTitle;
 
             if (!string.IsNullOrWhiteSpace(schedule.EpisodeInfoFallback) && !string.IsNullOrWhiteSpace(data))
             {
@@ -3486,6 +3443,81 @@ namespace MediaPortal.Plugins.SlimTv.Service
         days.Add(first);
       }
       return days;
+    }
+
+    protected string GetRecordingFolderFromTags(string defaultRecordingPath, string format, Dictionary<string, string> tags)
+    {
+      foreach (var tag in tags)
+      {
+        format = ReplaceTag(format, tag.Key, tag.Value, "unknown");
+        if (!format.Contains("%"))
+          break;
+      }
+
+      string subDirectory = Path.GetDirectoryName(format);
+      if (!string.IsNullOrWhiteSpace(subDirectory))
+      {
+        subDirectory = RemoveTrailingSlash(subDirectory);
+
+        //Replace any trailing dots in path name
+        subDirectory = new Regex(@"\.*$").Replace(subDirectory, "");
+        //Replace any trailing spaces in path name
+        subDirectory = new Regex(@"\s+\\\s*|\\\s+").Replace(subDirectory, "\\");
+
+        defaultRecordingPath = Path.Combine(defaultRecordingPath, subDirectory.Trim());
+      }
+
+      return defaultRecordingPath;
+    }
+
+    protected string RemoveTrailingSlash(string strLine)
+    {
+      if (strLine == null)
+        return String.Empty;
+      if (strLine.Length == 0)
+        return String.Empty;
+      string strPath = strLine;
+      while (strPath.Length > 0)
+      {
+        if (strPath[strPath.Length - 1] == '\\' || strPath[strPath.Length - 1] == '/')
+          strPath = strPath.Substring(0, strPath.Length - 1);
+        else
+          break;
+      }
+      return strPath;
+    }
+
+    protected string ReplaceTag(string line, string tag, string value, string empty)
+    {
+      if (line == null)
+        return String.Empty;
+      if (line.Length == 0)
+        return String.Empty;
+      if (tag == null)
+        return line;
+      if (tag.Length == 0)
+        return line;
+
+      Regex r = new Regex(String.Format(@"\[[^%]*{0}[^\]]*[\]]", tag));
+      if (value == empty)
+      {
+        Match match = r.Match(line);
+        if (match.Length > 0)
+        {
+          line = line.Remove(match.Index, match.Length);
+        }
+      }
+      else
+      {
+        Match match = r.Match(line);
+        if (match.Length > 0)
+        {
+          line = line.Remove(match.Index, match.Length);
+          string m = match.Value.Substring(1, match.Value.Length - 2);
+          line = line.Insert(match.Index, m);
+        }
+      }
+      return line.Replace(tag, value);
     }
 
     #endregion

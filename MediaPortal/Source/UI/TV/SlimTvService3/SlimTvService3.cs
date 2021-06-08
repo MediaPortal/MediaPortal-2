@@ -62,6 +62,7 @@ using User = TvControl.User;
 using VirtualCard = TvControl.VirtualCard;
 using MediaPortal.Common.Services.ServerCommunication;
 using MediaPortal.Plugins.SlimTv.UPnP;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -350,6 +351,57 @@ namespace MediaPortal.Plugins.SlimTv.Service
       singlePattern = null;
       seriesPattern = null;
       return false;
+    }
+
+    protected override string GetRecordingFolderForProgram(int cardId, int programId, bool isSeries)
+    {
+      TvBusinessLayer layer = new TvBusinessLayer();
+      IList<Card> allCards = Card.ListAll();
+
+      string recordingPath = allCards.FirstOrDefault(c => c.IdCard == cardId)?.RecordingFolder;
+      if (string.IsNullOrWhiteSpace(recordingPath))
+        return null;
+
+      var program = TvDatabase.Program.Retrieve(programId);
+      if (program == null)
+        return null;
+
+      Setting setting;
+      if (!isSeries)
+        setting = layer.GetSetting("moviesformat", "%title%");
+      else
+        setting = layer.GetSetting("seriesformat", "%title%");
+
+      // Get the absolute path by applying all tags 
+      string strInput = "title%";
+      if (setting?.Value != null)
+        strInput = setting.Value;
+      
+      Dictionary<string, string> tags = new Dictionary<string, string>()
+      {
+        { "%channel%", program.ReferencedChannel().DisplayName.Trim() },
+        { "%title%", program.Title.Trim() },
+        { "%name%", program.EpisodeName.Trim() },
+        { "%series%", program.SeriesNum.Trim() },
+        { "%episode%", program.EpisodeNum.Trim() },
+        { "%part%", program.EpisodePart.Trim() },
+        { "%date%", program.StartTime.ToString("yyyy-MM-dd") },
+        { "%start%", program.StartTime.ToShortTimeString() },
+        { "%end%", program.EndTime.ToShortTimeString() },
+        { "%genre%", program.Genre.Trim() },
+        { "%startday%", program.StartTime.ToString("dd") },
+        { "%startmonth%", program.StartTime.ToString("MM") },
+        { "%startyear%", program.StartTime.ToString("yyyy") },
+        { "%starthh%", program.StartTime.ToString("HH") },
+        { "%startmm%", program.StartTime.ToString("mm") },
+        { "%endday%", program.EndTime.ToString("dd") },
+        { "%endmonth%", program.EndTime.ToString("MM") },
+        { "%endyear%", program.EndTime.ToString("yyyy") },
+        { "%endhh%", program.EndTime.ToString("HH") },
+        { "%endmm%", program.EndTime.ToString("mm") },
+      };
+
+      return GetRecordingFolderFromTags(recordingPath, strInput, tags);
     }
 
     protected async Task CleanUpRecordingsAsync()

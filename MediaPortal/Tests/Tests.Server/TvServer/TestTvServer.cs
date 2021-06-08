@@ -241,7 +241,7 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.NewEpisodesByEpisodeNumber;
+      tvServer.DefaultEpisodeManagement = EpisodeManagementScheme.NewEpisodesByEpisodeNumber;
       var channel = tvServer.Channels.First(c => c.ChannelId == 1);
 
       //Act
@@ -308,7 +308,7 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.NewEpisodesByEpisodeNumber;
+      tvServer.DefaultEpisodeManagement = EpisodeManagementScheme.NewEpisodesByEpisodeNumber;
       var channel = tvServer.Channels.First(c => c.ChannelId == 3);
 
       //Act
@@ -353,7 +353,7 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.MissingEpisodesByEpisodeNumber;
+      tvServer.DefaultEpisodeManagement = EpisodeManagementScheme.MissingEpisodesByEpisodeNumber;
       var channel = tvServer.Channels.First(c => c.ChannelId == 3);
 
       //Act
@@ -377,7 +377,7 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.MissingEpisodesByEpisodeNumber;
+      tvServer.DefaultEpisodeManagement = EpisodeManagementScheme.MissingEpisodesByEpisodeNumber;
       var seriesId = Guid.NewGuid();
       tvServer.AddSeriesMediaItem(seriesId, "Series 4");
       tvServer.AddSeriesEpisodeMediaItem(seriesId, "Series 4 Episode S01E3", 1, 3);
@@ -630,7 +630,7 @@ namespace Tests.Server.TvServer
     }
 
     [Test]
-    public async Task TestSeriesRule()
+    public async Task TestDuplicateRecordingRule()
     {
       //Arrange
       var tvServer = GetTvServer();
@@ -655,7 +655,7 @@ namespace Tests.Server.TvServer
       }
 
       //Assert
-      Assert.IsTrue(programs.Count == 14, "Found wrong number of programs");
+      Assert.IsTrue(programs.Count == 1, "Found wrong number of programs");
       Assert.IsTrue(programs.All(p => p.Title == "Series 2"), "Wrongly recorded programs");
     }
 
@@ -664,7 +664,6 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.NewEpisodesByEpisodeNumber;
       var channel = tvServer.Channels.First(c => c.ChannelId == 3);
 
       //Act
@@ -682,7 +681,8 @@ namespace Tests.Server.TvServer
         SearchTarget = RuleSearchTarget.Titel
       });
       var schedResult = await tvServer.CreateSeriesScheduleRuleAsync("Series 4 Rule", targets, null, null, _start.AddDays(0).AddHours(2), _start.AddDays(0).AddHours(3), null, null,
-        "Series 4", null, null, null, null, RuleEpisodeInfoFallback.None, RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
+        "Series 4", null, null, null, null, RuleEpisodeInfoFallback.None, EpisodeManagementScheme.NewEpisodesByEpisodeNumber,
+        RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
       List<IProgram> programs = new List<IProgram>();
       if (schedResult.Success)
       {
@@ -701,7 +701,6 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.MissingEpisodesByEpisodeNumber;
       var channel = tvServer.Channels.First(c => c.ChannelId == 3);
 
       //Act
@@ -725,7 +724,8 @@ namespace Tests.Server.TvServer
         SearchTarget = RuleSearchTarget.Description
       });
       var schedResult = await tvServer.CreateSeriesScheduleRuleAsync("Series 4 Rule", targets, null, channel, _start.AddDays(0).AddHours(2), _start.AddDays(0).AddHours(3), null, null,
-        "Series 4", null, null, null, null, RuleEpisodeInfoFallback.None, RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
+        "Series 4", null, null, null, null, RuleEpisodeInfoFallback.None, EpisodeManagementScheme.MissingEpisodesByEpisodeNumber,
+        RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
       List<IProgram> programs = new List<IProgram>();
       if (schedResult.Success)
       {
@@ -744,7 +744,6 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.MissingEpisodesByEpisodeNumber;
       var seriesId = Guid.NewGuid();
       tvServer.AddSeriesMediaItem(seriesId, "Series 4");
       tvServer.AddSeriesEpisodeMediaItem(seriesId, "Series 4 Episode S01E3", 1, 3);
@@ -766,7 +765,8 @@ namespace Tests.Server.TvServer
         SearchTarget = RuleSearchTarget.Genre
       });
       var schedResult = await tvServer.CreateSeriesScheduleRuleAsync("Series 4 Rule", targets, null, channel, _start.AddDays(0).AddHours(2), _start.AddDays(0).AddHours(3), null, null,
-        "Series 4", null, null, null, null, RuleEpisodeInfoFallback.None, RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
+        "Series 4", null, null, null, null, RuleEpisodeInfoFallback.None, EpisodeManagementScheme.MissingEpisodesByEpisodeNumber,
+        RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
       List<IProgram> programs = new List<IProgram>();
       if (schedResult.Success)
       {
@@ -785,7 +785,6 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.MissingEpisodesByEpisodeNumber;
       var channelGroup = tvServer.ChannelGroups.First(c => c.Name == "Test");
 
       //Act
@@ -797,7 +796,8 @@ namespace Tests.Server.TvServer
         SearchTarget = RuleSearchTarget.Titel
       });
       var schedResult = await tvServer.CreateSeriesScheduleRuleAsync("Series 3 Rule", targets, channelGroup, null, _start.AddDays(0).AddHours(2), _start.AddDays(0).AddHours(3), null, null,
-        "Series 3", null, null, null, @".*S(?<SeasonNo>\d{1,2})E(?<EpisodeNo>\d{1,2})", RuleEpisodeInfoFallback.DescriptionContainsSeasonEpisodeRegex, RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
+        "Series 3", null, null, null, @".*S(?<SeasonNo>\d{1,2})E(?<EpisodeNo>\d{1,2})", RuleEpisodeInfoFallback.DescriptionContainsSeasonEpisodeRegex, EpisodeManagementScheme.MissingEpisodesByEpisodeNumber,
+        RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
       List<IProgram> programs = new List<IProgram>();
       if (schedResult.Success)
       {
@@ -826,7 +826,8 @@ namespace Tests.Server.TvServer
         SearchTarget = RuleSearchTarget.Titel
       });
       var schedResult = await tvServer.CreateSeriesScheduleRuleAsync("Series 3 Rule", targets, null, null, null, null, null, null,
-        "Series 3", null, null, null, null, RuleEpisodeInfoFallback.None, RuleRecordingType.AllOnSameChannel, 5, 5, 1, KeepMethodType.Always, null);
+        "Series 3", null, null, null, null, RuleEpisodeInfoFallback.None, (int)EpisodeManagementScheme.None,
+        RuleRecordingType.AllOnSameChannel, 5, 5, 1, KeepMethodType.Always, null);
       List<IProgram> programs = new List<IProgram>();
       if (schedResult.Success)
       {
@@ -845,7 +846,6 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.MissingEpisodesByEpisodeNumber;
       var channel = tvServer.Channels.First(c => c.ChannelId == 3);
 
       //Act
@@ -857,7 +857,8 @@ namespace Tests.Server.TvServer
         SearchTarget = RuleSearchTarget.Titel
       });
       var schedResult = await tvServer.CreateSeriesScheduleRuleAsync("Series 4 Season 2 Rule", targets, null, channel, _start.AddDays(0).AddHours(2), _start.AddDays(0).AddHours(3), null, null,
-        "Series 4", "2", null, null, null, RuleEpisodeInfoFallback.None, RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
+        "Series 4", "2", null, null, null, RuleEpisodeInfoFallback.None, EpisodeManagementScheme.MissingEpisodesByEpisodeNumber,
+        RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
       List<IProgram> programs = new List<IProgram>();
       if (schedResult.Success)
       {
@@ -877,7 +878,6 @@ namespace Tests.Server.TvServer
     {
       //Arrange
       var tvServer = GetTvServer();
-      tvServer.EpisodeManagement = EpisodeManagementScheme.MissingEpisodesByEpisodeNumber;
       var channel = tvServer.Channels.First(c => c.ChannelId == 3);
 
       //Act
@@ -889,7 +889,8 @@ namespace Tests.Server.TvServer
         SearchTarget = RuleSearchTarget.Titel
       });
       var schedResult = await tvServer.CreateSeriesScheduleRuleAsync("Series 4 Season 2 Rule", targets, null, channel, _start.AddDays(0).AddHours(2), _start.AddDays(0).AddHours(3), null, null,
-        "Series 4", null, null, "Series 4 Episode S01E4", null, RuleEpisodeInfoFallback.None, RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
+        "Series 4", null, null, "Series 4 Episode S01E4", null, RuleEpisodeInfoFallback.None, EpisodeManagementScheme.MissingEpisodesByEpisodeNumber,
+        RuleRecordingType.All, 5, 5, 1, KeepMethodType.Always, null);
       List<IProgram> programs = new List<IProgram>();
       if (schedResult.Success)
       {

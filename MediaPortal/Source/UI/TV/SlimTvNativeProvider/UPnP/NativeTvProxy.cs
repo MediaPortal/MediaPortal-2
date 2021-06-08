@@ -850,7 +850,8 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public async Task<AsyncResult<IScheduleRule>> CreateScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? @from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
+    public async Task<AsyncResult<IScheduleRule>> CreateScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+      RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
     {
       try
       {
@@ -884,7 +885,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public async Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? @from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType, RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
+    public async Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+      string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType, EpisodeManagementScheme episodeManagementScheme,
+      RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
     {
       try
       {
@@ -905,6 +908,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
           episodeTitle,
           episodeInfoFallback,
           (int)episodeInfoFallbackType,
+          (int)episodeManagementScheme,
           (int)recordingType,
           preRecordInterval,
           postRecordInterval,
@@ -924,7 +928,9 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public async Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? @from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType, RuleRecordingType? recordingType, int? preRecordInterval, int? postRecordInterval, int? priority, KeepMethodType? keepMethod, DateTime? keepDate)
+    public async Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+      bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType, EpisodeManagementScheme? episodeManagementScheme,
+      RuleRecordingType? recordingType, int? preRecordInterval, int? postRecordInterval, int? priority, KeepMethodType? keepMethod, DateTime? keepDate)
     {
       try
       {
@@ -947,6 +953,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
           episodeTitle,
           episodeInfoFallback,
           (int)(episodeInfoFallbackType ?? scheduleRule.EpisodeInfoFallbackType),
+          (int)(episodeManagementScheme ?? scheduleRule.EpisodeManagementScheme),
           (int)(recordingType ?? scheduleRule.RecordingType),
           preRecordInterval ?? Convert.ToInt32(scheduleRule.PreRecordInterval.TotalMinutes),
           postRecordInterval ?? Convert.ToInt32(scheduleRule.PostRecordInterval.TotalMinutes),

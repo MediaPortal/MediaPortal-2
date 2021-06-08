@@ -56,6 +56,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public string EpisodeNumber { get; set; }
     public string EpisodeTitle { get; set; }
     public string EpisodeInfoFallback { get; set; }
+    public EpisodeManagementScheme EpisodeManagementScheme { get; set; }
     public RuleEpisodeInfoFallback EpisodeInfoFallbackType { get; set; }
     public DateTime? StartFromTime { get; set; }
     public DateTime? StartToTime { get; set; }

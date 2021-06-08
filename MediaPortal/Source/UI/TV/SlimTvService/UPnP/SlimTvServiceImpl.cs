@@ -509,6 +509,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                     new DvArgument("EpisodeTitle", A_ARG_TYPE_String, ArgumentDirection.In),
                                     new DvArgument("EpisodeInfoFallback", A_ARG_TYPE_String, ArgumentDirection.In),
                                     new DvArgument("EpisodeInfoFallbackType", A_ARG_TYPE_Integer, ArgumentDirection.In),
+                                    new DvArgument("EpisodeManagementMode", A_ARG_TYPE_Integer, ArgumentDirection.In),
                                     new DvArgument("ScheduleRecordingType", A_ARG_TYPE_ScheduleRecordingType, ArgumentDirection.In),
                                     new DvArgument("PreRecordInterval", A_ARG_TYPE_Integer, ArgumentDirection.In),
                                     new DvArgument("PostRecordInterval", A_ARG_TYPE_Integer, ArgumentDirection.In),
@@ -541,6 +542,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                     new DvArgument("EpisodeTitle", A_ARG_TYPE_String, ArgumentDirection.In),
                                     new DvArgument("EpisodeInfoFallback", A_ARG_TYPE_String, ArgumentDirection.In),
                                     new DvArgument("EpisodeInfoFallbackType", A_ARG_TYPE_Integer, ArgumentDirection.In),
+                                    new DvArgument("EpisodeManagementMode", A_ARG_TYPE_Integer, ArgumentDirection.In),
                                     new DvArgument("ScheduleRecordingType", A_ARG_TYPE_ScheduleRecordingType, ArgumentDirection.In),
                                     new DvArgument("PreRecordInterval", A_ARG_TYPE_Integer, ArgumentDirection.In),
                                     new DvArgument("PostRecordInterval", A_ARG_TYPE_Integer, ArgumentDirection.In),
@@ -1201,12 +1203,13 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       string episodeTitle = (string)inParams[11];
       string episodeInfoFallback = (string)inParams[12];
       RuleEpisodeInfoFallback episodeInfoFallbackType = (RuleEpisodeInfoFallback)inParams[13];
-      RuleRecordingType recordingType = (RuleRecordingType)inParams[14];
-      int preRecordInterval = (int)inParams[15];
-      int postRecordInterval = (int)inParams[16];
-      int priority = (int)inParams[17];
-      KeepMethodType keepMethod = (KeepMethodType)inParams[18];
-      DateTime? keepDate = (DateTime)inParams[19];
+      EpisodeManagementScheme episodeManagementScheme = (EpisodeManagementScheme)inParams[14];
+      RuleRecordingType recordingType = (RuleRecordingType)inParams[15];
+      int preRecordInterval = (int)inParams[16];
+      int postRecordInterval = (int)inParams[17];
+      int priority = (int)inParams[18];
+      KeepMethodType keepMethod = (KeepMethodType)inParams[19];
+      DateTime? keepDate = (DateTime)inParams[20];
       if (keepDate == DateTime.MinValue)
         keepDate = null;
       IScheduleRule rule = null;
@@ -1227,7 +1230,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       }
 
       var ruleResult = scheduleControl.CreateSeriesScheduleRuleAsync(title, targets, channelGroup, channel, startTime, endTime, afterDay, beforeDay, seriesName, seasonNumber, episodeNumber, episodeTitle, 
-        episodeInfoFallback, episodeInfoFallbackType, recordingType, preRecordInterval, postRecordInterval, priority, keepMethod, keepDate).Result;
+        episodeInfoFallback, episodeInfoFallbackType, episodeManagementScheme, recordingType, preRecordInterval, postRecordInterval, priority, keepMethod, keepDate).Result;
       if (ruleResult.Success)
         rule = ruleResult.Result;
 
@@ -1267,12 +1270,14 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       string episodeTitle = (string)inParams[13];
       string episodeInfoFallback = (string)inParams[14];
       RuleEpisodeInfoFallback episodeInfoFallbackType = (RuleEpisodeInfoFallback)inParams[15];
-      RuleRecordingType recordingType = (RuleRecordingType)inParams[16];
-      int preRecordInterval = (int)inParams[17];
-      int postRecordInterval = (int)inParams[18];
-      int priority = (int)inParams[19];
-      KeepMethodType keepMethod = (KeepMethodType)inParams[20];
-      DateTime? keepDate = (DateTime)inParams[21];
+      int episodeManagementSchemeInt = (int)inParams[16];
+      EpisodeManagementScheme? episodeManagementScheme = episodeManagementSchemeInt >= 0 ? (EpisodeManagementScheme)episodeManagementSchemeInt : (EpisodeManagementScheme?)null;
+      RuleRecordingType recordingType = (RuleRecordingType)inParams[17];
+      int preRecordInterval = (int)inParams[18];
+      int postRecordInterval = (int)inParams[19];
+      int priority = (int)inParams[20];
+      KeepMethodType keepMethod = (KeepMethodType)inParams[21];
+      DateTime? keepDate = (DateTime)inParams[22];
       if (keepDate == DateTime.MinValue)
         keepDate = null;
 
@@ -1292,7 +1297,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       }
 
       var ruleResult = scheduleControl.EditScheduleRuleAsync(rule, title, targets, channelGroup, channel, startTime, endTime, afterDay, beforeDay, isSeries, seriesName, seasonNumber, episodeNumber, episodeTitle, 
-        episodeInfoFallback, episodeInfoFallbackType, recordingType, preRecordInterval, postRecordInterval, priority, keepMethod, keepDate).Result;
+        episodeInfoFallback, episodeInfoFallbackType, episodeManagementScheme, recordingType, preRecordInterval, postRecordInterval, priority, keepMethod, keepDate).Result;
 
       outParams = new List<object> { ruleResult };
       return null;

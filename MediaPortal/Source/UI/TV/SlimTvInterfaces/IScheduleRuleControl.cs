@@ -73,6 +73,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="episodeTitle">The episode title to match if needed.</param>
     /// <param name="episodeInfoFallback">A regular expression or similar to specify where to find series information if not available in the default properties of a program.</param>
     /// <param name="episodeInfoFallbackType">The type of fallback to use for finding series information if not available in the default properties of a program </param>
+    /// <param name="episodeManagementScheme">The scheme to use for managing episodes for this rule</param>
     /// <param name="recordingType">Schedule recording type.</param>
     /// <param name="preRecordInterval">Prerecording interval</param>
     /// <param name="postRecordInterval">Postrecording interval</param>
@@ -84,7 +85,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <see cref="AsyncResult{T}.Result"/> Returns the schedule rule instance.
     /// </returns>
     Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay,
-      string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType,
+      string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType, EpisodeManagementScheme episodeManagementScheme,
       RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate);
 
     /// <summary>
@@ -106,6 +107,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="episodeTitle">The episode title to match if needed.</param>
     /// <param name="episodeInfoFallback">A regular expression or similar to specify where to find series information if not available in the default properties of a program.</param>
     /// <param name="episodeInfoFallbackType">The type of fallback to use for finding series information if not available in the default properties of a program </param>
+    /// <param name="episodeManagementScheme">The scheme to use for managing episodes for this rule</param>
     /// <param name="recordingType">Schedule recording type.</param>
     /// <param name="preRecordInterval">Prerecording interval</param>
     /// <param name="postRecordInterval">Postrecording interval</param>
@@ -114,7 +116,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="keepDate">The end date for keeping the recording if needed.</param>
     /// <returns></returns>
     Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay,
-      bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType,
+      bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType, EpisodeManagementScheme? episodeManagementScheme,
       RuleRecordingType? recordingType, int? preRecordInterval, int? postRecordInterval, int? priority, KeepMethodType? keepMethod, DateTime? keepDate);
 
     /// <summary>

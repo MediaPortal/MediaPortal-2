@@ -62,10 +62,10 @@ namespace Tests.Server.TvServer
     public List<MediaItem> SeriesMediaItems { get; } = new List<MediaItem>();
     public Dictionary<Guid, List<MediaItem>> EpisodeMediaItems { get; } = new Dictionary<Guid, List<MediaItem>>();
 
-    public EpisodeManagementScheme EpisodeManagement
+    public EpisodeManagementScheme DefaultEpisodeManagement
     {
-      get => (EpisodeManagementScheme)_serverSettings.EpisodeManagementScheme;
-      set => _serverSettings.EpisodeManagementScheme = (int)value;
+      get => (EpisodeManagementScheme)_serverSettings.DefaultEpisodeManagementScheme;
+      set => _serverSettings.DefaultEpisodeManagementScheme = (int)value;
     }
     public bool DetectMovedPrograms
     {
@@ -156,6 +156,11 @@ namespace Tests.Server.TvServer
       singlePattern = "";
       seriesPattern = "";
       return true;
+    }
+
+    protected override string GetRecordingFolderForProgram(int cardId, int programId, bool isSeries)
+    {
+      return "";
     }
 
     protected override Task InitGenreMapAsync()

@@ -65,6 +65,14 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     EpisodeTitleContainsEpisodeTitleRegEx,
   }
 
+  public enum EpisodeManagementScheme
+  {
+    None,
+    NewEpisodesByEpisodeNumber,
+    MissingEpisodesByEpisodeNumber,
+    MissingEpisodesByEpisodeName,
+  }
+
   public interface IScheduleRule
   {
     int RuleId { get; }
@@ -83,6 +91,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     string EpisodeTitle { get; set; }
     string EpisodeInfoFallback { get; set; }
     RuleEpisodeInfoFallback EpisodeInfoFallbackType { get; set; }
+    EpisodeManagementScheme EpisodeManagementScheme { get; set; }
 
     DateTime? StartFromTime { get; set; }
     DateTime? StartToTime { get; set; }
