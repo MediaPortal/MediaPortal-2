@@ -717,12 +717,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         SubQueryBuilder filterBuilder = new SubQueryBuilder(miaManagement, requiredAttributes,
           new List<MediaItemAspectMetadata>(), filteredRelationshipFilter.Filter, subqueryFilter, bvNamespace.BindVarCounter);
         filterBuilder.GenerateDistinctSqlStatement(out idAlias, out sqlStatement, out bindVars);
-        
-        uint? offset = null;
-        uint? limit = filteredRelationshipFilter.Limit > 0 ? Convert.ToUInt32(filteredRelationshipFilter.Limit) : (uint?)null;
-        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
-        if (database is ISQLDatabasePaging db)
-          db.Process(ref sqlStatement, ref bindVars, ref offset, ref limit);
 
         sqlStatement = " SELECT TS." + idAlias + " FROM (" + sqlStatement + ") TS";
         bvNamespace.BindVarCounter += bindVars.Count;
