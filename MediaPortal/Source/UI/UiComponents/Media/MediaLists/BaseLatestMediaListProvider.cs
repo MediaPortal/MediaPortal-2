@@ -33,7 +33,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseLatestMediaListProvider : BaseMediaListProvider
   {
-    protected override async Task<MediaItemQuery> CreateQueryAsync(int maxItems)
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       IFilter filter = await AppendUserFilterAsync(GetNavigationFilter(_navigationInitializerType), _necessaryMias);
       return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
@@ -54,10 +54,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected Guid _linkedRole;
     protected IEnumerable<Guid> _necessaryLinkedMias;
 
-    protected override async Task<MediaItemQuery> CreateQueryAsync(int maxItems)
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      IFilter filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(null, _necessaryLinkedMias), maxItems) : null;
+      IFilter filter = userProfile.HasValue ? new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(null, _necessaryLinkedMias)) : null;
       return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
       {
         SubqueryFilter = GetNavigationFilter(_navigationInitializerType),
