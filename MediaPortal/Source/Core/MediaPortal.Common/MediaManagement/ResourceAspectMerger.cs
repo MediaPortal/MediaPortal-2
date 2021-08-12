@@ -240,7 +240,7 @@ namespace MediaPortal.Common.MediaManagement
                     bool resPrimary = existingProviderResourceAspect.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY;
                     if (resPrimary == true)
                     {
-                      videoResourceIndex = providerResourceAspect.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
+                      videoResourceIndex = existingProviderResourceAspect.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
                       break;
                     }
                   }
