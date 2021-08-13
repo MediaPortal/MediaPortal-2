@@ -49,15 +49,19 @@ namespace MediaPortal.Common.MediaManagement
       return setList[name];
     }
 
+    /// <summary>
+    /// Merges <see cref="ProviderResourceAspect"/>, <see cref="VideoStreamAspect"/>, <see cref="VideoAudioStreamAspect"/> and <see cref="SubtitleAspect"/> aspects
+    /// contained in <paramref name="extractedAspects"/> into <paramref name="existingAspects"/> and updates the resource indices and set numbers to ensure they remain unique.
+    /// </summary>
+    /// <param name="extractedAspects">The new aspects to merge in.</param>
+    /// <param name="existingAspects">The exisiting aspects to merge in to.</param>
+    /// <returns><c>true</c> if the existing aspects were updated; else <c>false</c>.</returns>
     public static bool MergeVideoResourceAspects(IDictionary<Guid, IList<MediaItemAspect>> extractedAspects, IDictionary<Guid, IList<MediaItemAspect>> existingAspects)
     {
       //Extracted aspects
       IList<MultipleMediaItemAspect> providerResourceAspects;
       if (!MediaItemAspect.TryGetAspects(extractedAspects, ProviderResourceAspect.Metadata, out providerResourceAspects))
         return false;
-
-      string accessorPath = (string)providerResourceAspects.First().GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-      ResourcePath resourcePath = ResourcePath.Deserialize(accessorPath);
 
       IList<MultipleMediaItemAspect> videoAspects;
       MediaItemAspect.TryGetAspects(extractedAspects, VideoStreamAspect.Metadata, out videoAspects);
@@ -72,199 +76,143 @@ namespace MediaPortal.Common.MediaManagement
       IList<MultipleMediaItemAspect> existingProviderResourceAspects;
       MediaItemAspect.TryGetAspects(existingAspects, ProviderResourceAspect.Metadata, out existingProviderResourceAspects);
 
-      Dictionary<int, int> resourceIndexMap = new Dictionary<int, int>();
-      int newResourceIndex = -1;
-      if (existingProviderResourceAspects != null)
+      // Get the maximum resource index in the existing aspects, new resource indices will start after this
+      int newResourceIndex = existingProviderResourceAspects != null ? existingProviderResourceAspects.Max(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)) : -1;
+
+      // Loop through each new provider aspect, update it's resource index, add the updated aspect to the existing aspects, then add and update any other related aspects to point to this new index.
+      // Ordered so that primary resources are added first so that the existing aspects will contain them before any secondary resources that link to them are added.
+      foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects.OrderBy(p => p.GetAttributeValue<int?>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY ? 0 : 1))
       {
-        foreach (MultipleMediaItemAspect providerResourceAspect in existingProviderResourceAspects)
-        {
-          int resouceIndex = providerResourceAspect.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
-          if (newResourceIndex < resouceIndex)
-          {
-            newResourceIndex = resouceIndex;
-          }
-        }
-      }
-      newResourceIndex++;
-
-      bool resourceExists = false; //Resource might already be added in the initial add
-      foreach (MultipleMediaItemAspect providerResourceAspect in providerResourceAspects)
-      {
-        if (existingProviderResourceAspects != null)
-        {
-          accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-
-          foreach (MultipleMediaItemAspect exisitingProviderResourceAspect in existingProviderResourceAspects)
-          {
-            string existingAccessorPath = (string)exisitingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-            if (accessorPath.Equals(existingAccessorPath, StringComparison.InvariantCultureIgnoreCase))
-            {
-              resourceExists = true;
-              break;
-            }
-          }
-        }
-
-        if (resourceExists)
-          continue;
-
-        int resouceIndex = providerResourceAspect.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
-        if (!resourceIndexMap.ContainsKey(resouceIndex))
-          resourceIndexMap.Add(resouceIndex, newResourceIndex);
         newResourceIndex++;
 
-        MultipleMediaItemAspect newPra = MediaItemAspect.CreateAspect(existingAspects, ProviderResourceAspect.Metadata);
-        newPra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, resourceIndexMap[resouceIndex]);
-        newPra.SetAttribute(ProviderResourceAspect.ATTR_TYPE, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_TYPE));
-        newPra.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE));
-        newPra.SetAttribute(ProviderResourceAspect.ATTR_SIZE, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_SIZE));
-        newPra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
-        newPra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
-        newPra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID));
-
-        if (videoAspects != null)
+        if (existingProviderResourceAspects != null)
         {
-          foreach (MultipleMediaItemAspect videoAspect in videoAspects)
-          {
-            int videoResourceIndex = videoAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX);
-            if (videoResourceIndex == resouceIndex)
-            {
-              MultipleMediaItemAspect newVa = MediaItemAspect.CreateAspect(existingAspects, VideoStreamAspect.Metadata);
-              newVa.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, resourceIndexMap[videoResourceIndex]);
-              newVa.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_STREAM_INDEX));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_ASPECTRATIO));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_DURATION, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_DURATION));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_FPS, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_FPS));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEOBITRATE));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEOENCODING));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_WIDTH, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_TYPE));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_PART));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_PART_SET));
-              newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME));
-            }
-          }
+          // Check if this resource accessor already exists, if so skip it
+          string accessorPath = providerResourceAspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+          if (existingProviderResourceAspects.Any(pra => accessorPath.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))))
+            continue;
         }
 
-        //Correct sets
-        Dictionary<string, int> setList = new Dictionary<string, int>();
+        // Update the resource index of the provider resource aspect and add it to the existing aspects
+        AddProviderResourceAspectToExistingAspects(existingAspects, providerResourceAspect, newResourceIndex);
+        // Get the updated list of provider resource aspects, needed for adding external subtitles and later iterations
         MediaItemAspect.TryGetAspects(existingAspects, ProviderResourceAspect.Metadata, out existingProviderResourceAspects);
-        IList<MultipleMediaItemAspect> existingVideoAspects;
-        if (MediaItemAspect.TryGetAspects(existingAspects, VideoStreamAspect.Metadata, out existingVideoAspects))
-        {
-          int newMediaSet = 0;
-          Dictionary<int, int> knownSets = new Dictionary<int, int>();
-          foreach (MultipleMediaItemAspect videoStreamAspect in existingVideoAspects)
-          {
-            string filename = null;
-            foreach (MultipleMediaItemAspect pra in existingProviderResourceAspects)
-            {
-              if (pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == videoStreamAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX))
-              {
-                accessorPath = (string)pra.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-                resourcePath = resourcePath = ResourcePath.Deserialize(accessorPath);
-                filename = resourcePath.FileName ?? Path.GetFileName(resourcePath.BasePathSegment.Path);
-                break;
-              }
-            }
-            videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, GetMultipartSetNumber(ref setList, ref newMediaSet, filename));
-          }
-        }
+
+        // Update the index on any video aspects that link to this provider aspect and add them to the existing aspects
+        int resourceIndex = providerResourceAspect.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
+        if (videoAspects != null)
+          foreach (MultipleMediaItemAspect videoAspect in videoAspects.Where(v => v.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == resourceIndex))
+            AddVideoAspectToExistingAspects(existingAspects, videoAspect, newResourceIndex);
 
         if (videoAudioAspects != null)
-        {
-          foreach (MultipleMediaItemAspect videoAudioAspect in videoAudioAspects)
-          {
-            int audioResourceIndex = videoAudioAspect.GetAttributeValue<int>(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX);
-            if (audioResourceIndex == resouceIndex)
-            {
-              MultipleMediaItemAspect newVaa = MediaItemAspect.CreateAspect(existingAspects, VideoAudioStreamAspect.Metadata);
-              newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, resourceIndexMap[audioResourceIndex]);
-              newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_STREAM_INDEX));
-              newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOBITRATE, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOBITRATE));
-              newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS));
-              newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOENCODING));
-              newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE));
-            }
-          }
-        }
+          foreach (MultipleMediaItemAspect videoAudioAspect in videoAudioAspects.Where(va => va.GetAttributeValue<int>(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX) == resourceIndex))
+            AddVideoAudioAspectToExistingAspects(existingAspects, videoAudioAspect, newResourceIndex);
 
-        //Internal subtitles
+        // Two types of subtitles, internal that have the same resource index as the video, and external that link to a different video resource index.
         if (subtitleAspects != null)
         {
-          foreach (MultipleMediaItemAspect subAspect in subtitleAspects)
+          //Internal subtitles, both resource and video index will point to the new index
+          foreach (MultipleMediaItemAspect subAspect in subtitleAspects.Where(s => s.GetAttributeValue<int>(SubtitleAspect.ATTR_RESOURCE_INDEX) == resourceIndex && s.GetAttributeValue<int>(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX) == resourceIndex))
+            AddSubtitleAspectToExistingAspects(existingAspects, subAspect, newResourceIndex, newResourceIndex);
+
+          //External subtitles, we need to match these to the video that has a filename that this subtitle's filename starts with to get the updated video resource index
+          string subtitleFilenameWithoutExtension = ResourcePath.GetFileNameWithoutExtension(ResourcePath.Deserialize(providerResourceAspect.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH)));
+
+          foreach (MultipleMediaItemAspect subAspect in subtitleAspects.Where(s => s.GetAttributeValue<int>(SubtitleAspect.ATTR_RESOURCE_INDEX) == resourceIndex && s.GetAttributeValue<int>(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX) != resourceIndex))
           {
-            int videoResourceIndex = subAspect.GetAttributeValue<int>(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX);
-            int subResourceIndex = subAspect.GetAttributeValue<int>(SubtitleAspect.ATTR_RESOURCE_INDEX);
-            if (videoResourceIndex == resouceIndex && subResourceIndex == -1)
-            {
-              MultipleMediaItemAspect newSa = MediaItemAspect.CreateAspect(existingAspects, SubtitleAspect.Metadata);
-              newSa.SetAttribute(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX, resourceIndexMap[videoResourceIndex]);
-              newSa.SetAttribute(SubtitleAspect.ATTR_RESOURCE_INDEX, resourceIndexMap[videoResourceIndex]);
-              newSa.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, subAspect.GetAttributeValue(SubtitleAspect.ATTR_STREAM_INDEX));
-              newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_ENCODING));
-              newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_FORMAT));
-              newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE));
-              newSa.SetAttribute(SubtitleAspect.ATTR_INTERNAL, subAspect.GetAttributeValue(SubtitleAspect.ATTR_INTERNAL));
-              newSa.SetAttribute(SubtitleAspect.ATTR_DEFAULT, subAspect.GetAttributeValue(SubtitleAspect.ATTR_DEFAULT));
-              newSa.SetAttribute(SubtitleAspect.ATTR_FORCED, subAspect.GetAttributeValue(SubtitleAspect.ATTR_FORCED));
-            }
-          }
-        }
+            // Find the matching video resource for this external subtitle to get it's updated resource index, the video should be a primary resource so should already have been added to the
+            // exisiting aspects by time we get to external subtitles (which are secondary) because we ordered the provider resource aspects by type before enumerating them.
+            int? videoResourceIndex = existingProviderResourceAspects.FirstOrDefault(pra =>
+              pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY &&
+              subtitleFilenameWithoutExtension.StartsWith(ResourcePath.GetFileNameWithoutExtension(ResourcePath.Deserialize(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH))))
+            )?
+            .GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
 
-        //External subtitles
-        ResourcePath existingResourcePath;
-        if (subtitleAspects != null)
-        {
-          foreach (MultipleMediaItemAspect subAspect in subtitleAspects)
-          {
-            int subResourceIndex = subAspect.GetAttributeValue<int>(SubtitleAspect.ATTR_RESOURCE_INDEX);
-            if (subResourceIndex == resouceIndex)
-            {
-              //Find video resource
-              int videoResourceIndex = -1;
-              if (existingProviderResourceAspects != null)
-              {
-                foreach (MultipleMediaItemAspect existingProviderResourceAspect in existingProviderResourceAspects)
-                {
-                  accessorPath = (string)providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-                  resourcePath = ResourcePath.Deserialize(accessorPath);
-
-                  accessorPath = (string)existingProviderResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
-                  existingResourcePath = ResourcePath.Deserialize(accessorPath);
-
-                  if (ResourcePath.GetFileNameWithoutExtension(resourcePath).StartsWith(ResourcePath.GetFileNameWithoutExtension(existingResourcePath), StringComparison.InvariantCultureIgnoreCase))
-                  {
-                    bool resPrimary = existingProviderResourceAspect.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY;
-                    if (resPrimary == true)
-                    {
-                      videoResourceIndex = existingProviderResourceAspect.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX);
-                      break;
-                    }
-                  }
-                }
-              }
-
-              if (videoResourceIndex >= 0)
-              {
-                MultipleMediaItemAspect newSa = MediaItemAspect.CreateAspect(existingAspects, SubtitleAspect.Metadata);
-                newSa.SetAttribute(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX, videoResourceIndex);
-                newSa.SetAttribute(SubtitleAspect.ATTR_RESOURCE_INDEX, resourceIndexMap[subResourceIndex]);
-                newSa.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, subAspect.GetAttributeValue(SubtitleAspect.ATTR_STREAM_INDEX));
-                newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_ENCODING));
-                newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_FORMAT));
-                newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, subAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE));
-                newSa.SetAttribute(SubtitleAspect.ATTR_INTERNAL, subAspect.GetAttributeValue(SubtitleAspect.ATTR_INTERNAL));
-                newSa.SetAttribute(SubtitleAspect.ATTR_DEFAULT, subAspect.GetAttributeValue(SubtitleAspect.ATTR_DEFAULT));
-                newSa.SetAttribute(SubtitleAspect.ATTR_FORCED, subAspect.GetAttributeValue(SubtitleAspect.ATTR_FORCED));
-              }
-            }
+            // Update the subtitles resource and video index and add it to the existing aspects
+            if (videoResourceIndex.HasValue && videoResourceIndex >= 0)
+              AddSubtitleAspectToExistingAspects(existingAspects, subAspect, newResourceIndex, videoResourceIndex.Value);
           }
         }
       }
+
+      //Correct the set numbers so they are unique
+      Dictionary<string, int> setList = new Dictionary<string, int>();
+      IList<MultipleMediaItemAspect> existingVideoAspects;
+      if (MediaItemAspect.TryGetAspects(existingAspects, VideoStreamAspect.Metadata, out existingVideoAspects))
+      {
+        int newMediaSet = 0;
+        foreach (MultipleMediaItemAspect videoStreamAspect in existingVideoAspects)
+        {
+          string resourceAccessorPath = existingProviderResourceAspects.FirstOrDefault(pra =>
+            pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == videoStreamAspect.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX)
+          )?
+          .GetAttributeValue<string>(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH);
+
+          if (resourceAccessorPath == null)
+            continue;
+          ResourcePath resourcePath = ResourcePath.Deserialize(resourceAccessorPath);
+          string filename = resourcePath.FileName ?? Path.GetFileName(resourcePath.BasePathSegment.Path);
+          videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, GetMultipartSetNumber(ref setList, ref newMediaSet, filename));
+        }
+      }
+
       return true;
+    }
+
+    protected static void AddProviderResourceAspectToExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingAspects, MultipleMediaItemAspect providerResourceAspect, int updatedResourceIndex)
+    {
+      MultipleMediaItemAspect newPra = MediaItemAspect.CreateAspect(existingAspects, ProviderResourceAspect.Metadata);
+      newPra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, updatedResourceIndex);
+      newPra.SetAttribute(ProviderResourceAspect.ATTR_TYPE, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_TYPE));
+      newPra.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_MIME_TYPE));
+      newPra.SetAttribute(ProviderResourceAspect.ATTR_SIZE, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_SIZE));
+      newPra.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+      newPra.SetAttribute(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_PARENT_DIRECTORY_ID));
+      newPra.SetAttribute(ProviderResourceAspect.ATTR_SYSTEM_ID, providerResourceAspect.GetAttributeValue(ProviderResourceAspect.ATTR_SYSTEM_ID));
+    }
+
+    protected static void AddVideoAspectToExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingAspects, MultipleMediaItemAspect videoAspect, int updatedResourceIndex)
+    {
+      MultipleMediaItemAspect newVa = MediaItemAspect.CreateAspect(existingAspects, VideoStreamAspect.Metadata);
+      newVa.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, updatedResourceIndex);
+      newVa.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_STREAM_INDEX));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_ASPECTRATIO, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_ASPECTRATIO));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_AUDIOSTREAMCOUNT));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_DURATION, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_DURATION));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_FPS, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_FPS));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_HEIGHT, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_HEIGHT));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEOBITRATE, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEOBITRATE));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEOENCODING, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEOENCODING));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_WIDTH, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_WIDTH));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_TYPE, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_TYPE));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_PART));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_PART_SET));
+      newVa.SetAttribute(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME, videoAspect.GetAttributeValue(VideoStreamAspect.ATTR_VIDEO_PART_SET_NAME));
+    }
+
+    protected static void AddVideoAudioAspectToExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingAspects, MultipleMediaItemAspect videoAudioAspect, int updatedResourceIndex)
+    {
+      MultipleMediaItemAspect newVaa = MediaItemAspect.CreateAspect(existingAspects, VideoAudioStreamAspect.Metadata);
+      newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_RESOURCE_INDEX, updatedResourceIndex);
+      newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_STREAM_INDEX, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_STREAM_INDEX));
+      newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOBITRATE, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOBITRATE));
+      newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOCHANNELS));
+      newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOENCODING, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOENCODING));
+      newVaa.SetAttribute(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE, videoAudioAspect.GetAttributeValue(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE));
+    }
+
+    protected static void AddSubtitleAspectToExistingAspects(IDictionary<Guid, IList<MediaItemAspect>> existingAspects, MultipleMediaItemAspect subtitleAspect, int updatedResourceIndex, int updatedVideoResourceIndex)
+    {
+      MultipleMediaItemAspect newSa = MediaItemAspect.CreateAspect(existingAspects, SubtitleAspect.Metadata);
+      newSa.SetAttribute(SubtitleAspect.ATTR_VIDEO_RESOURCE_INDEX, updatedVideoResourceIndex);
+      newSa.SetAttribute(SubtitleAspect.ATTR_RESOURCE_INDEX, updatedResourceIndex);
+      newSa.SetAttribute(SubtitleAspect.ATTR_STREAM_INDEX, subtitleAspect.GetAttributeValue(SubtitleAspect.ATTR_STREAM_INDEX));
+      newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_ENCODING, subtitleAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_ENCODING));
+      newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_FORMAT, subtitleAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_FORMAT));
+      newSa.SetAttribute(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE, subtitleAspect.GetAttributeValue(SubtitleAspect.ATTR_SUBTITLE_LANGUAGE));
+      newSa.SetAttribute(SubtitleAspect.ATTR_INTERNAL, subtitleAspect.GetAttributeValue(SubtitleAspect.ATTR_INTERNAL));
+      newSa.SetAttribute(SubtitleAspect.ATTR_DEFAULT, subtitleAspect.GetAttributeValue(SubtitleAspect.ATTR_DEFAULT));
+      newSa.SetAttribute(SubtitleAspect.ATTR_FORCED, subtitleAspect.GetAttributeValue(SubtitleAspect.ATTR_FORCED));
     }
   }
 }
