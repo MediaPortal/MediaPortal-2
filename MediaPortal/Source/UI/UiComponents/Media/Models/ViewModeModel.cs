@@ -34,7 +34,7 @@ using System;
 namespace MediaPortal.UiComponents.Media.Models
 {
   /// <summary>
-  /// Container class containing the necessary parameters for calling SetViewMode from skins.
+  /// Container containing the necessary parameters for calling SetViewMode from skins.
   /// </summary>
   public class SetViewModeParameter
   {
