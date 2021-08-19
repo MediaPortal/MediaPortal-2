@@ -235,7 +235,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             BindingFlags.FlattenHierarchy |
             BindingFlags.IgnoreCase);
         if (members.Length > 0)
-          ServiceRegistration.Get<ILogger>().Warn("MemberPathSegment: Binding engine could not find public member '{0}', but found {1} members with different capitalization or which are non-public");
+          ServiceRegistration.Get<ILogger>().Warn("MemberPathSegment: Binding engine could not find public member '{0}', but found {1} members with different capitalization or which are non-public", memberName, members.Length);
         return false;
       }
       mis = members;
