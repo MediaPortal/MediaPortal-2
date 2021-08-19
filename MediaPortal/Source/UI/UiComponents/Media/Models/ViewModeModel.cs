@@ -22,15 +22,35 @@
 
 #endregion
 
-using System;
+using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Settings;
+using System;
 
 namespace MediaPortal.UiComponents.Media.Models
 {
+  /// <summary>
+  /// Container class containing the necessary parameters for calling SetViewMode from skins.
+  /// </summary>
+  public class SetViewModeParameter
+  {
+    public LayoutType Layout { get; set; }
+    public LayoutSize Size { get; set; }
+  }
+
+  /// <summary>
+  /// Container containing the necessary parameters for calling SetAdditionalProperty from a skin file.
+  /// </summary>
+  public class SetAdditionalPropertyParameter
+  {
+    public string Key { get; set; }
+    public string Value { get; set; }
+  }
+
   public class ViewModeModel
   {
     #region Consts
@@ -42,13 +62,14 @@ namespace MediaPortal.UiComponents.Media.Models
 
     protected readonly AbstractProperty _layoutTypeProperty;
     protected readonly AbstractProperty _layoutSizeProperty;
+    protected readonly ObservableDictionary<string, KeyValueItem<string, string>> _additionalProperties;
     protected readonly ItemsList _viewModeItemsList = new ItemsList();
-
 
     public ViewModeModel()
     {
       _layoutTypeProperty = new WProperty(typeof(LayoutType), ViewSettings.DEFAULT_LAYOUT_TYPE);
       _layoutSizeProperty = new WProperty(typeof(LayoutSize), ViewSettings.DEFAULT_LAYOUT_SIZE);
+      _additionalProperties = new ObservableDictionary<string, KeyValueItem<string, string>>(k => new KeyValueItem<string, string>(k, null, OnAdditionalPropertyChanged));
 
       ListItem smallList = new ListItem(Consts.KEY_NAME, Consts.RES_SMALL_LIST)
         {
@@ -91,6 +112,18 @@ namespace MediaPortal.UiComponents.Media.Models
       _viewModeItemsList.Add(coverLarge);
     }
 
+    private void OnAdditionalPropertyChanged(string key, string value)
+    {
+      MediaNavigationModel model = MediaNavigationModel.GetCurrentInstance();
+      NavigationData navigationData = model.NavigationData;
+      if (navigationData == null)
+        return;
+      MediaDictionary<string, string> currentNavigationProperties = navigationData.AdditionalProperties ?? new MediaDictionary<string, string>();
+      currentNavigationProperties[key] = value;
+      // Always set the property, the property change triggers a save
+      navigationData.AdditionalProperties = currentNavigationProperties;
+    }
+
     public void Update()
     {
       MediaNavigationModel model = MediaNavigationModel.GetCurrentInstance();
@@ -100,6 +133,35 @@ namespace MediaPortal.UiComponents.Media.Models
 
       LayoutType = navigationData.LayoutType;
       LayoutSize = navigationData.LayoutSize;
+
+      _additionalProperties.Clear();
+      if (navigationData.AdditionalProperties != null)
+        foreach (var kvp in navigationData.AdditionalProperties)
+          _additionalProperties.Add(kvp.Key, new KeyValueItem<string, string>(kvp.Key, kvp.Value, OnAdditionalPropertyChanged));
+      _additionalProperties.FireChange();
+    }
+
+    public void SetAdditionalProperty(SetAdditionalPropertyParameter additionalProperty)
+    {
+      if (string.IsNullOrEmpty(additionalProperty.Key))
+      {
+        ServiceRegistration.Get<ILogger>().Error("ViewModeModel: Unable to set additional property with null or empty key, value was '{0}'", additionalProperty.Value);
+        return;
+      }
+
+      // If this is a new property we'll fire the collection changed event (in addition to the property changed event)
+      bool fireChange = _additionalProperties.ContainsKey(additionalProperty.Key);
+      // The property is added automatically if it doesn't exist, and modifying the value will
+      // trigger the OnAdditionalPropertyChanged handler which will persist it
+      _additionalProperties[additionalProperty.Key].Value = additionalProperty.Value;
+      // Notify any listeners that a new property has been added
+      if (fireChange)
+        _additionalProperties.FireChange();
+    }
+
+    public void SetViewMode(SetViewModeParameter viewMode)
+    {
+      SetViewMode(viewMode.Layout, viewMode.Size);
     }
 
     protected void SetViewMode(LayoutType layoutType, LayoutSize layoutSize)
@@ -158,6 +220,11 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       get { return (LayoutSize) _layoutSizeProperty.GetValue(); }
       set { _layoutSizeProperty.SetValue(value); }
+    }
+
+    public ObservableDictionary<string, KeyValueItem<string, string>> AdditionalProperties
+    {
+      get { return _additionalProperties; }
     }
 
     #endregion

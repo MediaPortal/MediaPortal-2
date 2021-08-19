@@ -71,6 +71,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected ICollection<Sorting.Sorting> _availableGroupings = null;
     protected LayoutType _layoutType = LayoutType.ListLayout;
     protected LayoutSize _layoutSize = LayoutSize.Small;
+    protected MediaDictionary<string, string> _additionalProperties = null;
 
     #endregion
 
@@ -326,6 +327,16 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
+    public MediaDictionary<string, string> AdditionalProperties
+    {
+      get { return _additionalProperties; }
+      internal set
+      {
+        _additionalProperties = value;
+        SaveLayoutSettings();
+      }
+    }
+
     /// <summary>
     /// Releases resources which are needed by the current screen.
     /// </summary>
@@ -383,7 +394,8 @@ namespace MediaPortal.UiComponents.Media.Models
           _baseWorkflowStateId, newState.StateId, subViewSpecification, visibleScreen, _availableScreens, nextSortingMode, nextGroupingMode, true)
       {
         LayoutType = nextScreenConfig.LayoutType,
-        LayoutSize = nextScreenConfig.LayoutSize
+        LayoutSize = nextScreenConfig.LayoutSize,
+        AdditionalProperties = nextScreenConfig.AdditionalProperties
       };
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
       return newNavigationData;
@@ -427,7 +439,12 @@ namespace MediaPortal.UiComponents.Media.Models
 
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
           newState.StateId, newState.StateId, subViewSpecification, nextScreen, remainingScreens,
-          nextSortingMode, nextGroupingMode) { LayoutType = nextScreenConfig.LayoutType, LayoutSize = nextScreenConfig.LayoutSize };
+          nextSortingMode, nextGroupingMode)
+      {
+        LayoutType = nextScreenConfig.LayoutType,
+        LayoutSize = nextScreenConfig.LayoutSize,
+        AdditionalProperties = nextScreenConfig.AdditionalProperties
+      };
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
       return newNavigationData;
     }
@@ -455,7 +472,8 @@ namespace MediaPortal.UiComponents.Media.Models
         Sorting = CurrentSorting.GetType().ToString(),
         Grouping = CurrentGrouping == null ? String.Empty : CurrentGrouping.GetType().ToString(),
         LayoutSize = LayoutSize,
-        LayoutType = LayoutType
+        LayoutType = LayoutType,
+        AdditionalProperties = AdditionalProperties
       };
       ServiceRegistration.Get<ISettingsManager>().Save(viewSettings);
     }

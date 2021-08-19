@@ -210,7 +210,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         AvailableSortings = _availableSortings,
         AvailableGroupings = _availableGroupings,
         LayoutType = nextScreenConfig.LayoutType,
-        LayoutSize = nextScreenConfig.LayoutSize
+        LayoutSize = nextScreenConfig.LayoutSize,
+        AdditionalProperties = nextScreenConfig.AdditionalProperties
       };
       mediaNavigationMode = MediaNavigationMode;
     }
