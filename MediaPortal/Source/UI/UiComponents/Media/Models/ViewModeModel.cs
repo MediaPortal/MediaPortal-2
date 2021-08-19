@@ -150,7 +150,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
 
       // If this is a new property we'll fire the collection changed event (in addition to the property changed event)
-      bool fireChange = _additionalProperties.ContainsKey(additionalProperty.Key);
+      bool fireChange = !_additionalProperties.ContainsKey(additionalProperty.Key);
       // The property is added automatically if it doesn't exist, and modifying the value will
       // trigger the OnAdditionalPropertyChanged handler which will persist it
       _additionalProperties[additionalProperty.Key].Value = additionalProperty.Value;
