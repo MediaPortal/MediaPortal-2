@@ -91,9 +91,9 @@
         </LinearGradientBrush>
       </Border.Background>
       <Border.IsVisible>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1}">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} != &quot;True&quot;">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableGridDetails"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
         </MultiBinding>
       </Border.IsVisible>
     </Border>
@@ -117,9 +117,9 @@
       <Label Content="| " FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColorForeground}" Grid.Column="1"/>
       <Label Content="{Binding NumItems}" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColorForeground}" Grid.Column="2"/>
       <Grid.IsVisible>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1}">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} != &quot;True&quot;">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableGridDetails"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
         </MultiBinding>
       </Grid.IsVisible>
     </Grid>
