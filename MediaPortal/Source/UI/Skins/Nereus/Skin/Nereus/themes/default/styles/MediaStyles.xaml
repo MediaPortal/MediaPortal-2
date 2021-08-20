@@ -1444,8 +1444,11 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
   
@@ -1484,8 +1487,11 @@
         </media:SeriesAspectWrapper>
         
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
 
       <Grid x:Name="BannerGrid" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}">
@@ -1514,8 +1520,11 @@
         </media:SeriesAspectWrapper>
 
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
@@ -1544,8 +1553,11 @@
         </media:SeriesAspectWrapper>
 
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1570,10 +1582,16 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -1673,8 +1691,11 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -1699,8 +1720,11 @@
           </Image.Source>
         </Image>
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
 
       <Grid x:Name="BannerGrid" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}">
@@ -1723,8 +1747,11 @@
                Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
@@ -1747,8 +1774,11 @@
                Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1773,10 +1803,16 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -1855,8 +1891,11 @@
           </MultiBinding>
         </-->
       </Label>
-      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -1873,10 +1912,16 @@
              Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -1919,10 +1964,16 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <!-- watched indicator -->
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Wrap="True" Content="{Binding Path=EpisodeName}"
              Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3"
@@ -1986,8 +2037,11 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
   
@@ -2029,8 +2083,11 @@
         </media:MovieAspectWrapper>
 
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
 
       <Grid x:Name="BannerGrid" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}">
@@ -2062,8 +2119,11 @@
         </media:MovieAspectWrapper>
 
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
@@ -2095,8 +2155,11 @@
         </media:MovieAspectWrapper>
 
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -2121,10 +2184,16 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -2215,8 +2284,11 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -2258,11 +2330,17 @@
           </media:MovieAspectWrapper.Template>
         </media:MovieAspectWrapper>
 
-        <!-- watched indicator --> 
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <!-- watched indicator -->
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
 
       <Grid x:Name="BannerGrid" Width="{StaticResource BANNER_GRID_WIDTH}" Height="{StaticResource BANNER_GRID_HEIGHT}">
@@ -2294,10 +2372,16 @@
         </media:MovieAspectWrapper>
 
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
@@ -2329,10 +2413,16 @@
         </media:MovieAspectWrapper>
 
         <!-- watched indicator -->
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -2357,10 +2447,16 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -2429,8 +2525,11 @@
       </DockPanel>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding Title}" Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
       </Label>
-      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -2447,10 +2546,16 @@
              Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -2494,10 +2599,16 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <!-- watched indicator -->
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Wrap="True" Content="{Binding SimpleTitle}"
              Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold"
@@ -2568,8 +2679,11 @@
       <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Duration}" Margin="0,0,10,0" FontFamily="SegoeUIBold" 
              FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}" HorizontalAlignment="Right"/>
 
-      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -2621,10 +2735,16 @@
       </media:AudioAspectWrapper>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -2655,10 +2775,16 @@
       <Image Grid.Row="1" Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -2780,9 +2906,12 @@
       
       <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Tracks}" Margin="20,0,10,0" FontFamily="SegoeUIBold"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right"/>
-      
-      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
+
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -2818,10 +2947,16 @@
       </Label>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>      
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
     </Grid>
   </ControlTemplate>
@@ -2870,10 +3005,16 @@
       </Image>
 
       <!-- watched indicator -->
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
@@ -2966,10 +3107,16 @@
              Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
     </Grid>
   </ControlTemplate>
 
@@ -3012,10 +3159,16 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <!-- watched indicator -->
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
-      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
-               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}">
+        <Control.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+        </Control.IsVisible>
+      </Control>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Wrap="True" Content="{Binding SimpleTitle}"
              Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold"
