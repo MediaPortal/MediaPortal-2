@@ -52,7 +52,13 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="List" HorizontalAlignment="Center" GroupName="ViewModes"/>
+            <RadioButton x:Name="List" HorizontalAlignment="Center" GroupName="ViewModes">
+              <RadioButton.IsChecked>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                </MultiBinding>
+              </RadioButton.IsChecked>
+            </RadioButton>
             <Label Grid.Column="1" Content="List" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
                    FontFamily="SegoeUIBold" VerticalAlignment="Center">
               <Label.Opacity>
@@ -75,8 +81,15 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="ListSmall" GroupName="ListViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=List, Path=IsChecked}"
-                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=ListLayout, Size=Small}}"/>
-            <Label Grid.Column="1" Content="Small" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=ListLayout, Size=Small}}">
+                <RadioButton.IsChecked>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} &amp;&amp; {1} == {LayoutSize}.{Small}">
+                    <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                    <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                  </MultiBinding>
+              </RadioButton.IsChecked>
+              </RadioButton>
+              <Label Grid.Column="1" Content="Small" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="ListSmall" Path="HasFocus"/>
@@ -113,7 +126,14 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="ListMedium" GroupName="ListViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=List, Path=IsChecked}"
-                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=ListLayout, Size=Medium}}"/>
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=ListLayout, Size=Medium}}">
+              <RadioButton.IsChecked>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} &amp;&amp; {1} == {LayoutSize}.{Medium}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                </MultiBinding>
+              </RadioButton.IsChecked>
+            </RadioButton>
             <Label Grid.Column="1" Content="Medium" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -151,7 +171,14 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="ListLarge" GroupName="ListViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=List, Path=IsChecked}"
-                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=ListLayout, Size=Large}}"/>
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=ListLayout, Size=Large}}">
+              <RadioButton.IsChecked>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} &amp;&amp; {1} == {LayoutSize}.{Large}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                </MultiBinding>
+              </RadioButton.IsChecked>
+            </RadioButton>
             <Label Grid.Column="1" Content="Large" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -201,7 +228,14 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="Grid" HorizontalAlignment="Center" GroupName="ViewModes"/>
+            <RadioButton x:Name="Grid" HorizontalAlignment="Center" GroupName="ViewModes">
+              <RadioButton.IsChecked>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                </MultiBinding>
+              </RadioButton.IsChecked>
+            </RadioButton>
+          
             <Label Grid.Column="1" Content="Grid" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
                    FontFamily="SegoeUIBold" VerticalAlignment="Center">
               <Label.Opacity>
@@ -224,7 +258,14 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="Poster" GroupName="GridViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Grid, Path=IsChecked}"
-                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Small}}"/>
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Small}}">
+              <RadioButton.IsChecked>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == {LayoutSize}.{Small}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                </MultiBinding>
+              </RadioButton.IsChecked>
+            </RadioButton>
             <Label Grid.Column="1" Content="Poster" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -262,7 +303,14 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="Thumbnail" GroupName="GridViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Grid, Path=IsChecked}"
-                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Large}}"/>
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Large}}">
+              <RadioButton.IsChecked>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == {LayoutSize}.{Large}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                </MultiBinding>
+              </RadioButton.IsChecked>
+            </RadioButton>
             <Label Grid.Column="1" Content="Thumbnail" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -300,7 +348,14 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="Banner" GroupName="GridViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Grid, Path=IsChecked}"
-                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Medium}}"/>
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Medium}}">
+              <RadioButton.IsChecked>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == {LayoutSize}.{Medium}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                </MultiBinding>
+              </RadioButton.IsChecked>
+            </RadioButton>
             <Label Grid.Column="1" Content="Banner" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -341,7 +396,14 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <RadioButton x:Name="Coverflow" HorizontalAlignment="Center" GroupName="ViewModes"
-                       Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=CoverLayout, Size=Small}}"/>
+                       Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=CoverLayout, Size=Small}}">
+            <RadioButton.IsChecked>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              </MultiBinding>
+            </RadioButton.IsChecked>
+          </RadioButton>
+          
           <Label Grid.Column="1" Content="Coverflow" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                  FontFamily="SegoeUIBold" VerticalAlignment="Center">
               <Label.Opacity>
@@ -380,7 +442,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <CheckBox x:Name="ListExtendedMediaDetails" HorizontalAlignment="Center" IsChecked="{Binding Source={StaticResource ViewModeModel}, Path=AdditionalProperties[extEnableListDetails].Value, Mode=TwoWay}" Opacity="0.5"/>
+          <CheckBox x:Name="ListExtendedMediaDetails" HorizontalAlignment="Center" IsChecked="{Binding Source={StaticResource ViewModeModel}, Path=AdditionalProperties[extEnableListDetails].Value, Mode=TwoWay}" Opacity="0.5" IsEnabled="False"/>
           <Label Grid.Column="1" Content="Extended Media Details" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
                  Opacity="0.25" VerticalAlignment="Center">
           </Label>
