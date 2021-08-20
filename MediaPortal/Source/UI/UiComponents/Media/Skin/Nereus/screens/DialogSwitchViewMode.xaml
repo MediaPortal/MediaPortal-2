@@ -3,6 +3,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
     xmlns:vm="clr-namespace:MediaPortal.UiComponents.Media.Models;assembly=Media"
     Source="screens\master_dialog_bare.xaml"
     >
@@ -65,7 +66,7 @@
                 </MultiBinding>
               </RadioButton.SetFocus>
             </RadioButton>
-            <Label Grid.Column="1" Content="List" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
+            <Label Grid.Column="1" Content="[Media.List]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
                    FontFamily="SegoeUIBold" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -95,7 +96,7 @@
                 </MultiBinding>
               </RadioButton.IsChecked>
             </RadioButton>
-            <Label Grid.Column="1" Content="Small" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label Grid.Column="1" Content="[Media.ListSmall]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="ListSmall" Path="HasFocus"/>
@@ -140,7 +141,7 @@
                 </MultiBinding>
               </RadioButton.IsChecked>
             </RadioButton>
-            <Label Grid.Column="1" Content="Medium" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label Grid.Column="1" Content="[Media.ListMedium]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="ListMedium" Path="HasFocus"/>
@@ -185,7 +186,7 @@
                 </MultiBinding>
               </RadioButton.IsChecked>
             </RadioButton>
-            <Label Grid.Column="1" Content="Large" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label Grid.Column="1" Content="[Media.ListLarge]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="ListLarge" Path="HasFocus"/>
@@ -247,7 +248,7 @@
               </RadioButton.SetFocus>
             </RadioButton>
 
-            <Label Grid.Column="1" Content="Grid" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
+            <Label Grid.Column="1" Content="[Media.LargeGrid]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
                    FontFamily="SegoeUIBold" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -268,6 +269,7 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
+            
             <RadioButton x:Name="Poster" GroupName="GridViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Grid, Path=IsChecked}"
                          Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Small}}">
               <RadioButton.IsChecked>
@@ -276,8 +278,15 @@
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
                 </MultiBinding>
               </RadioButton.IsChecked>
+              <RadioButton.IsEnabled>
+                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
+                  <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+                  <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </RadioButton.IsEnabled>
             </RadioButton>
-            <Label Grid.Column="1" Content="Poster" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+
+            <Label Grid.Column="1" Content="[Media.PosterLayout]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="Poster" Path="HasFocus"/>
@@ -322,7 +331,7 @@
                 </MultiBinding>
               </RadioButton.IsChecked>
             </RadioButton>
-            <Label Grid.Column="1" Content="Thumbnail" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label Grid.Column="1" Content="[Media.ThumbnailLayout]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="Thumbnail" Path="HasFocus"/>
@@ -367,7 +376,7 @@
                 </MultiBinding>
               </RadioButton.IsChecked>
             </RadioButton>
-            <Label Grid.Column="1" Content="Banner" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label Grid.Column="1" Content="[Media.BannerLayout]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="Banner" Path="HasFocus"/>
@@ -420,7 +429,7 @@
             </RadioButton.SetFocus>
           </RadioButton>
 
-          <Label Grid.Column="1" Content="Coverflow" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+          <Label Grid.Column="1" Content="[Media.CoverLayout]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                  FontFamily="SegoeUIBold" VerticalAlignment="Center">
             <Label.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -459,7 +468,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <CheckBox x:Name="ListExtendedMediaDetails" HorizontalAlignment="Center" IsChecked="{Binding Source={StaticResource ViewModeModel}, Path=AdditionalProperties[extEnableListDetails].Value, Mode=TwoWay}" Opacity="0.5" IsEnabled="False"/>
-          <Label Grid.Column="1" Content="Extended Media Details" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
+          <Label Grid.Column="1" Content="[Media.ExtendedMediaDetails]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
                  Opacity="0.25" VerticalAlignment="Center">
           </Label>
           <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
@@ -491,7 +500,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <CheckBox x:Name="GridExtendedMediaDetails" HorizontalAlignment="Center" IsChecked="{Binding Source={StaticResource ViewModeModel}, Path=AdditionalProperties[extEnableGridDetails].Value, Mode=TwoWay}"/>
-          <Label Grid.Column="1" Content="Extended Media Details" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+          <Label Grid.Column="1" Content="[Media.ExtendedMediaDetails]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
             <Label.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="GridExtendedMediaDetails" Path="HasFocus"/>
@@ -529,7 +538,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <CheckBox x:Name="CoverExtendedMediaDetails" HorizontalAlignment="Center" IsChecked="{Binding Source={StaticResource ViewModeModel}, Path=AdditionalProperties[extEnableCoverDetails].Value, Mode=TwoWay}"/>
-          <Label Grid.Column="1" Content="Extended Media Details" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+          <Label Grid.Column="1" Content="[Media.ExtendedMediaDetails]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
             <Label.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="CoverExtendedMediaDetails" Path="HasFocus"/>
@@ -567,7 +576,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <CheckBox x:Name="ListWatchedFlags" HorizontalAlignment="Center" IsChecked="{Binding Source={StaticResource ViewModeModel}, Path=AdditionalProperties[extEnableListWatchFlags].Value, Mode=TwoWay}"/>
-          <Label Grid.Column="1" Content="Show Watched Flags" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+          <Label Grid.Column="1" Content="[Media.ShowWatchedFlags]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
             <Label.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="ListWatchedFlags" Path="HasFocus"/>
@@ -605,7 +614,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <CheckBox x:Name="GridWatchedFlags" HorizontalAlignment="Center" IsChecked="{Binding Source={StaticResource ViewModeModel}, Path=AdditionalProperties[extEnableGridWatchFlags].Value, Mode=TwoWay}"/>
-          <Label Grid.Column="1" Content="Show Watched Flags" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+          <Label Grid.Column="1" Content="[Media.ShowWatchedFlags]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
             <Label.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="GridWatchedFlags" Path="HasFocus"/>
@@ -643,7 +652,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <CheckBox x:Name="CoverflowWatchedFlags" HorizontalAlignment="Center" IsChecked="{Binding Source={StaticResource ViewModeModel}, Path=AdditionalProperties[extEnableCoverWatchFlags].Value, Mode=TwoWay}"/>
-          <Label Grid.Column="1" Content="Show Watched Flags" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+          <Label Grid.Column="1" Content="[Media.ShowWatchedFlags]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
             <Label.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="CoverflowWatchedFlags" Path="HasFocus"/>
