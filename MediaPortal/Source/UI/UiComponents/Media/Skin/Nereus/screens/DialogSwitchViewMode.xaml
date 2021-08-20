@@ -23,6 +23,7 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="1"/>
           <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -31,7 +32,7 @@
           <ColumnDefinition Width="1"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        
+
         <!-- LIST VIEW -->
         <Grid Margin="0,0,10,10">
           <Grid.RowDefinitions>
@@ -58,6 +59,11 @@
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
                 </MultiBinding>
               </RadioButton.IsChecked>
+              <RadioButton.SetFocus>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                </MultiBinding>
+              </RadioButton.SetFocus>
             </RadioButton>
             <Label Grid.Column="1" Content="List" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
                    FontFamily="SegoeUIBold" VerticalAlignment="Center">
@@ -82,14 +88,14 @@
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="ListSmall" GroupName="ListViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=List, Path=IsChecked}"
                          Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=ListLayout, Size=Small}}">
-                <RadioButton.IsChecked>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} &amp;&amp; {1} == {LayoutSize}.{Small}">
-                    <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-                    <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
-                  </MultiBinding>
+              <RadioButton.IsChecked>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} &amp;&amp; {1} == {LayoutSize}.{Small}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+                </MultiBinding>
               </RadioButton.IsChecked>
-              </RadioButton>
-              <Label Grid.Column="1" Content="Small" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            </RadioButton>
+            <Label Grid.Column="1" Content="Small" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="ListSmall" Path="HasFocus"/>
@@ -234,8 +240,13 @@
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
                 </MultiBinding>
               </RadioButton.IsChecked>
+              <RadioButton.SetFocus>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout}">
+                  <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                </MultiBinding>
+              </RadioButton.SetFocus>
             </RadioButton>
-          
+
             <Label Grid.Column="1" Content="Grid" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
                    FontFamily="SegoeUIBold" VerticalAlignment="Center">
               <Label.Opacity>
@@ -402,18 +413,23 @@
                 <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
               </MultiBinding>
             </RadioButton.IsChecked>
+            <RadioButton.SetFocus>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout}">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              </MultiBinding>
+            </RadioButton.SetFocus>
           </RadioButton>
-          
+
           <Label Grid.Column="1" Content="Coverflow" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                  FontFamily="SegoeUIBold" VerticalAlignment="Center">
-              <Label.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Label.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="Coverflow" Path="HasFocus"/>
-                  <Binding Source="1.0"/>
-                  <Binding Source="0.5"/>
-                </MultiBinding>
-              </Label.Opacity>
-            </Label>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Label.Opacity>
+          </Label>
           <Image Grid.Row="1" Grid.Column="1" Height="70" Width="210" Stretch="Fill" HorizontalAlignment="Left">
             <Image.Source>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -656,18 +672,19 @@
 
         <Grid Grid.Column="1" Grid.RowSpan="5" Background="White" VerticalAlignment="Stretch" Margin="0,-10,0,-10" Opacity="0.5" Width="1"/>
         <Grid Grid.Column="3" Grid.RowSpan="5" Background="White" VerticalAlignment="Stretch" Margin="0,-10,0,-10" Opacity="0.5" Width="1"/>
-        
+
         <Grid Grid.Row="1" Grid.ColumnSpan="5" Background="White" HorizontalAlignment="Stretch" Margin="-10,0,-10,0" Opacity="0.5" Height="1"/>
         <Grid Grid.Row="3" Grid.ColumnSpan="5" Background="White" HorizontalAlignment="Stretch" Margin="-10,0,-10,0" Opacity="0.5" Height="1"/>
 
+        <!--Grid Grid.Row="5" Grid.ColumnSpan="5" HorizontalAlignment="Center" Margin="5">
+          <Button Style="{ThemeResource DialogButtonStyle}" Content="[System.OK]" HorizontalAlignment="Center">
+            <Button.Command>
+              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
+            </Button.Command>
+          </Button>
+        </-->
+
       </Grid>
     </ControlTemplate>
-
-
-    <!-- Menu_Command >
-    <CommandList x:Key="Menu_Command">
-      <CommandBridge Command="{Binding Command}"/>
-      <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
-    </CommandList-->
   </Include.Resources>
 </Include>
