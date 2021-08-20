@@ -371,9 +371,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Grid.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} &amp;&amp; {1}">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{CoverLayout} &amp;&amp; {1} == &quot;True&quot;">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCoverDetails"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableCoverDetails].Value"/>
           </MultiBinding>
         </Grid.IsVisible>
         <Control x:Name="CoverDetails" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,15,70,15">
