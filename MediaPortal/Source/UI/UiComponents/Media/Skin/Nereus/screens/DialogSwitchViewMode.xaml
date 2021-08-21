@@ -498,6 +498,13 @@
           </Grid.ColumnDefinitions>
           <CheckBox x:Name="ListExtendedMediaDetails" HorizontalAlignment="Center" IsChecked="{Binding Source={StaticResource ViewModeModel}, Path=AdditionalProperties[extEnableListDetails].Value, Mode=TwoWay}"/>
           <Label Grid.Column="1" Content="[Media.ExtendedMediaDetails]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
+            <Label.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="ListExtendedMediaDetails" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Label.Opacity>
           </Label>
           <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
             <Image.Source>
