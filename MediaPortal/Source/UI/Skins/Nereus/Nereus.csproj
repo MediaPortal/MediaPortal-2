@@ -622,6 +622,7 @@
     <Content Include="Skin\Nereus\images\PlayerControl\UP_NOFOCUS.png" />
     <Content Include="Skin\Nereus\images\preview.png" />
     <Content Include="Skin\Nereus\images\search_background.jpg" />
+    <Content Include="Skin\Nereus\images\Vertical_gradient.png" />
     <Content Include="Skin\Nereus\images\ViewMode\Coverflow.Details.Extended.png" />
     <Content Include="Skin\Nereus\images\ViewMode\Coverflow.Details.png" />
     <Content Include="Skin\Nereus\images\ViewMode\Coverflow.focus.png" />

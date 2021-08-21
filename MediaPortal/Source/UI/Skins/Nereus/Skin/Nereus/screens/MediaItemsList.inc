@@ -82,8 +82,8 @@
       </StackPanel.IsVisible>
     </StackPanel>
 
-    <!---GridView w/o Details-->
-    <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100" Width="{SkinWidth}" Margin="-33,0,0,-30">
+    <!---GridView or ListView w/o Details-->
+    <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100" Width="{SkinWidth}" Margin="-35,0,0,-30">
       <Border.Background>
         <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
           <GradientStop Color="#00000000" Offset="0" />
@@ -91,9 +91,10 @@
         </LinearGradientBrush>
       </Border.Background>
       <Border.IsVisible>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} != &quot;True&quot;">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} != &quot;True&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} != &quot;True&quot;)">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
         </MultiBinding>
       </Border.IsVisible>
     </Border>
@@ -117,9 +118,10 @@
       <Label Content="| " FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColorForeground}" Grid.Column="1"/>
       <Label Content="{Binding NumItems}" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColorForeground}" Grid.Column="2"/>
       <Grid.IsVisible>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} != &quot;True&quot;">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} != &quot;True&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} != &quot;True&quot;)">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
           <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
         </MultiBinding>
       </Grid.IsVisible>
     </Grid>

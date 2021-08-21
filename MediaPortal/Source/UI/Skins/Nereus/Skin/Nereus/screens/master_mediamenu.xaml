@@ -242,6 +242,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
 
+          <!-- Fill missing bottom overlay for listviews and gridviews without details. Due to TranslateTransform, gradients are disorted (bug in skin engine) and only image overlays work here -->
+          <Image HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Height="140" Stretch="Fill" Source="Vertical_gradient.png" Margin="0,0,0,130">
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} != &quot;True&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} != &quot;True&quot;)">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
+                <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+              </MultiBinding>
+            </Image.IsVisible>
+          </Image>
+
         </Grid>
 
         <Grid x:Name="SlideMenuPanelBottom" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Top" HorizontalAlignment="Stretch" Margin="0,250,0,-250">
@@ -289,7 +300,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <ControlTemplate x:Key="BottomDetails_Template">
       <Grid Margin="0,0,0,10">
         <Grid.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} != &quot;True&quot;) ">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} != &quot;True&quot;)">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
             <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
           </MultiBinding>
