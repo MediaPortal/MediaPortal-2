@@ -51,8 +51,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new MovieActorShortcut(),
         new MovieSearchShortcut()
       }));
-
-      UpdateListsFromAvailableLists();
     }
 
     protected override IContentListModel GetContentListModel()

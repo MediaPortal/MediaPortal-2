@@ -53,8 +53,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new RecordingsShortcut(),
         new TVSearchShortcut()
       }));
-
-      UpdateListsFromAvailableLists();
     }
 
     protected override IContentListModel GetContentListModel()

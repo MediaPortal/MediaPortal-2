@@ -196,7 +196,7 @@ namespace MediaPortal.UI.SkinEngine.InputManagement
 
     private InputManager()
     {
-      _lastMouseUsageTime = _lastInputTime = DateTime.Now;
+      _lastInputTime = DateTime.Now;
       _workThread = new Thread(DoWork) { IsBackground = true, Name = "InputMgr" };  //InputManager dispatch thread
       _workThread.Start();
     }

@@ -57,10 +57,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new VideoSizeShortcut(),
         new VideoSearchShortcut()
       }));
-
-      // Add a wrapper for each video media list, we use a separate type for each wrapper
-      // so we can use automatic template selection when they are displayed in an ItemsControl.
-      UpdateListsFromAvailableLists();
     }
 
     protected override IContentListModel GetContentListModel()
@@ -69,6 +65,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     }
   }
 
+  // Add a wrapper for each video media list, we use a separate type for each wrapper
   // Separate classes for each type of media shortcut and media list to
   // allow automatic template selection when displayed in an ItemsControl.
 

@@ -36,11 +36,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _availableLists.Add(new FavoriteOnlineVideoSiteList());
     }
 
-    protected override void PopulateBackingList()
-    {
-      UpdateListsFromAvailableLists();
-    }
-
     protected override IContentListModel GetContentListModel()
     {
       return GetOnlineVideosListModel();

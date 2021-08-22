@@ -50,8 +50,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new ImageSizeShortcut(),
         new ImageSearchShortcut()
       }));
-
-      UpdateListsFromAvailableLists();
     }
 
     protected override IContentListModel GetContentListModel()

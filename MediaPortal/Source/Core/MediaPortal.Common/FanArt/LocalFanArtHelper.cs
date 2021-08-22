@@ -145,15 +145,22 @@ namespace MediaPortal.Common.FanArt
     public static List<ResourcePath> FilterPotentialFanArtFilesByNameOrPrefix(IEnumerable<ResourcePath> potentialFanArtFiles,
       IEnumerable<string> filenames, IEnumerable<string> prefixes = null)
     {
-      var result = new List<ResourcePath>();
+      var result = new Dictionary<int, ResourcePath>();
+      var fileNameList = new List<string>(filenames ?? new string[0]);
+      var prefixList = new List<string>(prefixes ?? new string[0]);
+
+      //We want to check for matches by priority not alphabetically, so we add to dictionary where lowest key is highest priority
       foreach (var potentialFanArtFile in potentialFanArtFiles)
       {
         var potentialFanArtFileNameWithoutExtension = ResourcePathHelper.GetFileNameWithoutExtension(potentialFanArtFile.ToString()).ToLowerInvariant();
-        if ((filenames != null && filenames.Contains(potentialFanArtFileNameWithoutExtension)) ||
-          (prefixes != null && prefixes.Any(p => potentialFanArtFileNameWithoutExtension.StartsWith(p))))
-          result.Add(potentialFanArtFile);
+        int fileIndex = fileNameList.IndexOf(potentialFanArtFileNameWithoutExtension);
+        int prefixIndex = prefixList.FindIndex(p => potentialFanArtFileNameWithoutExtension.StartsWith(p));
+        if (fileIndex >= 0)
+          result.Add(fileIndex, potentialFanArtFile);
+        else if (prefixIndex >= 0)
+          result.Add(prefixIndex, potentialFanArtFile);
       }
-      return result;
+      return result.OrderBy(p => p.Key).Select(p => p.Value).ToList();
     }
 
     /// <summary>

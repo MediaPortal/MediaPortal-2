@@ -75,6 +75,7 @@
     <Compile Include="Common\TestRelationshipExtraction.cs" />
     <Compile Include="Common\Thumbnailer.cs" />
     <Compile Include="Media\TestMediaViews.cs" />
+    <Compile Include="PluginManager\PluginItemInstantiationTests.cs" />
     <Compile Include="SkinEngine\ConfigurationConverters.cs" />
     <Compile Include="UPnP\HttpHeaders.cs" />
     <Compile Include="VideoPlayers\ComSkip\ComSkipChaptersTests.cs" />
@@ -166,6 +167,7 @@
       <Version>3.10.1</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

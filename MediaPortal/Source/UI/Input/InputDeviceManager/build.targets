@@ -23,11 +23,17 @@
     <SkinFiles Include="$(ProjectDir)Skin\**\*.*" />
   </ItemGroup>
 
+  <ItemGroup>
+    <References Include="$(TargetDir)SharpLibHid.dll" />
+    <References Include="$(TargetDir)SharpLibWin32.dll" />
+  </ItemGroup>
+
   <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
     <Copy SourceFiles="@(SkinFiles)"
           DestinationFiles="@(SkinFiles->'$(PluginDestination)Skin\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>
 
 </Project>

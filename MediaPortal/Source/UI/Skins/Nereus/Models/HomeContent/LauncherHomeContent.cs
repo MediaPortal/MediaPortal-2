@@ -35,11 +35,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       _availableLists.Add(new FavoriteAppList());
     }
 
-    protected override void PopulateBackingList()
-    {
-      UpdateListsFromAvailableLists();
-    }
-
     protected override IContentListModel GetContentListModel()
     {
       return GetAppListModel();

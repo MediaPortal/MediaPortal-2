@@ -51,8 +51,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new SeriesActorShortcut(),
         new SeriesSearchShortcut()
       }));
-
-      UpdateListsFromAvailableLists();
     }
 
     protected override IContentListModel GetContentListModel()
@@ -99,9 +97,8 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   public class SeriesYearShortcut : YearShortcutItem
   {
     public SeriesYearShortcut()
-    {
-      // ToDo: There is no series filter for year...
-    }
+      : base(Consts.WF_STATE_ID_SERIES_NAVIGATION_ROOT, typeof(SeriesFilterByYearScreenData))
+    { }
   }
 
   public class SeriesAgeShortcut : AgeShortcutItem

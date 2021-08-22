@@ -32,6 +32,8 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     public MediaShortcutListWrapper(IList<ListItem> itemsList)
       : base(itemsList)
     {
+      _initialized = true;
+      UpdateHasItemsProperty(itemsList);
     }
   }
 }

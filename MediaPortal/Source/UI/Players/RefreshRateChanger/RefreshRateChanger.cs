@@ -322,6 +322,50 @@ namespace MediaPortal.Plugins.RefreshRateChanger
       ForceUint32 = 0xFFFFFFFF
     }
 
+    [Flags]
+    public enum DisplayConfigDeviceInfoType : uint
+    {
+      GetSourceName = 1,
+      GetTargetName = 2,
+      GetTargetPreferredMode = 3,
+      GetAdapterName = 4,
+      SetTargetPersistence = 5,
+      GetTargetBaseType = 6,
+      ForceUint32 = 0xFFFFFFFF
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct DisplayConfigTargetDeviceNameFlags
+    {
+      public uint Value;
+    }
+
+    [StructLayout(LayoutKind.Sequential)]
+    public struct DisplayConfigDeviceInfoHeader
+    {
+      public DisplayConfigDeviceInfoType Type;
+      public uint Size;
+      public LUID AdapterId;
+      public uint Id;
+    }
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    public struct DisplayConfigTargetDeviceName
+    {
+      public DisplayConfigDeviceInfoHeader Header;
+      public DisplayConfigTargetDeviceNameFlags Flags;
+      public DisplayConfigVideoOutputTechnology OutputTechnology;
+      public ushort EdidManufactureId;
+      public ushort EdidProductCodeId;
+      public uint ConnectorInstance;
+
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 64)]
+      public string MonitorFriendlyDeviceName;
+
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+      public string MonitorDevicePath;
+    }
+
     #endregion
 
     [DllImport("User32.dll")]
@@ -345,6 +389,29 @@ namespace MediaPortal.Plugins.RefreshRateChanger
 
     [DllImport("User32.dll")]
     public static extern int GetDisplayConfigBufferSizes(QueryDisplayFlags flags, out uint numPathArrayElements, out uint numModeInfoArrayElements);
+
+    [DllImport("user32.dll")]
+    public static extern int DisplayConfigGetDeviceInfo(ref DisplayConfigTargetDeviceName deviceName);
+
+    public const int EDD_GET_DEVICE_INTERFACE_NAME = 1;
+
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Ansi)]
+    public struct DisplayDevice
+    {
+      public int cb;
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 32)]
+      public string DeviceName;
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+      public string DeviceString;
+      public int StateFlags;
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+      public string DeviceID;
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 128)]
+      public string DeviceKey;
+    }
+
+    [DllImport("user32.dll")]
+    public static extern bool EnumDisplayDevices(string lpDevice, int iDevNum, ref DisplayDevice lpDisplayDevice, int dwFlags);
   }
 
   public class TemporaryRefreshRateChanger : RefreshRateChanger
@@ -352,8 +419,8 @@ namespace MediaPortal.Plugins.RefreshRateChanger
     private readonly double _originalRate;
     private string _renderMode;
 
-    public TemporaryRefreshRateChanger(uint displayIndex, bool forceVsync = false)
-      : base(displayIndex)
+    public TemporaryRefreshRateChanger(string deviceName, bool forceVsync = false)
+      : base(deviceName)
     {
       _originalRate = GetRefreshRate();
       if (forceVsync)
@@ -378,16 +445,17 @@ namespace MediaPortal.Plugins.RefreshRateChanger
   public class RefreshRateChanger : IDisposable
   {
     protected bool _rateChanged;
-    private readonly uint _displayIndex;
+    private readonly string _deviceName;
     private bool _initialized;
     private uint _numPathArrayElements;
     private uint _numModeInfoArrayElements;
     private CCDWrapper.DisplayConfigPathInfo[] _pathInfoArray;
     private CCDWrapper.DisplayConfigModeInfo[] _modeInfoArray;
+    private uint _modeIndex;
 
-    public RefreshRateChanger(uint displayIndex)
+    public RefreshRateChanger(string deviceName)
     {
-      _displayIndex = displayIndex;
+      _deviceName = deviceName;
       InitBuffers();
     }
 
@@ -399,9 +467,8 @@ namespace MediaPortal.Plugins.RefreshRateChanger
         return 0.0;
 
       // Calculate refresh rate
-      var modeIndex = _displayIndex * 2; // Array always contains "Source" and "Target" per display
-      var numerator = _modeInfoArray[modeIndex].TargetMode.TargetVideoSignalInfo.VerticalSyncFreq.Numerator;
-      var denominator = _modeInfoArray[modeIndex].TargetMode.TargetVideoSignalInfo.VerticalSyncFreq.Denominator;
+      var numerator = _modeInfoArray[_modeIndex].TargetMode.TargetVideoSignalInfo.VerticalSyncFreq.Numerator;
+      var denominator = _modeInfoArray[_modeIndex].TargetMode.TargetVideoSignalInfo.VerticalSyncFreq.Denominator;
       double refreshRate = numerator / (double)denominator;
       ServiceRegistration.Get<ILogger>().Debug("RefreshRateChanger.GetRefreshRate: QueryDisplayConfig returned {0}/{1}", numerator, denominator);
       return refreshRate;
@@ -467,10 +534,9 @@ namespace MediaPortal.Plugins.RefreshRateChanger
       }
 
       // Set refresh rate parameters in display config
-      var modeIndex = _displayIndex * 2; // Array always contains "Source" and "Target" per display
-      _modeInfoArray[modeIndex].TargetMode.TargetVideoSignalInfo.VerticalSyncFreq.Numerator = numerator;
-      _modeInfoArray[modeIndex].TargetMode.TargetVideoSignalInfo.VerticalSyncFreq.Denominator = denominator;
-      _modeInfoArray[modeIndex].TargetMode.TargetVideoSignalInfo.ScanLineOrdering = scanLineOrdering;
+      _modeInfoArray[_modeIndex].TargetMode.TargetVideoSignalInfo.VerticalSyncFreq.Numerator = numerator;
+      _modeInfoArray[_modeIndex].TargetMode.TargetVideoSignalInfo.VerticalSyncFreq.Denominator = denominator;
+      _modeInfoArray[_modeIndex].TargetMode.TargetVideoSignalInfo.ScanLineOrdering = scanLineOrdering;
 
       // Validate new refresh rate
       CCDWrapper.SdcFlags flags = CCDWrapper.SdcFlags.Validate | CCDWrapper.SdcFlags.UseSuppliedDisplayConfig;
@@ -507,6 +573,15 @@ namespace MediaPortal.Plugins.RefreshRateChanger
 
     private void InitBuffers()
     {
+      // Get the device interface name from the Forms.Screen.DeviceName specified in the constructor.
+      // This will be used to find the correct path info returned from QueryDisplayConfig below.
+      string deviceInterfaceName = GetDeviceInterfaceName();
+      if (deviceInterfaceName == null)
+      {
+        ServiceRegistration.Get<ILogger>().Error("RefreshRateChanger: EnumDisplayDevices(...) returned false");
+        return;
+      }
+
       // query active paths from the current computer.
       int result = CCDWrapper.GetDisplayConfigBufferSizes(CCDWrapper.QueryDisplayFlags.OnlyActivePaths, out _numPathArrayElements, out _numModeInfoArrayElements);
       if (result != 0)
@@ -526,7 +601,47 @@ namespace MediaPortal.Plugins.RefreshRateChanger
         return;
       }
 
-      _initialized = true;
+      // Get the device info for each path and try and find the one with the same interface name as our display device to determine the index of the target mode info.
+      for (int i = 0; i < _pathInfoArray.Length; i++)
+        if (GetMonitorDevicePath(_pathInfoArray[i].TargetInfo.AdapterId, _pathInfoArray[i].TargetInfo.Id) == deviceInterfaceName)
+        {
+          _modeIndex = _pathInfoArray[i].TargetInfo.ModeInfoIdx;
+          _initialized = true;
+          return;
+        }
+    }
+
+    private string GetMonitorDevicePath(CCDWrapper.LUID adapterId, uint targetId)
+    {
+      var targetDeviceName = new CCDWrapper.DisplayConfigTargetDeviceName
+      {
+        Header =
+        {
+          Size = (uint)Marshal.SizeOf<CCDWrapper.DisplayConfigTargetDeviceName>(),
+          AdapterId = adapterId,
+          Id = targetId,
+          Type = CCDWrapper.DisplayConfigDeviceInfoType.GetTargetName
+        }
+      };
+
+      int result = CCDWrapper.DisplayConfigGetDeviceInfo(ref targetDeviceName);
+      if (result != 0)
+      {
+        ServiceRegistration.Get<ILogger>().Error("RefreshRateChanger: DisplayConfigGetDeviceInfo(...) returned {0}", result);
+        return null;
+      }
+
+      return targetDeviceName.MonitorDevicePath;
+    }
+
+    private string GetDeviceInterfaceName()
+    {
+      var info = new CCDWrapper.DisplayDevice
+      {
+        cb = Marshal.SizeOf<CCDWrapper.DisplayDevice>()
+      };
+
+      return CCDWrapper.EnumDisplayDevices(_deviceName, 0, ref info, CCDWrapper.EDD_GET_DEVICE_INTERFACE_NAME) ? info.DeviceID : null;
     }
 
     #endregion

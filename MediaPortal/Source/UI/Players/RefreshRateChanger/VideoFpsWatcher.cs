@@ -51,9 +51,9 @@ namespace MediaPortal.Plugins.RefreshRateChanger
       _settings.SettingsChanged += SettingsChanged;
     }
 
-    protected uint GetScreenNum()
+    protected string GetScreenDeviceName()
     {
-      return (uint)Array.IndexOf(System.Windows.Forms.Screen.AllScreens, System.Windows.Forms.Screen.FromControl(SkinContext.Form));
+      return System.Windows.Forms.Screen.FromControl(SkinContext.Form)?.DeviceName;
     }
 
     private void SyncToPlayer(IVideoPlayer player)
@@ -81,7 +81,14 @@ namespace MediaPortal.Plugins.RefreshRateChanger
           return;
         }
 
-        _refreshRateChanger = new TemporaryRefreshRateChanger(GetScreenNum(), true);
+        string deviceName = GetScreenDeviceName();
+        if (deviceName == null)
+        {
+          ServiceRegistration.Get<ILogger>().Error("RefreshRateChanger: No display device found");
+          return;
+        }
+
+        _refreshRateChanger = new TemporaryRefreshRateChanger(deviceName, true);
         var fps = TranslateFps(mappedIntFps);
 
         var currentRefreshRate = _refreshRateChanger.GetRefreshRate();

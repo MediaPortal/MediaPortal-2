@@ -46,11 +46,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new NewsRefreshShortcut(),
       }));
     }
-
-    protected override IContentListModel GetContentListModel()
-    {
-      return null;
-    }
   }
 
   public class NewsSetupShortcut : WorkflowNavigationShortcutItem

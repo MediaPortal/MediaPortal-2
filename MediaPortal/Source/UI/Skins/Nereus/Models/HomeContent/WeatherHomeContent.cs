@@ -47,11 +47,6 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new RefreshShortcut(),
       }));
     }
-
-    protected override IContentListModel GetContentListModel()
-    {
-      return null;
-    }
   }
 
   public class LocationShortcut : WorkflowNavigationShortcutItem
