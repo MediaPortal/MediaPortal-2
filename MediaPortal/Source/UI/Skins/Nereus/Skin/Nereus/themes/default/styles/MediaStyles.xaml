@@ -1414,6 +1414,99 @@
         </media:SeriesAspectWrapper.Template>
       </media:SeriesAspectWrapper>
 
+      <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <StackPanel.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </StackPanel.IsVisible>
+        <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:MediaAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                       IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                       IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"
+                       Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Margin="5,0,30,0" Opacity="0.6"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MediaAspectWrapper.Template>
+        </media:MediaAspectWrapper>
+        <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:SeriesAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                       IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
+                       FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                       IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Label.Content>
+                    <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F1}"/>
+                  </Label.Content>
+                </Label>
+              </Grid>
+            </ControlTemplate>
+          </media:SeriesAspectWrapper.Template>
+        </media:SeriesAspectWrapper>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Image Source="HomeContentIcons\genre.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,0,1" 
+                 VerticalAlignment="Center" IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+          <Label Grid.Column="1" x:Name="Genre" FontSize="{ThemeResource SmallerFontSize}" TextTrimming="WordEllipsis" Margin="5,0,30,0"
+                 Opacity="0.6" Color="{ThemeResource TextColor}" VerticalAlignment="Center">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+                <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+        </Grid>
+        <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Margin="0,7,0,-7">
+          <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,0,1"
+                 VerticalAlignment="Center" HorizontalAlignment="Left"/>
+          <StackPanel Orientation="Horizontal" Margin="30,0,0,0" VerticalAlignment="Center">
+            <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Seasons}" VerticalAlignment="Center"
+                   Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+            <Label FontSize="{ThemeResource SmallerFontSize}" Content="[Media.SeasonItemsHeader]" VerticalAlignment="Center"
+                   IsVisible="{Binding Path=Seasons,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+            <Label FontSize="{ThemeResource SmallerFontSize}" Content=" | " VerticalAlignment="Center"
+                   IsVisible="{Binding Path=Seasons,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+            <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Episodes}" VerticalAlignment="Center"
+                   Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+            <Label FontSize="{ThemeResource SmallerFontSize}" Content="[Media.EpisodeItemsHeader]" VerticalAlignment="Center"
+                   IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Margin="0,0,8,0" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+          </StackPanel>
+        </Grid>
+      </StackPanel>
+
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
@@ -1434,7 +1527,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10" Grid.RowSpan="2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Series" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
@@ -1661,6 +1754,60 @@
         </media:SeasonAspectWrapper.Template>
       </media:SeasonAspectWrapper>
 
+      <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="8,0,0,0">
+        <StackPanel.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </StackPanel.IsVisible>
+        <media:SeasonAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:SeasonAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,5,1"
+                       IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
+                       VerticalAlignment="Center" HorizontalAlignment="Left"/>
+
+                <Label Grid.Column="1" Content="[Media.SeasonRootViewName]" Color="{ThemeResource TextColor}"
+                       Opacity="0.6"  VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}"/>
+
+                <Label x:Name="SeasonLabel" Grid.Column="2" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
+                       VerticalAlignment="Center" Margin="7,0,0,0" Opacity="0.6"
+                       DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Season}"/>
+
+                <Label Grid.Column="3" FontSize="{ThemeResource SmallerFontSize}" Content=" | "
+                       DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
+                       IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
+                       Color="{ThemeResource TextColor}" VerticalAlignment="Center" Opacity="0.6" />
+
+                <Label Grid.Column="4" FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Episodes}"
+                       IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
+                       DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
+                       Margin="0,0,8,0" Color="{ThemeResource TextColor}" VerticalAlignment="Center" Opacity="0.6" />
+
+                <Label Grid.Column="5" FontSize="{ThemeResource SmallerFontSize}" Content="[Media.EpisodeItemsHeader]"
+                       IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
+                       Margin="0,0,30,0" Color="{ThemeResource TextColor}" VerticalAlignment="Center" Opacity="0.6" />
+              </Grid>
+            </ControlTemplate>
+          </media:SeasonAspectWrapper.Template>
+        </media:SeasonAspectWrapper>
+      </StackPanel>
+
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
@@ -1681,7 +1828,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10" Grid.RowSpan="2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="SeriesSeason" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
@@ -1853,27 +2000,26 @@
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
-      <DockPanel LastChildFill="True" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,4,0">
-        <Image x:Name="ItemTypeSmall" Stretch="Uniform"
-            Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
+      <Image x:Name="ItemTypeSmall" Stretch="Uniform"
+               Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
           </Image.IsVisible>
         </Image>
 
         <Image x:Name="ItemTypeMedium" Stretch="Uniform"
-            Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
+               Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
           </Image.IsVisible>
         </Image>
-        <Image x:Name="ItemTypeLarge" Stretch="Uniform"
-            Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
-          <Image.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
-          </Image.IsVisible>
-        </Image>
-      </DockPanel>
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Grid.RowSpan="2" Margin="0,2,20,10"
+             Source="{Binding MediaItem}" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+        <Image.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+        </Image.IsVisible>
+      </Image>
+
       <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
              Grid.Row="0" Grid.Column="1" Color="{ThemeResource MediaItemUnwatchedColor}">
         <Label.Content>
@@ -1883,14 +2029,126 @@
             <Binding Path="EpisodeName"/>
           </MultiBinding>
         </Label.Content>
-        <!--Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="!Virtual"/>
-            <Binding Source="{ThemeResource MediaItemUnwatchedColor}"/>
-            <Binding Source="{ThemeResource MediaItemOfflineColor}"/>
-          </MultiBinding>
-        </-->
       </Label>
+
+      <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <StackPanel.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </StackPanel.IsVisible>
+        <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Image x:Name="SeriesIcon" Source="HomeContentIcons\series.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                 IsVisible="{Binding Path=EpisodeNumber,Converter={StaticResource ReferenceToBoolConverter}}"/>
+          <StackPanel Orientation="Horizontal" Grid.Column="1" VerticalAlignment="Center">
+            <Label FontSize="{ThemeResource SmallerFontSize}" Content="S" VerticalAlignment="Center"
+                   IsVisible="{Binding Path=Season,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Margin="5,0,1,0" Opacity="0.6" Color="{ThemeResource TextColor}"/>
+            <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Season}" VerticalAlignment="Center"
+                   IsVisible="{Binding Path=Season,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Margin="0,0,10,0" Opacity="0.6" Color="{ThemeResource TextColor}"/>
+            <Label FontSize="{ThemeResource SmallerFontSize}" Content="E" VerticalAlignment="Center"
+                   IsVisible="{Binding Path=EpisodeNumber,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Margin="0,0,1,0" Opacity="0.6" Color="{ThemeResource TextColor}"/>
+            <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding EpisodeNumber}" VerticalAlignment="Center"
+               IsVisible="{Binding Path=EpisodeNumber,Converter={StaticResource ReferenceToBoolConverter}}"
+               Margin="0,0,30,0" Opacity="0.6" Color="{ThemeResource TextColor}"/>
+          </StackPanel>
+        </Grid>
+
+        <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:MediaAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                   IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Margin="5,0,30,0" Opacity="0.6"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MediaAspectWrapper.Template>
+        </media:MediaAspectWrapper>
+
+        <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:EpisodeAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
+                   FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                   IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Label.Content>
+                    <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F1}"/>
+                  </Label.Content>
+                </Label>
+              </Grid>
+            </ControlTemplate>
+          </media:EpisodeAspectWrapper.Template>
+        </media:EpisodeAspectWrapper>
+
+        <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:VideoStreamAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
+                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,-1,0,1"/>
+                <Label x:Name="Duration" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0"
+                   Grid.Column="1" VerticalAlignment="Center">
+                  <Label.Content>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                      <Binding Path="Duration"/>
+                    </MultiBinding>
+                  </Label.Content>
+                </Label>
+                <Label Content=" " IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"
+                   FontSize="{ThemeResource SmallerFontSize}" Grid.Column="2" VerticalAlignment="Center"/>
+                <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Grid.Column="3" Opacity="0.6" Margin="0,0,30,0"/>
+              </Grid>
+            </ControlTemplate>
+          </media:VideoStreamAspectWrapper.Template>
+        </media:VideoStreamAspectWrapper>
+      </StackPanel>
+
       <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
         <Control.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
@@ -2027,7 +2285,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10" Grid.RowSpan="2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="MovieCollection" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
@@ -2253,6 +2511,108 @@
           </ControlTemplate>
         </media:MovieAspectWrapper.Template>
       </media:MovieAspectWrapper>
+ 
+      <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <StackPanel.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </StackPanel.IsVisible>
+        <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:MediaAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                       IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                       IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"
+                       Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Margin="5,0,30,0" Opacity="0.6"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MediaAspectWrapper.Template>
+        </media:MediaAspectWrapper>
+        <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:MovieAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label x:Name="Duration" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                   IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0"
+                   Content="{Binding Path=Runtime}" Grid.Column="1" VerticalAlignment="Center"/>
+                <Label Content=" " IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"
+                   FontSize="{ThemeResource SmallerFontSize}" Grid.Column="2" VerticalAlignment="Center"/>
+                <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                   IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}" Grid.Column="3" Opacity="0.6" Margin="0,0,30,0"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MovieAspectWrapper.Template>
+        </media:MovieAspectWrapper>
+        <media:MovieAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:MovieAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                       IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
+                       FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                       IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Label.Content>
+                    <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F1}"/>
+                  </Label.Content>
+                </Label>
+              </Grid>
+            </ControlTemplate>
+          </media:MovieAspectWrapper.Template>
+        </media:MovieAspectWrapper>
+
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Image Source="HomeContentIcons\genre.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,0,1" 
+                 VerticalAlignment="Center" IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+          <Label Grid.Column="1" x:Name="Genre" FontSize="{ThemeResource SmallerFontSize}" TextTrimming="WordEllipsis" Margin="5,0,0,0"
+                 Opacity="0.6" Color="{ThemeResource TextColor}" VerticalAlignment="Center">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+                <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+        </Grid>
+      </StackPanel>
 
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
             Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
@@ -2274,8 +2634,8 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10"
-            Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
+      <Image Grid.RowSpan="2" x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-40,10"
+             Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                     fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
@@ -2657,7 +3017,87 @@
           </ControlTemplate>
         </media:AudioAspectWrapper.Template>
       </media:AudioAspectWrapper>
-      
+
+      <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <StackPanel.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </StackPanel.IsVisible>
+        <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:MediaAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                     IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                     Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" 
+                     IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,30,0" Opacity="0.6"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MediaAspectWrapper.Template>
+        </media:MediaAspectWrapper>
+
+        <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:AudioAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                     IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
+                     FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                     IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Label.Content>
+                    <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F1}"/>
+                  </Label.Content>
+                </Label>
+              </Grid>
+            </ControlTemplate>
+          </media:AudioAspectWrapper.Template>
+        </media:AudioAspectWrapper>
+
+        <media:AudioAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:AudioAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label x:Name="Duration" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,30,0"
+                     Content="{Binding Path=Duration, Converter={StaticResource DurationConverter}, ConverterParameter=mm\:ss}"
+                     Grid.Column="1" VerticalAlignment="Center"/>
+              </Grid>
+            </ControlTemplate>
+          </media:AudioAspectWrapper.Template>
+        </media:AudioAspectWrapper>
+      </StackPanel>
+
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2" Source="{Binding MediaItem}"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.IsVisible>
@@ -2670,14 +3110,21 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-30,2" Source="{Binding MediaItem}"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-20,12" Source="{Binding MediaItem}" Grid.RowSpan="2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
       <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Duration}" Margin="0,0,10,0" FontFamily="SegoeUIBold" 
-             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}" HorizontalAlignment="Right"/>
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}" HorizontalAlignment="Right">
+        <Label.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; ({1} == &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </Label.IsVisible>
+      </Label>
 
       <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
         <Control.IsVisible>
@@ -2843,7 +3290,104 @@
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,10,0" FontFamily="SegoeUIBold"
              FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
       </Label>
-      
+
+      <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <StackPanel.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </StackPanel.IsVisible>
+        <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:MediaAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"
+                   IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,30,0" Opacity="0.6"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MediaAspectWrapper.Template>
+        </media:MediaAspectWrapper>
+
+        <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:AudioAlbumAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
+                   FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                   IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+                  <Label.Content>
+                    <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F1}"/>
+                  </Label.Content>
+                </Label>
+              </Grid>
+            </ControlTemplate>
+          </media:AudioAlbumAspectWrapper.Template>
+        </media:AudioAlbumAspectWrapper>
+
+        <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+          <media:AudioAlbumAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Image x:Name="TrackIcon" Source="HomeContentIcons\track.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                       IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                <StackPanel Grid.Column="1" Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
+                            IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0" VerticalAlignment="Center">
+                  <Label x:Name="NumTracks" Content="{Binding Tracks}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"
+                         IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                  <Label Content=" " IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" FontSize="{ThemeResource SmallerFontSize}"/>
+                  <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
+                         IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="0.6" Margin="0,0,30,0"/>
+                </StackPanel>
+              </Grid>
+            </ControlTemplate>
+          </media:AudioAlbumAspectWrapper.Template>
+        </media:AudioAlbumAspectWrapper>
+        
+        <Grid IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}" Margin="0,8,0,-8">
+          <Image Source="HomeContentIcons\audiogenre.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,5,1" 
+                 VerticalAlignment="Center" HorizontalAlignment="Left"/>
+          <Label x:Name="Genre" FontSize="{ThemeResource SmallerFontSize}" TextTrimming="WordEllipsis" 
+                 Color="{ThemeResource TextColor}" Opacity="0.6" Margin="30,0,0,0" VerticalAlignment="Center">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+                <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+                <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+        </Grid>
+      </StackPanel>
+
       <Image x:Name="AlbumCoverSmall" Stretch="Uniform" Source="{Binding MediaItem}" Margin="10,2,0,2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.IsVisible>
@@ -2854,7 +3398,7 @@
              Width="{StaticResource MEDIA_THUMB_WIDTH_S}" Height="{StaticResource MEDIA_THUMB_HEIGHT_S}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH_S}" fanart:MaxHeight="{StaticResource MEDIA_THUMB_HEIGHT_S}"/>
         </Image.Source>
         <Image.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -2874,7 +3418,7 @@
              Width="{StaticResource MEDIA_THUMB_WIDTH_M}" Height="{StaticResource MEDIA_THUMB_HEIGHT_M}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH_M}" fanart:MaxHeight="{StaticResource MEDIA_THUMB_HEIGHT_M}"/>
         </Image.Source>
         <Image.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -2884,17 +3428,17 @@
         </Image.IsVisible>
       </Image>
 
-      <Image x:Name="AlbumCoverLarge" Stretch="Uniform" Source="{Binding MediaItem}" Margin="-40,2,-30,12"
+      <Image x:Name="AlbumCoverLarge" Stretch="Uniform" Source="{Binding MediaItem}" Margin="-40,2,-20,12" Grid.RowSpan="2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.IsVisible>
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-30,12"
+      <Image x:Name="ItemTypeLarge" Stretch="Uniform" Margin="-40,2,-20,12" Grid.RowSpan="2"
              Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                    fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource MEDIA_THUMB_WIDTH_L}" fanart:MaxHeight="{StaticResource MEDIA_THUMB_HEIGHT_L}"/>
         </Image.Source>
         <Image.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -2903,9 +3447,16 @@
           </MultiBinding>
         </Image.IsVisible>
       </Image>
-      
+
       <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Tracks}" Margin="20,0,10,0" FontFamily="SegoeUIBold"
-             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right"/>
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right">
+        <Label.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; ({1} == &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </Label.IsVisible>
+      </Label>
 
       <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
         <Control.IsVisible>
@@ -3067,7 +3618,7 @@
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Medium}"/>
           </Image.IsVisible>
         </Image>
-        <Image x:Name="ItemTypeLarge" Stretch="Uniform"
+        <Image x:Name="ItemTypeLarge" Stretch="Uniform" Grid.RowSpan="2" Margin="0,0,0,10"
                Source="{Binding MediaItem}" FallbackSource="ImageLarge.png" Width="{StaticResource MEDIA_THUMB_WIDTH_L}" Height="{StaticResource MEDIA_THUMB_HEIGHT_L}">
           <Image.IsVisible>
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
@@ -3077,20 +3628,66 @@
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Color="{ThemeResource MediaItemUnwatchedColor}"
              FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"/>
       <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding Size}" FontFamily="SegoeUIBold"
-             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,10,0"/>
-      <Grid x:Name="Details" Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
-        <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
-        </Grid.IsVisible>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="200"/>
-        </Grid.ColumnDefinitions>
-        <Label x:Name="FileTypeTitle" Grid.Column="0" Content="File type: " FontSize="{ThemeResource SmallFontSize}" 
-               FontFamily="SegoeUIBold" Color="{StaticResource MenuTextBackground}"/>
-        <Label x:Name="FileType" Grid.Column="1" Content="{Binding Extension}" FontSize="{ThemeResource SmallFontSize}"
-               FontFamily="SegoeUIBold" Color="{StaticResource MenuTextBackground}"/>
-      </Grid>
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,10,0">
+        <Label.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; ({1} == &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </Label.IsVisible>
+      </Label>
+
+      <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
+        <StackPanel.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+          </MultiBinding>
+        </StackPanel.IsVisible>
+        <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center">
+          <media:MediaAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                       IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                <Label x:Name="Year" FontSize="{ThemeResource SmallerFontSize}" Grid.Column="1" Margin="5,0,30,0" Opacity="0.6" VerticalAlignment="Center"
+                       IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                       Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Color="{ThemeResource TextColor}"/>
+              </Grid>
+            </ControlTemplate>
+          </media:MediaAspectWrapper.Template>
+        </media:MediaAspectWrapper>
+        <media:ImageAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center">
+          <media:ImageAspectWrapper.Template>
+            <ControlTemplate>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                  <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <Image x:Name="ResolutionIcon" Source="HomeContentIcons\resolution.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,5,1"
+                       IsVisible="{Binding ElementName=Height, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                <Label Content="{Binding AspectWidth}" Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"/>
+                <Label Content=" x " Grid.Column="2" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                       IsVisible="{Binding ElementName=Height, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                <Label Content="{Binding AspectHeight}" Grid.Column="3" Color="{ThemeResource TextColor}"
+                       IsVisible="{Binding ElementName=Height, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                       x:Name="Height" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6" Margin="0,0,30,0"/>
+              </Grid>
+            </ControlTemplate>
+          </media:ImageAspectWrapper.Template>
+        </media:ImageAspectWrapper>
+      </StackPanel>
     </Grid>
   </ControlTemplate>
 
