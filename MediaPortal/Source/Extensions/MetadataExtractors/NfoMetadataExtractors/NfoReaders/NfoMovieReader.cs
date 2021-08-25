@@ -1010,10 +1010,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       // </ratings>
       // or
       // <ratings>
-      //   <type default="true" max="10" name="themoviedb">
-      //     <rating>6.9</rating>
+      //   <rating default="true" max="10" name="themoviedb">
+      //     <value>6.9</value>
       //     <votes>1086</votes>
-      //   </type>
+      //   </rating>
       // </ratings>
       // The <ratings> element can contain one or more <rating> child elements
       // A value of 0 (zero) is ignored
@@ -1024,42 +1024,46 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         if (childElement.Name == "rating")
         {
           var moviedb = ParseStringAttribute(childElement, "moviedb");
-          var rating = ParseSimpleDecimal(element);
-          if (moviedb != null && rating != null && rating.Value != decimal.Zero)
+          if (moviedb != null)
           {
-            result = true;
-            if (_currentStub.Ratings == null)
-              _currentStub.Ratings = new Dictionary<string, decimal>();
-            _currentStub.Ratings[moviedb] = rating.Value;
-          }
-        }
-        else if (childElement.Name == "type")
-        {
-          var moviedb = ParseStringAttribute(childElement, "name");
-          var max = ParseIntAttribute(childElement, "max") ?? 10M;
-          if (childElement.HasElements)
-          {
-            foreach (var subChildElement in childElement.Elements())
+            var rating = ParseSimpleDecimal(element);
+            if (rating != null && rating.Value != decimal.Zero)
             {
-              if (subChildElement.Name == "rating")
+              result = true;
+              if (_currentStub.Ratings == null)
+                _currentStub.Ratings = new Dictionary<string, decimal>();
+              _currentStub.Ratings[moviedb] = rating.Value;
+            }
+          }
+          else
+          {
+            moviedb = ParseStringAttribute(childElement, "name");
+            var max = ParseIntAttribute(childElement, "max") ?? 10M;
+
+            if (moviedb != null && childElement.HasElements)
+            {
+              foreach (var subChildElement in childElement.Elements())
               {
-                var rating = ParseSimpleDecimal(subChildElement);
-                if (moviedb != null && rating != null && rating.Value != decimal.Zero)
+                if (subChildElement.Name == "value")
                 {
-                  result = true;
-                  if (_currentStub.Ratings == null)
-                    _currentStub.Ratings = new Dictionary<string, decimal>();
-                  _currentStub.Ratings[moviedb] = (rating.Value / max) * 10M;
+                  var rating = ParseSimpleDecimal(subChildElement);
+                  if (rating != null && rating.Value != decimal.Zero)
+                  {
+                    result = true;
+                    if (_currentStub.Ratings == null)
+                      _currentStub.Ratings = new Dictionary<string, decimal>();
+                    _currentStub.Ratings[moviedb] = (rating.Value / max) * 10M;
+                  }
                 }
-              }
-              else if (subChildElement.Name == "votes")
-              {
-                var votes = ParseSimpleInt(subChildElement);
-                if (moviedb != null && votes != null && votes.Value != decimal.Zero)
+                else if (subChildElement.Name == "votes")
                 {
-                  if (_currentStub.RatingVotes == null)
-                    _currentStub.RatingVotes = new Dictionary<string, int>();
-                  _currentStub.RatingVotes[moviedb] = votes.Value;
+                  var votes = ParseSimpleInt(subChildElement);
+                  if (votes != null && votes.Value != decimal.Zero)
+                  {
+                    if (_currentStub.RatingVotes == null)
+                      _currentStub.RatingVotes = new Dictionary<string, int>();
+                    _currentStub.RatingVotes[moviedb] = votes.Value;
+                  }
                 }
               }
             }
