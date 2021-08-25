@@ -54,7 +54,8 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="List" HorizontalAlignment="Center" GroupName="ViewModes">
+            <RadioButton x:Name="List" HorizontalAlignment="Center" GroupName="ViewModes" 
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=ListLayout}}">
               <RadioButton.IsChecked>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}">
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
@@ -98,10 +99,12 @@
             </RadioButton>
             <Label Grid.Column="1" Content="[Media.ListSmall]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="ListSmall" Path="HasFocus"/>
+                  <Binding ElementName="ListSmall" Path="!IsEnabled"/>
                   <Binding Source="1.0"/>
                   <Binding Source="0.5"/>
+                  <Binding Source="0.25"/>
                 </MultiBinding>
               </Label.Opacity>
             </Label>
@@ -114,10 +117,12 @@
                 </MultiBinding>
               </Image.Source>
               <Image.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="ListSmall" Path="HasFocus"/>
+                  <Binding ElementName="ListSmall" Path="!IsEnabled"/>
                   <Binding Source="1.0"/>
                   <Binding Source="0.5"/>
+                  <Binding Source="0.25"/>
                 </MultiBinding>
               </Image.Opacity>
             </Image>
@@ -143,10 +148,12 @@
             </RadioButton>
             <Label Grid.Column="1" Content="[Media.ListMedium]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="ListMedium" Path="HasFocus"/>
+                  <Binding ElementName="ListMedium" Path="!IsEnabled"/>
                   <Binding Source="1.0"/>
                   <Binding Source="0.5"/>
+                  <Binding Source="0.25"/>
                 </MultiBinding>
               </Label.Opacity>
             </Label>
@@ -159,10 +166,12 @@
                 </MultiBinding>
               </Image.Source>
               <Image.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="ListMedium" Path="HasFocus"/>
+                  <Binding ElementName="ListMedium" Path="!IsEnabled"/>
                   <Binding Source="1.0"/>
                   <Binding Source="0.5"/>
+                  <Binding Source="0.25"/>
                 </MultiBinding>
               </Image.Opacity>
             </Image>
@@ -188,10 +197,12 @@
             </RadioButton>
             <Label Grid.Column="1" Content="[Media.ListLarge]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="ListLarge" Path="HasFocus"/>
+                  <Binding ElementName="ListLarge" Path="!IsEnabled"/>
                   <Binding Source="1.0"/>
                   <Binding Source="0.5"/>
+                  <Binding Source="0.25"/>
                 </MultiBinding>
               </Label.Opacity>
             </Label>
@@ -204,10 +215,12 @@
                 </MultiBinding>
               </Image.Source>
               <Image.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="ListLarge" Path="HasFocus"/>
+                  <Binding ElementName="ListLarge" Path="!IsEnabled"/>
                   <Binding Source="1.0"/>
                   <Binding Source="0.5"/>
+                  <Binding Source="0.25"/>
                 </MultiBinding>
               </Image.Opacity>
             </Image>
@@ -235,7 +248,8 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <RadioButton x:Name="Grid" HorizontalAlignment="Center" GroupName="ViewModes">
+            <RadioButton x:Name="Grid" HorizontalAlignment="Center" GroupName="ViewModes"
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout}}">
               <RadioButton.IsChecked>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout}">
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
@@ -278,12 +292,6 @@
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
                 </MultiBinding>
               </RadioButton.IsChecked>
-              <RadioButton.IsEnabled>
-                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
-                  <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
-                  <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
-                </MultiBinding>
-              </RadioButton.IsEnabled>
               <RadioButton.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="Poster" Path="IsEnabled"/>
@@ -341,13 +349,22 @@
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
                 </MultiBinding>
               </RadioButton.IsChecked>
+              <RadioButton.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Thumbnail" Path="IsEnabled"/>
+                  <Binding Source="1.0"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </RadioButton.Opacity>
             </RadioButton>
             <Label Grid.Column="1" Content="[Media.ThumbnailLayout]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="Thumbnail" Path="HasFocus"/>
+                  <Binding ElementName="Thumbnail" Path="!IsEnabled"/>
                   <Binding Source="1.0"/>
                   <Binding Source="0.5"/>
+                  <Binding Source="0.25"/>
                 </MultiBinding>
               </Label.Opacity>
             </Label>
@@ -360,10 +377,12 @@
                 </MultiBinding>
               </Image.Source>
               <Image.Opacity>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="Thumbnail" Path="HasFocus"/>
+                  <Binding ElementName="Thumbnail" Path="!IsEnabled"/>
                   <Binding Source="1.0"/>
                   <Binding Source="0.5"/>
+                  <Binding Source="0.25"/>
                 </MultiBinding>
               </Image.Opacity>
             </Image>
@@ -386,12 +405,6 @@
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
                 </MultiBinding>
               </RadioButton.IsChecked>
-              <RadioButton.IsEnabled>
-                <MultiBinding Converter="{StaticResource InvertedMediaItemAspectToBoolConverter}">
-                  <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
-                  <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
-                </MultiBinding>
-              </RadioButton.IsEnabled>
               <RadioButton.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="Banner" Path="IsEnabled"/>
@@ -461,10 +474,12 @@
           <Label Grid.Column="1" Content="[Media.CoverLayout]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                  FontFamily="SegoeUIBold" VerticalAlignment="Center">
             <Label.Opacity>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
                 <Binding ElementName="Coverflow" Path="HasFocus"/>
+                <Binding ElementName="Coverflow" Path="IsChecked"/>
                 <Binding Source="1.0"/>
                 <Binding Source="0.5"/>
+                <Binding Source="0.25"/>
               </MultiBinding>
             </Label.Opacity>
           </Label>
@@ -477,10 +492,12 @@
               </MultiBinding>
             </Image.Source>
             <Image.Opacity>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
                 <Binding ElementName="Coverflow" Path="HasFocus"/>
+                <Binding ElementName="Coverflow" Path="IsChecked"/>
                 <Binding Source="1.0"/>
                 <Binding Source="0.5"/>
+                <Binding Source="0.25"/>
               </MultiBinding>
             </Image.Opacity>
           </Image>

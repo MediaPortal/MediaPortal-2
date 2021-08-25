@@ -97,14 +97,15 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Image>
         <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].FanartOverlayOpacity}">
           <Image.Source>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} ? {1} : ({0} == {LayoutType}.{ListLayout} ? {2} : {3})">
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{ListLayout} &amp;&amp; {4} == &quot;True&quot;) ? {1} : ((({0} == {LayoutType}.{ListLayout} &amp;&amp; {4} != &quot;True&quot;) || {0} == {LayoutType}.{GridLayout}) ? {2} : {3})">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
               <Binding Source="Background_ListView.png"/>
               <!--Grid-->
-              <Binding Source="Background_ListView.png"/>
+              <Binding Source="Background_GridView.png"/>
               <!--List-->
               <Binding Source="Background_CoverView.png"/>
               <!--Cover-->
+              <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
             </MultiBinding>
           </Image.Source>
         </Image>
