@@ -371,7 +371,7 @@
             <Grid Margin="200,10,0,-5">
               <Grid.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
-                  <Binding ElementName="actorlist" Path="Items.Count" />
+                  <Binding ElementName="actorlist" Path="ItemsCount" />
                 </MultiBinding>
               </Grid.IsVisible>
               <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
@@ -405,7 +405,7 @@
             <Grid Margin="200,10,0,-5">
               <Grid.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
-                  <Binding ElementName="directorlist" Path="Items.Count" />
+                  <Binding ElementName="directorlist" Path="ItemsCount" />
                 </MultiBinding>
               </Grid.IsVisible>
               <Image Source="HomeContentIcons\director.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
