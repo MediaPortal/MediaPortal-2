@@ -23,7 +23,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1" Grid.Column="1" Margin="-250,-100,20,30">
+              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1" Grid.Column="1" Margin="-250,-150,20,30">
 
                 <Image x:Name="CDImage" Stretch="Fill"
                        FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
@@ -53,7 +53,7 @@
                   </Image.RenderTransform>
                 </Image>
 
-                <Grid HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="400" Height="400" Margin="0,0,0,20" Background="{ThemeResource NereusColorMedium}">                  
+                <Grid HorizontalAlignment="Right" VerticalAlignment="Center" Width="400" Height="400" Margin="0,-20,0,0" Background="{ThemeResource NereusColorMedium}">               
                   <Image Stretch="Uniform" Source="audio.png" HorizontalAlignment="Center" VerticalAlignment="Center" 
                          IsVisible="{Binding ElementName=Thumb, Path=!HasImage}" Margin="50">
                   </Image>
@@ -63,7 +63,7 @@
                   <Image Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="400" Height="400">
                     <Image.Source>
                       <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                                fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+                                                fanart:MaxWidth="400" fanart:MaxHeight="400"/>
                     </Image.Source>
                   </Image>
                 </Grid>
@@ -178,14 +178,8 @@
           <Grid Margin="0,0,20,0" IsVisible="{Binding ElementName=TrackLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image Source="HomeContentIcons\track.png" Height="29" Width="28" Stretch="Uniform" Margin="0,0,5,0"
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
-              <Label x:Name="TrackLabel" Content="{Binding Track}" Color="{ThemeResource TextColorForeground}" 
-                     VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
-
-                      <Label Content="|" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
-                      <Label x:Name="NumTracks" Content="{Binding NumTracks}" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"/>
-
-            </StackPanel>
+            <Label x:Name="TrackLabel" Content="{Binding Track}" Color="{ThemeResource TextColorForeground}" 
+                     VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Margin="40,0,0,0"/>
           </Grid>
 
           <Grid IsVisible="{Binding ElementName=Duration, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
@@ -205,17 +199,6 @@
                      Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center"/>
             </StackPanel>
           </Grid>
-
-          <!--Grid Margin="0,0,20,0" IsVisible="{Binding ElementName=Bitrate, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-            <Image Source="HomeContentIcons\settings.png" Height="28" Width="28" Stretch="Uniform" Margin="2,0,5,0" 
-                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Label x:Name="Bitrate" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}" 
-                   VerticalAlignment="Center" Margin="40,0,0,0">
-              <Label.Content>
-                <Binding Path="BitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kBit"/>
-              </Label.Content>
-            </Label>
-          </Grid-->
 
         </StackPanel>
       </ControlTemplate>
