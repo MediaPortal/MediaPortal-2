@@ -23,58 +23,55 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1" Grid.Column="1" Margin="-250,-150,20,30">
-
-                <Image x:Name="CDImage" Stretch="Fill"
-                       FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
-                       VerticalAlignment="Center" Width="380" Height="380" Margin="-40,0,190,20">
-                  <Image.Source>
-                    <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+  <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Grid.Row="1" Grid.Column="1" Margin="-250,-150,20,30">
+    <Image x:Name="CDImage" Stretch="Fill"
+           FallbackSource="CD.png" HorizontalAlignment="Right" RenderTransformOrigin="0.498,0.498"
+           VerticalAlignment="Center" Width="380" Height="380" Margin="-40,0,190,20">
+      <Image.Source>
+        <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="DiscArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                               fanart:MaxWidth="380" fanart:MaxHeight="380"/>
-                  </Image.Source>
-                  <Image.Resources>
-                    <Storyboard x:Key="DiskRotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
-                      <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
-                                 From="0" To="360" Duration="0:0:4.5" RepeatBehavior="Forever" />
-                    </Storyboard>
-                  </Image.Resources>
-                  <Image.Triggers>
-                    <DataTrigger Binding="{Binding IsVisible}" Value="True">
-                      <DataTrigger.EnterActions>
-                        <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DiskRotationStoryboard}"/>
-                      </DataTrigger.EnterActions>
-                      <DataTrigger.ExitActions>
-                        <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
-                      </DataTrigger.ExitActions>
-                    </DataTrigger>
-                  </Image.Triggers>
-                  <Image.RenderTransform>
-                    <RotateTransform Angle="0" />
-                  </Image.RenderTransform>
-                </Image>
+      </Image.Source>
+      <Image.Resources>
+        <Storyboard x:Key="DiskRotationStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+          <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Angle"
+                           From="0" To="360" Duration="0:0:4.5" RepeatBehavior="Forever" />
+         </Storyboard>
+        </Image.Resources>
+        <Image.Triggers>
+        <DataTrigger Binding="{Binding IsVisible}" Value="True">
+          <DataTrigger.EnterActions>
+            <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DiskRotationStoryboard}"/>
+          </DataTrigger.EnterActions>
+          <DataTrigger.ExitActions>
+            <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+          </DataTrigger.ExitActions>
+        </DataTrigger>
+      </Image.Triggers>
+      <Image.RenderTransform>
+        <RotateTransform Angle="0" />
+      </Image.RenderTransform>
+    </Image>
 
-                <Grid HorizontalAlignment="Right" VerticalAlignment="Center" Width="400" Height="400" Margin="0,-20,0,0" Background="{ThemeResource NereusColorMedium}">               
-                  <Image Stretch="Uniform" Source="audio.png" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                         IsVisible="{Binding ElementName=Thumb, Path=!HasImage}" Margin="50">
-                  </Image>
-                  <Image x:Name="Thumb" Stretch="Fill" Source="{Binding MediaItem}" HorizontalAlignment="Stretch"
-                         VerticalAlignment="Stretch" Width="400" Height="400">
-                  </Image>
-                  <Image Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="400" Height="400">
-                    <Image.Source>
-                      <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                                fanart:MaxWidth="400" fanart:MaxHeight="400"/>
-                    </Image.Source>
-                  </Image>
-                </Grid>
-              </Grid>
-
-      <Image Grid.Row="1" Grid.Column="1" Margin="-200,-230,10,0" HorizontalAlignment="Center" VerticalAlignment="Top" Stretch="Uniform" Height="140">
+    <Grid HorizontalAlignment="Right" VerticalAlignment="Center" Width="400" Height="400" Margin="0,-20,0,0" Background="{ThemeResource NereusColorMedium}">               
+      <Image Stretch="Uniform" Source="audio.png" HorizontalAlignment="Center" VerticalAlignment="Center" 
+             IsVisible="{Binding ElementName=Thumb, Path=!HasImage}" Margin="50"/>
+      <Image x:Name="Thumb" Stretch="Fill" Source="{Binding MediaItem}" HorizontalAlignment="Stretch"
+                         VerticalAlignment="Stretch" Width="400" Height="400"/>
+      <Image Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="400" Height="400">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                    fanart:MaxWidth="250" fanart:MaxHeight="120"/>
+        <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                    fanart:MaxWidth="400" fanart:MaxHeight="400"/>
         </Image.Source>
       </Image>
+    </Grid>
+  </Grid>
+
+  <Image Grid.Row="1" Grid.Column="1" Margin="-200,-230,10,0" HorizontalAlignment="Center" VerticalAlignment="Top" Stretch="Uniform" Height="140">
+    <Image.Source>
+      <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                fanart:MaxWidth="250" fanart:MaxHeight="120"/>
+    </Image.Source>
+  </Image>
 
   <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" >
     <media:AudioAspectWrapper.Template>
