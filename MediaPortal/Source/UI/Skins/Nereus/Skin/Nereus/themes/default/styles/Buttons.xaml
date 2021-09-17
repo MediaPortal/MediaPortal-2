@@ -330,18 +330,18 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <DockPanel Name="ButtonControlRectangle" Margin="0,0,0,-10" LastChildFill="True"
+          <DockPanel Name="ButtonControlRectangle" LastChildFill="True" Background="{ThemeResource NereusColorMedium}"
                      IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-            <DockPanel.Background>
-              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="0.0"/>
-                <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="0.85"/>
-                <GradientStop Color="#66000000" Offset="0.85"/>
-                <GradientStop Color="#00000000" Offset="1.0"/>
-              </LinearGradientBrush>
-            </DockPanel.Background>
-            <DockPanel Margin="0,0,0,9" DockPanel.Dock="Left" Background="{ThemeResource NereusColorLight}" Width="8"/>
-            <DockPanel Margin="0,0,0,9" DockPanel.Dock="Right">
+            <DockPanel DockPanel.Dock="Bottom" Height="10" Margin="0,0,0,-10">
+              <DockPanel.Background>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                  <GradientStop Color="#66000000" Offset="0"/>
+                  <GradientStop Color="#00000000" Offset="1.0"/>
+                </LinearGradientBrush>
+              </DockPanel.Background>
+            </DockPanel>
+            <DockPanel DockPanel.Dock="Left" Background="{ThemeResource NereusColorLight}" Width="8"/>
+            <DockPanel DockPanel.Dock="Right">
               <DockPanel.Background>
                 <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
                   <GradientStop Color="#80000000" Offset="0.00"/>
