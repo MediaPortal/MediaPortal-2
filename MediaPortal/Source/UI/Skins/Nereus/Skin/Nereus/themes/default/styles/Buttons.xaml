@@ -326,6 +326,17 @@
     </Setter>
   </Style>
 
+  <Style x:Key="ButtonListViewDefaultControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ButtonControlRectangle" LastChildFill="True" Background="{ThemeResource NereusColorMedium}"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="ButtonListViewControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
@@ -816,7 +827,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonListViewControlStyle}" Margin="-20,0,-20,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
+            <Control Style="{ThemeResource ButtonListViewDefaultControlStyle}" Margin="-20,0,-20,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
             <!--Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/-->
           </Grid>

@@ -61,7 +61,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <!-- Client_Template -->
     <ControlTemplate x:Key="Client_Template" Panel.ZIndex="2">
       <DockPanel LastChildFill="True">
-        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="-10,-92,0,-265" >
+        <Grid x:Name="LeftPanel" DockPanel.Dock="Left" VerticalAlignment="Stretch" Margin="0,-92,0,-265" >
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
@@ -104,7 +104,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </MultiBinding>
             </Image.IsVisible>
           </Image>
-          <Border Grid.RowSpan="3" Margin="0,0,0,0" Background="Black" Opacity="1">
+          <Border Grid.RowSpan="3" Margin="0,0,-1,0" Background="Black" Opacity="1">
             <Border.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
                 <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
@@ -119,8 +119,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </Border.Width>
           </Border>
 
-          <ListView x:Name="MainMenu" Grid.Row="1" Margin="30,0,20,0"
-                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
+          <ListView x:Name="MainMenu" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
                     ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Style>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {2} : {1}">
@@ -162,7 +161,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="-1,-92,0,-265" Panel.ZIndex="1">
+        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultHigh" Margin="-20,-92,0,-265" Panel.ZIndex="1">
           <Grid.IsVisible>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
               <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
