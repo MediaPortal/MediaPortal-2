@@ -62,5 +62,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Settings
 
     [Setting(SettingScope.Global, "Flat-default")]
     public string LogoTheme { get; set; }
+
+    [Setting(SettingScope.Global, true)]
+    public bool EnableAutoUpdate { get; set; }
   }
 }
