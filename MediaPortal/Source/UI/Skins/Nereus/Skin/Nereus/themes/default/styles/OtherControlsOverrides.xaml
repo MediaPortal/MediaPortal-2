@@ -548,7 +548,8 @@
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
       </Grid>
-
+      <Image Width="15" HorizontalAlignment="Left" Grid.RowSpan="2" Source="Horizontal_gradient.png" Opacity="0.8"
+             VerticalAlignment="Stretch" IsVisible="{Binding Path=Selected}" Stretch="Fill"/>
       <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch"
                  IsVisible="{Binding Path=Selected}"/>
     </Grid>
@@ -700,7 +701,9 @@
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
       </Grid>
-      
+      <Image HorizontalAlignment="Left" Source="Horizontal_gradient.png"
+             VerticalAlignment="Stretch" Stretch="Fill" Width="15" Opacity="0.8"
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
       <Rectangle Fill="#FFFFFF" Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
                  IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
@@ -864,6 +867,31 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeMenuItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="MainMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_List}" Margin="0,0,0,0"
+              Command="{DynamicResource ResourceKey=Menu_Command}"
+              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MainMenuItemContainerStyle}"/>
   </Style>
 
   <Style x:Key="SettingsMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
