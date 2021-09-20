@@ -898,6 +898,7 @@
     <Content Include="Skin\Nereus\images\SettingsMenu\Icon_Players_Image.png" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Icon_Players_VideoPlayer.png" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Icon_Plugins.png" />
+    <Content Include="Skin\Nereus\images\SettingsMenu\Icon_Plugins_Alexa.png" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Icon_Plugins_AppLauncher.png" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Icon_Plugins_Emulators.png" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Icon_Plugins_News.png" />
@@ -929,6 +930,7 @@
     <Content Include="Skin\Nereus\images\SettingsMenu\Players_Image.jpg" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Players_VideoPlayer.jpg" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Plugins.jpg" />
+    <Content Include="Skin\Nereus\images\SettingsMenu\Plugins_Alexa.jpg" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Plugins_AppLauncher.jpg" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Plugins_Emulators.jpg" />
     <Content Include="Skin\Nereus\images\SettingsMenu\Plugins_News.jpg" />
