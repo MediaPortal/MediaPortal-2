@@ -31,7 +31,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == &quot;True&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} == &quot;True&quot;)">
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == &quot;False&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} == &quot;False&quot;)">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
               <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
               <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
@@ -79,7 +79,7 @@
           <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
             <Control.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == &quot;True&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} == &quot;True&quot;)">
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == &quot;False&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} == &quot;False&quot;)">
                 <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
                 <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
                 <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>

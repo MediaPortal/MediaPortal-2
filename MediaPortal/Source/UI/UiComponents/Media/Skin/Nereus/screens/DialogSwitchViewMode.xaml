@@ -530,7 +530,7 @@
           <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
             <Image.Source>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding ElementName="ListExtendedMediaDetails" Path="!IsChecked"/>
+                <Binding ElementName="ListExtendedMediaDetails" Path="IsChecked"/>
                 <Binding Source="ViewMode\Grid.Details.png"/>
                 <Binding Source="ViewMode\Grid.Details.Extended.png"/>
               </MultiBinding>
@@ -568,7 +568,7 @@
           <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
             <Image.Source>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding ElementName="GridExtendedMediaDetails" Path="!IsChecked"/>
+                <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
                 <Binding Source="ViewMode\Grid.Details.png"/>
                 <Binding Source="ViewMode\Grid.Details.Extended.png"/>
               </MultiBinding>
@@ -606,7 +606,7 @@
           <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
             <Image.Source>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding ElementName="CoverExtendedMediaDetails" Path="!IsChecked"/>
+                <Binding ElementName="CoverExtendedMediaDetails" Path="IsChecked"/>
                 <Binding Source="ViewMode\Coverflow.Details.png"/>
                 <Binding Source="ViewMode\Coverflow.Details.Extended.png"/>
               </MultiBinding>
