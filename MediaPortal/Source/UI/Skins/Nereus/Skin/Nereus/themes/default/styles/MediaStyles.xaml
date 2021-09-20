@@ -1556,7 +1556,7 @@
 
       <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="Poster_small.png" Margin="-5"/>
         <Image x:Name="poster" Stretch="Fill" Margin="3">
@@ -1622,7 +1622,7 @@
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
         <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
@@ -1857,7 +1857,7 @@
 
       <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="Poster_small.png" Margin="-5"/>
         <Image x:Name="poster" Stretch="Fill" Margin="3">
@@ -1903,7 +1903,7 @@
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
         <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
@@ -2314,7 +2314,7 @@
 
       <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="Poster_small.png" Margin="-5"/>
         <Image x:Name="poster" Stretch="Fill" Margin="3">
@@ -2386,7 +2386,7 @@
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
         <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
@@ -2664,7 +2664,7 @@
 
       <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="Poster_small.png" Margin="-5"/>
         <Image x:Name="poster" Stretch="Fill" Margin="3">
@@ -2746,7 +2746,7 @@
 
       <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
         </Grid.IsVisible>
         <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
         <Image x:Name="thumbnail" Stretch="Fill" Margin="3">

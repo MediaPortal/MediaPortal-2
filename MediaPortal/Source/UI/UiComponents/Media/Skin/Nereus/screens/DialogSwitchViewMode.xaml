@@ -34,6 +34,8 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
+        <!--###################### VIEW MODES #######################-->
+
         <!-- LIST VIEW -->
         <Grid Margin="0,0,10,10">
           <Grid.RowDefinitions>
@@ -285,9 +287,9 @@
             </Grid.ColumnDefinitions>
             
             <RadioButton x:Name="Poster" GroupName="GridViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Grid, Path=IsChecked}"
-                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Small}}">
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Large}}">
               <RadioButton.IsChecked>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == {LayoutSize}.{Small}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == {LayoutSize}.{Large}">
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
                 </MultiBinding>
@@ -342,9 +344,9 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="Thumbnail" GroupName="GridViewModes" HorizontalAlignment="Center" IsEnabled="{Binding ElementName=Grid, Path=IsChecked}"
-                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Large}}">
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Small}}">
               <RadioButton.IsChecked>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == {LayoutSize}.{Large}">
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == {LayoutSize}.{Small}">
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
                 </MultiBinding>
@@ -503,6 +505,8 @@
           </Image>
         </Grid>
 
+        <!--###################### EXTENDED DETAILS #######################-->
+
         <!-- LIST MEDIA DETAILS -->
         <Grid Grid.Column="0" Grid.Row="2" Margin="5,5,10,10">
           <Grid.RowDefinitions>
@@ -617,6 +621,8 @@
           </Image>
         </Grid>
 
+        <!--###################### WATCHED FLAGS #######################-->
+        
         <!-- LIST WATCHED FLAGS -->
         <Grid Grid.Column="0" Grid.Row="4" Margin="5,5,10,10">
           <Grid.RowDefinitions>
