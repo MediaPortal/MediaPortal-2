@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -47,11 +47,11 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       {
         try
         {
-          return ServiceRegistration.Get<IPlayerManager>().Volume;
+          return ServiceRegistration.Get<IPlayerManager>(false)?.Volume ?? -1;
         }
         catch (Exception)
         {
-          return 101;
+          return -1;
         }
       }
     }
@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
     /// </summary>
     public bool IsMuted
     {
-      get { return ServiceRegistration.Get<IPlayerManager>().Muted; }
+      get { return ServiceRegistration.Get<IPlayerManager>(false)?.Muted ?? false; }
     }
   }
 }

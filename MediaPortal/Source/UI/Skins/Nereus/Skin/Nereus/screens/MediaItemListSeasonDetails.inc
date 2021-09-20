@@ -72,14 +72,19 @@
             <Label x:Name="SeasonLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="7,0,0,0"
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Content="{Binding Season}"/>
           </StackPanel>
-          <StackPanel Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Episodes}"
-                   Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"/>
-            <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+          <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
+            <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" Margin="2,-1,5,1"
                    IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
-                   Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"/>
-          </StackPanel>
-
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
+              <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Episodes}"
+                     IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
+                     Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.EpisodeItemsHeader]"
+                     IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
+                     Margin="0,0,8,0" Color="{ThemeResource TextColorForeground}"/>
+            </StackPanel>
+          </Grid>
           <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Color="{ThemeResource TextColorForeground}">
             <Label.Content>
               <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">

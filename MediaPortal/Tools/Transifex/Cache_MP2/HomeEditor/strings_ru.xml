@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="HomeEditor.Configuration.AddGroup">Добавить группу</string>
+  <string name="HomeEditor.Configuration.GroupEdit.Header">Изменить группу</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Header">Удалить группу</string>
+  <string name="HomeEditor.Configuration.GroupRemove.Label">Выберите группы к удалению</string>
+  <string name="HomeEditor.Configuration.DisplayName">Отображаемое имя</string>
+  <string name="HomeEditor.Configuration.RestoreDefaults">Восстановить к настройкам по умолчанию</string>
+  
+  <string name="HomeEditor.Configuration.ActionEdit.Header">Изменить действие</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Header">Удалить действие</string>
+  <string name="HomeEditor.Configuration.ActionRemove.Label">Выберите действия к удалению</string>
+  <string name="HomeEditor.Configuration.ActionEdit.Label">Выбрать действие</string>
+  <string name="HomeEditor.Configuration.AddAction">Добавить действие</string>
+</resources>

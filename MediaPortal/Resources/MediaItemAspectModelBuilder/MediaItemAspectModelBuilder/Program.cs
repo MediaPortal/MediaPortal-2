@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 
 namespace MediaItemAspectModelBuilder
 {
@@ -64,7 +64,7 @@ namespace MediaItemAspectModelBuilder
       typeList = new List<Type> { typeof(RecordingAspect) };
       classNamespace = "MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers";
       codeBasePath = @"..\..\..\..\..\Source\UI\TV\SlimTvClient\Models\AspectWrappers\";
-      aspectNamespace = "MediaPortal.Extensions.MetadataExtractors.Aspects";
+      aspectNamespace = "MediaPortal.Plugins.SlimTv.Interfaces.Aspects";
 
       BuildWrappers(typeList, childTypes, classNamespace, aspectNamespace, createAsControl, exposeNullables, codeBasePath);
     }

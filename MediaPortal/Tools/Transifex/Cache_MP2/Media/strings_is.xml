@@ -164,6 +164,7 @@
   <string name="Media.Refresh">Endurstilla</string>
   <string name="Media.ReimportMediaItem.Done">Lokið</string>
   <string name="Media.ReimportMediaItem.Description">Lýsing</string>
+  <string name="Media.SubtitleSearch.Language">Tungumál</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spila atriði</string>
   <string name="Media.PlayAudioItems">Spila hljóðskrá</string>

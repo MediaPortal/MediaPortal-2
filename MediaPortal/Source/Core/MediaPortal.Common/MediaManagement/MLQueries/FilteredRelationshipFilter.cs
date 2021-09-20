@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -72,6 +72,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlElement("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlElement("Relationship", typeof(RelationshipFilter))]
     [XmlElement("FilteredRelationship", typeof(FilteredRelationshipFilter))]
+    [XmlElement("SharePath", typeof(SharePathFilter))]
     public object XML_Filter
     {
       get { return _filter; }

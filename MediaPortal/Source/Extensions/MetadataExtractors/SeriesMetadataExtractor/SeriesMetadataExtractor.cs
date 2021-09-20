@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -39,6 +39,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Common.SystemResolver;
 
@@ -62,6 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
+    public const string MEDIA_CATEGORY_NAME_VIDEO = "Video";
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
@@ -207,6 +209,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       EpisodeInfo episodeInfo = new EpisodeInfo();
       episodeInfo.FromMetadata(extractedAspectData);
+      if (!extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        episodeInfo.AllowOnlineReSearch = true;
+      episodeInfo.ForceOnlineSearch = episodeInfo.IsDirty;
 
       if (!isReimport) //Ignore file based information for reimports because they might be the cause of the wrong match
       {
@@ -270,13 +275,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         EpisodeInfo tempInfo = episodeInfo.Clone();
-        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(tempInfo, _category).ConfigureAwait(false);
-        episodeInfo.CopyIdsFrom(tempInfo);
-        episodeInfo.HasChanged = tempInfo.HasChanged;
+        if (await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(tempInfo, _category).ConfigureAwait(false))
+        {
+          episodeInfo.CopyIdsFrom(tempInfo);
+          episodeInfo.HasChanged = tempInfo.HasChanged;
+        }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Unable to get online ids for resource '{0}'", lfsra.CanonicalLocalResourcePath);
+        }
       }
       else if (!SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, _category).ConfigureAwait(false);
+        var success = await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, _category).ConfigureAwait(false);
+        if (!success)
+          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Unable to get online data for resource '{0}'", lfsra.CanonicalLocalResourcePath);
       }
 
       if (episodeInfo.EpisodeName.IsEmpty)
@@ -353,13 +366,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       try
       {
-        if (!(searchCategories?.Contains(_category) ?? true))
+        if (!(searchCategories?.Intersect(new[] { MEDIA_CATEGORY_NAME_SERIES, MEDIA_CATEGORY_NAME_VIDEO }).Any() ?? true))
           return null;
 
         string searchData = null;
         var reimportAspect = MediaItemAspect.GetAspect(searchAspectData, ReimportAspect.Metadata);
         if (reimportAspect != null)
           searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
+        if (string.IsNullOrEmpty(searchData) && !searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID) && !searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
+          return null;
 
         ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
 
@@ -635,41 +650,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       var seriesDirectoryPath = ResourcePathHelper.Combine(episodePath, "../../");
       using (var seriesRa = new ResourceLocator(system.LocalSystemId, seriesDirectoryPath).CreateAccessor())
       {
-        if (IsSeriesFolder(seriesRa as IFileSystemResourceAccessor, knownSeasonNo))
+        if (LocalFanartHelper.IsSeriesFolder(seriesRa as IFileSystemResourceAccessor, knownSeasonNo))
           return seriesDirectoryPath;
       }
 
       //Presume there are no season folders
       return ResourcePathHelper.Combine(episodePath, "../");
-    }
-
-    private bool IsSeriesFolder(IFileSystemResourceAccessor seriesFolder, int? knownSeasonNo)
-    {
-      if (seriesFolder == null)
-        return false;
-
-      int maxInvalidFolders = 3;
-      var seasonFolders = seriesFolder.GetChildDirectories();
-      var seasonNos = seasonFolders.Select(GetSeasonFromFolder).ToList();
-      var invalidSeasonCount = seasonNos.Count(s => s < 0);
-      var validSeasonCount = seasonNos.Count(s => s >= 0);
-      if (invalidSeasonCount <= maxInvalidFolders && validSeasonCount > 0)
-        return true;
-      if (invalidSeasonCount > maxInvalidFolders)
-        return false;
-      if (validSeasonCount > 0 && knownSeasonNo.HasValue && !seasonNos.Contains(knownSeasonNo.Value))
-        return false;
-
-      return true;
-    }
-
-    private int GetSeasonFromFolder(IFileSystemResourceAccessor seasonFolder)
-    {
-      int beforeSeasonNoIndex = seasonFolder.ResourceName.LastIndexOf(" ");
-      if (beforeSeasonNoIndex >= 0 && int.TryParse(seasonFolder.ResourceName.Substring(beforeSeasonNoIndex + 1), out int seasonNo))
-        return seasonNo;
-
-      return -1;
     }
 
     public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)

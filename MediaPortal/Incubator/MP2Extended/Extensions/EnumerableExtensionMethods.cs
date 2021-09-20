@@ -70,7 +70,7 @@ namespace MediaPortal.Plugins.MP2Extended.Extensions
 
       var parser = new FilterParser(filter);
       var filterInstance = parser.Parse();
-      filterInstance.ExpectType(list.GetType().GetGenericArguments().Single());
+      filterInstance.ExpectType(typeof(T));
       return list.Where(x => filterInstance.Matches<T>(x));
     }
 

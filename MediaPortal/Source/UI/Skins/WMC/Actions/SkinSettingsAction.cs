@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -36,7 +36,7 @@ namespace MediaPortal.UiComponents.WMCSkin.Actions
 {
   public class SkinSettingsAction : AbstractConfigurationAction
   {
-    public const string CONFIG_LOCATION = "/Appearance/Skin/SkinSettings";
+    public const string CONFIG_LOCATION = "/Appearance/SkinSettings";
 
     public override IResourceString DisplayTitle
     {

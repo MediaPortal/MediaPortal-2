@@ -176,6 +176,7 @@
   <string name="Media.Refresh">רענן</string>
   <string name="Media.ReimportMediaItem.Done">בוצע</string>
   <string name="Media.ReimportMediaItem.Description">תיאור</string>
+  <string name="Media.SubtitleSearch.Language">שפה</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">נגן פריט</string>
   <string name="Media.PlayAudioItems">נגן פריטי אודיו</string>

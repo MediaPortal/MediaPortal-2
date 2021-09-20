@@ -181,7 +181,9 @@
                    Color="{DynamicResource ProgramFontColor}"/>
 
             <Label Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="5" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,15,0"
-                   Wrap="True" Scroll="Auto" Content="{Binding Description}" Color="{ThemeResource TextColor}" ScrollSpeed="15" Opacity="0.6"/>
+                   ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
+                   ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
+                   Wrap="True" Scroll="Auto" Content="{Binding Description}" Color="{ThemeResource TextColor}" Opacity="0.6"/>
 
             <!-- Dummy button which makes the panel focusable -->
             <Button Grid.Column="2" VerticalAlignment="Bottom" Style="{ThemeResource EmptyStyle}" SetFocusPrio="{DynamicResource ButtonFocus}"/>
@@ -258,7 +260,7 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
 
-          <Control Style="{ThemeResource OSDTvContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}" 
+          <Control Style="{ThemeResource OSDTvContainer}" Width="{SkinWidth}" 
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Control.Resources>
               <ControlTemplate x:Key="OSD_Background_Template">
@@ -269,7 +271,7 @@
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
-                  <Image Source="OSD_TV_background.png" Stretch="Uniform" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
+                  <Image Source="OSD_TV_background.png" Stretch="Fill" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"/>
                 </Grid>
               </ControlTemplate>
 
@@ -393,8 +395,8 @@
                               Command="{Command Source={StaticResource SlimTvClient},Path=ZapPrevChannel}"/>
                     </StackPanel>
                     <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                          IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
-                          Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                            IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
                     <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
                     <StackPanel Orientation="Vertical" Margin="0,3,1,-3">
                       <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}"  
@@ -910,7 +912,12 @@
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
               <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="SegoeUIBold" Opacity="0.4"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
+                     Color="{ThemeResource TextColor}" Margin="5,-2,0,-2" MinWidth="50">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
                 <Label.IsVisible>
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers"/>
                 </Label.IsVisible>
@@ -925,19 +932,16 @@
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
                 </Image.IsVisible>
               </Image>
-              <!--Label Grid.Column="1" x:Name="NameLabelFallBack" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding ElementName=ChannelLogoImage, Path=!HasImage}">
-                <Label.Triggers>
-                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-                    <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
-                  </DataTrigger>
-                </Label.Triggers>
-              </-->
               <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
-                     Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
+                     Color="{ThemeResource TextColor}">
                 <Label.IsVisible>
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames"/>
                 </Label.IsVisible>
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
                 <Label.Triggers>
                   <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                     <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
@@ -959,7 +963,7 @@
               Command="{Binding Command}"
               >
             <Button.ContextMenuCommand>
-              <Command Source="{StaticResource SlimTvSettings}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
+              <Command Source="{StaticResource SlimTvMultiChannelGuide}" Path="ShowProgramContextMenu" Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </Button.ContextMenuCommand>
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
@@ -985,14 +989,30 @@
               <Grid.RowDefinitions>
                 <RowDefinition Height="*"/>
               </Grid.RowDefinitions>
-
-              <Label x:Name="ItemLabel" Opacity="0.8" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
-                     Margin="2,0,0,0" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-              <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
-                     FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="Auto"
-                     Margin="2,0,0,0" FontFamily="SegoeUIBold" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
-              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" 
-                     FontSize="{ThemeResource SmallFontSize}" Margin="5,0,0,0" Opacity="0.8" />
+              
+              <Label x:Name="ItemLabel" Opacity="0.8" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
+                     Margin="2,0,0,0" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
+              <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" ScrollDelay="0" Scroll="Auto"
+                     Margin="2,0,0,0" FontFamily="SegoeUIBold" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
+              <Label x:Name="SeriesLabel" Grid.Column="1" Content="{Binding [Series]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Opacity="0.8">
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+              </Label>
             </Grid>
           </Button>
         </ControlTemplate>
@@ -1213,7 +1233,7 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True" LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}"/>
         </ItemsPanelTemplate>
       </Setter.Value>
     </Setter>
@@ -1320,7 +1340,9 @@
       </Grid>
 
       <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
-                   Value="{Binding Progress}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="0,0,5,-5"/>
+                   Value="{Binding Progress}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="0,0,5,-5"
+                   IsVisible="{Binding !NoProgramData}">
+      </ProgressBar>
 
       <!-- Shows the progress of current time in relation to the current playing program -->
       <Grid Grid.Column="2" Grid.Row="0" Margin="5,0,5,0">
@@ -1419,9 +1441,9 @@
             <Binding Path="Programs[0].Program.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
           </Label.Content>
           <Label.Triggers>
-              <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
               <Setter TargetName="CurrentSeriesLabel" Property="Scroll" Value="Auto"/>
-              </DataTrigger>
+            </DataTrigger>
             </Label.Triggers>
         </Label>
 
@@ -1432,7 +1454,9 @@
       </Grid>
 
       <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="1" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
-                   Value="{Binding Programs[0].Progress}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="0,0,5,-5"/>
+                   Value="{Binding Programs[0].Progress}" Style="{ThemeResource SimpleProgressBarStyle}" Margin="0,0,5,-5"
+                   IsVisible="{Binding !Programs[0].Program.NoProgramData}">
+      </ProgressBar>
 
       <Grid Grid.Column="2" Grid.Row="0" Margin="5,0,15,0">
         <Grid.ColumnDefinitions>
@@ -1586,7 +1610,8 @@
     <Setter Property="ItemsPanel">
       <Setter.Value>
         <ItemsPanelTemplate>
-          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,0,-40">
+          <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,0,-40"
+                              LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
             <AnimatedStackPanel.Resources>
               <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                 <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
@@ -1641,7 +1666,31 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource TVButtonScheduleWideStyle}" Command="{DynamicResource ResourceKey=Menu_Command}"
-                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}"/>
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                               Source="{StaticResource SlimTvExtSchedule}"
+                               Path="FocusToItem"
+                               Parameters="{LateBoundValue BindingValue={Binding}}" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <TriggerCommand>
+                    <TriggerCommand.Command>
+                      <Command x:Key="SelectionChanged_Command"
+                               Source="{StaticResource SlimTvExtSchedule}"
+                               Path="ClearItem" />
+                    </TriggerCommand.Command>
+                  </TriggerCommand>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -1736,9 +1785,9 @@
         </Label.Content>
       </Label>
 
-      <Image Grid.Column="3" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="{Binding Program.IsSeriesScheduled}"
+      <Image Grid.Column="3" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="False"
              VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,5,0,5"/>
-      <Image Grid.Column="3" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="{Binding !Program.IsSeriesScheduled}"
+      <Image Grid.Column="3" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="False"
              VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,10,0,10"/>
     </Grid>
   </DataTemplate>
@@ -1750,7 +1799,7 @@
   </Style>
 
   <Style x:Key="ExtScheduleListViewStyle" BasedOn="{ThemeResource SearchProgramListViewStyle}">
-    <Setter Property="ItemTemplate" Value="{ThemeResource ExtScheduleItemDataTemplate}"/>
+    <Setter Property="ItemTemplate" Value="{ThemeResource ScheduleDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ExtScheduleItemContainerStyle}"/>
   </Style>
 

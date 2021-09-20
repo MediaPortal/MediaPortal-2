@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Settings.Title">Ρυθμίσεις</string>
+  <string name="AppLauncher.Settings.Add.Search">Αναζήτηση</string>
+  <string name="AppLauncher.Settings.Add.Normal">Κανονικό</string>
+  <string name="AppLauncher.Delete">Διαγραφή</string>
+  <string name="AppLauncher.Menu.Clear">Καθαρό</string>
+</resources>

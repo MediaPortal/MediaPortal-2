@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -478,6 +478,14 @@ namespace MediaPortal.Backend.MediaLibrary
     /// by system.</param>
     /// <returns>Mapping of share's GUIDs to shares.</returns>
     IDictionary<Guid, Share> GetShares(string systemId);
+
+    /// <summary>
+    /// Returns all cached shares which are registered in the MediaPortal server's media library without querying the database.
+    /// </summary>
+    /// <param name="systemId">Filters the returned shares by system. If <c>null</c>, the returned set isn't filtered
+    /// by system.</param>
+    /// <returns>Mapping of share's GUIDs to shares.</returns>
+    IDictionary<Guid, Share> GetCachedShares(string systemId);
 
     /// <summary>
     /// Returns the share descriptor for the share with the specified <paramref name="shareId"/>.

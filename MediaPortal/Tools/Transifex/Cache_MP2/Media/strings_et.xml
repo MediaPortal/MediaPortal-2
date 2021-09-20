@@ -163,6 +163,7 @@
   <string name="Media.Refresh">Värskenda</string>
   <string name="Media.ReimportMediaItem.Done">Valmis</string>
   <string name="Media.ReimportMediaItem.Description">Kirjeldus</string>
+  <string name="Media.SubtitleSearch.Language">Keel</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Esita</string>
   <string name="Media.PlayAudioItems">Esita audio</string>

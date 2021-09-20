@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Weather.WeatherStateDisplayLabel">Погода</string>
-  <string name="Weather.WeatherSetupStateDisplayLabel">Настройка</string>
+  <string name="Weather.WeatherSetupStateDisplayLabel">Настройка погоды</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.WeatherLocationStateDisplayLabel">Выбор местоположения</string>
   <!--Dialog state, doesn't appear at the UI-->
@@ -13,7 +13,7 @@
   <string name="Weather.NoData">нет данных</string>
   <string name="Weather.Temp">Температура</string>
   <string name="Weather.TempFeel">По ощущению</string>
-  <string name="Weather.UVIndex">УФ индекс</string>
+  <string name="Weather.UVIndex">УФ-индекс</string>
   <string name="Weather.Wind">Ветер</string>
   <string name="Weather.Humidity">Влажность</string>
   <string name="Weather.Precipitation">Осадки</string>
@@ -71,7 +71,7 @@
   <string name="Weather.Various">разный</string>
   <string name="Weather.Calm">спокойный</string>
   <string name="Weather.NoWind">Безветренно</string>
-  <string name="Weather.InTheVicinity">в близи</string>
+  <string name="Weather.InTheVicinity">вблизи</string>
   <string name="Weather.Clearing">Прояснение</string>
   <string name="Settings.Plugins.Weather">Погода</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Настройка местоположения</string>
@@ -82,5 +82,6 @@
   <string name="WeatherSetup.SearchCity">Поиск города</string>
   <string name="WeatherSetup.AddCity">Добавить город</string>
   <string name="WeatherSetup.RemoveCity">Удалить город</string>
-  <string name="WeatherSetup.DetectionFailedMessage">Не удалось автоматически определить Ваше местоположение</string>
+  <string name="WeatherSetup.DetectionFailed">Обнаружение не удалось</string>
+  <string name="WeatherSetup.DetectionFailedMessage">Не удалось автоматически определить ваше местоположение.</string>
 </resources>

@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Pysäytä</string>
+  <string name="AppLauncher.Pause">Tauko</string>
+  <string name="AppLauncher.Settings.Title">Asetukset</string>
+  <string name="AppLauncher.Settings.Add.Arguments">Argumentit</string>
+  <string name="AppLauncher.Settings.Add.Description">Kuvaus</string>
+  <string name="AppLauncher.Settings.Add.Password">Salasana</string>
+  <string name="AppLauncher.Settings.Add.Search">Etsi</string>
+  <string name="AppLauncher.Settings.Add.Select">Valitse</string>
+  <string name="AppLauncher.Settings.Add.Minimum">Minimi</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normaali</string>
+  <string name="AppLauncher.Settings.Add.Maximum">Maksimi</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">Ei ikkunaa</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">Haku kuvake</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">Hae sovellusta</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">Suorita järjestelmänvalvojana</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Lisätty uusi sovellus</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Muokkaa olemassa olevaa sovellusta</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Poista olemassa oleva sovellus</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Poista olemassa oleva ryhmä</string>
+
+  <string name="AppLauncher.Group">Ryhmä</string>
+  <string name="AppLauncher.SelectGroup">Valitse ryhmä</string>
+  <string name="AppLauncher.RemoveGroup">Poista ryhmä</string>
+  <string name="AppLauncher.Delete">Poista</string>
+  <string name="AppLauncher.Menu.Clear">Selkeä</string>
+</resources>

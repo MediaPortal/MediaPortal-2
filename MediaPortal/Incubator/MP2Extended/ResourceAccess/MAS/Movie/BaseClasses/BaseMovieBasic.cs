@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -52,7 +52,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
     internal static ISet<Guid> BasicOptionalMIATypeIds = new HashSet<Guid>
     {
       ExternalIdentifierAspect.ASPECT_ID,
-      GenreAspect.ASPECT_ID
+      GenreAspect.ASPECT_ID,
+      SubtitleAspect.ASPECT_ID,
+      VideoAudioStreamAspect.ASPECT_ID
     };
 
     internal static WebMovieBasic MovieBasic(MediaItem item)

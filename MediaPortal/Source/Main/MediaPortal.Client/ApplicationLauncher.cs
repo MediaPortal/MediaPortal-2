@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -36,10 +37,11 @@ using MediaPortal.Common.Services.Logging;
 using MediaPortal.UI;
 using MediaPortal.UI.Presentation;
 using MediaPortal.UI.Presentation.Workflow;
-#if !DEBUG
-using System.Drawing;
 using System.IO;
 using MediaPortal.Common.PathManager;
+#if !DEBUG
+using System.Drawing;
+using System.Text.RegularExpressions;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Settings;
 #endif
@@ -104,13 +106,30 @@ namespace MediaPortal.Client
         }
       }
 
+      Assembly assembly = Assembly.GetEntryAssembly();
+      Version version = assembly.GetName().Version;
+      // Default Major.Minor
+      string parsedVersion = $"{version.Major}.{version.Minor}";
+
+      // Try to get revision from Version attribute (git branch or tag name)
+      var versionAttribute = assembly.GetCustomAttribute<AssemblyInformationalVersionAttribute>();
+      if (versionAttribute != null)
+      {
+        Regex reVersion = new Regex("\\d(\\.\\d)+");
+        Match versionMatch = reVersion.Match(versionAttribute.InformationalVersion);
+        if (versionMatch.Success) 
+          parsedVersion = versionMatch.Value;
+      }
+
       SplashScreen result = new SplashScreen
           {
             StartupScreen = startupSettings.StartupScreenNum,
             ScaleToFullscreen = true,
             FadeInDuration = TimeSpan.FromMilliseconds(300),
             FadeOutDuration = TimeSpan.FromMilliseconds(200),
-            SplashBackgroundImage = image
+            SplashBackgroundImage = image,
+            UsePictureBox = true,
+            InfoText = "Version " + parsedVersion
           };
       return result;
     }
@@ -139,10 +158,8 @@ namespace MediaPortal.Client
         Environment.Exit(2);
       }
 
-#if !DEBUG
       string logPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.CommonApplicationData), @"Team MediaPortal\MP2-Client\Log");
-#endif
-
+      LauncherExceptionHandling.LogPath = logPath;
       Application.ThreadException += LauncherExceptionHandling.Application_ThreadException;
       AppDomain.CurrentDomain.UnhandledException += LauncherExceptionHandling.CurrentDomain_UnhandledException;
       TaskScheduler.UnobservedTaskException += LauncherExceptionHandling.TaskScheduler_UnobservedTaskException;
@@ -171,10 +188,9 @@ namespace MediaPortal.Client
 
           logger = ServiceRegistration.Get<ILogger>();
 
-#if !DEBUG
           IPathManager pathManager = ServiceRegistration.Get<IPathManager>();
           logPath = pathManager.GetPath("<LOG>");
-#endif
+          LauncherExceptionHandling.LogPath = logPath;
 
           UiExtension.RegisterUiServices();
         }

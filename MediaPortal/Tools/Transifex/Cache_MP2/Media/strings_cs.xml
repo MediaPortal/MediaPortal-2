@@ -178,6 +178,7 @@
   <string name="Media.DeleteFromStorage">Odstranit z úložiště</string>
   <string name="Media.ReimportMediaItem.Done">Hotovo</string>
   <string name="Media.ReimportMediaItem.Description">Popis</string>
+  <string name="Media.SubtitleSearch.Language">Jazyk</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Přehrát položku</string>
   <string name="Media.PlayAudioItems">Přehrát položky audia</string>

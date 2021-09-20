@@ -8,6 +8,7 @@
     Source="screens\master_mediamenu.xaml"
     >
   <Include.Resources>
+    <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
@@ -30,8 +31,10 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1}) || ({0} == {LayoutType}.{ListLayout})">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableGridDetails"/>
+            </MultiBinding>
           </Grid.IsVisible>
 
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -71,14 +74,19 @@
             </Border>
           </Grid>
 
-          <!---Listview Details-->
+          <!---Listview and Gridview Details-->
           <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1}) || ({0} == {LayoutType}.{ListLayout})">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableGridDetails"/>
+              </MultiBinding>
+            </Control.IsVisible>
             <Control.TemplateControl>
               <Include Source="screens\MultiListDetails.inc"/>
             </Control.TemplateControl>
           </Control>
-          
         </Grid>
 
         <!--Loads MediaItemList and adjusts margin according to layout-->
@@ -90,13 +98,12 @@
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout} ? {1} : {2}">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
               <Binding Source="-15,-80,-50,-240"/>
-              <Binding Source="0,250,-180,-150"/>
+              <Binding Source="0,290,-180,-150"/>
             </MultiBinding>
           </Control.Margin>
         </Control>
-
       </Grid>
+      
     </ControlTemplate>
-    
   </Include.Resources>
 </Include>

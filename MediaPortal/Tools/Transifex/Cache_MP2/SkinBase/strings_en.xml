@@ -45,7 +45,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Detach from server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">HomeServer</string>
   <string name="ServerConnection.AttachedText.Before">This MediaPortal 2 client is currently attached to home server</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Currently, this MediaPortal 2 client is not attached to a home server.</string>
   <string name="ServerConnection.HomeServerIsConnected">The home server is currently connected.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">The home server is currently disconnected.</string>

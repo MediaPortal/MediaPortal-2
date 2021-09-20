@@ -11,5 +11,6 @@
   <string name="UserConfig.Yes">Ja</string>
   <string name="UserConfig.No">Nej</string>
   <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Default">normal</string>
   <string name="UserConfig.SharesText">Delinger</string>
   </resources>

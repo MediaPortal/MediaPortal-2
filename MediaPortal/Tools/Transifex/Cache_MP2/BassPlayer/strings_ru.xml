@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Проигрыватели</string>
-  <string name="Settings.Players.AudioPlayer">Аудио-проигрыватель</string>
+  <string name="Settings.Players.AudioPlayer">Аудиопроигрыватель</string>
   <string name="Settings.Players.BassPlayer.Setup">Настроить устройство вывода</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Настраивает устройство вывода для BassPlayer и предоставляет другие опции</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
@@ -15,5 +15,5 @@
   <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
   <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Длительность плавного затухания звука</string>
-  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Время в сек. для плавного затухания звука</string>
+  <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Время плавного затухания звука в с</string>
 </resources>

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
     This file is part of MediaPortal 2
     MediaPortal 2 is free software: you can redistribute it and/or modify
@@ -61,6 +61,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
       ".mpp",
       ".dsf",
       ".dff",
+      ".oga",
     };
     // Don't add .ifo here because they are processed while processing the video DVD directory
     private readonly static string[] DEFAULT_VIDEO_FILE_EXTENSIONS = new string[]
@@ -81,6 +82,12 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Settings
       ".mov",
       ".wtv",
       ".dvr-ms",
+      ".divx",
+      ".mpeg",
+      ".m2p",
+      ".qt",
+      ".rm",
+      ".ogv"
     };
     private readonly static string[] DEFAULT_IMAGE_FILE_EXTENSIONS = new string[]
     {

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,15 +27,21 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class ImageHomeContent : AbstractHomeContent
   {
+    public ImageHomeContent()
+    {
+      _availableLists.Add(new LatestImageList());
+      _availableLists.Add(new FavoriteImageList());
+      _availableLists.Add(new UnplayedImageList());
+    }
+
     protected override void PopulateBackingList()
     {
-      MediaListModel mlm = GetMediaListModel();
-
       _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new ImageYearShortcut(),
@@ -44,31 +50,32 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new ImageSizeShortcut(),
         new ImageSearchShortcut()
       }));
+    }
 
-      _backingList.Add(new LatestImageList(mlm.Lists["LatestImages"].AllItems));
-      _backingList.Add(new FavoriteImageList(mlm.Lists["FavoriteImages"].AllItems));
-      _backingList.Add(new UnplayedImageList(mlm.Lists["UnplayedImages"].AllItems));
+    protected override IContentListModel GetContentListModel()
+    {
+      return GetMediaListModel();
     }
   }
 
-  public class LatestImageList : ItemsListWrapper
+  public class LatestImageList : MediaListItemsListWrapper
   {
-    public LatestImageList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestAdded]")
+    public LatestImageList()
+      : base("LatestImages", "[Nereus.Home.LatestAdded]")
     { }
   }
 
-  public class FavoriteImageList : ItemsListWrapper
+  public class FavoriteImageList : MediaListItemsListWrapper
   {
-    public FavoriteImageList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteImageList()
+      : base("FavoriteImages", "[Nereus.Home.Favorites]")
     { }
   }
 
-  public class UnplayedImageList : ItemsListWrapper
+  public class UnplayedImageList : MediaListItemsListWrapper
   {
-    public UnplayedImageList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Unplayed]")
+    public UnplayedImageList()
+      : base("UnplayedImages", "[Nereus.Home.Unplayed]")
     { }
   }
 

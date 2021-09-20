@@ -28,6 +28,7 @@
   <string name="ServerConnection.UnknownServerName">&lt;अनजान&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;अनजान&gt;</string>
   <string name="ServerConnection.HomeServer">घर सर्वर</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.HomeServerIsConnected">घर वर्तमान में सर्वर से जुड़ा हुआ है.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">घर सर्वर वर्तमान में काट दिया है.</string>
   <string name="ServerConnection.DetachMenu">अलग करना</string>

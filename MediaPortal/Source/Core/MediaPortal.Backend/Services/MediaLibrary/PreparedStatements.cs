@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -272,19 +272,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
           UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + ", " + UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME + ")" +
           " VALUES (@USER_PROFILE_ID, @ITEM_ID, @USER_DATA_KEY, @USER_DATA_VALUE)";
         return _insertUserPlayDataForIdSQL;
-      }
-    }
-
-    public string SelectMediaItemUserDataFromIdsSQL
-    {
-      get
-      {
-        if (_selectMediaItemUserDataFromIdsSQL == null)
-          _selectMediaItemUserDataFromIdsSQL = "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + "," + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + "," +
-          UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-          " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-          " WHERE " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN({0})";
-        return _selectMediaItemUserDataFromIdsSQL;
       }
     }
   }

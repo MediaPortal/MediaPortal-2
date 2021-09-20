@@ -66,6 +66,7 @@
   <!--MediaItemAction dialog-->
   <string name="Media.Refresh">Ανανέωση</string>
   <string name="Media.ReimportMediaItem.Done">Έγινε</string>
+  <string name="Media.SubtitleSearch.Language">Γλώσσα</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">Ήχος</string>

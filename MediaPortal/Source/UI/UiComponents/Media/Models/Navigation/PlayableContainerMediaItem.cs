@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,6 +27,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.General;
 using System;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
@@ -57,6 +58,20 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 
       WatchPercentage = playPct ?? 0;
       PlayCount = playCnt ?? 0;
+
+      //Update user data
+      if (!ReferenceEquals(MediaItem, mediaItem))
+      {
+        try
+        {
+          var keys = mediaItem.UserData.Keys.ToList();
+          foreach (var key in keys)
+            MediaItem.UserData[key] = mediaItem.UserData[key];
+        }
+        catch
+        {
+        }
+      }
     }
 
     public int PlayCount

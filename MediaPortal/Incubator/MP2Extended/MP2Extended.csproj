@@ -466,6 +466,7 @@
     <Compile Include="Utils\GenericParsing.TryParse.cs" />
     <Compile Include="Utils\GetBaseStreamURL.cs" />
     <Compile Include="Utils\NullableHelper.cs" />
+    <Compile Include="Utils\SemaphoreReleaser.cs" />
     <Compile Include="WSS\General\WebItemSupportStatus.cs" />
     <Compile Include="WSS\General\WebStreamingSession.cs" />
     <Compile Include="WSS\General\WebStreamServiceDescription.cs" />

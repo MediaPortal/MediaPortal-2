@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Settings.Title">Thiết lập</string>
+  <string name="AppLauncher.Settings.Add.Description">Mô tả</string>
+  <string name="AppLauncher.Settings.Add.Select">Chọn</string>
+  </resources>

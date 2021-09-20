@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,5 +40,11 @@ namespace MediaPortal.UI.Presentation.Models
     /// A list of all available content providers.
     /// </summary>
     ContentListProviderDictionary Lists { get; }
+
+    /// <summary>
+    /// Force update the content of a specific list
+    /// </summary>
+    /// <param name="key"></param>
+    void ForceUpdate(string key);
   }
 }

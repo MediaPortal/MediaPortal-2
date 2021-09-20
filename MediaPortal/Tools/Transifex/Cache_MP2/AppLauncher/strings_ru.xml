@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Стоп</string>
+  <string name="AppLauncher.Pause">Пауза</string>
+  <string name="AppLauncher.Settings.Title">Настройки</string>
+  <string name="AppLauncher.Settings.Add">Добавить приложение</string>
+  <string name="AppLauncher.Settings.Add.Shortname">Короткое имя</string>
+  <string name="AppLauncher.Settings.Add.Arguments">Аргументы</string>
+  <string name="AppLauncher.Settings.Add.Path">Путь приложения</string>
+  <string name="AppLauncher.Settings.Add.Description">Описание</string>
+  <string name="AppLauncher.Settings.Add.Username">Имя пользователя</string>
+  <string name="AppLauncher.Settings.Add.Password">Пароль</string>
+  <string name="AppLauncher.Settings.Add.Search">Поиск</string>
+  <string name="AppLauncher.Settings.Add.Select">Выбрать</string>
+  <string name="AppLauncher.Settings.Add.Minimum">Минимум</string>
+  <string name="AppLauncher.Settings.Add.Maximum">Максимум</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">Иконка поиска</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">Поиск приложения</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">Запуск от имени администратора</string>
+  <string name="AppLauncher.Settings.Edit">Изменить приложение</string>
+  <string name="AppLauncher.Settings.Delete">Удалить приложение</string>
+  <string name="AppLauncher.Settings.Menu">Меню приложения</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Добавлено новое приложение</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Изменить существующее приложение</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Удалить существующее приложение</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Удалить существующую группу</string>
+
+  <string name="AppLauncher.Group">Группа</string>
+  <string name="AppLauncher.SelectGroup">Выбрать группу</string>
+  <string name="AppLauncher.SelectApp">Выбрать приложение</string>
+  <string name="AppLauncher.RemoveGroup">Удалить группу</string>
+  <string name="AppLauncher.Delete">Удалить</string>
+  <string name="AppLauncher.MenuEntry">Запустить приложение</string>
+  <string name="AppLauncher.Menu">Меню</string>
+  <string name="AppLauncher.Menu.Clear">Ясно</string>
+</resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,16 +29,16 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
-using MediaPortal.Common.Threading;
 using MediaPortal.UI.ContentLists;
-using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UI.Shares;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.UI.Presentation.Models
 {
@@ -57,8 +57,11 @@ namespace MediaPortal.UI.Presentation.Models
     protected ContentListProviderDictionary _listProviders;
     protected DateTime _nextGet = DateTime.MinValue;
     protected DateTime _nextMinute = DateTime.MinValue;
+    protected Guid _currentUserId;
 
     private bool _providersInititialized = false;
+    private ConcurrentQueue<MediaItem> _changedItems = new ConcurrentQueue<MediaItem>();
+    private ConcurrentQueue<MediaItem> _playedItems = new ConcurrentQueue<MediaItem>();
 
     #endregion
 
@@ -100,6 +103,11 @@ namespace MediaPortal.UI.Presentation.Models
       Task.Run(UpdateAllProvidersAsync);
     }
 
+    public void ForceUpdate(string key)
+    {
+      _listProviders.Update(key);
+    }
+
     protected virtual async Task<bool> UpdateAllProvidersAsync()
     {
       try
@@ -112,12 +120,15 @@ namespace MediaPortal.UI.Presentation.Models
           return false;
         }
 
+        IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>(false);
+
         UpdateReason updateReason = UpdateReason.None;
         if (_updatePending || UpdateRequired) updateReason |= UpdateReason.Forced;
         if (_importUpdatePending) updateReason |= UpdateReason.ImportComplete;
         if (_playbackUpdatePending) updateReason |= UpdateReason.PlaybackComplete;
         if (_nextMinute < DateTime.UtcNow) updateReason |= UpdateReason.PeriodicMinute;
         if (_mediaItemUpdatePending) updateReason |= UpdateReason.MediaItemChanged;
+        if (userProfileDataManagement?.CurrentUser != null && _currentUserId != userProfileDataManagement.CurrentUser.ProfileId) updateReason |= UpdateReason.UserChanged;
         if (updateReason == UpdateReason.None)
           return false;
 
@@ -125,30 +136,45 @@ namespace MediaPortal.UI.Presentation.Models
         _importUpdatePending = false;
         _playbackUpdatePending = false;
         _mediaItemUpdatePending = false;
+        if (userProfileDataManagement?.CurrentUser != null)
+          _currentUserId = userProfileDataManagement.CurrentUser.ProfileId;
         _nextMinute = DateTime.UtcNow.AddMinutes(1);
+        List<object> changedItems = new List<object>();
+        if (updateReason.HasFlag(UpdateReason.MediaItemChanged))
+        {
+          while(_changedItems.TryDequeue(out var item))
+            changedItems.Add(item);
+        }
+        if (updateReason.HasFlag(UpdateReason.PlaybackComplete))
+        {
+          while (_playedItems.TryDequeue(out var item))
+            changedItems.Add(item);
+        }
 
         int maxItems = Limit;
         foreach (var provider in _listProviders.EnabledProviders)
-          await UpdateProviderAsync(provider, maxItems, updateReason);
+          await UpdateProviderAsync(provider, maxItems, updateReason, changedItems);
 
         return true;
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error updating Content List", ex);
+        // Exception can be caused the by system shutting down, in which case getting the logger will also fail
+        ServiceRegistration.Get<ILogger>(false)?.Error("Error updating Content List", ex);
         return false;
       }
     }
 
-    protected virtual async Task<bool> UpdateProviderAsync(IContentListProvider provider, int maxItems, UpdateReason updateReason)
+    protected virtual async Task<bool> UpdateProviderAsync(IContentListProvider provider, int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
       try
       {
-        return await provider.UpdateItemsAsync(maxItems, updateReason);
+        return await provider.UpdateItemsAsync(maxItems, updateReason, updatedObjects);
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error updating Content List {0}", provider.GetType().Name, ex);
+        // Exception can be caused by the system shutting down, in which case getting the logger will also fail
+        ServiceRegistration.Get<ILogger>(false)?.Error("Error updating Content List {0}", ex, provider.GetType().Name);
         return false;
       }
     }
@@ -217,8 +243,7 @@ namespace MediaPortal.UI.Presentation.Models
     {
       if (message.ChannelName == ServerConnectionMessaging.CHANNEL)
       {
-        ServerConnectionMessaging.MessageType messageType =
-            (ServerConnectionMessaging.MessageType)message.MessageType;
+        ServerConnectionMessaging.MessageType messageType = (ServerConnectionMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerAttached:
@@ -237,7 +262,11 @@ namespace MediaPortal.UI.Presentation.Models
             break;
           case ContentDirectoryMessaging.MessageType.MediaItemChanged:
             if ((ContentDirectoryMessaging.MediaItemChangeType)message.MessageData[ContentDirectoryMessaging.MEDIA_ITEM_CHANGE_TYPE] != ContentDirectoryMessaging.MediaItemChangeType.None)
+            {
+              var item = message.MessageData["MediaItem"] as MediaItem;
+              AddChangedMediaItem(item);
               _mediaItemUpdatePending = true;
+            }
             break;
         }
       }
@@ -254,21 +283,61 @@ namespace MediaPortal.UI.Presentation.Models
       }
       else if (message.ChannelName == PlayerManagerMessaging.CHANNEL)
       {
-        PlayerManagerMessaging.MessageType messageType =
-            (PlayerManagerMessaging.MessageType)message.MessageType;
+        PlayerManagerMessaging.MessageType messageType = (PlayerManagerMessaging.MessageType)message.MessageType;
         switch (messageType)
         {
           case PlayerManagerMessaging.MessageType.PlayerStopped:
           case PlayerManagerMessaging.MessageType.PlayerEnded:
+            IPlayerSlotController psc = (IPlayerSlotController)message.MessageData["PlayerSlotController"];
+            IPlayerContext context = GetPlayerContext(psc);
+            AddPlayedMediaItem(context?.CurrentMediaItem);
             _playbackUpdatePending = true; //Update most played and last played
             break;
         }
       }
     }
 
+    private IPlayerContext GetPlayerContext(IPlayerSlotController psc)
+    {
+      if (psc == null)
+        return null;
+      IPlayerManager playerManager = ServiceRegistration.Get<IPlayerManager>();
+      lock (playerManager.SyncObj)
+      {
+        if (psc.IsClosed)
+          return null;
+
+        if (psc.ContextVariables.TryGetValue("PlayerContext: Assigned PlayerContext", out var result))
+          return result as IPlayerContext;
+      }
+      return null;
+    }
+
+    private void AddChangedMediaItem(MediaItem item)
+    {
+      if (item == null)
+        return;
+
+      if (_changedItems.Count >= 10)
+        return;
+
+      _changedItems.Enqueue(item);
+    }
+
+    private void AddPlayedMediaItem(MediaItem item)
+    {
+      if (item == null)
+        return;
+
+      if (_playedItems.Count >= 10)
+        return;
+
+      _playedItems.Enqueue(item);
+    }
+
     private void OnProviderRequested(object sender, ProviderEventArgs e)
     {
-      Task.Run(() => UpdateProviderAsync(e.Provider, Limit, UpdateReason.Forced));
+      Task.Run(() => UpdateProviderAsync(e.Provider, Limit, UpdateReason.Forced, null));
     }
 
     private void OnLimitChanged(AbstractProperty property, object oldValue)
@@ -378,10 +447,23 @@ namespace MediaPortal.UI.Presentation.Models
       }
     }
 
+    public void Update(string key)
+    {
+      ProviderWrapper providerWrapper;
+      if (!_providers.TryGetValue(key, out providerWrapper))
+        return;
+
+      bool update = providerWrapper.NextUpdateTime < DateTime.Now;
+      if (update)
+        providerWrapper.NextUpdateTime = DateTime.Now.AddSeconds(UPDATE_THRESHOLD_SEC);
+
+      if (update)
+        OnProviderRequested(providerWrapper.Provider);
+    }
+
     protected IContentListProvider GetProvider(string key)
     {
       ProviderWrapper providerWrapper;
-      bool update;
       lock (_syncObj)
       {
         if (!_providers.TryGetValue(key, out providerWrapper))
@@ -391,13 +473,9 @@ namespace MediaPortal.UI.Presentation.Models
           ServiceRegistration.Get<ILogger>().Info("Enabling IContentListProvider '{0}'", key);
           _enabledProviders[key] = providerWrapper.Provider;
         }
-        update = providerWrapper.NextUpdateTime < DateTime.Now;
-        if (update)
-          providerWrapper.NextUpdateTime = DateTime.Now.AddSeconds(UPDATE_THRESHOLD_SEC);
       }
 
-      if (update)
-        OnProviderRequested(providerWrapper.Provider);
+      Update(key);
       return providerWrapper.Provider;
     }
   }

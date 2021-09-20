@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,14 +27,13 @@ using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.UiComponents.Media.Extensions;
 
 namespace MediaPortal.UiComponents.Media.MediaItemActions
 {
@@ -79,7 +78,8 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
           {
             var wf = ServiceRegistration.Get<IWorkflowManager>();
             var contextConfig = new NavigationContextConfig { AdditionalContextVariables = new Dictionary<string, object> { { Consts.KEY_MEDIA_ITEM, mediaItem } } };
-            wf.NavigatePush(aspectScreen.Value, contextConfig);
+            // Push the new state asynchronously to queue it until after any current navigation state change has finished.
+            wf.NavigatePushAsync(aspectScreen.Value, contextConfig);
             result = true;
             break;
           }
@@ -87,7 +87,5 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
       }
       return new AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>(result, ContentDirectoryMessaging.MediaItemChangeType.None);
     }
-
-    public bool DoesChangeWorkflow { get; set; } = true;
   }
 }

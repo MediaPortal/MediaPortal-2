@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -116,13 +116,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!BaseInfo.IsVirtualResource(aspects))
       {
         mediaItemLocator = GetResourceLocator(aspects);
-        if (mediaItemLocator == null)
-          return;
 
         //Whether local fanart should be stored in the fanart cache
         shouldCacheLocal = ShouldCacheLocalFanArt(mediaItemLocator.NativeResourcePath,
           SeriesMetadataExtractor.CacheLocalFanArt, SeriesMetadataExtractor.CacheOfflineFanArt);
       }
+
+      if (mediaItemLocator == null)
+        return;
 
       if (!shouldCacheLocal && SeriesMetadataExtractor.SkipFanArtDownload)
         return; //Nothing to do
@@ -170,6 +171,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
           await ExtractSeriesFolderFanArt(mediaItemLocator, seriesMediaItemId, seriesInfo.ToString(), episodeInfo.SeasonNumber, actors).ConfigureAwait(false);
         if (!SeriesMetadataExtractor.SkipFanArtDownload)
           await OnlineMatcherService.Instance.DownloadSeriesFanArtAsync(seriesMediaItemId, seriesInfo).ConfigureAwait(false);
+      }
+
+      //Find central actor information folder
+      var seriesDirectory = ResourcePathHelper.Combine(mediaItemLocator.NativeResourcePath, "../../");
+      ResourcePath centralActorFolderPath = LocalFanartHelper.GetCentralPersonFolder(seriesDirectory, CentralPersonFolderType.SeriesActors);
+      if (shouldCacheLocal && centralActorFolderPath != null && actors != null)
+      {
+        foreach (var actor in actors)
+        {
+          // Check if we already processed this actor
+          if (!AddToCache(actor.Item1))
+            continue;
+
+          // First get the ResourcePath of the central directory
+          var artistFolderPath = ResourcePathHelper.Combine(centralActorFolderPath, $"{LocalFanartHelper.GetSafePersonFolderName(actor.Item2)}/");
+          using (IResourceAccessor accessor = new ResourceLocator(mediaItemLocator.NativeSystemId, artistFolderPath).CreateAccessor())
+          {
+            if (accessor is IFileSystemResourceAccessor directoryAccessor)
+            {
+              FanArtPathCollection paths = new FanArtPathCollection();
+              List<ResourcePath> potentialFanArtFiles = LocalFanartHelper.GetPotentialFanArtFiles(directoryAccessor);
+              ExtractAllFanArtImages(potentialFanArtFiles, paths);
+              await SaveFolderImagesToCache(mediaItemLocator.NativeSystemId, paths, actor.Item1, actor.Item2).ConfigureAwait(false);
+            }
+          }
+        }
       }
     }
 
@@ -231,7 +258,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       using (IResourceAccessor seasonAccessor = new ResourceLocator(mediaItemLocator.NativeSystemId, seasonDirectory).CreateAccessor())
       using (IResourceAccessor seriesAccessor = new ResourceLocator(mediaItemLocator.NativeSystemId, seriesDirectory).CreateAccessor())
       {
-        if (!IsSeriesFolder(seriesAccessor as IFileSystemResourceAccessor, seasonNumber) && IsSeriesFolder(seasonAccessor as IFileSystemResourceAccessor, seasonNumber))
+        if (!LocalFanartHelper.IsSeriesFolder(seriesAccessor as IFileSystemResourceAccessor, seasonNumber) && LocalFanartHelper.IsSeriesFolder(seasonAccessor as IFileSystemResourceAccessor, seasonNumber))
         {
           seriesDirectory = seasonDirectory;
         }
@@ -304,7 +331,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         using (IResourceAccessor seasonAccessor = new ResourceLocator(mediaItemLocator.NativeSystemId, seasonDirectory).CreateAccessor())
         using (IResourceAccessor seriesAccessor = new ResourceLocator(mediaItemLocator.NativeSystemId, seriesDirectory).CreateAccessor())
         {
-          if (!IsSeriesFolder(seriesAccessor as IFileSystemResourceAccessor, seasonNumber) && IsSeriesFolder(seasonAccessor as IFileSystemResourceAccessor, seasonNumber))
+          if (!LocalFanartHelper.IsSeriesFolder(seriesAccessor as IFileSystemResourceAccessor, seasonNumber) && LocalFanartHelper.IsSeriesFolder(seasonAccessor as IFileSystemResourceAccessor, seasonNumber))
           {
             isSeriesFolder = true;
           }
@@ -379,11 +406,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (potentialFanArtFiles == null || potentialFanArtFiles.Count == 0)
         return;
 
-      string[] prefixes = new[]
-      {
-        string.Format("season{0:00}", seasonNumber),
-        seasonNumber == 0 ? "season-specials" : "season-all"
-      };
+      string[] prefixes = LocalFanartHelper.GetAdditionalSeasonPrefixes(seasonNumber);
 
       if (paths.Count(FanArtTypes.Thumbnail) == 0)
         paths.AddRange(FanArtTypes.Thumbnail, LocalFanartHelper.FilterPotentialFanArtFilesByName(potentialFanArtFiles,
@@ -412,35 +435,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (paths.Count(FanArtTypes.FanArt) == 0)
         paths.AddRange(FanArtTypes.FanArt, LocalFanartHelper.FilterPotentialFanArtFilesByPrefix(potentialFanArtFiles,
           LocalFanartHelper.BACKDROP_FILENAMES.SelectMany(f => prefixes.Select(p => p + "-" + f))));
-    }
-
-    private bool IsSeriesFolder(IFileSystemResourceAccessor seriesFolder, int? knownSeasonNo = null)
-    {
-      if (seriesFolder == null)
-        return false;
-
-      int maxInvalidFolders = 3;
-      var seasonFolders = seriesFolder.GetChildDirectories();
-      var seasonNos = seasonFolders.Select(GetSeasonFromFolder).ToList();
-      var invalidSeasonCount = seasonNos.Count(s => s < 0);
-      var validSeasonCount = seasonNos.Count(s => s >= 0);
-      if (invalidSeasonCount <= maxInvalidFolders && validSeasonCount > 0)
-        return true;
-      if (invalidSeasonCount > maxInvalidFolders)
-        return false;
-      if (validSeasonCount > 0 && knownSeasonNo >= 0 && !seasonNos.Contains(knownSeasonNo.Value))
-        return false;
-
-      return true;
-    }
-
-    private int GetSeasonFromFolder(IFileSystemResourceAccessor seasonFolder)
-    {
-      int beforeSeasonNoIndex = seasonFolder.ResourceName.LastIndexOf(" ");
-      if (beforeSeasonNoIndex >= 0 && int.TryParse(seasonFolder.ResourceName.Substring(beforeSeasonNoIndex + 1), out int seasonNo))
-        return seasonNo;
-
-      return -1;
     }
 
     #endregion

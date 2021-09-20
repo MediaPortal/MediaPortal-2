@@ -1,5 +1,14 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="SystemState.Hibernate">Гибернация</string>
+  <string name="SystemState.Restart">Перезапустить Windows</string>
+  <string name="SystemState.RestartMP">Перезапустить MediaPortal</string>
+  <string name="SystemState.ShutdownMP">Закрыть MediaPortal</string>
   <string name="SleepTimer.Start">Начало</string>
   <string name="SleepTimer.Stop">Стоп</string>
+  <string name="SleepTimer.Action">Действие:</string>
+  <string name="SleepTimer.TimeStr">Время:</string>
+  <string name="SleepTimer.Minutes">мин</string>
+  <string name="SleepTimer.MediaItem">После текущего медиаэлемента</string>
+  <string name="SleepTimer.Playlist">После текущего плейлиста</string>
 </resources>

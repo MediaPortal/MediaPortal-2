@@ -39,6 +39,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Katkaise yhteys palvelimeen</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Kotipalvelin</string>
   <string name="ServerConnection.AttachedText.Before">Tämä MediaPortal 2 asiakas on liitetty kotipalvelimeen</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Tällä hetkellä tämä MediaPortal 2 asiakas ei ole liitetty kotipalvelimeen.</string>
   <string name="ServerConnection.HomeServerIsConnected">Kotipalvelin on yhdistetty</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Kotipalvelinta ei ole yhdistetty</string>

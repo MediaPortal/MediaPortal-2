@@ -83,7 +83,7 @@
   </Register>
 
   <Register Location="/Resources/Language">
-    <Resource Id="AppLauncherLanguge" Directory="Language" Type="Language"/>
+    <Resource Id="AppLauncherLanguage" Directory="Language" Type="Language"/>
   </Register>
 
   <Register Location="/Content/AppsListProviders">

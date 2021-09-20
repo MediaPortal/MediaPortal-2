@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -274,6 +274,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
               imageAspect.SetAttribute(ImageAspect.ATTR_STATE, locationInfo.StateProvince);
               imageAspect.SetAttribute(ImageAspect.ATTR_COUNTRY, locationInfo.CountryRegion);
               updated = true;
+            }
+            else
+            {
+              ServiceRegistration.Get<ILogger>().Debug("ImageMetadataExtractor: Failed to get online Geo-location data for resource '{0}')", mediaItemAccessor.CanonicalLocalResourcePath);
             }
           }
 

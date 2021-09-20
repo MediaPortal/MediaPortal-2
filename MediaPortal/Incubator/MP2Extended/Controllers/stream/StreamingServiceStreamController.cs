@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -64,7 +64,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
 
     [HttpGet]
     [ApiExplorerSettings]
-    public async Task RetrieveStream(string identifier, string file, string hls)
+    public async Task RetrieveStream(string identifier, string file = null, string hls = null)
     {
       Logger.Debug("WSS Request: {0}", Request.GetOwinContext().Request.Uri);
       await ResourceAccess.WSS.stream.Control.RetrieveStream.ProcessAsync(Request.GetOwinContext(), identifier, file, hls);

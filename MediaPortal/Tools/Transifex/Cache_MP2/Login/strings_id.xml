@@ -6,5 +6,6 @@
   <string name="UserConfig.DeleteUser">Hapus</string>
   <string name="UserConfig.Yes">Ya</string>
   <string name="UserConfig.No">Tidak</string>
+  <string name="UserConfig.Default">Baku</string>
   <string name="UserConfig.SharesText">Share</string>
   </resources>

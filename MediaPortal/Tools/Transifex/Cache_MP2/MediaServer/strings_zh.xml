@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">音频</string>
+  <string name="MediaServer.ShareContainter">共享</string>
+  <string name="MediaServer.ImageContainter">图片</string>
+  <string name="MediaServer.VideoContainter">视频</string>
+  <string name="MediaServer.MovieContainter">电影</string>
+  <string name="MediaServer.UnwatchedContainter">未观看</string>
+  <string name="MediaServer.ActorContainter">演员</string>
+  <string name="MediaServer.SeriesContainter">系列</string>
+  <string name="MediaServer.TV">电视</string>
+  </resources>

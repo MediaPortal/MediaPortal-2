@@ -68,12 +68,15 @@
 
   <!-- This item group holds the MP2 solutions that should actually being built. -->
   <ItemGroup>
-    <ProjectsToBuildX64 Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" />
+    <!-- AnyCPU solutions -->
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Server.sln" Condition="$(BuildServer) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-ServiceMonitor.sln" Condition="$(BuildServiceMonitor) == 'true'" />
-    <ProjectsToBuildX64 Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" />
     <ProjectsToBuild Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" />
+    <!-- x64 solutions -->
+    <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" AdditionalProperties="Platform=x64" />
+    <ProjectsToBuild Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" AdditionalProperties="Platform=x64" />
+    <!-- Setup needs to be built as last -->
     <ProjectsToBuild Include="$(ProjectRoot)\Setup\MP2-Setup.sln" Condition="$(BuildSetup) == 'true'" />
   </ItemGroup>
 
@@ -117,12 +120,8 @@
   <Target Name="Build"
           DependsOnTargets="@(DependsOnTargets)">
     <MSBuild Projects="@(ProjectsToBuild)"
-             Properties="Configuration=$(Configuration);Platform=$(Platform)"
+             Properties="Configuration=$(Configuration)"
              Targets="Rebuild" />
-
-    <MSBuild Projects="@(ProjectsToBuildX64)"
-             Properties="Configuration=$(Configuration);Platform=x64"
-             Targets="Build" />
   </Target>
 
 </Project>

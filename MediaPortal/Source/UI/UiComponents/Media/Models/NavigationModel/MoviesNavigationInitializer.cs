@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -51,18 +51,6 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected override async Task PrepareAsync()
     {
       await base.PrepareAsync();
-
-      //Update filter by adding the user filter to the already loaded filters
-      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
-      if (userFilter != null)
-      {
-        _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, userFilter,
-          BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters));
-      }
-      else
-      {
-         _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.And, _filters);
-      }
 
       _defaultScreen = new MoviesShowItemsScreenData(_genericPlayableItemCreatorDelegate);
       _availableScreens = new List<AbstractScreenData>

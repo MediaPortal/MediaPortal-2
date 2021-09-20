@@ -15,6 +15,13 @@
     <!-- User configuration model -->
     <Model x:Key="Model" Id="9B20B421-DF2E-42B6-AFF2-7EB6B60B601D"/>
 
+    <!-- Screen background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Image Stretch="Fill" Source="Background.png"/>
+      </Grid>
+    </ControlTemplate>
+
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="0,-30,20,-50">
@@ -148,14 +155,30 @@
           <CheckBox x:Name="CheckIncludeParentFilter" HorizontalAlignment="Center"
                     IsChecked="{Binding Path=UserProxy.IncludeParentGuidedContent,Mode=TwoWay}"
                     IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
-          <Label Margin="5" Content="[UserConfig.IncludePGContent]" Color="{ThemeResource TextColor}"/>
+          <Label Margin="5" Content="[UserConfig.IncludePGContent]" Color="{ThemeResource TextColor}">
+            <Label.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="CheckAgeFilter" Path="IsChecked"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Label.Opacity>
+          </Label>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" Margin="35,0,0,0" IsVisible="{Binding !IsRestrictedToOwn}">
           <CheckBox x:Name="CheckIncludeUnratedContentFilter" HorizontalAlignment="Center"
                   IsChecked="{Binding Path=UserProxy.IncludeUnratedContent,Mode=TwoWay}"
                   IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
-          <Label Margin="5" Content="[UserConfig.IncludeUnratedContent]" Color="{ThemeResource TextColor}"/>
+          <Label Margin="5" Content="[UserConfig.IncludeUnratedContent]" Color="{ThemeResource TextColor}">
+            <Label.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="CheckAgeFilter" Path="IsChecked"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Label.Opacity>
+          </Label>
         </StackPanel>
 
         <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="20,0,0,0">

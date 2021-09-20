@@ -171,6 +171,7 @@
   <string name="Media.Refresh">刷新</string>
   <string name="Media.ReimportMediaItem.Done">完成</string>
   <string name="Media.ReimportMediaItem.Description">介绍</string>
+  <string name="Media.SubtitleSearch.Language">语言</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">播放条目</string>
   <string name="Media.PlayAudioItems">播放音频条目</string>

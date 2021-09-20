@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -95,7 +95,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           {
             if (mainStub?.Thumb != null)
             {
-              await fanArtCache.TrySaveFanArt(mediaItemId, mainStub.Title, FanArtTypes.Poster, p => TrySaveFileImage(stubs.First().Thumb, p, "Thumb", "Nfo.")).ConfigureAwait(false);
+              await fanArtCache.TrySaveFanArt(mediaItemId, mainStub.Title, FanArtTypes.Poster, p => TrySaveFileImage(mainStub.Thumb, p, "Thumb", "Nfo.")).ConfigureAwait(false);
             }
 
             await TrySaveFanArt(fanArtCache, FanArtTypes.FanArt, "FanArt", mainStub?.FanArt, mediaItemId, mainStub?.Title).ConfigureAwait(false);
@@ -107,21 +107,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           }
 
           //Actor fanart
-          foreach (var actor in actors)
-          {
-            if (!IsInCache(actor.Item1))
+          if (actors != null)
+            foreach (var actor in actors)
             {
-              var existingThumbs = fanArtCache.GetFanArtFiles(actor.Item1, FanArtTypes.Thumbnail);
-              var actorStub = mainStub?.Actors?.FirstOrDefault(a => string.Equals(a.Name, actor.Item2, StringComparison.InvariantCultureIgnoreCase));
-              if (actorStub != null || existingThumbs.Any()) //We have a thumb already or no thumb is available, so no need to check again
-                AddToCache(actor.Item1);
-
-              if (actorStub?.Thumb != null)
+              if (!IsInCache(actor.Item1))
               {
-                await fanArtCache.TrySaveFanArt(actor.Item1, actor.Item2, FanArtTypes.Thumbnail, p => TrySaveFileImage(actorStub.Thumb, p, "Thumb", "Nfo.")).ConfigureAwait(false);
+                var existingThumbs = fanArtCache.GetFanArtFiles(actor.Item1, FanArtTypes.Thumbnail);
+                var actorStub = mainStub?.Actors?.FirstOrDefault(a => string.Equals(a?.Name, actor.Item2, StringComparison.InvariantCultureIgnoreCase));
+                if (actorStub != null || existingThumbs.Any()) //We have a thumb already or no thumb is available, so no need to check again
+                  AddToCache(actor.Item1);
+
+                if (actorStub?.Thumb != null)
+                {
+                  await fanArtCache.TrySaveFanArt(actor.Item1, actor.Item2, FanArtTypes.Thumbnail, p => TrySaveFileImage(actorStub.Thumb, p, "Thumb", "Nfo.")).ConfigureAwait(false);
+                }
               }
             }
-          }
         }
       }
     }

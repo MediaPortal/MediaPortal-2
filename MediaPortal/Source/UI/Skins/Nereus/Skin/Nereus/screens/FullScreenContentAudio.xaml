@@ -248,7 +248,7 @@
           </media:AudioAspectWrapper.Template>
         </media:AudioAspectWrapper>
 
-        <mp_audio_viz:AudioSpectrumAnalyzer Grid.Row="2" Grid.ColumnSpan="3" Width="1900" Height="280"
+        <mp_audio_viz:AudioSpectrumAnalyzer Grid.Row="2" Grid.ColumnSpan="3" Width="{SkinWidth}" Height="280"
           HorizontalAlignment="Center" VerticalAlignment="Top" Margin="0,-260,0,0"
           x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
 

@@ -1,8 +1,8 @@
 ﻿
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -25,6 +25,7 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using System.Linq;
 
 namespace MP2Extended.Extensions
 {
@@ -32,7 +33,7 @@ namespace MP2Extended.Extensions
   {
     public static MediaItemAspect GetAspect(this MediaItem mediaItem, MediaItemAspectMetadata aspectMetadata)
     {
-      return mediaItem[aspectMetadata.AspectId][0];
+      return mediaItem[aspectMetadata.AspectId]?.FirstOrDefault();
     }
 
     public static MultipleMediaItemAspect PrimaryProviderResourceAspect(this MediaItem mediaItem)

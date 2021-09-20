@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!--Client Settings-->
+  <string name="Settings.DLNA.Title">DLNA</string> <!-- Section name -->
+  <string name="Settings.DLNA.Clients.Config">Configuração Cliente</string> <!-- Group name -->
+  <string name="Settings.DLNA.Clients.Config.Help">Gerir clientes DLNA no servidor local</string>
+  <string name="Settings.DLNA.Clients.Config.Clients">Clientes</string> 
+  <string name="Settings.DLNA.Clients.Config.ClientName">Nome</string>
+  <string name="Settings.DLNA.Clients.Config.Profile">Perfil</string>
+  <string name="Settings.DLNA.Clients.Config.DefaultUser">Utilizador Predefenido</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteClient">Apagar Cliente</string>
+  <string name="Settings.DLNA.Clients.Config.SaveClients">Guardar todos os clientes</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation.Title">Confirmação de eliminação</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation">Tem a certeza que pretende apagar o utilizador seleccionado?</string>
+  <string name="Settings.DLNA.Clients.Config.Yes">Sim</string>
+  <string name="Settings.DLNA.Clients.Config.No">Não</string>
+  <string name="Settings.DLNA.Clients.Config.SelectProfile">Seleccione o perfil de cliente</string>
+  <string name="Settings.DLNA.Clients.Config.SelectUser">Seleccione o utilizador predefinido do cliente</string>
+  <string name="Settings.DLNA.Clients.NoConfigHomeServerNotConnected">O servidor local não está actualmente conectado; Impossível gerir clientes DLNA.</string>
+  <string name="Settings.DLNA.Clients.Config.NoUser">Nenhum</string>
+  <string name="Settings.DLNA.Clients.Config.AutoProfile">Automático</string>
+  
+  <string name="Settings.DLNA.HardcodedSubtitles">Permitir legendas embutidas</string> <!-- Setting -->
+  <string name="Settings.DLNA.HardcodedSubtitles.Help">Permitir ou não legendas embutidas caso o cliente não suporte legendas</string>
+  <string name="Settings.DLNA.UserLogin">Mostrar inicio de sessão</string> <!-- Setting -->
+  <string name="Settings.DLNA.UserLogin.Help">Mostrar lista de utilizadores para ajuda à conexão</string>
+  <string name="Settings.DLNA.Transcoding">Permitir transcoding</string> <!-- Setting -->
+  <string name="Settings.DLNA.Transcoding.Help">Permitir ou não transcoding caso o ficheiro media não seja reproduzível no cliente</string>
+
+</resources>

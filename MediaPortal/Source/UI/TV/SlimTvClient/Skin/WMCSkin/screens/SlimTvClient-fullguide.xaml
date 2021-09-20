@@ -82,8 +82,8 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <StackPanel Orientation=" Horizontal">
-              <Button x:Name="ScrollDoubleBackwardButton" Style="{StaticResource ScrollDoubleLeftButtonStyle}" 
+            <StackPanel Orientation="Horizontal">
+              <Button x:Name="ScrollDoubleBackwardButton" Style="{StaticResource DoubleForwardButtonStyle}" 
                       Command="{Command ScrollBackward}" VerticalAlignment="Center" Margin="0,0,1,0"/>
               <Button x:Name="ScrollBackwardButton" Style="{ThemeResource PreviousButtonStyle}" Margin="1,0,1,0"
                       Command="{Command ScrollBackwardHalfScreen}" VerticalAlignment="Center"/>
@@ -92,7 +92,7 @@
                      VerticalAlignment="Center" Margin="1,0,1,0"/>
               <Button x:Name="ScrollForwardButton" Style="{ThemeResource NextButtonStyle}" Margin="1,0,1,0" 
                       Command="{Command ScrollForwardHalfScreen}" VerticalAlignment="Center"/>
-              <Button x:Name="ScrollDoubleForwardButton" Style="{StaticResource ScrollDoubleRightButtonStyle}" 
+              <Button x:Name="ScrollDoubleForwardButton" Style="{StaticResource DoubleRewindButtonStyle}" 
                       Command="{Command ScrollForward}" VerticalAlignment="Center" Margin="1,0,0,0"/>
             </StackPanel>
           </Grid>

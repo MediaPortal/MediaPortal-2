@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -714,6 +714,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         if (recStatus.HasValue)
           AddRecordingOptions(_dialogActionsList, program, recStatus.Value);
       }
+      else
+        // There can be actions that don't depend on a program
+        AddRecordingOptions(_dialogActionsList, null, RecordingStatus.None);
+
       _dialogActionsList.FireChange();
       return true;
     }
@@ -1156,6 +1160,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       return new Program
       {
+        ProgramId =  -1,
         ChannelId = channelId,
         Title = loc.ToString("[SlimTvClient.NoProgram]"),
         StartTime = from,

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -1428,26 +1428,26 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         if (tracks.Count > 1)
         {
           var lastGood = tracks;
+          var searchAlbum = trackSearch.CloneBasicInstance<AlbumInfo>();
           foreach (AudioValueToCheck checkValue in Enum.GetValues(typeof(AudioValueToCheck)))
           {
-            if (checkValue == AudioValueToCheck.ArtistLax && trackSearch.Artists != null && trackSearch.Artists.Count > 0)
+            if (checkValue == AudioValueToCheck.ArtistLax)
               exactMatches = exactMatches.FindAll(t => CompareArtists(t.Artists, trackSearch.Artists, false));
 
-            if (checkValue == AudioValueToCheck.AlbumLax && !string.IsNullOrEmpty(trackSearch.Album))
-              exactMatches = exactMatches.FindAll(t => GetLevenshteinDistance(t.CloneBasicInstance<AlbumInfo>(), trackSearch.CloneBasicInstance<AlbumInfo>()) <= MAX_LEVENSHTEIN_DIST);
+            if (checkValue == AudioValueToCheck.AlbumLax)
+              exactMatches = exactMatches.FindAll(t => CompareAlbums(t.CloneBasicInstance<AlbumInfo>(), searchAlbum, false));
 
-            if (checkValue == AudioValueToCheck.ArtistStrict && trackSearch.Artists != null && trackSearch.Artists.Count > 0)
+            if (checkValue == AudioValueToCheck.ArtistStrict)
               exactMatches = exactMatches.FindAll(t => CompareArtists(t.Artists, trackSearch.Artists, true));
 
-            if (checkValue == AudioValueToCheck.AlbumStrict && !string.IsNullOrEmpty(trackSearch.Album))
-              exactMatches = exactMatches.FindAll(t => IsEqual(trackSearch.Album, t.Album) || 
-               GetLevenshteinDistance(t.CloneBasicInstance<AlbumInfo>(), trackSearch.CloneBasicInstance<AlbumInfo>()) == 0);
+            if (checkValue == AudioValueToCheck.AlbumStrict)
+              exactMatches = exactMatches.FindAll(t => CompareAlbums(t.CloneBasicInstance<AlbumInfo>(), searchAlbum, true));
 
-            if (checkValue == AudioValueToCheck.Year && trackSearch.ReleaseDate.HasValue)
-              exactMatches = exactMatches.FindAll(t => t.ReleaseDate.HasValue && t.ReleaseDate.Value.Year == trackSearch.ReleaseDate.Value.Year);
+            if (checkValue == AudioValueToCheck.Year)
+              exactMatches = exactMatches.FindAll(t => CompareReleaseDates(t.ReleaseDate, trackSearch.ReleaseDate));
 
-            if (checkValue == AudioValueToCheck.TrackNum && trackSearch.TrackNum > 0)
-              exactMatches = exactMatches.FindAll(t => t.TrackNum > 0 && t.TrackNum == trackSearch.TrackNum);
+            if (checkValue == AudioValueToCheck.TrackNum)
+              exactMatches = exactMatches.FindAll(t => CompareTrackNum(t.TrackNum, trackSearch.TrackNum));
 
             if (checkValue == AudioValueToCheck.Discs)
               exactMatches = exactMatches.FindAll(t => t.DiscNum > 0 || t.TotalDiscs > 0);
@@ -1646,23 +1646,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
           var lastGood = albums;
           foreach (AudioValueToCheck checkValue in Enum.GetValues(typeof(AudioValueToCheck)))
           {
-            if (checkValue == AudioValueToCheck.ArtistLax && albumSearch.Artists != null && albumSearch.Artists.Count > 0)
+            if (checkValue == AudioValueToCheck.ArtistLax)
               exactMatches = exactMatches.FindAll(a => CompareArtists(a.Artists, albumSearch.Artists, false));
 
-            if (checkValue == AudioValueToCheck.AlbumLax && !string.IsNullOrEmpty(albumSearch.Album))
-              exactMatches = exactMatches.FindAll(a => GetLevenshteinDistance(a, albumSearch) <= MAX_LEVENSHTEIN_DIST);
+            if (checkValue == AudioValueToCheck.AlbumLax)
+              exactMatches = exactMatches.FindAll(a => CompareAlbums(a, albumSearch, false));
 
-            if (checkValue == AudioValueToCheck.ArtistStrict && albumSearch.Artists != null && albumSearch.Artists.Count > 0)
+            if (checkValue == AudioValueToCheck.ArtistStrict)
               exactMatches = exactMatches.FindAll(a => CompareArtists(a.Artists, albumSearch.Artists, true));
 
-            if (checkValue == AudioValueToCheck.AlbumStrict && !string.IsNullOrEmpty(albumSearch.Album))
-              exactMatches = exactMatches.FindAll(a => IsEqual(albumSearch.Album, a.Album) || GetLevenshteinDistance(a, albumSearch) == 0);
+            if (checkValue == AudioValueToCheck.AlbumStrict)
+              exactMatches = exactMatches.FindAll(a => CompareAlbums(a, albumSearch, true));
 
-            if (checkValue == AudioValueToCheck.Year && albumSearch.ReleaseDate.HasValue)
-              exactMatches = exactMatches.FindAll(a => a.ReleaseDate.HasValue && a.ReleaseDate.Value.Year == albumSearch.ReleaseDate.Value.Year);
+            if (checkValue == AudioValueToCheck.Year)
+              exactMatches = exactMatches.FindAll(a => CompareReleaseDates(a.ReleaseDate, albumSearch.ReleaseDate));
 
-            if (checkValue == AudioValueToCheck.TrackNum && albumSearch.TotalTracks > 0)
-              exactMatches = exactMatches.FindAll(a => a.TotalTracks > 0 && a.TotalTracks == albumSearch.TotalTracks);
+            if (checkValue == AudioValueToCheck.TrackNum)
+              exactMatches = exactMatches.FindAll(a => CompareTrackNum(a.TotalTracks, albumSearch.TotalTracks));
 
             if (checkValue == AudioValueToCheck.Discs)
               exactMatches = exactMatches.FindAll(a => a.DiscNum > 0 || a.TotalDiscs > 0);
@@ -1781,6 +1781,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 
     private bool CompareArtists(List<PersonInfo> trackArtists, List<PersonInfo> searchArtists, bool strict)
     {
+      if (!(trackArtists?.Count > 0) || !(searchArtists?.Count > 0))
+        return true; //Artists cannot be compared so return true so comparison can continue
+
       if (strict)
       {
         foreach (PersonInfo trackArtist in trackArtists)
@@ -1810,6 +1813,39 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         }
       }
       return false;
+    }
+
+    private bool CompareAlbums(AlbumInfo trackAlbum, AlbumInfo searchAlbum, bool strict)
+    {
+      if (string.IsNullOrWhiteSpace(searchAlbum.Album))
+        return true; //Albums cannot be compared so return true so comparison can continue
+      if (string.IsNullOrWhiteSpace(trackAlbum.Album))
+        return !strict;
+
+      if (strict)
+      {
+        return IsEqual(trackAlbum.Album, searchAlbum.Album) || GetLevenshteinDistance(trackAlbum, searchAlbum) == 0;
+      }
+      else
+      {
+        return GetLevenshteinDistance(trackAlbum, searchAlbum) <= MAX_LEVENSHTEIN_DIST;
+      }
+    }
+
+    private bool CompareReleaseDates(DateTime? date, DateTime? searchDate)
+    {
+      if (!date.HasValue || !searchDate.HasValue)
+        return true; //Dates cannot be compared so return true so comparison can continue
+
+      return date.Value.Year == searchDate.Value.Year;
+    }
+
+    private bool CompareTrackNum(int trackNum, int searchTrackNum)
+    {
+      if (trackNum <= 0 || searchTrackNum <= 0)
+        return true; //Dates cannot be compared so return true so comparison can continue
+
+      return trackNum == searchTrackNum;
     }
 
     #endregion
@@ -1879,12 +1915,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return MAX_LEVENSHTEIN_DIST + 1;
 
       string cleanedName = RemoveCharacters(seriesSearch.SeriesName.Text);
+      string cleanedAlternateName = string.IsNullOrEmpty(seriesSearch.AlternateName) ? cleanedName : RemoveCharacters(seriesSearch.AlternateName);
+
       if (string.IsNullOrEmpty(seriesOnline.OriginalName))
-        return StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName);
-      else
         return Math.Min(
           StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName),
-          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.OriginalName), cleanedName)
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedAlternateName)
+        );
+      else
+        return Math.Min(
+          Math.Min(StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName),
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.OriginalName), cleanedName)),
+          Math.Min(StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedAlternateName),
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.OriginalName), cleanedAlternateName))
         );
     }
 
@@ -1980,12 +2023,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       if (string.IsNullOrEmpty(seriesOnline.OriginalName))
-        return seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text);
+      {
+        if (seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text))
+          return true;
+        if (!string.IsNullOrEmpty(seriesSearch.AlternateName) && seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.AlternateName))
+          return true;
+      }
       else
       {
         if (seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text))
           return true;
         if (seriesSearch.OnlineMatchNames(seriesOnline.OriginalName, seriesSearch.SeriesName.Text))
+          return true;
+        if (!string.IsNullOrEmpty(seriesSearch.AlternateName) && seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.AlternateName))
+          return true;
+        if (!string.IsNullOrEmpty(seriesSearch.AlternateName) && seriesSearch.OnlineMatchNames(seriesOnline.OriginalName, seriesSearch.AlternateName))
           return true;
       }
       return false;

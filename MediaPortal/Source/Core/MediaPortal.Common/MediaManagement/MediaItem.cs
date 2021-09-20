@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -367,6 +367,20 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Get title of the current MediaItem
+    /// </summary>
+    public string Title
+    {
+      get
+      {
+        if (MediaItemAspect.TryGetAspect(_aspects, MediaAspect.Metadata, out var mediaAspect))
+          return mediaAspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
+
+        return "<Unknown>";
+      }
+    }
+
+    /// <summary>
     /// Returns a resource locator instance for this item.
     /// </summary>
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
@@ -519,11 +533,7 @@ namespace MediaPortal.Common.MediaManagement
 
     public override string ToString()
     {
-      string mimeType;
-      string title;
-      if (GetPlayData(out mimeType, out title))
-        return title;
-      return "<Unknown>";
+      return Title;
     }
 
     #region IEquatable<MediaItem> implementation

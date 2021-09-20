@@ -31,6 +31,16 @@
     <Model Id="CED34107-565C-48D9-BEC8-195F7969F90F" Name="NereusHomeMenuModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeMenuModel"/>
     <Model Id="6A232D95-9BDE-4005-905E-69CB092B012B" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScreenModeModel"/>
     <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
+    <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="AutoScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.AutoScrollConfigurationModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- AutoScrollConfiguration Dialog -->
+    <DialogState Id="E3DABC33-4339-446B-A495-AE1A8C630B2B"
+                 Name="dialogAutoScrollSettings"
+                 DialogScreen="dialogAutoScrollSettings"
+                 DisplayLabel="[Nereus.Configuration.EnableAutoScrolling]"
+                 WorkflowModel="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925"/>
   </Register>
   
   <!-- Language resources -->
@@ -45,11 +55,6 @@
   <Register Location="/SkinSettings">
     <SkinSettings Id="CC3C2ED3-027A-47EE-A12D-652D79D02676" Name="Nereus" ClassName="MediaPortal.UiComponents.Nereus.Settings.NereusSkinSettings"/>
   </Register>
-
-  <!--Register support for the home editor to ensure its configuration is visible in this skin-->
-  <!--Register Location="/HomeEditor">
-    <HomeEditorRegistration Id="4D0738C3-84BA-4DBC-904D-9951911403C0" SkinName="WMCSkin"/>
-  </Register-->
 
   <Register Location="/Workflow/ViewModes">
     <!-- News list -->
@@ -78,10 +83,6 @@
         Id="Skin"
         Redundant="true"
         Text="[Settings.Appearance.Skin]"/>
-  </Register>
-
-  <!-- Contents of '/Appearance/Skin' section -->
-  <Register Location="/Configuration/Settings/Appearance/Skin">
     <ConfigSection
         Id="SkinSettings"
         Redundant="true"
@@ -89,7 +90,7 @@
   </Register>
 
   <!-- Contents of '/Appearance/Skin/SkinAndTheme' group -->
-  <Register Location="/Configuration/Settings/Appearance/Skin/SkinSettings">
+  <Register Location="/Configuration/Settings/Appearance/SkinSettings">
     <ConfigSetting
         Id="NereusEnableHelpTexts"
         Text="[Nereus.Configuration.EnableHelpTexts]"
@@ -101,12 +102,43 @@
         Text="[Nereus.Configuration.EnableFanart]"
         HelpText="[Nereus.Configuration.EnableFanart.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
-    
+
+    <ConfigSetting
+        Id="NereusEnableTouchDisplay"
+        Text="[Nereus.Configuration.EnableTouchDisplay]"
+        HelpText="[Nereus.Configuration.EnableTouchDisplay.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableTouchDisplayConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableGridDetails"
+        Text="[Nereus.Configuration.EnableGridDetails]"
+        HelpText="[Nereus.Configuration.EnableGridDetails.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableGridDetailsConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableCoverDetails"
+        Text="[Nereus.Configuration.EnableCoverDetails]"
+        HelpText="[Nereus.Configuration.EnableCoverDetails.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableCoverDetailsConfiguration"/>
+
     <ConfigSetting
         Id="NereusFanartOverlayOpacity"
         Text="[Nereus.Configuration.FanartOverlayOpacity]"
         HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"/>
+
+    <ConfigSetting
+        Id="NereusEnableLoopScrolling"
+        Text="[Nereus.Configuration.EnableLoopScrolling]"
+        HelpText="[Nereus.Configuration.EnableLoopScrolling.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableLoopScrollingConfiguration"/>
+
+    <CustomConfigSetting
+      Id="NereusEnableAutoScrollingDialog"
+      Text="[Nereus.Configuration.EnableAutoScrolling]"
+      HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
+      ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"
+      AdditionalData="WorkflowState=E3DABC33-4339-446B-A495-AE1A8C630B2B,ConfAppPanel=..."/>
     
     <ConfigSetting
         Id="NereusEnableWatchedFlags"
@@ -138,17 +170,11 @@
         HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
 
-    <ConfigSetting
-        Id="NereusEnableHomeContent"
-        Text="[Nereus.Configuration.EnableHomeContent]"
-        HelpText="[Nereus.Configuration.EnableHomeContent.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHomeContentConfiguration"/>
-
-    <ConfigSetting
+    <!--ConfigSetting
         Id="NereusEnableMediaItemDetailsView"
         Text="[Nereus.Configuration.EnableMediaItemDetailsView]"
         HelpText="[Nereus.Configuration.EnableMediaItemDetailsView.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/-->
   </Register>
 
 </Plugin>

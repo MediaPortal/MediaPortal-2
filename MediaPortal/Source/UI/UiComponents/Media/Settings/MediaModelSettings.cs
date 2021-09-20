@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,6 +30,7 @@ namespace MediaPortal.UiComponents.Media.Settings
   {
     protected const bool DEFAULT_CLOSE_PLAYER_WHEN_FINISHED = true;
     protected const double DEFAULT_INSTANT_SKIP_PERCENT = 20;
+    protected const double DEFAULT_INSTANT_SKIP_SECONDS = 5;
     protected const double DEFAULT_SKIPSTEP_TIMEOUT = 1.5f;
     protected const string DEFAULT_SKIPSTEP_LIST = "15,30,60,180,300,600,900,1800,3600,7200"; // list of seconds
 
@@ -47,6 +48,18 @@ namespace MediaPortal.UiComponents.Media.Settings
     /// </summary>
     [Setting(SettingScope.Global, DEFAULT_INSTANT_SKIP_PERCENT)]
     public double InstantSkipPercent { get; set; }
+
+    /// <summary>
+    /// Absolute Seconds to instant skip playback back-/forward.
+    /// </summary>
+    [Setting(SettingScope.Global, DEFAULT_INSTANT_SKIP_SECONDS)]
+    public double InstantSkipSeconds { get; set; }
+
+    /// <summary>
+    /// Indicator to prefer instant skipping by seconds instead of percents.
+    /// </summary>
+    [Setting(SettingScope.Global, false)]
+    public bool PreferInstantSkipSeconds { get; set; }
 
     /// <summary>
     /// Timeout in seconds before skip step is executed.

@@ -37,6 +37,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Eraldu serverist</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Koduserver</string>
   <string name="ServerConnection.AttachedText.Before">See MP2 kasutaja on hetkel ühendatud koduserveriga</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">See MP2 kasutaja ei ole hetkel ühendatud koduserveriga</string>
   <string name="ServerConnection.HomeServerIsConnected">Koduserver on hetkel ühendatud</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Koduserver on hetkel eraldatud</string>

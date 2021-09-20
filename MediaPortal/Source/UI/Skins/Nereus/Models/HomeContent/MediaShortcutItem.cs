@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,11 +29,32 @@ using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using System;
+using System.Reflection;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class MediaShortcutItem : ListItem
   {
+  }
+
+  public class WorkflowActionShortcutItem : MediaShortcutItem
+  {
+    public WorkflowActionShortcutItem(Guid modelId, string method)
+    {
+      Command = new MethodDelegateCommand(() =>
+      {
+        var wm = ServiceRegistration.Get<IWorkflowManager>();
+        object model = wm.GetModel(modelId);
+        if (model == null)
+          return;
+
+        MethodInfo mi = model.GetType().GetMethod(method);
+        if (mi == null)
+          return;
+        
+        mi.Invoke(model, new object[] { });
+      });
+    }
   }
 
   public class WorkflowNavigationShortcutItem : MediaShortcutItem

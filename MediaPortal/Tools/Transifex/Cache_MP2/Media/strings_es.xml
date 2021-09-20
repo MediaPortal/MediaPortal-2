@@ -280,6 +280,11 @@
   <string name="Media.ReimportMediaItem.SearchTypeHeader">Tipo de búsqueda</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Búsqueda manual</string>
   <string name="Media.ReimportMediaItem.Description">Descripción</string>
+  <string name="Media.SubtitleSearch.Id">Id</string>
+  <string name="Media.SubtitleSearch.SearchResultHeader">Resultado de búsqueda</string>
+  <string name="Media.SubtitleSearch.SearchTypeHeader">Tipo de búsqueda</string>
+  <string name="Media.SubtitleSearch.ManualSearch">Búsqueda manual</string>
+  <string name="Media.SubtitleSearch.Language">Idioma</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Reproducir elementos</string>
   <string name="Media.PlayAudioItems">Reproduducir elementos de sonido</string>

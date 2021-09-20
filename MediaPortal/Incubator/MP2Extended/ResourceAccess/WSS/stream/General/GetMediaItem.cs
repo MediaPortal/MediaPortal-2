@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -60,7 +60,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
         necessaryMIATypes.Add(ProviderResourceAspect.ASPECT_ID);
         var item = MediaLibraryAccess.GetMediaItemById(context, itemId, necessaryMIATypes, null);
         if (item == null)
-          throw new BadRequestException(string.Format("Media item '{0}' not found.", itemId));
+          throw new NotFoundException(string.Format("Media item '{0}' not found.", itemId));
 
         // Grab the mimetype from the media item and set the Content Type header.
         // TODO: Fix

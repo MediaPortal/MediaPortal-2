@@ -38,6 +38,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Aftengjast miðlara</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Aðalmiðlari</string>
   <string name="ServerConnection.AttachedText.Before">Þessi MediaPortal 2 biðlari er tengdur við aðalmiðlarann</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Þessi MediaPortal biðlari er ekki tengdur við aðalmiðlara</string>
   <string name="ServerConnection.HomeServerIsConnected">Aðalmiðlari er tengdur</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Aðalmiðlari er ótengdur</string>

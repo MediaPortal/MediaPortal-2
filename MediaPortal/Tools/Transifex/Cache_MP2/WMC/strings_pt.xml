@@ -1,14 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="WMC.Configuration.EnableFanart">Ativar Fanart</string>
+  <string name="WMC.Configuration.EnableFanart.Help">Permitir ou não fanart de fundo de ecrã.</string>
   <string name="WMC.Configuration.FanartOverlayOpacity">Visibilidade FanArt</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity.Help">Ajusta a opacidade do fundo fanart. Um valor mais baixo aumenta a visibilidade da fanart (predefinição 1.0)</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Activar sinalizadores de visualização</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Permitir, ou não, ícones a identificar o que já visualizou.</string>
   <string name="WMC.Configuration.EnableWatchedFlags.ListView"> Vista em lista</string>
   <string name="WMC.Configuration.EnableWatchedFlags.GridView">Vista de grelha</string>
   <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Vista por capas</string>
   <string name="WMC.Configuration.EnableAgeCertificationLogos">Ativar logotipos de verificação de idades</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Permitir, ou não, logos a advertir para conteúdo adulto entre outros.</string>  
+  <string name="WMC.Configuration.MovieGridViewType">Layout grelha de filme</string>
+  <string name="WMC.Configuration.MovieGridViewType.Help">Seleccione o layout a usar para filmes</string>
+  <string name="WMC.Configuration.SeriesGridViewType">Layout para séries</string>
+  <string name="WMC.Configuration.SeriesGridViewType.Help">Seleccione o layout a usar para séries</string>
+  <string name="WMC.Configuration.SeasonGridViewType">Layout de Temporadas</string>
+  <string name="WMC.Configuration.SeasonGridViewType.Help">Escolha o layout a usar para temporadas</string>
   <string name="WMC.Configuration.GridViewType.Poster">Posters</string>
   <string name="WMC.Configuration.GridViewType.Banner">Faixas</string>
   <string name="WMC.Configuration.GridViewType.Thumbnail">Miniaturas</string>  
+  <string name="WMC.Configuration.EnableHomeContent">Permitir conteúdo em Home</string>
+  <string name="WMC.Configuration.EnableHomeContent.Help">Permitir, ou não, mostrar conteúdo em Home.</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView">Permitir vista detalhada de media</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Permitir, ou não, mostrar detalhes de media em vez de reproduzir directamente.</string>
+
+  <string name="WMC.Home.LatestAdded">Adicionado</string>
   <string name="WMC.Home.LatestPlayed">Visto pela última vez</string>
   <string name="WMC.Home.ContinuePlayed">Continuar Reprodução</string>
   <string name="WMC.Home.CurrentPrograms">Programas Atuais</string>

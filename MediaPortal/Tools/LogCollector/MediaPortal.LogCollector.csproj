@@ -92,7 +92,7 @@
       <Version>1.9.71</Version>
     </PackageReference>
     <PackageReference Include="DotNetZip">
-      <Version>1.11.0</Version>
+      <Version>1.15.0</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

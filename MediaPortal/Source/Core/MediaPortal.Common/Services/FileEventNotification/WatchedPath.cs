@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -175,7 +175,7 @@ namespace MediaPortal.Common.Services.FileEventNotification
     }
 
     /// <summary>
-    /// Retursn a <see cref="string"/> representation of the current <see cref="WatchedPath"/>.
+    /// Returns a <see cref="string"/> representation of the current <see cref="WatchedPath"/>.
     /// </summary>
     /// <returns></returns>
     public override string ToString()

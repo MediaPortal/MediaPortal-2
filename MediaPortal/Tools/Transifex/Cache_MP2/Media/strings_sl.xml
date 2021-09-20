@@ -176,6 +176,7 @@
   <string name="Media.DeleteFromStorage">Izbriši iz shrambe</string>
   <string name="Media.ReimportMediaItem.Done">Končano</string>
   <string name="Media.ReimportMediaItem.Description">Opis</string>
+  <string name="Media.SubtitleSearch.Language">Jezik</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Predvajaj vsebino</string>
   <string name="Media.PlayAudioItems">Predvajaj audio vsebine</string>

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -62,7 +62,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
         Type = WebMediaType.MusicTrack,
         Path = ResourceAccessUtils.GetPaths(item),
         Year = mediaAspect.GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME).Year,
-        Duration = audioAspect.GetAttributeValue<int>(AudioAspect.ATTR_DURATION),
+        Duration = (int)audioAspect.GetAttributeValue<long>(AudioAspect.ATTR_DURATION),
         DateAdded = importerAspect.GetAttributeValue<DateTime>(ImporterAspect.ATTR_DATEADDED),
         Rating = Convert.ToSingle(audioAspect.GetAttributeValue<double>(AudioAspect.ATTR_TOTAL_RATING)),
         Artwork = ResourceAccessUtils.GetWebArtwork(item),

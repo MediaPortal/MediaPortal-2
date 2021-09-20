@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,24 +27,20 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using MediaPortal.Backend.Database;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities;
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Backend.Services.UserProfileDataManagement;
-using MediaPortal.Common.Certifications;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common;
 
 namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
 {
   public class CompiledFilter
   {
-    #region Constants
-
-    public const int MAX_IN_VALUES_SIZE = 800;
-
-    #endregion
-
     protected IList<object> _statementParts;
     protected IList<BindVar> _statementBindVars;
 
@@ -73,8 +69,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       if (mediaItemIdFilter != null)
       {
         ICollection<Guid> mediaItemIds = mediaItemIdFilter.MediaItemIds;
-        if (mediaItemIds.Count == 0)
+        if (mediaItemIdFilter.TryGetSubQuery(out string q))
+        {
+          resultParts.Add(outerMIIDJoinVariable);
+          resultParts.Add($" IN ({q})");
+        }
+        else if (mediaItemIds.Count == 0)
+        {
           resultParts.Add("1 = 2");
+        }
         else
         {
           if (mediaItemIds.Count == 1)
@@ -86,11 +89,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           }
           else
           {
+            ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+            var maxParams = Convert.ToInt32(database.MaxNumberOfParameters);
             bool first = true;
             ICollection<string> clusterExpressions = new List<string>();
-            foreach (IList<Guid> mediaItemIdsCluster in CollectionUtils.Cluster(mediaItemIds, MAX_IN_VALUES_SIZE))
+            foreach (IList<Guid> mediaItemIdsCluster in CollectionUtils.Cluster(mediaItemIds, maxParams))
             {
-              IList<string> bindVarRefs = new List<string>(MAX_IN_VALUES_SIZE);
+              IList<string> bindVarRefs = new List<string>(maxParams);
               foreach (Guid mediaItemId in mediaItemIdsCluster)
               {
                 BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), mediaItemId, typeof(Guid));
@@ -311,6 +316,58 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
         resultParts.Add("=");
         resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(")");
+
+        return;
+      }
+
+      SharePathFilter sharePathFilter = filter as SharePathFilter;
+      if (sharePathFilter != null)
+      {
+        IMediaLibrary library = ServiceRegistration.Get<IMediaLibrary>(false);
+        bool anyAdded = false;
+
+        resultParts.Add(outerMIIDJoinVariable);
+        resultParts.Add(" IN(");
+        resultParts.Add("SELECT ");
+        resultParts.Add(MIA_Management.MIA_MEDIA_ITEM_ID_COL_NAME);
+        resultParts.Add(" FROM ");
+        resultParts.Add(miaManagement.GetMIATableName(ProviderResourceAspect.Metadata));
+        resultParts.Add(" WHERE ");
+
+        if (library != null && sharePathFilter.ShareIds.Any())
+        {
+          var allShares = library.GetCachedShares(null);
+          foreach (var share in allShares)
+          {
+            if (!allShares.Any() || !sharePathFilter.ShareIds.Contains(share.Key))
+              continue;
+
+            BindVar bindVar;
+            if (!anyAdded)
+            {
+              //Allow virtual objects like parents etc.
+              bindVar = new BindVar(bvNamespace.CreateNewBindVarName("S"), "{00000000-0000-0000-0000-000000000000}:///%", typeof(string));
+              resultParts.Add(miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+              resultParts.Add($" LIKE @{bindVar.Name}");
+              resultBindVars.Add(bindVar);
+              anyAdded = true;
+            }
+
+            bindVar = new BindVar(bvNamespace.CreateNewBindVarName("S"), share.Value.BaseResourcePath + "%", typeof(string));
+            resultParts.Add(" OR ");
+            resultParts.Add(miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+            resultParts.Add($" LIKE @{bindVar.Name}");
+            resultBindVars.Add(bindVar);
+          }
+        }
+
+        if (!anyAdded)
+        {
+          //No shares are allowed
+          resultParts.Add(miaManagement.GetMIAAttributeColumnName(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH));
+          resultParts.Add(" = ''");
+        }
         resultParts.Add(")");
 
         return;
@@ -589,12 +646,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           resultParts.Add("1 = 2"); // No comparison values means filter is always false
           return;
         }
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        var maxParams = Convert.ToInt32(database.MaxNumberOfParameters);
         int clusterCount = 0;
-        foreach (IList<object> valuesCluster in CollectionUtils.Cluster(inFilter.Values, MAX_IN_VALUES_SIZE))
+        foreach (IList<object> valuesCluster in CollectionUtils.Cluster(inFilter.Values, maxParams))
         {
           if (clusterCount > 0) resultParts.Add(" OR ");
           resultParts.Add(attributeOperand);
-          IList<string> bindVarRefs = new List<string>(MAX_IN_VALUES_SIZE);
+          IList<string> bindVarRefs = new List<string>(maxParams);
           foreach (object value in valuesCluster)
           {
             BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), value, attributeType);
@@ -657,9 +716,9 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         ICollection<QueryAttribute> requiredAttributes = new List<QueryAttribute>();
         SubQueryBuilder filterBuilder = new SubQueryBuilder(miaManagement, requiredAttributes,
           new List<MediaItemAspectMetadata>(), filteredRelationshipFilter.Filter, subqueryFilter, bvNamespace.BindVarCounter);
-        filterBuilder.GenerateSqlStatement(out idAlias, out sqlStatement, out bindVars);
-        sqlStatement = " SELECT TS." + idAlias + " FROM (" + sqlStatement + ") TS";
+        filterBuilder.GenerateDistinctSqlStatement(out idAlias, out sqlStatement, out bindVars);
 
+        sqlStatement = " SELECT TS." + idAlias + " FROM (" + sqlStatement + ") TS";
         bvNamespace.BindVarCounter += bindVars.Count;
         CollectionUtils.AddAll(resultBindVars, bindVars);
       }

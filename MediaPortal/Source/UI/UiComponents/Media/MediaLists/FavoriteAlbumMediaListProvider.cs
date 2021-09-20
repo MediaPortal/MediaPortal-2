@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
@@ -33,6 +34,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteAlbumMediaListProvider()
     {
+      _changeAspectId = AudioAspect.ASPECT_ID;
+      _role = AudioAlbumAspect.ROLE_ALBUM;
+      _linkedRole = AudioAspect.ROLE_TRACK;
+      _necessaryLinkedMias = Consts.NECESSARY_AUDIO_MIAS;
       _necessaryMias = Consts.NECESSARY_ALBUM_MIAS;
       _playableContainerConverterAction = item => new AlbumFilterItem(item)
       {

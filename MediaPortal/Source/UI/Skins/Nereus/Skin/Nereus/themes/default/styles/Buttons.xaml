@@ -17,6 +17,7 @@
   <ResourceWrapper x:Key="PosterButtonZoomCoefficientY" Resource="1.12"/>
   <Model x:Key="ScreenModeModel" Id="6A232D95-9BDE-4005-905E-69CB092B012B"/>
   <Model x:Key="LoginModel" Id="82582433-FD64-41bd-9059-7F662DBDA713"/>
+  <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
   <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
   <ExpressionValueConverter x:Key="ExpressionValueConverter"/>
   <StringFormatConverter x:Key="StringFormatConverter"/>
@@ -325,20 +326,42 @@
     </Setter>
   </Style>
 
+  <Style x:Key="ButtonListViewDefaultControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <DockPanel Name="ButtonControlRectangle" LastChildFill="True" Background="{ThemeResource NereusColorMedium}"
+                     IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="ButtonListViewControlStyle" TargetType="{x:Type Control}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <DockPanel Name="ButtonControlRectangle" Margin="0,0,0,-10"
+          <DockPanel Name="ButtonControlRectangle" LastChildFill="True" Background="{ThemeResource NereusColorMedium}"
                      IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-            <DockPanel.Background>
-              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Color="#FF009999" Offset="0.0"/>
-                <GradientStop Color="#FF009999" Offset="0.85"/>
-                <GradientStop Color="#66000000" Offset="0.85"/>
-                <GradientStop Color="#00000000" Offset="1.0"/>
-              </LinearGradientBrush>
-            </DockPanel.Background>
+            <DockPanel DockPanel.Dock="Bottom" Height="10" Margin="0,0,0,-10">
+              <DockPanel.Background>
+                <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                  <GradientStop Color="#66000000" Offset="0"/>
+                  <GradientStop Color="#00000000" Offset="1.0"/>
+                </LinearGradientBrush>
+              </DockPanel.Background>
+            </DockPanel>
+            <DockPanel DockPanel.Dock="Left" Background="{ThemeResource NereusColorLight}" Width="8"/>
+            <DockPanel DockPanel.Dock="Right">
+              <DockPanel.Background>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                  <GradientStop Color="#80000000" Offset="0.00"/>
+                  <GradientStop Color="#00000000" Offset="0.02"/>
+                  <GradientStop Color="#00000000" Offset="0.50"/>
+                  <GradientStop Color="#26FFFFFF" Offset="1.00"/>
+                </LinearGradientBrush>
+              </DockPanel.Background>
+            </DockPanel>
           </DockPanel>
         </ControlTemplate>
       </Setter.Value>
@@ -529,7 +552,7 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.25" Margin="0">
+          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.25">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
@@ -552,6 +575,7 @@
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+                <BeginStoryboard x:Name="Focused_EndStoryboard" Storyboard="{ThemeResource FocusedButtonWideStoryboard_End_Poster}"/>
               </Trigger.ExitActions>
             </Trigger>
             <Trigger Property="IsPressed" Value="True">
@@ -677,6 +701,53 @@
     </Setter>
   </Style>
 
+  <Style x:Key="SettingsMenuButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="0"/>
+            <Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="6" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Focused_BeginStoryboard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Pressed_BeginStoryboard" Storyboard="{ThemeResource PressedButtonWideStoryboard_Poster}"/>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <!--StopStoryboard BeginStoryboardName="Pressed_BeginStoryboard"/-->
+              </Trigger.ExitActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Trigger.EnterActions>
+                <BeginStoryboard x:Name="Disabled_BeginStoryBoard" Storyboard="{ThemeResource DisabledButtonStoryboard}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <StopStoryboard BeginStoryboardName="Disabled_BeginStoryBoard"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="NereusFrameButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
@@ -739,34 +810,6 @@
     </Setter>
   </Style>
 
-  <Style x:Key="LoginButtonWideStyle" TargetType="{x:Type Button}">
-    <Setter Property="Template">
-      <Setter.Value>
-        <ControlTemplate>
-          <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5" Margin="0,1,0,1">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.RenderTransform>
-              <TransformGroup>
-                <ScaleTransform ScaleX="1" ScaleY="1"/>
-              </TransformGroup>
-            </Grid.RenderTransform>
-            <DockPanel Name="ButtonControlRectangle" Margin="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="2"
-                       IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-              <Image Source="square_focus.PNG" Stretch="Fill" Opacity="1.3"/>
-            </DockPanel>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,5,10,5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
-            <!--Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/-->
-          </Grid>
-        </ControlTemplate>
-      </Setter.Value>
-    </Setter>
-  </Style>
-
   <!--- This button style is used for dialogue buttons-->
   <Style x:Key="ButtonWideStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
@@ -784,7 +827,7 @@
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
               </TransformGroup>
             </Grid.RenderTransform>
-            <Control Style="{ThemeResource ButtonListViewControlStyle}" Margin="-20,0,-20,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
+            <Control Style="{ThemeResource ButtonListViewDefaultControlStyle}" Margin="-20,0,-20,0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
             <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
             <!--Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/-->
           </Grid>
@@ -1719,6 +1762,36 @@
     </Setter>
   </Style>
 
+  <Style x:Key="HomeMenuButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Width="80" Height="80">
+            <Image x:Name="HomeMenuIcon" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Margin="10">
+              <Image.Source>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({1} ? {2} : {3}) : ({1} ? {4} : {5})">
+                  <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="NotificationMenu\Menu_focus.png"/>
+                  <Binding Source="NotificationMenu\Menu.png"/>
+                  <Binding Source="NotificationMenu\Menu.collapsed_focus.png"/>
+                  <Binding Source="NotificationMenu\Menu.collapsed.png"/>
+                </MultiBinding>
+              </Image.Source>
+              <Image.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.6"/>
+                </MultiBinding>
+              </Image.Opacity>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Model x:Key="NotificationsModel" Id="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/>
 
   <Style x:Key="NotificationButtonStyle" TargetType="{x:Type Button}">
@@ -2003,6 +2076,9 @@
               <Setter TargetName="image" Property="Source" Value="PlayerControl\up.small.focus.PNG"/>
               <Setter TargetName="image" Property="Opacity" Value="1"/>
             </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="image" Property="Opacity" Value="0.1"/>
+            </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
@@ -2021,6 +2097,9 @@
               <Setter TargetName="image" Property="Source" Value="PlayerControl\down.small.focus.PNG"/>
               <Setter TargetName="image" Property="Opacity" Value="1"/>
             </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="image" Property="Opacity" Value="0.1"/>
+            </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
@@ -2038,6 +2117,27 @@
             <Trigger Property="HasFocus" Value="True">
               <Setter TargetName="image" Property="Source" Value="remove.focus.PNG"/>
               <Setter TargetName="image" Property="Opacity" Value="1"/>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <Style x:Key="ConfigureEntryButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <Grid>
+            <Image x:Name="image" Source="configure.nofocus.PNG" Stretch="Uniform" Height="45" Width="45" Opacity="0.6" VerticalAlignment="Center"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="image" Property="Source" Value="configure.focus.PNG"/>
+              <Setter TargetName="image" Property="Opacity" Value="1"/>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="image" Property="Opacity" Value="0.1"/>
             </Trigger>
           </ControlTemplate.Triggers>
         </ControlTemplate>

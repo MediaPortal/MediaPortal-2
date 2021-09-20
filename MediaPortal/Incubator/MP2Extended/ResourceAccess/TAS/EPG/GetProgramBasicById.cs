@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 
       IProgram program = await TVAccess.GetProgramAsync(context, int.Parse(programId));
       if (program == null)
-        throw new BadRequestException(string.Format("GetProgramBasicById: Couldn't get Now/Next Info for channel with Id: {0}", programId));
+        throw new NotFoundException(string.Format("GetProgramBasicById: Couldn't get Now/Next Info for channel with Id: {0}", programId));
 
       WebProgramBasic webProgramBasic = ProgramBasic(program);
       return webProgramBasic;

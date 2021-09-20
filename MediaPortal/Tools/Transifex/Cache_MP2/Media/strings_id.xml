@@ -166,6 +166,7 @@
   <string name="Media.Refresh">Segarkan</string>
   <string name="Media.ReimportMediaItem.Done">Selesai</string>
   <string name="Media.ReimportMediaItem.Description">Deskripsi</string>
+  <string name="Media.SubtitleSearch.Language">Bahasa</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Mainkan item</string>
   <string name="Media.PlayAudioItems">Mainkan item audio</string>

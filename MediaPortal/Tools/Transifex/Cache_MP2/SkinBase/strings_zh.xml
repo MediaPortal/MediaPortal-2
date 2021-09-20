@@ -39,6 +39,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">脱离服务器</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">家庭服务器</string>
   <string name="ServerConnection.AttachedText.Before">此MediaPortal 2客户端当前已连接到家庭服务器</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">此MediaPortal 2客户端当前未连接到家庭服务器</string>
   <string name="ServerConnection.HomeServerIsConnected">家庭服务器已连接</string>
   <string name="ServerConnection.HomeServerIsNotConnected">家庭服务器已断开</string>

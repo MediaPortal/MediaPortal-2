@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-  <string name="Match.Audio.Classic">Классическая|Опера|Орекстровая|Хоровая|Авангард|Барокко|Духовная</string>
-  <string name="Match.Audio.Soundtrack">Саундтрек|Cinema|Мьюзикл|Киномузыка</string>
+  <string name="Match.Audio.Classic">Классическая|Опера|Оркестровая|Хоровая|Авангард|Барокко|Духовная</string>
+  <string name="Match.Audio.Soundtrack">Саундтрек|Cinema|Мюзикл|Киномузыка</string>
   <string name="Match.Audio.NewAge">Нью Эйдж|Environment|Healing|Медитация|Природа|Релакс|Travel</string>
-  <string name="Match.Audio.Rock">Рок|Грандж|Панк</string>
+  <string name="Match.Audio.Rock">Рок|Гранж|Панк</string>
   <string name="Match.Audio.Metal">Метал</string>
   <string name="Match.Audio.Country">Кантри|Американа|Блюграсс|Cowboy|Хонки-тонк|Hokum</string>
   <string name="Match.Audio.Jazz">Джаз|Биг-Бэнд|Фьюжн|Регтайм</string>
@@ -13,11 +13,11 @@
   <string name="Match.Audio.Pop">Поп|Бит</string>
   <string name="Match.Audio.Comedy">Комедия|Комическая|Пародия</string>
   <string name="Match.Audio.Folk">Фолк</string>
-  <string name="Match.Audio.EasyListening">Лёгкая музыка|Лануж|Фоновая музыка|Свинг|Бибоп|Эмбиент</string>
+  <string name="Match.Audio.EasyListening">Лёгкая музыка|Лаунж|Фоновая музыка|Свинг|Бибоп|Эмбиент</string>
   <string name="Match.Audio.Holiday">Праздничная|Ханука|Рождественская|Пасхальная|Хэллоуин|На день благодарения</string>
   <string name="Match.Audio.Alternative">Альтернатива|Новая Волна|Прогрессив</string>
   <string name="Match.Audio.Compilation">Сборники|Хиты</string>
-  <string name="Match.Audio.Audiobook">Ауидокнига|Книга</string>
+  <string name="Match.Audio.Audiobook">Аудиокнига|Книга</string>
   <string name="Match.Audio.Karaoke">Караоке</string>
 
   <string name="Match.Video.Action">Боевик</string>
@@ -68,13 +68,14 @@
   <string name="Label.Audio.Jazz">Джаз</string>
   <string name="Label.Audio.Soul">R&amp;B, Соул</string>
   <string name="Label.Audio.Rap">Хип-Хоп, Рэп</string>
-  <string name="Label.Audio.Raggae">Рэгги</string>
+  <string name="Label.Audio.Raggae">Регги</string>
   <string name="Label.Audio.Pop">Поп-музыка</string>
   <string name="Label.Audio.Dance">Дэнс</string>
   <string name="Label.Audio.Electronic">Электронная</string>
   <string name="Label.Audio.Comedy">Комедия</string>
   <string name="Label.Audio.Folk">Фолк</string>
   <string name="Label.Audio.EasyListening">Лёгкая музыка</string>
+  <string name="Label.Audio.Holiday">Праздничный</string>
   <string name="Label.Audio.World">Мир</string>
   <string name="Label.Audio.Alternative">Альтернатива</string>
   <string name="Label.Audio.Compilation">Сборник</string>

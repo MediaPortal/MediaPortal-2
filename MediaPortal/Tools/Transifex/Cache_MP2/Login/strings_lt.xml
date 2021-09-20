@@ -12,6 +12,7 @@
   <string name="UserConfig.Yes">Taip</string>
   <string name="UserConfig.No">Ne</string>
   <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Default">Standartinis</string>
   <string name="UserConfig.SharesText">Bendriniai</string>
   <string name="UserConfig.LocalShare">Kliento media šaltinis</string>
   <string name="UserConfig.LocalShares">Kliento media šaltiniai</string>

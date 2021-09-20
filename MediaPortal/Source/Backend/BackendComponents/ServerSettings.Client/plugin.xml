@@ -92,34 +92,42 @@
   <!-- Importer settings -->
   <Register Location="/Configuration/Settings/Media">
     <ConfigSection
+        Sort="A500"
         Id="AudioMDESettings"
         Redundant="true"
         Text="[Settings.ServerSettings.AudioMDESettings]"/>
     <ConfigSection
+        Sort="A501"
         Id="VideoMDESettings"
         Redundant="true"
         Text="[Settings.ServerSettings.VideoMDESettings]"/>
     <ConfigSection
+        Sort="A502"
         Id="MovieMDESettings"
         Redundant="true"
         Text="[Settings.ServerSettings.MovieMDESettings]"/>
     <ConfigSection
+        Sort="A503"
         Id="SeriesMDESettings"
         Redundant="true"
         Text="[Settings.ServerSettings.SeriesMDESettings]"/>
     <ConfigSection
-          Id="ImageMDESettings"
-          Redundant="true"
-          Text="[Settings.ServerSettings.ImageMDESettings]"/>
+        Sort="A504"
+        Id="ImageMDESettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.ImageMDESettings]"/>
     <ConfigSection
+        Sort="A505"
         Id="SubtitleMDESettings"
         Redundant="true"
         Text="[Settings.ServerSettings.SubtitleMDESettings]"/>
     <ConfigSection
-          Id="FanArtSettings"
-          Redundant="true"
-          Text="[Settings.ServerSettings.FanArtSettings]"/>
+        Sort="A506"
+        Id="FanArtSettings"
+        Redundant="true"
+        Text="[Settings.ServerSettings.FanArtSettings]"/>
     <ConfigSection
+        Sort="A507"
         Id="LanguageSettings"
         Redundant="true"
         Text="[Settings.ServerSettings.LanguageSettings]"/>

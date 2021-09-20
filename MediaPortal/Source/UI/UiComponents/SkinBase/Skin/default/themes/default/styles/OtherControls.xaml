@@ -31,6 +31,9 @@
   <SafeFilenameConverter x:Key="SafeFilenameConverter"/>
   <StringSplitConverter x:Key="StringSplitConverter"/>
   <BoolToFocusPriorityConverter x:Key="BoolToFocusPriorityConverter"/>
+  <ConfigurationRootConverter x:Key="ConfigurationRootConverter"/>
+  <ConfigurationPathConverter x:Key="ConfigurationPathConverter"/>
+  <ConfigurationLevelConverter x:Key="ConfigurationLevelConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 

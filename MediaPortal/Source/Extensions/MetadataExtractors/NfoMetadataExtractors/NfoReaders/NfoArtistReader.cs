@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -63,9 +63,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Cache used to temporarily store <see cref="SeriesStub"/> objects so that the same tvshow.nfo file
     /// doesn't have to be parsed once for every episode
     /// </summary>
-    private static readonly AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<ArtistStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<ArtistStub>)>(CACHE_TIMEOUT);
+    private static AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<ArtistStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<ArtistStub>)>(CACHE_TIMEOUT);
 
     #endregion
+
+    public static void ClearCache()
+    {
+      CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<ArtistStub>)>(CACHE_TIMEOUT);
+    }
 
     #region Private fields
 
@@ -518,7 +523,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to read a series nfo-file into <see cref="ArtistStub"/> objects (or gets them from cache)
+    /// Tries to read a artist nfo-file into <see cref="ArtistStub"/> objects (or gets them from cache)
     /// </summary>
     /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>

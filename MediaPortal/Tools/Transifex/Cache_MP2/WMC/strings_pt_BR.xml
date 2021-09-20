@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WMC.Home.LatestAdded">Último Adicionado</string>
+  <string name="WMC.Home.LatestPlayed">Último Jogado</string>
+  <string name="WMC.Home.CurrentPrograms">Programas atuais</string>
+  <string name="WMC.Home.Favorites">Favoritos</string>
+  <string name="WMC.Home.Unplayed">Não jogado</string>
+
+</resources>

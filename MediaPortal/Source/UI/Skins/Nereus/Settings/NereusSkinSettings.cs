@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.Settings;
 using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Settings
 {
@@ -40,6 +41,18 @@ namespace MediaPortal.UiComponents.Nereus.Settings
 
     [Setting(SettingScope.User, true)]
     public bool EnableFanart { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool EnableTouchDisplay { get; set; }
+
+    [Setting(SettingScope.User, 1.0)]
+    public double FanartOverlayOpacity { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool EnableGridDetails { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool EnableCoverDetails { get; set; }
 
     [Setting(SettingScope.User, true)]
     public bool EnableListWatchedFlags { get; set; }
@@ -66,9 +79,24 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     public bool EnableAgeCertificationLogos { get; set; }
 
     [Setting(SettingScope.User, true)]
+    public bool EnableAutoScrolling { get; set; }
+
+    [Setting(SettingScope.User, 20)]
+    public double AutoScrollSpeed { get; set; }
+
+    [Setting(SettingScope.User, 2)]
+    public double AutoScrollDelay { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool EnableLoopScrolling { get; set; }
+
+    [Setting(SettingScope.User, true)]
     public bool EnableHelpTexts { get; set; }
 
-    static readonly Guid[] DEFAULT_HOME_MENU_ACTION_IDS = new []
+    [Setting(SettingScope.User, null)]
+    public string LastSelectedHomeMenuActionId { get; set; }
+
+    private static readonly Guid[] DEFAULT_HOME_MENU_ACTION_IDS = new []
     {
       // Audio
       new Guid("30715d73-4205-417f-80aa-e82f0834171f"),
@@ -96,7 +124,8 @@ namespace MediaPortal.UiComponents.Nereus.Settings
       new Guid("873EB147-C998-4632-8F86-D5E24062BE2E")
     };
 
-    Guid[] _homeMenuActionIds = null;
+    private Guid[] _homeMenuActionIds = null;
+    private string[] _homeMenuMediaLists = null;
 
     [Setting(SettingScope.User, null)]
     public Guid[] HomeMenuActionIds
@@ -109,6 +138,19 @@ namespace MediaPortal.UiComponents.Nereus.Settings
         return actionIds;
       }
       set { _homeMenuActionIds = value; }
+    }
+
+    [Setting(SettingScope.User, null)]
+    public string[] HomeMenuActionMediaLists
+    {
+      get
+      {
+        var mediaLists = _homeMenuMediaLists;
+        if (mediaLists == null || mediaLists.Length == 0)
+          _homeMenuMediaLists = mediaLists = new string[0];
+        return mediaLists;
+      }
+      set { _homeMenuMediaLists = value; }
     }
   }
 }

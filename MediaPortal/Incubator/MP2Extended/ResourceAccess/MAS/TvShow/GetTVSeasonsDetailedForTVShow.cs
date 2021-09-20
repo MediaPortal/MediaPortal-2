@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -54,7 +54,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       IList<MediaItem> seasons = MediaLibraryAccess.GetMediaItemsByGroup(context, SeasonAspect.ROLE_SEASON, SeriesAspect.ROLE_SERIES, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (seasons.Count == 0)
-        throw new BadRequestException("No seasons found");
+        return Task.FromResult<IList<WebTVSeasonDetailed>>(new List<WebTVSeasonDetailed>());
 
       var output = new List<WebTVSeasonDetailed>();
 

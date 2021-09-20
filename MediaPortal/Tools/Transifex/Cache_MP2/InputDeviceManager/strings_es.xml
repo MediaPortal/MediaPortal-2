@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="InputDeviceManager.Action">Acción</string>
+
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Limpiar</string>
   </resources>

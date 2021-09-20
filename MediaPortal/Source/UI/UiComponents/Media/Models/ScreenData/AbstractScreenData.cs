@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -87,6 +87,12 @@ namespace MediaPortal.UiComponents.Media.Models.ScreenData
     {
       get { return _screen; }
     }
+
+    /// <summary>
+    /// Specifies if the screen should be skipped if there is only 1 item
+    /// </summary>
+    public virtual bool SkipForSingleItem { get; } = false;
+
 
     /// <summary>
     /// Returns a hint text that more than our maximum number of shown items should be preented.

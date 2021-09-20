@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -55,12 +55,12 @@ namespace MediaPortal.Plugins.WifiRemote
       if (channel.MediaType == SlimTv.Interfaces.Items.MediaType.TV)
       {
         MediaType = "tv";
-        ImageName = Helper.GetImageBaseURL(channel, FanArtMediaTypes.ChannelTv);
+        ImageName = Helper.GetImageBaseUrl(channel, FanArtMediaTypes.ChannelTv);
       }
       else
       {
         MediaType = "radio";
-        ImageName = Helper.GetImageBaseURL(channel, FanArtMediaTypes.ChannelRadio);
+        ImageName = Helper.GetImageBaseUrl(channel, FanArtMediaTypes.ChannelRadio);
       }
     }
   }

@@ -5,5 +5,6 @@
   <string name="UserConfig.DeleteUser">Kustuta</string>
   <string name="UserConfig.Yes">Jah</string>
   <string name="UserConfig.No">Ei</string>
+  <string name="UserConfig.Default">Vaikimisi</string>
   <string name="UserConfig.SharesText">Jagamised</string>
   </resources>

@@ -26,10 +26,14 @@
   <string name="Settings.Users.Config.AutoLoginUser.Help">O utilizador para utilizar o início de sessão automático</string>
   <string name="Settings.Users.Config.SystemDefault">Valor padão</string>
   <string name="Settings.Users.Config.AutoLoginUser.Title">Utilizador do início de sessão automático</string>
+  <string name="Settings.Users.Config.UserLanguage">Preferências de idioma </string>  <!-- Setting -->
+  <string name="Settings.Users.Config.UserLanguage.Help">Configurar preferências de idioma para utilizadores</string>
 
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestão de utilizadores</string>
+  <string name="UserConfig.UserLanguagewWorkflowNavigationContextDisplayLabel">Linguagem de utilizador</string>
   <string name="UserConfig.UserConfiguration.Title">Gestão de utilizadores</string>
+  <string name="UserConfig.UserLanguages.Title">Linguagem de utilizador</string>
   <string name="UserConfig.Users">Utilizadores</string>
   <string name="UserConfig.NoConfigUserHomeServerNotConnected">Os utilizadores do servidor não podem ser geridos no momento porque servidor inicial não está conectado</string>
   <string name="UserConfig.UserName">Utilizador</string>
@@ -52,6 +56,15 @@
   <string name="UserConfig.No">Não</string>
   <string name="UserConfig.Ok">OK</string>
   <string name="UserConfig.Disable">Desativar</string>
+
+  <string name="UserConfig.SelectLanguage">Seleccionar Idioma</string>
+  <string name="UserConfig.Default">Por defeito</string>
+  <string name="UserConfig.MainAudioLanguage">Idioma principal audio</string>
+  <string name="UserConfig.SecondaryAudioLanguage">Idioma secundário audio</string>
+  <string name="UserConfig.MainSubtitleLanguage">Idioma principal legendas</string>
+  <string name="UserConfig.SecondarySubtitleLanguage">Idioma secundário legendas</string>
+  <string name="UserConfig.MainMenuLanguage">Idioma Menu Principal</string>
+  <string name="UserConfig.SecondaryMenuLanguage">Idioma Menu Secundário</string>
 
   <string name="UserConfig.SelectProfileTemplate">Selecionar modelo de perfil</string>
   <string name="UserConfig.ClientProfile">Perfil do cliente</string>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -116,6 +116,7 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     [XmlArrayItem("MediaItemIds", typeof(MediaItemIdFilter))]
     [XmlArrayItem("Relationship", typeof(RelationshipFilter))]
     [XmlArrayItem("FilterRelationship", typeof(FilteredRelationshipFilter))]
+    [XmlArrayItem("SharePath", typeof(SharePathFilter))]
     // Necessary to have an object ARRAY here, else the serialization algorithm cannot cope with polymorph values
     public object[] XML_Operands
     {

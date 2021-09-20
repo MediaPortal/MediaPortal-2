@@ -19,14 +19,15 @@
     <ColumnDefinition Width="Auto"/>
   </Grid.ColumnDefinitions>
   
-   <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Margin="0,5,20,-5">
+   <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Margin="0,5,-120,-5">
     <media:EpisodeAspectWrapper.Template>
       <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
+          
           <Label x:Name="EpisodeName" HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallerFontSize}"
                  Content="{Binding Path=EpisodeName}" Color="{ThemeResource TextColor}" TextTrimming="WordEllipsis"/>
           <Label x:Name="SeriesName" HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallerFontSize}" Grid.Column="1"
@@ -40,9 +41,9 @@
     </media:EpisodeAspectWrapper.Template>
   </media:EpisodeAspectWrapper>
 
-  <StackPanel Orientation="Horizontal" Grid.Row="1" Margin="-15,0,0,0">
+  <StackPanel Orientation="Horizontal" Grid.Row="1">
 
-    <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Margin="15,0,15,0">
+    <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
@@ -51,18 +52,21 @@
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
 
-      <Image Source="HomeContentIcons\series.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"/>
+      <Image x:Name="SeriesIcon" Source="HomeContentIcons\series.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+             IsVisible="{Binding Path=EpisodeNumber,Converter={StaticResource ReferenceToBoolConverter}}"/>
       <StackPanel Orientation="Horizontal" Grid.Column="1">
         <Label FontSize="{ThemeResource SmallerFontSize}" Content="S"
                IsVisible="{Binding Path=Season,Converter={StaticResource ReferenceToBoolConverter}}"
                Margin="5,0,1,0" Opacity="0.6" Color="{ThemeResource TextColor}"/>
         <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Season}"
+               IsVisible="{Binding Path=Season,Converter={StaticResource ReferenceToBoolConverter}}"
                Margin="0,0,10,0" Opacity="0.6" Color="{ThemeResource TextColor}"/>
         <Label FontSize="{ThemeResource SmallerFontSize}" Content="E"
                IsVisible="{Binding Path=EpisodeNumber,Converter={StaticResource ReferenceToBoolConverter}}"
                Margin="0,0,1,0" Opacity="0.6" Color="{ThemeResource TextColor}"/>
         <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding EpisodeNumber}"
-               Margin="0,0,10,0" Opacity="0.6" Color="{ThemeResource TextColor}"/>
+               IsVisible="{Binding Path=EpisodeNumber,Converter={StaticResource ReferenceToBoolConverter}}"
+               Margin="0,0,30,0" Opacity="0.6" Color="{ThemeResource TextColor}"/>
       </StackPanel>
     </Grid>
     
@@ -78,9 +82,11 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"/>
+            <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
             <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
-                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Margin="5,0,0,0" Opacity="0.6"/>
+                   IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Margin="5,0,30,0" Opacity="0.6"/>
           </Grid>
         </ControlTemplate>
       </media:MediaAspectWrapper.Template>
@@ -98,8 +104,9 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="30,-1,0,1"/>
-            <Label x:Name="RatingCountLabel" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Column="1"
+            <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+            <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
                    FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
                    IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
               <Label.Content>
@@ -125,8 +132,8 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
-                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="30,-1,0,1"/>
+            <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
+                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,-1,0,1"/>
             <Label x:Name="Duration" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
                    IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0"
                    Grid.Column="1" VerticalAlignment="Center">
@@ -139,7 +146,7 @@
             <Label Content=" " IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"
                    FontSize="{ThemeResource SmallerFontSize}" Grid.Column="2" VerticalAlignment="Center"/>
             <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
-                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Grid.Column="3" Opacity="0.6"/>
+                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Grid.Column="3" Opacity="0.6" Margin="0,0,30,0"/>
           </Grid>
         </ControlTemplate>
       </media:VideoStreamAspectWrapper.Template>
@@ -158,9 +165,11 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="HomeContentIcons\watch.png" Stretch="Uniform" Height="35" VerticalAlignment="Center" Margin="30,-1,0,1"/>
+            <Image Source="HomeContentIcons\watch.png" Stretch="Uniform" Height="35" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}"/>
             <Label VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}"
-                   Grid.Column="1" Margin="5,0,0,0" Opacity="0.6">
+                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Grid.Column="1" Margin="5,0,30,0" Opacity="0.6">
               <Label.Content>
                 <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
               </Label.Content>

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
     {
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (items.Count == 0)
-        throw new BadRequestException("No Images found");
+        return Task.FromResult<IList<WebCategory>>(new List<WebCategory>());
 
       var output = items.Select(i => (i.GetAspect(MediaAspect.Metadata).GetAttributeValue<DateTime>(MediaAspect.ATTR_RECORDINGTIME)).ToString("yyyy")).
         Distinct().Select(y => new WebCategory { Id = y, Title = y }).ToList();

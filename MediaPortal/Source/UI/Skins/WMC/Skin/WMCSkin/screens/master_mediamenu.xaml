@@ -160,7 +160,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           it is not accidently hit whilst the menu is opened with the mouse.
           -->
           <Grid x:Name="MouseCaptureControl" IsVisible="{Binding Source={StaticResource MenuModel}, Path=IsMenuOpen}"
-                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500, 500,-500">
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-200,-500, 500,-500">
             <Grid.Triggers>
               <!--Close the menu when the mouse moves over this control as the fade background above covers the main content and prevents it getting focus-->
               <EventTrigger RoutedEvent="FrameworkElement.MouseMove">
@@ -170,7 +170,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid>
 
           <Grid x:Name="RightPanel" Margin="0,80,-650,-80" VerticalAlignment="Stretch"
-              Width="650" HorizontalAlignment="Right">
+                Width="650" HorizontalAlignment="Right">
             <Grid.IsVisible>
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
                      Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout}"/>
@@ -275,9 +275,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </ListView.Triggers>
             </ListView>
             <Button x:Name="MenuShowButton" Content="Menu" Style="{ThemeResource ButtonWideStyle}"
-                      Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Height="50" Margin="-30,0,0,0"
-                      IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
-                      Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
+                    Grid.Row="0" Grid.Column="0" HorizontalAlignment="Left" Height="50" Margin="-30,0,0,0"
+                    IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}"
+                    Command="{Command Source={StaticResource MenuModel}, Path=ToggleMenu}">
               <Image Source="Right_Menu.png" Stretch="Uniform" Margin="0,0,0,0"/>
             </Button>
           </Grid>

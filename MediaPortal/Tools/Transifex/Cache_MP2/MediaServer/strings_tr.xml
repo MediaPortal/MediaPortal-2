@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">Ses</string>
+  <string name="MediaServer.GenreContainter">Türler</string>
+  <string name="MediaServer.ShareContainter">Paylaşımlar</string>
+  <string name="MediaServer.ImageContainter">Resimler</string>
+  <string name="MediaServer.VideoContainter">video</string>
+  <string name="MediaServer.MovieContainter">Filmler</string>
+  <string name="MediaServer.ActorContainter">Oyuncular</string>
+  <string name="MediaServer.SeriesContainter">Dizi</string>
+  <string name="MediaServer.TV">TV</string>
+  </resources>

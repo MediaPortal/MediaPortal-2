@@ -179,6 +179,7 @@
   <string name="Media.DeleteFromStorage">Slet fra lager</string>
   <string name="Media.ReimportMediaItem.Done">Færdig</string>
   <string name="Media.ReimportMediaItem.Description">Beskrivelse</string>
+  <string name="Media.SubtitleSearch.Language">Sprog</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Afspil emne</string>
   <string name="Media.PlayAudioItems">Afspil lyd emne</string>

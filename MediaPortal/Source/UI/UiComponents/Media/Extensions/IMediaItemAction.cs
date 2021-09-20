@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,10 +22,9 @@
 
 #endregion
 
-using System.Threading.Tasks;
 using MediaPortal.Common.Async;
 using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.Services.ServerCommunication;
+using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Media.Extensions
 {
@@ -69,10 +68,6 @@ namespace MediaPortal.UiComponents.Media.Extensions
   /// </summary>
   public interface IDeferredMediaItemAction : IMediaItemAction
   {
-    /// <summary>
-    /// Indicates if the current action will change the workflow, like navigating to another screen.
-    /// </summary>
-    bool DoesChangeWorkflow { get; set; }
   }
 
   /// <summary>

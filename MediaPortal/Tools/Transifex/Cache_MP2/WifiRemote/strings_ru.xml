@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.WifiRemote.AuthMode.UserPassword">Логин и пароль</string>
+  <string name="Settings.WifiRemote.AuthMode.Both">Логин и пароль или пасскод</string>
+
+  <string name="Settings.WifiRemote.AuthenticationMethod">Метод аутентификации</string> </resources>

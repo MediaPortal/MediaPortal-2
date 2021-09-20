@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -53,7 +53,7 @@ namespace MediaPortal.Plugins.AppLauncher.ContentLists
       get { return _allItems; }
     }
 
-    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason);
+    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects);
     
     protected ListItem CreateAppItem(App app)
     {
@@ -68,7 +68,7 @@ namespace MediaPortal.Plugins.AppLauncher.ContentLists
 
     protected Task StartApp(ListItem item)
     {
-      AppLauncherHomeModel model = ServiceRegistration.Get<IWorkflowManager>().GetModel(AppLauncherHomeModel.APP_HOME_ID) as AppLauncherHomeModel;
+      AppLauncherHomeModel model = ServiceRegistration.Get<IWorkflowManager>(false)?.GetModel(AppLauncherHomeModel.APP_HOME_ID) as AppLauncherHomeModel;
       if (model != null)
       {
         model.StartApp(item);

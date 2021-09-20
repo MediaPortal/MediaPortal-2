@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -44,14 +44,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
     {
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
       if (items.Count == 0)
-        throw new BadRequestException("No Albums found");
+        return System.Threading.Tasks.Task.FromResult<IList<WebMusicAlbumBasic>>(new List<WebMusicAlbumBasic>());
 
       var output = items.Select(item => MusicAlbumBasic(item))
         .Filter(filter);
 
       // sort and filter
       if (sort != null && order != null)
-        output = output.Filter(filter).SortWebMusicAlbumBasic(sort, order);
+        output = output.SortWebMusicAlbumBasic(sort, order);
 
       return System.Threading.Tasks.Task.FromResult<IList<WebMusicAlbumBasic>>(output.ToList());
     }

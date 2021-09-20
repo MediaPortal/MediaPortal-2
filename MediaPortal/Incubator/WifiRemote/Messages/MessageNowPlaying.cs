@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,7 +49,9 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       {
         if (Helper.IsNowPlaying())
         {
-          MediaItem mediaItem = ServiceRegistration.Get<IPlayerContextManager>().CurrentPlayerContext.CurrentMediaItem;
+          MediaItem mediaItem = ServiceRegistration.Get<IPlayerContextManager>(false)?.CurrentPlayerContext?.CurrentMediaItem;
+          if (mediaItem == null)
+            return null;
 
           IList<MultipleMediaItemAspect> providerAspects;
           if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, ProviderResourceAspect.Metadata, out providerAspects) &&

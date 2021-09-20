@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Parar</string>
+  <string name="AppLauncher.Pause">Pausa</string>
+  <string name="AppLauncher.Settings.Title">Ajustes</string>
+  <string name="AppLauncher.Settings.Add">Añadir Aplicación</string>
+  <string name="AppLauncher.Settings.Add.Arguments">Argumentos</string>
+  <string name="AppLauncher.Settings.Add.Description">Descripción</string>
+  <string name="AppLauncher.Settings.Add.Username">Nombre de usuario</string>
+  <string name="AppLauncher.Settings.Add.Password">Contraseña</string>
+  <string name="AppLauncher.Settings.Add.Search">Buscar</string>
+  <string name="AppLauncher.Settings.Add.Select">Seleccionar</string>
+  <string name="AppLauncher.Settings.Add.Minimum">Mínimo</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normal</string>
+  <string name="AppLauncher.Settings.Add.Maximum">Máximo</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">Sin ventana</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">Buscar Icono</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">Buscar Aplicación</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">Ejecutar como Administrador</string>
+  <string name="AppLauncher.Settings.Edit">Editar Aplicación</string>
+  <string name="AppLauncher.Settings.Delete">Eliminar Aplicación</string>
+  <string name="AppLauncher.Settings.Menu">Menús de aplicación</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Añadir nueva Aplicación</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Editar una Aplicación existente</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Eliminar una Aplicación existente</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Eliminar un Grupo existente</string>
+
+  <string name="AppLauncher.Group">Grupo</string>
+  <string name="AppLauncher.SelectGroup">Seleccionar un Grupo</string>
+  <string name="AppLauncher.SelectApp">Seleccionar una Aplicación</string>
+  <string name="AppLauncher.RemoveGroup">Eliminar Grupo</string>
+  <string name="AppLauncher.Delete">Borrar</string>
+  <string name="AppLauncher.Menu">Menú</string>
+  <string name="AppLauncher.Menu.Clear">Limpiar</string>
+</resources>

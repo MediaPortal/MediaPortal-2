@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,6 +45,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Utilities.SystemAPI;
 using TagLib;
 using File = TagLib.File;
 using Tag = TagLib.Id3v2.Tag;
@@ -594,6 +595,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         uint? trackNo = null;
         TrackInfo trackInfo = new TrackInfo();
         trackInfo.FromMetadata(extractedAspectData);
+        if (!extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+          trackInfo.AllowOnlineReSearch = true;
+        trackInfo.ForceOnlineSearch = trackInfo.IsDirty;
+
         if (string.IsNullOrEmpty(trackInfo.TrackName))
         {
           if (!isStub)
@@ -643,7 +648,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
                 // FIXME Albert: tag.MimeType returns taglib/mp3 for an MP3 file. This is not what we want and collides with the
                 // mimetype handling in the BASS player, which expects audio/xxx.
                 if (!string.IsNullOrWhiteSpace(tag.MimeType))
+                {
                   providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, tag.MimeType.Replace("taglib/", "audio/"));
+                }
+                else
+                {
+                  var mime = MimeTypeDetector.GetMimeTypeFromExtension(fsra.ResourceName);
+                  if (!string.IsNullOrWhiteSpace(mime))
+                    providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, mime);
+                }
 
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
                 MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
@@ -860,13 +873,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
           if (SkipOnlineSearches && !SkipFanArtDownload)
           {
             TrackInfo tempInfo = trackInfo.Clone();
-            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo, _category).ConfigureAwait(false);
-            trackInfo.CopyIdsFrom(tempInfo);
-            trackInfo.HasChanged = tempInfo.HasChanged;
+            var success = await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo, _category).ConfigureAwait(false);
+            if (success)
+            {
+              trackInfo.CopyIdsFrom(tempInfo);
+              trackInfo.HasChanged = tempInfo.HasChanged;
+            }
+            else
+            {
+              ServiceRegistration.Get<ILogger>().Debug("AudioMetadataExtractor: Unable to get online ids for audio file '{0}'", fsra.CanonicalLocalResourcePath);
+            }
           }
           else if (!SkipOnlineSearches)
           {
-            await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
+            var success = await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
+            if (!success)
+              ServiceRegistration.Get<ILogger>().Debug("AudioMetadataExtractor: Unable to get online data for audio file '{0}'", fsra.CanonicalLocalResourcePath);
           }
         }
 

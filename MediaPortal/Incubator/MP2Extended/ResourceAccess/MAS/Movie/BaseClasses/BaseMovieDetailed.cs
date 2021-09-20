@@ -1,9 +1,9 @@
 ﻿// Source from: http://madreflection.originalcoder.com/2009/12/generic-tryparse.html
 
-#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Extensions.TranscodingService.Interfaces.MetaData;
 using MediaPortal.Plugins.MP2Extended.MAS.Movie;
 using MP2Extended.Extensions;
 
@@ -39,8 +40,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
     {
       WebMovieBasic webMovieBasic = MovieBasic(item);
 
-      MediaItemAspect movieAspect = item.GetAspect(MovieAspect.Metadata);
-      MediaItemAspect videoAspect = item.GetAspect(VideoAspect.Metadata);
+      MediaItemAspect movieAspect = MediaItemAspectExtensions.GetAspect(item, (MediaItemAspectMetadata)MovieAspect.Metadata);
+      MediaItemAspect videoAspect = MediaItemAspectExtensions.GetAspect(item, (MediaItemAspectMetadata)VideoAspect.Metadata);
+      IList<MultipleMediaItemAspect> audioAspects;
+      List<string> languages = new List<string>();
+      if (MediaItemAspect.TryGetAspects(item.Aspects, VideoAudioStreamAspect.Metadata, out audioAspects))
+      {
+        foreach (MultipleMediaItemAspect audioAspect in audioAspects)
+        {
+          string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
+          if (!string.IsNullOrEmpty(language) && !languages.Contains(language))
+          {
+            languages.Add(language);
+          }
+        }
+      }
 
       WebMovieDetailed webMovieDetailed = new WebMovieDetailed
       {
@@ -61,6 +75,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses
         Artwork = webMovieBasic.Artwork,
         Tagline = movieAspect.GetAttributeValue<string>(MovieAspect.ATTR_TAGLINE) ?? string.Empty,
         Summary = videoAspect.GetAttributeValue<string>(VideoAspect.ATTR_STORYPLOT) ?? string.Empty,
+        Language = string.Join(", ", languages.ToArray())
       };
 
       IEnumerable<string> aspectWriters = videoAspect.GetCollectionAttribute<string>(VideoAspect.ATTR_WRITERS);

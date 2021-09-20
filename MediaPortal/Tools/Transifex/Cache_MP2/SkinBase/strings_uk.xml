@@ -25,6 +25,7 @@
   <string name="Media.MyMusic">Музика</string>
   <string name="Media.MyVideos">Відео</string>
   <!--{0} = server name, {1} = host name-->
+  <string name="ServerConnection.AttachedText.After"></string>
   <!--{0} = server name, {1} = host name-->
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->

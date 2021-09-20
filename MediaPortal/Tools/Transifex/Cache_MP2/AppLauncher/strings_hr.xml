@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Settings.Title">Postavke</string>
+  <string name="AppLauncher.Settings.Add.Description">Opis</string>
+  <string name="AppLauncher.Settings.Add.Search">Traži</string>
+  <string name="AppLauncher.Settings.Add.Select">Odaberite</string>
+  <string name="AppLauncher.Menu.Clear">Vedro</string>
+</resources>

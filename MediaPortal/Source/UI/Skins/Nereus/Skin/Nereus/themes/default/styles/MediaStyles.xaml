@@ -92,7 +92,18 @@
                     </media:MovieAspectWrapper.IsVisible>
                     <media:MovieAspectWrapper.Template>
                       <ControlTemplate>
-                        <Image Stretch="Uniform" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
+                        <Grid>
+                        <Image x:Name="MovieThumbnail" Stretch="Uniform" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
+                        <Image x:Name="MoviePoster" Stretch="Uniform" Height="145" FallbackSource="{Binding MediaItem}" 
+                               IsVisible="{Binding ElementName=MovieThumbnail, Path=!HasImage}">
+                          <Image.Source>
+                            <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster"
+                                                fanart:FanArtName="{Binding Source={Binding MediaItem}, Path=MediaItemId}"
+                                                fanart:MaxWidth="{StaticResource MEDIA_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+                          </Image.Source>
+                        </Image>    
+                        </Grid>
+
                       </ControlTemplate>
                     </media:MovieAspectWrapper.Template>
                   </media:MovieAspectWrapper>
@@ -106,8 +117,7 @@
                     </media:MovieAspectWrapper.IsVisible>
                     <media:MovieAspectWrapper.Template>
                       <ControlTemplate>
-                        <Image Stretch="Uniform"
-                               Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
+                        <Image Stretch="Uniform" Source="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MediaItem}" Height="145"/>
                       </ControlTemplate>
                     </media:MovieAspectWrapper.Template>
                   </media:MovieAspectWrapper>
@@ -145,7 +155,7 @@
                             <RowDefinition Height="*"/>
                           </Grid.RowDefinitions>
                           <Label x:Name="StoryPlot" Wrap="True" Scroll="Auto" ScrollSpeed="5" ScrollDelay="5"
-                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.6"
+                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.6" Margin="0,0,20,0"
                                  FontSize="{ThemeResource SmallFontSize}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                                  Content="{Binding Path=StoryPlot}" Color="{ThemeResource TextColor}" />
                         </Grid>
@@ -993,7 +1003,7 @@
       <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
           <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
-             fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
@@ -1284,7 +1294,7 @@
       <Image x:Name="thumbnail" Stretch="Fill" Margin="3">
         <Image.Source>
           <fanart:FanArtImageSource fanart:MediaItem="{Binding FirstMediaItem}" fanart:FanArtType="Thumbnail" fanart:FanArtName="{Binding FirstMediaItem.MediaItemId}"
-             fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
+                                    fanart:MaxWidth="{StaticResource THUMBNAIL_GRID_WIDTH}" fanart:MaxHeight="{StaticResource THUMBNAIL_GRID_HEIGHT}"/>
         </Image.Source>
       </Image>
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
@@ -1563,7 +1573,7 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -1769,7 +1779,7 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -2120,7 +2130,7 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
 
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -2359,7 +2369,7 @@
       <Image Source="video.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumb, Path=!HasImage}"/>
       
       <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,2,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_WatchedFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCoverWatchedFlags}"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
@@ -2373,17 +2383,23 @@
               CornerRadius="{ThemeResource ButtonControlRadiusX}" Margin="0"
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
-      <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,5,8,0"
-             TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3" MaxHeight="60"
-             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
-            <Binding Source="{ThemeResource MenuTextBackground}"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
+      <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.Row="1" >
+        <media:MovieAspectWrapper.Template>
+          <ControlTemplate>
+            <Label x:Name="ItemLabel" Content="{Binding MovieName}" Wrap="True" Margin="8,5,8,0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                     TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3" MaxHeight="60"
+                     HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
+              <Label.Color>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+                  <Binding Source="{ThemeResource MenuTextBackground}"/>
+                  <Binding Source="{ThemeResource TextColor}"/>
+                </MultiBinding>
+              </Label.Color>
+            </Label>
+          </ControlTemplate>
+        </media:MovieAspectWrapper.Template>
+      </media:MovieAspectWrapper>
 
     </Grid>
   </ControlTemplate>
@@ -2518,6 +2534,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="80"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
@@ -2536,13 +2553,6 @@
                     <Binding Path="TrackName"/>
                   </MultiBinding>
                 </Label.Content>
-                <!--Label.Color>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                    <Binding Path="!Virtual"/>
-                    <Binding Source="{ThemeResource MediaItemUnwatchedColor}"/>
-                    <Binding Source="{ThemeResource MediaItemOfflineColor}"/>
-                  </MultiBinding>
-                </-->
               </Label>
             </Grid>
           </ControlTemplate>
@@ -2567,16 +2577,11 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding Duration}" Margin="0,0,10,0" FontFamily="SegoeUIBold" 
-             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
-        <!--Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding Path="!Virtual"/>
-            <Binding Source="{ThemeResource MediaItemUnwatchedColor}"/>
-            <Binding Source="{ThemeResource MediaItemOfflineColor}"/>
-          </MultiBinding>
-        </-->
-      </Label>
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Duration}" Margin="0,0,10,0" FontFamily="SegoeUIBold" 
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}" HorizontalAlignment="Right"/>
+
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2661,7 +2666,10 @@
       </Border>
       <Image Grid.Row="1" Source="audio.png" Stretch="Uniform" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
 
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,-3,-3,0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+      <!-- watched indicator -->
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}" 
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
 
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
@@ -2673,17 +2681,32 @@
               CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
-      <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
-             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis" Width="{StaticResource AUDIO_COVER_WIDTH}"
-             HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}">
-        <Label.Color>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
-            <Binding Source="{ThemeResource MenuTextBackground}"/>
-            <Binding Source="{ThemeResource TextColor}"/>
-          </MultiBinding>
-        </Label.Color>
-      </Label>
+      <media:AudioAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="2" Grid.Column="0" Margin="8,10,8,0" HorizontalAlignment="Stretch">
+        <media:AudioAspectWrapper.Template>
+          <ControlTemplate>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold" Wrap="True"
+                     HorizontalAlignment="Center" Width="{StaticResource AUDIO_COVER_WIDTH}">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
+                    <Binding Path="Track"/>
+                    <Binding Source=" - "/>
+                    <Binding Path="TrackName"/>
+                  </MultiBinding>
+                </Label.Content>
+                <Label.Color>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="!HasFocus"/>
+                    <Binding Source="{ThemeResource MenuTextBackground}"/>
+                    <Binding Source="{ThemeResource TextColor}"/>
+                  </MultiBinding>
+                </Label.Color>
+              </Label>
+            </Grid>
+          </ControlTemplate>
+        </media:AudioAspectWrapper.Template>
+      </media:AudioAspectWrapper>
+
     </Grid>
   </ControlTemplate>
 
@@ -2696,6 +2719,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="80"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
@@ -2765,8 +2789,12 @@
           </MultiBinding>
         </Image.IsVisible>
       </Image>
-      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding Tracks}" Margin="20,0,10,0" FontFamily="SegoeUIBold"
-             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
+      
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Tracks}" Margin="20,0,10,0" FontFamily="SegoeUIBold"
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right"/>
+      
+      <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableListWatchedFlags}"/>
     </Grid>
   </ControlTemplate>
 
@@ -2801,9 +2829,12 @@
         </Label.IsVisible>
       </Label>
 
-        <!-- watched indicator -->
+      <!-- watched indicator -->
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}" 
-                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>      
+
     </Grid>
   </ControlTemplate>
 
@@ -2850,6 +2881,12 @@
         </Image.IsVisible>
       </Image>
 
+      <!-- watched indicator -->
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_WatchedFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+      <Control Grid.Row="1" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="-3" Template="{StaticResource Cover_OfflineFlag_Template}" 
+               IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableGridWatchedFlags}"/>
+
       <Border IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"
               BorderThickness="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               CornerRadius="{ThemeResource ButtonControlRadiusX}" Grid.Row="1" Margin="0"
@@ -2870,6 +2907,7 @@
           </MultiBinding>
         </Label.Color>
       </Label>
+
     </Grid>
   </ControlTemplate>
 
@@ -3835,9 +3873,9 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <Button Style="{ThemeResource ButtonWideStyle_Cover}"
+          <Button Style="{ThemeResource ButtonWideStyle_Cover}" Margin="0,20,0,0"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
-                            IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="IsVisible" Value="True"/>
@@ -3953,7 +3991,8 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/-->
-                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,0,-40">
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,0,-40"
+                                        LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300" 
@@ -3976,7 +4015,8 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--VirtualizingWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Vertical"/-->
-                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="43,-270,0,-305">
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="43,-270,0,-305" 
+                                       LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
                       <AnimatedWrapPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" 
@@ -3999,7 +4039,8 @@
                 <Binding.Source>
                   <ItemsPanelTemplate>
                     <!--VirtualizingStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal"/-->
-                    <AnimatedStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="280,260" Margin="-140,0,-140,0">
+                    <AnimatedStackPanel x:Name="CoverListItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="280,260" Margin="-140,0,0,0"
+                                        LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
                       <AnimatedStackPanel.Resources>
                         <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
                           <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400" DecelerationRatio="0.3" AccelerationRatio="0.3"

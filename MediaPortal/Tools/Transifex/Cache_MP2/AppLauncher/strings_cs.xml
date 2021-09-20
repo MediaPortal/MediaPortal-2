@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Zastavit</string>
+  <string name="AppLauncher.Pause">Pauza</string>
+  <string name="AppLauncher.Settings.Title">Nastavení</string>
+  <string name="AppLauncher.Settings.Add.Arguments">Argumenty</string>
+  <string name="AppLauncher.Settings.Add.Description">Popis</string>
+  <string name="AppLauncher.Settings.Add.Password">Heslo</string>
+  <string name="AppLauncher.Settings.Add.Search">Vyhledávání</string>
+  <string name="AppLauncher.Settings.Add.Select">Vybrat</string>
+  <string name="AppLauncher.Settings.Add.Minimum">Minimum</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normální</string>
+  <string name="AppLauncher.Settings.Add.Maximum">Maximum</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">Bez okna</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">Vyhledat ikonu</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">Vyhledat aplikaci</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">Spustit jako správce</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Nová aplikace byla přidána</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Upravit existující aplikaci</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Odebrat existující aplikaci</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Odebrat existující skupinu</string>
+
+  <string name="AppLauncher.Group">Skupina</string>
+  <string name="AppLauncher.SelectGroup">Zvolte skupinu</string>
+  <string name="AppLauncher.RemoveGroup">Odebrat skupinu</string>
+  <string name="AppLauncher.Delete">Odstranit</string>
+  <string name="AppLauncher.Menu.Clear">Jasno</string>
+</resources>

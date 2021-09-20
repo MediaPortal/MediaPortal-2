@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -100,7 +100,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         mediaItem = MediaLibraryAccess.GetMediaItemById(context, itemGuid, necessaryMIATypes, optionalMIATypes);
         if (mediaItem == null)
         {
-          throw new BadRequestException(string.Format("InitStream: Couldn't init stream! No MediaItem found with id: {0}", itemId));
+          throw new NotFoundException(string.Format("InitStream: Couldn't init stream! No MediaItem found with id: {0}", itemId));
         }
         streamItem.Title = mediaItem[MediaAspect.Metadata.AspectId][0].GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
       }

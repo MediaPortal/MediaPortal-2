@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
       // select the channel Group we are looking for
       var group = await TVAccess.GetGroupAsync(context, int.Parse(groupId));
       if (group == null)
-        throw new BadRequestException(string.Format("GetGroupById: group with id: {0} not found", groupId));
+        throw new NotFoundException(string.Format("GetGroupById: group with id: {0} not found", groupId));
 
       WebChannelGroup webChannelGroup = ChannelGroup(group);
       return webChannelGroup;

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,15 +27,22 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class MovieHomeContent : AbstractHomeContent
   {
+    public MovieHomeContent()
+    {
+      _availableLists.Add(new LatestMovieList());
+      _availableLists.Add(new ContinueMovieList());
+      _availableLists.Add(new FavoriteMovieList());
+      _availableLists.Add(new UnplayedMovieList());
+    }
+
     protected override void PopulateBackingList()
     {
-      MediaListModel mlm = GetMediaListModel();
-
       _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new MovieGenreShortcut(),
@@ -44,39 +51,39 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new MovieActorShortcut(),
         new MovieSearchShortcut()
       }));
+    }
 
-      _backingList.Add(new LatestMovieList(mlm.Lists["LatestMovies"].AllItems));
-      _backingList.Add(new ContinueMovieList(mlm.Lists["ContinuePlayMovies"].AllItems));
-      _backingList.Add(new FavoriteMovieList(mlm.Lists["FavoriteMovies"].AllItems));
-      _backingList.Add(new UnplayedMovieList(mlm.Lists["UnplayedMovies"].AllItems));
+    protected override IContentListModel GetContentListModel()
+    {
+      return GetMediaListModel();
     }
   }
 
-  public class LatestMovieList : ItemsListWrapper
+  public class LatestMovieList : MediaListItemsListWrapper
   {
-    public LatestMovieList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestAdded]")
+    public LatestMovieList()
+      : base("LatestMovies", "[Nereus.Home.LatestAdded]")
     { }
   }
 
-  public class ContinueMovieList : ItemsListWrapper
+  public class ContinueMovieList : MediaListItemsListWrapper
   {
-    public ContinueMovieList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.ContinuePlayed]")
+    public ContinueMovieList()
+      : base("ContinuePlayMovies", "[Nereus.Home.ContinuePlayed]")
     { }
   }
 
-  public class FavoriteMovieList : ItemsListWrapper
+  public class FavoriteMovieList : MediaListItemsListWrapper
   {
-    public FavoriteMovieList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteMovieList()
+      : base("FavoriteMovies", "[Nereus.Home.Favorites]")
     { }
   }
 
-  public class UnplayedMovieList : ItemsListWrapper
+  public class UnplayedMovieList : MediaListItemsListWrapper
   {
-    public UnplayedMovieList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Unplayed]")
+    public UnplayedMovieList()
+      : base("UnplayedMovies", "[Nereus.Home.Unplayed]")
     { }
   }
 

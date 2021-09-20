@@ -64,6 +64,9 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <LargeAddressAware>true</LargeAddressAware>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Configuration.Install" />
@@ -128,6 +131,9 @@
   <ItemGroup>
     <PackageReference Include="CommandLineParser">
       <Version>1.9.71</Version>
+    </PackageReference>
+    <PackageReference Include="LargeAddressAware">
+      <Version>1.0.5</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

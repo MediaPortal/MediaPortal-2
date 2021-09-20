@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!--Client Settings-->
+  <string name="Settings.Transcode.Title">Transcoding</string> <!-- Section name -->
+  <string name="Settings.Transcode.HWAcceleration">Hardwareversnelling</string> <!-- Setting -->
+  <string name="Settings.Transcode.HWAcceleration.Help">Schakelt hardwareversnelling in tijdens transcoding indien onersteund.</string>
+  <string name="Settings.Transcode.Cache">Cache</string> <!-- Setting -->
+  <string name="Settings.Transcode.Cache.Help">Schakelt cachen van transcodings in zodat ze later herbruikt kunnen worden</string>
+  <string name="Settings.Transcode.CacheAge">Maximum cache leeftijd (dagen)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheAge.Help">Het maximum aantal dagen gecachte transcodings bewaard moeten worden voor ze vervallen. 0 betekent nooit vervallen.</string>
+  <string name="Settings.Transcode.CacheSize">Maximum cache grootte (GB)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheSize.Help">De maximum grootte van de cache in GB. Oudste transcodings worden verwijderd als cache vol is en 0 betekent geen limiet.</string>
+  <string name="Settings.Transcode.SubtitleForce">Hardcoded ondertitels afdwingen</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleForce.Help">Hardcoded ondertitels afdwingen als geen andere ondertitels ondersteund worden.</string>
+  <string name="Settings.Transcode.SubtitleBox">Toon ondertitel doos</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleBox.Help">Toon een doos rond hardcoded ondertitels.</string>
+  <string name="Settings.Transcode.SubtitleFont">Ondertitel lettertype</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFont.Help">Font te gebruiken voor hardcoded ondertitels.</string>
+  <string name="Settings.Transcode.SubtitleFontSize">Ondertitel lettertype grootte</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontSize.Help">De grootte van het font gebruikt voor hardcoded ondertitels.</string>
+  <string name="Settings.Transcode.SubtitleFontColor">Ondertitel lettertype kleur</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontColor.Help">Kleur te gebruiken voor hardcoded ondertitels.</string>
+
+  <string name="Settings.Transcode.None">Geen</string>
+  <string name="Settings.Transcode.Auto">Automatisch</string>
+  <string name="Settings.Transcode.Default">Standaard</string>
+
+</resources>

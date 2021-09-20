@@ -15,7 +15,11 @@
   <string name="System.Information">Информация</string>
   <string name="System.Warning">Предупреждение</string>
   <string name="System.Error">Ошибка</string>
+  <string name="Keys.Shift">Shift</string>
+  <string name="Keys.CapsLock">Caps Lock</string>
   <string name="Keys.Copy">Копировать</string>
+  <string name="Keys.Paste">Вставить</string>
+  <string name="Home.Title">MediaPortal 2</string>
   <string name="Home.HomeStateDisplayLabel">Домой</string>
   <string name="Dialogs.InfoHeaderText">Информация</string>
   <string name="Dialogs.WarningHeaderText">Предупреждение</string>
@@ -23,8 +27,9 @@
   <string name="Media.MyMusic">Музыка</string>
   <string name="Media.MyVideos">Видео</string>
   <string name="Media.MyPictures">Картинки</string>
+  <string name="Media.InvalidShareName">Неверный источник медиа</string>
   <string name="ServerConnection.NotificationServerAvailableTitle">Доступен сервер MP2</string>
-  <string name="ServerConnection.NotificationServerAvailableText">По крайней мере один MediaPortal 2 сервер доступен в сети. Подключитесь к нему чтобы получить все возможности MediaPortal 2.</string>
+  <string name="ServerConnection.NotificationServerAvailableText">По крайней мере один MediaPortal 2 сервер доступен в сети. Подключитесь к нему, чтобы получить все возможности MediaPortal 2.</string>
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">Неизвестный сервер</string>
   <string name="ServerConnection.UnknownServerSystem">Неизвестная система</string>
@@ -33,28 +38,143 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Отключиться от сервера</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ОсновнойСервер</string>
   <string name="ServerConnection.AttachedText.Before">Этот клиент MediaPortal 2 подключен к основному серверу</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Этот клиент MediaPortal 2 не подключен к основному серверу</string>
   <string name="ServerConnection.HomeServerIsConnected">Основной сервер подключен</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Основной сервер не подключен</string>
+  <string name="ServerConnection.SearchForServers">Поиск серверов</string>
+  <string name="ServerConnection.AttachToSingleText.Before">Сервер MP2</string>
+  <string name="ServerConnection.AttachButton">Присоединить</string>
+  <string name="ServerConnection.AttachInfoDialogHeader">Сервер присоединен</string>
   <!--{0} = server name, {1} = host name-->
+  <string name="Notifications.Title">Уведомления</string>
+  <string name="Notifications.WatchNotificationsWorkflowStateLabel">Уведомления</string>
+  <string name="ImporterMessages.ImportStartedTitle">Импорт начат</string>
+  <string name="ImporterMessages.ImportStartedText">Импорт \'{0}\' начался.</string>
+  <string name="ImporterMessages.ImportCompletedTitle">Импорт завершен</string>
+  <string name="ImporterMessages.ImportCompletedText">Импорт \'{0}\' завершен.</string>
+  <string name="LocalFsResourceProvider.Name">Локальная файловая система</string>
+  <string name="RemoteResourceProvider.Name">Удаленные ресурсы</string>
+  <string name="VirtualResourceProvider.Name">Виртуальные ресурсы</string>
+  <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
+  <string name="Players.ErrorPlayingMediaItemTitle">Ошибка воспроизведения медиа</string>
+  <string name="Players.UnableToPlayMediaItemText">Невозможно воспроизвести медиаэлемент \'{0}\'</string>
+  <string name="Players.ResourceNotFoundText">Ресурс \'{0}\' не найден</string>
+  <string name="Players.PlayerConfiguration">Настройки плеера</string>
   <!--for example "Fullscreen TV"-->
   <string name="Players.AudioVisualization">Визуализация</string>
   <!--for example "Video player"-->
   <!--for example "Focus video player"-->
+  <string name="Players.ChooseAudioStream">Выбрать аудиопоток</string>
   <!--for example "Audio menu for Lammbock"-->
+  <string name="Players.ClosePlayerContext">Закрыть {0}</string>
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerSubtitle">Субтитры</string>
-  <string name="Settings.General">Главное</string>
+  <string name="Settings.Appearance.Skin">Скин</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat">Формат даты</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat">Формат времени</string>
+  <string name="Settings.General">Общее</string>
+  <string name="Settings.General.System">Система</string>
+  <string name="Settings.General.System.Autostart">Автозапуск</string>
   <string name="Settings.General.Connectivity.HomeServer">Основной сервер</string>
+  <string name="Settings.General.Connectivity.ClientName">Имя клиента</string>
+  <string name="Settings.General.Connectivity.UseIPv4">Использовать IPv4</string>
+  <string name="Settings.General.Connectivity.UseIPv6">Использовать IPv6</string>
+  <string name="Settings.Regional.Language">Язык</string>
+  <string name="Settings.Regional.Language.Main">Язык</string>
+  <string name="Settings.Shares">Источники медиа</string>
   <!--Section name-->
+  <string name="Settings.Shares.Configure">Настройка источников медиа</string>
   <!--Group name-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration">Настройка источников медиа</string>
   <!--Setting-->
+  <string name="Settings.Shares.ConfigureShares.SharesConfiguration.Help">Настроить все источники медиа</string>
+  <string name="Settings.Shares.Overview">Обзор</string>
   <!--Group name-->
+  <string name="Settings.Shares.Overview.SharesOverview">Обзор источников медиа</string>
   <!--Setting-->
+  <string name="Settings.Plugins">Плагины</string>
+  <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Обзор источников медиа</string>
+  <string name="SharesOverview.Title">Обзор источников медиа</string>
+  <string name="Shares.InvalidPath">Неверный путь: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
+  <string name="Shares.Online">Онлайн</string>
+  <string name="Shares.Offline">Офлайн</string>
+  <string name="Shares.Importing">Импорт...</string>
   <!--Shares configuration workflow-->
+  <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Настройка источников медиа</string>
+  <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Удалить источники медиа</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Информация об источниках медиа</string>
+  <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Изменить путь</string>
+  <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Выбрать путь</string>
+  <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Изменить имя</string>
+  <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Выбрать категории</string>
+  <string name="SharesConfig.CannotAddSharesTitle">Невозможно добавить источники медиа</string>
+  <string name="SharesConfig.SharesConfiguration.Title">Настройка источников медиа</string>
+  <string name="SharesConfig.NoSharesAvailable">Нет доступных источников медиа</string>
+  <string name="SharesConfig.ShareInformationHeader">Информация об источниках медиа</string>
+  <string name="SharesConfig.ShareNameInfo">Имя:</string>
+  <string name="SharesConfig.ShareSystem">Система:</string>
+  <string name="SharesConfig.SharePathInfo">Путь:</string>
+  <string name="SharesConfig.ShareResourcePathInfo">Технический путь:</string>
+  <string name="SharesConfig.ShareMediaCategoriesInfo">Категории медиа:</string>
+  <string name="SharesConfig.RemoveShares">Удалить источники медиа</string>
+  <string name="SharesConfig.EditShare">Изменить источник медиа</string>
+  <string name="SharesConfig.ChooseSystem">Выбрать систему</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Пожалуйста, выберите источники медиа для удаления</string>
+  <string name="SharesConfig.ChooseSystemForShare">Выбрать источник медиа</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Изменить путь к источнику медиа</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Выбрать путь к источнику медиа</string>
+  <string name="SharesConfig.EditShareName">Изменить показываемое имя источника медиа</string>
+  <string name="SharesConfig.ShareNameEmpty">Изменить имя источника медиа</string>
+  <string name="SharesConfig.MenuAddShare">Добавить источник медиа</string>
+  <string name="SharesConfig.MenuEditShares">Изменить</string>
+  <string name="SharesConfig.MenuRemoveShares">Удалить источники медиа</string>
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Обновить источник медиа</string>
+  <string name="SharesConfig.ManualPathInput">Ручной ввод</string>
+  <string name="UPnPFrontendServer.Manufacturer">Команда Mediaportal</string>
+  <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->
+  <string name="DaysOfWeek.1">Понедельник</string>
+  <string name="DaysOfWeek.2">Вторник</string>
+  <string name="DaysOfWeek.3">Среда</string>
+  <string name="DaysOfWeek.4">Четверг</string>
+  <string name="DaysOfWeek.5">Пятница</string>
+  <string name="DaysOfWeek.6">Суббота</string>
+  <string name="DaysOfWeek.7">Воскресенье</string>
+  <string name="DaysOfWeek.Monday">Понедельник</string>
+  <string name="DaysOfWeek.Tuesday">Вторник</string>
+  <string name="DaysOfWeek.Wednesday">Среда</string>
+  <string name="DaysOfWeek.Thursday">Четверг</string>
+  <string name="DaysOfWeek.Friday">Пятница</string>
+  <string name="DaysOfWeek.Saturday">Суббота</string>
+  <string name="DaysOfWeek.Sunday">Воскресенье</string>
+  <string name="Months.1">Январь</string>
+  <string name="Months.2">Февраль</string>
+  <string name="Months.3">Март</string>
+  <string name="Months.4">Апрель</string>
+  <string name="Months.5">Май</string>
+  <string name="Months.6">Июнь</string>
+  <string name="Months.7">Июль</string>
+  <string name="Months.8">Август</string>
+  <string name="Months.9">Сентябрь</string>
+  <string name="Months.10">Октябрь</string>
+  <string name="Months.11">Ноябрь</string>
+  <string name="Months.12">Декабрь</string>
+  <string name="Months.January">Январь</string>
+  <string name="Months.February">Февраль</string>
+  <string name="Months.March">Март</string>
+  <string name="Months.April">Апрель</string>
+  <string name="Months.May">Май</string>
+  <string name="Months.June">Июнь</string>
+  <string name="Months.July">Июль</string>
+  <string name="Months.August">Август</string>
+  <string name="Months.September">Сентябрь</string>
+  <string name="Months.October">Октябрь</string>
+  <string name="Months.November">Ноябрь</string>
+  <string name="Months.December">Декабрь</string>
 </resources>

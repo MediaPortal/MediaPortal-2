@@ -183,6 +183,7 @@
   <string name="Media.DeleteFromStorage">Ištrinti iš saugyklos</string>
   <string name="Media.ReimportMediaItem.Done">Baigta</string>
   <string name="Media.ReimportMediaItem.Description">Aprašymas</string>
+  <string name="Media.SubtitleSearch.Language">Kalba</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Atkurti įrašą</string>
   <string name="Media.PlayAudioItems">Groti audio įrašus</string>

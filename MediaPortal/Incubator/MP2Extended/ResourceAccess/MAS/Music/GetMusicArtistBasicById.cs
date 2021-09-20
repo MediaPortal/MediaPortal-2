@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
 
       if (item == null)
-        throw new BadRequestException(String.Format("GetMusicArtistBasicById: No MediaItem found with id: {0}", id));
+        throw new NotFoundException(String.Format("GetMusicArtistBasicById: No MediaItem found with id: {0}", id));
 
       return Task.FromResult(MusicArtistBasic(item));
     }

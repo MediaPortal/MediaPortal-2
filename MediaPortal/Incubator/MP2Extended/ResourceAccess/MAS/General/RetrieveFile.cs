@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, id, necessaryMIATypes, null);
       if (item == null)
-        throw new BadRequestException("RetrieveFile: no media item found");
+        throw new NotFoundException("RetrieveFile: no media item found");
 
       var files = ResourceAccessUtils.GetResourcePaths(item);
       var ra = GetResourceAccessor(files[offset]);

@@ -140,6 +140,7 @@
   <string name="Media.Refresh">Frissítés</string>
   <string name="Media.ReimportMediaItem.Done">Kész</string>
   <string name="Media.ReimportMediaItem.Description">Leírás</string>
+  <string name="Media.SubtitleSearch.Language">Nyelv</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Videó/Kép</string>

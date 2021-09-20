@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -155,7 +155,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> AddSchedule(string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
     {
       Logger.Debug("TAS Request: {0}", Request.GetOwinContext().Request.Uri);
-      return ResourceAccess.TAS.Schedule.AddSchedule.ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, startTime, scheduleType);
+      return ResourceAccess.TAS.Schedule.AddSchedule.ProcessAsync(Request.GetOwinContext(), channelId, title, startTime, endTime, scheduleType);
     }
 
     [HttpGet]

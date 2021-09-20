@@ -9,4 +9,9 @@
   <string name="Settings.ServerSettings.Password">Hasło:</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Ustawienia automatycznego odświeżania udziałów</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Uruchom o określonej godzinie dnia (notacja 24-ro godzinna)</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.MediaFanArt">Pobierz szczegóły oraz FanArt</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.Media">Pobierz tylko szczegóły</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.FanArt">Pobierz tylko FanArt</string>
+  <string name="Settings.ServerSettings.MDESettings.SeriesMDEDownloadAllSeriesEpisodes">Pobierz metadane dla wszystkich odcinków serii</string>
+  <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxThumbs">Maksymalna liczba miniaturek</string>
 </resources>

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 
       var schedule = await TVAccess.GetScheduleAsync(context, int.Parse(scheduleId));
       if (schedule == null)
-        throw new BadRequestException(string.Format("GetScheduleById: Couldn't get schedule with Id: {0}", scheduleId));
+        throw new NotFoundException(string.Format("GetScheduleById: Couldn't get schedule with Id: {0}", scheduleId));
 
       WebScheduleBasic output = ScheduleBasic(schedule);
       return output;

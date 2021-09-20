@@ -1,0 +1,13 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="MainForm.Client">Клиент</string>
+  <string name="MainForm.System">Система</string>
+  <string name="MainForm.Connected">Подключено</string>
+  <string name="MainForm.Disconnected">Отключено</string>
+  <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer.Manufacturer">Команда Mediaportal</string>
+  <string name="UPnPBackendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPBackendServer.ModelName">MediaPortal 2 server</string>
+  <string name="UPnPBackendServer.ModelNumber">1</string>
+  <string name="UPnPBackendServer.ModelUrl">...</string>
+</resources>

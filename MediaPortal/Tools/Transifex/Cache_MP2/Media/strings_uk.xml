@@ -52,6 +52,7 @@
   <string name="Media.Refresh">Оновити</string>
   <string name="Media.ReimportMediaItem.Done">Готово</string>
   <string name="Media.ReimportMediaItem.Description">Опис</string>
+  <string name="Media.SubtitleSearch.Language">Мова</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">Аудіо</string>

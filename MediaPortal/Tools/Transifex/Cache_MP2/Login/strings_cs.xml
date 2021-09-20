@@ -8,6 +8,7 @@
   <string name="UserConfig.SaveUser">Uložit</string>
   <string name="UserConfig.Yes">Ano</string>
   <string name="UserConfig.No">Ne</string>
+  <string name="UserConfig.Default">Výchozí</string>
   <string name="UserConfig.SharesText">Sdílené složky</string>
   <string name="UserConfig.LocalShare">Místní zdroj médií</string>
   <string name="UserConfig.LocalShares">Místní zdroje médií</string>

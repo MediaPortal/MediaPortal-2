@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Atura</string>
+  <string name="AppLauncher.Settings.Title">Paràmetres</string>
+  <string name="AppLauncher.Settings.Add.Description">Descripció</string>
+  <string name="AppLauncher.Settings.Add.Search">Cerca</string>
+  <string name="AppLauncher.Settings.Add.Select">Selecciona</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normal</string>
+  <string name="AppLauncher.Delete">Suprimeix</string>
+  <string name="AppLauncher.Menu.Clear">Clar</string>
+</resources>

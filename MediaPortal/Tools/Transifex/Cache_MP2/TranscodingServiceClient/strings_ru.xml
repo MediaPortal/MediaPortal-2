@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.Transcode.Cache">Кэш</string> <string name="Settings.Transcode.SubtitleFont">Шрифт субтитров</string>  <string name="Settings.Transcode.SubtitleFontSize">Размер шрифта субтитров</string>  <string name="Settings.Transcode.SubtitleFontColor">Цвет шрифта субтитров</string>  <string name="Settings.Transcode.None">Никто</string>
+  <string name="Settings.Transcode.Auto">Автоматически</string>
+  <string name="Settings.Transcode.Default">Стандарт</string>
+
+</resources>

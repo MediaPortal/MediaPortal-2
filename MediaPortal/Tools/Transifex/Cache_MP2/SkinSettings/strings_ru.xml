@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="SkinSettings.Configuration.SkinSettings">Настройки скина</string>
+  <string name="SkinSettings.ViewModes.LayoutType.ListLayout">Список</string>
+  <string name="SkinSettings.ViewModes.LayoutType.GridLayout">Иконки</string>
+  <string name="SkinSettings.ViewModes.LayoutType.CoverLayout">Обложка</string>
+</resources>

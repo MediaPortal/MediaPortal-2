@@ -10,22 +10,49 @@
   <string name="SlimTvClient.GenreLabel">Жанр</string>
   <string name="SlimTvClient.ProgramStartLabel">Время начала</string>
   <string name="SlimTvClient.ProgramEndLabel">Время окончания</string>
-  <string name="SlimTvClient.EpisodeLabel">Эпизод</string>
+  <string name="SlimTvClient.EpisodeLabel">Серия</string>
+  <string name="SlimTvClient.CurrentProgram">Текущая программа</string>
+  <string name="SlimTvClient.NextProgram">Следующая программа</string>
   <string name="SlimTvClient.Progress">Выполнение</string>
   <string name="SlimTvClient.Guide">Программа передач</string>
   <string name="SlimTvClient.NoProgram">Нет данных</string>
   <string name="SlimTvClient.ChooseProgramAction">Выберите действие...</string>
   <string name="SlimTvClient.ProgramOver">Передача уже закончилась</string>
   <string name="SlimTvClient.WatchNow">Смотреть передачу</string>
+  <string name="SlimTvClient.WatchFromBeginning">Смотреть запись с начала</string>
   <string name="SlimTvClient.RecordNow">Записать сейчас</string>
   <string name="SlimTvClient.DeleteSchedule">Удалить запланированную запись</string>
   <string name="SlimTvClient.CreateSchedule">Запланировать запись</string>
+  <string name="SlimTvClient.DeleteAllRecordings.Text">Удалить эти записи из хранилища</string>
+  <string name="SlimTvClient.ProgramSearch">Поиск программ</string>
   <!--Extended recording features-->
+  <string name="SlimTvClient.ManualRecordingTitle">Запись вручную</string>
+  <string name="SlimTvClient.RecordProgram">Записать программу</string>
+  <string name="SlimTvClient.DontRecordProgram">Не записывать</string>
+  <string name="SlimTvClient.RecordSeries">Записать сериал</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Once">Единожды</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Daily">Каждый день в это время</string>
+  <string name="SlimTvClient.ScheduleRecordingType_Weekly">Каждую неделю в это время</string>
+  <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">В рабочие дни в это время</string>
   <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Имя</string>
   <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Имя</string>
   <!--Schedule management-->
+  <string name="SlimTvClient.Schedules">Расписания</string>
+  <string name="SlimTvClient.ScheduleManagement">Управление расписаниями</string>
   <!--Settings-->
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Имя канала</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Номер канала</string>
+  <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelLogo">Лого канала</string>
+  <string name="SlimTvClient.ShowSeriesInfo">Показать информацию о сериале</string>
+  <string name="SlimTvClient.HideAllChannelsGroup">Скрыть группу \"Все каналы\"</string>
+  <string name="SlimTvClient.ChannelLogoStyle">Стиль лого канала</string>
+  <string name="SlimTvClient.Notifications">Уведомления</string>
   <string name="SlimTvClient.NoColor">Никто</string>
   <string name="SlimTvClient.RecordingsMenuItem">Записанные файлы</string>
+  <string name="SlimTvClient.ChannelsMenuItem">Каналы</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">Канал</string>
+  <string name="SlimTvClient.ChannelNavBarItemLabel">Канал: {0}</string>
+  <string name="SlimTvClient.RecordingStartedHeader">Запись начата</string>
+  <string name="SlimTvClient.RecordingEndedHeader">Запись завершена</string>
+  <string name="RestrictionGroup.SlimTvClient.DeleteRecording">ТВ: Удалить записи</string>
 </resources>

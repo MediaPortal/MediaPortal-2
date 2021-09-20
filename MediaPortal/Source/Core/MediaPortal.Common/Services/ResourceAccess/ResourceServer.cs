@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -204,6 +204,9 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
     public string GetServiceUrl(IPAddress ipAddress)
     {
+      if (ipAddress == null)
+        return string.Format("http://{0}:{1}{2}", "127.0.0.1", _serverPort, _servicePrefix);
+
       return ipAddress.AddressFamily == AddressFamily.InterNetworkV6 ?
         string.Format("http://[{0}]:{1}{2}", RemoveScope(ipAddress.ToString()), _serverPort, _servicePrefix) :
         string.Format("http://{0}:{1}{2}", ipAddress, _serverPort, _servicePrefix);

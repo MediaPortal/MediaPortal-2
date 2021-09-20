@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.DLNA.Clients.Config.ClientName">Nome</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation.Title">Conferma cancellazione</string>
+  <string name="Settings.DLNA.Clients.Config.Yes">Sì</string>
+  <string name="Settings.DLNA.Clients.Config.No">No</string>
+  <string name="Settings.DLNA.Clients.Config.NoUser">Nessuna</string>
+  </resources>

@@ -39,6 +39,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desvincula\'t del servidor</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor d\'inici</string>
   <string name="ServerConnection.AttachedText.Before">El client del MediaPortal 2 és vinculat al servidor d\'inici</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">El client del MediaPortal 2 no és vinculat a cap servidor d\'inici</string>
   <string name="ServerConnection.HomeServerIsConnected">El servidor d\'inici està connectat</string>
   <string name="ServerConnection.HomeServerIsNotConnected">El servidor d\'inici està desconnectat</string>

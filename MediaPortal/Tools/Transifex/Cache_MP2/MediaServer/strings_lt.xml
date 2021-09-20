@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">Audio</string>
+  <string name="MediaServer.GenreContainter">Žanrai</string>
+  <string name="MediaServer.YearContainter">Metai</string>
+  <string name="MediaServer.ShareContainter">Bendriniai</string>
+  <string name="MediaServer.ImageContainter">Vaizdai</string>
+  <string name="MediaServer.MovieContainter">Filmai</string>
+  <string name="MediaServer.ActorContainter">Aktoriai</string>
+  <string name="MediaServer.SeriesContainter">Serijos</string>
+  <string name="MediaServer.TV">TV</string>
+  </resources>

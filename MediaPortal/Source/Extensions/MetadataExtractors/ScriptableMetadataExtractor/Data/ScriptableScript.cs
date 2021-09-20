@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -200,7 +200,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
           movie.CollectionName = new StringList(value).FirstOrDefault();
           return true;
         case "score":
-          movie.Score = Convert.ToDouble(value, CultureInfo.InvariantCulture);
+          movie.Score = Convert.ToSingle(value, CultureInfo.InvariantCulture);
           return true;
         case "popularity":
           movie.Popularity = Convert.ToSingle(value, CultureInfo.InvariantCulture);

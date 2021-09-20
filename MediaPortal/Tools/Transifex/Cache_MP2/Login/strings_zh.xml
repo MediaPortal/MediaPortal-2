@@ -30,5 +30,6 @@
   <string name="UserConfig.Yes">确认</string>
   <string name="UserConfig.No">否定</string>
   <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Default">默认</string>
   <string name="UserConfig.SharesText">共享</string>
   </resources>

@@ -14,6 +14,7 @@
   <string name="InputDeviceManager.AddKey.Header">Appuyer sur la combinaison de touche souhaitée du périphérique !</string>
   <string name="InputDeviceManager.Screen">Ecran</string>
   <string name="InputDeviceManager.Key">Clé</string>
+  <string name="InputDeviceManager.Action">Action</string>
 
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Supprimer</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Supprimer le mapping ?</string>

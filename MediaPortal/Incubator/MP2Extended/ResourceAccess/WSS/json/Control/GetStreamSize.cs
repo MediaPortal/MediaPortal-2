@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2012 Team MediaPortal
+﻿#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2012 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
 
       var item = MediaLibraryAccess.GetMediaItemById(context, itemId, necessaryMIATypes, optionalMIATypes);
       if (item == null)
-        throw new BadRequestException(String.Format("GetStreamSize: No MediaItem found with id: {0}", itemId));
+        throw new NotFoundException(String.Format("GetStreamSize: No MediaItem found with id: {0}", itemId));
 
       EndPointProfile profile = null;
       List<EndPointProfile> namedProfiles = ProfileManager.Profiles.Where(x => x.Value.Name == profileName).Select(namedProfile => namedProfile.Value).ToList();

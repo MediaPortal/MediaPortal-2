@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -127,7 +127,7 @@ namespace MediaItemAspectModelBuilder
 
       // Copyright
       _copyright.Add(@"/*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -156,6 +156,7 @@ namespace MediaItemAspectModelBuilder
         _usings.Add("using System.Linq;");
       _usings.Add("using MediaPortal.Common.General;");
       _usings.Add("using MediaPortal.Common.MediaManagement;");
+      _usings.Add("using MediaPortal.UiComponents.Media.Helpers;");
 
       _usings.Add(string.Format("using {0};", aspectNamespace));
       if (_createAsControl)
@@ -178,7 +179,7 @@ namespace MediaItemAspectModelBuilder
       // Construct source file
       StringBuilder result = new StringBuilder();
 
-      AppendRegion(result, "Copyright (C) 2007-2015 Team MediaPortal", _copyright, false);
+      AppendRegion(result, "Copyright (C) 2007-2020 Team MediaPortal", _copyright, false);
 
       AppendRegion(result, null, _usings, false);
 
@@ -203,8 +204,14 @@ namespace MediaItemAspectModelBuilder
       AppendRegion(result, "Fields", _fields, false);
       AppendRegion(result, "Properties", _properties);
 
-      List<string> ctors = new List<string> { string.Format("public {0}Wrapper()\r\n{{\r\n  {1}\r\n}}", aspectName, string.Join("\r\n  ", _propertyCreation.ToArray())) };
+      List<string> ctors = new List<string> { string.Format("public {0}Wrapper()\r\n{{\r\n  AspectWrapperHelper.Instance.MediaItemChanged += MediaItemChanged;\r\n  {1}\r\n}}", aspectName, string.Join("\r\n  ", _propertyCreation.ToArray())) };
       AppendRegion(result, "Constructor", ctors);
+
+      _members.Add(@"private void MediaItemChanged(MediaItem mediaItem)
+{
+  if (MediaItem?.MediaItemId == mediaItem?.MediaItemId)
+    Init(mediaItem);
+}");
 
       _members.Add(@"private void MediaItemChanged(AbstractProperty property, object oldvalue)
 {
@@ -252,6 +259,7 @@ namespace MediaItemAspectModelBuilder
     {
       string methodStub = null;
       string emptyStub = null;
+      string disposeStub = null;
       if (multiAspect == false)
       {
         methodStub = @"public void Init(MediaItem mediaItem)
@@ -291,6 +299,12 @@ namespace MediaItemAspectModelBuilder
   {0}
 }}";
       }
+      disposeStub = @"public override void Dispose()
+{
+  AspectWrapperHelper.Instance.MediaItemChanged -= MediaItemChanged;
+  base.Dispose();
+}";
+
       List<string> initCommands = new List<string>();
       List<string> emptyCommands = new List<string>();
 
@@ -344,6 +358,7 @@ namespace MediaItemAspectModelBuilder
 
       members.Add(string.Format(methodStub, string.Join("\r\n  ", initCommands.ToArray()), aspectType.Name));
       members.Add(string.Format(emptyStub, string.Join("\r\n  ", emptyCommands.ToArray())));
+      members.Add(disposeStub);
       foreach (string childPopulationMember in childPopulationMembers)
         members.Add(childPopulationMember);
     }

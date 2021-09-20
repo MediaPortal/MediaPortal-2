@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       // this is the MediaItem from the TvShow
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), necessaryMIATypes, null);
       if (item == null)
-        throw new BadRequestException(String.Format("GetTVEpisodeCountForTvShow: No MediaItem found with id: {0}", id));
+        throw new NotFoundException(String.Format("GetTVEpisodeCountForTvShow: No MediaItem found with id: {0}", id));
 
       int count = item.GetAspect(SeriesAspect.Metadata).GetAttributeValue<int>(SeriesAspect.ATTR_AVAILABLE_EPISODES);
 

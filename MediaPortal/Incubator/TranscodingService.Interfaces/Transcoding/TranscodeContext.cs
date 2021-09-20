@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -52,7 +52,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding
     public bool Partial { get; set; }
     public bool Segmented => !string.IsNullOrEmpty(SegmentDir);
     public bool Live { get; set; }
-    public bool InUse { get; }
+    public bool InUse { get { return _streamInUse; } }
 
     public long LastSegment { get; set; }
     public long CurrentSegment { get; set; }

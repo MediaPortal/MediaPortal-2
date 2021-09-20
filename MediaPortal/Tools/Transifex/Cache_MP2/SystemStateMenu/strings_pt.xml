@@ -7,6 +7,7 @@
   <string name="SystemState.Hibernate">Hibernar</string>
   <string name="SystemState.Shutdown">Encerrar</string>
   <string name="SystemState.Suspend">Suspender</string>
+  <string name="SystemState.Restart">Reiniciar Windows</string>
   <string name="SystemState.RestartMP">Reiniciar MediaPortal</string>
   <string name="SystemState.Logoff">terminar sessão</string>
   <string name="SystemState.SleepTimerConfig">Configurar o temporizador para dormir</string>
@@ -21,8 +22,8 @@
   <string name="SleepTimer.Action">Ação:</string>
   <string name="SleepTimer.TimeStr">Hora:</string>
   <string name="SleepTimer.Minutes">min.</string>
-  <string name="SleepTimer.MediaItem">Depois da mídia atual</string>
-  <string name="SleepTimer.Playlist">Depois da lista de reprodução atual</string>
+  <string name="SleepTimer.MediaItem">Depois da media actual</string>
+  <string name="SleepTimer.Playlist">Depois da lista de reprodução actual</string>
   <string name="SleepTimer.ShutdownTextSingle">{0} em menos de um minuto</string>
   <string name="SleepTimer.ShutdownTextMulti">{0} em {1} minutos</string>
   <string name="SleepTimer.MaxMinutes">Temporizador para dormir max. de minutos:</string>

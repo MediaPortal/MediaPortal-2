@@ -383,6 +383,11 @@
         Sort="X100"
         Redundant="true"
         Text="[Settings.Media.Certification]"/>
+    <ConfigSection
+        Id="General"
+        Sort="X200"
+        Redundant="true"
+        Text="[Settings.General]"/>
   </Register>
 
   <!-- Contents of '/Players' section -->
@@ -394,10 +399,22 @@
         ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.ClosePlayersWhenFinished"/>
 
     <ConfigSetting
+      Id="PreferInstantSkipSeconds"
+      Text="[Settings.Players.PreferInstantSkipSeconds]"
+      HelpText="[Settings.Players.PreferInstantSkipSeconds.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.PreferInstantSkipSeconds"/>
+
+    <ConfigSetting
       Id="InstantSkipPercent"
       Text="[Settings.Players.InstantSkipPercent]"
       HelpText="[Settings.Players.InstantSkipPercent.Help]"
       ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.InstantSkipPercent"/>
+
+    <ConfigSetting
+      Id="InstantSkipSeconds"
+      Text="[Settings.Players.InstantSkipSeconds]"
+      HelpText="[Settings.Players.InstantSkipSeconds.Help]"
+      ClassName="MediaPortal.UiComponents.Media.Settings.Configuration.InstantSkipSeconds"/>
 
     <ConfigSetting
       Id="SkipStepTimeout"
@@ -431,7 +448,7 @@
   </Register>
 
   <!-- Contents of '/Media' section -->
-  <Register Location="/Configuration/Settings/Media">
+  <Register Location="/Configuration/Settings/Media/General">
     <ConfigSetting
         Id="ShowVirtual"
         Text="[Settings.Media.ShowVirtual]"

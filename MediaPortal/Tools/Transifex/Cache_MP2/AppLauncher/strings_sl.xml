@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Ustavi</string>
+  <string name="AppLauncher.Settings.Title">Nastavitve</string>
+  <string name="AppLauncher.Settings.Add.Description">Opis</string>
+  <string name="AppLauncher.Settings.Add.Password">Geslo</string>
+  <string name="AppLauncher.Settings.Add.Search">Iskanje</string>
+  <string name="AppLauncher.Settings.Add.Select">Izberi</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normalno</string>
+  <string name="AppLauncher.Delete">Izbriši</string>
+  <string name="AppLauncher.Menu.Clear">jasno</string>
+</resources>

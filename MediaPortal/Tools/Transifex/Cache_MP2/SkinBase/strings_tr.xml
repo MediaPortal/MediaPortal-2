@@ -40,6 +40,7 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Sunucudan ayrıl</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Ev sunucusu</string>
   <string name="ServerConnection.AttachedText.Before">Şu anda, bu MediaPortal 2 istemci ev sunucusuna bağlı.</string>
+  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Şu anda, bu MediaPortal 2 istemci ev sunucusuna bağlı değil.</string>
   <string name="ServerConnection.HomeServerIsConnected">Ev sunucusu şu an bağlı.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Ev sunucusu şu an bağlı değil.</string>

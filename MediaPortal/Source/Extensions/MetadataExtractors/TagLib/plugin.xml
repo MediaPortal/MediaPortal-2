@@ -12,6 +12,6 @@
     CurrentAPI="1"/>
   
   <Runtime>
-    <Assembly FileName="taglib-sharp.dll"/>
+    <Assembly FileName="TagLibSharp.dll"/>
   </Runtime>
 </Plugin>

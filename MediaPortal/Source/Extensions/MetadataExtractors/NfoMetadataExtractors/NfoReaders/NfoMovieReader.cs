@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -78,9 +78,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Cache used to temporarily store <see cref="SeriesStub"/> objects so that the same tvshow.nfo file
     /// doesn't have to be parsed once for every episode
     /// </summary>
-    private static readonly AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<MovieStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<MovieStub>)>(CACHE_TIMEOUT);
+    private static AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<MovieStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<MovieStub>)>(CACHE_TIMEOUT);
 
     #endregion
+
+    public static void ClearCache()
+    {
+      CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<MovieStub>)>(CACHE_TIMEOUT);
+    }
 
     #region Private fields
 
@@ -999,9 +1004,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private bool TryReadRatings(XElement element)
     {
-      // Example of a valid element:
+      // Example of a valid elements:
       // <ratings>
       //   <rating moviedb="imdb">8.7</rating>
+      // </ratings>
+      // or
+      // <ratings>
+      //   <rating default="true" max="10" name="themoviedb">
+      //     <value>6.9</value>
+      //     <votes>1086</votes>
+      //   </rating>
       // </ratings>
       // The <ratings> element can contain one or more <rating> child elements
       // A value of 0 (zero) is ignored
@@ -1012,13 +1024,49 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         if (childElement.Name == "rating")
         {
           var moviedb = ParseStringAttribute(childElement, "moviedb");
-          var rating = ParseSimpleDecimal(element);
-          if (moviedb != null && rating != null && rating.Value != decimal.Zero)
+          if (moviedb != null)
           {
-            result = true;
-            if (_currentStub.Ratings == null)
-              _currentStub.Ratings = new Dictionary<string, decimal>();
-            _currentStub.Ratings[moviedb] = rating.Value;
+            var rating = ParseSimpleDecimal(element);
+            if (rating != null && rating.Value != decimal.Zero)
+            {
+              result = true;
+              if (_currentStub.Ratings == null)
+                _currentStub.Ratings = new Dictionary<string, decimal>();
+              _currentStub.Ratings[moviedb] = rating.Value;
+            }
+          }
+          else
+          {
+            moviedb = ParseStringAttribute(childElement, "name");
+            var max = ParseIntAttribute(childElement, "max") ?? 10M;
+
+            if (moviedb != null && childElement.HasElements)
+            {
+              foreach (var subChildElement in childElement.Elements())
+              {
+                if (subChildElement.Name == "value")
+                {
+                  var rating = ParseSimpleDecimal(subChildElement);
+                  if (rating != null && rating.Value != decimal.Zero)
+                  {
+                    result = true;
+                    if (_currentStub.Ratings == null)
+                      _currentStub.Ratings = new Dictionary<string, decimal>();
+                    _currentStub.Ratings[moviedb] = (rating.Value / max) * 10M;
+                  }
+                }
+                else if (subChildElement.Name == "votes")
+                {
+                  var votes = ParseSimpleInt(subChildElement);
+                  if (votes != null && votes.Value != decimal.Zero)
+                  {
+                    if (_currentStub.RatingVotes == null)
+                      _currentStub.RatingVotes = new Dictionary<string, int>();
+                    _currentStub.RatingVotes[moviedb] = votes.Value;
+                  }
+                }
+              }
+            }
           }
         }
         else
@@ -1756,12 +1804,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)_stubs[0].Rating.Value);
         return true;
       }
+
       // priority 2:
       if (_stubs[0].Ratings != null && _stubs[0].Ratings.Any())
       {
-        decimal rating;
-        if (!_stubs[0].Ratings.TryGetValue("imdb", out rating))
-          rating = _stubs[0].Ratings.First().Value;
+        List<(decimal Rating, int Votes)> ratings = new List<(decimal, int)>();
+        foreach (var r in _stubs[0].Ratings)
+        {
+          if (_stubs[0].RatingVotes.TryGetValue(r.Key, out var votes))
+            ratings.Add((r.Value, votes));
+          else
+            ratings.Add((r.Value, 1));
+        }
+
+        decimal rating = 0;
+        decimal ratingVotes = 0;
+        foreach (var weightedRating in ratings)
+        {
+          rating += weightedRating.Rating * weightedRating.Votes;
+          ratingVotes += weightedRating.Votes;
+        }
+        rating = Math.Round(rating / ratingVotes, 1); //Weighted average
+
         MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)rating);
         return true;
       }
@@ -1775,6 +1839,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMovieAspectRatingCount(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
+      // priority 1:
       if (_stubs[0].Votes.HasValue)
       {
         if (_stubs[0].Rating.HasValue || (_stubs[0].Ratings != null && _stubs[0].Ratings.Count == 1))
@@ -1782,6 +1847,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RATING_COUNT, _stubs[0].Votes.Value);
           return true;
         }
+      }
+
+      // priority 2:
+      if (_stubs[0].RatingVotes != null && _stubs[0].RatingVotes.Any())
+      {
+        int ratingVotes = 0;
+        foreach (var r in _stubs[0].RatingVotes)
+          ratingVotes += r.Value;
+
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RATING_COUNT, ratingVotes);
+        return true;
       }
       return false;
     }
@@ -1874,7 +1950,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to read a movie nfo-file into <see cref="SeriesStub"/> objects (or gets them from cache)
+    /// Tries to read a movie nfo-file into <see cref="MovieStub"/> objects (or gets them from cache)
     /// </summary>
     /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>

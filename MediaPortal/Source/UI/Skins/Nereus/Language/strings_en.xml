@@ -4,6 +4,18 @@
   <string name="Nereus.Configuration.EnableHelpTexts.Help">Whether to display help texts for menues on the home screen.</string>
   <string name="Nereus.Configuration.EnableFanart">Enable Fanart</string>
   <string name="Nereus.Configuration.EnableFanart.Help">Whether to display background fanart.</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling">Enable loop scrolling</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling.Help">Whether to use loop scrolling in media lists.</string>
+  <string name="Nereus.Configuration.EnableGridDetails">Enable grid details</string>
+  <string name="Nereus.Configuration.EnableGridDetails.Help">Whether to show right sided media item details for grid views. When disabled simplified details are shown in the bottom.</string>
+  <string name="Nereus.Configuration.EnableCoverDetails">Enable cover details</string>
+  <string name="Nereus.Configuration.EnableCoverDetails.Help">Whether to show media item details for cover views.</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling">Enable auto scrolling</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling.Help">Whether to use auto scrolling instead of manual scrolling in scroll views.</string>
+  <string name="Nereus.Configuration.AutoScrolling">Auto scrolling</string>
+  <string name="Nereus.Configuration.ManualAutoScrolling">Manual scrolling</string>
+  <string name="Nereus.Configuration.AutoScrollSpeed">Scroll Speed</string>
+  <string name="Nereus.Configuration.AutoScrollDelay">Scroll Delay</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity">Fanart Visibility</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Adjust the opacity of the background fanart overlay. A lower value increases the visibility of fanart (default is 1.0).</string>
   <string name="Nereus.Configuration.EnableWatchedFlags">Enable Watched Flags</string>
@@ -22,10 +34,10 @@
   <string name="Nereus.Configuration.GridViewType.Poster">Posters</string>
   <string name="Nereus.Configuration.GridViewType.Banner">Banners</string>
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Thumbnails</string>
-  <string name="Nereus.Configuration.EnableHomeContent">Enable Home Content</string>
-  <string name="Nereus.Configuration.EnableHomeContent.Help">Whether to enable to show Home Content on the home screen.</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Enable Media Item Details View</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Whether to show media item details instead of playing media item directly.</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay">Enable touch display support</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay.Help">Whether to deactivate the automatic slide menues and force displaying navigation buttons for better touch display support.</string>
 
   <string name="Nereus.Home.LatestAdded">Latest Added</string>
   <string name="Nereus.Home.LatestPlayed">Latest Played</string>
@@ -56,11 +68,17 @@
   <string name="Nereus.Shortcut.Place">Place</string>
   <string name="Nereus.Shortcut.System">System</string>
   <string name="Nereus.Shortcut.Size">Size</string>
+  <string name="Nereus.Shortcut.Setup">Setup</string>
+  <string name="Nereus.Shortcut.Location">Location</string>
+  <string name="Nereus.Shortcut.Refresh">Refresh</string>
   
   <string name="Nereus.Home.OtherPlugins">Others</string>
   <string name="Nereus.Home.OtherPlugins.Help">All other plugins.</string>
   
   <string name="Nereus.Dialog.EditMenu.Header">Edit menu</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Add menu item</string>
+
+  <string name="Nereus.Dialog.EditMediaList.Header">Edit home content</string>
+  <string name="Nereus.Dialog.AddMediaListItem.Header">Add home content</string>
 
 </resources>

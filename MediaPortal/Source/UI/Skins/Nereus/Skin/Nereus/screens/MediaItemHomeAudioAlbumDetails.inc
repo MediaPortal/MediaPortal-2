@@ -26,6 +26,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
+          
           <Label x:Name="Title" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                  Content="{Binding Album}" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}"/>
         </Grid>
@@ -47,17 +48,17 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+            <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
                    IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
             <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
                    Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"
-                   IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0" Opacity="0.6"/>
+                   IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,30,0" Opacity="0.6"/>
           </Grid>
         </ControlTemplate>
       </media:MediaAspectWrapper.Template>
     </media:MediaAspectWrapper>
 
-    <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
+    <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:AudioAlbumAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -69,9 +70,9 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="30,-1,0,1"
+            <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
                    IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
-            <Label x:Name="RatingCountLabel" Margin="5,0,0,0" VerticalAlignment="Center" Grid.Column="1"
+            <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
                    FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
                    IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
               <Label.Content>
@@ -95,14 +96,15 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="HomeContentIcons\track.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="30,-1,0,1"
+            <Image x:Name="TrackIcon" Source="HomeContentIcons\track.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
                    IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
             <StackPanel Grid.Column="1" Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
                         IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0" VerticalAlignment="Center">
-              <Label x:Name="NumTracks" Content="{Binding Tracks}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"/>
+              <Label x:Name="NumTracks" Content="{Binding Tracks}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"
+                     IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
               <Label Content=" " IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" FontSize="{ThemeResource SmallerFontSize}"/>
               <Label x:Name="NumTrackLabel" Content="[Media.TrackItemsHeader]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
-                     IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="0.6"/>
+                     IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" Opacity="0.6" Margin="0,0,30,0"/>
             </StackPanel>
           </Grid>
         </ControlTemplate>
@@ -122,9 +124,11 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image Source="HomeContentIcons\watch.png" Stretch="Uniform" Height="35" VerticalAlignment="Center" Margin="30,-1,0,1"/>
+            <Image Source="HomeContentIcons\watch.png" Stretch="Uniform" Height="35" VerticalAlignment="Center" Margin="0,-1,0,1"
+                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}"/>
             <Label VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}"
-                   Grid.Column="1" Margin="5,0,0,0" Opacity="0.6">
+                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}"
+                   Grid.Column="1" Margin="5,0,30,0" Opacity="0.6">
               <Label.Content>
                 <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
               </Label.Content>

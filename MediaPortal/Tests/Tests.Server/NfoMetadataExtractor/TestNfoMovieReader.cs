@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -247,6 +247,7 @@ namespace Tests.Server.NfoMetadataExtractor
         Rating = 5,
         Ratings = new Dictionary<string, decimal> { { "tmdb", 2 }, { "imdb", 3 } },
         Votes = 10,
+        RatingVotes = new Dictionary<string, int> { { "tmdb", 2 }, { "imdb", 8 } },
         Thumb = new byte[] { 0x01, 0x02, 0x03 }
       };
     }

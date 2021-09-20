@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.InputDevice.Section">Input Apparaten</string>
+  
+  <string name="Settings.WifiRemote.Title">Wifi Remote</string> <!-- Section name -->
+  <string name="Settings.WifiRemote.AuthMode.None">Geen authenticatie</string>
+  <string name="Settings.WifiRemote.AuthMode.UserPassword">Gebruikersnaam en wachtwoord</string>
+  <string name="Settings.WifiRemote.AuthMode.Passcode">Passcode</string> 
+  <string name="Settings.WifiRemote.AuthMode.Both">Gebruikersnaam en wachtwoord of passcode</string>
+
+  <string name="Settings.WifiRemote.AuthenticationMethod">Authenticatie methode</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AuthenticationMethod.Help">Authenticatie methode toegestaan bij verbinden met remote control client</string>
+  <string name="Settings.WifiRemote.Passcode">Authenticatie passcode</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Passcode.Help">Passcode toe te laten tijdens passcode authentication</string>
+  <string name="Settings.WifiRemote.AutoLoginTimeout">Authenticatie timeout</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AutoLoginTimeout.Help">Tijd in minuten waarna client re-authenticatie nodig is</string>
+  <string name="Settings.WifiRemote.EnableBonjour">Broadcast service beschikbaarheid (Bonjour, ZeroConf)</string> </resources>

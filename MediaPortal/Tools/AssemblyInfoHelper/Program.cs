@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,7 +32,7 @@ namespace AssemblyInfoHelper
 {
   class Program
   {
-    private const string MAJOR_VERSION = "2.2"; // 2.2 from 10/2018
+    private const string MAJOR_VERSION = "2.3"; // 2.3 from 10/2020
     private static readonly Regex RE_REPLACE_ADDITIONAL = new Regex("(AssemblyInformationalVersion\\(\").*(\")", RegexOptions.Multiline);
     private static readonly Regex RE_REPLACE_VERSION_NUMBER = new Regex("(Assembly.*Version\\(\")([^\"]*)(\")", RegexOptions.Multiline);
     private static readonly Regex RE_REPLACE_YEAR_COPY = new Regex("(AssemblyCopyright\\(\"Copyright © Team MediaPortal 2007 - )\\d{4}(\")", RegexOptions.Multiline);

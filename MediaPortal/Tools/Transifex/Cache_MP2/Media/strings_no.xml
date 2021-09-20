@@ -172,6 +172,7 @@
   <string name="Media.Refresh">Oppdater</string>
   <string name="Media.ReimportMediaItem.Done">Ferdig</string>
   <string name="Media.ReimportMediaItem.Description">Beskrivelse</string>
+  <string name="Media.SubtitleSearch.Language">Språk</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spill element</string>
   <string name="Media.PlayAudioItems">Spill av lydelementer</string>

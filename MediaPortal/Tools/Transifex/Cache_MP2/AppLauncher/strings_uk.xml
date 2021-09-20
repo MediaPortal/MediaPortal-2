@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Settings.Title">Налаштування</string>
+  <string name="AppLauncher.Settings.Add.Description">Опис</string>
+  <string name="AppLauncher.Settings.Add.Normal">Нормальний</string>
+  </resources>

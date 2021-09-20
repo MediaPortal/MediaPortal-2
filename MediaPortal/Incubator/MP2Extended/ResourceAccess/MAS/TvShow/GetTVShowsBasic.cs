@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
 
       if (items.Count == 0)
-        throw new BadRequestException("GetTVShowsBasic: No TV Episodes found");
+        return System.Threading.Tasks.Task.FromResult<IList<WebTVShowBasic>>(new List<WebTVShowBasic>());
 
       var output = items.Select(item => TVShowBasic(context, item))
         .Filter(filter);

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Utilities.Collections;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -132,8 +133,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
       if (MediaItemAspect.TryGetAspect(aspects, AudioAlbumAspect.Metadata, out var albumAspect))
       {
         var list = albumAspect.GetCollectionAttribute<string>(AudioAlbumAspect.ATTR_ARTISTS);
-        albumArtist = list.FirstOrDefault();
+        albumArtist = list?.FirstOrDefault();
       }
+
+      if (albumArtist == null)
+        return false;
 
       IList<IDictionary<Guid, IList<MediaItemAspect>>> nfoLinkedAspects = new List<IDictionary<Guid, IList<MediaItemAspect>>>();
       if (!await TryExtractAlbumArtistMetadataAsync(mediaItemAccessor, albumArtist, nfoLinkedAspects).ConfigureAwait(false))
@@ -187,7 +191,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         return false;
 
       IEnumerable<string> persons = aspect.GetCollectionAttribute<string>(AudioAlbumAspect.ATTR_ARTISTS);
-      List<string> nameList = new List<string>(persons);
+      List<string> nameList = new SafeList<string>(persons);
 
       index = nameList.IndexOf(name);
       return index >= 0;

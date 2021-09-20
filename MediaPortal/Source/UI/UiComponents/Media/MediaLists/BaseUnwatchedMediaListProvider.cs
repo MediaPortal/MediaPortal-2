@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,20 +29,20 @@ using MediaPortal.UI.ContentLists;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseUnwatchedMediaListProvider : BaseMediaListProvider
   {
+    protected Guid? _changeAspectId;
+
     protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      IFilter filter;
-      if (userProfile.HasValue)
-        filter = await AppendUserFilterAsync(
-          new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0), true), _necessaryMias);
-      else
-        filter = new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
+      IFilter filter = userProfile.HasValue ? await AppendUserFilterAsync(
+        new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0), true), _necessaryMias) :
+        new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
 
       IFilter navigationFilter = GetNavigationFilter(_navigationInitializerType);
       if (navigationFilter != null)
@@ -54,9 +54,55 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       };
     }
 
-    protected override bool ShouldUpdate(UpdateReason updateReason)
+    protected override bool ShouldUpdate(UpdateReason updateReason, ICollection<object> updatedObjects)
     {
-      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || updateReason.HasFlag(UpdateReason.ImportComplete) || base.ShouldUpdate(updateReason);
+      bool update = updateReason.HasFlag(UpdateReason.ImportComplete) || updateReason.HasFlag(UpdateReason.UserChanged) || base.ShouldUpdate(updateReason, updatedObjects);
+      if (updateReason.HasFlag(UpdateReason.MediaItemChanged))
+      {
+        if (updatedObjects?.Count > 0 && _changeAspectId.HasValue)
+        {
+          foreach (MediaItem item in updatedObjects)
+          {
+            if (item.Aspects.ContainsKey(_changeAspectId.Value))
+            {
+              update = true;
+              break;
+            }
+          }
+        }
+        else
+        {
+          update = true;
+        }
+      }
+
+      return update;
+    }
+  }
+
+  public abstract class BaseUnwatchedRelationshipMediaListProvider : BaseUnwatchedMediaListProvider
+  {
+    protected Guid _role;
+    protected Guid _linkedRole;
+    protected IEnumerable<Guid> _necessaryLinkedMias;
+
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
+    {
+      Guid? userProfile = CurrentUserProfile?.ProfileId;
+      IFilter linkedFilter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, 
+        new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE),
+        new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0))) :
+        null;
+      IFilter filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
+        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(linkedFilter, _necessaryLinkedMias)),
+        new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.EQ, UserDataKeysKnown.GetSortablePlayPercentageString(0), true)) :
+        new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.EQ, 0);
+
+      return new MediaItemQuery(_necessaryMias, _optionalMias, filter)
+      {
+        SubqueryFilter = GetNavigationFilter(_navigationInitializerType),
+        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Ascending) }
+      };
     }
   }
 }

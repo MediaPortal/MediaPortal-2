@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,14 +34,11 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Utilities.SystemAPI;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -70,10 +67,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     private const string MEDIA_CATEGORY_NAME_AUDIO = "Audio";
     private static readonly ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
 
-    internal const string ARTIST_INFO_FOLDER = "ArtistInfo";
-    internal static readonly ConcurrentDictionary<ResourcePath, ResourcePath> CentralArtistFolderCache = new ConcurrentDictionary<ResourcePath, ResourcePath>();
-
-      #endregion
+    #endregion
 
     #region Private/Protected fields
 
@@ -81,8 +75,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// Metadata of this MetadataExtractor
     /// </summary>
     private readonly MetadataExtractorMetadata _metadata;
-
-    protected AsynchronousMessageQueue _messageQueue;
 
     #endregion
 
@@ -124,36 +116,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
           AudioAspect.Metadata,
           ThumbnailLargeAspect.Metadata
         });
-
-      _messageQueue = new AsynchronousMessageQueue(this, new string[]
-      {
-        ImporterWorkerMessaging.CHANNEL,
-      });
-      _messageQueue.MessageReceived += OnMessageReceived;
-      _messageQueue.Start();
-    }
-
-    public override void Dispose()
-    {
-      base.Dispose();
-      _messageQueue.Shutdown();
-    }
-
-    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
-    {
-      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
-      {
-        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
-        switch (messageType)
-        {
-          case ImporterWorkerMessaging.MessageType.ImportStarted:
-            CentralArtistFolderCache.TryAdd((ResourcePath)message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH], null);
-            break;
-          case ImporterWorkerMessaging.MessageType.ImportCompleted:
-            CentralArtistFolderCache.TryRemove((ResourcePath)message.MessageData[ImporterWorkerMessaging.RESOURCE_PATH], out _);
-            break;
-        }
-      }
     }
 
     #endregion
@@ -403,6 +365,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     #endregion
+
+    protected override void NewImportStarting()
+    {
+      NfoArtistReader.ClearCache();
+      NfoAlbumReader.ClearCache();
+    }
 
     #endregion
 

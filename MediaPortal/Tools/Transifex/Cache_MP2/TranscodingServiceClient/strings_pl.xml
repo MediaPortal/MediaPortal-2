@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- Section name -->
+  <string name="Settings.Transcode.HWAcceleration">Przyspieszenie sprzętowe</string> <string name="Settings.Transcode.SubtitleBox">Pokaż ramkę napisów</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleBox.Help">Pokaż ramkę woków zakodowanych napisów. </string>
+  <string name="Settings.Transcode.SubtitleFont">Czcionka napisów</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFont.Help">Czcionka dla zakodowanych napisów. </string>
+  <string name="Settings.Transcode.SubtitleFontSize">Rozmiar napisów</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontSize.Help">Rozmiar zakodowanych napisów.</string>
+  <string name="Settings.Transcode.SubtitleFontColor">Kolor napisów</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontColor.Help">Kolor zakodowanych napisów.</string>
+
+  <string name="Settings.Transcode.None">Żaden</string>
+  <string name="Settings.Transcode.Auto">Automatycznie</string>
+  <string name="Settings.Transcode.Default">Domyślne</string>
+
+</resources>

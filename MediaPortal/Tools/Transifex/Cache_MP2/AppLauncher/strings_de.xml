@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Title">Launcher</string>
+  <string name="AppLauncher.Helptext">Verknüpfe externe Programme und starte sie aus MediaPortal 2 heraus</string>
+  <string name="AppLauncher.Stop">Stopp</string>
+  <string name="AppLauncher.Pause">Pause</string>
+  <string name="AppLauncher.SwitchPlaying">Ändere den Wiedergabe-Status</string>
+  <string name="AppLauncher.Settings.Title">Einstellungen</string>
+  <string name="AppLauncher.Settings.Helptext">Wähle deine externen Programme</string>
+  <string name="AppLauncher.Settings.Add">Programm hinzufügen</string>
+  <string name="AppLauncher.Settings.Add.Shortname">Kurzname</string>
+  <string name="AppLauncher.Settings.Add.Arguments">Argumente</string>
+  <string name="AppLauncher.Settings.Add.Path">Programmpfad</string>
+  <string name="AppLauncher.Settings.Add.Description">Beschreibung</string>
+  <string name="AppLauncher.Settings.Add.Username">Benutzername</string>
+  <string name="AppLauncher.Settings.Add.Password">Passwort</string>
+  <string name="AppLauncher.Settings.Add.Icon">Iconpfad</string>
+  <string name="AppLauncher.Settings.Add.Screenmode">Anzeigemodus</string>
+  <string name="AppLauncher.Settings.Add.Search">Suchen</string>
+  <string name="AppLauncher.Settings.Add.Select">Auswählen</string>
+  <string name="AppLauncher.Settings.Add.Minimum">Minimum</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normal</string>
+  <string name="AppLauncher.Settings.Add.Maximum">Maximum</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">Ohne Fenster</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">Icon suchen</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">Anwendung suchen</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">Als Admin starten</string>
+  <string name="AppLauncher.Settings.Edit">Programm bearbeiten</string>
+  <string name="AppLauncher.Settings.Delete">Programm löschen</string>
+  <string name="AppLauncher.Settings.Menu">Programmmenüs</string>
+  <string name="AppLauncher.Settings.Menu.ClearMapping">Zuordnungen zurücksetzen</string>
+  <string name="AppLauncher.Settings.Test">Programm testen</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Eine Anwendung hinzufügen</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Bearbeite eine Anwendung</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Entferne eine Anwendung</string>
+  <string name="AppLauncher.Settings.Menu.Helptext">Verknüpfe ein Programm zu einem Menüeintrag</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Entferne eine Gruppe</string>
+
+  <string name="AppLauncher.Group">Gruppe</string>
+  <string name="AppLauncher.Ungrouped">Ungruppiert</string>
+  <string name="AppLauncher.SelectGroup">Wähle eine Gruppe</string>
+  <string name="AppLauncher.SelectApp">Wähle ein Programm</string>
+  <string name="AppLauncher.RemoveGroup">Gruppe löschen</string>
+  <string name="AppLauncher.Delete">Löschen</string>
+  <string name="AppLauncher.MenuEntry">Programm starten</string>
+  <string name="AppLauncher.MenuEntry.Help">Startet das verknüpfte Programm</string>
+  <string name="AppLauncher.Menu">Menü</string>
+  <string name="AppLauncher.Menu.Clear">Löschen</string>
+</resources>

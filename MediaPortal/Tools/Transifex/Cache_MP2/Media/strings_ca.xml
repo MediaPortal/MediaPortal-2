@@ -168,6 +168,7 @@
   <string name="Media.Refresh">Actualitza</string>
   <string name="Media.ReimportMediaItem.Done">Fet</string>
   <string name="Media.ReimportMediaItem.Description">Descripció</string>
+  <string name="Media.SubtitleSearch.Language">Idioma</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Reprodueix l\'element</string>
   <string name="Media.PlayAudioItems">Reprodueix els elements audio</string>

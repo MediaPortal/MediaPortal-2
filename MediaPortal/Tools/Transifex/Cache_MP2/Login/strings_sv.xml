@@ -26,7 +26,6 @@
   <string name="Settings.Users.Config.AutoLoginUser.Help">Användaren som loggas in automatiskt</string>
   <string name="Settings.Users.Config.SystemDefault">Förvalda värden</string>
   <string name="Settings.Users.Config.AutoLoginUser.Title">Automatiskt inloggad användare</string>
-
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Hantera användare</string>
   <string name="UserConfig.UserConfiguration.Title">Hantera användare</string>
@@ -53,6 +52,7 @@
   <string name="UserConfig.Ok">OK</string>
   <string name="UserConfig.Disable">Inaktivera</string>
 
+  <string name="UserConfig.Default">Förvald</string>
   <string name="UserConfig.SelectProfileTemplate">Välj mall för typ av profil</string>
   <string name="UserConfig.ClientProfile">Klientprofil</string>
   <string name="UserConfig.UserProfile">Användarprofil</string>

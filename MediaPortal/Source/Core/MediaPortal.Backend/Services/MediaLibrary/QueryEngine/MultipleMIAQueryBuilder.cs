@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,5 +40,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           new MediaItemIdFilter(mediaItemIds), null, null)
         {
         }
-    }
+
+      public MultipleMIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
+        MultipleMediaItemAspectMetadata requestedMIA,
+        MediaItemIdFilter filter)
+        : base(miaManagement, simpleSelectAttributes,
+          null,
+          new List<MediaItemAspectMetadata> { requestedMIA }, new List<MediaItemAspectMetadata> { },
+          filter, null, null)
+      {
+      }
+  }
 }

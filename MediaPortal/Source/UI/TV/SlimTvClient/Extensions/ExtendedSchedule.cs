@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
   /// </summary>
   class ExtendedSchedule: IProgramAction
   {
-    public bool ShowExtendedRecordingcScreen(IProgram program)
+    public bool ShowExtendedRecordingScreen(IProgram program)
     {
       SlimTvExtScheduleModel.Show(program);
       return true;
@@ -45,12 +45,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
     {
       // Don't put up extended schedule action if extended schedule is already the current model.
       var wf = ServiceRegistration.Get<IWorkflowManager>();
-      return wf.CurrentNavigationContext.WorkflowModelId != SlimTvExtScheduleModel.MODEL_ID;
+      return program != null && wf.CurrentNavigationContext.WorkflowModelId != SlimTvExtScheduleModel.MODEL_ID;
     }
 
     public ProgramActionDelegate ProgramAction
     {
-      get { return ShowExtendedRecordingcScreen; }
+      get { return ShowExtendedRecordingScreen; }
     }
   }
 }

@@ -1,4 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">В виде списка</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">В виде сетки</string>
+  <string name="WMC.Configuration.GridViewType.Poster">Постеры</string>
+  <string name="WMC.Configuration.GridViewType.Banner">Баннеры</string>
+  <string name="WMC.Configuration.GridViewType.Thumbnail">Миниатюры</string>  
+  <string name="WMC.Home.LatestAdded">Последнее добавленное</string>
+  <string name="WMC.Home.LatestPlayed">Последнее воспроизведенное</string>
+  <string name="WMC.Home.ContinuePlayed">Продолжить воспроизведение</string>
+  <string name="WMC.Home.CurrentPrograms">Текущие программы</string>
+  <string name="WMC.Home.CurrentSchedules">Текущие расписания</string>
   <string name="WMC.Home.Favorites">Избранное</string>
   </resources>

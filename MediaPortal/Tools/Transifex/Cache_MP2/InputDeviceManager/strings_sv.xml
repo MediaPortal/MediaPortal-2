@@ -14,6 +14,7 @@
   <string name="InputDeviceManager.AddKey.Header">Tryck på önskad tangent/knapp på inmatningsenheten</string>
   <string name="InputDeviceManager.Screen">Sida</string>
   <string name="InputDeviceManager.Key">Tangent/knapp</string>
+  <string name="InputDeviceManager.Action">Action</string>
 
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Rensa</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Ta bort mappning?</string>

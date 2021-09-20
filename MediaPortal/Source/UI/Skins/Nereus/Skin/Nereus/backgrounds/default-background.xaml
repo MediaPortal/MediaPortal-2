@@ -12,7 +12,7 @@ Default background image - no media present
     xmlns:bm="clr-namespace:MediaPortal.UiComponents.BackgroundManager.Models;assembly=BackgroundManager"
     x:Name="DefaultBackgroundScreen"
     >
-  <DockPanel>
+  <DockPanel LastChildFill="True">
     <DockPanel.Resources>
       <Model x:Key="VideoBackgroundModel" Id="441288AC-F88D-4186-8993-6E259F7C75D8"/>
       <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
@@ -21,7 +21,7 @@ Default background image - no media present
     <!-- Video background -->
     <Grid IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=IsEnabled}" DockPanel.Dock="Center">
       <Grid.Background>
-        <bm:BackgroundVideoBrush VideoPlayer="{Binding Source={StaticResource VideoBackgroundModel},Path=VideoPlayer}"/>
+        <bm:BackgroundVideoBrush VideoPlayer="{Binding Source={StaticResource VideoBackgroundModel},Path=VideoPlayer}" Geometry="[Geometries.Zoom]"/>
       </Grid.Background>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
@@ -39,12 +39,12 @@ Default background image - no media present
       </Grid.Triggers>
     </Grid>
 
-    <StackPanel IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=!IsEnabled}">
+    <!--StackPanel IsVisible="{Binding Source={StaticResource VideoBackgroundModel},Path=!IsEnabled}">
       <StackPanel.Background>
         <VisualBrush x:Name="FanartVisualBrush" AnimationEnabled="True">
           <VisualBrush.Visual>
             <Grid VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Background="{ThemeResource BackgroundBrush}">
-              <!--<Grid.Resources>
+              <Grid.Resources>
                 <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
                 <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
               </Grid.Resources>
@@ -61,11 +61,11 @@ Default background image - no media present
                   <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
                    Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
                 </Image.Source>
-              </Image>-->
+              </Image>
             </Grid>
           </VisualBrush.Visual>
         </VisualBrush>
       </StackPanel.Background>
-    </StackPanel>
+    </-->
   </DockPanel>
 </Screen>

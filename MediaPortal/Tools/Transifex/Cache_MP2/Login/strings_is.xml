@@ -6,5 +6,6 @@
   <string name="UserConfig.DeleteUser">Eyða</string>
   <string name="UserConfig.Yes">Já</string>
   <string name="UserConfig.No">Nei</string>
+  <string name="UserConfig.Default">Sjálfgefið</string>
   <string name="UserConfig.SharesText">Deilingar</string>
   </resources>

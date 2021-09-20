@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,6 +34,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -56,19 +57,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       return item;
     }
 
-    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
+    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
-      if (!TryInitTvHandler() || _tvHandler.ProgramInfo == null)
+      IProgramInfoAsync programInfo = null;
+      if (!TryInitTvHandler() || (programInfo = _tvHandler?.ProgramInfo) == null)
         return false;
 
-      if (_tvHandler.ProgramInfo == null)
-        return false;
-
-      if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PlaybackComplete) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
+      if (!ShouldUpdate(updateReason, updatedObjects) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
         return true;
 
       ICollection<IChannel> channels;
-      if (_currentChannels == null || updateReason.HasFlag(UpdateReason.Forced) || updateReason.HasFlag(UpdateReason.PlaybackComplete))
+      if (_currentChannels == null || updateReason.HasFlag(UpdateReason.UserChanged) || updateReason.HasFlag(UpdateReason.PlaybackComplete))
         channels = _currentChannels = await GetUserChannelList(maxItems, UserDataKeysKnown.KEY_CHANNEL_PLAY_COUNT, true);
       else
         channels = _currentChannels;
@@ -76,7 +75,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       IList<Tuple<IProgram, IChannel>> programs = new List<Tuple<IProgram, IChannel>>();
       foreach (IChannel channel in channels)
       {
-        var result = await _tvHandler.ProgramInfo.GetNowNextProgramAsync(channel);
+        var result = await programInfo.GetNowNextProgramAsync(channel);
         if (!result.Success)
           continue;
 

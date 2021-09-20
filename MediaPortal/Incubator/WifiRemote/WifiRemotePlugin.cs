@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2015 Team MediaPortal
+﻿#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2015 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -127,11 +127,6 @@ namespace MediaPortal.Plugins.WifiRemote
 
     public void Activated(PluginRuntime pluginRuntime)
     {
-      if (pluginRuntime != null)
-      {
-        var meta = pluginRuntime.Metadata;
-        Logger.Info(string.Format("{0} v{1} [{2}] by {3}", meta.Name, meta.PluginVersion, meta.Description, meta.Author));
-      }
       StartClient();
     }
 

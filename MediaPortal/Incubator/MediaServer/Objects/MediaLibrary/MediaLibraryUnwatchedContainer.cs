@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -36,14 +36,11 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
     public MediaLibraryUnwatchedContainer(string id, Guid[] necessaryMiaTypeIds, Guid[] optionalMiaTypeIds, EndPointSettings client)
       : base(id, "Unwatched", necessaryMiaTypeIds, optionalMiaTypeIds, null, client)
     {
-      _query = new MediaItemQuery(necessaryMiaTypeIds, optionalMiaTypeIds, null)
-      {
-        Filter = AppendUserFilter(UserId.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
-            new EmptyUserDataFilter(UserId.Value, UserDataKeysKnown.KEY_PLAY_COUNT),
-            new RelationalUserDataFilter(UserId.Value, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0")) : null, necessaryMiaTypeIds),
-        Limit = 10, 
-        SortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) }
-      };
+      _filter = BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+        new EmptyUserDataFilter(UserId, UserDataKeysKnown.KEY_PLAY_COUNT),
+        new RelationalUserDataFilter(UserId, UserDataKeysKnown.KEY_PLAY_COUNT, RelationalOperator.EQ, "0"));
+      _queryLimit = 10;
+      _sortInformation = new List<ISortInformation> { new AttributeSortInformation(ImporterAspect.ATTR_DATEADDED, SortDirection.Descending) };
     }
   }
 }

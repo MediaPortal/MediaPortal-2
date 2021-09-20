@@ -255,6 +255,7 @@
   <string name="Media.DeleteFromStorage">Обриши из складишта</string>
   <string name="Media.ReimportMediaItem.Done">Готово</string>
   <string name="Media.ReimportMediaItem.Description">Опис</string>
+  <string name="Media.SubtitleSearch.Language">Језик</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Пусти ставку</string>
   <string name="Media.PlayAudioItems">Пусти аудио ставку</string>

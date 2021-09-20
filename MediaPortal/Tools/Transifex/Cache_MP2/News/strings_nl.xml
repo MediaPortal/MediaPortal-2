@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">Nieuws</string>
+  <string name="News.Title.Help">Lees je favoriete nieuwssites.</string>
   <string name="News.FeedsStateDisplayLabel">Nieuws</string>
   <string name="News.Published">Gepubliceerd</string>
   <string name="News.ConfiguredFeeds">Geconfigureerde feeds</string>

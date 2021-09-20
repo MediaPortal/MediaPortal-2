@@ -1,6 +1,6 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players.Codecs">Codificadores</string>
+  <string name="Settings.Players.Codecs">Codecs</string>
   <string name="Settings.Players.Codecs.VideoCodecs">Codecs de Vídeo</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG2">Codec de Vídeo MPEG2</string>
   <string name="Settings.Players.Codecs.VideoCodecs.MPEG2.Help">Definir o codec utilizado para vídeo MPEG2 (DVD, DVB-SD)</string>
@@ -33,6 +33,7 @@
   <string name="Settings.Players.EnableTeletextSubtitles">Teletexto</string>
   <string name="Settings.Players.EnableDvdSubtitles">Legendas de DVD</string>
   <string name="Settings.Players.EnableDvdClosedCaptions">Legendas Ocultas de DVD</string>
+  <string name="Settings.Players.EnableMpcHcEngineSubtitles">Engine MPC-HC de Legendas para videos</string>
   <string name="Playback.NotSpecified">Não especificado</string>
   <string name="Playback.CaptionNormal">Legenda Normal</string>
   <string name="Playback.CaptionBig">Legenda Grande</string>

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2017 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -132,7 +132,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
     {
       targetCodec = SubtitleCodec.Unknown;
       targetMime = "text/plain";
-      if (client.Profile.MediaTranscoding.SubtitleSettings.SubtitleMode == SubtitleSupport.SoftCoded)
+      if (client.Profile.MediaTranscoding?.SubtitleSettings?.SubtitleMode == SubtitleSupport.SoftCoded)
       {
         targetCodec = client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Format;
         if (string.IsNullOrEmpty(client.Profile.MediaTranscoding.SubtitleSettings.SubtitlesSupported[0].Mime) == false)
@@ -146,38 +146,21 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
     private static IPAddress GetLocalIp()
     {
-      bool useIPv4 = true;
-      bool useIPv6 = false;
       ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
-      if (settings.UseIPv4) useIPv4 = true;
-      if (settings.UseIPv6) useIPv6 = true;
+      bool useIPv4 = settings.UseIPv4;
+      bool useIPv6 = settings.UseIPv6;
 
       var host = Dns.GetHostEntry(Dns.GetHostName());
-      IPAddress ip6 = null;
       foreach (var ip in host.AddressList)
       {
-        if (IPAddress.IsLoopback(ip) == true)
-        {
+        if (IPAddress.IsLoopback(ip))
           continue;
-        }
-        if (useIPv4)
-        {
-          if (ip.AddressFamily == AddressFamily.InterNetwork)
-          {
-            return ip;
-          }
-        }
-        if (useIPv6)
-        {
-          if (ip.AddressFamily == AddressFamily.InterNetworkV6)
-          {
-            ip6 = ip;
-          }
-        }
-      }
-      if (ip6 != null)
-      {
-        return ip6;
+
+        if (useIPv4 && ip.AddressFamily == AddressFamily.InterNetwork)
+          return ip;
+
+        if (useIPv6 && ip.AddressFamily == AddressFamily.InterNetworkV6)
+          return ip;
       }
       return null;
     }

@@ -1,21 +1,39 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   
+  <!--Login-->
+  <string name="Login.Title">Логин</string>
+  <string name="Login.IncorrectPassword">Неверный пароль, пожалуйста, попробуйте снова</string>
+  <string name="Login.PasswordOk">OK</string>
   <string name="Login.EnterPassword">Введите пароль</string>
   <string name="Login.Logout">Завершить сеанс</string>
 
   <!--User Settings-->
-  <string name="Settings.Users">Пользователи</string> <string name="UserConfig.Users">Пользователи</string>
+  <string name="Settings.Users">Пользователи</string> <string name="Settings.Users.Config.AutoLogout">Автовыход</string> <string name="Settings.Users.Config.AutoLoginUser">Автовход</string> <string name="Settings.Users.Config.AutoLoginUser.Title">Автовход пользователя</string>
+  <string name="Settings.Users.Config.UserLanguage">Языковые предпочтения</string>  <string name="UserConfig.UserLanguagewWorkflowNavigationContextDisplayLabel">Языки пользователя</string>
+  <string name="UserConfig.UserLanguages.Title">Языки пользователя</string>
+  <string name="UserConfig.Users">Пользователи</string>
   <string name="UserConfig.UserName">Имя пользователя</string>
   <string name="UserConfig.Password">Пароль</string>
+  <string name="UserConfig.ProfileType">Тип профиля</string>
   <string name="UserConfig.LastLogin">Последний вход в систему</string>
   <string name="UserConfig.NewUserText">Новый пользователь</string>
   <string name="UserConfig.AddUser">Добавить</string>
   <string name="UserConfig.CopyUser">Копировать</string>
   <string name="UserConfig.DeleteUser">Удалить</string>
   <string name="UserConfig.SaveUser">Сохранить</string>
+  <string name="UserConfig.SelectImage">Выбрать изображение пользователя</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Удалить подтверждение</string>
+  <string name="UserConfig.DeleteConfirmation">Вы уверены, что хотите удалить выбранного пользователя?</string>
   <string name="UserConfig.Yes">Да</string>
   <string name="UserConfig.No">Нет</string>
+  <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.SelectLanguage">Выбрать язык</string>
+  <string name="UserConfig.Default">Стандарт</string>
+  <string name="UserConfig.MainMenuLanguage">Язык главного меню</string>
+  <string name="UserConfig.SelectProfileTemplate">Выбрать шаблон профиля</string>
+  <string name="UserConfig.UserProfile">Профиль пользователя</string>
+
   <string name="UserProfileTemplate.Admin">Администратор</string>
   <string name="UserProfileTemplate.Teenager">Подросток</string>
   <string name="UserProfileTemplate.Child">Ребёнок</string>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -62,5 +62,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Settings
 
     [Setting(SettingScope.Global, "Flat-default")]
     public string LogoTheme { get; set; }
+
+    [Setting(SettingScope.Global, true)]
+    public bool EnableAutoUpdate { get; set; }
   }
 }
