@@ -78,6 +78,18 @@ namespace Test.TVMosaic
     }
 
     [Test]
+    public async Task TestChannelsForGroup()
+    {
+      var channelInfo = _provider as IChannelAndGroupInfoAsync;
+      Assert.IsNotNull(channelInfo);
+      var channelGroupResult = await channelInfo.GetChannelGroupsAsync();
+      Assert.IsNotNull(channelGroupResult);
+      var channelsResult = await channelInfo.GetChannelsAsync(channelGroupResult.Result.First());
+      Assert.IsNotNull(channelsResult.Result);
+      Assert.Greater(0, channelsResult.Result.Count);
+    }
+
+    [Test]
     public async Task TestPrograms()
     {
       var channelInfo = _provider as IChannelAndGroupInfoAsync;

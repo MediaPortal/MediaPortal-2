@@ -33,7 +33,8 @@ namespace SlimTv.TvMosaicProvider
     private HttpDataProvider _dvbLink;
     private readonly object _syncObj = new object();
     private readonly IDictionary<string, int> _idMapping = new ConcurrentDictionary<string, int>();
-    private readonly IDictionary<IChannelGroup, List<IChannel>> _channelGroups = new ConcurrentDictionary<IChannelGroup, List<IChannel>>();
+    private readonly IDictionary<int, List<IChannel>> _channelGroupMap = new ConcurrentDictionary<int, List<IChannel>>();
+    private readonly IList<IChannelGroup> _channelGroups = new List<IChannelGroup>();
     private readonly IList<IChannel> _mpChannels = new List<IChannel>();
     private readonly Dictionary<int, IChannel> _tunedChannels = new Dictionary<int, IChannel>();
     private readonly Dictionary<int, long> _tunedChannelHandles = new Dictionary<int, long>();
@@ -90,7 +91,7 @@ namespace SlimTv.TvMosaicProvider
     {
       lock (_syncObj)
       {
-        if (_channelGroups.Any() || _mpChannels.Any())
+        if (_channelGroupMap.Any() || _mpChannels.Any())
           return true;
       }
 
@@ -128,7 +129,8 @@ namespace SlimTv.TvMosaicProvider
           };
 
           IEnumerable<IChannel> groupChannels = _mpChannels.OfType<TvMosaicChannel>().Where(c => favorite.Channels.Contains(c.TvMosaicId));
-          _channelGroups[group] = new List<IChannel>(groupChannels);
+          _channelGroups.Add(group);
+          _channelGroupMap[group.ChannelGroupId] = new List<IChannel>(groupChannels);
         }
       }
 
@@ -141,7 +143,7 @@ namespace SlimTv.TvMosaicProvider
       if (!await LoadChannels())
         return new AsyncResult<IList<IChannelGroup>>(false, null);
 
-      var groups = _channelGroups.Keys.OrderBy(g => g.ChannelGroupId).ToList();
+      var groups = _channelGroups.ToList();
 
       return new AsyncResult<IList<IChannelGroup>>(groups.Count > 0, groups);
     }
@@ -150,9 +152,8 @@ namespace SlimTv.TvMosaicProvider
     {
       if (await LoadChannels())
       {
-        var channelGroup = _channelGroups.Keys.FirstOrDefault(g => g.ChannelGroupId == group.ChannelGroupId);
-        if (channelGroup != null)
-          return new AsyncResult<IList<IChannel>>(true, _channelGroups[channelGroup]);
+        if (_channelGroupMap.TryGetValue(group.ChannelGroupId, out var channels))
+          return new AsyncResult<IList<IChannel>>(true, channels);
       }
 
       return new AsyncResult<IList<IChannel>>(false, null);
