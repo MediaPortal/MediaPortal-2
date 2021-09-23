@@ -1416,7 +1416,7 @@
 
       <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
         <StackPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} == &quot;True&quot;)">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
@@ -1756,7 +1756,7 @@
 
       <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="8,0,0,0">
         <StackPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} == &quot;True&quot;)">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
@@ -2033,7 +2033,7 @@
 
       <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
         <StackPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} == &quot;True&quot;)">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
@@ -2514,7 +2514,7 @@
  
       <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
         <StackPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} == &quot;True&quot;)">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
@@ -3020,7 +3020,7 @@
 
       <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
         <StackPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} == &quot;True&quot;)">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
@@ -3293,7 +3293,7 @@
 
       <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
         <StackPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} == &quot;True&quot;)">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
@@ -3636,7 +3636,7 @@
 
       <StackPanel Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" Orientation="Horizontal">
         <StackPanel.IsVisible>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} != &quot;True&quot;)">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; {1} &amp;&amp; ({2} == &quot;True&quot;)">
             <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
             <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
