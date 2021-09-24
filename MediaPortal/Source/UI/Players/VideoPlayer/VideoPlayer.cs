@@ -299,6 +299,9 @@ namespace MediaPortal.UI.Players.Video
       FilterGraphTools.TryDispose(ref _mpcSubsRenderer);
       FilterGraphTools.TryDispose(ref _rot);
       FilterGraphTools.TryRelease(ref _graphBuilder, true);
+      _me = null;
+      _mc = null;
+      _ms = null;
     }
 
     /// <summary>

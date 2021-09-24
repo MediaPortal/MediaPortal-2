@@ -712,7 +712,7 @@ namespace MediaPortal.UI.Players.Video
           // player from run.
           Pause();
 
-        if (_ms == null)
+        if (!_initialized || _ms == null)
           return;
         double dTimeInSecs = value.TotalSeconds;
         dTimeInSecs *= 10000000d;
@@ -759,7 +759,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         double rate;
-        if (_ms == null || _ms.GetRate(out rate) != 0)
+        if (!_initialized || _ms == null || _ms.GetRate(out rate) != 0)
           return 1.0;
         return rate;
       }
@@ -767,7 +767,7 @@ namespace MediaPortal.UI.Players.Video
 
     public virtual bool SetPlaybackRate(double value)
     {
-      if (_graphBuilder == null || _ms == null)
+      if (!_initialized || _graphBuilder == null || _ms == null)
         return false;
       double currentRate;
       if (_ms.GetRate(out currentRate) == 0 && currentRate != value)
@@ -800,7 +800,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         AMSeekingSeekingCapabilities capabilities;
-        if (_ms == null || _ms.GetCapabilities(out capabilities) != 0)
+        if (!_initialized || _ms == null || _ms.GetCapabilities(out capabilities) != 0)
           return false;
         return (capabilities & AMSeekingSeekingCapabilities.CanSeekForwards) != 0;
       }
@@ -811,7 +811,7 @@ namespace MediaPortal.UI.Players.Video
       get
       {
         AMSeekingSeekingCapabilities capabilities;
-        if (_ms == null || _ms.GetCapabilities(out capabilities) != 0)
+        if (!_initialized || _ms == null || _ms.GetCapabilities(out capabilities) != 0)
           return false;
         return (capabilities & AMSeekingSeekingCapabilities.CanSeekBackwards) != 0;
       }
