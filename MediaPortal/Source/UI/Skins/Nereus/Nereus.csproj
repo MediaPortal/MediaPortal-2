@@ -752,6 +752,10 @@
     <Content Include="Skin\Nereus\images\OSD_background.png" />
     <Content Include="Skin\Nereus\images\partlywatched.png" />
     <Content Include="Skin\Nereus\images\person.png" />
+    <Content Include="Skin\Nereus\images\PiP.off.focus.png" />
+    <Content Include="Skin\Nereus\images\PiP.off.png" />
+    <Content Include="Skin\Nereus\images\PiP.on.focus.png" />
+    <Content Include="Skin\Nereus\images\PiP.on.png" />
     <Content Include="Skin\Nereus\images\playback.png" />
     <Content Include="Skin\Nereus\images\playback_focus.png" />
     <Content Include="Skin\Nereus\images\PlayerControl\BACKWARD.DISABLED.PNG" />

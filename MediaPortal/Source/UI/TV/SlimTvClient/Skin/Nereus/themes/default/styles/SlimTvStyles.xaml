@@ -1803,4 +1803,10 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ExtScheduleItemContainerStyle}"/>
   </Style>
 
+  <ControlTemplate x:Key="PiPControlTemplate">
+    <Button x:Name="EnablePiPButton" Style="{StaticResource PiPButtonStyle}"
+            IsVisible="{Binding PiPAvailable}" Command="{Command TogglePiP}">
+    </Button>
+  </ControlTemplate>
+
 </ResourceDictionary>

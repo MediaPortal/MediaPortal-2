@@ -1708,6 +1708,50 @@
     </Setter>
   </Style>
 
+  <Style x:Key="PiPButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}" >
+          <Grid>
+            <Image Source="PiP.off.png" Stretch="Uniform" Height="40" Width="40" VerticalAlignment="Center" Opacity="0.6">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding Path="!PiPEnabled"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="PiP.off.focus.png" Stretch="Uniform" Height="40" Width="40" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding Path="!PiPEnabled"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="PiP.on.png" Stretch="Uniform" Height="40" Width="40" VerticalAlignment="Center" Opacity="0.6">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="!HasFocus"/>
+                  <Binding Path="PiPEnabled"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <Image Source="PiP.on.focus.png" Stretch="Uniform" Height="40" Width="40" VerticalAlignment="Center">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                  <Binding RelativeSource="{RelativeSource TemplatedParent}" Path="HasFocus"/>
+                  <Binding Path="PiPEnabled"/>
+                </MultiBinding>
+              </Image.IsVisible>
+            </Image>
+            <ContentPresenter DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Center"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="BrowseMediaButtonStyle" TargetType="{x:Type Button}">
     <Setter Property="Template">
       <Setter.Value>
