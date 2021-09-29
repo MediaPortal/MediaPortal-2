@@ -88,6 +88,17 @@
         <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
         <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
 
+        <Grid x:Name="PiP" Margin="20,5,60,5" IsVisible="{Binding PiPAvailable}" Grid.Column="3"
+              HorizontalAlignment="Right" VerticalAlignment="Center">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Control Template="{ThemeResource PiPControlTemplate}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        </Grid>
+
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="Description_details" 
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
           <Grid.RowDefinitions>
@@ -135,7 +146,7 @@
                  Content="{Binding Path=SelectedCurrentProgram.Description}"
                  Color="{ThemeResource TextColor}" Margin="0,0,20,5" />
         </Grid>
-        
+
       </Grid>  
     </ControlTemplate>             
   </Include.Resources>

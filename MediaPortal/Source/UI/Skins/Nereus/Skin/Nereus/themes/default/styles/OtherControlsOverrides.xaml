@@ -1086,7 +1086,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Bottom">
+                 VerticalAlignment="Bottom">
 
             <Grid x:Name="MediaInfoPanel" IsVisible="{Binding IsCurrentPlayer}">
               <Grid.RowDefinitions>

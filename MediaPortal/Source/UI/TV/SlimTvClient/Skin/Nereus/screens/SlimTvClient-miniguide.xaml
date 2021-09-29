@@ -77,6 +77,17 @@
           </Label>
         </Button>
 
+        <Grid x:Name="PiP" Margin="20,25,40,0" IsVisible="{Binding PiPAvailable}" Grid.Column="3"
+              HorizontalAlignment="Right" VerticalAlignment="Center">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Control Template="{ThemeResource PiPControlTemplate}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+        </Grid>
+
         <ListView x:Name="ProgramsListView" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Margin="15,0,-5,0"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
@@ -144,6 +155,7 @@
 
         <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
         <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <KeyBinding Key="Blue" Command="{Command Path=TogglePiP}"/>
         <KeyBinding Key="Red" Command="{Command Source={Service ScreenManager}, Path=CloseTopmostDialog}"/>
         <KeyBinding Key="Right" Command="{Command Path=NextGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Left"  Command="{Command Path=PrevGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>

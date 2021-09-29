@@ -519,7 +519,7 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\BOTTOM.RIGHT.SHADOW.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\Bottom.shadow.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\Chapter.FOCUS.png" />
-    <Content Include="Skin\WMCSkin\images\PlayerControl\Chapter.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Chapter.NOFOCUS.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\Current.position.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\CURRENT.POSITION.SHADOW.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\DIVIDER.PNG" />
