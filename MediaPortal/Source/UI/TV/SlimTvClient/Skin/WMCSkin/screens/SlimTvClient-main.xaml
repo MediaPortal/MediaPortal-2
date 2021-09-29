@@ -43,6 +43,35 @@
           <RowDefinition Height="{ThemeResource MultiGuideProgramPreviewHeight}"/>
         </Grid.RowDefinitions>
 
+        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+              Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
+              ItemsSource="{Binding Path=CurrentGroupChannels}"
+              SelectionChanged="{CommandStencil UpdateProgram}">
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+        <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
+            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+            >
+          <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
+          <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+        </Grid>
+
+
+        <Label x:Name="Time" Grid.Column="1" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right" Margin="0,-20,0,0"
+               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
+
+        <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
+                   Style="{ThemeResource ContentGroupBoxStyle}">
+          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.TemplateControl>
+              <Include Source="screens\ProgramInfoMain.inc"/>
+            </Control.TemplateControl>
+          </Control>
+        </GroupBox>
+
         <StackPanel Margin="10,0,20,20" Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2">
           <Grid x:Name="Groups" 
               HorizontalAlignment="Left" VerticalAlignment="Top">
@@ -97,34 +126,6 @@
           </Grid>
         </StackPanel>
 
-        <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="2"
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-              Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
-              ItemsSource="{Binding Path=CurrentGroupChannels}"
-              SelectionChanged="{CommandStencil UpdateProgram}">
-          <ListView.Resources>
-            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-          </ListView.Resources>
-        </ListView>
-        <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
-            xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-            >
-          <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
-          <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
-        </Grid>
-
-
-        <Label x:Name="Time" Grid.Column="1" Grid.Row="2" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right" Margin="0,-20,0,0"
-               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
-
-        <GroupBox  Grid.Column="0" Grid.Row="2" Grid.ColumnSpan="2" Header="[SlimTvClient.CurrentlyPlayingInformationHeader]" 
-                   Style="{ThemeResource ContentGroupBoxStyle}">
-          <Control VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Control.TemplateControl>
-              <Include Source="screens\ProgramInfoMain.inc"/>
-            </Control.TemplateControl>
-          </Control>
-        </GroupBox>
       </Grid>
     </ControlTemplate>
   </Include.Resources>
