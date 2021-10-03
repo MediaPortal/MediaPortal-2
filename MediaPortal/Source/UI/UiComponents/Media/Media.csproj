@@ -814,6 +814,11 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Skin\Nereus\screens\DialogSwitchViewMode.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
     <Content Include="Skin\default\screens\SeriesFilterByYear.xaml">
       <SubType>Designer</SubType>
     </Content>

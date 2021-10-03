@@ -192,6 +192,12 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                <Binding ElementName="ArtistList" Path="ItemsCount" />
+              </MultiBinding>
+            </Grid.IsVisible>
+
             <Grid Margin="200,15,0,-2">
               <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
@@ -199,8 +205,8 @@
                          Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.Artists]"/>
             </Grid>
 
-            <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+            <ListView x:Name="ArtistList" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
               <ListView.ItemsSource>
                 <RelationshipQuery
                       NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
@@ -221,6 +227,12 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                <Binding ElementName="AlbumartistList" Path="ItemsCount" />
+              </MultiBinding>
+            </Grid.IsVisible>
+
             <Grid Margin="200,15,0,-2">
               <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
@@ -228,8 +240,8 @@
                          Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.AlbumArtists]"/>
             </Grid>
 
-            <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+            <ListView x:Name="AlbumartistList" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
               <ListView.ItemsSource>
                 <RelationshipQuery
                       NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
@@ -250,17 +262,17 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid.Triggers>
-              <DataTrigger Binding="{Binding ElementName=ComposerList, Path=Items.Count}" Value="0">
-                <Setter Property="Visibility" Value="Hidden"/>
-              </DataTrigger>
-            </Grid.Triggers>
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                <Binding ElementName="ComposerList" Path="ItemsCount" />
+              </MultiBinding>
+            </Grid.IsVisible>
 
             <Grid Margin="200,15,0,-2">
               <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Composers" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.Composers]"/>
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.Composer]"/>
             </Grid>
 
             <ListView x:Name="ComposerList" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"

@@ -36,6 +36,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     >
   <Screen.Resources>
     <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+    <Model x:Key="ViewModeModel" Id="6997CD35-63F0-4F96-8997-E18C9382E2DC"/>
   </Screen.Resources>
   <Screen.Triggers>
     <EventTrigger RoutedEvent="Screen.Show">
@@ -71,9 +72,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Control x:Name="BottomGradient" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Margin="-1"
              Template="{DynamicResource ResourceKey=BottomGradient_Template}">
       <Control.IsVisible>
-        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1}) || ({0} == {LayoutType}.{ListLayout})">
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == &quot;False&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} == &quot;False&quot;)">
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableGridDetails"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
         </MultiBinding>
       </Control.IsVisible>
     </Control>
@@ -197,7 +199,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   AutoVisibility="True" PlayerContext="SecondaryPlayer" HorizontalAlignment="Right" VerticalAlignment="Stretch"/>
     </Grid>
 
-    <!-- Gridview w/o details-->
+    <!-- Gridview or Listview w/o details-->
     <Control x:Name="BottomDetails" Grid.Row="2" VerticalAlignment="Bottom" HorizontalAlignment="Left" Margin="50,0,0,0" Width="950"
              Template="{DynamicResource ResourceKey=BottomDetails_Template}"/>
 
