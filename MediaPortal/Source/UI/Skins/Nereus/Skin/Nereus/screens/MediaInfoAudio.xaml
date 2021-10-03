@@ -47,7 +47,7 @@
                                           fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
           </Image.Source>
         </Image>
-        <Image Stretch="Fill" Source="Background_ListView.png"/>
+        <Image Stretch="Fill" Source="Background_ListView.png" Opacity="0.92"/>
       </Grid>
     </ControlTemplate>
 
@@ -196,7 +196,7 @@
               <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Artists" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Artists"/>
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.Artists]"/>
             </Grid>
 
             <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
@@ -225,7 +225,7 @@
               <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Album Artists" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Album Artists"/>
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.AlbumArtists]"/>
             </Grid>
 
             <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
@@ -260,7 +260,7 @@
               <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Composers" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Composers"/>
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.Composers]"/>
             </Grid>
 
             <ListView x:Name="ComposerList" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" Width="900"
