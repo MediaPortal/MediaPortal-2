@@ -33,7 +33,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
   {
     protected int _httpServerPort = 0;
     protected bool _useIPv4 = true;
-    protected bool _useIPv6 = true;
+    protected bool _useIPv6 = false;
     protected bool _limitIPEndpoints = false;
     protected string _ipAddressBindings = null;
     protected bool _webAutorizationEnabled = true;
@@ -52,7 +52,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.Settings
       set { _useIPv4 = value; }
     }
 
-    [Setting(SettingScope.Global)]
+    [Setting(SettingScope.Global, false)]
     public bool UseIPv6
     {
       get { return _useIPv6; }

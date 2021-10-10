@@ -79,6 +79,8 @@
     <Compile Include="FrontendServer\IFrontendServer.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
+    <Compile Include="Presentation\DataObjects\KeyValueItem.cs" />
+    <Compile Include="Presentation\DataObjects\ObservableDictionary.cs" />
     <Compile Include="Presentation\Models\BaseContentListModel.cs" />
     <Compile Include="Presentation\Models\IContentListModel.cs" />
     <Compile Include="Presentation\Players\IResumablePlayer.cs" />

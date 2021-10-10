@@ -81,4 +81,13 @@
   <string name="Nereus.Dialog.EditMediaList.Header">Edit home content</string>
   <string name="Nereus.Dialog.AddMediaListItem.Header">Add home content</string>
 
+  <string name="Nereus.Info.Director">Director</string>
+  <string name="Nereus.Info.Subtitles">Subtitles</string>
+  <string name="Nereus.Info.Actors">Actors</string>
+  <string name="Nereus.Info.Collection">Collection</string>
+  <string name="Nereus.Info.Audio">Audio Tracks</string>
+  <string name="Nereus.Info.Artists">Artists</string>
+  <string name="Nereus.Info.AlbumArtists">Album Artists</string>
+  <string name="Nereus.Info.Composer">Composer</string>
+
 </resources>

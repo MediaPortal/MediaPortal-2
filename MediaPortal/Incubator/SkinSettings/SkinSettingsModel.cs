@@ -30,14 +30,23 @@ using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
 using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.UI.SkinEngine.Xaml;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace SkinSettings
 {
+  /// <summary>
+  /// Container containing the necessary parameters for calling SetSetting from a skin file.
+  /// </summary>
+  public class SetSettingParameter
+  {
+    public string Skin { get; set; }
+    public string Property { get; set; }
+    public string Value { get; set; }
+  }
+
   public class SkinSettingsModel : IObservable
   {
     #region SettingsLoader
@@ -124,6 +133,50 @@ namespace SkinSettings
       if (names == null || !names.TryGetValue(name, out settings))
         return null;
       return settings.Value;
+    }
+
+    public void SetSetting(SetSettingParameter parameter)
+    {
+      if (parameter == null)
+        ServiceRegistration.Get<ILogger>().Error("SkinSettingsModel: Unable to set skin setting, parameters was null");
+      if (string.IsNullOrEmpty(parameter.Skin))
+        ServiceRegistration.Get<ILogger>().Error("SkinSettingsModel: Unable to set skin setting, specified skin was null or empty");
+      if (string.IsNullOrEmpty(parameter.Property))
+        ServiceRegistration.Get<ILogger>().Error("SkinSettingsModel: Unable to set skin setting, specified property was null or empty");
+
+      var names = _registeredNames;
+      SettingsLoader settingsLoader;
+      if (names == null || !names.TryGetValue(parameter.Skin, out settingsLoader))
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinSettingsModel: Unable to set skin setting, settings for skin '{0}' were not found", parameter.Skin);
+        return;
+      }
+      var settings = settingsLoader.Value;
+      PropertyInfo property;
+      try
+      {
+        property = settings.GetType().GetProperty(parameter.Property);
+        if (property == null)
+        {
+          ServiceRegistration.Get<ILogger>().Error("SkinSettingsModel: Unable to set skin setting, property with name '{0}' was not found on settings type {1}", parameter.Property, settings.GetType().Name);
+          return;
+        }
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinSettingsModel: Unable to set skin setting, exception getting property with name '{0}' on settings type {1}", ex, parameter.Property, settings.GetType().Name);
+        return;
+      }
+
+      object convertedValue;
+      if (!TypeConverter.Convert(parameter.Value, property.PropertyType, out convertedValue))
+      {
+        ServiceRegistration.Get<ILogger>().Error("SkinSettingsModel: Unable to set skin setting, could not convert {0} to type {1}", parameter.Value, property.PropertyType.Name);
+        return;
+      }
+
+      property.SetValue(settings, convertedValue);
+      ServiceRegistration.Get<ISettingsManager>().Save(settings);
     }
 
     protected void Update(Type settingsType)
