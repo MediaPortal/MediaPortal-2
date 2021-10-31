@@ -85,8 +85,9 @@
           </ListView.Resources>
         </ListView>
 
-        <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
-        <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
+        <KeyBinding Key="Record" Command="{Command Path=RecordMenu}"/>
+        <KeyBinding Key="Info" Command="{Command Path=RecordMenu}"/>
+        <KeyBinding Key="Blue" Command="{Command Path=TogglePiP}"/>
 
         <Grid x:Name="PiP" Margin="20,5,60,5" IsVisible="{Binding PiPAvailable}" Grid.Column="3"
               HorizontalAlignment="Right" VerticalAlignment="Center">
@@ -146,7 +147,7 @@
                  Content="{Binding Path=SelectedCurrentProgram.Description}"
                  Color="{ThemeResource TextColor}" Margin="0,0,20,5" />
         </Grid>
-
+        
       </Grid>  
     </ControlTemplate>             
   </Include.Resources>
