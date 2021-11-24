@@ -91,6 +91,30 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     public bool EnableLoopScrolling { get; set; }
 
     [Setting(SettingScope.User, true)]
+    public bool UseTorquoise { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseYellow { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseOrange { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseRed { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UsePurple { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseGreen { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseBlue { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseGrey { get; set; }
+
+    [Setting(SettingScope.User, true)]
     public bool EnableHelpTexts { get; set; }
 
     [Setting(SettingScope.User, null)]
