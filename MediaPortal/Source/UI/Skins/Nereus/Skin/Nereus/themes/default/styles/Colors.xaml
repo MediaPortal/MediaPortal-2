@@ -4,17 +4,152 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     >
 
+  <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+  <ExpressionMultiValueConverter x:Key="ExpressionMultiValueConverter"/>
+  
   <!-- ************************** Nereus colors start ****************************** -->
 
-  <ResourceWrapper x:Key="NereusColorLight" Resource="#FF009999"/>
-  <ResourceWrapper x:Key="NereusColorMedium" Resource="#FF175f5d"/>
-  <ResourceWrapper x:Key="NereusColorDark" Resource="#FF244043"/>
+  <ResourceWrapper x:Key="NereusColorLight_Torquoise" Resource="#FF009999"/>
+  <ResourceWrapper x:Key="NereusColorLight_Yellow" Resource="#FFF2B800"/>
+  <ResourceWrapper x:Key="NereusColorLight_Orange" Resource="#FFED7D31"/>
+  <ResourceWrapper x:Key="NereusColorLight_Red" Resource="#FFCC5350"/>
+  <ResourceWrapper x:Key="NereusColorLight_Purple" Resource="#FF8758CC"/>
+  <ResourceWrapper x:Key="NereusColorLight_Green" Resource="#FF70AD47"/>
+  <ResourceWrapper x:Key="NereusColorLight_Blue" Resource="#FF4472C4"/>
+  <ResourceWrapper x:Key="NereusColorLight_Grey" Resource="#FF9D9D9D"/>
+
+  <ResourceWrapper x:Key="NereusColorMedium_Torquoise" Resource="#FF175f5d"/>
+  <ResourceWrapper x:Key="NereusColorMedium_Yellow" Resource="#FFBF9000"/>
+  <ResourceWrapper x:Key="NereusColorMedium_Orange" Resource="#FFC55A11"/>
+  <ResourceWrapper x:Key="NereusColorMedium_Red" Resource="#FFA03830"/>
+  <ResourceWrapper x:Key="NereusColorMedium_Purple" Resource="#FF602FA1"/>
+  <ResourceWrapper x:Key="NereusColorMedium_Green" Resource="#FF548235"/>
+  <ResourceWrapper x:Key="NereusColorMedium_Blue" Resource="#FF2F5597"/>
+  <ResourceWrapper x:Key="NereusColorMedium_Grey" Resource="#FF717171"/>
+
+  <ResourceWrapper x:Key="NereusColorDark_Torquoise" Resource="#FF244043"/>
+  <ResourceWrapper x:Key="NereusColorDark_Yellow" Resource="#FFF2B800"/>
+  <ResourceWrapper x:Key="NereusColorDark_Orange" Resource="#FF843C0C"/>
+  <ResourceWrapper x:Key="NereusColorDark_Red" Resource="#FF740000"/>
+  <ResourceWrapper x:Key="NereusColorDark_Purple" Resource="#FF3B1E66"/>
+  <ResourceWrapper x:Key="NereusColorDark_Green" Resource="#FF385723"/>
+  <ResourceWrapper x:Key="NereusColorDark_Blue" Resource="#FF203864"/>
+  <ResourceWrapper x:Key="NereusColorDark_Grey" Resource="#FF474747"/>
+
+  <ResourceWrapper x:Key="NereusColorLight" EnableBindings="True">
+    <ResourceWrapper.Resource>
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {8} : ({1} ? {9} : ({2} ? {10} : ({3} ? {11} : ({4} ? {12} : ({5} ? {13} : ({6} ? {14} : {15} ))))))">
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseTorquoise" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseYellow" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseOrange" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRed" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UsePurple" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseGreen" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseBlue" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseGrey" />
+        <Binding Source="{ThemeResource NereusColorLight_Torquoise}"/>
+        <Binding Source="{ThemeResource NereusColorLight_Yellow}"/>
+        <Binding Source="{ThemeResource NereusColorLight_Orange}"/>
+        <Binding Source="{ThemeResource NereusColorLight_Red}"/>
+        <Binding Source="{ThemeResource NereusColorLight_Purple}"/>
+        <Binding Source="{ThemeResource NereusColorLight_Green}"/>
+        <Binding Source="{ThemeResource NereusColorLight_Blue}"/>
+        <Binding Source="{ThemeResource NereusColorLight_Grey}"/>
+      </MultiBinding>
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="NereusColorMedium" EnableBindings="True">
+    <ResourceWrapper.Resource>
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {8} : ({1} ? {9} : ({2} ? {10} : ({3} ? {11} : ({4} ? {12} : ({5} ? {13} : ({6} ? {14} : {15} ))))))">
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseTorquoise" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseYellow" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseOrange" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRed" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UsePurple" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseGreen" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseBlue" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseGrey" />
+        <Binding Source="{ThemeResource NereusColorMedium_Torquoise}"/>
+        <Binding Source="{ThemeResource NereusColorMedium_Yellow}"/>
+        <Binding Source="{ThemeResource NereusColorMedium_Orange}"/>
+        <Binding Source="{ThemeResource NereusColorMedium_Red}"/>
+        <Binding Source="{ThemeResource NereusColorMedium_Purple}"/>
+        <Binding Source="{ThemeResource NereusColorMedium_Green}"/>
+        <Binding Source="{ThemeResource NereusColorMedium_Blue}"/>
+        <Binding Source="{ThemeResource NereusColorMedium_Grey}"/>
+      </MultiBinding>
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="NereusColorDark" EnableBindings="True">
+    <ResourceWrapper.Resource>
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {8} : ({1} ? {9} : ({2} ? {10} : ({3} ? {11} : ({4} ? {12} : ({5} ? {13} : ({6} ? {14} : {15} ))))))">
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseTorquoise" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseYellow" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseOrange" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRed" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UsePurple" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseGreen" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseBlue" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseGrey" />
+        <Binding Source="{ThemeResource NereusColorDark_Torquoise}"/>
+        <Binding Source="{ThemeResource NereusColorDark_Yellow}"/>
+        <Binding Source="{ThemeResource NereusColorDark_Orange}"/>
+        <Binding Source="{ThemeResource NereusColorDark_Red}"/>
+        <Binding Source="{ThemeResource NereusColorDark_Purple}"/>
+        <Binding Source="{ThemeResource NereusColorDark_Green}"/>
+        <Binding Source="{ThemeResource NereusColorDark_Blue}"/>
+        <Binding Source="{ThemeResource NereusColorDark_Grey}"/>
+      </MultiBinding>
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="TextColorForeground" EnableBindings="True">
+    <ResourceWrapper.Resource>
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {8} : ({1} ? {9} : ({2} ? {10} : ({3} ? {11} : ({4} ? {12} : ({5} ? {13} : ({6} ? {14} : {15} ))))))">
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseTorquoise" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseYellow" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseOrange" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRed" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UsePurple" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseGreen" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseBlue" />
+        <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseGrey" />
+        <Binding Source="#00CCCC"/>
+        <Binding Source="#FFD44B"/>
+        <Binding Source="#F09456"/>
+        <Binding Source="#E67474"/>
+        <Binding Source="#A683D9"/>
+        <Binding Source="#8EC26A"/>
+        <Binding Source="#7093D2"/>
+        <Binding Source="#B4B4B4"/>
+      </MultiBinding>
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
 
   <ResourceWrapper x:Key="NereusGreyMedium" Resource="#FF666666"/>
   <ResourceWrapper x:Key="NereusGreyDark" Resource="#FF444444"/>
 
-  <ResourceWrapper x:Key="MainColorForeground" Resource="#009999"/>
-  <ResourceWrapper x:Key="TextColorForeground" Resource="#00CCCC"/>
+  <ResourceWrapper x:Key="NereusOverlayFocus">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#00000000" Offset="0"/>
+        <GradientStop Color="#4D000000" Offset="1"/>
+      </LinearGradientBrush>
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="NereusOverlayNoFocus">
+    <ResourceWrapper.Resource>
+      <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+        <GradientStop Color="#99000000" Offset="0"/>
+        <GradientStop Color="#B3000000" Offset="1"/>
+      </LinearGradientBrush>
+    </ResourceWrapper.Resource>
+  </ResourceWrapper>
+
+  <ResourceWrapper x:Key="MainColorForeground" Resource="{ThemeResource NereusColorLight}"/>
   <ResourceWrapper x:Key="DialogHeaderColor" Resource="White"/>
   <ResourceWrapper x:Key="TextColor" Resource="White"/>
   <ResourceWrapper x:Key="HintTextColor" Resource="{ThemeResource DialogHeaderColor}"/>
@@ -23,7 +158,7 @@
   <ResourceWrapper x:Key="TileFocusedBorderBrush" Resource="#FFFFFFFF"/>
 
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
-  <ResourceWrapper x:Key="StarRatingBackgroundColor" Resource="#009999"/>
+  <ResourceWrapper x:Key="StarRatingBackgroundColor" Resource="{ThemeResource NereusColorLight}"/>
 
   <ResourceWrapper x:Key="DialogHeaderBackgroundColor" Resource="#FF244043"/>
   <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#80000000"/>

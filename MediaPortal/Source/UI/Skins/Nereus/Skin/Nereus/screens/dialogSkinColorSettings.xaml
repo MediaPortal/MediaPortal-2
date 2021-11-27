@@ -8,7 +8,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.Nereus.Configuration.SelectSkinColor]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.SelectSkinColor]"/>
 
     <!-- AutoScrollConfigurationModel -->
     <Model x:Key="SkinColorConfigurationModel"

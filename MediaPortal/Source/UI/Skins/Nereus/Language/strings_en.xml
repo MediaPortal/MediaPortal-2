@@ -90,4 +90,7 @@
   <string name="Nereus.Info.AlbumArtists">Album Artists</string>
   <string name="Nereus.Info.Composer">Composer</string>
 
+  <string name="Nereus.Configuration.SelectSkinColor">Select the skin color scheme</string>
+  <string name="Nereus.Configuration.SelectSkinColor.Help">Configure the skin color scheme by selecting a pattern</string>
+  
 </resources>
