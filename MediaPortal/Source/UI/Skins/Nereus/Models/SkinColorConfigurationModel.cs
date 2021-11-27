@@ -154,10 +154,6 @@ namespace MediaPortal.UiComponents.Nereus.Models
       UseGreen = settings.UseGreen;
       UseBlue = settings.UseBlue;
       UseGrey = settings.UseGrey;
-      //UseAutoScroll = settings.EnableAutoScrolling;
-      //UseManualScroll = !settings.EnableAutoScrolling;
-      //ScrollSpeed = Convert.ToInt32(settings.AutoScrollSpeed).ToString();
-      //ScrollDelay = Convert.ToInt32(settings.AutoScrollDelay).ToString();
     }
 
     #endregion
@@ -180,16 +176,6 @@ namespace MediaPortal.UiComponents.Nereus.Models
       settings.UseGreen = UseGreen;
       settings.UseBlue = UseBlue;
       settings.UseGrey = UseGrey;
-
-      //if (int.TryParse(ScrollSpeed, out var speed) && speed > 0)
-      //  settings.AutoScrollSpeed = speed;
-      //else
-      //  settings.AutoScrollSpeed = DEFAULT_SCROLL_SPEED;
-
-      //if (int.TryParse(ScrollDelay, out var delay) && delay > 0)
-      //   settings.AutoScrollDelay = delay;
-      //else
-      //  settings.AutoScrollDelay = DEFAULT_SCROLL_DELAY;
 
       settingsManager.Save(settings);
     }
