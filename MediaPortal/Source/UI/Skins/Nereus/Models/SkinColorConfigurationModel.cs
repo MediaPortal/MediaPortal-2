@@ -173,13 +173,13 @@ namespace MediaPortal.UiComponents.Nereus.Models
       NereusSkinSettings settings = settingsManager.Load<NereusSkinSettings>();
 
       settings.UseTorquoise = UseTorquoise;
-      settings.UseTorquoise = UseYellow;
-      settings.UseTorquoise = UseOrange;
-      settings.UseTorquoise = UseRed;
-      settings.UseTorquoise = UsePurple;
-      settings.UseTorquoise = UseGreen;
-      settings.UseTorquoise = UseBlue;
-      settings.UseTorquoise = UseGrey;
+      settings.UseYellow = UseYellow;
+      settings.UseOrange = UseOrange;
+      settings.UseRed = UseRed;
+      settings.UsePurple = UsePurple;
+      settings.UseGreen = UseGreen;
+      settings.UseBlue = UseBlue;
+      settings.UseGrey = UseGrey;
 
       //if (int.TryParse(ScrollSpeed, out var speed) && speed > 0)
       //  settings.AutoScrollSpeed = speed;

@@ -93,25 +93,25 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, true)]
     public bool UseTorquoise { get; set; }
 
-    [Setting(SettingScope.User, true)]
+    [Setting(SettingScope.User, false)]
     public bool UseYellow { get; set; }
 
-    [Setting(SettingScope.User, true)]
+    [Setting(SettingScope.User, false)]
     public bool UseOrange { get; set; }
 
-    [Setting(SettingScope.User, true)]
+    [Setting(SettingScope.User, false)]
     public bool UseRed { get; set; }
 
-    [Setting(SettingScope.User, true)]
+    [Setting(SettingScope.User, false)]
     public bool UsePurple { get; set; }
 
-    [Setting(SettingScope.User, true)]
+    [Setting(SettingScope.User, false)]
     public bool UseGreen { get; set; }
 
-    [Setting(SettingScope.User, true)]
+    [Setting(SettingScope.User, false)]
     public bool UseBlue { get; set; }
 
-    [Setting(SettingScope.User, true)]
+    [Setting(SettingScope.User, false)]
     public bool UseGrey { get; set; }
 
     [Setting(SettingScope.User, true)]
