@@ -160,7 +160,7 @@
   <ResourceWrapper x:Key="StarRatingSelectedColor" Resource="#FFFFFFFF"/>
   <ResourceWrapper x:Key="StarRatingBackgroundColor" Resource="{ThemeResource NereusColorLight}"/>
 
-  <ResourceWrapper x:Key="DialogHeaderBackgroundColor" Resource="#FF244043"/>
+  <ResourceWrapper x:Key="DialogHeaderBackgroundColor" Resource="{ThemeResource NereusColorDark}"/>
   <ResourceWrapper x:Key="DialogScreenBackgroundColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="DialogBorderBackgroundColor" Resource="#99FFFFFF"/>
   <ResourceWrapper x:Key="DialogBackgroundColor" Resource="#FF000000"/>

@@ -31,6 +31,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Nereus.Settings;
+using MediaPortal.UI.Presentation.Screens;
 
 namespace MediaPortal.UiComponents.Nereus.Models
 {
@@ -160,6 +161,9 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     #region Public methods (can be used by the GUI)
 
+    protected string _skinName = null;
+    protected string _themeName = null;
+
     /// <summary>
     /// Saves the current state to the settings file.
     /// </summary>
@@ -178,6 +182,9 @@ namespace MediaPortal.UiComponents.Nereus.Models
       settings.UseGrey = UseGrey;
 
       settingsManager.Save(settings);
+
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.SwitchSkinAndTheme(_skinName, _themeName);
     }
 
     #endregion

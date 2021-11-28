@@ -72,9 +72,44 @@
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                   IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
-              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" >
+              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseTorquoise}">
                 <Image.Source>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}.png"/>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_torquoise.png"/>
+                </Image.Source>
+              </Image>
+              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseYellow}">
+                <Image.Source>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_yellow.png"/>
+                </Image.Source>
+              </Image>
+              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseOrange}">
+                <Image.Source>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_orange.png"/>
+                </Image.Source>
+              </Image>
+              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseRed}">
+                <Image.Source>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_red.png"/>
+                </Image.Source>
+              </Image>
+              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UsePurple}">
+                <Image.Source>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_purple.png"/>
+                </Image.Source>
+              </Image>
+              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseGreen}">
+                <Image.Source>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_green.png"/>
+                </Image.Source>
+              </Image>
+              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseBlue}">
+                <Image.Source>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_blue.png"/>
+                </Image.Source>
+              </Image>
+              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseGrey}">
+                <Image.Source>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_grey.png"/>
                 </Image.Source>
               </Image>
               <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Color="White" FontFamily="SegoeUIBold"
