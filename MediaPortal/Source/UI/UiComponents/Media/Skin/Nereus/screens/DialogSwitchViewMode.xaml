@@ -983,9 +983,25 @@
           </Image>
 
           <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,54,0" Template="{StaticResource WatchedFlag_Template}"
-                   IsVisible="{Binding ElementName=GridWatchedFlags, Path=IsChecked}"/>
+                   IsVisible="{Binding ElementName=GridWatchedFlags, Path=IsChecked}">
+            <Control.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="GridWatchedFlags" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Control.Opacity>
+          </Control>
           <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,110,0" Template="{StaticResource WatchedFlag_Template}"
-                   IsVisible="{Binding ElementName=GridWatchedFlags, Path=IsChecked}"/>
+                   IsVisible="{Binding ElementName=GridWatchedFlags, Path=IsChecked}">
+            <Control.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="GridWatchedFlags" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Control.Opacity>
+          </Control>
 
         </Grid>
 
@@ -1020,9 +1036,25 @@
           </Image>
 
           <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,51,0" Template="{StaticResource WatchedFlag_Template}"
-                   IsVisible="{Binding ElementName=CoverflowWatchedFlags, Path=IsChecked}"/>
+                   IsVisible="{Binding ElementName=CoverflowWatchedFlags, Path=IsChecked}">
+            <Control.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="CoverflowWatchedFlags" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Control.Opacity>
+          </Control>
           <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,108,0" Template="{StaticResource WatchedFlag_Template}"
-                   IsVisible="{Binding ElementName=CoverflowWatchedFlags, Path=IsChecked}"/>
+                   IsVisible="{Binding ElementName=CoverflowWatchedFlags, Path=IsChecked}">
+            <Control.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding ElementName="CoverflowWatchedFlags" Path="HasFocus"/>
+                <Binding Source="1.0"/>
+                <Binding Source="0.5"/>
+              </MultiBinding>
+            </Control.Opacity>
+          </Control>
 
         </Grid>
 
