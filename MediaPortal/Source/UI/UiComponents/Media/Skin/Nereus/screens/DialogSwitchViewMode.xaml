@@ -14,8 +14,32 @@
     <Model x:Key="ViewModeModel" Id="6997CD35-63F0-4F96-8997-E18C9382E2DC"/>
     <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
 
+    <ControlTemplate x:Key="WatchedFlag_Template">
+      <Grid HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Polygon Height="38" Width="38" Points="0,0 38,0 38,38" StrokeThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3,2,3,3">
+          <Polygon.Fill>
+            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+              <GradientStop Color="#00000000" Offset="0.5"/>
+              <GradientStop Color="#FF000000" Offset="0.6" />
+            </LinearGradientBrush>
+          </Polygon.Fill>
+        </Polygon>
+        <Polygon Height="32" Width="32" Points="0,0 32,0 32,32" StrokeThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3,2,3,3">
+          <Polygon.Fill>
+            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+              <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="0" />
+              <GradientStop Color="{ThemeResource NereusColorDark}" Offset="1" />
+            </LinearGradientBrush>
+          </Polygon.Fill>
+        </Polygon>
+        <Image x:Name="WatchedLabel" Height="9" Margin="0,5,5,2" Stretch="Uniform"
+                   Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+      </Grid>
+    </ControlTemplate>
+    
     <!--ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
         Resource="{Binding Source={StaticResource ViewModeModel},Path=ViewModeItemsList,Mode=OneTime}"/-->
+    
     <ControlTemplate x:Key="Contents_Template">
       <Grid>
         <Grid.RowDefinitions>
@@ -99,6 +123,7 @@
                 </MultiBinding>
               </RadioButton.IsChecked>
             </RadioButton>
+            
             <Label Grid.Column="1" Content="[Media.ListSmall]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
@@ -110,15 +135,16 @@
                 </MultiBinding>
               </Label.Opacity>
             </Label>
-            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
-              <Image.Source>
+
+            <UniformGrid Grid.Row="1" Grid.Column="1" Rows="10" Height="100">
+              <UniformGrid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="ListSmall" Path="IsChecked"/>
-                  <Binding Source="ViewMode\List.small.focus.png"/>
-                  <Binding Source="ViewMode\List.small.nofocus.png"/>
+                  <Binding ElementName="ListExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding Source="210"/>
+                  <Binding Source="105"/>
                 </MultiBinding>
-              </Image.Source>
-              <Image.Opacity>
+              </UniformGrid.Width>
+              <UniformGrid.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="ListSmall" Path="HasFocus"/>
                   <Binding ElementName="ListSmall" Path="!IsEnabled"/>
@@ -126,8 +152,26 @@
                   <Binding Source="0.5"/>
                   <Binding Source="0.25"/>
                 </MultiBinding>
-              </Image.Opacity>
-            </Image>
+              </UniformGrid.Opacity>
+              <Border x:Name="BaseSmall" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Border.Background>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding ElementName="ListSmall" Path="IsChecked"/>
+                    <Binding Source="{ThemeResource NereusColorLight}"/>
+                    <Binding Source="#FFFFFFFF"/>
+                  </MultiBinding>
+                </Border.Background>
+              </Border>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseSmall, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseSmall, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseSmall, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseSmall, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseSmall, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseSmall, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseSmall, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseSmall, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseSmall, Path=Background}"/>
+            </UniformGrid>
           </Grid>
 
           <Grid Grid.Row="2" Grid.Column="0" Margin="10,10,0,0">
@@ -159,15 +203,29 @@
                 </MultiBinding>
               </Label.Opacity>
             </Label>
-            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
-              <Image.Source>
+
+            <Grid Grid.Row="1" Grid.Column="1" Height="100">
+              <Grid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="ListMedium" Path="IsChecked"/>
-                  <Binding Source="ViewMode\List.medium.focus.png"/>
-                  <Binding Source="ViewMode\List.medium.nofocus.png"/>
+                  <Binding ElementName="ListExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding Source="210"/>
+                  <Binding Source="105"/>
                 </MultiBinding>
-              </Image.Source>
-              <Image.Opacity>
+              </Grid.Width>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="11"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="ListMedium" Path="HasFocus"/>
                   <Binding ElementName="ListMedium" Path="!IsEnabled"/>
@@ -175,8 +233,31 @@
                   <Binding Source="0.5"/>
                   <Binding Source="0.25"/>
                 </MultiBinding>
-              </Image.Opacity>
-            </Image>
+              </Grid.Opacity>
+              <Border x:Name="BaseMedium" Grid.Row="0" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Border.Background>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding ElementName="ListMedium" Path="IsChecked"/>
+                    <Binding Source="{ThemeResource NereusColorLight}"/>
+                    <Binding Source="#FFFFFFFF"/>
+                  </MultiBinding>
+                </Border.Background>
+              </Border>
+              <Border Grid.Row="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="2" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="3" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="4" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="5" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="6" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="0" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="1" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="2" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="3" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="4" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="5" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+              <Border Grid.Row="6" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseMedium, Path=Background}"/>
+            </Grid>
+
           </Grid>
 
           <Grid Grid.Row="3" Grid.Column="0" Margin="10,10,0,0">
@@ -208,15 +289,26 @@
                 </MultiBinding>
               </Label.Opacity>
             </Label>
-            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
-              <Image.Source>
+            <Grid Grid.Row="1" Grid.Column="1" Height="100">
+              <Grid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="ListLarge" Path="IsChecked"/>
-                  <Binding Source="ViewMode\List.large.focus.png"/>
-                  <Binding Source="ViewMode\List.large.nofocus.png"/>
+                  <Binding ElementName="ListExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding Source="210"/>
+                  <Binding Source="105"/>
                 </MultiBinding>
-              </Image.Source>
-              <Image.Opacity>
+              </Grid.Width>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="15"/>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="ListLarge" Path="HasFocus"/>
                   <Binding ElementName="ListLarge" Path="!IsEnabled"/>
@@ -224,8 +316,26 @@
                   <Binding Source="0.5"/>
                   <Binding Source="0.25"/>
                 </MultiBinding>
-              </Image.Opacity>
-            </Image>
+              </Grid.Opacity>
+              <Border x:Name="BaseLarge" Grid.Row="0" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Border.Background>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding ElementName="ListLarge" Path="IsChecked"/>
+                    <Binding Source="{ThemeResource NereusColorLight}"/>
+                    <Binding Source="#FFFFFFFF"/>
+                  </MultiBinding>
+                </Border.Background>
+              </Border>
+              <Border Grid.Row="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseLarge, Path=Background}"/>
+              <Border Grid.Row="2" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseLarge, Path=Background}"/>
+              <Border Grid.Row="3" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseLarge, Path=Background}"/>
+              <Border Grid.Row="4" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseLarge, Path=Background}"/>
+              <Border Grid.Row="0" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseLarge, Path=Background}"/>
+              <Border Grid.Row="1" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseLarge, Path=Background}"/>
+              <Border Grid.Row="2" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseLarge, Path=Background}"/>
+              <Border Grid.Row="3" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseLarge, Path=Background}"/>
+              <Border Grid.Row="4" Grid.Column="1" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseLarge, Path=Background}"/>
+            </Grid>
           </Grid>
 
         </Grid>
@@ -314,15 +424,22 @@
                 </MultiBinding>
               </Label.Opacity>
             </Label>
-            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
-              <Image.Source>
+            <UniformGrid Grid.Row="1" Grid.Column="1" Rows="2" Height="100" HorizontalAlignment="Left">
+              <UniformGrid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="Poster" Path="IsChecked"/>
-                  <Binding Source="ViewMode\Grid.Poster.focus.png"/>
-                  <Binding Source="ViewMode\Grid.Poster.nofocus.png"/>
+                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding Source="210"/>
+                  <Binding Source="105"/>
                 </MultiBinding>
-              </Image.Source>
-              <Image.Opacity>
+              </UniformGrid.Width>
+              <UniformGrid.Columns>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding Source="6"/>
+                  <Binding Source="3"/>
+                </MultiBinding>
+              </UniformGrid.Columns>
+              <UniformGrid.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="Poster" Path="HasFocus"/>
                   <Binding ElementName="Poster" Path="!IsEnabled"/>
@@ -330,8 +447,28 @@
                   <Binding Source="0.5"/>
                   <Binding Source="0.25"/>
                 </MultiBinding>
-              </Image.Opacity>
-            </Image>
+              </UniformGrid.Opacity>
+              <Border x:Name="BasePoster" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Border.Background>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding ElementName="Poster" Path="IsChecked"/>
+                    <Binding Source="{ThemeResource NereusColorLight}"/>
+                    <Binding Source="#FFFFFFFF"/>
+                  </MultiBinding>
+                </Border.Background>
+              </Border>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BasePoster, Path=Background}"/>
+            </UniformGrid>
           </Grid>
 
           <Grid Grid.Row="2" Grid.Column="0" Margin="10,10,0,0">
@@ -370,15 +507,22 @@
                 </MultiBinding>
               </Label.Opacity>
             </Label>
-            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
-              <Image.Source>
+            <UniformGrid Grid.Row="1" Grid.Column="1" Rows="3" Columns="2"  Height="100" HorizontalAlignment="Left">
+              <UniformGrid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="Thumbnail" Path="IsChecked"/>
-                  <Binding Source="ViewMode\Grid.Thumbnail.focus.png"/>
-                  <Binding Source="ViewMode\Grid.Thumbnail.nofocus.png"/>
+                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding Source="210"/>
+                  <Binding Source="105"/>
                 </MultiBinding>
-              </Image.Source>
-              <Image.Opacity>
+              </UniformGrid.Width>
+              <UniformGrid.Columns>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding Source="4"/>
+                  <Binding Source="2"/>
+                </MultiBinding>
+              </UniformGrid.Columns>
+              <UniformGrid.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="Thumbnail" Path="HasFocus"/>
                   <Binding ElementName="Thumbnail" Path="!IsEnabled"/>
@@ -386,8 +530,28 @@
                   <Binding Source="0.5"/>
                   <Binding Source="0.25"/>
                 </MultiBinding>
-              </Image.Opacity>
-            </Image>
+              </UniformGrid.Opacity>
+              <Border x:Name="BaseThumbnail" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Border.Background>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding ElementName="Thumbnail" Path="IsChecked"/>
+                    <Binding Source="{ThemeResource NereusColorLight}"/>
+                    <Binding Source="#FFFFFFFF"/>
+                  </MultiBinding>
+                </Border.Background>
+              </Border>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseThumbnail, Path=Background}"/>
+            </UniformGrid>
           </Grid>
 
           <Grid Grid.Row="3" Grid.Column="0" Margin="10,10,0,0">
@@ -427,15 +591,15 @@
                 </MultiBinding>
               </Label.Opacity>
             </Label>
-            <Image Grid.Row="1" Grid.Column="1" Height="100" Width="100" Stretch="Fill" HorizontalAlignment="Left">
-              <Image.Source>
+            <UniformGrid Grid.Row="1" Grid.Column="1" Rows="4" Height="100" HorizontalAlignment="Left">
+              <UniformGrid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="Banner" Path="IsChecked"/>
-                  <Binding Source="ViewMode\Grid.Banner.focus.png"/>
-                  <Binding Source="ViewMode\Grid.Banner.nofocus.png"/>
+                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding Source="210"/>
+                  <Binding Source="105"/>
                 </MultiBinding>
-              </Image.Source>
-              <Image.Opacity>
+              </UniformGrid.Width>
+              <UniformGrid.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                   <Binding ElementName="Banner" Path="HasFocus"/>
                   <Binding ElementName="Banner" Path="!IsEnabled"/>
@@ -443,8 +607,20 @@
                   <Binding Source="0.5"/>
                   <Binding Source="0.25"/>
                 </MultiBinding>
-              </Image.Opacity>
-            </Image>
+              </UniformGrid.Opacity>
+              <Border x:Name="BaseBanner" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Border.Background>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding ElementName="Banner" Path="IsChecked"/>
+                    <Binding Source="{ThemeResource NereusColorLight}"/>
+                    <Binding Source="#FFFFFFFF"/>
+                  </MultiBinding>
+                </Border.Background>
+              </Border>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseBanner, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseBanner, Path=Background}"/>
+              <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseBanner, Path=Background}"/>
+            </UniformGrid>
           </Grid>
 
         </Grid>
@@ -485,24 +661,30 @@
               </MultiBinding>
             </Label.Opacity>
           </Label>
-          <Image Grid.Row="1" Grid.Column="1" Height="70" Width="210" Stretch="Fill" HorizontalAlignment="Left">
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding ElementName="Coverflow" Path="IsChecked"/>
-                <Binding Source="ViewMode\Coverflow.focus.png"/>
-                <Binding Source="ViewMode\Coverflow.nofocus.png"/>
-              </MultiBinding>
-            </Image.Source>
-            <Image.Opacity>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+          <UniformGrid Grid.Row="1" Grid.Column="1" Columns="5" Height="70" Width="210" HorizontalAlignment="Left" Margin="0,60,0,0">
+            <UniformGrid.Opacity>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
                 <Binding ElementName="Coverflow" Path="HasFocus"/>
                 <Binding ElementName="Coverflow" Path="IsChecked"/>
                 <Binding Source="1.0"/>
                 <Binding Source="0.5"/>
                 <Binding Source="0.25"/>
               </MultiBinding>
-            </Image.Opacity>
-          </Image>
+            </UniformGrid.Opacity>
+            <Border x:Name="BaseCoverflow" Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Border.Background>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding ElementName="Coverflow" Path="IsChecked"/>
+                  <Binding Source="{ThemeResource NereusColorLight}"/>
+                  <Binding Source="#FFFFFFFF"/>
+                </MultiBinding>
+              </Border.Background>
+            </Border>
+            <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseCoverflow, Path=Background}"/>
+            <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseCoverflow, Path=Background}"/>
+            <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseCoverflow, Path=Background}"/>
+            <Border Margin="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{Binding ElementName=BaseCoverflow, Path=Background}"/>
+          </UniformGrid>
         </Grid>
 
         <!--###################### EXTENDED DETAILS #######################-->
@@ -527,26 +709,68 @@
               </MultiBinding>
             </Label.Opacity>
           </Label>
-          <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
-            <Image.Source>
+          <UniformGrid Grid.Row="1" Grid.Column="1" Rows="1" Height="110" Width="210" HorizontalAlignment="Left" Margin="5,0,0,0">
+            <UniformGrid.Columns>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="ListExtendedMediaDetails" Path="IsChecked"/>
-                <Binding Source="ViewMode\Grid.Details.png"/>
-                <Binding Source="ViewMode\Grid.Details.Extended.png"/>
+                <Binding Source="1"/>
+                <Binding Source="2"/>
               </MultiBinding>
-            </Image.Source>
-            <Image.Opacity>
+            </UniformGrid.Columns>
+            <UniformGrid.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="ListExtendedMediaDetails" Path="HasFocus"/>
                 <Binding Source="1.0"/>
                 <Binding Source="0.5"/>
               </MultiBinding>
-            </Image.Opacity>
-          </Image>
+            </UniformGrid.Opacity>
+            <Grid Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFFFFFFF">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid Width="95" Height="13" HorizontalAlignment="Left" VerticalAlignment="Bottom" 
+                    IsVisible="{Binding ElementName=ListExtendedMediaDetails, Path=IsChecked}">
+                <Grid.Background>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding ElementName="ListExtendedMediaDetails" Path="HasFocus"/>
+                    <Binding Source="{ThemeResource NereusColorLight}"/>
+                    <Binding Source="{ThemeResource NereusColorMedium}"/>
+                  </MultiBinding>
+                </Grid.Background>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FFFFFFFF" Margin="10,0,0,0"/>
+                <Border Grid.Column="1" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FFFFFFFF" Margin="5,0,5,0"/>
+                <Border Grid.Column="2" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FFFFFFFF" Margin="0,0,10,0"/>
+              </Grid>
+            </Grid>  
+            <Grid Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{ThemeResource NereusColorLight}">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Border Height="45" Width="32" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#FFFFFFFF" Margin="0,0,5,8"/>
+              <Border Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FFFFFFFF" Margin="6,10,5,0"/>
+              <Border Height="5" Width="40" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FFFFFFFF" Margin="0,20,50,0"/>
+              <Border Height="5" Width="40" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FFFFFFFF" Margin="0,30,50,0"/>
+              <Border Height="5" Width="40" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FFFFFFFF" Margin="0,40,50,0"/>
+            </Grid>
+          </UniformGrid>
         </Grid>
 
         <!-- GRID MEDIA DETAILS -->
-        <Grid Grid.Column="2" Grid.Row="2" Margin="5,5,10,10">
+        <Grid Grid.Column="2" Grid.Row="2" Margin="10,5,10,10">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -565,26 +789,68 @@
               </MultiBinding>
             </Label.Opacity>
           </Label>
-          <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
-            <Image.Source>
+          <UniformGrid Grid.Row="1" Grid.Column="1" Rows="1" Height="110" Width="210" HorizontalAlignment="Left" Margin="5,0,0,0">
+            <UniformGrid.Columns>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
-                <Binding Source="ViewMode\Grid.Details.png"/>
-                <Binding Source="ViewMode\Grid.Details.Extended.png"/>
+                <Binding Source="1"/>
+                <Binding Source="2"/>
               </MultiBinding>
-            </Image.Source>
-            <Image.Opacity>
+            </UniformGrid.Columns>
+            <UniformGrid.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="GridExtendedMediaDetails" Path="HasFocus"/>
                 <Binding Source="1.0"/>
                 <Binding Source="0.5"/>
               </MultiBinding>
-            </Image.Opacity>
-          </Image>
+            </UniformGrid.Opacity>
+            <Grid Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFFFFFFF">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid Width="95" Height="13" HorizontalAlignment="Left" VerticalAlignment="Bottom" 
+                    IsVisible="{Binding ElementName=GridExtendedMediaDetails, Path=IsChecked}">
+                <Grid.Background>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding ElementName="GridExtendedMediaDetails" Path="HasFocus"/>
+                    <Binding Source="{ThemeResource NereusColorLight}"/>
+                    <Binding Source="{ThemeResource NereusColorMedium}"/>
+                  </MultiBinding>
+                </Grid.Background>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Column="0" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FFFFFFFF" Margin="10,0,0,0"/>
+                <Border Grid.Column="1" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FFFFFFFF" Margin="5,0,5,0"/>
+                <Border Grid.Column="2" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FFFFFFFF" Margin="0,0,10,0"/>
+              </Grid>
+            </Grid>
+            <Grid Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="{ThemeResource NereusColorLight}">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Border Height="45" Width="32" HorizontalAlignment="Right" VerticalAlignment="Bottom" Background="#FFFFFFFF" Margin="0,0,5,8"/>
+              <Border Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FFFFFFFF" Margin="6,10,5,0"/>
+              <Border Height="5" Width="40" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FFFFFFFF" Margin="0,20,50,0"/>
+              <Border Height="5" Width="40" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FFFFFFFF" Margin="0,30,50,0"/>
+              <Border Height="5" Width="40" HorizontalAlignment="Stretch" VerticalAlignment="Top" Background="#FFFFFFFF" Margin="0,40,50,0"/>
+            </Grid>
+          </UniformGrid>
         </Grid>
 
         <!-- COVERFLOW MEDIA DETAILS -->
-        <Grid Grid.Column="4" Grid.Row="2" Margin="5,5,10,10">
+        <Grid Grid.Column="4" Grid.Row="2" Margin="10,5,10,10">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -603,28 +869,52 @@
               </MultiBinding>
             </Label.Opacity>
           </Label>
-          <Image Grid.Row="1" Grid.Column="1" Height="120" Width="210" Stretch="Uniform" HorizontalAlignment="Left">
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding ElementName="CoverExtendedMediaDetails" Path="IsChecked"/>
-                <Binding Source="ViewMode\Coverflow.Details.png"/>
-                <Binding Source="ViewMode\Coverflow.Details.Extended.png"/>
-              </MultiBinding>
-            </Image.Source>
-            <Image.Opacity>
+          <UniformGrid Grid.Row="1" Grid.Column="1" Columns="1" Rows="2" Height="110" Width="210" HorizontalAlignment="Left" Margin="5,0,0,0">
+            <UniformGrid.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="CoverExtendedMediaDetails" Path="HasFocus"/>
                 <Binding Source="1.0"/>
                 <Binding Source="0.5"/>
               </MultiBinding>
-            </Image.Opacity>
-          </Image>
+            </UniformGrid.Opacity>
+            <Grid Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ElementName=CoverExtendedMediaDetails, Path=!IsChecked}">
+                <Grid.Background>
+                  <LinearGradientBrush EndPoint="0,0.5" StartPoint="1,0.5">
+                    <GradientStop Color="#00000000" Offset="0" />
+                    <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="0.25" />
+                    <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="0.75" />
+                    <GradientStop Color="#00000000" Offset="1" />
+                  </LinearGradientBrush>
+                </Grid.Background>
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Border Grid.Row="0" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FFFFFFFF" Margin="60,10,60,0"/>
+                <Border Grid.Row="1" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FFFFFFFF" Margin="60,0,60,0"/>
+                <Border Grid.Row="2" Height="5" HorizontalAlignment="Stretch" VerticalAlignment="Center" Background="#FFFFFFFF" Margin="60,0,60,10"/>
+              </Grid>              
+            </Grid>
+
+            <Grid Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Background="#FFFFFFFF"/>
+          </UniformGrid>
         </Grid>
 
         <!--###################### WATCHED FLAGS #######################-->
         
         <!-- LIST WATCHED FLAGS -->
-        <Grid Grid.Column="0" Grid.Row="4" Margin="5,5,10,10">
+        <Grid Grid.Column="0" Grid.Row="4" Margin="5,5,50,10">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -681,14 +971,8 @@
               </MultiBinding>
             </Label.Opacity>
           </Label>
-          <Image Grid.Row="1" Grid.Column="1" Height="80" Width="170" Stretch="Uniform" HorizontalAlignment="Right">
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding ElementName="GridWatchedFlags" Path="IsChecked"/>
-                <Binding Source="ViewMode\watched.flag.focus.png"/>
-                <Binding Source="ViewMode\watched.flag.nofocus.png"/>
-              </MultiBinding>
-            </Image.Source>
+
+          <Image Grid.Row="1" Grid.Column="1" Height="80" Width="150" Stretch="Uniform" HorizontalAlignment="Center" Margin="10,0,0,0" Source="ViewMode\watched.flag.png">
             <Image.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="GridWatchedFlags" Path="HasFocus"/>
@@ -697,10 +981,16 @@
               </MultiBinding>
             </Image.Opacity>
           </Image>
+
+          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,54,0" Template="{StaticResource WatchedFlag_Template}"
+                   IsVisible="{Binding ElementName=GridWatchedFlags, Path=IsChecked}"/>
+          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,110,0" Template="{StaticResource WatchedFlag_Template}"
+                   IsVisible="{Binding ElementName=GridWatchedFlags, Path=IsChecked}"/>
+
         </Grid>
 
         <!-- COVERFLOW WATCHED FLAGS -->
-        <Grid Grid.Column="4" Grid.Row="4" Margin="5,5,10,0">
+        <Grid Grid.Column="4" Grid.Row="4" Margin="10,5,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -719,14 +1009,7 @@
               </MultiBinding>
             </Label.Opacity>
           </Label>
-          <Image Grid.Row="1" Grid.Column="1" Height="80" Width="170" Stretch="Uniform" HorizontalAlignment="Right">
-            <Image.Source>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding ElementName="CoverflowWatchedFlags" Path="IsChecked"/>
-                <Binding Source="ViewMode\watched.flag.focus.png"/>
-                <Binding Source="ViewMode\watched.flag.nofocus.png"/>
-              </MultiBinding>
-            </Image.Source>
+          <Image Grid.Row="1" Grid.Column="1" Height="80" Width="150" Stretch="Uniform" HorizontalAlignment="Center" Margin="10,0,0,0" Source="ViewMode\watched.flag.png">
             <Image.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="CoverflowWatchedFlags" Path="HasFocus"/>
@@ -735,6 +1018,12 @@
               </MultiBinding>
             </Image.Opacity>
           </Image>
+
+          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,51,0" Template="{StaticResource WatchedFlag_Template}"
+                   IsVisible="{Binding ElementName=CoverflowWatchedFlags, Path=IsChecked}"/>
+          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,108,0" Template="{StaticResource WatchedFlag_Template}"
+                   IsVisible="{Binding ElementName=CoverflowWatchedFlags, Path=IsChecked}"/>
+
         </Grid>
 
         <Grid Grid.Column="1" Grid.RowSpan="5" Background="White" VerticalAlignment="Stretch" Margin="0,-10,0,-10" Opacity="0.5" Width="1"/>
@@ -742,14 +1031,6 @@
 
         <Grid Grid.Row="1" Grid.ColumnSpan="5" Background="White" HorizontalAlignment="Stretch" Margin="-10,0,-10,0" Opacity="0.5" Height="1"/>
         <Grid Grid.Row="3" Grid.ColumnSpan="5" Background="White" HorizontalAlignment="Stretch" Margin="-10,0,-10,0" Opacity="0.5" Height="1"/>
-
-        <!--Grid Grid.Row="5" Grid.ColumnSpan="5" HorizontalAlignment="Center" Margin="5">
-          <Button Style="{ThemeResource DialogButtonStyle}" Content="[System.OK]" HorizontalAlignment="Center">
-            <Button.Command>
-              <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>
-            </Button.Command>
-          </Button>
-        </-->
 
       </Grid>
     </ControlTemplate>

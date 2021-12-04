@@ -902,24 +902,51 @@
 
   <ControlTemplate x:Key="Cover_WatchedFlag_Template">
     <Grid>
-      <Grid>
-        <Image Source="flag.png" Height="90" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top">
-          <Image.IsVisible>
+      <Grid HorizontalAlignment="Right" VerticalAlignment="Top">
+        <Polygon Height="90" Width="90" Points="0,0 90,0 90,90" StrokeThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3">
+          <Polygon.IsVisible>
             <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
-          </Image.IsVisible>
-        </Image>
-        <Image x:Name="PartlyWatchedLabel" Height="25" Margin="0,7,7,0" Stretch="Uniform"
-                     Source="partlywatched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+          </Polygon.IsVisible>
+          <Polygon.Fill>
+            <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
+              <GradientStop Color="#00000000" Offset="0.5"/>
+              <GradientStop Color="#FF000000" Offset="0.6" />
+            </LinearGradientBrush>
+          </Polygon.Fill>
+        </Polygon>
+        <Polygon Height="80" Width="80" Points="0,0 80,0 80,80" StrokeThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3">
+          <Polygon.IsVisible>
+            <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+          </Polygon.IsVisible>
+          <Polygon.Fill>
+            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+              <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="0" />
+              <GradientStop Color="{ThemeResource NereusColorDark}" Offset="1" />
+            </LinearGradientBrush>
+          </Polygon.Fill>
+        </Polygon>
+        <Image x:Name="PartlyWatchedLabel" Height="25" Margin="0,7,11,0" Stretch="Uniform"
+               Source="partlywatched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
         <Grid.IsVisible>
           <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
         </Grid.IsVisible>
       </Grid>
-      <Grid>
+      <Grid HorizontalAlignment="Right" VerticalAlignment="Top">
         <Grid.IsVisible>
           <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
         </Grid.IsVisible>
-        <Image Source="flag.png" Height="90" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top"/>
-        <Image x:Name="WatchedLabel" Height="25" Margin="0,7,7,0" Stretch="Uniform"
+        <Polygon Height="80" Width="80" Points="0,0 80,0 80,80" StrokeThickness="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="3">
+          <Polygon.IsVisible>
+            <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
+          </Polygon.IsVisible>
+          <Polygon.Fill>
+            <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+              <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="0" />
+              <GradientStop Color="{ThemeResource NereusColorDark}" Offset="1" />
+            </LinearGradientBrush>
+          </Polygon.Fill>
+        </Polygon>
+        <Image x:Name="WatchedLabel" Height="25" Margin="0,7,11,0" Stretch="Uniform"
                Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
       </Grid>
     </Grid>
