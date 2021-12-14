@@ -1,0 +1,855 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors"
+    >
+
+  <Storyboard x:Key="BackgroundRotationsStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+    <DoubleAnimationUsingKeyFrames  Storyboard.TargetProperty="RenderTransform.Angle" RepeatBehavior="None">
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="18"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="36"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="54"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="72"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="90"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="108"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="126"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="144"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="162"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="180"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="198"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="216"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="234"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="252"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="270"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="288"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="306"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="324"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="342"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Storyboard x:Key="IndicatorRotationsStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+    <DoubleAnimationUsingKeyFrames  Storyboard.TargetProperty="RenderTransform.Angle" RepeatBehavior="None">
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.1" Value="18"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.2" Value="36"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.3" Value="54"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.4" Value="72"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.5" Value="90"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.6" Value="108"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.7" Value="126"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.8" Value="144"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.9" Value="162"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.0" Value="180"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.1" Value="198"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.2" Value="216"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.3" Value="234"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.4" Value="252"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.5" Value="270"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.6" Value="288"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.7" Value="306"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.8" Value="324"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.9" Value="342"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Style x:Key="CircularBackgroundStyle_0" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22" 
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="0"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="0"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CircularBackgroundStyle_18" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="18"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="18"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CircularBackgroundStyle_36" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="36"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="36"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_54" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="54"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="54"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_72" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="72"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="72"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_90" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_108" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="108"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="108"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_126" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="126"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="126"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_144" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="144"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="144"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_162" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="162"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="162"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_180" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="180"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="180"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_198" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="198"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="198"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_216" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="216"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="216"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_234" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="234"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="234"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_252" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="252"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="252"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_270" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="270"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="270"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_288" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="288"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="288"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_306" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="306"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="306"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_324" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="324"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="324"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularBackgroundStyle_342" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularBackgroundStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle x:Name="Segment" RenderTransformOrigin="0.5,3.4" HorizontalAlignment="Center" Height="22"
+                       VerticalAlignment="Top" Width="10" RadiusY="5" RadiusX="5" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="342"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+            <Rectangle Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" VerticalAlignment="Top" 
+                       Width="6" RadiusY="3" RadiusX="3" Fill="Black" StrokeThickness="0" Opacity="0.2">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="342"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CircularIndicatorStyle_0" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="0"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CircularIndicatorStyle_18" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="18"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CircularIndicatorStyle_36" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="36"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_54" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="54"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_72" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="72"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_90" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="90"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_108" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="108"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_126" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="126"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_144" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="144"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_162" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="162"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_180" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="180"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_198" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="198"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_216" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="216"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_234" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="234"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_252" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="252"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_270" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="270"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_288" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="288"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_306" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="306"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_324" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="324"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  <Style x:Key="CircularIndicatorStyle_342" TargetType="{x:Type Control}" BasedOn="{ThemeResource CircularIndicatorStyle_0}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150">
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" 
+                        Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="342"/>
+              </Rectangle.RenderTransform>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CircularIndicatorControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid Width="150" Height="150" RenderTransformOrigin="0.5,0.5">
+            <Grid.RenderTransform>
+              <TransformGroup>
+                <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+              </TransformGroup>
+            </Grid.RenderTransform>
+            <Rectangle  Margin="2" RenderTransformOrigin="0.5,4.05" HorizontalAlignment="Center" Height="18" Stroke="Black" VerticalAlignment="Top" Width="6" RadiusY="3" RadiusX="3" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0">
+              <Rectangle.RenderTransform>
+                <RotateTransform Angle="0"/>
+              </Rectangle.RenderTransform>
+              <Rectangle.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="BeginStoryBoard2" Storyboard="{ThemeResource IndicatorRotationsStoryboard}"/>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="BeginStoryBoard2"/>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </Rectangle.Triggers>
+            </Rectangle>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>
