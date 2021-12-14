@@ -330,7 +330,7 @@ namespace SlimTv.TvMosaicProvider
 
     public static int ToUniqueProgramId(string channelId, string programId)
     {
-      return (channelId + programId).GetHashCode();
+      return int.Parse(programId); // (channelId + programId).GetHashCode();
     }
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime @from, DateTime to)
@@ -424,7 +424,7 @@ namespace SlimTv.TvMosaicProvider
     public async Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
     {
       var channelId = GetTvMosaicId(program.ChannelId);
-      var programId = program.StartTime.ToUnixTime().ToString(); // Translate start time back to timestamp
+      var programId = program.ProgramId.ToString(); // StartTime.ToUnixTime().ToString(); // Translate start time back to timestamp
       var byEpg = new ByEpgSchedule(channelId, programId);
       var scheduleRequest = new TvMosaic.API.Schedule(byEpg);
       var result = await _dvbLink.AddSchedule(scheduleRequest);
