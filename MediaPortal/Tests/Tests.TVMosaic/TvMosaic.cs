@@ -38,6 +38,16 @@ namespace Test.TVMosaic
     }
 
     [Test]
+    public async Task TestSchedules()
+    {
+      var scheduleControl = _provider as IScheduleControlAsync;
+      Assert.IsNotNull(scheduleControl);
+      var scheduleResult = await scheduleControl.GetSchedulesAsync();
+      Assert.IsTrue(scheduleResult.Success);
+      Assert.IsNotNull(scheduleResult.Result);
+    }
+
+    [Test]
     public async Task TestChannelGroups()
     {
       var channelInfo = _provider as IChannelAndGroupInfoAsync;

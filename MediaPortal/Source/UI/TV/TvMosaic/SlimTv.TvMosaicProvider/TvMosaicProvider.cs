@@ -454,7 +454,8 @@ namespace SlimTv.TvMosaicProvider
           StartTime = program.StartTime,
           EndTime = program.EndTime,
           ScheduleId = Int32.Parse(createdSchedule.ScheduleID),
-          RecordingType = ScheduleRecordingType.Once
+          RecordingType = ScheduleRecordingType.Once,
+          Name = program.Title
         };
         return mpSchedule;
       }
