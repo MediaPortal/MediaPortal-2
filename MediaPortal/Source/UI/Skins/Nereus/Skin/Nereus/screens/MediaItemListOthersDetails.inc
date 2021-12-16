@@ -118,7 +118,7 @@
         <media:UserDataWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" Margin="30,-5,0,0">
           <media:UserDataWrapper.Template>
             <ControlTemplate>
-              <Grid RenderTransformOrigin="0.5,0.5" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid RenderTransformOrigin="0.5,0.5" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
                 <Grid.RenderTransform>
                   <TransformGroup>
                     <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
