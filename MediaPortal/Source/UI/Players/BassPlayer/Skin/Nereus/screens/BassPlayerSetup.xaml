@@ -53,40 +53,28 @@
 
         <StackPanel>
           <RadioButton x:Name="DirectSoundButton" Content="[Settings.Players.BassPlayer.Setup.DirectSound]" GroupName="OutputButtons"
-              IsChecked="{Binding Path=UseDirectSound,Mode=TwoWay}"
-              SetFocus="{Binding Path=UseDirectSound,Mode=OneTime}">
-          </RadioButton>
+                       IsChecked="{Binding Path=UseDirectSound,Mode=TwoWay}" SetFocus="{Binding Path=UseDirectSound,Mode=OneTime}"/>
           <RadioButton x:Name="WasapiSoundButton" Content="[Settings.Players.BassPlayer.Setup.WASAPI]" GroupName="OutputButtons"
-              IsChecked="{Binding Path=UseWASAPI,Mode=TwoWay}"
-              SetFocus="{Binding Path=UseWASAPI,Mode=OneTime}">
-          </RadioButton>
+                       IsChecked="{Binding Path=UseWASAPI,Mode=TwoWay}" SetFocus="{Binding Path=UseWASAPI,Mode=OneTime}"/>
         </StackPanel>
 
         <GroupBox x:Name="DirectSoundGroup" Header="[Settings.Players.BassPlayer.Setup.DirectSound]" Grid.Row="1" Grid.Column="0" Margin="10"
-             Style="{ThemeResource ContentGroupBoxStyle}"
-             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Path=UseDirectSound}">
-
-          <ListView x:Name="DirectSoundDeviceList"
-              Style="{ThemeResource GroupedSingleMarkableListViewStyle}"
-              ItemsSource="{Binding Path=DirectSoundDevices,Mode=OneTime}"/>
-
+                  Style="{ThemeResource ContentGroupBoxStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Path=UseDirectSound}">
+          <ListView x:Name="DirectSoundDeviceList" Style="{ThemeResource GroupedSingleMarkableListViewStyle}"
+                    ItemsSource="{Binding Path=DirectSoundDevices,Mode=OneTime}"/>
         </GroupBox>
 
-        <GroupBox x:Name="WASAPIGroup" Header="[Settings.Players.BassPlayer.Setup.WASAPI]" Grid.Row="1" Grid.Column="0" Margin="10"
-             Style="{ThemeResource ContentGroupBoxStyle}"
-             HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Path=UseWASAPI}">
-
+        <GroupBox x:Name="WASAPIGroup" Header="[Settings.Players.BassPlayer.Setup.WASAPI]" Grid.Row="1" Grid.Column="0" Margin="10,0,10,10"
+                  Style="{ThemeResource ContentGroupBoxStyle}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding Path=UseWASAPI}">
           <StackPanel>
             <CheckBox Content="[Settings.Players.BassPlayer.Setup.WASAPI.Exclusive]" FontSize="{ThemeResource SmallFontSize}" 
                       Margin="2" IsChecked="{Binding Path=EnableWASAPIExclusive,Mode=TwoWay}"/>
-
-            <ListView x:Name="WASAPIDeviceList"
-              Style="{ThemeResource GroupedSingleMarkableListViewStyle}"
-              ItemsSource="{Binding Path=WASAPIDevices,Mode=OneTime}"/>
+            <ListView x:Name="WASAPIDeviceList" Style="{ThemeResource GroupedSingleMarkableListViewStyle}"
+                      ItemsSource="{Binding Path=WASAPIDevices,Mode=OneTime}"/>
           </StackPanel>
         </GroupBox>
 
-        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+        <Button x:Name="Ok" Content="[System.Ok]" Grid.Row="2" Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Bottom" Style="{ThemeResource DialogButtonStyle}">
           <Button.Command>
             <CommandList x:Key="Menu_Command">
               <Command Source="{StaticResource Model}" Path="SaveSettings"/>
