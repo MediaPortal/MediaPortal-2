@@ -557,7 +557,7 @@ namespace SlimTv.TvMosaicProvider
       var schedules = await _dvbLink.GetSchedules(new SchedulesRequest());
       if (schedules.Status == StatusCode.STATUS_OK)
       {
-        var requestedSchedule = schedules.Result.FirstOrDefault();
+        var requestedSchedule = schedules.Result.FirstOrDefault(s => s.ScheduleID == schedule.ScheduleId.ToString());
         if (requestedSchedule != null)
         {
           var program = ToProgram(requestedSchedule.ByEpg.Program, requestedSchedule.ByEpg.ChannelId);
