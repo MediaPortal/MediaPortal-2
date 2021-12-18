@@ -454,7 +454,9 @@ namespace SlimTv.TvMosaicProvider
           StartTime = program.StartTime,
           EndTime = program.EndTime,
           ScheduleId = Int32.Parse(createdSchedule.ScheduleID),
-          RecordingType = ScheduleRecordingType.Once,
+          RecordingType = createdSchedule.ByEpg.IsRepeat ?
+            ScheduleRecordingType.EveryTimeOnThisChannel :
+            ScheduleRecordingType.Once,
           Name = program.Title
         };
         return mpSchedule;
@@ -550,9 +552,29 @@ namespace SlimTv.TvMosaicProvider
       throw new NotImplementedException();
     }
 
-    public Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
     {
-      throw new NotImplementedException();
+      var schedules = await _dvbLink.GetSchedules(new SchedulesRequest());
+      if (schedules.Status == StatusCode.STATUS_OK)
+      {
+        var requestedSchedule = schedules.Result.FirstOrDefault();
+        if (requestedSchedule != null)
+        {
+          var program = ToProgram(requestedSchedule.ByEpg.Program, requestedSchedule.ByEpg.ChannelId);
+          program.RecordingStatus = requestedSchedule.ByEpg.IsRepeat ?
+            RecordingStatus.SeriesScheduled :
+            RecordingStatus.Scheduled;
+          var now = DateTime.Now;
+          if (now > program.StartTime && now <= program.EndTime)
+            program.RecordingStatus |= requestedSchedule.ByEpg.IsRepeat ?
+              RecordingStatus.RecordingSeries :
+              RecordingStatus.RecordingOnce;
+
+          IList<IProgram> programs = new List<IProgram>() { program };
+          return new AsyncResult<IList<IProgram>>(true, programs);
+        }
+      }
+      return new AsyncResult<IList<IProgram>>(false, null);
     }
 
     public async Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
