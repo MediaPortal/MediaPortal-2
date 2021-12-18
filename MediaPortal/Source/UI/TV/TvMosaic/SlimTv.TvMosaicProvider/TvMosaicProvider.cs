@@ -426,6 +426,7 @@ namespace SlimTv.TvMosaicProvider
       var channelId = GetTvMosaicId(program.ChannelId);
       var programId = program.ProgramId.ToString(); // StartTime.ToUnixTime().ToString(); // Translate start time back to timestamp
       var byEpg = new ByEpgSchedule(channelId, programId);
+      byEpg.IsRepeat = recordingType != ScheduleRecordingType.Once; 
       var scheduleRequest = new TvMosaic.API.Schedule(byEpg);
       var result = await _dvbLink.AddSchedule(scheduleRequest);
       if (result.Status == StatusCode.STATUS_OK)
