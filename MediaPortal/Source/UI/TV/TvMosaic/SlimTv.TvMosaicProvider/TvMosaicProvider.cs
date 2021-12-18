@@ -119,6 +119,7 @@ namespace SlimTv.TvMosaicProvider
       var favorites = await _dvbLink.GetFavorites(new FavoritesRequest());
       lock (_syncObj)
       {
+        _channelGroups.Clear();
         foreach (var favorite in favorites.Result)
         {
           var groupId = favorite.Id.ToString();
@@ -143,7 +144,9 @@ namespace SlimTv.TvMosaicProvider
       if (!await LoadChannels())
         return new AsyncResult<IList<IChannelGroup>>(false, null);
 
-      var groups = _channelGroups.ToList();
+      List<IChannelGroup> groups;
+      lock (_syncObj) 
+        groups = _channelGroups.ToList();
 
       return new AsyncResult<IList<IChannelGroup>>(groups.Count > 0, groups);
     }
