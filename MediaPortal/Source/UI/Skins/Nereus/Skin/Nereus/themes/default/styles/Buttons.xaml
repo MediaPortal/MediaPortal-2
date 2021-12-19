@@ -1828,7 +1828,7 @@
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
                   <Binding Source="1"/>
-                  <Binding Source="0.0"/>
+                  <Binding Source="0.5"/>
                 </MultiBinding>
               </Image.Opacity>
             </Image>
