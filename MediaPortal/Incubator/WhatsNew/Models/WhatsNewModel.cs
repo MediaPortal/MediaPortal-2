@@ -49,10 +49,12 @@ namespace WhatsNew.Models
       {
         screenConfig.Value.LayoutSize = ViewSettings.DEFAULT_LAYOUT_SIZE;
         screenConfig.Value.LayoutType = ViewSettings.DEFAULT_LAYOUT_TYPE;
-        screenConfig.Value.AdditionalProperties["extEnableGridDetails"] = "true";
-        screenConfig.Value.AdditionalProperties["extEnableListDetails"] = "true";
+        screenConfig.Value.AdditionalProperties["extEnableGridDetails"] = "False";
+        screenConfig.Value.AdditionalProperties["extEnableListDetails"] = "False";
       }
       settingsManager.Save(viewSettings);
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.CloseTopmostDialog();
     }
 
     public void Dismiss()

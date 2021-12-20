@@ -73,6 +73,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
+    <Content Include="Skin\default\images\whatsnew_2.4.png" />
     <Content Include="Skin\default\images\whatsnew.png" />
     <Content Include="Skin\default\screens\whats-new.xaml">
       <Generator>MSBuild:Compile</Generator>
