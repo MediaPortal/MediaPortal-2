@@ -286,7 +286,8 @@
   <string name="Media.MediumList">Medium lista</string>
   <string name="Media.LargeList">Suuri lista</string>
   <string name="Media.LargeGrid">Ruudukko</string>
-  <string name="Media.CoverLayout">Päälliset</string>
+  <string name="Media.ListSmall">Pieni</string>
+  <string name="Media.ListMedium">Keskikokoinen</string>
   <string name="Media.Watched">Katsottu</string>
   <string name="Media.Unwatched">Katsomaton</string>
   <string name="Media.SwitchSortingMenuItem">Lajittelu</string>

@@ -285,8 +285,10 @@
   <string name="Media.SmallList">Lille liste</string>
   <string name="Media.MediumList">Medium liste</string>
   <string name="Media.LargeList">Stor liste</string>
+  <string name="Media.List">Liste</string>
   <string name="Media.LargeGrid">Gitter</string>
-  <string name="Media.CoverLayout">Covers</string>
+  <string name="Media.ListSmall">Lille</string>
+  <string name="Media.ListMedium">Medium</string>
   <string name="Media.Watched">Set</string>
   <string name="Media.Unwatched">Ikke set</string>
   <string name="Media.SwitchSortingMenuItem">Sortering</string>

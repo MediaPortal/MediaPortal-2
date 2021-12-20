@@ -13,4 +13,6 @@
   <string name="Nereus.Shortcut.Refresh">Päivitä</string>
   
   <string name="Nereus.Home.OtherPlugins">Muut</string>
+  <string name="Nereus.Info.Subtitles">Tekstitykset</string>
+  <string name="Nereus.Info.Actors">Näyttelijät</string>
   </resources>

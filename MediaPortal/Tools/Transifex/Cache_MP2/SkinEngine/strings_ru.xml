@@ -9,6 +9,7 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin">Изменить скин</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Изменить тему</string>
   <string name="Settings.Players">Проигрыватели</string>
+  <string name="Settings.Players.Rendering">Рендеринг</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Режим увеличения по умолчанию</string>
   <string name="Settings.General.System.ApplicationSuspendLevel">Настроить энергосбережение Windows</string>
   <string name="ScreenManager.NotificationErrorLoadingSkinTitle">Ошибка загрузки скина</string>

@@ -272,7 +272,8 @@
   <string name="Media.MediumList">Llista mitjana</string>
   <string name="Media.LargeList">Llista gran</string>
   <string name="Media.LargeGrid">Graella</string>
-  <string name="Media.CoverLayout">Cobertes</string>
+  <string name="Media.ListSmall">Petit</string>
+  <string name="Media.ListMedium">Mitjà</string>
   <string name="Media.SwitchSortingMenuItem">S\'està ordenant</string>
   <string name="Media.SortByDate">Data</string>
   <string name="Media.GroupingBrowseDefault">Per defecte</string>

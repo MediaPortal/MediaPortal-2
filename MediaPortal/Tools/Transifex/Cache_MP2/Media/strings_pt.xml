@@ -422,8 +422,11 @@
   <string name="Media.SmallList">Lista pequena</string>
   <string name="Media.MediumList">Lista média</string>
   <string name="Media.LargeList">Lista grande</string>
+  <string name="Media.List">Lista</string>
   <string name="Media.LargeGrid">Grelha</string>
-  <string name="Media.CoverLayout">Capas</string>
+  <string name="Media.CoverLayout">Capa</string>
+  <string name="Media.ListSmall">Pequenas</string>
+  <string name="Media.ListMedium">Medias</string>
   <string name="Media.Watched">Visto</string>
   <string name="Media.Unwatched">Não visto</string>
   <string name="Media.SwitchSortingMenuItem">Ordenação</string>
@@ -446,6 +449,10 @@
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Active esta definição se pretender que o MediaPortal feche automaticamente os leitores que terminaram de reproduzir.</string>
   <string name="Settings.Players.InstantSkipPercent">Percentagem para ignorar automático</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Seleccione a percentagem de duração vídeo que deseja que seja ignorado automaticamente.</string>
+  <string name="Settings.Players.InstantSkipSeconds">Saltar segundos automaticamente</string>
+  <string name="Settings.Players.InstantSkipSeconds.Help">Selecione quantos segundos pretende saltar automaticamente</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds">Preferir salto de segundos automatico</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds.Help">Selecionar se preferir segundos absolutos em vez de uma percentagem relativa quando saltar conteúdo automaticamente</string>
   <string name="Settings.Players.SkipStepTimeout">Timeout em segundos por intervalo ignorado</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Ajuste o timeout para pedidos do utilizador antes de ignorar intervalos</string>
   <string name="Settings.Players.SkipStepList">Intervalos para o Leitor ignorar</string>

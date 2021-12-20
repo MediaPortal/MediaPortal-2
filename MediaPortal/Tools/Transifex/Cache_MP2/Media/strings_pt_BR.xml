@@ -220,6 +220,8 @@
   <string name="Media.AudioDurationLabel">Duração:</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.ListSmall">Pequenos</string>
+  <string name="Media.ListMedium">Médios</string>
   <!--Stubs-->
   <!--Virtual-->
   <!--Settings-->

@@ -22,17 +22,15 @@
   <string name="Nereus.Configuration.GridViewType.Poster">Poster</string>
   <string name="Nereus.Configuration.GridViewType.Banner">Banner</string>
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Vorschaubilder</string>
-  <string name="Nereus.Configuration.EnableHomeContent">Aktiviere Home-Inhalte</string>
-  <string name="Nereus.Configuration.EnableHomeContent.Help">Sollen Home-Inhalte auf der Startseite angezeigt werden?</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Medien Detail-Ansicht aktivieren</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Zeigt zunächst Mediendetails an, statt den Titel direkt wiederzugeben.</string>
-
   <string name="Nereus.Home.LatestAdded">Zuletzt hinzugefügt</string>
   <string name="Nereus.Home.LatestPlayed">Zuletzt abgespielt</string>
   <string name="Nereus.Home.ContinuePlayed">Wiedergabe fortsetzen</string>
   <string name="Nereus.Home.CurrentPrograms">Aktuelle Programme</string>
   <string name="Nereus.Home.CurrentSchedules">Aktuelle Aufnahmepläne</string>
   <string name="Nereus.Home.Favorites">Favoriten</string>
+  <string name="Nereus.Home.TopLanguages">Sprachen</string>
   <string name="Nereus.Home.Unplayed">Nicht abgespielt</string>
   <string name="Nereus.Home.CurrentWeather">Aktuell</string>
   <string name="Nereus.Home.Forecast">Vorschau</string>
@@ -65,4 +63,12 @@
   <string name="Nereus.Dialog.EditMenu.Header">Menü editieren</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Menüeintrag hinzufügen</string>
 
-</resources>
+  <string name="Nereus.Info.Director">Regisseur</string>
+  <string name="Nereus.Info.Subtitles">Untertitel</string>
+  <string name="Nereus.Info.Actors">Darsteller</string>
+  <string name="Nereus.Info.Collection">Filmreihe</string>
+  <string name="Nereus.Info.Artists">Interpreten</string>
+  <string name="Nereus.Info.AlbumArtists">Album Artisten</string>
+  <string name="Nereus.Info.Composer">Komponist</string>
+
+  </resources>

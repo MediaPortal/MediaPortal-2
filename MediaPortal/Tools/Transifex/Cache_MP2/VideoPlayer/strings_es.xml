@@ -10,6 +10,8 @@
   <string name="Settings.Players.Codecs.VideoCodecs.AVC.Help">Establece el codec para vídeo AVC (HDTV, Bluray)</string>
   <string name="Settings.Players.Codecs.VideoCodecs.HEVC">Codec de vídeo HEVC</string>
   <string name="Settings.Players.Codecs.VideoCodecs.HEVC.Help">Establece el códec usado para HEVC (HD, UHD)</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter">Splitter</string>
+  <string name="Settings.Players.Codecs.VideoCodecs.Splitter.Help">Selecciona el Splitter</string>
   <string name="Settings.Players.Codecs.AudioCodecs">Codecs de Sonido</string>
   <string name="Settings.Players.Codecs.AudioRenderer">Procesador de Sonido</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodec">Codec de Sonido MPGE1/2</string>
@@ -25,6 +27,13 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Si está conectado, establecer flujo de 6 canales (ej. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">Reproductor de DVD</string>
   <string name="Settings.Players.Subtitles">Subtítulos</string>
+  <string name="Settings.Players.Subtitles.Help">Selecciona que tipo de subtítulos se activarán</string>
+  <string name="Settings.Players.EnableAtscClosedCaptions">Subtítulos forzados ATSC</string>
+  <string name="Settings.Players.EnableDvbSubtitles">Retransmisión de Vídeo Digital DVB</string>
+  <string name="Settings.Players.EnableTeletextSubtitles">Teletexto</string>
+  <string name="Settings.Players.EnableDvdSubtitles">Subtítulos de DVD</string>
+  <string name="Settings.Players.EnableDvdClosedCaptions">Subtítulos Forzados del DVD</string>
+  <string name="Settings.Players.EnableMpcHcEngineSubtitles">Motor de subtítulos de MPC-HC para los Videos</string>
   <string name="Playback.NotSpecified">No especificado</string>
   <string name="Playback.CaptionNormal">Subtítulo Normal</string>
   <string name="Playback.CaptionBig">Subtítulo Grande</string>
@@ -43,4 +52,5 @@
   <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Título {0}</string>
   <!--For example: "Title 1"-->
+  <string name="Playback.Players.No.Subtitles">Sin subtítulos</string>
 </resources>

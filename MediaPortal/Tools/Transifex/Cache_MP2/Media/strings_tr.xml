@@ -281,7 +281,8 @@
   <string name="Media.MediumList">Orta liste</string>
   <string name="Media.LargeList">Büyük liste</string>
   <string name="Media.LargeGrid">Izgara</string>
-  <string name="Media.CoverLayout">Kapaklar</string>
+  <string name="Media.ListSmall">Küçük</string>
+  <string name="Media.ListMedium">Orta</string>
   <string name="Media.SwitchSortingMenuItem">Sıralama</string>
   <string name="Media.SortByDate">Tarih</string>
   <string name="Media.GroupingBrowseDefault">Öntanımlı</string>

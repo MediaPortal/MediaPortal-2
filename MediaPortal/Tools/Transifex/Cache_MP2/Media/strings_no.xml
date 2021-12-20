@@ -276,7 +276,8 @@
   <string name="Media.MediumList">Medium liste</string>
   <string name="Media.LargeList">Stor liste</string>
   <string name="Media.LargeGrid">Rutenett</string>
-  <string name="Media.CoverLayout">Cover</string>
+  <string name="Media.ListSmall">Små</string>
+  <string name="Media.ListMedium">Medium</string>
   <string name="Media.Watched">Sett</string>
   <string name="Media.SwitchSortingMenuItem">Sorter</string>
   <string name="Media.SortByDate">Dato</string>
