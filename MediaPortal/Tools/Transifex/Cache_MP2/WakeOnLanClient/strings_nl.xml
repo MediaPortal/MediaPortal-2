@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WakeOnLan.EnableWakeOnLan">Schakel Wake on Lan in</string>
+  <string name="WakeOnLan.EnableWakeOnLan.Help">Of de server automatisch gewekt wordt als de cliënt start of herneemt.</string>
+</resources>

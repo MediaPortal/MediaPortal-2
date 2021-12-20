@@ -478,7 +478,7 @@
   <string name="Media.PosterLayout">Poster</string>
   <string name="Media.ThumbnailLayout">Thumbnail</string>
   <string name="Media.BannerLayout">Banner</string>
-  <string name="Media.ExtendedMediaDetails">Hide Media Details</string>
+  <string name="Media.ExtendedMediaDetails">Show Media Details</string>
   <string name="Media.ShowWatchedFlags">Show Watched Flags</string>
 
   <string name="Media.Watched">Watched</string>
