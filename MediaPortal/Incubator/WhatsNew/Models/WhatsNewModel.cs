@@ -53,8 +53,7 @@ namespace WhatsNew.Models
         screenConfig.Value.AdditionalProperties["extEnableListDetails"] = "False";
       }
       settingsManager.Save(viewSettings);
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.CloseTopmostDialog();
+      Dismiss();
     }
 
     public void Dismiss()
