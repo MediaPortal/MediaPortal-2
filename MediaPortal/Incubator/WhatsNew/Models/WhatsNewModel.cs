@@ -25,12 +25,15 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Screens;
+using MediaPortal.UiComponents.Media.Settings;
 using WhatsNew.Settings;
 
 namespace WhatsNew.Models
 {
   public class WhatsNewModel
   {
+    public const string CURRENT_VERSION = "2.4";
+
     public void ChangeSkin()
     {
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
@@ -38,11 +41,25 @@ namespace WhatsNew.Models
         screenManager.SwitchSkinAndTheme("Nereus", "default");
     }
 
+    public void ChangeSkinDefaults()
+    {
+      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      var viewSettings = settingsManager.Load<ViewSettings>();
+      foreach (var screenConfig in viewSettings.ScreenConfigs)
+      {
+        screenConfig.Value.LayoutSize = ViewSettings.DEFAULT_LAYOUT_SIZE;
+        screenConfig.Value.LayoutType = ViewSettings.DEFAULT_LAYOUT_TYPE;
+        screenConfig.Value.AdditionalProperties["extEnableGridDetails"] = "true";
+        screenConfig.Value.AdditionalProperties["extEnableListDetails"] = "true";
+      }
+      settingsManager.Save(viewSettings);
+    }
+
     public void Dismiss()
     {
       var settingsManager = ServiceRegistration.Get<ISettingsManager>();
       var settings = settingsManager.Load<WhatsNewSettings>();
-      settings.NewsConfirmed = true;
+      settings.NewsConfirmedVersion = CURRENT_VERSION;
       settingsManager.Save(settings);
 
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();

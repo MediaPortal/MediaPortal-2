@@ -28,7 +28,11 @@ namespace WhatsNew.Settings
 {
   public class WhatsNewSettings
   {
+    // Obsolete from version 2.4 on, now we remember last confirmed version.
     [Setting(SettingScope.User, false)]
     public bool NewsConfirmed { get; set; }
+
+    [Setting(SettingScope.User)]
+    public string NewsConfirmedVersion { get; set; }
   }
 }
