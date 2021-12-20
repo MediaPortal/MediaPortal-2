@@ -57,8 +57,7 @@ namespace WhatsNew.Models
         screenConfig.Value.AdditionalProperties["extEnableCoverWatchFlags"] = "True";
       }
       settingsManager.Save(viewSettings);
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.CloseTopmostDialog();
+      Dismiss();
     }
 
     public void Dismiss()
