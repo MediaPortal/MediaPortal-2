@@ -49,8 +49,12 @@ namespace WhatsNew.Models
       {
         screenConfig.Value.LayoutSize = ViewSettings.DEFAULT_LAYOUT_SIZE;
         screenConfig.Value.LayoutType = ViewSettings.DEFAULT_LAYOUT_TYPE;
-        screenConfig.Value.AdditionalProperties["extEnableGridDetails"] = "False";
-        screenConfig.Value.AdditionalProperties["extEnableListDetails"] = "False";
+        screenConfig.Value.AdditionalProperties["extEnableGridDetails"] = "True";
+        screenConfig.Value.AdditionalProperties["extEnableListDetails"] = "True";
+        screenConfig.Value.AdditionalProperties["extEnableCoverDetails"] = "True";
+        screenConfig.Value.AdditionalProperties["extEnableGridWatchFlags"] = "True";
+        screenConfig.Value.AdditionalProperties["extEnableListWatchFlags"] = "True";
+        screenConfig.Value.AdditionalProperties["extEnableCoverWatchFlags"] = "True";
       }
       settingsManager.Save(viewSettings);
       IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();

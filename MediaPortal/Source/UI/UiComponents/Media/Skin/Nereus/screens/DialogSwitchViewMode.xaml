@@ -139,7 +139,7 @@
             <UniformGrid Grid.Row="1" Grid.Column="1" Rows="10" Height="100">
               <UniformGrid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="ListExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding ElementName="ListExtendedMediaDetails" Path="!IsChecked"/>
                   <Binding Source="210"/>
                   <Binding Source="105"/>
                 </MultiBinding>
@@ -207,7 +207,7 @@
             <Grid Grid.Row="1" Grid.Column="1" Height="100">
               <Grid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="ListExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding ElementName="ListExtendedMediaDetails" Path="!IsChecked"/>
                   <Binding Source="210"/>
                   <Binding Source="105"/>
                 </MultiBinding>
@@ -292,7 +292,7 @@
             <Grid Grid.Row="1" Grid.Column="1" Height="100">
               <Grid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="ListExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding ElementName="ListExtendedMediaDetails" Path="!IsChecked"/>
                   <Binding Source="210"/>
                   <Binding Source="105"/>
                 </MultiBinding>
@@ -427,14 +427,14 @@
             <UniformGrid Grid.Row="1" Grid.Column="1" Rows="2" Height="100" HorizontalAlignment="Left">
               <UniformGrid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding ElementName="GridExtendedMediaDetails" Path="!IsChecked"/>
                   <Binding Source="210"/>
                   <Binding Source="105"/>
                 </MultiBinding>
               </UniformGrid.Width>
               <UniformGrid.Columns>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding ElementName="GridExtendedMediaDetails" Path="!IsChecked"/>
                   <Binding Source="6"/>
                   <Binding Source="3"/>
                 </MultiBinding>
@@ -510,14 +510,14 @@
             <UniformGrid Grid.Row="1" Grid.Column="1" Rows="3" Columns="2"  Height="100" HorizontalAlignment="Left">
               <UniformGrid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding ElementName="GridExtendedMediaDetails" Path="!IsChecked"/>
                   <Binding Source="210"/>
                   <Binding Source="105"/>
                 </MultiBinding>
               </UniformGrid.Width>
               <UniformGrid.Columns>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding ElementName="GridExtendedMediaDetails" Path="!IsChecked"/>
                   <Binding Source="4"/>
                   <Binding Source="2"/>
                 </MultiBinding>
@@ -594,7 +594,7 @@
             <UniformGrid Grid.Row="1" Grid.Column="1" Rows="4" Height="100" HorizontalAlignment="Left">
               <UniformGrid.Width>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                  <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                  <Binding ElementName="GridExtendedMediaDetails" Path="!IsChecked"/>
                   <Binding Source="210"/>
                   <Binding Source="105"/>
                 </MultiBinding>
@@ -712,7 +712,7 @@
           <UniformGrid Grid.Row="1" Grid.Column="1" Rows="1" Height="110" Width="210" HorizontalAlignment="Left" Margin="5,0,0,0">
             <UniformGrid.Columns>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding ElementName="ListExtendedMediaDetails" Path="IsChecked"/>
+                <Binding ElementName="ListExtendedMediaDetails" Path="!IsChecked"/>
                 <Binding Source="1"/>
                 <Binding Source="2"/>
               </MultiBinding>
@@ -732,7 +732,7 @@
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <Grid Width="95" Height="13" HorizontalAlignment="Left" VerticalAlignment="Bottom" 
-                    IsVisible="{Binding ElementName=ListExtendedMediaDetails, Path=IsChecked}">
+                    IsVisible="{Binding ElementName=ListExtendedMediaDetails, Path=!IsChecked}">
                 <Grid.Background>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                     <Binding ElementName="ListExtendedMediaDetails" Path="HasFocus"/>
@@ -792,7 +792,7 @@
           <UniformGrid Grid.Row="1" Grid.Column="1" Rows="1" Height="110" Width="210" HorizontalAlignment="Left" Margin="5,0,0,0">
             <UniformGrid.Columns>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-                <Binding ElementName="GridExtendedMediaDetails" Path="IsChecked"/>
+                <Binding ElementName="GridExtendedMediaDetails" Path="!IsChecked"/>
                 <Binding Source="1"/>
                 <Binding Source="2"/>
               </MultiBinding>
@@ -812,7 +812,7 @@
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <Grid Width="95" Height="13" HorizontalAlignment="Left" VerticalAlignment="Bottom" 
-                    IsVisible="{Binding ElementName=GridExtendedMediaDetails, Path=IsChecked}">
+                    IsVisible="{Binding ElementName=GridExtendedMediaDetails, Path=!IsChecked}">
                 <Grid.Background>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                     <Binding ElementName="GridExtendedMediaDetails" Path="HasFocus"/>
@@ -884,7 +884,7 @@
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
-              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ElementName=CoverExtendedMediaDetails, Path=!IsChecked}">
+              <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ElementName=CoverExtendedMediaDetails, Path=IsChecked}">
                 <Grid.Background>
                   <LinearGradientBrush EndPoint="0,0.5" StartPoint="1,0.5">
                     <GradientStop Color="#00000000" Offset="0" />
