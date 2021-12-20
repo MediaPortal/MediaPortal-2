@@ -22,17 +22,15 @@
   <string name="Nereus.Configuration.GridViewType.Poster">Posters</string>
   <string name="Nereus.Configuration.GridViewType.Banner">Banners</string>
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Miniaturen</string>
-  <string name="Nereus.Configuration.EnableHomeContent">Thuisinhoud inschakelen</string>
-  <string name="Nereus.Configuration.EnableHomeContent.Help">Wel of niet tonen van Thuisinhoud op het thuisscherm.</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Media Item Details View inschakelen</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Wel of niet tonen van mediaitemdetails i.p.v. media direct afspelen.</string>
-
   <string name="Nereus.Home.LatestAdded">Laatst gezien</string>
   <string name="Nereus.Home.LatestPlayed">Laatst afgespeeld</string>
   <string name="Nereus.Home.ContinuePlayed">Blijf Spelen</string>
   <string name="Nereus.Home.CurrentPrograms">Huidige programma\'s</string>
   <string name="Nereus.Home.CurrentSchedules">Huidige opnames</string>
   <string name="Nereus.Home.Favorites">Favorieten</string>
+  <string name="Nereus.Home.TopLanguages">Talen</string>
   <string name="Nereus.Home.Unplayed">Niet afgespeeld</string>
   <string name="Nereus.Home.CurrentWeather">Huidige</string>
   <string name="Nereus.Home.Forecast">Voorspeld</string>
@@ -55,6 +53,7 @@
   <string name="Nereus.Shortcut.Place">Plaats</string>
   <string name="Nereus.Shortcut.System">Systeem</string>
   <string name="Nereus.Shortcut.Size">Grootte</string>
+  <string name="Nereus.Shortcut.Setup">Setup</string>
   <string name="Nereus.Shortcut.Location">Locatie</string>
   <string name="Nereus.Shortcut.Refresh">Verversen</string>
   
@@ -64,4 +63,12 @@
   <string name="Nereus.Dialog.EditMenu.Header">Menu bewerken</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Menu items toevoegen</string>
 
-</resources>
+  <string name="Nereus.Info.Director">Regisseur</string>
+  <string name="Nereus.Info.Subtitles">Ondertitels</string>
+  <string name="Nereus.Info.Actors">Acteurs</string>
+  <string name="Nereus.Info.Collection">Verzameling</string>
+  <string name="Nereus.Info.Artists">Artiesten</string>
+  <string name="Nereus.Info.AlbumArtists">Album Artiesten</string>
+  <string name="Nereus.Info.Composer">Componist</string>
+
+  </resources>

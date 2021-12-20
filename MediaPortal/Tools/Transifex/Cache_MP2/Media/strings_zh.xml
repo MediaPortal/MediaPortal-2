@@ -278,7 +278,8 @@
   <string name="Media.MediumList">中列表</string>
   <string name="Media.LargeList">大列表</string>
   <string name="Media.LargeGrid">格</string>
-  <string name="Media.CoverLayout">封面</string>
+  <string name="Media.ListSmall">小</string>
+  <string name="Media.ListMedium">中等</string>
   <string name="Media.Watched">已观看</string>
   <string name="Media.Unwatched">未观看</string>
   <string name="Media.SwitchSortingMenuItem">排序</string>

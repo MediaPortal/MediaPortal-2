@@ -22,17 +22,15 @@
   <string name="Nereus.Configuration.GridViewType.Poster">Posters</string>
   <string name="Nereus.Configuration.GridViewType.Banner">Faixas</string>
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Miniaturas</string>
-  <string name="Nereus.Configuration.EnableHomeContent">Permitir conteúdo em Home</string>
-  <string name="Nereus.Configuration.EnableHomeContent.Help">Permitir, ou não, mostrar conteúdo em Home.</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Permitir vista detalhada de media</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Permitir, ou não, mostrar detalhes de media em vez de reproduzir directamente.</string>
-
   <string name="Nereus.Home.LatestAdded">Adicionado</string>
   <string name="Nereus.Home.LatestPlayed">Visto pela última vez</string>
   <string name="Nereus.Home.ContinuePlayed">Continuar Reprodução</string>
   <string name="Nereus.Home.CurrentPrograms">Programas Atuais</string>
   <string name="Nereus.Home.CurrentSchedules">Agendamentos</string>
   <string name="Nereus.Home.Favorites">Favoritos</string>
+  <string name="Nereus.Home.TopLanguages">Idiomas</string>
   <string name="Nereus.Home.Unplayed">Não visto</string>
   <string name="Nereus.Home.CurrentWeather">Actual</string>
   <string name="Nereus.Home.Forecast">Meteorologia</string>
@@ -65,4 +63,12 @@
   <string name="Nereus.Dialog.EditMenu.Header">Editar menu</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Adicionar item ao menu</string>
 
-</resources>
+  <string name="Nereus.Info.Director">Director</string>
+  <string name="Nereus.Info.Subtitles">Legendas</string>
+  <string name="Nereus.Info.Actors">Actores:</string>
+  <string name="Nereus.Info.Collection">Colecção</string>
+  <string name="Nereus.Info.Artists">Artistas</string>
+  <string name="Nereus.Info.AlbumArtists">Artistas</string>
+  <string name="Nereus.Info.Composer">Compositor</string>
+
+  </resources>

@@ -12,4 +12,6 @@
   <string name="Nereus.Shortcut.Refresh">刷新</string>
   
   <string name="Nereus.Home.OtherPlugins">其它的</string>
+  <string name="Nereus.Info.Subtitles">字幕</string>
+  <string name="Nereus.Info.Actors">演员</string>
   </resources>

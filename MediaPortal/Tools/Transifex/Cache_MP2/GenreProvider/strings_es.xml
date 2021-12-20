@@ -1,15 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="Match.Audio.Classic">Clásica|Opera|Orquestal|Coral|Avant|Barroca|Chant</string>
+  <string name="Match.Audio.Soundtrack">BSO|Cine|Musical|Puntuación</string>
+  <string name="Match.Audio.NewAge">New Age|Medio ambiente|Salud|Meditación|Naturaleza|Relax|Viajes</string>
   <string name="Match.Audio.Rock">Rock|Grunge|Punk</string>
   <string name="Match.Audio.Metal">Metal</string>
+  <string name="Match.Audio.Country">Country|Americana|Bluegrass|Cowboy|Honky|Hokum</string>
   <string name="Match.Audio.Jazz">Jazz|Big Band|Fusion|Ragtime</string>
   <string name="Match.Audio.Soul">R&amp;B|Soul|Disco|Funk|Swing|Blues</string>
   <string name="Match.Audio.Rap">Hop|Rap|Bounce|Turntablism</string>
   <string name="Match.Audio.Raggae">Reggae|Dancehall</string>
   <string name="Match.Audio.Pop">Pop|Beat</string>
   <string name="Match.Audio.Dance">Baile|Club|House|Step|Garage|Trance|NRG|Core|Techno</string>
+  <string name="Match.Audio.Electronic">Electronica|Electro|Experimental|8bit|Chiptune|Downtempo|Industrial</string>
+  <string name="Match.Audio.Comedy">Comedia|Novedad|Parodia</string>
   <string name="Match.Audio.Folk">Folk</string>
+  <string name="Match.Audio.EasyListening">Easy|Lounge|Música de fondo|Swing|Bop|Ambiente</string>
   <string name="Match.Audio.Holiday">Fiesta|Navidad|Pascua de Resurrección|Halloween</string>
+  <string name="Match.Audio.World">Mundo|Africa|Afro|Asia|Australia|Cajun|Latina|Calypso|Caribeña|Céltica|Europa|Francia|America|Polka|Japonesa|India|Coreana|Alemana|Danish|Balada|Etnica|Indie</string>
   <string name="Match.Audio.Alternative">Alternativa|New Wave|Progressive</string>
   <string name="Match.Audio.Compilation">Compilacion</string>
   <string name="Match.Audio.Audiobook">Audiolibro|Libro</string>
@@ -26,7 +34,7 @@
   <string name="Match.Video.Family">Familia|Familiar</string>
   <string name="Match.Video.Fantasy">Fantasía</string>
   <string name="Match.Video.History">Historia</string>
-  <string name="Match.Video.Horror">Horror</string>
+  <string name="Match.Video.Horror">Terror</string>
   <string name="Match.Video.Music">Música</string>
   <string name="Match.Video.Mystery">Misterio</string>
   <string name="Match.Video.Romance">Romance|Romantica</string>

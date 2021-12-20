@@ -368,7 +368,8 @@
   <string name="Media.MediumList">Средња величина листе</string>
   <string name="Media.LargeList">Велика листа</string>
   <string name="Media.LargeGrid">Решетка</string>
-  <string name="Media.CoverLayout">Насловне стране</string>
+  <string name="Media.ListSmall">Мало</string>
+  <string name="Media.ListMedium">Средње</string>
   <string name="Media.Watched">Одгледани</string>
   <string name="Media.Unwatched">Неодгледани</string>
   <string name="Media.SwitchSortingMenuItem">Ређање</string>

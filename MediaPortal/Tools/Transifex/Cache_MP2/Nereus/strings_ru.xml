@@ -11,6 +11,7 @@
   <string name="Nereus.Home.CurrentPrograms">Текущие программы</string>
   <string name="Nereus.Home.CurrentSchedules">Текущие расписания</string>
   <string name="Nereus.Home.Favorites">Избранное</string>
+  <string name="Nereus.Home.TopLanguages">Языки</string>
   <string name="Nereus.Home.Forecast">Прогноз</string>
   <string name="Nereus.Home.LatestLaunched">Последнее запущенное</string>
 
@@ -34,4 +35,11 @@
   <string name="Nereus.Dialog.EditMenu.Header">Изменить меню</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Добавить элемент меню</string>
 
-</resources>
+  <string name="Nereus.Info.Director">Режиссер</string>
+  <string name="Nereus.Info.Subtitles">Субтитры</string>
+  <string name="Nereus.Info.Actors">Актеры</string>
+  <string name="Nereus.Info.Collection">Коллекция</string>
+  <string name="Nereus.Info.Artists">Артисты</string>
+  <string name="Nereus.Info.Composer">Composer</string>
+
+  </resources>

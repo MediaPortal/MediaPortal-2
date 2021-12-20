@@ -1,20 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   
+  <!--Login-->
+  <string name="Login.Title">Inicio de sesión</string>
+  <string name="Login.Title.Help">Inicia sesión un usuario específico</string>
+  <string name="Login.IncorrectPassword">Clave incorrecta, por favor inténtelo de nuevo</string>
   <string name="Login.PasswordOk">OK</string>
+  <string name="Login.EnterPassword">Introduce clave de usuario</string>
+  <string name="Login.Logout">Cerrar sesión</string>
+
   <!--User Settings-->
-  <string name="Settings.Users">Users</string> <string name="UserConfig.Users">Users</string>
+  <string name="Settings.Users">Users</string> <!-- Section name -->
+  <string name="Settings.Users.Config">Gestion de usuarios</string> <!-- Group name -->
+  <string name="Settings.Users.Config.UserManagement">Gestion de usuarios</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserManagement.Help">Gestiona los usuarios del servidor doméstico</string>
+  <string name="Settings.Users.Config.UserEnable">Activar inicio de sesión y restriciones para los usuarios</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">Activa el inicio de sesión de los usuarios, cambia el usuario actual y aplica los ajustes personalizados del usuario</string>
+  <string name="Settings.Users.Config.UserEnableScreen">Activar pantalla de inicio de sesión</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnableScreen.Help">Muestra la pantalla de inicio de sesión cuando el usuario no ha iniciado sesión</string>
+  <string name="Settings.Users.Config.AutoLogout">Cierre de sesión automático</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogout.Help">Activa el cierre de sesión automático de un usuario después de un periodo de inactividad</string>
+  <string name="Settings.Users.Config.AutoLogoutTimeout">Tiempo de espera para el cierre automático de sesión</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLogoutTimeout.Help">Periodo de tiempo permitido de inactividad antes de que se cierre la sesión del usuario</string>
+  <string name="Settings.Users.Config.AutoLoginUser">Inicio de sesión automático</string> <!-- Setting -->
+  <string name="Settings.Users.Config.AutoLoginUser.Help">El usuario que se usará para el inicio de sesión automático</string>
+  <string name="Settings.Users.Config.SystemDefault">Sistema por defecto</string>
+  <string name="Settings.Users.Config.AutoLoginUser.Title">Usuario para el inicio de sesión automático</string>
+  <string name="Settings.Users.Config.UserLanguage">Preferencias del idioma</string>  <!-- Setting -->
+  <string name="Settings.Users.Config.UserLanguage.Help">Configura las preferencias de idioma de los usuarios para los contenidos multimedia</string>
+
+  <!-- User configuration workflow -->
+  <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestion de usuarios</string>
+  <string name="UserConfig.UserLanguagewWorkflowNavigationContextDisplayLabel">Idiomas del usuario</string>
+  <string name="UserConfig.UserConfiguration.Title">Gestion de usuarios</string>
+  <string name="UserConfig.UserLanguages.Title">Idiomas del usuario</string>
+  <string name="UserConfig.Users">Users</string>
+  <string name="UserConfig.NoConfigUserHomeServerNotConnected">El servidor principal no está conectado, por lo que los usuarios del servidor no pueden gestionarse en este momento.</string>
   <string name="UserConfig.UserName">Nombre de usuario</string>
   <string name="UserConfig.Password">Contraseña</string>
+  <string name="UserConfig.ProfileType">Tipo de perfil</string>
+  <string name="UserConfig.AgeFilter">Activar filtro de edad</string>
+  <string name="UserConfig.ShareRestrictions">Límite del acceso compartido</string>
+  <string name="UserConfig.IncludePGContent">Incluye contenido PG - todos los públicos</string>
+  <string name="UserConfig.IncludeUnratedContent">Incluye contenido no clasificado</string>
+  <string name="UserConfig.LastLogin">Último inicio de sesión</string>
+  <string name="UserConfig.NewUserText">Nuevo usuario</string>
   <string name="UserConfig.AddUser">Añadir</string>
   <string name="UserConfig.CopyUser">Copiar</string>
   <string name="UserConfig.DeleteUser">Borrar</string>
   <string name="UserConfig.SaveUser">Guardar</string>
+  <string name="UserConfig.SelectImage">Selecciona una imagen para el usuario</string>
+  <string name="UserConfig.DeleteConfirmation.Title">Confirmación de borrado</string>
+  <string name="UserConfig.DeleteConfirmation">Esta seguro de querer borrar el usuario seleccionado?</string>
   <string name="UserConfig.Yes">Yes</string>
   <string name="UserConfig.No">No</string>
   <string name="UserConfig.Ok">OK</string>
+  <string name="UserConfig.Disable">Desactivar</string>
+
+  <string name="UserConfig.SelectLanguage">Selecciona Idioma</string>
   <string name="UserConfig.Default">Por defecto</string>
+  <string name="UserConfig.MainAudioLanguage">Idioma principal para el audio</string>
+  <string name="UserConfig.SecondaryAudioLanguage">Idioma secundario para el audio</string>
+  <string name="UserConfig.MainSubtitleLanguage">Idioma principal para los subtítulos</string>
+  <string name="UserConfig.SecondarySubtitleLanguage">Idioma secundario para los subtítulos</string>
+  <string name="UserConfig.MainMenuLanguage">Idioma principal para el menú principal</string>
+  <string name="UserConfig.SecondaryMenuLanguage">Idioma secundario para el menu principal</string>
+
+  <string name="UserConfig.SelectProfileTemplate">Selecciona plantilla para el cliente</string>
+  <string name="UserConfig.ClientProfile">Perfil del cliente</string>
+  <string name="UserConfig.UserProfile">Perfil de usuario</string>
+
+  <string name="UserConfig.RestrictionGroups">Acciones restringidas</string>
+  <string name="UserConfig.RestrictedAll">Todas permitidas</string>
+  <string name="UserConfig.RestrictedNone">Ninguna permitida</string>
+  <string name="UserConfig.RestrictedNumbers">{0} / {1} permitidas</string>
+  <string name="UserConfig.SelectRestrictions">Selecciona acciones permitidas para el usuario</string>
+
   <string name="UserConfig.SharesText">Compartidos</string>
+  <string name="UserConfig.SelectShares">Selecciona acceso compartido</string>
   <string name="UserConfig.LocalShare">Cliente de fuente de archivos</string>
   <string name="UserConfig.LocalShares">Cliente de fuentes de archivos</string>
   <string name="UserConfig.GlobalShare">Servidor de fuente de archivos</string>
@@ -22,4 +85,11 @@
   <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">El servidor principal no está conectado, por lo que el servidor de la fuente de archivos no puede controlarse en este momento.</string>
   <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">El servidor principal se encuentra en la misma máquina, por lo que sólo puede configurarse el servidor de la fuente de archivos.</string>
 
-  </resources>
+  <string name="RestrictionGroup.Settings.UserProfile">Ajustes: Gestiona todos los perfiles de usuarios</string>
+  <string name="RestrictionGroup.Settings.UserProfile.ManageOwn">Ajustes: Gestiona su perfil de usuario</string>
+
+  <string name="UserProfileTemplate.Admin">Administrador</string>
+  <string name="UserProfileTemplate.Teenager">Adolescente</string>
+  <string name="UserProfileTemplate.Child">Niño</string>
+
+</resources>

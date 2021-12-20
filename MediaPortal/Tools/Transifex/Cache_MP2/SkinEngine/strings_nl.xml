@@ -18,6 +18,8 @@
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeSkin.Help">Verander de \'look&amp;feel\' van MediaPortal 2</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme">Verander het thema</string>
   <string name="Settings.Appearance.Skin.SkinAndTheme.ChangeTheme.Help">Verander de presentatie van de huidige skin</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds">Skin geluiden inschakelen</string>
+  <string name="Settings.Appearance.Skin.SkinAndTheme.SkinSounds.Help">Stel in of skin geluiden moeten gespeeld worden</string>
   <string name="Settings.Players">Spelers</string>
   <string name="Settings.Players.Rendering">Weergave</string>
   <string name="Settings.Players.Rendering.DefaultGeometry">Standaard zoom mode</string>

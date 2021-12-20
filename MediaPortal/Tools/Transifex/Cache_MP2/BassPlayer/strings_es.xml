@@ -1,14 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Reproductores</string>
+  <string name="Settings.Players.AudioPlayer">Reproductor de Audio</string>
   <string name="Settings.Players.BassPlayer.Setup">Configurar dispositivo de salida</string>
   <string name="Settings.Players.BassPlayer.Setup.Help">Configura el dispositivo de salida BassPlayer y sus opciones</string>
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Modo exclusivo</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Modo de transición entre canciones</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Ajustar tiempo de pausa/atenuación cuando se cambia de pista</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normal</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Sin pausa</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Atenuación</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Buffer de reproducción</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Tiempo de buffer en ms [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
   <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Renderizado</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Duración del Cross fade</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Tiempo para el cross-fade en segundos</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Solicitud de segundos de incremento</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help">Texto de ayuda para solicitud de segundos de incremento</string>
 </resources>

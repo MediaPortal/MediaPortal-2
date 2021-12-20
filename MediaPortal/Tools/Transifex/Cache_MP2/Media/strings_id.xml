@@ -270,7 +270,8 @@
   <string name="Media.MediumList">Daftar sedang</string>
   <string name="Media.LargeList">Daftar besar</string>
   <string name="Media.LargeGrid">Jala</string>
-  <string name="Media.CoverLayout">Sampul</string>
+  <string name="Media.ListSmall">Kecil</string>
+  <string name="Media.ListMedium">Sedang</string>
   <string name="Media.SwitchSortingMenuItem">Mengurutkan</string>
   <string name="Media.SortByDate">Tanggal</string>
   <string name="Media.GroupingBrowseDefault">Baku</string>

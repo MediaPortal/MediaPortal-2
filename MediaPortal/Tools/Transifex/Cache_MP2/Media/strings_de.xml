@@ -422,8 +422,11 @@
   <string name="Media.SmallList">Kleine Liste</string>
   <string name="Media.MediumList">Mittlere Liste</string>
   <string name="Media.LargeList">Große Liste</string>
+  <string name="Media.List">Liste</string>
   <string name="Media.LargeGrid">Raster</string>
   <string name="Media.CoverLayout">Cover</string>
+  <string name="Media.ListSmall">Klein</string>
+  <string name="Media.ListMedium">Mittel</string>
   <string name="Media.Watched">Gesehen</string>
   <string name="Media.Unwatched">Ungesehen</string>
   <string name="Media.SwitchSortingMenuItem">Sortierung</string>

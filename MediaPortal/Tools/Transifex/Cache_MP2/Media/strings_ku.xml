@@ -66,6 +66,8 @@
   <!--Audio currently playing-->
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.ListSmall">بچووک</string>
+  <string name="Media.ListMedium">مامناوەند</string>
   <!--Stubs-->
   <!--Virtual-->
   <!--Settings-->
