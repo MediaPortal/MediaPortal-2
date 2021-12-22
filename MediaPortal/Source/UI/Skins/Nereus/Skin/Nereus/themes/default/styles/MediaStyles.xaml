@@ -1592,14 +1592,31 @@
         </Image>
 
         <!-- Fallback Content, if no poster existing -->
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=poster, Path=!HasImage}" Opacity="0.7"/>
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=poster, Path=!HasImage}"/>
+               IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
         <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" IsVisible="{Binding ElementName=poster, Path=!HasImage}">
           <media:SeriesAspectWrapper.Template>
             <ControlTemplate>
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" Margin="15,50,10,10"
                      Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}" 
-                     VerticalAlignment="Center" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis"/>
+                     VerticalAlignment="Center" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis">
+                <Label.Opacity>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                    <Binding Source="1.0"/>
+                    <Binding Source="0.5"/>
+                  </MultiBinding>
+                </Label.Opacity>
+              </Label>
             </ControlTemplate>
           </media:SeriesAspectWrapper.Template>
         </media:SeriesAspectWrapper>
@@ -1625,14 +1642,32 @@
         </Image>
 
         <!-- Fallback Content, if no poster existing -->
-        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=banner, Path=!HasImage}"/>
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=banner, Path=!HasImage}" Opacity="0.7"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5,-3,-5,-5"
+               IsVisible="{Binding ElementName=banner, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+
         <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" IsVisible="{Binding ElementName=banner, Path=!HasImage}">
           <media:SeriesAspectWrapper.Template>
             <ControlTemplate>
-              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" Margin="15,50,10,10"
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" Margin="60,10,10,10"
                      Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}" 
-                     VerticalAlignment="Center" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis"/>
+                     VerticalAlignment="Center" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis">
+                <Label.Opacity>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                    <Binding Source="1.0"/>
+                    <Binding Source="0.5"/>
+                  </MultiBinding>
+                </Label.Opacity>
+              </Label>
             </ControlTemplate>
           </media:SeriesAspectWrapper.Template>
         </media:SeriesAspectWrapper>
@@ -1658,14 +1693,31 @@
         </Image>
 
         <!-- Fallback Content, if no poster existing -->
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Opacity="0.7"/>
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
         <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
           <media:SeriesAspectWrapper.Template>
             <ControlTemplate>
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" Margin="15,50,10,10"
                      Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}" 
-                     VerticalAlignment="Center" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis"/>
+                     VerticalAlignment="Center" HorizontalAlignment="Stretch" TextTrimming="CharacterEllipsis">
+                <Label.Opacity>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                    <Binding Source="1.0"/>
+                    <Binding Source="0.5"/>
+                  </MultiBinding>
+                </Label.Opacity>
+              </Label>
             </ControlTemplate>
           </media:SeriesAspectWrapper.Template>
         </media:SeriesAspectWrapper>
@@ -1891,6 +1943,31 @@
                                       fanart:MaxWidth="{StaticResource POSTER_GRID_WIDTH}" fanart:MaxHeight="{StaticResource POSTER_GRID_HEIGHT}"/>
           </Image.Source>
         </Image>
+
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=poster, Path=!HasImage}" Opacity="0.7"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+               Margin="15,50,10,10" IsVisible="{Binding ElementName=poster, Path=!HasImage}"
+               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
           <Control.IsVisible>
@@ -1912,11 +1989,27 @@
         </Image>
 
         <!-- Fallback Content, if no banner existing -->
-        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=banner, Path=!HasImage}"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5,-3,-5,-5"
+               IsVisible="{Binding ElementName=banner, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
         <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-               Margin="50,15,10,10" IsVisible="{Binding ElementName=banner, Path=!HasImage}"
-               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+               Margin="60,10,10,10" IsVisible="{Binding ElementName=banner, Path=!HasImage}"
+               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
 
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
@@ -1940,10 +2033,26 @@
 
         <!-- Fallback Content, if no thumbnail existing -->
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
         <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
                Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
-               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
 
         <!-- watched indicator -->
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
@@ -2104,10 +2213,10 @@
                 </Grid.ColumnDefinitions>
 
                 <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
-                   IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                       IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
                 <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
-                   IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
-                   Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Margin="5,0,30,0" Opacity="0.6"/>
+                       IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                       Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" Margin="5,0,30,0" Opacity="0.6"/>
               </Grid>
             </ControlTemplate>
           </media:MediaAspectWrapper.Template>
@@ -2126,10 +2235,10 @@
                 </Grid.ColumnDefinitions>
 
                 <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
-                   IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+                       IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
                 <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
-                   FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
-                   IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
+                       FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
+                       IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
                   <Label.Content>
                     <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F1}"/>
                   </Label.Content>
@@ -2154,10 +2263,10 @@
                 </Grid.ColumnDefinitions>
 
                 <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
-                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,-1,0,1"/>
+                       IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,-1,0,1"/>
                 <Label x:Name="Duration" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
-                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0"
-                   Grid.Column="1" VerticalAlignment="Center">
+                       IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0"
+                       Grid.Column="1" VerticalAlignment="Center">
                   <Label.Content>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
                       <Binding Path="Duration"/>
@@ -2165,9 +2274,9 @@
                   </Label.Content>
                 </Label>
                 <Label Content=" " IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"
-                   FontSize="{ThemeResource SmallerFontSize}" Grid.Column="2" VerticalAlignment="Center"/>
+                       FontSize="{ThemeResource SmallerFontSize}" Grid.Column="2" VerticalAlignment="Center"/>
                 <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
-                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Grid.Column="3" Opacity="0.6" Margin="0,0,30,0"/>
+                       IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Grid.Column="3" Opacity="0.6" Margin="0,0,30,0"/>
               </Grid>
             </ControlTemplate>
           </media:VideoStreamAspectWrapper.Template>
@@ -2189,11 +2298,27 @@
 
       <!-- Fallback Content, if no thumbnail existing -->
       <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <Image.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.3"/>
+            <Binding Source="0.6"/>
+          </MultiBinding>
+        </Image.Opacity>
+      </Image>
       <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
              Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
-             Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-
+             Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1.0"/>
+            <Binding Source="0.5"/>
+          </MultiBinding>
+        </Label.Opacity>
+      </Label>
+      
       <!-- watched indicator -->
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
         <Control.IsVisible>
@@ -2350,8 +2475,17 @@
         </Image>
 
         <!-- Fallback Content, if no poster existing -->
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=poster, Path=!HasImage}" Opacity="0.7"/>
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=poster, Path=!HasImage}"/>
+               IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
 
         <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="15,50,10,10"
                                   IsVisible="{Binding ElementName=poster, Path=!HasImage}">
@@ -2359,7 +2493,15 @@
             <ControlTemplate>
               <Grid >
                 <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                  <Label.Opacity>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                      <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                      <Binding Source="1.0"/>
+                      <Binding Source="0.5"/>
+                    </MultiBinding>
+                  </Label.Opacity>
+                </Label>
               </Grid>
             </ControlTemplate>
           </media:MovieAspectWrapper.Template>
@@ -2386,16 +2528,33 @@
         </Image>
 
         <!-- Fallback Content, if no banner existing -->
-        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=banner, Path=!HasImage}"/>
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=banner, Path=!HasImage}" Opacity="0.7"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5,-3,-5,-5"
+               IsVisible="{Binding ElementName=banner, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
 
-        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="50,15,10,10"
+        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="60,10,10,10"
                                   IsVisible="{Binding ElementName=banner, Path=!HasImage}">
           <media:MovieAspectWrapper.Template>
             <ControlTemplate>
               <Grid >
                 <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                  <Label.Opacity>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                      <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                      <Binding Source="1.0"/>
+                      <Binding Source="0.5"/>
+                    </MultiBinding>
+                  </Label.Opacity>
+                </Label>
               </Grid>
             </ControlTemplate>
           </media:MovieAspectWrapper.Template>
@@ -2423,7 +2582,15 @@
 
         <!-- Fallback Content, if no thumbnail existing -->
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
 
         <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="15,50,10,10"
                                   IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
@@ -2431,7 +2598,15 @@
             <ControlTemplate>
               <Grid >
                 <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                  <Label.Opacity>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                      <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                      <Binding Source="1.0"/>
+                      <Binding Source="0.5"/>
+                    </MultiBinding>
+                  </Label.Opacity>
+                </Label>
               </Grid>
             </ControlTemplate>
           </media:MovieAspectWrapper.Template>
@@ -2700,8 +2875,17 @@
         </Image>
 
         <!-- Fallback Content, if no poster existing -->
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=poster, Path=!HasImage}" Opacity="0.7"/>
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=poster, Path=!HasImage}"/>
+               IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
 
         <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="15,50,10,10"
                                   IsVisible="{Binding ElementName=poster, Path=!HasImage}">
@@ -2709,7 +2893,15 @@
             <ControlTemplate>
               <Grid >
                 <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                  <Label.Opacity>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                      <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                      <Binding Source="1.0"/>
+                      <Binding Source="0.5"/>
+                    </MultiBinding>
+                  </Label.Opacity>
+                </Label>
               </Grid>
             </ControlTemplate>
           </media:MovieAspectWrapper.Template>
@@ -2741,17 +2933,32 @@
         </Image>
 
         <!-- Fallback Content, if no banner existing -->
-        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=banner, Path=!HasImage}"/>
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=banner, Path=!HasImage}" Opacity="0.7"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5,-3,-5,-5"
+               IsVisible="{Binding ElementName=banner, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
 
-        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="50,15,10,10"
+        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="60,10,10,10"
                                   IsVisible="{Binding ElementName=banner, Path=!HasImage}">
           <media:MovieAspectWrapper.Template>
             <ControlTemplate>
-              <Grid >
-                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-              </Grid>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+                     Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                <Label.Opacity>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                    <Binding Source="1.0"/>
+                    <Binding Source="0.5"/>
+                  </MultiBinding>
+                </Label.Opacity>
+              </Label>
             </ControlTemplate>
           </media:MovieAspectWrapper.Template>
         </media:MovieAspectWrapper>
@@ -2782,17 +2989,31 @@
         </Image>
 
         <!-- Fallback Content, if no thumbnail existing -->
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Opacity="0.7"/>
         <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
 
-        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="15,50,10,10"
-                                  IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+        <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
           <media:MovieAspectWrapper.Template>
             <ControlTemplate>
-              <Grid >
-                <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-                       Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-              </Grid>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+                     Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+                <Label.Opacity>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                    <Binding Source="1.0"/>
+                    <Binding Source="0.5"/>
+                  </MultiBinding>
+                </Label.Opacity>
+              </Label>
             </ControlTemplate>
           </media:MovieAspectWrapper.Template>
         </media:MovieAspectWrapper>
@@ -2919,28 +3140,59 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewVideoItemTemplate">
-    <Grid x:Name="ItemControl" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
-      <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
-      <Image x:Name="thumbnail" Stretch="UniformToFill" Margin="3" Source="{Binding MediaItem}"/>
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
 
-      <!-- Fallback Content, if no thumbnail existing -->
-      <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
-             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
-      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-             Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
-             Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+      <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
+        <Grid.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+        </Grid.IsVisible>
 
-      <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
-        <Control.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
-        </Control.IsVisible>
-      </Control>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
-        <Control.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
-        </Control.IsVisible>
-      </Control>
+        <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+        <Image x:Name="thumbnail" Stretch="UniformToFill" Margin="3" Source="{Binding MediaItem}"/>
+
+        <!-- Fallback Content, if no thumbnail existing -->
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Opacity="0.7"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+               Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
+               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+
+        <!-- watched indicator -->
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+      </Grid>
+
     </Grid>
   </ControlTemplate>
 
