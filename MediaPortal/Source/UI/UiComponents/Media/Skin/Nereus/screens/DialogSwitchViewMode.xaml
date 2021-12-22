@@ -361,7 +361,7 @@
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
             <RadioButton x:Name="Grid" HorizontalAlignment="Center" GroupName="ViewModes"
-                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout}}">
+                         Command="{Command Source={StaticResource ViewModeModel}, Path=SetViewMode, Parameters={vm:SetViewModeParameter Layout=GridLayout, Size=Large}}">
               <RadioButton.IsChecked>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{GridLayout}">
                   <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
