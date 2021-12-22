@@ -476,8 +476,6 @@
   <string name="Settings.Media.Certification.Series">Series certificatie systeem land</string>
   <string name="Settings.Media.Certification.Series.Help">Selecteer het series certificatie systeem land om te gebruiken bij tonen film certificaties</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

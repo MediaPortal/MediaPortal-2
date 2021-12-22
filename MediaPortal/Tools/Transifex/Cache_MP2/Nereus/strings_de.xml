@@ -4,6 +4,18 @@
   <string name="Nereus.Configuration.EnableHelpTexts.Help">Hilfetexte für Menüs im Home Screen anzeigen</string>
   <string name="Nereus.Configuration.EnableFanart">Fanart aktivieren</string>
   <string name="Nereus.Configuration.EnableFanart.Help">Hintergrund-Fanart anzeigen</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling">Loop-Scrolling aktivieren</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling.Help">Ob Loop-Scrolling in Medienlisten verwendet werden soll.</string>
+  <string name="Nereus.Configuration.EnableGridDetails">Rasterdetails aktivieren </string>
+  <string name="Nereus.Configuration.EnableGridDetails.Help">Ob rechtsseitige Medienelementdetails für Rasteransichten angezeigt werden. Wenn deaktiviert, werden unten vereinfachte Details angezeigt.</string>
+  <string name="Nereus.Configuration.EnableCoverDetails">Coverdetails aktivieren</string>
+  <string name="Nereus.Configuration.EnableCoverDetails.Help">Ob Medienelementdetails für Coveransichten angezeigt werden sollen.</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling">Automatisches Scrollen aktivieren</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling.Help">Ob das automatische Scrollen anstelle des manuellen Scrollens in Scroll-Ansichten verwendet werden soll.</string>
+  <string name="Nereus.Configuration.AutoScrolling">Automatisches Scrollen</string>
+  <string name="Nereus.Configuration.ManualAutoScrolling">Manuelles Scrollen</string>
+  <string name="Nereus.Configuration.AutoScrollSpeed">Scroll-Geschwindigkeit</string>
+  <string name="Nereus.Configuration.AutoScrollDelay">Scroll-Verzögerung</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity">Fanart-Darstellung</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Steuert die Transparenz der Fanart-Anzeige im Hintergrund. Kleinere Werte erhöhen die Sichtbarkeit (Standard = 1,0).</string>
   <string name="Nereus.Configuration.EnableWatchedFlags">Gesehen-Symbol aktivieren</string>
@@ -24,6 +36,9 @@
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Vorschaubilder</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Medien Detail-Ansicht aktivieren</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Zeigt zunächst Mediendetails an, statt den Titel direkt wiederzugeben.</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay">Aktiviere Touch-Display Unterstützung</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay.Help">Ob die automatischen Slide-Menüs deaktiviert und die Anzeige von Navigationstasten erzwungen werden sollen, um eine bessere Touch-Display-Unterstützung zu erzielen. </string>
+
   <string name="Nereus.Home.LatestAdded">Zuletzt hinzugefügt</string>
   <string name="Nereus.Home.LatestPlayed">Zuletzt abgespielt</string>
   <string name="Nereus.Home.ContinuePlayed">Wiedergabe fortsetzen</string>
@@ -63,12 +78,19 @@
   <string name="Nereus.Dialog.EditMenu.Header">Menü editieren</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Menüeintrag hinzufügen</string>
 
+  <string name="Nereus.Dialog.EditMediaList.Header">Editiere Home Content</string>
+  <string name="Nereus.Dialog.AddMediaListItem.Header">Füge Home Content hinzu</string>
+
   <string name="Nereus.Info.Director">Regisseur</string>
   <string name="Nereus.Info.Subtitles">Untertitel</string>
   <string name="Nereus.Info.Actors">Darsteller</string>
   <string name="Nereus.Info.Collection">Filmreihe</string>
+  <string name="Nereus.Info.Audio">Audiospuren</string>
   <string name="Nereus.Info.Artists">Interpreten</string>
   <string name="Nereus.Info.AlbumArtists">Album Artisten</string>
   <string name="Nereus.Info.Composer">Komponist</string>
 
-  </resources>
+  <string name="Nereus.Configuration.SelectSkinColor">Wähle das Skin Farbschema</string>
+  <string name="Nereus.Configuration.SelectSkinColor.Help">Konfiguriere das Skin Farbschema durch die Auswahl eines Farbmusters</string>
+  
+</resources>
