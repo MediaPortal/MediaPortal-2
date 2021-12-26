@@ -33,15 +33,99 @@
           </Polygon.Fill>
         </Polygon>
         <Image x:Name="WatchedLabel" Height="9" Margin="0,5,5,2" Stretch="Uniform"
-                   Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
+               Source="watched.png" HorizontalAlignment="Right" VerticalAlignment="Top"/>
       </Grid>
     </ControlTemplate>
-    
+
     <!--ResourceWrapper x:Key="Menu_Items" EnableBindings="True"
         Resource="{Binding Source={StaticResource ViewModeModel},Path=ViewModeItemsList,Mode=OneTime}"/-->
     
     <ControlTemplate x:Key="Contents_Template">
       <Grid>
+
+        <!-- Controls to verify shich sreen is currently used and which options to hide -->
+
+        <Control x:Name="AudioDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:AudioAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+        <Control x:Name="AudioAlbumDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:AudioAlbumAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+        <Control x:Name="ImageDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:ImageAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+        <Control x:Name="MovieDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+        <Control x:Name="MovieCollectionDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:MovieCollectionAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+        <Control x:Name="SeriesDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:SeriesAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+        <Control x:Name="SeasonDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:SeasonAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+        <Control x:Name="EpisodeDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+        <Control x:Name="PersonDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:PersonAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+        <Control x:Name="GenreDetails">
+          <Control.IsVisible>
+            <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+              <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+              <Binding Source="{x:Static aspect:GenreAspect.ASPECT_ID}" />
+            </MultiBinding>
+          </Control.IsVisible>
+        </Control>
+
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="1"/>
@@ -387,6 +471,16 @@
           </Grid>
 
           <Grid Grid.Row="1" Grid.Column="0" Margin="10,10,0,0">
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                            ConverterParameter="{}(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible}))">
+                <Binding ElementName="ImageDetails" Path="Visibility" />
+                <Binding ElementName="MovieDetails" Path="Visibility" />
+                <Binding ElementName="MovieCollectionDetails" Path="Visibility" />
+                <Binding ElementName="SeriesDetails" Path="Visibility" />
+                <Binding ElementName="SeasonDetails" Path="Visibility" />
+              </MultiBinding>
+            </Grid.IsVisible>
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
@@ -555,6 +649,15 @@
           </Grid>
 
           <Grid Grid.Row="3" Grid.Column="0" Margin="10,10,0,0">
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                            ConverterParameter="{}(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible}))">
+                <Binding ElementName="MovieDetails" Path="Visibility" />
+                <Binding ElementName="MovieCollectionDetails" Path="Visibility" />
+                <Binding ElementName="SeriesDetails" Path="Visibility" />
+                <Binding ElementName="SeasonDetails" Path="Visibility" />
+              </MultiBinding>
+            </Grid.IsVisible>
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>

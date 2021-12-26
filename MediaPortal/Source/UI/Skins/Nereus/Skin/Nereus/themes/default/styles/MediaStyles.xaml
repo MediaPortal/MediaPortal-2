@@ -19,6 +19,7 @@
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+  <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
 
   <MultiAspectAttributeConverter x:Key="MultiAspectAttributeConverter"/>
   <wmc_converters:RoundingFormatConverter x:Key="RoundingFormatConverter"/>
@@ -3148,10 +3149,55 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
+      <!--Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
         <Grid.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Grid.IsVisible>
+
+        <Image Stretch="Fill" Source="poster_small.png" Margin="-5"/>
+        <Image x:Name="poster" Stretch="UniformToFill" Margin="3" Source="{Binding MediaItem}"/-->
+
+        <!-- Fallback Content, if no thumbnail existing -->
+        <!--Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=poster, Path=!HasImage}" Opacity="0.7"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+               Margin="15,50,10,10" IsVisible="{Binding ElementName=poster, Path=!HasImage}"
+               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label-->
+
+        <!-- watched indicator -->
+        <!--Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+      </Grid-->
+
+      <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
+        <!--Grid.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+        </Grid.IsVisible-->
 
         <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
         <Image x:Name="thumbnail" Stretch="UniformToFill" Margin="3" Source="{Binding MediaItem}"/>
@@ -3966,28 +4012,103 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="GridViewImageItemTemplate">
-    <Grid x:Name="ItemControl" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
-      <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
-      <Image x:Name="thumbnail" Stretch="UniformToFill" Margin="3" Source="{Binding MediaItem}"/>
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
 
-      <!-- Fallback Content, if no thumbnail existing -->
-      <Image Source="image.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="UniformToFill" Margin="-5"
-             IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"/>
-      <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
-             Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
-             Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+      <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
+        <Grid.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
+        </Grid.IsVisible>
 
-      <!-- watched indicator -->
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
-        <Control.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
-        </Control.IsVisible>
-      </Control>
-      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
-        <Control.IsVisible>
-          <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
-        </Control.IsVisible>
-      </Control>
+        <Image Stretch="Fill" Source="poster_small.png" Margin="-5"/>
+        <Image x:Name="poster" Stretch="UniformToFill" Margin="3" Source="{Binding MediaItem}"/>
+
+        <!-- Fallback Content, if no thumbnail existing -->
+        <Image Source="image.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="UniformToFill" Margin="-5"
+             IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+               Margin="15,50,10,10" IsVisible="{Binding ElementName=poster, Path=!HasImage}"
+               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+
+        <!-- watched indicator -->
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+      </Grid>
+
+      <Grid x:Name="ThumbnailGrid" Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
+        <Grid.IsVisible>
+          <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small}"/>
+        </Grid.IsVisible>
+
+        <Image Stretch="Fill" Source="thumbnail_small.png" Margin="-5"/>
+        <Image x:Name="thumbnail" Stretch="UniformToFill" Margin="3" Source="{Binding MediaItem}"/>
+
+        <!-- Fallback Content, if no thumbnail existing -->
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}" Opacity="0.7"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+        <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+               Margin="15,50,10,10" IsVisible="{Binding ElementName=thumbnail, Path=!HasImage}"
+               Content="{Binding SimpleTitle}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+
+        <!-- watched indicator -->
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_WatchedFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0" Template="{StaticResource Cover_OfflineFlag_Template}">
+          <Control.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridWatchFlags].Value" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;"/>
+          </Control.IsVisible>
+        </Control>
+      </Grid>
+
     </Grid>
   </ControlTemplate>
 
