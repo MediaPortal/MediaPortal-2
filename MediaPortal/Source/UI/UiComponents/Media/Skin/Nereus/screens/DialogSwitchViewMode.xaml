@@ -125,6 +125,14 @@
             </MultiBinding>
           </Control.IsVisible>
         </Control>
+        <Control x:Name="VideoDetails">
+            <Control.IsVisible>
+              <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem" />
+                <Binding Source="{x:Static aspect:VideoAspect.ASPECT_ID}" />
+              </MultiBinding>
+            </Control.IsVisible>
+          </Control>
 
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
@@ -1018,6 +1026,20 @@
         
         <!-- LIST WATCHED FLAGS -->
         <Grid Grid.Column="0" Grid.Row="4" Margin="5,5,50,10">
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                          ConverterParameter="{}(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible})||({5}=={VisibilityEnum}.{Visible})||({6}=={VisibilityEnum}.{Visible})||({7}=={VisibilityEnum}.{Visible})||({8}=={VisibilityEnum}.{Visible}))">
+              <Binding ElementName="ImageDetails" Path="Visibility" />
+              <Binding ElementName="MovieDetails" Path="Visibility" />
+              <Binding ElementName="MovieCollectionDetails" Path="Visibility" />
+              <Binding ElementName="SeriesDetails" Path="Visibility" />
+              <Binding ElementName="SeasonDetails" Path="Visibility" />
+              <Binding ElementName="AudioDetails" Path="Visibility" />
+              <Binding ElementName="AudioAlbumDetails" Path="Visibility" />
+              <Binding ElementName="EpisodeDetails" Path="Visibility" />
+              <Binding ElementName="VideoDetails" Path="Visibility" />
+              </MultiBinding>
+          </Grid.IsVisible>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -1056,6 +1078,20 @@
 
         <!-- GRID WATCHED FLAGS -->
         <Grid Grid.Column="2" Grid.Row="4" Margin="5,5,10,0">
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                          ConverterParameter="{}(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible})||({5}=={VisibilityEnum}.{Visible})||({6}=={VisibilityEnum}.{Visible})||({7}=={VisibilityEnum}.{Visible})||({8}=={VisibilityEnum}.{Visible}))">
+              <Binding ElementName="ImageDetails" Path="Visibility" />
+              <Binding ElementName="MovieDetails" Path="Visibility" />
+              <Binding ElementName="MovieCollectionDetails" Path="Visibility" />
+              <Binding ElementName="SeriesDetails" Path="Visibility" />
+              <Binding ElementName="SeasonDetails" Path="Visibility" />
+              <Binding ElementName="AudioDetails" Path="Visibility" />
+              <Binding ElementName="AudioAlbumDetails" Path="Visibility" />
+              <Binding ElementName="EpisodeDetails" Path="Visibility" />
+              <Binding ElementName="VideoDetails" Path="Visibility" />
+            </MultiBinding>
+          </Grid.IsVisible>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -1110,6 +1146,20 @@
 
         <!-- COVERFLOW WATCHED FLAGS -->
         <Grid Grid.Column="4" Grid.Row="4" Margin="10,5,10,0">
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" 
+                          ConverterParameter="{}(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible})||({2}=={VisibilityEnum}.{Visible})||({3}=={VisibilityEnum}.{Visible})||({4}=={VisibilityEnum}.{Visible})||({5}=={VisibilityEnum}.{Visible})||({6}=={VisibilityEnum}.{Visible})||({7}=={VisibilityEnum}.{Visible})||({8}=={VisibilityEnum}.{Visible}))">
+              <Binding ElementName="ImageDetails" Path="Visibility" />
+              <Binding ElementName="MovieDetails" Path="Visibility" />
+              <Binding ElementName="MovieCollectionDetails" Path="Visibility" />
+              <Binding ElementName="SeriesDetails" Path="Visibility" />
+              <Binding ElementName="SeasonDetails" Path="Visibility" />
+              <Binding ElementName="AudioDetails" Path="Visibility" />
+              <Binding ElementName="AudioAlbumDetails" Path="Visibility" />
+              <Binding ElementName="EpisodeDetails" Path="Visibility" />
+              <Binding ElementName="VideoDetails" Path="Visibility" />
+            </MultiBinding>
+          </Grid.IsVisible>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
