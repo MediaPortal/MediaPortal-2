@@ -430,20 +430,28 @@ namespace MediaPortal.UiComponents.Media.Models
         nextScreen = remainingScreens.First(s => s != currentScreen);
 
       ScreenConfig nextScreenConfig;
-      LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
+      Sorting.Sorting nextSortingMode = _currentSorting;
+      Sorting.Sorting nextGroupingMode = _currentGrouping;
+      LayoutType nextLayoutType = LayoutType.GridLayout;
+      LayoutSize nextLayoutSize = LayoutSize.Large;
+      MediaDictionary<string, string> nextProperties = new MediaDictionary<string, string>();
 
-      Sorting.Sorting nextSortingMode = AvailableSortings.FirstOrDefault(
-        sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting && sorting.IsAvailable(nextScreen)) ?? _currentSorting;
-      Sorting.Sorting nextGroupingMode = String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : AvailableGroupings.FirstOrDefault(
-        grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping && grouping.IsAvailable(nextScreen)) ?? _currentGrouping;
+      if (LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig) && nextScreenConfig != null)
+      {
+        nextSortingMode = AvailableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting && sorting.IsAvailable(nextScreen)) ?? _currentSorting;
+        nextGroupingMode = String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : AvailableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping && grouping.IsAvailable(nextScreen)) ?? _currentGrouping;
+        nextLayoutType = nextScreenConfig.LayoutType;
+        nextLayoutSize = nextScreenConfig.LayoutSize;
+        nextProperties = nextScreenConfig.AdditionalProperties;
+      }
 
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
           newState.StateId, newState.StateId, subViewSpecification, nextScreen, remainingScreens,
           nextSortingMode, nextGroupingMode)
       {
-        LayoutType = nextScreenConfig.LayoutType,
-        LayoutSize = nextScreenConfig.LayoutSize,
-        AdditionalProperties = nextScreenConfig.AdditionalProperties
+        LayoutType = nextLayoutType,
+        LayoutSize = nextLayoutSize,
+        AdditionalProperties = nextProperties
       };
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
       return newNavigationData;
