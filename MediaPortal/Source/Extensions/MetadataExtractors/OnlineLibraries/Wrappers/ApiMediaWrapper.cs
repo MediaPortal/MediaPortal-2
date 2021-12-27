@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -1915,12 +1915,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return MAX_LEVENSHTEIN_DIST + 1;
 
       string cleanedName = RemoveCharacters(seriesSearch.SeriesName.Text);
+      string cleanedAlternateName = string.IsNullOrEmpty(seriesSearch.AlternateName) ? cleanedName : RemoveCharacters(seriesSearch.AlternateName);
+
       if (string.IsNullOrEmpty(seriesOnline.OriginalName))
-        return StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName);
-      else
         return Math.Min(
           StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName),
-          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.OriginalName), cleanedName)
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedAlternateName)
+        );
+      else
+        return Math.Min(
+          Math.Min(StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedName),
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.OriginalName), cleanedName)),
+          Math.Min(StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.SeriesName.Text), cleanedAlternateName),
+          StringUtils.GetLevenshteinDistance(RemoveCharacters(seriesOnline.OriginalName), cleanedAlternateName))
         );
     }
 
@@ -2016,12 +2023,21 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         return false;
 
       if (string.IsNullOrEmpty(seriesOnline.OriginalName))
-        return seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text);
+      {
+        if (seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text))
+          return true;
+        if (!string.IsNullOrEmpty(seriesSearch.AlternateName) && seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.AlternateName))
+          return true;
+      }
       else
       {
         if (seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.SeriesName.Text))
           return true;
         if (seriesSearch.OnlineMatchNames(seriesOnline.OriginalName, seriesSearch.SeriesName.Text))
+          return true;
+        if (!string.IsNullOrEmpty(seriesSearch.AlternateName) && seriesSearch.OnlineMatchNames(seriesOnline.SeriesName.Text, seriesSearch.AlternateName))
+          return true;
+        if (!string.IsNullOrEmpty(seriesSearch.AlternateName) && seriesSearch.OnlineMatchNames(seriesOnline.OriginalName, seriesSearch.AlternateName))
           return true;
       }
       return false;

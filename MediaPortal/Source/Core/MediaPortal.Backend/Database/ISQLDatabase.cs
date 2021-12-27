@@ -109,6 +109,11 @@ namespace MediaPortal.Backend.Database
     uint MaxObjectNameLength { get; }
 
     /// <summary>
+    /// Gets the maximum number of parameters allowed per query for this database.
+    /// </summary>
+    uint MaxNumberOfParameters { get; }
+
+    /// <summary>
     /// Get SQL operator used for concatenating two strings. For Oracle, that will be
     /// <c>"||"</c>, for example. For MS SQL Server, that will be <c>"+"</c>.
     /// </summary>
@@ -282,5 +287,32 @@ namespace MediaPortal.Backend.Database
     /// <param name="statementStr">Current create table statement</param>
     /// <returns>Storage clause or <c>null</c></returns>
     string GetStorageClause(string statementStr);
+  }
+
+  /// <summary>
+  /// Extension interface for creating temporary tables.
+  /// </summary>
+  public interface ISQLTemporaryTable : ISQLDatabase
+  {
+    /// <summary>
+    /// Returns the name of the column in the temporary table that holds all the Id's stored in the temporary table.
+    /// </summary>
+    string IdColumn { get; }
+
+    /// <summary>
+    /// Create a new unique temporary table that can be used for storing Media Item Ids.
+    /// </summary>
+    /// <param name="transaction">The transaction with to create the temporary table</param>
+    /// <returns>Temporary table name or <c>null</c></returns>
+    string GetTemporaryIdTable(ITransaction transaction);
+
+    /// <summary>
+    /// Add Ids to a temporary table.
+    /// </summary>
+    /// <param name="transaction">The transaction with to use for inserting the data</param>
+    /// <param name="temporaryTable">The name of the temporary table name into which the Id's should be inserted</param>
+    /// <param name="mediaItemIds">The media items to add to the temporary database</param>
+    /// <returns>Successful if <c>true</c> and other otherwise <c>false</c></returns>
+    bool SaveTemporaryIds(ITransaction transaction, string temporaryTable, IList<Guid> mediaItemIds);
   }
 }

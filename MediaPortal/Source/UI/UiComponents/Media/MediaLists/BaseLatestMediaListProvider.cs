@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,9 +42,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       };
     }
 
-    protected override bool ShouldUpdate(UpdateReason updateReason)
+    protected override bool ShouldUpdate(UpdateReason updateReason, ICollection<object> updatedObjects)
     {
-      return updateReason.HasFlag(UpdateReason.ImportComplete) || updateReason.HasFlag(UpdateReason.UserChanged) || base.ShouldUpdate(updateReason);
+      return updateReason.HasFlag(UpdateReason.ImportComplete) || updateReason.HasFlag(UpdateReason.UserChanged) || base.ShouldUpdate(updateReason, updatedObjects);
     }
   }
 

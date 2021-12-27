@@ -191,7 +191,10 @@
   <string name="Media.RepeatMode.All">Wszystkie</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.List">Lista</string>
   <string name="Media.LargeGrid">Siatka</string>
+  <string name="Media.ListSmall">Mały</string>
+  <string name="Media.ListMedium">Średni</string>
   <string name="Media.SortByDate">Data</string>
   <string name="Media.GroupingBrowseDefault">Domyślne</string>
   <!--Stubs-->
@@ -199,6 +202,4 @@
   <!--Settings-->
   <string name="Settings.Players">Odtwarzacze</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

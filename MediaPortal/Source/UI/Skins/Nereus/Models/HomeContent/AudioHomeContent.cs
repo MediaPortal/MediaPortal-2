@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,15 +27,24 @@ using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
+using System.Linq;
+using System.Windows.Forms;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class AudioHomeContent : AbstractHomeContent
   {
+    public AudioHomeContent()
+    {
+      _availableLists.Add(new LatestAudioList());
+      _availableLists.Add(new ContinueAlbumList());
+      _availableLists.Add(new FavoriteAudioList());
+      _availableLists.Add(new UnplayedAlbumList());
+    }
+
     protected override void PopulateBackingList()
     {
-      MediaListModel mlm = GetMediaListModel();
-
       _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new AudioGenreShortcut(),
@@ -44,50 +53,39 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         new AudioArtistShortcut(),
         new AudioYearShortcut()
       }));
-
-      _backingList.Add(new LatestAudioList(mlm.Lists["LatestAudio"].AllItems));
-      _backingList.Add(new ContinueAlbumList(mlm.Lists["ContinuePlayAlbum"].AllItems));
-      _backingList.Add(new FavoriteAudioList(mlm.Lists["FavoriteAudio"].AllItems));
-      _backingList.Add(new UnplayedAlbumList(mlm.Lists["UnplayedAlbum"].AllItems));
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
-      MediaListModel mlm = GetMediaListModel();
-
-      mlm.ForceUpdate("LatestAudio");
-      mlm.ForceUpdate("ContinuePlayAlbum");
-      mlm.ForceUpdate("FavoriteAudio");
-      mlm.ForceUpdate("UnplayedAlbum");
+      return GetMediaListModel();
     }
   }
 
-
-  public class LatestAudioList : ItemsListWrapper
+  public class LatestAudioList : MediaListItemsListWrapper
   {
-    public LatestAudioList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestAdded]")
+    public LatestAudioList()
+      : base("LatestAudio", "[Nereus.Home.LatestAdded]")
     { }
   }
 
-  public class ContinueAlbumList : ItemsListWrapper
+  public class ContinueAlbumList : MediaListItemsListWrapper
   {
-    public ContinueAlbumList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.ContinuePlayed]")
+    public ContinueAlbumList()
+      : base("ContinuePlayAlbum", "[Nereus.Home.ContinuePlayed]")
     { }
   }
 
-  public class FavoriteAudioList : ItemsListWrapper
+  public class FavoriteAudioList : MediaListItemsListWrapper
   {
-    public FavoriteAudioList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteAudioList()
+      : base("FavoriteAudio", "[Nereus.Home.Favorites]")
     { }
   }
 
-  public class UnplayedAlbumList : ItemsListWrapper
+  public class UnplayedAlbumList : MediaListItemsListWrapper
   {
-    public UnplayedAlbumList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Unplayed]")
+    public UnplayedAlbumList()
+      : base("UnplayedAlbum", "[Nereus.Home.Unplayed]")
     { }
   }
 

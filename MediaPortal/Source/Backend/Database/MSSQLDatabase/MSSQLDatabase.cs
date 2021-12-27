@@ -32,10 +32,12 @@ using System.Collections.Generic;
 using System.Data;
 using System.Data.SqlClient;
 using System.Data.SqlTypes;
+using System.Threading;
+using MediaPortal.Backend.Services.MediaLibrary;
 
 namespace MediaPortal.Database.MSSQL
 {
-  public class MSSQLDatabase : ISQLDatabase
+  public class MSSQLDatabase : ISQLDatabase, ISQLDatabasePaging, ISQLTemporaryTable
   {
     #region Constants
 
@@ -53,6 +55,7 @@ namespace MediaPortal.Database.MSSQL
     private readonly string _connectionString;
     private readonly MSSQLDatabaseSettings _settings;
     private string _version;
+    private long _tempTableCount = 0;
 
     #endregion
 
@@ -218,6 +221,12 @@ namespace MediaPortal.Database.MSSQL
     public uint MaxObjectNameLength
     {
       get { return 30; }
+    }
+
+    public uint MaxNumberOfParameters
+    {
+      //The maximum number of a host parameter is by default 2100. We set it a bit lower to have a little headroom.
+      get { return 2050; }
     }
 
     public string ConcatOperator
@@ -510,6 +519,71 @@ namespace MediaPortal.Database.MSSQL
     public string CreateDateToYearProjectionExpression(string selectExpression)
     {
       return "DATEPART(YEAR, " + selectExpression + ")";
+    }
+
+    public bool Process(ref string statementStr, ref IList<BindVar> bindVars, ref uint? offset, ref uint? limit)
+    {
+      if (!offset.HasValue && !limit.HasValue)
+        return false;
+
+      if (string.IsNullOrEmpty(statementStr))
+        return false;
+
+      if (statementStr.IndexOf("order by", StringComparison.InvariantCultureIgnoreCase) > -1)
+      {
+        string limitClause = string.Format(" OFFSET {0} ROWS FETCH NEXT {1} ROWS ONLY", offset ?? 0, limit);
+        statementStr += limitClause;
+        offset = null; // To avoid manual processing by caller
+        limit = null; // To avoid manual processing by caller
+        return true;
+      }
+      else if ((offset ?? 0) == 0)
+      {
+        int index = statementStr.IndexOf("select ", StringComparison.InvariantCultureIgnoreCase);
+        statementStr = $"SELECT TOP {limit ?? 0} " + statementStr.Substring(index + 7);
+        offset = null; // To avoid manual processing by caller
+        limit = null; // To avoid manual processing by caller
+        return true;
+      }
+      return false;
+    }
+
+    public string IdColumn
+    {
+      get { return "ID"; }
+    }
+
+    public string GetTemporaryIdTable(ITransaction transaction)
+    {
+      var tableNo = Interlocked.Increment(ref _tempTableCount);
+      var type = GetSQLType(typeof(Guid));
+      var tableName = $"#TTABLE{tableNo}";
+      var sql = $"CREATE TABLE {tableName}(ID {type} NOT NULL, CONSTRAINT PK_ID PRIMARY KEY CLUSTERED (ID))";
+      using (var cmd = transaction.CreateCommand())
+      {
+        cmd.CommandText = sql;
+        cmd.ExecuteNonQuery();
+      }
+
+      return $"{tableName}";
+    }
+
+    public bool SaveTemporaryIds(ITransaction transaction, string temporaryTable, IList<Guid> mediaItemIds)
+    {
+      using (var cmd = transaction.CreateCommand())
+      {
+        cmd.CommandText = $"INSERT INTO {temporaryTable}(ID) VALUES(@MI_ID)";
+        var parameter = AddParameter(cmd, "MI_ID", null, typeof(Guid));
+        cmd.Prepare();
+
+        foreach (var id in mediaItemIds)
+        {
+          parameter.Value = id;
+          cmd.ExecuteNonQuery();
+        }
+      }
+
+      return true;
     }
 
     #endregion

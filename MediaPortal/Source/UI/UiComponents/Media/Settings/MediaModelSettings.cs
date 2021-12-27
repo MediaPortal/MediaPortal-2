@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -72,7 +72,7 @@ namespace MediaPortal.UiComponents.Media.Settings
     /// </summary>
     [Setting(SettingScope.Global, DEFAULT_SKIPSTEP_LIST)]
     public string SkipStepList { get; set; }
-    [Setting(SettingScope.Global, true)]
+    [Setting(SettingScope.Global, false)]
     public bool OpenPlayerConfigInOsd { get; set; }
   }
 }

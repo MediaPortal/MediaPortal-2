@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,12 +28,15 @@ using MediaPortal.UI.ContentLists;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
   public abstract class BaseFavoriteMediaListProvider : BaseMediaListProvider
   {
+    protected Guid? _changeAspectId;
+
     protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
@@ -61,9 +64,29 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       };
     }
 
-    protected override bool ShouldUpdate(UpdateReason updateReason)
+    protected override bool ShouldUpdate(UpdateReason updateReason, ICollection<object> updatedObjects)
     {
-      return updateReason.HasFlag(UpdateReason.MediaItemChanged) || updateReason.HasFlag(UpdateReason.ImportComplete) || updateReason.HasFlag(UpdateReason.UserChanged) || base.ShouldUpdate(updateReason);
+      bool update = updateReason.HasFlag(UpdateReason.ImportComplete) || updateReason.HasFlag(UpdateReason.UserChanged) || base.ShouldUpdate(updateReason, updatedObjects);
+      if (updateReason.HasFlag(UpdateReason.MediaItemChanged))
+      {
+        if (updatedObjects?.Count > 0 && _changeAspectId.HasValue)
+        {
+          foreach (MediaItem item in updatedObjects)
+          {
+            if (item.Aspects.ContainsKey(_changeAspectId.Value))
+            {
+              update = true;
+              break;
+            }
+          }
+        }
+        else
+        {
+          update = true;
+        }
+      }
+
+      return update;
     }
   }
 

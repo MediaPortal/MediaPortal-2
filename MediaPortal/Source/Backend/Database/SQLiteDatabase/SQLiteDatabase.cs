@@ -28,6 +28,7 @@ using System.Data;
 using System.Data.SQLite;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Threading.Tasks.Dataflow;
 using MediaPortal.Backend.Database;
@@ -52,7 +53,7 @@ namespace MediaPortal.Database.SQLite
   /// (such as MSSQLCE with a maximum database size of 2GB). The limitations of SQLite are much less
   /// restrictive (e.g. a maximum database size of about 140TB, for details see http://www.sqlite.org/limits.html)
   /// </remarks>
-  public class SQLiteDatabase : ISQLDatabasePaging, ISQLDatabaseStorage, IDisposable
+  public class SQLiteDatabase : ISQLDatabasePaging, ISQLDatabaseStorage, ISQLTemporaryTable, IDisposable
   {
     #region Constants
 
@@ -71,6 +72,7 @@ namespace MediaPortal.Database.SQLite
     private readonly AsynchronousMessageQueue _messageQueue;
     private readonly ActionBlock<bool> _maintenanceScheduler;
     private readonly ICollection<Guid> _importingShareIds;
+    private long _tempTableCount = 0;
 
     #endregion
 
@@ -147,7 +149,7 @@ namespace MediaPortal.Database.SQLite
 #if NO_POOL
           Pooling = true,
 #else
-        Pooling = false,
+          Pooling = false,
 #endif
 
           // Sychronization Mode "Normal" enables parallel database access while at the same time preventing database
@@ -191,7 +193,7 @@ namespace MediaPortal.Database.SQLite
           }
         }
 
-        // The following is necessary to avoid the creation of of a shared memory index file
+        // The following is necessary to avoid the creation of a shared memory index file
         // ("-shm"-file) when using exclusive locking mode. When WAL-mode is used, it is possible
         // to switch between normal and exclusive locking mode at any time. However, the creation
         // of a "-shm"-file can only be avoided, when exclusive locking mode is set BEFORE entering
@@ -392,6 +394,12 @@ namespace MediaPortal.Database.SQLite
     public uint MaxObjectNameLength
     {
       get { return 30; }
+    }
+
+    public uint MaxNumberOfParameters
+    {
+      //The maximum number of a host parameter is by default 999. We set it a bit lower to have a little headroom.
+      get { return 980; }
     }
 
     public string ConcatOperator
@@ -788,6 +796,44 @@ namespace MediaPortal.Database.SQLite
         _connectionPool = null;
       }
 #endif
+    }
+
+    public string IdColumn
+    {
+      get { return "ID"; }
+    }
+
+    public string GetTemporaryIdTable(ITransaction transaction)
+    {
+      var tableNo = Interlocked.Increment(ref _tempTableCount);
+      var type = GetSQLType(typeof(Guid));
+      var tableName = $"TTABLE{tableNo}";
+      var sql = $"CREATE TEMP TABLE {tableName}(ID {type} PRIMARY KEY) WITHOUT ROWID";
+      using (var cmd = transaction.CreateCommand())
+      {
+        cmd.CommandText = sql;
+        cmd.ExecuteNonQuery();
+      }
+
+      return $"temp.{tableName}";
+    }
+
+    public bool SaveTemporaryIds(ITransaction transaction, string temporaryTable, IList<Guid> mediaItemIds)
+    {
+      using (var cmd = transaction.CreateCommand())
+      {
+        cmd.CommandText = $"INSERT INTO {temporaryTable}(ID) VALUES(@MI_ID)";
+        var parameter = AddParameter(cmd, "MI_ID", null, typeof(Guid));
+        cmd.Prepare();
+
+        foreach (var id in mediaItemIds)
+        {
+          parameter.Value = id;
+          cmd.ExecuteNonQuery();
+        }
+      }
+
+      return true;
     }
 
     #endregion

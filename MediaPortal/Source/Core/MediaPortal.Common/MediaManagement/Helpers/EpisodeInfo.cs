@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -344,7 +344,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       AssignNameId();
-      SetMetadataChanged(aspectData);
       EpisodeName.Text = CleanString(EpisodeName.Text);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
@@ -696,8 +695,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SearchEpisode = EpisodeNumbers != null && EpisodeNumbers.Count > 0 ? (int?)FirstEpisodeNumber : null,
           LastChanged = LastChanged,
           DateAdded = DateAdded,
+          AllowOnlineReSearch = AllowOnlineReSearch,
           ForceOnlineSearch = ForceOnlineSearch
-        };
+      };
         foreach (var keyVal in CustomSeriesIds)
           info.CustomIds[keyVal.Key] = keyVal.Value;
         info.Languages.AddRange(Languages);
@@ -718,8 +718,9 @@ namespace MediaPortal.Common.MediaManagement.Helpers
           SeriesFirstAired = SeriesFirstAired,
           LastChanged = LastChanged,
           DateAdded = DateAdded,
+          AllowOnlineReSearch = AllowOnlineReSearch,
           ForceOnlineSearch = ForceOnlineSearch
-        };
+  };
         foreach (var keyVal in CustomSeriesIds)
           info.CustomSeriesIds[keyVal.Key] = keyVal.Value;
         info.Languages.AddRange(Languages);

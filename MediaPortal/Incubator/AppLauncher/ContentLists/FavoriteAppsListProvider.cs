@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.AppLauncher.ContentLists
 {
   public class FavoriteAppsListProvider : AppContentListProviderBase
   {
-    public override Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
+    public override Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
       if (!updateReason.HasFlag(UpdateReason.Forced))
         return Task.FromResult(false);

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,6 +34,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public LastWatchedSeriesMediaListProvider()
     {
+      _changeAspectId = EpisodeAspect.ASPECT_ID;
       _role = SeriesAspect.ROLE_SERIES;
       _linkedRole = EpisodeAspect.ROLE_EPISODE;
       _necessaryMias = Consts.NECESSARY_SERIES_MIAS;

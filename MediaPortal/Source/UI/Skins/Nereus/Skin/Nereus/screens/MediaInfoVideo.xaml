@@ -65,7 +65,7 @@
                                       fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
           </Image.Source>
         </Image>
-        <Image Stretch="Fill" Source="Background_ListView.png"/>
+        <Image Stretch="Fill" Source="Background_ListView.png" Opacity="0.92"/>
       </Grid>
     </ControlTemplate>
 
@@ -306,7 +306,7 @@
               <Image Source="HomeContentIcons\track.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Audio tracks" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Audio tracks"/>
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.Audio]"/>
             </Grid>
 
             <media:VideoAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}" Grid.Row="1">
@@ -337,18 +337,22 @@
             </Grid.IsVisible>
 
             <Grid Margin="200,10,0,-5">
+              <Grid.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="subtitlelist" Path="ItemsSource.Count" />
+                </MultiBinding>
+              </Grid.IsVisible>
               <Image Source="HomeContentIcons\language.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Subtitles" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Subtitles"/>
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.Subtitles]"/>
             </Grid>
 
             <media:VideoAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" MediaItem="{Binding MediaItem}" Grid.Row="1">
               <media:VideoAspectWrapper.Template>
                 <ControlTemplate>
-                  <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
-                            Style="{ThemeResource SubtitleCPListViewStyle}"
-                            ItemsSource="{TemplateBinding Subtitles}"/>
+                  <ListView x:Name="subtitlelist" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
+                            Style="{ThemeResource SubtitleCPListViewStyle}" ItemsSource="{TemplateBinding Subtitles}"/>
                 </ControlTemplate>
               </media:VideoAspectWrapper.Template>
             </media:VideoAspectWrapper>
@@ -357,22 +361,15 @@
           <!-- Actors -->
           <Grid HorizontalAlignment="Stretch" Grid.Row="2">
             <Grid.RowDefinitions>
-              <RowDefinition Height="40"/>
+              <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Margin="200,10,0,-5">
-              <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
-                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
-              <Label x:Name="Actors" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Actors"/>
-            </Grid>
-
-            <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+            <ListView x:Name="actorlist" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
               <ListView.ItemsSource>
                 <RelationshipQuery
                        NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
@@ -381,27 +378,35 @@
                        LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
               </ListView.ItemsSource>
             </ListView>
+
+            <Grid Margin="200,10,0,-5">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+              </Grid.RowDefinitions>
+              <Grid.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="actorlist" Path="ItemsSource.Count" />
+                </MultiBinding>
+              </Grid.IsVisible>
+              <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="Actors" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5" Content="[Nereus.Info.Actors]"
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0"/>
+            </Grid>
           </Grid>
 
           <!-- Director -->
           <Grid HorizontalAlignment="Stretch" Grid.Row="3">
             <Grid.RowDefinitions>
-              <RowDefinition Height="40"/>
+              <RowDefinition Height="Auto"/>
               <RowDefinition Height="Auto"/>
             </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid Margin="200,10,0,-5">
-              <Image Source="HomeContentIcons\director.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
-                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
-              <Label x:Name="Director" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Director"/>
-            </Grid>
-
-            <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
-                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+            <ListView x:Name="directorlist" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
+                      HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
               <ListView.ItemsSource>
                 <RelationshipQuery
                        NecessaryRequestedMIAs="{x:Static media_consts:Consts.NECESSARY_PERSON_MIAS}"
@@ -410,6 +415,21 @@
                        LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
               </ListView.ItemsSource>
             </ListView>
+
+            <Grid Margin="200,10,0,-5">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="40"/>
+              </Grid.RowDefinitions>
+              <Grid.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="directorlist" Path="ItemsSource.Count" />
+                </MultiBinding>
+              </Grid.IsVisible>
+              <Image Source="HomeContentIcons\director.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label x:Name="Director" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                     Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.Director]"/>
+            </Grid>
           </Grid>
 
           <!-- Collection -->
@@ -430,11 +450,11 @@
                     <Image Source="HomeContentIcons\Category.png" Height="25" Width="25" Stretch="Uniform" Margin="0,1,5,-1" 
                            VerticalAlignment="Center" HorizontalAlignment="Left"/>
                     <Label x:Name="Collection" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                           Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Collection"/>
+                           Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="[Nereus.Info.Collection]"/>
                   </Grid>
 
-                  <Button Style="{ThemeResource NereusFrameButtonStyle}" Grid.Row="1" Margin="10,11,10,11">
-                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Margin="1">
+                  <Button Style="{ThemeResource NereusFrameButtonStyle}" Grid.Row="1" Margin="10,15,10,11">
+                    <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Center" Margin="0,1,1,1">
                       <Grid.RowDefinitions>
                         <RowDefinition Height="*"/>
                       </Grid.RowDefinitions>
@@ -453,7 +473,7 @@
                           </MultiBinding>
                         </DockPanel.Background>
 
-                        <media:MovieCollectionAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+                        <media:MovieCollectionAspectWrapper HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2,0,0,0"
                                                             MediaItem="{Binding MediaItem}" DockPanel.Dock="Left">
                           <media:MovieCollectionAspectWrapper.Template>
                             <ControlTemplate>

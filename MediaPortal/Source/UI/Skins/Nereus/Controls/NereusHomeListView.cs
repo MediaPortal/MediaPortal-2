@@ -1,5 +1,8 @@
 ﻿using MediaPortal.Common.General;
+using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.Visuals;
+using MediaPortal.UiComponents.SkinBase.General;
 using MediaPortal.Utilities;
 using SharpDX;
 using System.Collections.Generic;
@@ -40,7 +43,7 @@ namespace MediaPortal.UiComponents.Nereus.Controls
           Visual element = potentialElement;
           while (element != null && element.VisualParent != _itemsHostPanel)
             element = element.VisualParent;
-          if (element?.Context == restoreFocusItem)
+          if (element != null && (element.Context == restoreFocusItem || IsSameWorkflowAction(restoreFocusItem as ListItem, element.Context as ListItem)))
           {
             // Just add this element to ensure that
             // it gets the focus
@@ -51,6 +54,13 @@ namespace MediaPortal.UiComponents.Nereus.Controls
 
       // No matching element found, use the default focus selection
       CollectionUtils.AddAll(elements, potentialElements);
+    }
+
+    protected bool IsSameWorkflowAction(ListItem restoreItem, ListItem contextItem)
+    {
+      WorkflowAction restoreAction = restoreItem?.AdditionalProperties[Consts.KEY_ITEM_ACTION] as WorkflowAction;
+      WorkflowAction contextAction = contextItem?.AdditionalProperties[Consts.KEY_ITEM_ACTION] as WorkflowAction;
+      return restoreAction != null && contextAction != null && restoreAction.ActionId == contextAction.ActionId;
     }
   }
 }

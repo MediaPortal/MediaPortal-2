@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -594,9 +594,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         string artist = null;
         uint? trackNo = null;
         TrackInfo trackInfo = new TrackInfo();
-        if (!extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
-          trackInfo.ForceOnlineSearch = true;
         trackInfo.FromMetadata(extractedAspectData);
+        if (!extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
+          trackInfo.AllowOnlineReSearch = true;
+        trackInfo.ForceOnlineSearch = trackInfo.IsDirty;
+
         if (string.IsNullOrEmpty(trackInfo.TrackName))
         {
           if (!isStub)

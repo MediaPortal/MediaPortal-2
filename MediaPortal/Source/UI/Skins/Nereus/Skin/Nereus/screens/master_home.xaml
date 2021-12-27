@@ -125,10 +125,51 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <StackPanel Orientation="Horizontal">
           <StackPanel.Triggers>
             <!--Close the hidden menu when the main content gets focus-->
-            <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsKeyboardFocusWithin" Value="True" />
+                <Condition Value="False">
+                  <Condition.Binding>
+                    <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
+                  </Condition.Binding>
+                </Condition>
+              </MultiTrigger.Conditions>
+              <MultiTrigger.EnterActions>
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+              </MultiTrigger.EnterActions>
+            </MultiTrigger>
+            <MultiTrigger>
+              <MultiTrigger.Conditions>
+                <Condition Property="IsMouseOver" Value="True" />
+                <Condition Value="False">
+                  <Condition.Binding>
+                    <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
+                  </Condition.Binding>
+                </Condition>
+              </MultiTrigger.Conditions>
+              <MultiTrigger.EnterActions>
+                <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+              </MultiTrigger.EnterActions>
+            </MultiTrigger>
+
+            <!--EventTrigger RoutedEvent="FrameworkElement.GotFocus">
               <TriggerCommand Command="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
-            </EventTrigger>
+            </EventTrigger-->
           </StackPanel.Triggers>
+          <Button Style="{ThemeResource HomeMenuButtonStyle}" VerticalAlignment="Center">
+            <Button.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}">
+                <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableTouchDisplay"/>
+              </MultiBinding>
+            </Button.IsVisible>
+            <Button.Command>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding Source="{StaticResource MenuModel}" Path="IsMenuOpen"/>
+                <Binding Source="{Command Source={StaticResource MenuModel}, Path=CloseMenu}"/>
+                <Binding Source="{Command Source={StaticResource MenuModel}, Path=OpenMenu}"/>
+              </MultiBinding>
+            </Button.Command>
+          </Button>
           <Button Style="{ThemeResource PowerButtonStyle}" VerticalAlignment="Center"
                   Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
           <Button Style="{ThemeResource UserButtonStyle}" IsVisible="{Binding Source={StaticResource LoginModel},Path=EnableUserLogin}"

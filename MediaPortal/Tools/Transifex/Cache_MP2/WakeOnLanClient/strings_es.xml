@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WakeOnLan.EnableWakeOnLan">Activar Wake on Lan</string>
+  <string name="WakeOnLan.EnableWakeOnLan.Help">Si se despierta automáticamente el servidor cuando el cliente se inicia o se despierta</string>
+</resources>

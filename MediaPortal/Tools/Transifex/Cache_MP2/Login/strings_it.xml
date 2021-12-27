@@ -26,9 +26,14 @@
   <string name="Settings.Users.Config.AutoLoginUser.Help">Utente da utilizzare per l\'accesso automatico</string>
   <string name="Settings.Users.Config.SystemDefault">Impostazioni predefinite</string>
   <string name="Settings.Users.Config.AutoLoginUser.Title">Utente per l\'accesso automatico</string>
+  <string name="Settings.Users.Config.UserLanguage">Preferenze lingua</string>  <!-- Setting -->
+  <string name="Settings.Users.Config.UserLanguage.Help">Configura le lingue di contenuto preferite per gli utenti</string>
+
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestione Utente</string>
+  <string name="UserConfig.UserLanguagewWorkflowNavigationContextDisplayLabel">Lingue utente</string>
   <string name="UserConfig.UserConfiguration.Title">Gestione Utente</string>
+  <string name="UserConfig.UserLanguages.Title">Lingue utente</string>
   <string name="UserConfig.Users">Utenti</string>
   <string name="UserConfig.NoConfigUserHomeServerNotConnected">Il server home non è connesso al momento, quindi gli utenti non possono essere gestiti.</string>
   <string name="UserConfig.UserName">Nome Utente</string>
@@ -52,7 +57,15 @@
   <string name="UserConfig.Ok">OK</string>
   <string name="UserConfig.Disable">Disattiva</string>
 
+  <string name="UserConfig.SelectLanguage">Seleziona la lingua</string>
   <string name="UserConfig.Default">Predefinito</string>
+  <string name="UserConfig.MainAudioLanguage">Lingua audio principale</string>
+  <string name="UserConfig.SecondaryAudioLanguage">Lingua audio secondaria</string>
+  <string name="UserConfig.MainSubtitleLanguage">Lingua principale dei sottotitoli</string>
+  <string name="UserConfig.SecondarySubtitleLanguage">Lingua secondaria dei sottotitoli</string>
+  <string name="UserConfig.MainMenuLanguage">Lingua del menu principale</string>
+  <string name="UserConfig.SecondaryMenuLanguage">Lingua del menu secondario</string>
+
   <string name="UserConfig.SelectProfileTemplate">Seleziona la tipologia per il profilo</string>
   <string name="UserConfig.ClientProfile">Profilo client</string>
   <string name="UserConfig.UserProfile">Profilo utente</string>

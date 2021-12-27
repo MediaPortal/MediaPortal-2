@@ -46,6 +46,11 @@ namespace MediaPortal.Mock
       get { return uint.MaxValue; }
     }
 
+    public uint MaxNumberOfParameters
+    {
+      get { return 800; }
+    }
+
     public string ConcatOperator => throw new NotImplementedException();
 
     public string LengthFunction => throw new NotImplementedException();

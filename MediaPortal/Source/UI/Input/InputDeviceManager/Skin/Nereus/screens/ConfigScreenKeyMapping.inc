@@ -19,7 +19,7 @@
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Button Grid.Column="0" x:Name="ShowConfigButton" Style="{ThemeResource MenuButtonWideStyle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Top"
+  <Button Grid.Column="0" x:Name="ShowConfigButton" Style="{ThemeResource MenuButtonWideStyle}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Top" Margin="20,0,-20,0"
           Content="[InputDeviceManager.DefaultConfig.Title]" Command="{Command Source={StaticResource Model},Path=OpenDefaultConfigurationDialog}"/>
 
   <!--Column 1 is "Name" and Column 2 is "KeyMap"-->

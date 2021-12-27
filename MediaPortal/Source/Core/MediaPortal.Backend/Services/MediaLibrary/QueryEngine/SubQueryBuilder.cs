@@ -68,5 +68,12 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       IDictionary<QueryAttribute, string> attributeAliases = new Dictionary<QueryAttribute, string>();
       GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
     }
+
+    public void GenerateDistinctSqlStatement(out string mediaItemIdAlias, out string statementStr, out IList<BindVar> bindVars)
+    {
+      IDictionary<MediaItemAspectMetadata, string> miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
+      IDictionary<QueryAttribute, string> attributeAliases = new Dictionary<QueryAttribute, string>();
+      GenerateDistinctSqlStatement(miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
+    }
   }
 }

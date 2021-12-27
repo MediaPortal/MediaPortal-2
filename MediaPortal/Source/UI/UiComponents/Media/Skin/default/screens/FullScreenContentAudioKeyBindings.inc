@@ -7,7 +7,10 @@
     <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
     <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
     <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
+    <Model x:Key="GeneralPlayerModel" Id="A2F24149-B44C-498b-AE93-288213B87A1A"/>
   </Grid.Resources>
+
+  <KeyBinding Key="Red" Command="{Command Source={StaticResource GeneralPlayerModel}, Path=SwitchPipPlayers}"/>
 
   <KeyBinding Key="Info" Command="{Command ToggleOSD}"/>
   <KeyBinding Key="Back" Command="{Command CloseOSD}" IsEnabled="{Binding IsOSDVisible}"/>

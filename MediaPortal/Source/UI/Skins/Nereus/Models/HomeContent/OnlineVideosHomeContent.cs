@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,49 +23,43 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class OnlineVideosHomeContent : AbstractHomeContent
   {
-    protected override void PopulateBackingList()
+    public OnlineVideosHomeContent()
     {
-      var onlineVideosModel = GetOnlineVideosListModel();
-
-      _backingList.Add(new TopLanguagesOnlineVideoSitesList(onlineVideosModel.Lists["TopLanguagesOnlineVideoSites"].AllItems));
-      _backingList.Add(new LastOnlineVideoSiteList(onlineVideosModel.Lists["LastOnlineVideoSites"].AllItems));
-      _backingList.Add(new FavoriteOnlineVideoSiteList(onlineVideosModel.Lists["FavoriteOnlineVideoSites"].AllItems));
-      
+      _availableLists.Add(new TopLanguagesOnlineVideoSitesList());
+      _availableLists.Add(new LastOnlineVideoSiteList());
+      _availableLists.Add(new FavoriteOnlineVideoSiteList());
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
-      var onlineVideosModel = GetOnlineVideosListModel();
-
-      onlineVideosModel.ForceUpdate("TopLanguagesOnlineVideoSites");
-      onlineVideosModel.ForceUpdate("LastOnlineVideoSites");
-      onlineVideosModel.ForceUpdate("FavoriteOnlineVideoSites");
+      return GetOnlineVideosListModel();
     }
   }
 
-  public class LastOnlineVideoSiteList : ItemsListWrapper
+  public class LastOnlineVideoSiteList : MediaListItemsListWrapper
   {
-    public LastOnlineVideoSiteList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestLaunched]")
+    public LastOnlineVideoSiteList()
+      : base("LastOnlineVideoSites", "[Nereus.Home.LatestLaunched]")
     { }
   }
 
-  public class FavoriteOnlineVideoSiteList : ItemsListWrapper
+  public class FavoriteOnlineVideoSiteList : MediaListItemsListWrapper
   {
-    public FavoriteOnlineVideoSiteList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteOnlineVideoSiteList()
+      : base("FavoriteOnlineVideoSites", "[Nereus.Home.Favorites]")
     { }
   }
 
-  public class TopLanguagesOnlineVideoSitesList : ItemsListWrapper
+  public class TopLanguagesOnlineVideoSitesList : MediaListItemsListWrapper
   {
-    public TopLanguagesOnlineVideoSitesList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.TopLanguages]")
+    public TopLanguagesOnlineVideoSitesList()
+      : base("TopLanguagesOnlineVideoSites", "[Nereus.Home.TopLanguages]")
     { }
   }
 }

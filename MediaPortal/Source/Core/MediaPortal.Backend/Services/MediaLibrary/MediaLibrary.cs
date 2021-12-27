@@ -365,13 +365,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
     protected const string KEY_CURRENTLY_IMPORTING_SHARE_IDS = "CurrentlyImportingShareIds";
     protected const char ESCAPE_CHAR = '\\';
 
-    /// <summary>
-    /// SQLite has a default variable limit of 100, this value is deliberately set a bit lower to allow a bit of headroom.
-    /// Currently only used when requesting multiple MediaItems by id as the variable count can be easily determined for those queries.
-    /// ToDo check the limits of other SQL providers.
-    /// </summary>
-    protected const int MAX_VARIABLES_LIMIT = 80;
-
     #endregion
 
     #region Protected fields
@@ -1359,8 +1352,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       if (removeProviderResourceAspect && result != null)
         result.Aspects.Remove(ProviderResourceAspect.ASPECT_ID);
 
-      LoadUserDataForMediaItem(userProfileId, result);
-
       return result;
     }
 
@@ -1387,6 +1378,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
         IMediaAccessor mediaAccessor = ServiceRegistration.Get<IMediaAccessor>();
         List<Guid> requiredAspects = new List<Guid>(new Guid[] { MediaAspect.ASPECT_ID });
+        var maxParams = Convert.ToInt32(database.MaxNumberOfParameters);
 
         foreach (IRelationshipExtractor extractor in mediaAccessor.LocalRelationshipExtractors.Values)
         {
@@ -1414,7 +1406,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
                   while (currentItem < foundItems.Count)
                   {
                     int remaining = foundItems.Count - currentItem;
-                    int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
+                    int endItem = currentItem + (remaining > maxParams ? maxParams : remaining);
                     command.Parameters.Clear();
                     List<string> sqlParams = new List<string>();
                     for (int index = currentItem; index < endItem; index++)
@@ -1485,8 +1477,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         CompiledMediaItemQuery cmiq = CompiledMediaItemQuery.Compile(_miaManagement, executeQuery, userProfileId);
         items = cmiq.QueryList(database, searchTransaction);
         //Logger.Debug("Found media items {0}", string.Join(",", items.Select(x => x.MediaItemId)));
-        //TODO: Remove movies/series found through optional aspects that are not allowed according to user rating filter
-        LoadUserDataForMediaItems(database, searchTransaction, userProfileId, items);
       }
       finally
       {
@@ -1634,61 +1624,6 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       CompiledCountItemsQuery cciq = CompiledCountItemsQuery.Compile(_miaManagement,
           necessaryMIATypeIDs, filter, additionalFilter);
       return cciq.Execute();
-    }
-
-    private void LoadUserDataForMediaItem(Guid? userProfileId, MediaItem mediaItem)
-    {
-      if (mediaItem != null)
-        LoadUserDataForMediaItems(null, null, userProfileId, new[] { mediaItem });
-    }
-
-    private void LoadUserDataForMediaItems(ISQLDatabase database, ITransaction transaction, Guid? userProfileId, IList<MediaItem> mediaItems)
-    {
-      if (!userProfileId.HasValue)
-        return;
-
-      if (database == null)
-        database = ServiceRegistration.Get<ISQLDatabase>();
-      ITransaction loadTransaction = transaction;
-      if (transaction == null)
-        loadTransaction = database.BeginTransaction();
-
-      try
-      {
-        if (mediaItems != null)
-        {
-          int currentItem = 0;
-          using (IDbCommand command = loadTransaction.CreateCommand())
-          {
-            while (currentItem < mediaItems.Count)
-            {
-              int remaining = mediaItems.Count - currentItem;
-              int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
-              command.Parameters.Clear();
-              database.AddParameter(command, "USER_PROFILE_ID", userProfileId.Value, typeof(Guid));
-              for (int index = currentItem; index < endItem; index++)
-                database.AddParameter(command, "MI" + index, mediaItems[index].MediaItemId, typeof(Guid));
-              command.CommandText = string.Format(_preparedStatements.SelectMediaItemUserDataFromIdsSQL,
-                string.Join(",", mediaItems.Where((id, index) => index >= currentItem && index < endItem).Select((id, index) => "@MI" + (index + currentItem))));
-              using (IDataReader reader = command.ExecuteReader())
-              {
-                while (reader.Read())
-                {
-                  MediaItem item = mediaItems.FirstOrDefault(mi => mi.MediaItemId == database.ReadDBValue<Guid>(reader, 0));
-                  if (item != null)
-                    item.UserData.Add(database.ReadDBValue<string>(reader, 1), database.ReadDBValue<string>(reader, 2));
-                }
-              }
-              currentItem = endItem;
-            }
-          }
-        }
-      }
-      finally
-      {
-        if (transaction == null)
-          loadTransaction.Dispose();
-      }
     }
 
     #endregion
@@ -2350,23 +2285,8 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     private ICollection<MediaItem> GetMediaItems(ISQLDatabase database, ITransaction transaction, ICollection<Guid> mediaItemIds, IEnumerable<Guid> necessaryRequestedMIATypeIds, IEnumerable<Guid> optionalRequestedMIATypeIds, bool filterOnlyOnline, Guid? userProfileId, bool includeVirtual, bool applyUserRestrictions)
     {
-      if (mediaItemIds.Count < MAX_VARIABLES_LIMIT)
-        return Search(database, transaction, new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds, new MediaItemIdFilter(mediaItemIds)), filterOnlyOnline, userProfileId, includeVirtual);
-
-      //If mediaItemIds count is greater than MAX_VARIABLES_LIMIT 'page' the requests to avoid exceeding sqlite's max variable limit when creating the IN(id,id,...) statement
-      IDictionary<Guid, MediaItem> results = new Dictionary<Guid, MediaItem>();
-      int currentItem = 0;
-      while (currentItem < mediaItemIds.Count)
-      {
-        int remaining = mediaItemIds.Count - currentItem;
-        int endItem = currentItem + (remaining > MAX_VARIABLES_LIMIT ? MAX_VARIABLES_LIMIT : remaining);
-        var query = new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds,
-          new MediaItemIdFilter(mediaItemIds.Where((id, index) => index >= currentItem && index < endItem)));
-        foreach (var mediaItem in Search(database, transaction, query, filterOnlyOnline, userProfileId, includeVirtual))
-          results[mediaItem.MediaItemId] = mediaItem;
-        currentItem = endItem;
-      }
-      return results.Values;
+      // Don't cluster the media item Id's here as the search method must be able to handle this
+      return Search(database, transaction, new MediaItemQuery(necessaryRequestedMIATypeIds, optionalRequestedMIATypeIds, new MediaItemIdFilter(mediaItemIds)), filterOnlyOnline, userProfileId, includeVirtual);
     }
 
     private string GetMediaItemTitle(IEnumerable<MediaItemAspect> mediaItemAspects, string defaultTitle)
@@ -2879,9 +2799,14 @@ namespace MediaPortal.Backend.Services.MediaLibrary
 
     public void NotifyUserPlayback(Guid userProfileId, Guid mediaItemId, int percentage, bool updatePlayDate)
     {
+      NotifyUserPlayback(userProfileId, mediaItemId, percentage, updatePlayDate, true); //Always update parents
+    }
+
+    public void NotifyUserPlayback(Guid userProfileId, Guid mediaItemId, int percentage, bool updatePlayDate, bool? updateParents)
+    {
       NotifyPlayback(mediaItemId, percentage >= 100);
 
-      bool updateParents = true; //Always update parent
+      bool updateMediaItemParents = updateParents ?? false;
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       using (ITransaction transaction = database.BeginTransaction())
       {
@@ -2900,7 +2825,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
             }
           }
           count++;
-          //updateParents = true;
+          //updateMediaItemParents = updateParents ?? true;
 
           //Update play count
           SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_COUNT, UserDataKeysKnown.GetSortablePlayCountString(count));
@@ -2921,7 +2846,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         }
         else
         {
-          //updateParents = true;
+          //updateMediaItemParents = updateParents ?? true;
 
           //Reset percentage
           SetMediaItemUserData(transaction, userProfileId, mediaItemId, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, UserDataKeysKnown.GetSortablePlayPercentageString(0));
@@ -2930,7 +2855,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       }
       MediaLibraryMessaging.SendMediaItemUserDataAddedOrUpdateMessage(mediaItemId);
 
-      if (updateParents)
+      if (updateMediaItemParents)
       {
         if (!UpdateChildPlayUserData(userProfileId, mediaItemId, percentage >= 100, updatePlayDate))
           UpdateParentPlayUserData(userProfileId, new[] { mediaItemId }, updatePlayDate);

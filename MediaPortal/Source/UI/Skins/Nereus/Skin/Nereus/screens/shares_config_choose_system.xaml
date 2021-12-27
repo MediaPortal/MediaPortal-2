@@ -14,7 +14,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Margin="10,20,50,110" DataContext="{Binding Source={StaticResource Model}}">
+      <Grid Margin="10,20,40,110" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
@@ -23,8 +23,9 @@
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <!--Label Grid.Row="0" Content="[SharesConfig.ChooseSystemForShare]" Color="{ThemeResource TextColor}" Wrap="True"/-->
-        <ListView Grid.Row="1" Margin="0,20,0,0" SetFocusPrio="DefaultLow"
+        <Label Content="[SharesConfig.ChooseSystemForShare]" Color="{ThemeResource TextColor}"/>
+        <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,50,10,10" Background="White" BorderThickness="0" Height="4"/>
+        <ListView x:Name="AddSharesList" Grid.Row="1" Margin="0,10,10,10" SetFocusPrio="DefaultLow"
                   Style="{ThemeResource SingleMarkableSubItemListViewStyle}"
                   ItemsSource="{Binding Path=SystemsList,Mode=OneTime}"/>
         <Grid Grid.Row="2" Margin="10,20,10,0">

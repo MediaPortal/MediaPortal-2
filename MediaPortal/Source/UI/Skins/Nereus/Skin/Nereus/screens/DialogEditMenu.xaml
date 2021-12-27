@@ -18,6 +18,7 @@
 
         <Button Style="{ThemeResource NextChapterButtonStyle}" Margin="-5,0,0,0"
                 HorizontalAlignment="Left" VerticalAlignment="Top"
+                IsVisible="{Binding Source={StaticResource HomeMenuModel}, Path=MenuEditModel.HasOtherItems}"
                 Command="{Command Source={Service ScreenManager}, Path=ShowDialog, Parameters=DialogAddMenuItem}"/>
 
         <ListView x:Name="DialogMenu" Style="{ThemeResource EditMenuListViewStyle}"
@@ -44,6 +45,8 @@
     <Command x:Key="MoveDown_Command" Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.MoveDown"
              Parameters="{LateBoundValue BindingValue={Binding}}"/>
     <Command x:Key="Remove_Command" Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.Remove"
+             Parameters="{LateBoundValue BindingValue={Binding}}"/>
+    <Command x:Key="Config_Command" Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.Config"
              Parameters="{LateBoundValue BindingValue={Binding}}"/>
 
   </Include.Resources>

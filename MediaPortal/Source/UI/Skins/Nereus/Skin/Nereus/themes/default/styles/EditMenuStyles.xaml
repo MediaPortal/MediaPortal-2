@@ -18,20 +18,27 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <ContentPresenter x:Name="EditItemData" Grid.Column="0" Grid.Row="0" Margin="0,0,10,0" Opacity="0.6"
-                              VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+            <ContentPresenter x:Name="EditItemData" Grid.Column="0" Grid.Row="0" Margin="0,0,10,0"
+                              VerticalAlignment="Center" HorizontalAlignment="Stretch">
+              <ContentPresenter.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} || {1} || {2} || {3}) ? {4} : {5}">
+                  <Binding ElementName="MoveUpButton" Path="HasFocus"/>
+                  <Binding ElementName="MoveDownButton" Path="HasFocus"/>
+                  <Binding ElementName="RemoveButton" Path="HasFocus"/>
+                  <Binding ElementName="ConfigureButton" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.6"/>
+                </MultiBinding>
+              </ContentPresenter.Opacity>
+            </ContentPresenter>
             <Button x:Name="MoveUpButton" Grid.Column="1" Grid.Row="0" Margin="3,2,3,2" Width="54" Height="34"
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     Style="{ThemeResource ChapterUpButtonStyle}" Context="{Binding}"
                     Command="{DynamicResource ResourceKey=MoveUp_Command}"
                     IsEnabled="{Binding Path=AdditionalProperties[IsUpButtonEnabled],Mode=OneTime}"
                     SetFocus="{Binding Path=AdditionalProperties[IsUpButtonFocused],Mode=OneTime}">
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="EditItemData" Property="Opacity" Value="1"/>
-                </Trigger>
-              </Button.Triggers>
             </Button>
             <Button x:Name="MoveDownButton" Grid.Column="2" Grid.Row="0" Margin="3,2,3,1" Width="54" Height="34"
                     VerticalAlignment="Center" HorizontalAlignment="Center"
@@ -39,23 +46,21 @@
                     Command="{DynamicResource ResourceKey=MoveDown_Command}"
                     IsEnabled="{Binding Path=AdditionalProperties[IsDownButtonEnabled],Mode=OneTime}"
                     SetFocus="{Binding Path=AdditionalProperties[IsDownButtonFocused],Mode=OneTime}">
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="EditItemData" Property="Opacity" Value="1"/>
-                </Trigger>
-              </Button.Triggers>
+
             </Button>
             <Button x:Name="RemoveButton" Grid.Column="3" Grid.Row="0" Margin="3,2,13,2" Width="30" Height="30"
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     Style="{ThemeResource RemoveEntryButtonStyle}" Context="{Binding}"
                     Command="{DynamicResource ResourceKey=Remove_Command}"
                     SetFocus="{Binding Path=AdditionalProperties[IsRemoveButtonFocused],Mode=OneTime}">
-              <Button.Triggers>
-                <Trigger Property="HasFocus" Value="True">
-                  <Setter TargetName="EditItemData" Property="Opacity" Value="1"/>
-                </Trigger>
-              </Button.Triggers>
-            </Button>              
+            </Button>
+            <Button x:Name="ConfigureButton" Grid.Column="4" Grid.Row="0" Margin="13,1,13,1" Width="32" Height="32"
+                    VerticalAlignment="Center" HorizontalAlignment="Center"
+                    Style="{ThemeResource ConfigureEntryButtonStyle}" Context="{Binding}"
+                    Command="{DynamicResource ResourceKey=Config_Command}"
+                    IsEnabled="{Binding Path=AdditionalProperties[IsConfigButtonEnabled],Mode=OneTime}"
+                    SetFocus="{Binding Path=AdditionalProperties[IsConfigButtonFocused],Mode=OneTime}">
+            </Button>
           </Grid>
         </ControlTemplate>
       </Setter.Value>

@@ -42,6 +42,7 @@
   <string name="Media.SystemMenuItem">Sistema</string>
   <string name="Media.ActorMenuItem">Actor</string>
   <string name="Media.DirectorMenuItem">Director</string>
+  <string name="Media.CharacterMenuItem">Carácter</string>
   <string name="Media.WriterMenuItem">Escritor</string>
   <string name="Media.DurationMenuItem">Duración</string>
   <string name="Media.AspectRatioMenuItem">Relación de aspecto</string>
@@ -65,6 +66,7 @@
   <string name="Media.ConductorMenuItem">Director</string>
   <string name="Media.CompilationMenuItem">Compilacion</string>
   <string name="Media.AlbumCompilationMenuItem">Compilación de álbumes</string>
+  <string name="Media.ContentGroupMenuItem">Grupo de contenido</string>
   <string name="Media.CertificationMenuItem">Certification</string>
   <string name="Media.SimpleSearchFilterMenuItem">Buscar</string>
   <!--Filter titles-->
@@ -76,6 +78,7 @@
   <string name="Media.ImageFilterBig">Grande</string>
   <string name="Media.DiscNumberFilter">Disco {0}</string>
   <string name="Media.CompilationFilterCompiled">Compilaciones</string>
+  <string name="Media.CompilationFilterUncompiled">Sin colecciones</string>
   <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">Vista del servidor</string>
   <string name="Media.SwitchToLocalMediaView">Vista local</string>
@@ -96,6 +99,7 @@
   <string name="Media.FilterAudioDiscNumberNavbarDisplayLabel">Disco: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Década: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Actor: {0}</string>
+  <string name="Media.FilterCharacterNavbarDisplayLabel">Carácter: {0}</string>
   <string name="Media.FilterDirectorNavbarDisplayLabel">Director: {0}</string>
   <string name="Media.FilterWriterNavbarDisplayLabel">Escritor: {0}</string>
   <string name="Media.FilterCompanyNavbarDisplayLabel">Estudio de producción: {0}</string>
@@ -120,6 +124,7 @@
   <string name="Media.FilterConductorNavbarDisplayLabel">Director:{0}</string>
   <string name="Media.FilterCompilationNavbarDisplayLabel">Compilaciones</string>
   <string name="Media.FilterAlbumCompilationNavbarDisplayLabel">Compilaciones de álbumes</string>
+  <string name="Media.FilterContentGroupNavbarDisplayLabel">Grupo de contenido: {0}</string>
   <string name="Media.FilterCertificationNavbarDisplayLabel">Certificación: {0}</string>
   <!--Display labels for workflow navigation contexts-->
   <string name="Media.BrowseMediaNavigationRootWorkflowNavigationContextDisplayLabel">Biblioteca de archivos</string>
@@ -149,6 +154,7 @@
   <!--Screen headers-->
   <string name="Media.BrowseMediaNavigationHeader">Navegación por la Biblioteca multimedia</string>
   <string name="Media.LocalMediaNavigationHeader">Navegación por la Biblioteca local</string>
+  <string name="Media.MediaItemsHeader">Archivo(s) de medios</string>
   <string name="Media.VideoItemsHeader">Vídeo(s)</string>
   <string name="Media.AudioItemsHeader">Elemento(s) de sonido</string>
   <string name="Media.EpisodeItemsHeader">Episodio(s)</string>
@@ -169,6 +175,7 @@
   <string name="Media.ChooseSeriesHeader">Series</string>
   <string name="Media.ChooseSeasonHeader">Seasons</string>
   <string name="Media.ChooseEpisodeHeader">Episodes</string>
+  <string name="Media.ChooseCharacterHeader">Caracteres</string>
   <string name="Media.ChooseCompanyHeader">Estudios de producción</string>
   <string name="Media.ChooseTvNetworkHeader">Redes de TV</string>
   <string name="Media.ChooseAudioDecadeHeader">Décadas</string>
@@ -192,6 +199,7 @@
   <string name="Media.ChooseAlbumCompilationHeader">Compilaciones de álbumes</string>
   <string name="Media.ChooseCompilationHeader">Compilaciones</string>
   <string name="Media.ChooseConductorHeader">Directores</string>
+  <string name="Media.ChooseContentGroupHeader">Grupos de contenido</string>
   <string name="Media.ChooseCertificationHeader">Certificaciones</string>
   <string name="Media.PlaylistsOverviewHeader">Listas de reproducción</string>
   <string name="Media.SavePlaylistEditNameHeader">Guardar lista de reproducción</string>
@@ -238,6 +246,8 @@
   <string name="Media.MoreThanMaxItemsSearchResultHint">El resultado de la búsqueda contiene más de {0} elementos. Por favor, estrecha tu búsqueda.</string>
   <string name="Media.ListIsBeingBuiltHint">El listado se está realizando...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Buscando...</string>
+  <string name="Media.EjectOpticalDisc">Expulsar disco óptico</string>
+  <string name="Media.Eject">Expulsar</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">Lista de reproducción</string>
   <string name="Media.AddSingleToPlaylist">Añadir a la lista de reproducción</string>
@@ -268,23 +278,36 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Conservar PiP vídeo</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Acciones para archivos</string>
+  <string name="Media.SetPlayed">Marcar como visto</string>
+  <string name="Media.SetUnplayed">Marcar como NO visto</string>
   <string name="Media.Refresh">Actualizar</string>
   <string name="Media.Reimport">Reimportar</string>
+  <string name="Media.SubtitleSearch">Búsqueda de subtítulos</string>
   <string name="Media.DeleteFromStorage">Eliminar del almacenamiento</string>
   <string name="Media.DeleteFromStorage.Confirmation">¿Está seguro de querer eliminar este archivo? Esto no puede deshacerse.</string>
   <string name="Media.ConfirmAction">Confirmar acción</string>
+  <string name="Media.ReimportMediaItem.Confirmation">Está seguro de que quiere reimportar este contenido y sustituir los datos existentes por éste? Esta operación no se puede deshacer.</string>
   <string name="Media.ReimportMediaItem.Title">Seleccione la combinación correcta</string>
   <string name="Media.ReimportMediaItem.Id">Id</string>
   <string name="Media.ReimportMediaItem.Done">Hecho</string>
   <string name="Media.ReimportMediaItem.SearchResultHeader">Resultado de búsqueda</string>
   <string name="Media.ReimportMediaItem.SearchTypeHeader">Tipo de búsqueda</string>
+  <string name="Media.ReimportMediaItem.AutoMatch">Coincidencia automática</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Búsqueda manual</string>
   <string name="Media.ReimportMediaItem.Description">Descripción</string>
+  <string name="Media.ReimportMediaItem.Hint">Nota: Se necesita conexión a internet y al menos haber elegido en los ajustes de la libreria de medios un buscador online</string>
+  <string name="Media.SubtitleReplace.Confirmation">Está seguro de que quiere reemplazar los subitutlos existentes por la opción elegida? Esta operación no se puede deshacer.</string>
+  <string name="Media.SubtitleSearch.Title">Seleccione un subtítulo coincidente</string>
   <string name="Media.SubtitleSearch.Id">Id</string>
   <string name="Media.SubtitleSearch.SearchResultHeader">Resultado de búsqueda</string>
   <string name="Media.SubtitleSearch.SearchTypeHeader">Tipo de búsqueda</string>
+  <string name="Media.SubtitleSearch.AutoMatch">Coincidencia automática</string>
   <string name="Media.SubtitleSearch.ManualSearch">Búsqueda manual</string>
+  <string name="Media.SubtitleSearch.Provider">Proveedor</string>
+  <string name="Media.SubtitleSearch.Percentage">Porcentaje de coincidencia</string>
   <string name="Media.SubtitleSearch.Language">Idioma</string>
+  <string name="Media.SubtitleSearch.Hint">Nota: Se necesita conexión a internet y al menos haber elegido en los ajustes de la libreria de medios un buscador de subtitulos online</string>
+  <string name="Media.ChooseEditionDialogHeader">Elige una edición</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Reproducir elementos</string>
   <string name="Media.PlayAudioItems">Reproduducir elementos de sonido</string>
@@ -302,11 +325,13 @@
   <string name="Media.PlayVideoImageItemMutedConcurrentAudio">Reproducir elemento de vídeo/imagen en segundo plano &amp; continuar audio actual</string>
   <string name="Media.PlayVideoImageItemPiP">Reproducir vídeo/imagen en modo PiP</string>
   <string name="Media.PlaybackResume">Continuar reproducción</string>
+  <string name="Media.PlaybackResumeTime">Reanudar reproducción desde: \'{0}\'</string>
   <string name="Media.PlaybackFromStart">Reproducir desde el inicio</string>
   <!--Player context names-->
   <string name="Media.VideoImageContextName">Vídeo/Imagen</string>
   <string name="Media.AudioContextName">Sonido</string>
   <!--Video currently playing-->
+  <string name="Media.Info">Información del medio</string>
   <string name="Media.VideoCurrentlyPlayingHeader">Información del vídeo actual</string>
   <string name="Media.Rating">Puntuación:</string>
   <string name="Media.VideoTitleLabel">Título: </string>
@@ -397,8 +422,11 @@
   <string name="Media.SmallList">Lista pequeña</string>
   <string name="Media.MediumList">Lista mediana</string>
   <string name="Media.LargeList">List grande</string>
+  <string name="Media.List">List</string>
   <string name="Media.LargeGrid">Parrilla</string>
-  <string name="Media.CoverLayout">Portadas:</string>
+  <string name="Media.CoverLayout">Carátula</string>
+  <string name="Media.ListSmall">Pequeño</string>
+  <string name="Media.ListMedium">Medio</string>
   <string name="Media.Watched">Visto</string>
   <string name="Media.Unwatched">No visto</string>
   <string name="Media.SwitchSortingMenuItem">Clasificación</string>
@@ -413,25 +441,41 @@
   <string name="Media.Stub.Title">Insertar disco</string>
   <string name="Media.Stub.Message">Insertar disco</string>
   <!--Virtual-->
+  <string name="Media.Virtual.Title">No se puede reproducir este medio</string>
+  <string name="Media.Virtual.Message">Imposible reproducir el elemento multimedia porque éste es virtual</string>
   <!--Settings-->
   <string name="Settings.Players">Reproducciones</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Cerrar reproducciones cuando terminen</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Activar esta opción para que MediaPortal cierre automáticamente las reproducciones finalizadas</string>
   <string name="Settings.Players.InstantSkipPercent">Porcentaje de salto isntantáneo</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Selecciona cuanto porcentaje de la duración del video quiere saltar instantáneamente</string>
+  <string name="Settings.Players.InstantSkipSeconds">Segundos de salto instantáneo</string>
+  <string name="Settings.Players.InstantSkipSeconds.Help">Selecciona cuantos segundos de vídeo quiere saltar instantáneamente</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds">Preferencias para los segundos de salto instantáneo</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds.Help">Selecciona si prefieres usar segundos absolutos en vez de un porcentaje relativo para el salto instantáneo</string>
   <string name="Settings.Players.SkipStepTimeout">Tiempo de espera en segundos para los saltos</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Ajustar el tiempo de espera para la entrada del usuario antes de realizar el salto</string>
   <string name="Settings.Players.SkipStepList">Saltos del reproductor</string>
   <string name="Settings.Players.SkipStepList.Help">Introduce los salto em segundos separados por ,</string>
   <string name="Settings.Players.OpenPlayerStrategy">Estrategia para abrir reproductores</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estrategia, cómo los reproductores recién abiertos se posicionarán entre los reproductores que ya están abiertos</string>
+  <string name="Settings.Players.WatchedPlayPercentage">Porcentaje reproducido para marcar como visto</string>
+  <string name="Settings.Players.WatchedPlayPercentage.Help">Selecciona que porcentaje de un archivo multimedia tiene que ser reproducido para marcarlo como visto</string>
+  <string name="Settings.Players.OpenPlayerConfigInOsd">Abrir la configuración del reproductor en el OSD</string>
   <string name="Settings.Players.OpenPlayerConfigInOsd.Help">Active esta opción para mostrar la configuración de reproducción luego de presionar \"Info\" por segunda vez</string>
+  <string name="Settings.Media">Librería de medios</string>
+  <string name="Settings.Media.ShowVirtual">Mostrar todos los archivos multimedia conocidos</string>
+  <string name="Settings.Media.ShowVirtual.Help">Selecciona si muestra todos los medios multimedia conocidos aunque no haya fichero multimedia local</string>
   <string name="Settings.Media.ShowVirtual.Audio">Mostrar todas las pistas de álbumes conocidas</string>
   <string name="Settings.Media.ShowVirtual.Movie">Mostrar toda la colección de películas conocida</string>
   <string name="Settings.Media.ShowVirtual.Series">Mostrar todas las temporadas y episodios conocidos</string>
+  <string name="Settings.Media.Certification">Paises de certificación de medios</string>
+  <string name="Settings.Media.Certification.None">Original (como importado)</string>
+  <string name="Settings.Media.Certification.Movie">Pais para la certificación por edades de las películas</string>
+  <string name="Settings.Media.Certification.Movie.Help">Selecciona el pais del sistema de certificación para películas cuando se muestra el sistema de certificación de edades</string>
+  <string name="Settings.Media.Certification.Series">Pais del sistema de certificación para series</string>
+  <string name="Settings.Media.Certification.Series.Help">Selecciona el pais del sistema de certificación para las series cuando se muestran las certificaciones de las series</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>
@@ -441,4 +485,6 @@
   <string name="Filter.RemoteNumericAlphabet8">tuv</string>
   <string name="Filter.RemoteNumericAlphabet9">xyz</string>
   <string name="Filter.Filtered">Filtrado</string>
+  <string name="Filter.StartsWith">Comienza con: {0}</string>
+  <string name="RestrictionGroup.Media.DeleteMediaItem">Media: Borrar elementos del almacenamiento</string>
 </resources>

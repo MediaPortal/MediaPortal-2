@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,14 +34,11 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 using MediaPortal.Utilities.SystemAPI;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using System.Net.NetworkInformation;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaPortal.Common.Messaging;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 {
@@ -368,6 +365,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     #endregion
+
+    protected override void NewImportStarting()
+    {
+      NfoArtistReader.ClearCache();
+      NfoAlbumReader.ClearCache();
+    }
 
     #endregion
 

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -87,7 +87,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public float Popularity = 0;
     public long Budget = 0;
     public long Revenue = 0;
-    public double Score = 0;
+    public float Score = 0;
     public SimpleRating Rating = new SimpleRating();
     public int Order = int.MaxValue;
 
@@ -263,7 +263,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       AssignNameId();
-      SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       if (!MovieNameSort.IsEmpty) MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, MovieNameSort.Text);
@@ -622,6 +621,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.Languages.AddRange(Languages);
         info.LastChanged = LastChanged;
         info.DateAdded = DateAdded;
+        info.AllowOnlineReSearch = AllowOnlineReSearch;
         info.ForceOnlineSearch = ForceOnlineSearch;
         return (T)(object)info;
       }

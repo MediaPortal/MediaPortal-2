@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -112,7 +112,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       workflowManager.NavigatePush(WF_STATE_ID_SCHEDULE_LIST);
     }
 
-    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
+    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
       if (!TryInitTvHandler())
         return false;

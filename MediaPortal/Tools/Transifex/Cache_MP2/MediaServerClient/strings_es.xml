@@ -1,8 +1,31 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-  <string name="Settings.DLNA.Clients.Config.ClientName">Name</string>
-  <string name="Settings.DLNA.Clients.Config.Yes">Yes</string>
+  <!--Client Settings-->
+  <string name="Settings.DLNA.Title">DLNA</string> <!-- Section name -->
+  <string name="Settings.DLNA.Clients.Config">Ajuste del Cliente</string> <!-- Group name -->
+  <string name="Settings.DLNA.Clients.Config.Help">Gestionar los clientes DLNA de su servidor casero</string>
+  <string name="Settings.DLNA.Clients.Config.Clients">Clientes</string> 
+  <string name="Settings.DLNA.Clients.Config.ClientName">Nombre</string>
+  <string name="Settings.DLNA.Clients.Config.Profile">Perfil</string>
+  <string name="Settings.DLNA.Clients.Config.DefaultUser">Usuario por defecto</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteClient">Borrar cliente</string>
+  <string name="Settings.DLNA.Clients.Config.SaveClients">Guardar todos los clientes</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation.Title">Confirmación de borrado</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation">Está seguro de que quiere borrar el cliente seleccionado?</string>
+  <string name="Settings.DLNA.Clients.Config.Yes">Si</string>
   <string name="Settings.DLNA.Clients.Config.No">No</string>
+  <string name="Settings.DLNA.Clients.Config.SelectProfile">Selecciona perfil del cliente</string>
+  <string name="Settings.DLNA.Clients.Config.SelectUser">Selecciona usuario del cliente por defecto</string>
+  <string name="Settings.DLNA.Clients.NoConfigHomeServerNotConnected">El servidor casero no está conectado actualmente, por lo que no se pueden administrar los clientes DLNA en este momento </string>
   <string name="Settings.DLNA.Clients.Config.NoUser">None</string>
-  </resources>
+  <string name="Settings.DLNA.Clients.Config.AutoProfile">Automático</string>
+  
+  <string name="Settings.DLNA.HardcodedSubtitles">Permitir subtítulos codificados</string> <!-- Setting -->
+  <string name="Settings.DLNA.HardcodedSubtitles.Help">Deberían permitirse los subtítulos codificados si el cliente no admite subtítulos</string>
+  <string name="Settings.DLNA.UserLogin">Mostrar inicio de sesión de usuario</string> <!-- Setting -->
+  <string name="Settings.DLNA.UserLogin.Help">Mostrar lista de usuarios para ayuda del inicio de sesión a través del cliente</string>
+  <string name="Settings.DLNA.Transcoding">Permitir transcodificación</string> <!-- Setting -->
+  <string name="Settings.DLNA.Transcoding.Help">Permite la transcodificación de medios y el archivo multimedia no es sportado por el cliente</string>
+
+</resources>

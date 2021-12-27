@@ -77,6 +77,8 @@
   <string name="Settings.Plugins.Weather">Tiempo</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Configurar localizaciones</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Configura ciudades para que se encuentren disponibles en la pantalla del tiempo</string>
+  <string name="Settings.Plugins.Weather.ApiKey">Configurar una clave personal API</string>
+  <string name="Settings.Plugins.Weather.ApiKey.Help">Configura una clave API personal creada en created at https://openweathermap.org/api para evitar los límites de solicitudes</string>
   <string name="WeatherSetup.Title">Configurar ciudades</string>
   <string name="WeatherSetup.ConfiguredCities">Ciudades configuradas</string>
   <string name="WeatherSetup.EnterCity">Por favor introduce el nombre de la cuidad para añadir:</string>

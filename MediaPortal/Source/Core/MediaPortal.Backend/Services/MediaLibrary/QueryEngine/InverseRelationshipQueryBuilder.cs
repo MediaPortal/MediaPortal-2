@@ -41,7 +41,16 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         {
         }
 
-        protected override CompiledFilter CreateCompiledFilter(Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, IList<TableJoin> tableJoins)
+        public InverseRelationshipQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
+          MediaItemIdFilter linkedFilter, Guid? userProfileId = null)
+          : base(miaManagement, simpleSelectAttributes,
+            null,
+            new List<MediaItemAspectMetadata> { RelationshipAspect.Metadata }, new List<MediaItemAspectMetadata> { },
+            linkedFilter, null, null, userProfileId)
+        {
+        }
+
+    protected override CompiledFilter CreateCompiledFilter(Namespace ns, BindVarNamespace bvNamespace, string outerMIIDJoinVariable, IList<TableJoin> tableJoins)
         {
           return new InverseRelationshipCompiledFilter(_miaManagement, (MediaItemIdFilter)_filter, _subqueryFilter, ns, bvNamespace, outerMIIDJoinVariable, tableJoins);
         }
@@ -56,9 +65,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
         /// <param name="attributeAliases">Returns the aliases for all selected attributes.</param>
         /// <param name="statementStr">SQL statement which was built by this method.</param>
         /// <param name="bindVars">Bind variables to be inserted into the returned <paramref name="statementStr"/>.</param>
-        public void GenerateSqlStatement(out string mediaItemIdAlias,
-            out IDictionary<QueryAttribute, string> attributeAliases,
-            out string statementStr, out IList<BindVar> bindVars)
+        public void GenerateSqlStatement(out string mediaItemIdAlias, out IDictionary<QueryAttribute, string> attributeAliases, out string statementStr, out IList<BindVar> bindVars)
         {
             IDictionary<MediaItemAspectMetadata, string> miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
             GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);

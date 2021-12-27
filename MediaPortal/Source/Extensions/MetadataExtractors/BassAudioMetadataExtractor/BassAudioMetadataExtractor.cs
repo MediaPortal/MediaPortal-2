@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -153,10 +153,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
         {
           trackInfo.FromMetadata(extractedAspectData);
+          trackInfo.ForceOnlineSearch = trackInfo.IsDirty;
         }
         else
         {
-          trackInfo.ForceOnlineSearch = true;
+          trackInfo.AllowOnlineReSearch = true;
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
           IList<MultipleMediaItemAspect> providerResourceAspect;
           if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspect))

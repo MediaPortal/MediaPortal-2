@@ -547,9 +547,10 @@
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
       </Grid>
-      
-      <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+      <Image Width="15" HorizontalAlignment="Left" Grid.RowSpan="2" Source="Horizontal_gradient.png" Opacity="0.8"
+             VerticalAlignment="Stretch" IsVisible="{Binding Path=Selected}" Stretch="Fill"/>
+      <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                 IsVisible="{Binding Path=Selected}"/>
     </Grid>
   </DataTemplate>
 
@@ -604,7 +605,7 @@
   <!--++++++++++++++++++++++++ MEDIAMENU BUTTON STYLE ++++++++++++++++++++++++-->
 
   <DataTemplate x:Key="MediaMenuCoverItemDataTemplate">
-    <Grid x:Name="ItemControl" Margin="6">
+    <Grid x:Name="ItemControl" Margin="6" Background="{ThemeResource NereusColorLight}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="170"/>
       </Grid.ColumnDefinitions>
@@ -612,7 +613,22 @@
         <RowDefinition Height="170"/>
       </Grid.RowDefinitions>
 
-      <Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="BackgroundOverlay">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusOverlayFocus}"/>
+            <Binding Source="{ThemeResource NereusOverlayNoFocus}"/>
+          </MultiBinding>
+        </Grid.Background>
+      </Grid>
+      <!--Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -621,7 +637,7 @@
             <Binding Source="MediaMenu\"/>
           </MultiBinding>
         </Image.Source>
-      </Image>
+      </Image-->
       <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
@@ -655,15 +671,31 @@
   </DataTemplate>
 
   <DataTemplate x:Key="MediaMenuItemDataTemplate">
-    <Grid x:Name="ItemControl" Margin="6">
+    <Grid x:Name="ItemControl" Margin="6" Background="{ThemeResource NereusColorLight}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="170"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="170"/>
       </Grid.RowDefinitions>
-      
-      <Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
+
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="BackgroundOverlay">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.Background>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusOverlayFocus}"/>
+            <Binding Source="{ThemeResource NereusOverlayNoFocus}"/>
+          </MultiBinding>
+        </Grid.Background>        
+      </Grid>
+
+      <!--Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -672,7 +704,7 @@
             <Binding Source="MediaMenu\"/>
           </MultiBinding>
         </Image.Source>
-      </Image>
+      </Image-->
       <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
@@ -699,7 +731,9 @@
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
                ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
       </Grid>
-      
+      <Image HorizontalAlignment="Left" Source="Horizontal_gradient.png"
+             VerticalAlignment="Stretch" Stretch="Fill" Width="15" Opacity="0.8"
+             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
       <Rectangle Fill="#FFFFFF" Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
                  IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>
@@ -863,6 +897,31 @@
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource HomeMenuItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource HomeItemContainerStyle}"/>
+  </Style>
+
+  <Style x:Key="MainMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_List}" Margin="0,0,0,0"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="MainMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource MainMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource MainMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource MainMenuItemContainerStyle}"/>
   </Style>
 
   <Style x:Key="SettingsMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
@@ -1058,7 +1117,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid x:Name="PCGroupBox" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                IsVisible="{Binding ShowMouseControls}" VerticalAlignment="Bottom">
+                 VerticalAlignment="Bottom">
 
             <Grid x:Name="MediaInfoPanel" IsVisible="{Binding IsCurrentPlayer}">
               <Grid.RowDefinitions>
@@ -1270,7 +1329,8 @@
 
   <DataTemplate x:Key="SystemShares1ItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel Margin="5" LastChildFill="True">
-      <DockPanel DockPanel.Dock="Top">
+      <DockPanel DockPanel.Dock="Top" LastChildFill="False">
+        <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,-20,10,10" Background="White" BorderThickness="0" Height="4"/>
         <Label x:Name="SystemName" DockPanel.Dock="Left" Content="{Binding [Name]}">
           <Label.Color>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1332,6 +1392,27 @@
             </MultiBinding>
           </Label.Color>
         </Label>
+        <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0,10,10,20" Orientation="Horizontal">
+          <StackPanel.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="SystemSharesList" Path="ItemsCount" />
+            </MultiBinding>
+          </StackPanel.IsVisible>
+          <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding ElementName="SystemSharesList" Path="CurrentItem"/>
+                <Binding ElementName="SystemSharesList" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+          <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <Binding ElementName="SystemSharesList" Path="ItemsCount" />
+            </Label.Content>
+          </Label>
+        </StackPanel>
       </DockPanel>
       <ListView x:Name="SystemSharesList" Margin="0,10,10,10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
                 DockPanel.Dock="Top" Style="{ThemeResource SystemShares1ListViewStyle}"

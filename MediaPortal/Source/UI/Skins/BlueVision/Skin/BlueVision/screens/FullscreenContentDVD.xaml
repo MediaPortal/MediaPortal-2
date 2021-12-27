@@ -28,7 +28,7 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <Include Source="screens\FullScreenContentVideoKeyBindings.inc"/>
+    <Include Source="screens\FullScreenContentDVDKeyBindings.inc"/>
 
     <mp_special_controls:UserInputCapture Grid.RowSpan="4" Grid.ColumnSpan="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
         IsActive="{Binding PlayerUIContributor.DvdPlayerHandlesInput}"

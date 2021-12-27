@@ -36,15 +36,15 @@
 
   <ResourceWrapper x:Key="DefaultPlayerControlBorderThickness" Resource="1"/>
   <ResourceWrapper x:Key="DefaultPlayerControlCornerRadius" Resource="4"/>
-  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="2"/>
+  <ResourceWrapper x:Key="OSDPlayControlBorderThickness" Resource="0"/>
   <ResourceWrapper x:Key="OSDPlayControlCornerRadius" Resource="0"/>
-  <ResourceWrapper x:Key="PipBorderThickness" Resource="2"/>
+  <ResourceWrapper x:Key="PipBorderThickness" Resource="0"/>
 
   <ResourceWrapper x:Key="ButtonControlRadiusX" Resource="0"/>
 
   <ResourceWrapper x:Key="FullScreenContentVideoPrimaryPlayerOSDWidth" Resource="850"/>
  
-  <ResourceWrapper x:Key="PiPVideoWidth" Resource="192"/>
+  <ResourceWrapper x:Key="PiPVideoWidth" Resource="400"/>
   
   <ResourceWrapper x:Key="DialogBorderCornerRadius" Resource="2"/>
     
