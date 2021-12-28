@@ -46,12 +46,10 @@
         <RowDefinition Height="40"/>
       </Grid.RowDefinitions>
 
-      <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}"
-          IsVisible="{Binding !IsOSDVisible}"/>
+      <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}" IsVisible="{Binding !IsOSDVisible}"/>
     </Grid>
     <!-- BackgroundPipLayoutGrid -->
-    <Grid x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0"
-        VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding IsOSDVisible}">
+    <Grid x:Name="OSD_LayoutPanel" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" IsVisible="{Binding IsOSDVisible}">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="Auto"/>
@@ -60,11 +58,9 @@
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
 
-      <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.Column="1"
-          LastChildFill="false">
+      <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.Column="1" LastChildFill="false">
         <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
-            Style="{ThemeResource PrimaryImageOSDStyle}"
-            VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
+            Style="{ThemeResource PrimaryImageOSDStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Right"/>
       </DockPanel>
     </Grid>
 
