@@ -20,17 +20,15 @@
   <string name="Nereus.Configuration.GridViewType.Poster">Posters</string>
   <string name="Nereus.Configuration.GridViewType.Banner">Banners</string>
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Miniatyrer</string>
-  <string name="Nereus.Configuration.EnableHomeContent">Aktivera Start Innehåll</string>
-  <string name="Nereus.Configuration.EnableHomeContent.Help">Om du vill visa Start Innehåll på startsidan</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Aktivera visning av information om media-filerna.</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Ska information om media-filerna visas i stället för att spela upp media direkt.</string>
-
   <string name="Nereus.Home.LatestAdded">Senast tillagda</string>
   <string name="Nereus.Home.LatestPlayed">Senast spelad</string>
   <string name="Nereus.Home.ContinuePlayed">Fortsätt spela</string>
   <string name="Nereus.Home.CurrentPrograms">Pågående program</string>
   <string name="Nereus.Home.CurrentSchedules">Pågående inspelningar</string>
   <string name="Nereus.Home.Favorites">Favoriter</string>
+  <string name="Nereus.Home.TopLanguages">Språk</string>
   <string name="Nereus.Home.Unplayed">Inte spelad</string>
   <string name="Nereus.Shortcut.Genre">Genre</string>
   <string name="Nereus.Shortcut.Year">År</string>
@@ -47,4 +45,11 @@
   <string name="Nereus.Shortcut.Refresh">Uppdatera</string>
   
   <string name="Nereus.Home.OtherPlugins">Övriga</string>
+  <string name="Nereus.Info.Director">Regissör</string>
+  <string name="Nereus.Info.Subtitles">Undertexter</string>
+  <string name="Nereus.Info.Actors">Skådespelare</string>
+  <string name="Nereus.Info.Collection">Samling</string>
+  <string name="Nereus.Info.Artists">Artist(er)</string>
+  <string name="Nereus.Info.Composer">Kompositör</string>
+
   </resources>

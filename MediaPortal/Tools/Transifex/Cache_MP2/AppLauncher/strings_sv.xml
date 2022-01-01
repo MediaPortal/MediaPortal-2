@@ -1,12 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+  <string name="AppLauncher.Title">startare</string>
+  <string name="AppLauncher.Helptext">länka tillandra program och starta dem inifrån mediaportal 2</string>
   <string name="AppLauncher.Stop">Stoppa</string>
   <string name="AppLauncher.Pause">Pausa</string>
+  <string name="AppLauncher.SwitchPlaying">ändra uppspelnings status</string>
   <string name="AppLauncher.Settings.Title">Inställningar</string>
+  <string name="AppLauncher.Settings.Helptext">välj dina externa program</string>
+  <string name="AppLauncher.Settings.Add">lägg till externt program</string>
   <string name="AppLauncher.Settings.Add.Arguments">Parametrar till appen</string>
+  <string name="AppLauncher.Settings.Add.Path">sökväg till externt program</string>
   <string name="AppLauncher.Settings.Add.Description">Beskrivning</string>
   <string name="AppLauncher.Settings.Add.Username">Användarnamn</string>
   <string name="AppLauncher.Settings.Add.Password">Lösenord</string>
+  <string name="AppLauncher.Settings.Add.Icon">sökväg till ikon</string>
   <string name="AppLauncher.Settings.Add.Search">Sök</string>
   <string name="AppLauncher.Settings.Add.Select">Välj</string>
   <string name="AppLauncher.Settings.Add.Minimum">Minimum</string>
@@ -16,9 +23,11 @@
   <string name="AppLauncher.Settings.Add.SearchIcon">Sök ikon</string>
   <string name="AppLauncher.Settings.Add.SearchApp">Sök app</string>
   <string name="AppLauncher.Settings.Add.AsAdmin">Kör som Administratör</string>
-  <string name="AppLauncher.Settings.Add.Helptext">La till app</string>
+  <string name="AppLauncher.Settings.Edit">redigera externt program</string>
+  <string name="AppLauncher.Settings.Add.Helptext">La till externt program</string>
   <string name="AppLauncher.Settings.Edit.Helptext">Ändra en befintlig app</string>
   <string name="AppLauncher.Settings.Delete.Helptext">Ta bort en befintlig app</string>
+  <string name="AppLauncher.Settings.Menu.Helptext">länka ett eternt program till ett menyval</string>
   <string name="AppLauncher.Settings.RemoveGroup.Helptext">Ta bort en befintlig grupp</string>
 
   <string name="AppLauncher.Group">Grupp</string>

@@ -101,7 +101,8 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
         if (!Directory.Exists(logoFolder))
           Directory.CreateDirectory(logoFolder);
 
-        if (File.Exists(logoFileName) && IsCacheValid(theme, logoFileName))
+        var logoExists = File.Exists(logoFileName);
+        if (logoExists && IsCacheValid(theme, logoFileName))
           return BuildLogoResourceLocatorAndReturn(ref result, logoFileName);
 
         LogoProcessor processor = new LogoProcessor { DesignsFolder = designsFolder };
@@ -112,13 +113,17 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
           var stream = repo.Download(name, logoChannelType, _country.TwoLetterISORegionName);
           if (stream == null)
             return BuildLogoResourceLocatorAndReturn(ref result, logoFileName);
+
+          ServiceRegistration.Get<ILogger>().Info("SlimTv Logos: Starting {0} channel logo for '{1}' [{2}]", 
+            logoExists ? "updating of outdated":"download of new", name, logoChannelType);
+
           using (stream)
           {
             // First download and process the new logo, but keep the existing file if something fails.
             string tmpLogoFileName = Path.ChangeExtension(logoFileName, ".tmplogo");
             if (processor.CreateLogo(theme, stream, tmpLogoFileName))
             {
-              if (File.Exists(logoFileName))
+              if (logoExists)
                 File.Delete(logoFileName);
               File.Move(tmpLogoFileName, logoFileName);
             }
@@ -151,7 +156,7 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
     private bool IsCacheValid(Theme theme, string logoFileName)
     {
       FileInfo fi = new FileInfo(logoFileName);
-      return theme.SkipOnlineUpdate || DateTime.Now - fi.CreationTime <= MAX_CACHE_DURATION;
+      return !_settings.EnableAutoUpdate || theme.SkipOnlineUpdate || DateTime.Now - fi.CreationTime <= MAX_CACHE_DURATION;
     }
   }
 }

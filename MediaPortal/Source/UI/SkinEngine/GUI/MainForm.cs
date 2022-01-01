@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
@@ -64,6 +65,13 @@ namespace MediaPortal.UI.SkinEngine.GUI
   {
     protected delegate void Dlgt();
 
+    private class MessageRateInfo
+    {
+      public DateTime LastEvaluation { get; set; } = DateTime.UtcNow;
+      public long MessageCount { get; set; }
+      public bool Logged { get; set; }
+    }
+
     /// <summary>
     /// Maximum time between frames when our render thread is synchronized to the video player thread.
     /// </summary>
@@ -75,7 +83,30 @@ namespace MediaPortal.UI.SkinEngine.GUI
     public static int VIDEO_PLAYER_MAX_WAIT_FOR_RENDER_MS = 10;
 
     private const string SCREEN_SAVER_SCREEN = "ScreenSaver";
-
+    private const int WM_SIZING = 0x214;
+    private const int WMSZ_LEFT = 1;
+    private const int WMSZ_RIGHT = 2;
+    private const int WMSZ_TOP = 3;
+    private const int WMSZ_TOPLEFT = 4;
+    private const int WMSZ_TOPRIGHT = 5;
+    private const int WMSZ_BOTTOM = 6;
+    private const int WMSZ_BOTTOMLEFT = 7;
+    private const int WMSZ_BOTTOMRIGHT = 8;
+    private const int WM_SYSCHAR = 0x106;
+    private const int WM_DISPLAYCHANGE = 0x007E;
+    private const int WM_ACTIVATE = 0x0006;
+    private const int WM_ACTIVATEAPP = 0x001C;
+    private const int WM_KEYDOWN = 0x100;
+    private const int WM_KEYUP = 0x101;
+    private const int WM_SYSKEYDOWN = 0x0104;
+    private const int WM_SYSKEYUP = 0x0105;
+    private const int WA_INACTIVE = 0;
+    private const int WM_INPUT = 0x00FF;
+    private const int WM_APPCOMMAND = 0x0319;
+    private const int WM_MOUSEMOVE = 0x0200;
+    private const int WM_SETCURSOR = 0x0020;
+    private const int WM_NCHITTEST = 0x0084;
+    
     private bool _renderThreadStopped;
     private ISharpDXVideoPlayer _synchronizedVideoPlayer = null;
     private readonly AutoResetEvent _videoRenderFrameEvent = new AutoResetEvent(false);
@@ -93,11 +124,23 @@ namespace MediaPortal.UI.SkinEngine.GUI
     private bool _forceOnTop = false;
     private bool _hasFocus = false;
     private readonly ScreenManager _screenManager;
+    private IDictionary<int, MessageRateInfo> _highVolumeMessageCheck = new Dictionary<int,MessageRateInfo>();
+
+
     protected bool _isScreenSaverEnabled = true;
     protected bool _isScreenSaverActive = false;
     protected ScreenSaverController _screenSaverController = null;
     protected SuspendLevel _applicationSuspendLevel = SuspendLevel.None;
     protected SuspendLevel _playerSuspendLevel = SuspendLevel.None;
+
+    // These messages will be broadcasted in the PreProcessMessage override
+    // rather than in WndProc to prevent the form from translating them to
+    // WM_CHAR messages if the broadcasted messages are handled by a plugin.
+    protected readonly List<int> _preProcessedMessages = new List<int>()
+    {
+      WM_KEYDOWN,
+      WM_SYSKEYDOWN
+    };
 
     /// <summary>
     /// Timespan from the last user input to the start of the screen saver.
@@ -537,11 +580,11 @@ namespace MediaPortal.UI.SkinEngine.GUI
           {
             string clPath = Path.Combine(Path.GetDirectoryName(Assembly.GetEntryAssembly().Location), "Tools", "MP2-ClientLauncher", "MP2-ClientLauncher.exe");
             Process.Start(clPath);
-            int waitCounter = 10;
+            int waitCounter = 50;
             // Wait until process is running and the pipe was created.
             while (waitCounter-- > 0 && !IpcClient.GetRunningApps().Contains("ClientLauncher"))
             {
-              Thread.Sleep(200);
+              Thread.Sleep(100);
             }
           }
           // Sends a command to tray launcher that we want to be restarted.
@@ -798,7 +841,6 @@ namespace MediaPortal.UI.SkinEngine.GUI
       {
         ServiceRegistration.Get<ILogger>().Error("SkinEngine MainForm: Error occured in TouchDown handler", ex);
       }
-
     }
 
     private void MainForm_OnTouchMove(object sender, TouchMoveEvent uiTouchEventArgs)
@@ -968,31 +1010,37 @@ namespace MediaPortal.UI.SkinEngine.GUI
       }
     }
 
-    private bool IsHighVolumeMessage(Message m)
+    /// <summary>
+    /// Check if the message should be pre-processed before being dispatched.
+    /// </summary>
+    private bool IsPreProcessedMessage(Message m)
     {
-      const int WM_MOUSEMOVE = 0x0200;
-      const int WM_SETCURSOR = 0x0020;
-      const int WM_NCHITTEST = 0x0084;
-      if (m.Msg == WM_MOUSEMOVE || m.Msg == WM_SETCURSOR || m.Msg == WM_NCHITTEST)
-        return true;
+      return _preProcessedMessages.Contains(m.Msg);
+    }
 
-      return false;
+    private void CheckMessageRate(ref Message m)
+    {
+      if (!_highVolumeMessageCheck.ContainsKey(m.Msg))
+        _highVolumeMessageCheck[m.Msg] = new MessageRateInfo();
+
+      if (_highVolumeMessageCheck[m.Msg].Logged)
+        return;
+
+      _highVolumeMessageCheck[m.Msg].MessageCount++;
+      var duration = (DateTime.UtcNow - _highVolumeMessageCheck[m.Msg].LastEvaluation).TotalSeconds;
+      if (duration >= 1)
+      {
+        var rate = _highVolumeMessageCheck[m.Msg].MessageCount / duration;
+        if (rate >= 100)
+        {
+          ServiceRegistration.Get<ILogger>().Warn($"SkinEngine MainForm: Message 0x{m.Msg:x} has rate of {rate:F1} which can cause UI unresponsiveness");
+          _highVolumeMessageCheck[m.Msg].Logged = true;
+        }
+      }
     }
 
     protected override void WndProc(ref Message m)
     {
-      const long WM_SIZING = 0x214;
-      const int WMSZ_LEFT = 1;
-      const int WMSZ_RIGHT = 2;
-      const int WMSZ_TOP = 3;
-      const int WMSZ_TOPLEFT = 4;
-      const int WMSZ_TOPRIGHT = 5;
-      const int WMSZ_BOTTOM = 6;
-      const int WMSZ_BOTTOMLEFT = 7;
-      const int WMSZ_BOTTOMRIGHT = 8;
-      const int WM_SYSCHAR = 0x106;
-      const int WM_DISPLAYCHANGE = 0x007E;
-
       // Hande 'beep'
       if (m.Msg == WM_SYSCHAR)
         return;
@@ -1105,15 +1153,34 @@ namespace MediaPortal.UI.SkinEngine.GUI
         }
       }
 
-      // Don't broadcast high volume messages (like mouse move) to avoid overload
-      if (!IsHighVolumeMessage(m))
+      // Pre-processed messages are broadcasted in PreProcessMessage, don't broadcast them again
+      if (!IsPreProcessedMessage(m))
       {
+        CheckMessageRate(ref m);
+
         // Send windows message through the system if any component needs to access windows messages
         if (WindowsMessaging.BroadcastWindowsMessage(ref m))
           return;
       }
 
       base.WndProc(ref m);
+    }
+
+    // Preprocesses keyboard or input messages within the message loop before they are dispatched.
+    public override bool PreProcessMessage(ref Message m)
+    {
+      // MP2-789 Brownard 16/5/2021: Broadcast input events here, rather than in WndProc, otherwise
+      // the underlying window will always translate WM_KEYDOWN events to WM_CHAR events regardless
+      // of whether they are handled by a plugin.
+      if (IsPreProcessedMessage(m))
+      {
+        CheckMessageRate(ref m);
+
+        // Send input message through the system so components can handle them
+        if (WindowsMessaging.BroadcastWindowsMessage(ref m))
+          return true;
+      }
+      return base.PreProcessMessage(ref m);
     }
 
     [StructLayout(LayoutKind.Sequential)]

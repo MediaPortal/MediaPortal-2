@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,6 +32,8 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     public MediaShortcutListWrapper(IList<ListItem> itemsList)
       : base(itemsList)
     {
+      _initialized = true;
+      UpdateHasItemsProperty(itemsList);
     }
   }
 }

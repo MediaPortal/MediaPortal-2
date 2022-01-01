@@ -36,6 +36,8 @@
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Thumbnails</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Enable Media Item Details View</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Whether to show media item details instead of playing media item directly.</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay">Enable touch display support</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay.Help">Whether to deactivate the automatic slide menues and force displaying navigation buttons for better touch display support.</string>
 
   <string name="Nereus.Home.LatestAdded">Latest Added</string>
   <string name="Nereus.Home.LatestPlayed">Latest Played</string>
@@ -43,7 +45,7 @@
   <string name="Nereus.Home.CurrentPrograms">Current Programs</string>
   <string name="Nereus.Home.CurrentSchedules">Current Schedules</string>
   <string name="Nereus.Home.Favorites">Favorites</string>
-  <string name="Nereus.Home.TopLanguages"></string>
+  <string name="Nereus.Home.TopLanguages">Languages</string>
   <string name="Nereus.Home.Unplayed">Unplayed</string>
   <string name="Nereus.Home.CurrentWeather">Current</string>
   <string name="Nereus.Home.Forecast">Forecast</string>
@@ -76,4 +78,19 @@
   <string name="Nereus.Dialog.EditMenu.Header">Edit menu</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Add menu item</string>
 
+  <string name="Nereus.Dialog.EditMediaList.Header">Edit home content</string>
+  <string name="Nereus.Dialog.AddMediaListItem.Header">Add home content</string>
+
+  <string name="Nereus.Info.Director">Director</string>
+  <string name="Nereus.Info.Subtitles">Subtitles</string>
+  <string name="Nereus.Info.Actors">Actors</string>
+  <string name="Nereus.Info.Collection">Collection</string>
+  <string name="Nereus.Info.Audio">Audio Tracks</string>
+  <string name="Nereus.Info.Artists">Artists</string>
+  <string name="Nereus.Info.AlbumArtists">Album Artists</string>
+  <string name="Nereus.Info.Composer">Composer</string>
+
+  <string name="Nereus.Configuration.SelectSkinColor">Select skin color scheme</string>
+  <string name="Nereus.Configuration.SelectSkinColor.Help">Configure skin color scheme by selecting a pattern</string>
+  
 </resources>

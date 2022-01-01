@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -30,36 +31,27 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public WebradioHomeContent()
     {
-      
-    }
-    protected override void PopulateBackingList()
-    {
-      var alm = GetWebradioListModel();
-
-      _backingList.Add(new LastPlayedWebradioList(alm.Lists["LastPlayedWebradio"].AllItems));
-      _backingList.Add(new TopPlayedWebradioList(alm.Lists["TopPlayedWebradio"].AllItems));
+      _availableLists.Add(new LastPlayedWebradioList());
+      _availableLists.Add(new TopPlayedWebradioList());
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
-      var alm = GetWebradioListModel();
-
-      alm.ForceUpdate("LastPlayedWebradio");
-      alm.ForceUpdate("TopPlayedWebradio");
+      return GetWebradioListModel();
     }
   }
 
-  public class LastPlayedWebradioList : ItemsListWrapper
+  public class LastPlayedWebradioList : MediaListItemsListWrapper
   {
-    public LastPlayedWebradioList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestPlayed]")
+    public LastPlayedWebradioList()
+      : base("LastPlayedWebradio", "[Nereus.Home.LatestPlayed]")
     { }
   }
 
-  public class TopPlayedWebradioList : ItemsListWrapper
+  public class TopPlayedWebradioList : MediaListItemsListWrapper
   {
-    public TopPlayedWebradioList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public TopPlayedWebradioList()
+      : base("TopPlayedWebradio", "[Nereus.Home.Favorites]")
     { }
   }
 }

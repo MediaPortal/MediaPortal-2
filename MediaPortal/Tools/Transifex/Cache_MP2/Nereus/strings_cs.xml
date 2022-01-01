@@ -12,4 +12,6 @@
   <string name="Nereus.Shortcut.Refresh">Obnovit</string>
   
   <string name="Nereus.Home.OtherPlugins">Ostatní</string>
+  <string name="Nereus.Info.Subtitles">Titulky</string>
+  <string name="Nereus.Info.Actors">Hrají</string>
   </resources>

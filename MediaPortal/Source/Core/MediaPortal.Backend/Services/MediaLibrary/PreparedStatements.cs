@@ -274,18 +274,5 @@ namespace MediaPortal.Backend.Services.MediaLibrary
         return _insertUserPlayDataForIdSQL;
       }
     }
-
-    public string SelectMediaItemUserDataFromIdsSQL
-    {
-      get
-      {
-        if (_selectMediaItemUserDataFromIdsSQL == null)
-          _selectMediaItemUserDataFromIdsSQL = "SELECT " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + "," + UserProfileDataManagement_SubSchema.USER_DATA_KEY_COL_NAME + "," +
-          UserProfileDataManagement_SubSchema.USER_DATA_VALUE_COL_NAME +
-          " FROM " + UserProfileDataManagement_SubSchema.USER_MEDIA_ITEM_DATA_TABLE_NAME +
-          " WHERE " + UserProfileDataManagement_SubSchema.USER_PROFILE_ID_COL_NAME + " = @USER_PROFILE_ID AND " + MediaLibrary_SubSchema.MEDIA_ITEMS_ITEM_ID_COL_NAME + " IN({0})";
-        return _selectMediaItemUserDataFromIdsSQL;
-      }
-    }
   }
 }

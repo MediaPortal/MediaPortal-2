@@ -61,7 +61,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <DockPanel.Resources>
           <Model x:Key="MenuModel" Id="CED34107-565C-48D9-BEC8-195F7969F90F"/>
         </DockPanel.Resources>
-       
         <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                MousePositionMode="Relative" Buttons="Left"
                MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel},Path=CloseTopmostDialog}"
@@ -76,6 +75,19 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
+          <DockPanel LastChildFill="True" Background="{ThemeResource NereusColorMedium}">
+            <DockPanel DockPanel.Dock="Bottom" Background="{ThemeResource NereusColorLight}" Height="6"/>
+            <DockPanel DockPanel.Dock="Top">
+              <DockPanel.Background>
+                <LinearGradientBrush StartPoint="0.5,1" EndPoint="0.5,0">
+                  <GradientStop Color="#60000000" Offset="0.00"/>
+                  <GradientStop Color="#00000000" Offset="0.50"/>
+                  <GradientStop Color="#00000000" Offset="1.00"/>
+                </LinearGradientBrush>
+              </DockPanel.Background>
+            </DockPanel>
+          </DockPanel>
+
           <Label x:Name="DialogTitle" Grid.Column="0" Grid.Row="0" FontSize="{ThemeResource DialogTitleFontSize}" Margin="10,5,10,5"
                  Content="{Binding Source={DynamicResource Dialog_Header_Text},Path=Resource}" Color="{ThemeResource DialogHeaderColor}"
                  VerticalAlignment="Center" HorizontalAlignment="Center" FontFamily="DefaultBold"

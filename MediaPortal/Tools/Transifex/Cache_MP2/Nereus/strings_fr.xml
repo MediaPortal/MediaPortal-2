@@ -20,17 +20,15 @@
   <string name="Nereus.Configuration.GridViewType.Poster">Affiches</string>
   <string name="Nereus.Configuration.GridViewType.Banner">Bannières</string>
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Vignettes</string>
-  <string name="Nereus.Configuration.EnableHomeContent">Activé le contenu dans Home</string>
-  <string name="Nereus.Configuration.EnableHomeContent.Help">Indique si vous souhaitez afficher du contenu sur l\'écran d\'accueil.</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Activer l\'affichage des détails du média</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Afficher les infos du média, au lieu de le lire directement.</string>
-
   <string name="Nereus.Home.LatestAdded">Dernier ajouté</string>
   <string name="Nereus.Home.LatestPlayed">Dernier lu</string>
   <string name="Nereus.Home.ContinuePlayed">Continuer La Lecture</string>
   <string name="Nereus.Home.CurrentPrograms">Programmes en cours</string>
   <string name="Nereus.Home.CurrentSchedules">Horaires Actuelles</string>
   <string name="Nereus.Home.Favorites">Favoris</string>
+  <string name="Nereus.Home.TopLanguages">Languages</string>
   <string name="Nereus.Home.Unplayed">Non lu</string>
   <string name="Nereus.Shortcut.Genre">Genre</string>
   <string name="Nereus.Shortcut.Year">Année</string>
@@ -45,4 +43,11 @@
   <string name="Nereus.Shortcut.Refresh">Rafraîchir</string>
   
   <string name="Nereus.Home.OtherPlugins">Autres</string>
+  <string name="Nereus.Info.Director">Directeur</string>
+  <string name="Nereus.Info.Subtitles">Sous-titre</string>
+  <string name="Nereus.Info.Actors">Acteurs</string>
+  <string name="Nereus.Info.Collection">Collection</string>
+  <string name="Nereus.Info.Artists">Artistes</string>
+  <string name="Nereus.Info.Composer">Compositeur</string>
+
   </resources>

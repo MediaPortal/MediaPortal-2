@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -87,7 +87,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     public float Popularity = 0;
     public long Budget = 0;
     public long Revenue = 0;
-    public double Score = 0;
+    public float Score = 0;
     public SimpleRating Rating = new SimpleRating();
     public int Order = int.MaxValue;
 

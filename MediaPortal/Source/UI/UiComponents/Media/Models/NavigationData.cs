@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -71,6 +71,7 @@ namespace MediaPortal.UiComponents.Media.Models
     protected ICollection<Sorting.Sorting> _availableGroupings = null;
     protected LayoutType _layoutType = LayoutType.ListLayout;
     protected LayoutSize _layoutSize = LayoutSize.Small;
+    protected MediaDictionary<string, string> _additionalProperties = null;
 
     #endregion
 
@@ -92,7 +93,8 @@ namespace MediaPortal.UiComponents.Media.Models
         ViewSpecification baseViewSpecification, AbstractScreenData defaultScreen, ICollection<AbstractScreenData> availableScreens,
         Sorting.Sorting currentSorting, Sorting.Sorting currentGrouping) :
       this(parent, navigationContextName, parentWorkflowStateId, currentWorkflowStateId, baseViewSpecification, defaultScreen, availableScreens,
-        currentSorting, currentGrouping, false) { }
+        currentSorting, currentGrouping, false)
+    { }
 
     // If the suppressActions parameter is set to <c>true</c>, no actions will be built. Instead, they will be inherited from
     // the parent navigation step. That is used for subview navigation where the navigation step doesn't produce own
@@ -186,7 +188,7 @@ namespace MediaPortal.UiComponents.Media.Models
       }
       set { _availableSortings = value; }
     }
-    
+
     public Sorting.Sorting CurrentGrouping
     {
       get { return _currentGrouping; }
@@ -259,7 +261,7 @@ namespace MediaPortal.UiComponents.Media.Models
 
       public override string DisplayName
       {
-        get { return _sorting == null ? String.Empty :_sorting.DisplayName; }
+        get { return _sorting == null ? String.Empty : _sorting.DisplayName; }
       }
 
       public override string GroupByDisplayName
@@ -326,6 +328,16 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
+    public MediaDictionary<string, string> AdditionalProperties
+    {
+      get { return _additionalProperties; }
+      internal set
+      {
+        _additionalProperties = value;
+        SaveLayoutSettings();
+      }
+    }
+
     /// <summary>
     /// Releases resources which are needed by the current screen.
     /// </summary>
@@ -372,18 +384,28 @@ namespace MediaPortal.UiComponents.Media.Models
           false, null, true, WorkflowType.Workflow, null);
 
       ScreenConfig nextScreenConfig;
-      LoadLayoutSettings(visibleScreen.ToString(), out nextScreenConfig);
+      Sorting.Sorting nextSortingMode = _currentSorting;
+      Sorting.Sorting nextGroupingMode = _currentGrouping;
+      LayoutType nextLayoutType = LayoutType.GridLayout;
+      LayoutSize nextLayoutSize = LayoutSize.Large;
+      MediaDictionary<string, string> nextProperties = new MediaDictionary<string, string>();
 
-      Sorting.Sorting nextSortingMode = AvailableSortings.FirstOrDefault(
-        sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting && sorting.IsAvailable(visibleScreen)) ?? _currentSorting;
-      Sorting.Sorting nextGroupingMode = string.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : AvailableGroupings.FirstOrDefault(
-        grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping && grouping.IsAvailable(visibleScreen)) ?? _currentGrouping;
+      if (LoadLayoutSettings(visibleScreen.ToString(), out nextScreenConfig) && nextScreenConfig != null)
+      {
+        nextSortingMode = AvailableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting && sorting.IsAvailable(visibleScreen)) ?? _currentSorting;
+        nextGroupingMode = string.IsNullOrEmpty(nextScreenConfig.Grouping) ? null :
+          AvailableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping && grouping.IsAvailable(visibleScreen)) ?? _currentGrouping;
+        nextLayoutType = nextScreenConfig.LayoutType;
+        nextLayoutSize = nextScreenConfig.LayoutSize;
+        nextProperties = nextScreenConfig.AdditionalProperties;
+      }
 
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
           _baseWorkflowStateId, newState.StateId, subViewSpecification, visibleScreen, _availableScreens, nextSortingMode, nextGroupingMode, true)
       {
-        LayoutType = nextScreenConfig.LayoutType,
-        LayoutSize = nextScreenConfig.LayoutSize
+        LayoutType = nextLayoutType,
+        LayoutSize = nextLayoutSize,
+        AdditionalProperties = nextProperties
       };
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
       return newNavigationData;
@@ -418,16 +440,29 @@ namespace MediaPortal.UiComponents.Media.Models
         nextScreen = remainingScreens.First(s => s != currentScreen);
 
       ScreenConfig nextScreenConfig;
-      LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
+      Sorting.Sorting nextSortingMode = _currentSorting;
+      Sorting.Sorting nextGroupingMode = _currentGrouping;
+      LayoutType nextLayoutType = LayoutType.GridLayout;
+      LayoutSize nextLayoutSize = LayoutSize.Large;
+      MediaDictionary<string, string> nextProperties = new MediaDictionary<string, string>();
 
-      Sorting.Sorting nextSortingMode = AvailableSortings.FirstOrDefault(
-        sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting && sorting.IsAvailable(nextScreen)) ?? _currentSorting;
-      Sorting.Sorting nextGroupingMode = String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : AvailableGroupings.FirstOrDefault(
-        grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping && grouping.IsAvailable(nextScreen)) ?? _currentGrouping;
+      if (LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig) && nextScreenConfig != null)
+      {
+        nextSortingMode = AvailableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting && sorting.IsAvailable(nextScreen)) ?? _currentSorting;
+        nextGroupingMode = String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : AvailableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping && grouping.IsAvailable(nextScreen)) ?? _currentGrouping;
+        nextLayoutType = nextScreenConfig.LayoutType;
+        nextLayoutSize = nextScreenConfig.LayoutSize;
+        nextProperties = nextScreenConfig.AdditionalProperties;
+      }
 
       NavigationData newNavigationData = new NavigationData(this, subViewSpecification.ViewDisplayName,
           newState.StateId, newState.StateId, subViewSpecification, nextScreen, remainingScreens,
-          nextSortingMode, nextGroupingMode) { LayoutType = nextScreenConfig.LayoutType, LayoutSize = nextScreenConfig.LayoutSize };
+          nextSortingMode, nextGroupingMode)
+      {
+        LayoutType = nextLayoutType,
+        LayoutSize = nextLayoutSize,
+        AdditionalProperties = nextProperties
+      };
       PushNewNavigationWorkflowState(newState, navbarDisplayLabel, newNavigationData);
       return newNavigationData;
     }
@@ -455,7 +490,8 @@ namespace MediaPortal.UiComponents.Media.Models
         Sorting = CurrentSorting.GetType().ToString(),
         Grouping = CurrentGrouping == null ? String.Empty : CurrentGrouping.GetType().ToString(),
         LayoutSize = LayoutSize,
-        LayoutType = LayoutType
+        LayoutType = LayoutType,
+        AdditionalProperties = AdditionalProperties
       };
       ServiceRegistration.Get<ISettingsManager>().Save(viewSettings);
     }
@@ -489,13 +525,13 @@ namespace MediaPortal.UiComponents.Media.Models
     {
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePushTransient(newState, new NavigationContextConfig
-        {
-          AdditionalContextVariables = new Dictionary<string, object>
+      {
+        AdditionalContextVariables = new Dictionary<string, object>
             {
               {Consts.KEY_NAVIGATION_DATA, newNavigationData}
             },
-          NavigationContextDisplayLabel = navbarDisplayLabel
-        });
+        NavigationContextDisplayLabel = navbarDisplayLabel
+      });
     }
 
     protected void BuildWorkflowActions()

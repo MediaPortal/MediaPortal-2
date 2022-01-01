@@ -193,13 +193,11 @@
         Sort="F100"
         Redundant="true"
         Text="[SlimTvClient.Notifications]"/>
-
     <ConfigSection
         Id="EpgGenreColors"
         Sort="F101"
         Redundant="true"
         Text="[SlimTvClient.EpgGenreColors]"/>
-    
     <ConfigSetting
         Id="AutoStartTvSetting"
         Text="[SlimTvClient.AutoStartTv]"
@@ -255,6 +253,11 @@
         Text="[SlimTvClient.ChannelLogoStyle]"
         HelpText="[SlimTvClient.ChannelLogoStyle.Help]"
         ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ChannelLogoStyleSetting"/>
+    <ConfigSetting
+        Id="ChannelLogoAutoUpdate"
+        Text="[SlimTvClient.ChannelLogoAutoUpdate]"
+        HelpText="[SlimTvClient.ChannelLogoAutoUpdate.Help]"
+        ClassName="MediaPortal.Plugins.SlimTv.Client.Settings.Configuration.ChannelLogoAutoUpdate"/>
   </Register>
   
   <!--Notifications-->

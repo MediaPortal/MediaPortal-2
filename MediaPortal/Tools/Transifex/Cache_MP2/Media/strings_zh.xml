@@ -278,7 +278,8 @@
   <string name="Media.MediumList">中列表</string>
   <string name="Media.LargeList">大列表</string>
   <string name="Media.LargeGrid">格</string>
-  <string name="Media.CoverLayout">封面</string>
+  <string name="Media.ListSmall">小</string>
+  <string name="Media.ListMedium">中等</string>
   <string name="Media.Watched">已观看</string>
   <string name="Media.Unwatched">未观看</string>
   <string name="Media.SwitchSortingMenuItem">排序</string>
@@ -299,6 +300,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">打开播放器策略</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">策略，how newly opened players will be positioned among already open players</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,7 +28,11 @@ namespace WhatsNew.Settings
 {
   public class WhatsNewSettings
   {
+    // Obsolete from version 2.4 on, now we remember last confirmed version.
     [Setting(SettingScope.User, false)]
     public bool NewsConfirmed { get; set; }
+
+    [Setting(SettingScope.User)]
+    public string NewsConfirmedVersion { get; set; }
   }
 }

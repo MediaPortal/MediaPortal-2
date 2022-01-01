@@ -17,23 +17,19 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <StackPanel DataContext="{Binding Source={StaticResource SystemStateModel}}">
-
-        <ListView ItemsSource="{Binding Path=ShutdownItems,Mode=OneTime}"
-                  Style="{ThemeResource SystemStateMenuListViewStyle}">
+        <ListView ItemsSource="{Binding Path=ShutdownItems,Mode=OneTime}" Style="{ThemeResource SystemStateMenuListViewStyle}" Margin="-5,0,-5,0">
           <ListView.Resources>
-              <CommandList x:Key="Menu_Command">
-                <!--<Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>-->
-                <CommandBridge Command="{Binding Command}" />
-              </CommandList>
-
-            </ListView.Resources>
+            <CommandList x:Key="Menu_Command">
+              <!--<Command Source="{Service ScreenManager}" Path="CloseTopmostDialog"/>-->
+              <CommandBridge Command="{Binding Command}" />
+            </CommandList>
+          </ListView.Resources>
         </ListView>
 
         <!-- SleepTimer state -->
         <Label  DataContext="{Binding Source={StaticResource SleepTimerModel}}"
                 IsVisible="{Binding Path=ShutdownText, Converter={StaticResource EmptyStringToFalseConverter}}"
-                HorizontalAlignment="Stretch" Margin="15"
-                Content="{Binding ShutdownText}"
+                HorizontalAlignment="Stretch" Margin="15" Content="{Binding ShutdownText}"
                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       </StackPanel>
     </ControlTemplate>

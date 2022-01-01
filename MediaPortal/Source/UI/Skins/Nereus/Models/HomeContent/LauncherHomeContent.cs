@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,39 +23,35 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class LauncherHomeContent : AbstractHomeContent
   {
-    protected override void PopulateBackingList()
+    public LauncherHomeContent()
     {
-      var alm = GetAppListModel();
-
-      _backingList.Add(new LatestLaunchedAppList(alm.Lists["LastLaunchApps"].AllItems));
-      _backingList.Add(new FavoriteAppList(alm.Lists["FavoriteApps"].AllItems));
+      _availableLists.Add(new LatestLaunchedAppList());
+      _availableLists.Add(new FavoriteAppList());
     }
 
-    protected override void ForceUpdateBackingList()
+    protected override IContentListModel GetContentListModel()
     {
-      var alm = GetAppListModel();
-
-      alm.ForceUpdate("LastLaunchApps");
-      alm.ForceUpdate("FavoriteApps");
+      return GetAppListModel();
     }
   }
 
-  public class LatestLaunchedAppList : ItemsListWrapper
+  public class LatestLaunchedAppList : MediaListItemsListWrapper
   {
-    public LatestLaunchedAppList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.LatestLaunched]")
+    public LatestLaunchedAppList()
+      : base("LastLaunchApps", "[Nereus.Home.LatestLaunched]")
     { }
   }
 
-  public class FavoriteAppList : ItemsListWrapper
+  public class FavoriteAppList : MediaListItemsListWrapper
   {
-    public FavoriteAppList(ItemsList mediaList)
-      : base(mediaList, "[Nereus.Home.Favorites]")
+    public FavoriteAppList()
+      : base("FavoriteApps", "[Nereus.Home.Favorites]")
     { }
   }
 }

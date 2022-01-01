@@ -7,6 +7,7 @@
   <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
   <string name="Trakt.PinCode">Código Pin Recibido</string>
   <string name="Trakt.Authorize">Autorizar</string>
+  <string name="Trakt.Sync">Sincornizar con trakt</string>
   <string name="Trakt.SyncMovies">Sincronizando películas...</string>
   <string name="Trakt.SyncSeries">Sincronizando series...</string>
   <string name="Trakt.SyncFinished">¡Sincronización completa!</string>
@@ -16,6 +17,7 @@
   <string name="Trakt.NotAuthorized">¡Autorizar primero!</string>
   <string name="Trakt.CheckPin">Imposible ingresar en trakt, ¿pin incorrecto?</string>
   <string name="Trakt.LoggedIn">¡Ingresado con éxito!</string>
+  <string name="Trakt.UnableLogin">No se puede logear en trakt</string>
   <string name="Settings.Plugins.Trakt">Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup">Configurar Trakt.tv</string>
   <string name="Settings.Plugins.Trakt.TraktSetup.Help">Configurar detalles de la cuenta para el servicio Trakt.tv</string>

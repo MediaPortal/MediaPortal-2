@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,6 +30,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Settings;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
+using WhatsNew.Models;
 using WhatsNew.Settings;
 
 namespace WhatsNew
@@ -65,7 +66,7 @@ namespace WhatsNew
       var settingsManager = ServiceRegistration.Get<ISettingsManager>();
       var settings = settingsManager.Load<WhatsNewSettings>();
 
-      if (settings.NewsConfirmed)
+      if (settings.NewsConfirmedVersion == WhatsNewModel.CURRENT_VERSION)
         return;
 
       _messageQueue = new AsynchronousMessageQueue(this.GetType(), new string[]

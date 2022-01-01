@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.InputDevice.Section">Dispositivos de entrada</string>
+  
+  <string name="Settings.WifiRemote.Title">Wifi remota</string> <!-- Section name -->
+  <string name="Settings.WifiRemote.AuthMode.None">Sin autentificación</string>
+  <string name="Settings.WifiRemote.AuthMode.UserPassword">Nombre de usuario y contraseña</string>
+  <string name="Settings.WifiRemote.AuthMode.Passcode">Código de acceso</string> 
+  <string name="Settings.WifiRemote.AuthMode.Both">Usuario y contraseña o código de acceso</string>
+
+  <string name="Settings.WifiRemote.AuthenticationMethod">Método de autentificación</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AuthenticationMethod.Help">Método de autentificación permitido al conectar un cliente de control remoto</string>
+  <string name="Settings.WifiRemote.Passcode">Código de autentificación</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Passcode.Help">Código de acceso permitido durante la autentificación del código de acceso</string>
+  <string name="Settings.WifiRemote.AutoLoginTimeout">Tiempo de espera para la autentificación</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AutoLoginTimeout.Help">Duración en minutos para que el cliente tenga que autentificarse nuevamente</string>
+  <string name="Settings.WifiRemote.EnableBonjour">Disponibilidad del servicio de transmisión (Bonjour, ZeroConf)</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.EnableBonjour.Help">Difunde la disponibilidad del servicio para que sea más fácil de detectar por los clientes</string>
+  <string name="Settings.WifiRemote.Port">Puerto de servicio</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Port.Help">El número de puerto al que los clientes pueden conectarse</string>
+
+</resources>

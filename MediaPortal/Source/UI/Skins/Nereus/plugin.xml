@@ -32,6 +32,7 @@
     <Model Id="6A232D95-9BDE-4005-905E-69CB092B012B" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScreenModeModel"/>
     <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
     <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="AutoScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.AutoScrollConfigurationModel"/>
+    <Model Id="03C73355-E01C-4d30-AE69-14408ADB2174" Name="SkinColorConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.SkinColorConfigurationModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -41,6 +42,15 @@
                  DialogScreen="dialogAutoScrollSettings"
                  DisplayLabel="[Nereus.Configuration.EnableAutoScrolling]"
                  WorkflowModel="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- SkinColorConfiguration Dialog -->
+    <DialogState Id="F07881D8-FCB4-4327-A8D0-C20FF5DA3E6A"
+                 Name="dialogSkinColorSettings"
+                 DialogScreen="dialogSkinColorSettings"
+                 DisplayLabel="[Nereus.Configuration.SelectSkinColor]"
+                 WorkflowModel="03C73355-E01C-4d30-AE69-14408ADB2174"/>
   </Register>
   
   <!-- Language resources -->
@@ -104,6 +114,12 @@
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
 
     <ConfigSetting
+        Id="NereusEnableTouchDisplay"
+        Text="[Nereus.Configuration.EnableTouchDisplay]"
+        HelpText="[Nereus.Configuration.EnableTouchDisplay.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableTouchDisplayConfiguration"/>
+
+    <!--ConfigSetting
         Id="NereusEnableGridDetails"
         Text="[Nereus.Configuration.EnableGridDetails]"
         HelpText="[Nereus.Configuration.EnableGridDetails.Help]"
@@ -113,7 +129,7 @@
         Id="NereusEnableCoverDetails"
         Text="[Nereus.Configuration.EnableCoverDetails]"
         HelpText="[Nereus.Configuration.EnableCoverDetails.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableCoverDetailsConfiguration"/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableCoverDetailsConfiguration"/-->
 
     <ConfigSetting
         Id="NereusFanartOverlayOpacity"
@@ -128,17 +144,24 @@
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableLoopScrollingConfiguration"/>
 
     <CustomConfigSetting
-      Id="NereusEnableAutoScrollingDialog"
-      Text="[Nereus.Configuration.EnableAutoScrolling]"
-      HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
-      ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"
-      AdditionalData="WorkflowState=E3DABC33-4339-446B-A495-AE1A8C630B2B,ConfAppPanel=..."/>
+        Id="NereusEnableAutoScrollingDialog"
+        Text="[Nereus.Configuration.EnableAutoScrolling]"
+        HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"
+        AdditionalData="WorkflowState=E3DABC33-4339-446B-A495-AE1A8C630B2B,ConfAppPanel=..."/>
     
-    <ConfigSetting
+    <CustomConfigSetting
+        Id="NereusSkinColorSelectionDialog"
+        Text="[Nereus.Configuration.SelectSkinColor]"
+        HelpText="[Nereus.Configuration.SelectSkinColor.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SkinColorConfiguration"
+        AdditionalData="WorkflowState=F07881D8-FCB4-4327-A8D0-C20FF5DA3E6A,ConfAppPanel=..."/>
+
+    <!--ConfigSetting
         Id="NereusEnableWatchedFlags"
         Text="[Nereus.Configuration.EnableWatchedFlags]"
         HelpText="[Nereus.Configuration.EnableWatchedFlags.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableWatchedFlagsConfiguration"/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableWatchedFlagsConfiguration"/-->
     
     <ConfigSetting
         Id="NereusEnableAgeCertificationLogos"
@@ -146,7 +169,7 @@
         HelpText="[Nereus.Configuration.EnableAgeCertificationLogos.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAgeCertificationLogosConfiguration"/>
 
-    <ConfigSetting
+    <!--ConfigSetting
         Id="NereusMovieGridViewType"
         Text="[Nereus.Configuration.MovieGridViewType]"
         HelpText="[Nereus.Configuration.MovieGridViewType.Help]"
@@ -164,7 +187,7 @@
         HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
 
-    <!--ConfigSetting
+    <ConfigSetting
         Id="NereusEnableMediaItemDetailsView"
         Text="[Nereus.Configuration.EnableMediaItemDetailsView]"
         HelpText="[Nereus.Configuration.EnableMediaItemDetailsView.Help]"

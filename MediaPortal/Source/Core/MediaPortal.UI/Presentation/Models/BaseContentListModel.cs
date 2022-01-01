@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -159,7 +159,8 @@ namespace MediaPortal.UI.Presentation.Models
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error updating Content List", ex);
+        // Exception can be caused the by system shutting down, in which case getting the logger will also fail
+        ServiceRegistration.Get<ILogger>(false)?.Error("Error updating Content List", ex);
         return false;
       }
     }
@@ -172,7 +173,8 @@ namespace MediaPortal.UI.Presentation.Models
       }
       catch (Exception ex)
       {
-        ServiceRegistration.Get<ILogger>().Error("Error updating Content List {0}", ex, provider.GetType().Name);
+        // Exception can be caused by the system shutting down, in which case getting the logger will also fail
+        ServiceRegistration.Get<ILogger>(false)?.Error("Error updating Content List {0}", ex, provider.GetType().Name);
         return false;
       }
     }

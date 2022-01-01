@@ -43,23 +43,23 @@
         </Grid.RowDefinitions>
 
         <StackPanel x:Name="Groups" Margin="20,0,20,0" Grid.Column="0" Grid.Row="0"
-            HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
+                    HorizontalAlignment="Left" VerticalAlignment="Center" Orientation="Horizontal">
           <Button x:Name="PrevGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &lt; "
-              Command="{Command PrevGroup}"/>
+                  Command="{Command PrevGroup}"/>
           <Button x:Name="CurrentGroupNameButton" Style="{StaticResource ButtonWideStyle}" Content="{Binding CurrentGroupName}"
-              Command="{Command SelectGroup}"/>
+                  Command="{Command SelectGroup}"/>
           <Button x:Name="NextGroupButton" Style="{StaticResource SmallButtonStyle}" Content=" &gt; "
-              Command="{Command NextGroup}"/>
+                  Command="{Command NextGroup}"/>
         </StackPanel>
 
         <Control Template="{ThemeResource PiPControlTemplate}" Margin="20,0,20,0" Grid.Column="1" Grid.Row="0"
                  HorizontalAlignment="Left"/>
 
         <ListView x:Name="ProgramsListView" Grid.Column="0" Grid.Row="1" Grid.RowSpan="2"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-            Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
-            ItemsSource="{Binding Path=CurrentGroupChannels}"
-            SelectionChanged="{CommandStencil UpdateProgram}">
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
+                  ItemsSource="{Binding Path=CurrentGroupChannels}"
+                  SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
             <CommandList x:Key="Menu_Command">
               <CommandBridge Command="{Binding Path=Command,Mode=OneTime}"/>
@@ -88,28 +88,24 @@
             </Image>
 
             <Label x:Name="ChannelLabel" Margin="10,0,0,0"
-                Content="{Binding Path=SelectedChannelName}"
-                Color="{ThemeResource EmphasisTextColor}"/>
+                   Content="{Binding Path=SelectedChannelName}"
+                   Color="{ThemeResource EmphasisTextColor}"/>
           </StackPanel>
 
           <Label Grid.Column="0" Grid.Row="1" x:Name="CurrentProgramLabel" Margin="5" Scroll="Auto" ScrollDelay="5"
-              Content="{Binding Path=SelectedCurrentProgram.Title}"
-              Color="{ThemeResource TextColor}"/>
+                 Content="{Binding Path=SelectedCurrentProgram.Title}" Color="{ThemeResource TextColor}"/>
 
           <Label Grid.Column="0" Grid.Row="2" x:Name="CurrentGenreLabel" Margin="5" FontSize="{ThemeResource SmallFontSize}"
-              Content="{Binding Path=SelectedCurrentProgram.Genre}"
-              Color="{ThemeResource TextColor}"/>
+                 Content="{Binding Path=SelectedCurrentProgram.Genre}" Color="{ThemeResource TextColor}"/>
 
           <StackPanel Orientation="Horizontal" Grid.Column="0" Grid.Row="3">
-            <Label x:Name="CurrentProgramStartTimeLabel" Margin="5"
-                Content="{Binding Path=SelectedCurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                Color="{ThemeResource TextColor}"/>
+            <Label x:Name="CurrentProgramStartTimeLabel" Margin="5" Color="{ThemeResource TextColor}"
+                   Content="{Binding Path=SelectedCurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
 
             <Label Content="-" Color="{ThemeResource TextColor}" Margin="5"/>
 
-            <Label x:Name="CurrentProgramEndTimeLabel" Margin="5"
-                Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-                Color="{ThemeResource TextColor}"/>
+            <Label x:Name="CurrentProgramEndTimeLabel" Margin="5" Color="{ThemeResource TextColor}"
+                Content="{Binding Path=SelectedCurrentProgram.EndTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
 
           </StackPanel>
           <ProgressBar x:Name="CurrentProgramProgress" Grid.Column="0" Grid.Row="4" Margin="5"
@@ -134,6 +130,7 @@
 
         <KeyBinding Key="Yellow" Command="{Command Path=NextGroup}"/>
         <KeyBinding Key="Green" Command="{Command Path=PrevGroup}"/>
+        <KeyBinding Key="Red" Command="{Command Source={Service ScreenManager}, Path=CloseTopmostDialog}"/>
         <KeyBinding Key="Red" Command="{Command Source={Service ScreenManager}, Path=CloseTopmostDialog}"/>
         <KeyBinding Key="Right" Command="{Command Path=NextGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>
         <KeyBinding Key="Left"  Command="{Command Path=PrevGroup}" IsEnabled="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}"/>

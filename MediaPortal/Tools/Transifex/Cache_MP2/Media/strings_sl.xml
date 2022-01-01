@@ -283,7 +283,8 @@
   <string name="Media.MediumList">Srednji seznam</string>
   <string name="Media.LargeList">Velik seznam</string>
   <string name="Media.LargeGrid">Mreža</string>
-  <string name="Media.CoverLayout">Ovitki</string>
+  <string name="Media.ListSmall">Male</string>
+  <string name="Media.ListMedium">Srednje</string>
   <string name="Media.SwitchSortingMenuItem">Urejanje</string>
   <string name="Media.SortByDate">Datum</string>
   <string name="Media.GroupingBrowseDefault">Privzeto</string>
@@ -302,6 +303,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">Strategija odpiranja predvajalnikov</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Kako se bodo novi predvajalniki odpirali poleg že odprtih predvajalnikov</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -57,7 +57,9 @@
             <Button x:Name="ConfigureButton" Grid.Column="4" Grid.Row="0" Margin="13,1,13,1" Width="32" Height="32"
                     VerticalAlignment="Center" HorizontalAlignment="Center"
                     Style="{ThemeResource ConfigureEntryButtonStyle}" Context="{Binding}"
-                    SetFocus="{Binding Path=AdditionalProperties[IsRemoveButtonFocused],Mode=OneTime}">
+                    Command="{DynamicResource ResourceKey=Config_Command}"
+                    IsEnabled="{Binding Path=AdditionalProperties[IsConfigButtonEnabled],Mode=OneTime}"
+                    SetFocus="{Binding Path=AdditionalProperties[IsConfigButtonFocused],Mode=OneTime}">
             </Button>
           </Grid>
         </ControlTemplate>

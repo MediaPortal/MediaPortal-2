@@ -2,4 +2,5 @@
 <resources>
   <string name="WhatsNew.ScreenTitle">Co nowego w MediaPortal 2.3</string>
   <string name="WhatsNew.ButtonText">Zmień na Nereus</string>
-</resources>
+
+  </resources>

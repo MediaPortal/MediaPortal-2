@@ -74,24 +74,23 @@
   <DataTemplate x:Key="PowerMenuItemDataTemplate">
     <DockPanel LastChildFill="False">
       <Image DockPanel.Dock="Left" HorizontalAlignment="Center" VerticalAlignment="Center" FallbackSource="search.png"
-                   Width="28" Height="28" Stretch="Fill" Margin="0" Opacity="1" x:Name="ItemControl">
+             Width="28" Height="28" Stretch="Fill" Margin="10,0,0,0" Opacity="1" x:Name="ItemControl">
         <Image.Source>
           <Binding Path="AdditionalProperties[Action]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}PowerMenu\{0}.png"/>
         </Image.Source>
       </Image>
       <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Center"
-                   HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0" Opacity="0.6"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,10,0" Opacity="0.6"
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
     </DockPanel>
   </DataTemplate>
 
-  <Style x:Key="SystemStateMenuItemContainerStyle"
-           BasedOn="{ThemeResource DefaultItemContainerStyle}">
+  <Style x:Key="SystemStateMenuItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <DockPanel x:Name="ItemGroup">
-            <Button Style="{ThemeResource ButtonWideStyle}" Margin="10,2,10,2" DockPanel.Dock="Center"
+            <Button Style="{ThemeResource ButtonWideStyle}" Margin="0,2,0,2" DockPanel.Dock="Center"
                     Command="{DynamicResource ResourceKey=Menu_Command}"
                     SetFocus="{Binding Path=Selected,Mode=OneTime}">
               <Button.IsEnabled>
@@ -106,7 +105,6 @@
                 <Trigger Property="HasFocus" Value="True">
                   <Setter TargetName="ItemLabel" Property="Opacity" Value="1"/>
                   <Setter TargetName="ItemControl" Property="Opacity" Value="1"/>
-                  <!--Setter TargetName="ItemGroup" Property="Margin" Value="10,0,10,0"/-->
                   <Setter Property="StackPanel.ZIndex" Value="100.0"/>
                 </Trigger>
               </Button.Triggers>
@@ -118,14 +116,10 @@
   </Style>
 
   <!-- ListView style to be used for items in SystemStateMenu -->
-  <Style x:Key="SystemStateMenuListViewStyle"
-           BasedOn="{ThemeResource DefaultListViewStyle}">
-    <Setter Property="ItemTemplate"
-            Value="{ThemeResource PowerMenuItemDataTemplate}" />
-      <Setter Property="DataStringProvider"
-            Value="{ThemeResource DefaultItemDataStringProvider}" />
-      <Setter Property="ItemContainerStyle"
-            Value="{ThemeResource SystemStateMenuItemContainerStyle}" />
+  <Style x:Key="SystemStateMenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource PowerMenuItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource SystemStateMenuItemContainerStyle}"/>
   </Style>
 
 </ResourceDictionary>

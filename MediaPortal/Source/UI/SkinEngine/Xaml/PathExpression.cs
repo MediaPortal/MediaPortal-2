@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -235,7 +235,7 @@ namespace MediaPortal.UI.SkinEngine.Xaml
             BindingFlags.FlattenHierarchy |
             BindingFlags.IgnoreCase);
         if (members.Length > 0)
-          ServiceRegistration.Get<ILogger>().Warn("MemberPathSegment: Binding engine could not find public member '{0}', but found {1} members with different capitalization or which are non-public");
+          ServiceRegistration.Get<ILogger>().Warn("MemberPathSegment: Binding engine could not find public member '{0}', but found {1} members with different capitalization or which are non-public", memberName, members.Length);
         return false;
       }
       mis = members;

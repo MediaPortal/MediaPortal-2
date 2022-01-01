@@ -205,7 +205,6 @@
     <Content Include="Skin\default\screens\SlimTvClient-schedulelist.xaml" />
     <Content Include="Skin\default\superlayers\ChannelZapOSD.xaml" />
     <Content Include="Skin\default\superlayers\RecordingEndedNotification.xaml" />
-    <Content Include="Skin\default\superlayers\RecordingStartedNotification.xaml" />
     <Content Include="Skin\default\themes\default\styles\SlimTvStyles.xaml" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingTv.xaml" />
     <Content Include="Skin\Nereus\screens\FullScreenContentRadio.xaml" />

@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="False">
-        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="10,0,20,40"
+        <DockPanel LastChildFill="True" DockPanel.Dock="Bottom" Height="120" Margin="30,0,20,40"
                    HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
           <Label Color="{ThemeResource NereusColorLight}" DockPanel.Dock="Bottom" VerticalAlignment="Bottom"
                  HorizontalAlignment="Stretch" DataContext="{Binding ElementName=ConfigItemsList,Path=CurrentItem}"

@@ -18,9 +18,9 @@
          DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}" Content="{Binding SimpleTitle}" Grid.ColumnSpan="2"
          IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem,Converter={StaticResource ReferenceToBoolConverter}}"/>
     
-  <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,0,0,5">
+  <StackPanel Orientation="Vertical" Grid.Row="1" Margin="0,0,0,5" IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}">
     <StackPanel Orientation="Vertical" DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}">
-      <StackPanel Orientation="Horizontal">
+      <StackPanel Orientation="Horizontal" IsVisible="{Binding Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}">
         <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding NumItems}"
                Margin="0,0,8,0" Color="{ThemeResource MenuTextBackground}" Opacity="1.3"/>
         <Label FontSize="{ThemeResource SmallFontSize}" Content="[Media.MediaItemsHeader]"
@@ -82,15 +82,9 @@
   <media:VideoAspectWrapper Grid.Row="1" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
     <media:VideoAspectWrapper.Template>
       <ControlTemplate>
-        <StackPanel Orientation="Horizontal">
-          <Label x:Name="MediaItemName" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3"
-                 Color="{ThemeResource MenuTextBackground}" TextTrimming="WordEllipsis"
-                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label.Content>
-              <Binding Path="StoryPlot"/>
-            </Label.Content>
-          </Label>
-        </StackPanel>
+          <Label x:Name="MediaItemName" FontSize="{ThemeResource SmallFontSize}" Opacity="1.3" VerticalAlignment="Stretch" Margin="20,0,0,0"
+                 Color="{ThemeResource MenuTextBackground}" TextTrimming="WordEllipsis" Wrap="True" Content="{Binding Path=StoryPlot}"
+                 DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
       </ControlTemplate>
     </media:VideoAspectWrapper.Template>
   </media:VideoAspectWrapper>

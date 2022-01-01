@@ -246,6 +246,8 @@
   <string name="Media.MoreThanMaxItemsSearchResultHint">Het zoekresultaat bevat meer dan {0} items. Verklein a.u.b. de zoekopdracht.</string>
   <string name="Media.ListIsBeingBuiltHint">De lijst met items wordt opgebouwd...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Zoeken...</string>
+  <string name="Media.EjectOpticalDisc">Optische schijf uitwerpen</string>
+  <string name="Media.Eject">Uitwerpen</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">Afspeellijsten</string>
   <string name="Media.AddSingleToPlaylist">Voeg toe aan afspeellijst</string>
@@ -276,11 +278,15 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.PreservePiP">Behoud PiP video</string>
   <!--MediaItemAction dialog-->
   <string name="Media.MediaItemsActionDialogHeader">Media item acties</string>
+  <string name="Media.SetPlayed">Set gespeeld</string>
+  <string name="Media.SetUnplayed">Set niet gespeeld</string>
   <string name="Media.Refresh">Verversen</string>
   <string name="Media.Reimport">Opnieuw importeren</string>
+  <string name="Media.SubtitleSearch">Ondertitel zoeken</string>
   <string name="Media.DeleteFromStorage">Verwijder uit opslag</string>
   <string name="Media.DeleteFromStorage.Confirmation">Weet je zeker dat je dit item wilt verwijderen? Dit kan niet ongedaan worden gemaakt. </string>
   <string name="Media.ConfirmAction">Bevestig actie</string>
+  <string name="Media.ReimportMediaItem.Confirmation">Bent u zeker dat u het media item terug wil importeren en bestaande data wil vervangen door een geselecteerde overeenkomst? Dit kan niet ongedaan gemaakt worden.</string>
   <string name="Media.ReimportMediaItem.Title">Selecteer de juiste overeenkomst</string>
   <string name="Media.ReimportMediaItem.Id">Id</string>
   <string name="Media.ReimportMediaItem.Done">Gereed</string>
@@ -289,12 +295,19 @@
   <string name="Media.ReimportMediaItem.AutoMatch">Automatisch toekennen</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Handmatig zoeken</string>
   <string name="Media.ReimportMediaItem.Description">Beschrijving</string>
+  <string name="Media.ReimportMediaItem.Hint">Nota: Heeft internetverbinding nodig en minstens één on-line scraper geselecteerd in media bibliotheek instellingen</string>
+  <string name="Media.SubtitleReplace.Confirmation">Bent u zeker dat u bestaande ondertitels wil vervangen door een geselecteerde overeenkomst? Dit kan niet ongedaan gemaakt worden.</string>
+  <string name="Media.SubtitleSearch.Title">Selecteer een overeenkomende ondertitel</string>
   <string name="Media.SubtitleSearch.Id">Id</string>
   <string name="Media.SubtitleSearch.SearchResultHeader">Zoekresultaat</string>
   <string name="Media.SubtitleSearch.SearchTypeHeader">Zoektype</string>
   <string name="Media.SubtitleSearch.AutoMatch">Automatisch toekennen</string>
   <string name="Media.SubtitleSearch.ManualSearch">Handmatig zoeken</string>
+  <string name="Media.SubtitleSearch.Provider">Leverancier</string>
+  <string name="Media.SubtitleSearch.Percentage">Overeenkomst Percentage</string>
   <string name="Media.SubtitleSearch.Language">Taal</string>
+  <string name="Media.SubtitleSearch.Hint">Nota: Heeft internetverbinding nodig en minstens één ondertitel scraper geselecteerd in media bibliotheek instellingen</string>
+  <string name="Media.ChooseEditionDialogHeader">Kies editie</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Item afspelen</string>
   <string name="Media.PlayAudioItems">Audio items afspelen</string>
@@ -318,6 +331,7 @@
   <string name="Media.VideoImageContextName">Video/afbeelding</string>
   <string name="Media.AudioContextName">Audio</string>
   <!--Video currently playing-->
+  <string name="Media.Info">Media informatie</string>
   <string name="Media.VideoCurrentlyPlayingHeader">Informatie huidige video</string>
   <string name="Media.Rating">Beoordeling:</string>
   <string name="Media.VideoTitleLabel">Titel: </string>
@@ -408,8 +422,11 @@
   <string name="Media.SmallList">Kleine lijst</string>
   <string name="Media.MediumList">Middelgrootte lijst</string>
   <string name="Media.LargeList">Grootte lijst</string>
+  <string name="Media.List">Lijst</string>
   <string name="Media.LargeGrid">Raster</string>
-  <string name="Media.CoverLayout">Covers</string>
+  <string name="Media.CoverLayout">Cover</string>
+  <string name="Media.ListSmall">Klein</string>
+  <string name="Media.ListMedium">Middelgroot</string>
   <string name="Media.Watched">Bekeken</string>
   <string name="Media.Unwatched">Nog niet bekeken</string>
   <string name="Media.SwitchSortingMenuItem">Sortering</string>
@@ -432,6 +449,10 @@
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Schakel deze instelling in om MediaPortal automatisch gereed zijnde spelers af te sluiten</string>
   <string name="Settings.Players.InstantSkipPercent">Percentage voor meteen overslaan</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Selecteer hoeveel procent van de videoduur dat u meteen wilt overslaan</string>
+  <string name="Settings.Players.InstantSkipSeconds">Instant skip seconden</string>
+  <string name="Settings.Players.InstantSkipSeconds.Help">Selecteer hoeveel seconden u instant wil skippen</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds">Voorkeur instant skip seconden</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds.Help">Selecteer of u verkiest absolute seconden te gebruiken in de plaats van relatieve percentages voor instant skippen</string>
   <string name="Settings.Players.SkipStepTimeout">Vertraging in seconden voor overslaan</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Pas de vertraging aan voor de gebruikersinvoer voordat de stap voor overslaan wordt uitgevoerd</string>
   <string name="Settings.Players.SkipStepList">Speler stapgrootte voor overslaan</string>
@@ -446,9 +467,15 @@
   <string name="Settings.Media.ShowVirtual">Toon alle bekende media items</string>
   <string name="Settings.Media.ShowVirtual.Help">Selecteer of alle bekende media-items moeten worden weergegeven, zelfs als er geen lokale bestandsverwijzing is</string>
   <string name="Settings.Media.ShowVirtual.Audio">Toon alle bekende albumtracks</string>
+  <string name="Settings.Media.ShowVirtual.Movie">Toon alle bekende verzamel films</string>
+  <string name="Settings.Media.ShowVirtual.Series">Toon alle bekende seizoenen en afleveringen</string>
+  <string name="Settings.Media.Certification">Certificerende landen</string>
+  <string name="Settings.Media.Certification.None">Origineel (zoals geïmporteerd)</string>
+  <string name="Settings.Media.Certification.Movie">Film certificatie systeem land</string>
+  <string name="Settings.Media.Certification.Movie.Help">Selecteer het film certificatie systeem land om te gebruiken bij tonen film certificaties</string>
+  <string name="Settings.Media.Certification.Series">Series certificatie systeem land</string>
+  <string name="Settings.Media.Certification.Series.Help">Selecteer het series certificatie systeem land om te gebruiken bij tonen film certificaties</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

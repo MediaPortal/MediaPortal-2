@@ -40,5 +40,15 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
           new MediaItemIdFilter(mediaItemIds), null, null)
         {
         }
-    }
+
+      public MultipleMIAQueryBuilder(MIA_Management miaManagement, IEnumerable<QueryAttribute> simpleSelectAttributes,
+        MultipleMediaItemAspectMetadata requestedMIA,
+        MediaItemIdFilter filter)
+        : base(miaManagement, simpleSelectAttributes,
+          null,
+          new List<MediaItemAspectMetadata> { requestedMIA }, new List<MediaItemAspectMetadata> { },
+          filter, null, null)
+      {
+      }
+  }
 }

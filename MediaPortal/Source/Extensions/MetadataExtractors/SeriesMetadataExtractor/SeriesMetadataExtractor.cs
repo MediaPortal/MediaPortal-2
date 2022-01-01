@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -63,6 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
+    public const string MEDIA_CATEGORY_NAME_VIDEO = "Video";
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
@@ -365,13 +366,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       try
       {
-        if (!(searchCategories?.Contains(_category) ?? true))
+        if (!(searchCategories?.Intersect(new[] { MEDIA_CATEGORY_NAME_SERIES, MEDIA_CATEGORY_NAME_VIDEO }).Any() ?? true))
           return null;
 
         string searchData = null;
         var reimportAspect = MediaItemAspect.GetAspect(searchAspectData, ReimportAspect.Metadata);
         if (reimportAspect != null)
           searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
+        if (string.IsNullOrEmpty(searchData) && !searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID) && !searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
+          return null;
 
         ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
 

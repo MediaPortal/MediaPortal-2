@@ -284,7 +284,8 @@
   <string name="Media.MediumList">Stredný zoznam</string>
   <string name="Media.LargeList">Veľký zoznam</string>
   <string name="Media.LargeGrid">Tabuľka</string>
-  <string name="Media.CoverLayout">Obaly</string>
+  <string name="Media.ListSmall">Malé</string>
+  <string name="Media.ListMedium">Stredné</string>
   <string name="Media.SwitchSortingMenuItem">Usporiadanie</string>
   <string name="Media.SortByDate">Dátum</string>
   <string name="Media.GroupingBrowseDefault">Predvolené</string>
@@ -303,6 +304,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">Stratégia otvárania prehrávača</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Stratégia, podľa ktorej bude novo otvorený prehrávač zaradený k existujúcim prehrávačom</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

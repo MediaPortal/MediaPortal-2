@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -63,6 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     public const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+    public const string MEDIA_CATEGORY_NAME_VIDEO = "Video";
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
@@ -182,14 +183,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       OnlyLocalMedia = _settingWatcher.Settings.OnlyLocalMedia;
       MaximumActorCount = _settingWatcher.Settings.MaximumActorCount;
       MaximumCharacterCount = _settingWatcher.Settings.MaximumCharacterCount;
-
-      if (_settingWatcher.Settings.MovieYearPatterns.FirstOrDefault()?.Regex.ToString() == MovieNameMatcher.REGEXP_TITLE_YEAR[0].ToString())
-      {
-        //Update to new regex
-        _settingWatcher.Settings.MovieYearPatterns[0] = new SerializableRegex(MovieNameMatcher.REGEXP_TITLE_YEAR[1].ToString(), RegexOptions.IgnoreCase);
-        ISettingsManager settings = ServiceRegistration.Get<ISettingsManager>();
-        settings.Save(_settingWatcher.Settings);
-      }
     }
 
     private void SettingsChanged(object sender, EventArgs e)
@@ -498,7 +491,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       try
       {
-        if (!(searchCategories?.Contains(_category) ?? true))
+        if (!(searchCategories?.Intersect(new [] { MEDIA_CATEGORY_NAME_MOVIE, MEDIA_CATEGORY_NAME_VIDEO }).Any() ?? true))
+          return null;
+        if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
           return null;
 
         string searchData = null;

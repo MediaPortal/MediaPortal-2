@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.ServerSettings.UPnP;
 using UPnP.Infrastructure.Common;
@@ -61,17 +62,17 @@ namespace MediaPortal.Plugins.ServerSettings
 
     private UPnPError OnLoad(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      string settingsTypeName = (string) inParams[0];
+      string settingsTypeName = (string)inParams[0];
       object result = Load(settingsTypeName);
-      string serialized = SettingsSerializer.Serialize(result);
+      string serialized = result != null ? SettingsSerializer.Serialize(result) : string.Empty;
       outParams = new List<object> { serialized };
       return null;
     }
 
     private UPnPError OnSave(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
     {
-      string settingsTypeName = (string) inParams[0];
-      string settings = (string) inParams[1];
+      string settingsTypeName = (string)inParams[0];
+      string settings = (string)inParams[1];
       Save(settingsTypeName, settings);
       outParams = new List<object> { };
       return null;
@@ -80,6 +81,11 @@ namespace MediaPortal.Plugins.ServerSettings
     public object Load(string settingsTypeName)
     {
       Type settingsType = SettingsSerializer.GetSettingsType(settingsTypeName);
+      if (settingsType == null)
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ServerSettings.Service: Could not find requested settings type '{0}'. Please check if required plugins are available.", settingsTypeName);
+        return null;
+      }
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       return settingsManager.Load(settingsType);
     }
@@ -89,7 +95,7 @@ namespace MediaPortal.Plugins.ServerSettings
       object settingsObject = SettingsSerializer.Deserialize(settingsTypeName, settings);
       if (settingsObject == null)
         return;
-      
+
       ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
       settingsManager.Save(settingsObject);
     }

@@ -46,17 +46,11 @@
     <ProjectReference Include="..\UiComponents\Configuration\Configuration.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="plugin.xml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="plugin.xml" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="build.targets">
-      <SubType>Designer</SubType>
-    </None>
+    <None Update="build.targets" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.DirectX9">

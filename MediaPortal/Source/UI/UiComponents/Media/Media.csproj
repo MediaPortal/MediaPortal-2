@@ -34,12 +34,8 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Language\strings_en.xml">
-      <SubType>Designer</SubType>
-    </Content>
-    <Content Include="plugin.xml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="plugin.xml" />
     <Content Include="Skin\default\screens\DialogAddToPlaylistProgress.xaml" />
     <Content Include="Skin\default\screens\DialogChooseAVType.xaml" />
     <Content Include="Skin\default\screens\DialogPlayMenu.xaml" />
@@ -55,9 +51,7 @@
     <Content Include="Skin\default\screens\MediaItemsFilterKeyBindings.inc" />
     <Content Include="Skin\default\screens\LocalMediaNavigation.xaml" />
     <Content Include="Skin\default\screens\BrowseMediaNavigation.xaml" />
-    <Content Include="Skin\default\screens\MediaItemsList.inc">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\MediaItemsList.inc" />
     <Content Include="Skin\default\screens\MediaItemsListHeader.inc" />
     <Content Include="Skin\default\screens\AudioShowItems.xaml" />
     <Content Include="Skin\default\screens\VideoShowItems.xaml" />
@@ -108,9 +102,7 @@
     <Content Include="Skin\default\workflow\filter-actions.xml" />
     <Content Include="Skin\default\workflow\grouping-actions.xml" />
     <Content Include="Skin\default\workflow\sorting-actions.xml" />
-    <Content Include="Skin\default\workflow\media-actions.xml">
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\workflow\media-actions.xml" />
     <Content Include="Skin\default\workflow\viewmode-actions.xml" />
     <Content Include="Skin\default\screens\CurrentlyPlayingImage.xaml" />
     <Content Include="Skin\default\screens\FullscreenContentImage.xaml" />
@@ -136,6 +128,8 @@
     <Content Include="Skin\default\screens\ImageFilterByCity.xaml" />
     <Content Include="Skin\default\screens\VideoFilterByDirector.xaml" />
     <Content Include="Skin\default\screens\VideoFilterByWriter.xaml" />
+    <Content Include="Skin\Nereus\screens\DialogSwitchViewMode.xaml" />
+    <Content Include="Skin\default\screens\SeriesFilterByYear.xaml" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="BASS.NET">

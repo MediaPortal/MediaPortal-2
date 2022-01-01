@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -103,6 +103,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
         // C# doesn't like it to have an assignment inside a collection initializer
         _defaultScreen,
+        new SeriesFilterByYearScreenData(),
         new SeriesFilterBySeasonScreenData(),
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),
