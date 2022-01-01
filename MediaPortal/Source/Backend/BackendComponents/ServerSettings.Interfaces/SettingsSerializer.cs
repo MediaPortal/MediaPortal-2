@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using System;
 using System.IO;
 using System.Text;
@@ -74,6 +76,13 @@ namespace MediaPortal.Plugins.ServerSettings
       Type settingsType = GetSettingsType(settingsTypeName);
       if (settingsType == null)
         return null;
+
+      // Fallback to defaults if loading from server failed
+      if (string.IsNullOrEmpty(settings))
+      {
+        ServiceRegistration.Get<ILogger>().Warn("ServerSettings.Interfaces: Could not load requested settings type '{0}' from server. Using client side defaults.", settingsTypeName);
+        return Activator.CreateInstance(settingsType);
+      }
 
       XmlSerializer xmlSerializer = new XmlSerializer(settingsType);
       return xmlSerializer.Deserialize(new StringReader(settings));
