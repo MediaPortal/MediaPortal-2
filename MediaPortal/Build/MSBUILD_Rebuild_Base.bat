@@ -19,6 +19,6 @@ set xml=%1.xml
 set html=%1.html
 
 set logger=/l:XmlFileLogger,"%PathToBuildReport%\MSBuild.ExtensionPack.Loggers.dll";logfile=%xml%
-%MB% /m Build.proj %logger% %2
+%MB% /bl /m Build.proj %logger% %2
 
 %PathToBuildReport%\msxsl %xml% _BuildReport_Files\BuildReport.xslt -o %html%

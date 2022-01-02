@@ -208,6 +208,8 @@
   <string name="Media.MediumList">Közepes lista</string>
   <string name="Media.LargeList">Nagy lista</string>
   <string name="Media.LargeGrid">Rács</string>
+  <string name="Media.ListSmall">Kicsi</string>
+  <string name="Media.ListMedium">Közepes</string>
   <string name="Media.SwitchSortingMenuItem">Rendezés</string>
   <!--Stubs-->
   <!--Virtual-->
@@ -218,6 +220,4 @@
   <string name="Settings.Players.InstantSkipPercent">Azonnali ugrás százaléka</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Válassza ki, hogy a videó időtartamának hány százalékát kívánja átugrani azonnal</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

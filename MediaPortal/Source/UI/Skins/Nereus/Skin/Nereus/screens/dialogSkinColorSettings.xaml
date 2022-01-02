@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.SelectSkinColor]"/>
+
+    <!-- AutoScrollConfigurationModel -->
+    <Model x:Key="SkinColorConfigurationModel"
+           Id="03C73355-E01C-4d30-AE69-14408ADB2174" />
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel DataContext="{Binding Source={StaticResource SkinColorConfigurationModel}}">
+
+        <UniformGrid Columns="2" MaxWidth="900">
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <RadioButton x:Name="Torquoise" Margin="10,1,10,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UseTorquoise,Mode=TwoWay}" GroupName="RadioButtonGroup" Content=""/>
+            <Grid Background="#FF009999" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF175f5d" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF244043" Width="70" Height="32" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <RadioButton x:Name="Yellow" Margin="10,1,10,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UseYellow,Mode=TwoWay}" GroupName="RadioButtonGroup" Content=""/>
+            <Grid Background="#FFF2B800" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FFBF9000" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF7F6000" Width="70" Height="32" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <RadioButton x:Name="Green" Margin="10,1,10,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UseGreen,Mode=TwoWay}" GroupName="RadioButtonGroup" Content=""/>
+            <Grid Background="#FF70AD47" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF548235" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF385723" Width="70" Height="32" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <RadioButton x:Name="Orange" Margin="10,1,10,1" VerticalAlignment="Center"
+                       IsChecked="{Binding Path=UseOrange,Mode=TwoWay}" GroupName="RadioButtonGroup" Content=""/>
+            <Grid Background="#FFED7D31" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FFC55A11" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF843C0C" Width="70" Height="32" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <RadioButton x:Name="Blue" Margin="10,1,10,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UseBlue,Mode=TwoWay}" GroupName="RadioButtonGroup" Content=""/>
+            <Grid Background="#FF4472C4" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF2F5597" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF203864" Width="70" Height="32" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <RadioButton x:Name="Red" Margin="10,1,10,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UseRed,Mode=TwoWay}" GroupName="RadioButtonGroup" Content=""/>
+            <Grid Background="#FFCC5350" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FFA03830" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF740000" Width="70" Height="32" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <RadioButton x:Name="Grey" Margin="10,1,10,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UseGrey,Mode=TwoWay}" GroupName="RadioButtonGroup" Content=""/>
+            <Grid Background="#FF9D9D9D" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF717171" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF474747" Width="70" Height="32" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+            <RadioButton x:Name="Purple" Margin="10,1,10,1" VerticalAlignment="Center"
+                         IsChecked="{Binding Path=UsePurple,Mode=TwoWay}" GroupName="RadioButtonGroup" Content=""/>
+            <Grid Background="#FF8758CC" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF602FA1" Width="70" Height="32" VerticalAlignment="Center"/>
+            <Grid Background="#FF3B1E66" Width="70" Height="32" VerticalAlignment="Center"/>
+          </StackPanel>
+        </UniformGrid>
+
+        <!-- OK & Cancel button -->
+        <Grid Height="10"/>
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Button Name="ButtonOk" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings" />
+                <Command Source="{Service ScreenManager}"
+                         Path="CloseTopmostDialog" />
+              </CommandList>
+            </Button.Command>
+          </Button>
+
+          <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+        </Grid>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

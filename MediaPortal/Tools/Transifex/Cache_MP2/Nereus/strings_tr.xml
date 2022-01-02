@@ -11,4 +11,6 @@
   <string name="Nereus.Shortcut.Refresh">Yenile</string>
   
   <string name="Nereus.Home.OtherPlugins">Diğerleri</string>
+  <string name="Nereus.Info.Subtitles">Altyazılar</string>
+  <string name="Nereus.Info.Actors">Oyuncular</string>
   </resources>

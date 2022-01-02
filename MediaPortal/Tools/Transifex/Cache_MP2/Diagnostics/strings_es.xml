@@ -1,7 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="Diagnostics.Settings.Diagnostics">Diagnóstico</string>
+    <string name="Diagnostics.Settings.Diagnostics.AllLogs">Activar el registro de DEPURACIÓN</string>
     <string name="Diagnostics.Settings.Diagnostics.AllLogsHelpText">Aumentar detalle del registro</string>
+    <string name="Diagnostics.Settings.Image.FocusStealing">Habilitar registro de la pérdida potencial de enfoque</string>
+    <string name="Diagnostics.Settings.Image.FocusStealingHelpText">Habilitar registro de la pérdida potencial de enfoque</string>
     <string name="Diagnostics.Settings.Collectlogs">Recoger archivos de registro</string>
+    <string name="Diagnostics.Settings.CollectlogsHelpText">Ejecuta el Recolector de Registros y crea un fichero zip que contiene todos los archivos de registro</string>
     <string name="Diagnostics.Settings.ShowLogs">Mostrar registros</string>
-    </resources>
+    <string name="Diagnostics.Settings.ShowLogsHelpText">Mostrar registros en una ventana a parte</string>
+</resources>

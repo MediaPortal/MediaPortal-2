@@ -128,6 +128,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
               </MultiBinding>
             </ListView.Style>
+            <ListView.Width>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
+                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+                <Binding Source="480" />
+                <Binding Source="{SkinWidth}" />
+              </MultiBinding>
+            </ListView.Width>
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>

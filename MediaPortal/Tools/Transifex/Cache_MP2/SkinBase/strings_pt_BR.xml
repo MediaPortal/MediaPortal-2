@@ -4,7 +4,6 @@
   <string name="Media.MyVideos">Vídeos</string>
   <string name="Media.MyPictures">Imagens</string>
   <!--{0} = server name, {1} = host name-->
-  <string name="ServerConnection.AttachedText.After"></string>
   <!--{0} = server name, {1} = host name-->
   <!--For MP UI player subsystem-->
   <!--for example "Fullscreen TV"-->

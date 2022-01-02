@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -89,6 +89,30 @@ namespace MediaPortal.UiComponents.Nereus.Settings
 
     [Setting(SettingScope.User, true)]
     public bool EnableLoopScrolling { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseTorquoise { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseYellow { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseOrange { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseRed { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UsePurple { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseGreen { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseBlue { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseGrey { get; set; }
 
     [Setting(SettingScope.User, true)]
     public bool EnableHelpTexts { get; set; }

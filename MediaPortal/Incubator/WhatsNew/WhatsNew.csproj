@@ -17,6 +17,7 @@
     </UpgradeBackupLocation>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
@@ -73,11 +74,9 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml" />
+    <Content Include="Skin\default\images\whatsnew_2.4.png" />
     <Content Include="Skin\default\images\whatsnew.png" />
-    <Content Include="Skin\default\screens\whats-new.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
+    <Content Include="Skin\default\screens\whats-new.xaml" />
     <Content Include="Language\strings_en.xml" />
   </ItemGroup>
   <ItemGroup>
@@ -99,7 +98,13 @@
     <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj">
       <Project>{7E943389-3589-40C9-B481-2E223554CC49}</Project>
       <Name>SkinEngine</Name>
+      <Private>False</Private>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\UiComponents\Media\Media.csproj">
+      <Project>{cd37e2ff-4cf7-4f96-8c73-c6764988d408}</Project>
+      <Name>Media</Name>
+      <Private>False</Private>
+  </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />

@@ -265,6 +265,8 @@
   <string name="Media.MediumList">Miðlungs listi</string>
   <string name="Media.LargeList">Stór listi</string>
   <string name="Media.LargeGrid">Stöðva</string>
+  <string name="Media.ListSmall">Lítið</string>
+  <string name="Media.ListMedium">Miðlungs</string>
   <string name="Media.SwitchSortingMenuItem">Flokka</string>
   <string name="Media.SortByDate">Dags.</string>
   <string name="Media.GroupingBrowseDefault">Sjálfgefið</string>
@@ -277,6 +279,4 @@
   <string name="Settings.Players.InstantSkipPercent">Stökk í %</string>
   <string name="Settings.Players.SkipStepTimeout">Tímamörk í sekúndum fyrir stökk</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -27,6 +27,13 @@
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Wanneer ingeschakeld, krijgen 6 kanaals streams de voorkeur (b.v. AC3, AAC)</string>
   <string name="Settings.Players.DVDPlayer">DVD-speler</string>
   <string name="Settings.Players.Subtitles">Ondertitels</string>
+  <string name="Settings.Players.Subtitles.Help">Selecteer welke ondertitels ingeschakeld worden</string>
+  <string name="Settings.Players.EnableAtscClosedCaptions">ATSC Closed Captions</string>
+  <string name="Settings.Players.EnableDvbSubtitles">Digitale Video Uitzending</string>
+  <string name="Settings.Players.EnableTeletextSubtitles">Teletext</string>
+  <string name="Settings.Players.EnableDvdSubtitles">DVD Ondertitels</string>
+  <string name="Settings.Players.EnableDvdClosedCaptions">DVD Closed Captions</string>
+  <string name="Settings.Players.EnableMpcHcEngineSubtitles">MPC-HC Ondertitel Engine Voor Video\'s</string>
   <string name="Playback.NotSpecified">Niet gespecificeerd</string>
   <string name="Playback.CaptionNormal">Normale lettergrootte</string>
   <string name="Playback.CaptionBig">Grote lettergrootte</string>
@@ -45,4 +52,5 @@
   <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Titel {0}</string>
   <!--For example: "Title 1"-->
+  <string name="Playback.Players.No.Subtitles">Geen ondertitels</string>
 </resources>

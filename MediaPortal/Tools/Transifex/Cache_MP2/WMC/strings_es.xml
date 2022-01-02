@@ -1,8 +1,33 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="WMC.Configuration.EnableFanart">Activar Fanart</string>
   <string name="WMC.Configuration.EnableFanart.Help">Si se desea mostrar fanart de fondo.</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity">Visibilidad de los FanArt</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity.Help">Ajusta la opacidad del FanArt de fondo. Un valor más bajo aumenta la visibilidad del fanart (por defecto es 1.0)</string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Activar iconos de Visto</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Muestra los iconos de Visto/No Visto en las vistas seleccionadas</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.ListView">Vista listado</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.GridView">Vista Rejilla</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">Vista Carátulas</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos">Activar Logos de certificación por edades</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Si muestra los logos de certificación por edades en la pantalla de información</string>  
+  <string name="WMC.Configuration.MovieGridViewType">Diseño para las películas</string>
+  <string name="WMC.Configuration.MovieGridViewType.Help">Selecciona el diseño que se usará en la vista de películas</string>
+  <string name="WMC.Configuration.SeriesGridViewType">Diseño para las series</string>
+  <string name="WMC.Configuration.SeriesGridViewType.Help">Selecciona el diseño que se usará en la vista de series</string>
+  <string name="WMC.Configuration.SeasonGridViewType">Diseño de las temporadas</string>
+  <string name="WMC.Configuration.SeasonGridViewType.Help">Selecciona el diseño que se usará en la vista de las temporadas</string>
+  <string name="WMC.Configuration.GridViewType.Poster">Posters</string>
+  <string name="WMC.Configuration.GridViewType.Banner">Banners</string>
+  <string name="WMC.Configuration.GridViewType.Thumbnail">Miniaturas</string>  
+  <string name="WMC.Configuration.EnableHomeContent">Activar contenido en la página inicial</string>
+  <string name="WMC.Configuration.EnableHomeContent.Help">Activa la posibilidad de mostrar contenido inicial en la página de inicio</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView">Activar vista de detalles para los elementos multimedia</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Activa la opción de mostrar información del medio en vez de reproducirlo directamente.</string>
+
   <string name="WMC.Home.LatestAdded">Último añadido</string>
   <string name="WMC.Home.LatestPlayed">Última reproducción</string>
+  <string name="WMC.Home.ContinuePlayed">Continuar reproducciendo</string>
   <string name="WMC.Home.CurrentPrograms">Programas actuales</string>
   <string name="WMC.Home.CurrentSchedules">Programación actual</string>
   <string name="WMC.Home.Favorites">Favoritos</string>

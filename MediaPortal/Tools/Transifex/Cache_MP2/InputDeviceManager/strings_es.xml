@@ -1,6 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="Settings.InputDeviceManager.Section">Dispositivos de entrada</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Atajos para funciones</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Le permite asignar funciones de MediaPortal a teclas/botones de su dispositivo de entrada. Por ejemplo podría asignar Subir/Bajar volumen a las teclas \'+\' y \'-\' en su teclado si no tiene teclas de volumen en su teclado.</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfig">Atajos de acciones</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfigHelp">Le permite asignar las acciones globales de MediaPortal a teclas/botones de su dispositvo de entrada para un acceso rápido</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Configuración de atajos</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Le permite asignar las pantallas de configuración y ajustes de MediaPortal a teclas/botones de su dispositvo de entrada para un acceso rápido</string>
+  <string name="Settings.InputDeviceManager.EnterScreenHome">Atajos de pantalla</string>
+  <string name="Settings.InputDeviceManager.EnterScreenHomeHelp">Le permite asignar opciones del menu de MediaPortal a teclas/botones de su dispositivo de entrada. Por ejemplo podría definir la tecla \'F2\' de su teclado para abrir la pantalla de \'Noticias\'.</string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Pulse la tecla/botón del dispositivo de entrada que quiere configurar</string>
+  <string name="InputDeviceManager.FocusItem">Ver el la designación actual y seleccionar un item para cambiar la asignación</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Pulse la combinación deseada de teclas/botones en el dispositivo de entrada!</string>
+  <string name="InputDeviceManager.Screen">Pantalla</string>
+  <string name="InputDeviceManager.Key">Tecla/Botón</string>
   <string name="InputDeviceManager.Action">Acción</string>
 
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Limpiar</string>
-  </resources>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Eliminar asignación?</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Añadir asignación?</string>
+
+  <string name="InputDeviceManager.DefaultConfig.Title">Elige la asignaciones por defecto</string>
+  <string name="InputDeviceManager.DefaultConfig.Description">Tenga en cuenta que las asignaciones seleccionar sobreescribirán las asignaciones existentes!</string>
+  <string name="InputDeviceManager.DefaultConfig.Keyboard">Teclado por defecto</string>
+  <string name="InputDeviceManager.DefaultConfig.Remote">Mando por defecto</string>
+</resources>

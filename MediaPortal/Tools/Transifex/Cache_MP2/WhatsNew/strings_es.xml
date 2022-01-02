@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="WhatsNew.ScreenTitle">Que hay nuevo en MediaPortal 2.3</string>
+  <string name="WhatsNew.WhatsNewText">El nuevo skin Nereus tiene un diseño fresco, moderno y es muy rápido. Pruébalo ahora! Puedes probarlo y cambiar facílmente al que usas ahora y no perderás ningún ajuste.</string>
+  <string name="WhatsNew.ButtonText">Cambiar a Nereus</string>
+
+  </resources>
