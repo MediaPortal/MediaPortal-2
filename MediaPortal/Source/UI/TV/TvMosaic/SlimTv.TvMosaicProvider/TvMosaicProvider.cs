@@ -239,10 +239,9 @@ namespace SlimTv.TvMosaicProvider
 
     protected async Task<AsyncResult<IList<IProgram>>> GetPrograms(IEnumerable<IChannel> channels, DateTime @from, DateTime to, string keyWord = null)
     {
-      var adjustedFrom = @from.AddHours(-2);
       EpgSearcher epgSearcher = channels != null ?
-        new EpgSearcher(new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList()), false, adjustedFrom.ToUnixTime(), to.ToUnixTime()) :
-        new EpgSearcher(keyWord, false, adjustedFrom.ToUnixTime(), to.ToUnixTime());
+        new EpgSearcher(new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList()), false, from.ToUnixTime(), to.ToUnixTime()) :
+        new EpgSearcher(keyWord, false, from.ToUnixTime(), to.ToUnixTime());
 
       var programs = await _dvbLink.SearchEpg(epgSearcher);
       if (programs.Status == StatusCode.STATUS_OK && programs.Result.Any())
