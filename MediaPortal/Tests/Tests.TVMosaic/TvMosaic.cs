@@ -96,7 +96,7 @@ namespace Test.TVMosaic
       Assert.IsNotNull(channelGroupResult);
       var channelsResult = await channelInfo.GetChannelsAsync(channelGroupResult.Result.First());
       Assert.IsNotNull(channelsResult.Result);
-      Assert.Greater(0, channelsResult.Result.Count);
+      Assert.Greater(channelsResult.Result.Count, 0);
     }
 
     [Test]
