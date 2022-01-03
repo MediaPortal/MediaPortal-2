@@ -830,8 +830,7 @@
             <DockPanel Name="ButtonControlBackground" LastChildFill="True" Background="#1AFFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                        Grid.ZIndex="0" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
             <Control Style="{ThemeResource ButtonListViewDefaultControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
-            <!--Control Style="{ThemeResource ButtonBaseControlStyle}" Margin="3" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="0"/-->
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
