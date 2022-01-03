@@ -101,7 +101,7 @@ namespace SlimTv.TvMosaicProvider
         if (channels.Status != StatusCode.STATUS_OK)
           return false;
 
-        foreach (var channel in channels.Result)
+        foreach (var channel in channels.Result.OrderBy(c => c.Number == 0 ? 100000 : c.Number).ThenBy(c => c.SubNumber).ThenBy(c => c.Name))
         {
           var mappedId = GetId(channel.Id);
           IChannel mpChannel = new TvMosaicChannel
