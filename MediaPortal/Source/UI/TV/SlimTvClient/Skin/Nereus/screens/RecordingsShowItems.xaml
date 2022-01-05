@@ -7,7 +7,7 @@
     Source="screens\master_mediamenu.xaml"
     >
   <Include.Resources>
-
+    <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
@@ -21,6 +21,7 @@
           <ColumnDefinition Width="Auto"/>
         </Grid.ColumnDefinitions>
 
+
         <!---Space for Listview Details-->
         <Grid Grid.Column="1" Width="1000" Height="1200" Background="#33000000" Margin="45,-90,-20,-270">
           <Grid.RowDefinitions>
@@ -30,8 +31,11 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Grid.IsVisible>
-            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
-                     Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == &quot;True&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} == &quot;True&quot;)">
+              <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
+              <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+            </MultiBinding>
           </Grid.IsVisible>
 
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -74,6 +78,13 @@
           <!---Listview Details-->
           <Control x:Name="ListDetails" Grid.Column="0" Grid.Row="0" Template="{DynamicResource ResourceKey=ListDetails_Template}"
                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <Control.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{GridLayout} &amp;&amp; {1} == &quot;True&quot;) || ({0} == {LayoutType}.{ListLayout} &amp;&amp; {2} == &quot;True&quot;)">
+                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+                <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableGridDetails].Value"/>
+                <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+              </MultiBinding>
+            </Control.IsVisible>
             <Control.TemplateControl>
               <Include Source="screens\MediaItemRecordingDetails.inc"/>
             </Control.TemplateControl>

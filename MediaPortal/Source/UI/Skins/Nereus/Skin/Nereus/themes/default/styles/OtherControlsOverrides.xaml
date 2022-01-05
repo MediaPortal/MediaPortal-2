@@ -1157,6 +1157,34 @@
     </Setter>
   </Style>
 
+  <Style x:Key="LinearProgressBarStyle" TargetType="{x:Type ProgressBar}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ProgressBar}">
+          <Grid x:Name="ProgressBarGrid">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Rectangle x:Name="ProgressBarTrack" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Height="10" Fill="Transparent"/>
+            <StackPanel Orientation="Horizontal">
+              <StackPanel Width="{TemplateBinding PartIndicatorWidth}" Background="#B3FFFFFF" MaxWidth="{TemplateBinding ActualWidth}">
+                <StackPanel.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter Property="Background" Value="#FFFFFFFF"/>
+                  </DataTrigger>
+                </StackPanel.Triggers>
+              </StackPanel>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
   <Style x:Key="OSDProgressBarStyle" TargetType="{x:Type ProgressBar}">
     <Setter Property="Template">
       <Setter.Value>
