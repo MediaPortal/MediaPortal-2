@@ -264,6 +264,21 @@ namespace SlimTv.TvMosaicProvider
       return mpPrograms.OrderBy(p => p.ChannelId).ThenBy(p => p.StartTime).ToList();
     }
 
+    private MPProgram ToProgram(TvMosaic.API.ManualSchedule manualSchedule)
+    {
+      var startTime = manualSchedule.StartTime.FromUnixTime();
+      var endTime = startTime.AddSeconds(manualSchedule.Duration);
+      var mpProgram = new MPProgram
+      {
+        ChannelId = GetId(manualSchedule.ChannelId),
+        Title = "Manual", // required for SlimTV handling of manual schedules (localized label). // manualSchedule.Title,
+        StartTime = startTime,
+        EndTime = endTime,
+        RecordingStatus = RecordingStatus.Scheduled
+      };
+      return mpProgram;
+    }
+
     private MPProgram ToProgram(TvMosaic.API.Program tvMosaicProgram, string channelId = "")
     {
       var startTime = tvMosaicProgram.StartTime.FromUnixTime();
@@ -465,7 +480,21 @@ namespace SlimTv.TvMosaicProvider
         return mpSchedule;
       }
 
-      // TODO: repeated recordings
+      if (createdSchedule.Manual != null)
+      {
+        var program = ToProgram(createdSchedule.Manual);
+        var mpSchedule = new MPSchedule
+        {
+          ChannelId = GetId(createdSchedule.Manual.ChannelId),
+          StartTime = program.StartTime,
+          EndTime = program.EndTime,
+          ScheduleId = Int32.Parse(createdSchedule.ScheduleID),
+          RecordingType = ScheduleRecordingType.Once,
+          Name = createdSchedule.Manual.Title
+        };
+        return mpSchedule;
+      }
+
       return null;
     }
 
@@ -563,17 +592,28 @@ namespace SlimTv.TvMosaicProvider
         var requestedSchedule = schedules.Result.FirstOrDefault(s => s.ScheduleID == schedule.ScheduleId.ToString());
         if (requestedSchedule != null)
         {
-          var program = ToProgram(requestedSchedule.ByEpg.Program, requestedSchedule.ByEpg.ChannelId);
-          program.RecordingStatus = requestedSchedule.ByEpg.IsRepeat ?
-            RecordingStatus.SeriesScheduled :
-            RecordingStatus.Scheduled;
-          var now = DateTime.Now;
-          if (now > program.StartTime && now <= program.EndTime)
-            program.RecordingStatus |= requestedSchedule.ByEpg.IsRepeat ?
-              RecordingStatus.RecordingSeries :
-              RecordingStatus.RecordingOnce;
+          MPProgram program = null;
+          if (requestedSchedule.ByEpg != null)
+          {
+            program = ToProgram(requestedSchedule.ByEpg.Program, requestedSchedule.ByEpg.ChannelId);
+            program.RecordingStatus = requestedSchedule.ByEpg.IsRepeat ? RecordingStatus.SeriesScheduled : RecordingStatus.Scheduled;
+            var now = DateTime.Now;
+            if (now > program.StartTime && now <= program.EndTime)
+              program.RecordingStatus |= requestedSchedule.ByEpg.IsRepeat ? RecordingStatus.RecordingSeries : RecordingStatus.RecordingOnce;
+          }
 
-          IList<IProgram> programs = new List<IProgram>() { program };
+          if (requestedSchedule.Manual != null)
+          {
+            program = ToProgram(requestedSchedule.Manual);
+            var now = DateTime.Now;
+            if (now > program.StartTime && now <= program.EndTime)
+              program.RecordingStatus |= RecordingStatus.RecordingOnce;
+          }
+
+          if (program == null)
+            return new AsyncResult<IList<IProgram>>(false, null);
+
+          IList<IProgram> programs = new List<IProgram> { program };
           return new AsyncResult<IList<IProgram>>(true, programs);
         }
       }
