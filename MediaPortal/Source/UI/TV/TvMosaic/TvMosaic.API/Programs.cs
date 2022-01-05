@@ -17,41 +17,41 @@ namespace TvMosaic.API
     [DataMember(Name = "name", EmitDefaultValue = true, IsRequired = false, Order = 1)]
     public string Title { get; set; }
 
-    [DataMember(Name = "short_desc", EmitDefaultValue = false, IsRequired = false, Order = 2)]
-    public string ShortDesc { get; set; }
-
-    [DataMember(Name = "actors", EmitDefaultValue = false, IsRequired = false, Order = 3)]
-    public string Actors { get; set; }
-
-    [DataMember(Name = "directors", EmitDefaultValue = false, IsRequired = false, Order = 4)]
-    public string Directors { get; set; }
-
-    [DataMember(Name = "subname", EmitDefaultValue = false, IsRequired = false, Order = 5)]
-    public string Subname { get; set; }
-
-    [DataMember(Name = "producers", EmitDefaultValue = false, IsRequired = false, Order = 6)]
-    public string Producers { get; set; }
-
-    [DataMember(Name = "guests", EmitDefaultValue = false, IsRequired = false, Order = 7)]
-    public string Guests { get; set; }
-
-    [DataMember(Name = "categories", EmitDefaultValue = false, IsRequired = false, Order = 8)]
-    public string Keywords { get; set; }
-
-    [DataMember(Name = "image", EmitDefaultValue = false, IsRequired = false, Order = 9)]
-    public string Image { get; set; }
-
-    [DataMember(Name = "start_time", EmitDefaultValue = false, IsRequired = false, Order = 10)]
+    [DataMember(Name = "start_time", EmitDefaultValue = false, IsRequired = false, Order = 2)]
     public long StartTime { get; set; }
 
-    [DataMember(Name = "duration", EmitDefaultValue = false, IsRequired = false, Order = 11)]
+    [DataMember(Name = "duration", EmitDefaultValue = false, IsRequired = false, Order = 3)]
     public int Duration { get; set; }
 
-    [DataMember(Name = "year", EmitDefaultValue = false, IsRequired = false, Order = 12)]
-    public int Year { get; set; }
+    [DataMember(Name = "short_desc", EmitDefaultValue = false, IsRequired = false, Order = 4)]
+    public string ShortDesc { get; set; }
 
-    [DataMember(Name = "language", EmitDefaultValue = false, IsRequired = false, Order = 13)]
+    [DataMember(Name = "language", EmitDefaultValue = false, IsRequired = false, Order = 5)]
     public string Language { get; set; }
+
+    [DataMember(Name = "actors", EmitDefaultValue = false, IsRequired = false, Order = 6)]
+    public string Actors { get; set; }
+
+    [DataMember(Name = "directors", EmitDefaultValue = false, IsRequired = false, Order = 7)]
+    public string Directors { get; set; }
+
+    [DataMember(Name = "subname", EmitDefaultValue = false, IsRequired = false, Order = 8)]
+    public string Subname { get; set; }
+
+    [DataMember(Name = "producers", EmitDefaultValue = false, IsRequired = false, Order = 9)]
+    public string Producers { get; set; }
+
+    [DataMember(Name = "guests", EmitDefaultValue = false, IsRequired = false, Order = 10)]
+    public string Guests { get; set; }
+
+    [DataMember(Name = "categories", EmitDefaultValue = false, IsRequired = false, Order = 11)]
+    public string Keywords { get; set; }
+
+    [DataMember(Name = "image", EmitDefaultValue = false, IsRequired = false, Order = 12)]
+    public string Image { get; set; }
+
+    [DataMember(Name = "year", EmitDefaultValue = false, IsRequired = false, Order = 13)]
+    public int Year { get; set; }
 
     [DataMember(Name = "writers", EmitDefaultValue = false, IsRequired = false, Order = 14)]
     public string Writers { get; set; }

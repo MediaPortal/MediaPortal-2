@@ -113,6 +113,29 @@ namespace Test.TVMosaic
       var programResult = await programInfo.GetProgramsAsync(channelResult.Result.First(), DateTime.Now, DateTime.Now.AddHours(4));
       Assert.IsTrue(programResult.Success);
       Assert.IsNotNull(programResult.Result);
+    }  
+    
+    [Test]
+    public async Task TestProgramsDeserialize()
+    {
+      string xmlProgram = @"<?xml version=""1.0"" encoding=""utf-8"" ?>
+       <program>
+        <program_id>18350</program_id>
+				<name>Alkohol - Der globale Rausch</name>
+				<start_time>1641323700</start_time>
+				<duration>5400</duration>
+				<short_desc>Deutschland 2019
+Alkohol: Kein Stoff der Welt ist uns so vertraut und in seiner Wirkung so unglaublich vielfältig. Man bekommt ihn überall, und das kleine Molekül ist in der Lage, sämtliche 200 Milliarden Neuronen eines menschlichen Gehirns völlig unterschiedlich zu beeinflussen. Doch kaum jemand bezeichnet Alkohol trotz seiner psychoaktiven und Zellen zerstörenden Wirkung als Droge. Aber warum lassen wir den Tod von jährlich drei Millionen Menschen einfach so zu? 
+Grimme-Preisträger Andreas Pichler sucht Antworten auf die Fragen, warum wir überhaupt trinken, was Alkohol mit uns macht und wie stark die Industrie Gesellschaft und Politik beeinflusst.</short_desc>
+				<language>DEU</language>
+				<is_series>true</is_series>
+			</program>";
+
+      var program = HttpDataProvider.Deserialize<Program>(xmlProgram);
+      Assert.IsNotNull(program);
+      Assert.IsNotNull(program.ShortDesc);
+      Assert.IsNotNull(program.Language);
+      Assert.IsTrue(program.IsSeries);
     }
   }
 
