@@ -44,7 +44,7 @@
     <Storyboard x:Key="FocusedButtonStoryboard_Tile" FillBehavior="HoldEnd">
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ButtonControlRectangle" Storyboard.TargetProperty="Opacity">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.1" Value="0.9"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00.2" Value="0.9"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
@@ -120,7 +120,7 @@
   
   <Storyboard x:Key="FocusedButtonWideStoryboard_Tile" FillBehavior="HoldEnd">
     <StaticResource ResourceKey="FocusedButtonStoryboard_Tile"/>
-    <StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/>
+    <!--StaticResource ResourceKey="FocusedButtonWideStoryboard_GrowOnly"/-->
   </Storyboard>
 
   <Storyboard x:Key="FocusedGroupMenuItemStoryboard" FillBehavior="HoldEnd">
@@ -234,7 +234,7 @@
               CornerRadius="{ThemeResource ButtonControlRadiusX}"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="3"
-              Margin="-5"/>
+              Margin="-8"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -623,7 +623,7 @@
         <ControlTemplate>
           <Border x:Name="ButtonControlRectangle"
               IsVisible ="False"
-              CornerRadius="{ThemeResource MediumRadiusFocus}"
+              CornerRadius="{ThemeResource MediumRadius}"
               BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="3" Margin="0">
           </Border>

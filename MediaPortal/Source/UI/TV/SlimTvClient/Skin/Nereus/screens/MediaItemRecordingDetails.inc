@@ -4,6 +4,7 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers;assembly=SlimTv.Client"
   x:Name="MediaItemDetails" Margin="30,220,40,60"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
@@ -66,6 +67,20 @@
       </media:EpisodeAspectWrapper>
     </Grid>
 
+    <Grid IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+      <Image Source="HomeContentIcons\genre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" 
+             VerticalAlignment="Center" HorizontalAlignment="Left"/>
+      <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Margin="40,0,-100,0"
+             Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+            <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+            <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+          </MultiBinding>
+        </Label.Content>
+      </Label>
+    </Grid>
+
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
@@ -79,6 +94,7 @@
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
+
     <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:VideoStreamAspectWrapper.Template>
         <ControlTemplate>
@@ -104,6 +120,7 @@
         </ControlTemplate>
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>
+
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
@@ -117,11 +134,14 @@
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
+
+  </StackPanel>
+
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                               HorizontalAlignment="Left" VerticalAlignment="Top">
+                               Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
-          <Image x:Name="ChannelLogo" Width="100" Margin="0,10,0,0"
+          <Image x:Name="ChannelLogo" Width="200" Margin="0,10,10,0"
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                  Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"
                  IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
@@ -133,7 +153,7 @@
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
-  </StackPanel>
+
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1" Opacity="0.6" Color="{ThemeResource TextColor}"
          TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
