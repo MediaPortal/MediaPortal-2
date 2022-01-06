@@ -13,11 +13,12 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
+    <ColumnDefinition Width="Auto"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
   <DockPanel DataContext="{Binding Source={Model 4CDD601F-E280-43b9-AD0A-6D7B2403C856},Path=NavigationData.CurrentScreenData}"
-       VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" Margin="18,-125,0,0"
+       VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" Margin="18,-125,0,0" Grid.ColumnSpan="2"
        IsVisible="{Binding IsItemsValid}">
     <!---Grid+CoverView-->
     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
@@ -40,7 +41,7 @@
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="Auto"/>
     </Grid.ColumnDefinitions>
 
     <!-- All KeyBindings are included from shared resource -->
@@ -49,19 +50,26 @@
     <Grid.Margin>
       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({0} == {LayoutType}.{GridLayout} ? {2} : {3})">
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-        <Binding Source="-83,0,485,84"/>
-        <Binding Source="-83,0,485,41"/>
+        <Binding Source="-83,0,200,84"/>
+        <Binding Source="-83,0,400,41"/>
         <Binding Source="-118,0,-100,41"/>
       </MultiBinding>
     </Grid.Margin>
 
     <Image Source="win10_bg.png" Opacity="0.75" Margin="-5,-13,-5,0" Stretch="Fill">
+      <Image.Width>
+      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : ({2}+10)">
+        <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+        <Binding Source="610"/>
+        <Binding Source="{Binding ElementName=MediaItemsList, Path=ActualWidth}"/>
+      </MultiBinding>
+      </Image.Width>
       <Image.IsVisible>
         <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}"/>
       </Image.IsVisible>
     </Image>
     
-     <ListView x:Name="MediaItemsList" Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}" RestoreFocus="True" Margin="0,22,0,0"
+     <ListView x:Name="MediaItemsList" Style="{ThemeResource MediaItemsListListViewStyle}" ItemsSource="{Binding Items}" RestoreFocus="True" Margin="2,22,2,0"
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding ShowList}"
                mp_special_behavior:SelectedItemBehavior.FocusSelectedItem="True">
       <ListView.Resources>
