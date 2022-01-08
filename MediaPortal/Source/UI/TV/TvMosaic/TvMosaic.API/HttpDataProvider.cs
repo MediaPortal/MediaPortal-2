@@ -58,6 +58,7 @@ namespace TvMosaic.API
     public const string STOP_CHANNEL_CMD = "stop_channel";
     public const string SEARCH_EPG_CMD = "search_epg";
     public const string GET_RECORDINGS_CMD = "get_recordings";
+    public const string GET_RECORDING_SETTINGS_CMD = "get_recording_settings";
     public const string GET_SCHEDULES_CMD = "get_schedules";
     public const string ADD_SCHEDULE_CMD = "add_schedule";
     public const string REMOVE_SCHEDULE_CMD = "remove_schedule";
@@ -254,6 +255,11 @@ namespace TvMosaic.API
     public async Task<DVBLinkResponse<Recordings>> GetRecordings(RecordingsRequest request)
     {
       DVBLinkResponse<Recordings> resp = await GetData<RecordingsRequest, Recordings>(GET_RECORDINGS_CMD, request);
+      return resp;
+    }
+    public async Task<DVBLinkResponse<RecordingSettings>> GetRecordingSettings(RecordingSettingsRequest request)
+    {
+      DVBLinkResponse<RecordingSettings> resp = await GetData<RecordingSettingsRequest, RecordingSettings>(GET_RECORDING_SETTINGS_CMD, request);
       return resp;
     }
     public async Task<DVBLinkResponse<Schedules>> GetSchedules(SchedulesRequest request)

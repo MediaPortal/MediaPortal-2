@@ -12,7 +12,7 @@ namespace TvMosaic.API
   public enum ObjectType
   {
     OBJECT_UNKNOWN = -1,
-    OBJECT_container = 0,
+    OBJECT_CONTAINER = 0,
     OBJECT_ITEM = 1
   }
 

@@ -71,6 +71,7 @@
     <Compile Include="PlayList.cs" />
     <Compile Include="Programs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="RecordingSettings.cs" />
     <Compile Include="Recordings.cs" />
     <Compile Include="Response.cs" />
     <Compile Include="Schedules.cs" />
