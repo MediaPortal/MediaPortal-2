@@ -145,7 +145,7 @@ namespace SlimTv.TvMosaicProvider
         return new AsyncResult<IList<IChannelGroup>>(false, null);
 
       List<IChannelGroup> groups;
-      lock (_syncObj) 
+      lock (_syncObj)
         groups = _channelGroups.ToList();
 
       return new AsyncResult<IList<IChannelGroup>>(groups.Count > 0, groups);
@@ -443,7 +443,7 @@ namespace SlimTv.TvMosaicProvider
       var channelId = GetTvMosaicId(program.ChannelId);
       var programId = program.ProgramId.ToString(); // StartTime.ToUnixTime().ToString(); // Translate start time back to timestamp
       var byEpg = new ByEpgSchedule(channelId, programId);
-      byEpg.IsRepeat = recordingType != ScheduleRecordingType.Once; 
+      byEpg.IsRepeat = recordingType != ScheduleRecordingType.Once;
       var scheduleRequest = new TvMosaic.API.Schedule(byEpg);
       var result = await _dvbLink.AddSchedule(scheduleRequest);
       if (result.Status == StatusCode.STATUS_OK)
@@ -577,6 +577,23 @@ namespace SlimTv.TvMosaicProvider
         }
       }
       return new AsyncResult<RecordingStatus>(true, RecordingStatus.None);
+    }
+
+    public async Task<RecordingSettings> GetRecordingSettings()
+    {
+      var allRecordings = await _dvbLink.GetRecordingSettings(new RecordingSettingsRequest());
+      return allRecordings.Status == StatusCode.STATUS_OK ? allRecordings.Result : null;
+    }
+
+    public async Task<object> GetRecording()
+    {
+      var allRecordings = await _dvbLink.GetObject(new ObjectRequester
+      {
+        ItemType = (int)ItemType.ITEM_RECORDED_TV,
+        ObjectType = (int)ObjectType.OBJECT_CONTAINER,
+        ChildrenRequest = true
+      });
+      return allRecordings.Status == StatusCode.STATUS_OK ? allRecordings.Result : null;
     }
 
     public Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)

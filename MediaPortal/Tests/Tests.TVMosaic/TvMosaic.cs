@@ -6,11 +6,17 @@ using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider;
 using MediaPortal.Common.Settings;
+using MediaPortal.Extensions.MetadataExtractors;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using NUnit.Framework;
 using SlimTv.TvMosaicProvider;
 using SlimTv.TvMosaicProvider.Settings;
+using Tests.Common;
 using TvMosaic.API;
 
 namespace Test.TVMosaic
@@ -18,7 +24,7 @@ namespace Test.TVMosaic
   [TestFixture]
   public class TvMosaic
   {
-    private ITvProvider _provider;
+    private TvMosaicProvider _provider;
 
     [SetUp]
     public void Init()
@@ -26,6 +32,14 @@ namespace Test.TVMosaic
       ServiceRegistration.Set<ILogger>(new NoLogger());
       FakeSettings<TvMosaicProviderSettings> settings = new FakeSettings<TvMosaicProviderSettings>(new TvMosaicProviderSettings { Host = "localhost" });
       ServiceRegistration.Set<ISettingsManager>(settings);
+
+      IMediaItemAspectTypeRegistration miatr = new TestMediaItemAspectTypeRegistration();
+      ServiceRegistration.Set(miatr);
+
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(MediaAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(AudioAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(ProviderResourceAspect.Metadata);
+      miatr.RegisterLocallyKnownMediaItemAspectTypeAsync(RelationshipAspect.Metadata);
 
       _provider = new TvMosaicProvider();
       _provider.Init();
@@ -113,8 +127,8 @@ namespace Test.TVMosaic
       var programResult = await programInfo.GetProgramsAsync(channelResult.Result.First(), DateTime.Now, DateTime.Now.AddHours(4));
       Assert.IsTrue(programResult.Success);
       Assert.IsNotNull(programResult.Result);
-    }  
-    
+    }
+
     [Test]
     public async Task TestProgramsDeserialize()
     {
@@ -137,6 +151,31 @@ Grimme-Preisträger Andreas Pichler sucht Antworten auf die Fragen, warum wir ü
       Assert.IsNotNull(program.Language);
       Assert.IsTrue(program.IsSeries);
     }
+
+    [Test]
+    public async Task TestRecordings()
+    {
+      //var recordingSettings = await _provider.GetRecordingSettings();
+      //Assert.IsNotNull(recordingSettings);
+
+      var recordings = await _provider.GetRecording();
+      Assert.IsNotNull(recordings);
+    }
+
+    [Test]
+    public async Task TestRecordingsMDE()
+    {
+      var mde = new TvMosaicRecordingMetadataExtractor();
+      IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData = new Dictionary<Guid, IList<MediaItemAspect>>();
+
+      string path = @"C:\ProgramData\DVBLogic\TVMosaic\data\RecordedTV\Tagesschau-0125-20220104.ts";
+      using (ILocalFsResourceAccessor ra = new LocalFsResourceAccessor(new LocalFsResourceProvider(), path))
+      {
+        var result = mde.TryExtractMetadataAsync(ra, extractedAspectData, false);
+      }
+    }
+
+
   }
 
   public class FakeSettings<T> : ISettingsManager

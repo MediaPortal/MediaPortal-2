@@ -1,0 +1,34 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="TvMosaicRecordingMetadataExtractor"
+    PluginId="{403EF9CD-CE0B-4E3C-9CA5-EA5738900440}"
+    Author = "Morpheus_xx"
+    Copyright="GPL"
+    Description="Metadata extractor for extracting information from TvMosaic recordings">
+
+  <Version
+    PluginVersion="0.1"
+    ReleaseDate="2022-01-08 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+    <PluginReference PluginId="{D418C9C9-6D2A-44ed-ADC2-16345294B019}" CompatibleAPI="1"/> <!-- MediaInfoPlugin -->
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="TvMosaicRecordingMetadataExtractor.dll"/>
+  </Runtime>
+
+  <Register Location="/Media/MetadataExtractors">
+    
+    <!-- .TS +.XML TVE recordings, no online lookup of series -->
+    <Instance
+        Id="TvMosaicRecordingMetadataExtractor"
+        ClassName="MediaPortal.Extensions.MetadataExtractors.TvMosaicRecordingMetadataExtractor"/>
+    <!-- .TS +.XML TVE recordings, only online lookup of series -->
+
+  </Register>
+</Plugin>

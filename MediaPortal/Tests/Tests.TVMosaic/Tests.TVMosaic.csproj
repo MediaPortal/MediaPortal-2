@@ -74,6 +74,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\TvMosaicRecordingMetadataExtractor\TvMosaicRecordingMetadataExtractor.csproj">
+      <Project>{D10FD4F7-A838-4F06-9395-6C30B90EACBA}</Project>
+      <Name>TvMosaicRecordingMetadataExtractor</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\TV\TvMosaic\SlimTv.TvMosaicProvider\SlimTv.TvMosaicProvider.csproj">
       <Project>{1976DE17-3729-4F01-BA45-DF359F005297}</Project>
       <Name>SlimTv.TvMosaicProvider</Name>
@@ -81,6 +85,10 @@
     <ProjectReference Include="..\..\Source\UI\TV\TvMosaic\TvMosaic.API\TvMosaic.API.csproj">
       <Project>{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}</Project>
       <Name>TvMosaic.API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Tests.Client\Tests.Client.csproj">
+      <Project>{9B2DA988-87CE-421F-A4A3-679A45163599}</Project>
+      <Name>Tests.Client</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
