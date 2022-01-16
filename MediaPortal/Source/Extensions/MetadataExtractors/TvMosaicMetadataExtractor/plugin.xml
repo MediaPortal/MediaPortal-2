@@ -4,8 +4,7 @@
     PluginId="{A252A526-186A-448C-B3F8-94C75E50C067}"
     Author="Morpheus_xx"
     Copyright="GPL"
-    AutoActivate="true"
-    Description="Retrieves metadata for TvMosaic recorded tv items.">
+    Description="Retrieves metadata for TvMosaic recorded tv.">
 
   <Version
     PluginVersion="1.0"
@@ -14,6 +13,7 @@
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
   </DependsOn>
 
   <Runtime>
@@ -24,7 +24,7 @@
     <Resource Id="TvMosaicMetadataExtractorLanguage" Directory="Language" Type="Language"/>
   </Register>
   
-  <!-- The ResourceProvider to access TvMosiac API for recorded tv. -->
+  <!-- The ResourceProvider to access and navigate the TvMosaic API for recorded tv. -->
   <Register Location="/ResourceProviders">
     <Instance Id="TvMosaicResourceProvider" ClassName="TvMosaicMetadataExtractor.ResourceAccess.TvMosaicResourceProvider"/>
   </Register>
