@@ -4,14 +4,15 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{B84F2140-48EB-4751-A170-F36276EE74DA}</ProjectGuid>
+    <ProjectGuid>{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>Test.TVMosaic</RootNamespace>
-    <AssemblyName>Test.TVMosaic</AssemblyName>
+    <RootNamespace>TvMosaicMetadataExtractor</RootNamespace>
+    <AssemblyName>TvMosaicMetadataExtractor</AssemblyName>
     <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -36,8 +37,8 @@
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
     <OutputPath>bin\x86\Release\</OutputPath>
@@ -45,16 +46,10 @@
     <Optimize>true</Optimize>
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>x86</PlatformTarget>
-    <LangVersion>7.3</LangVersion>
     <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MediaPortal.Common">
-      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\MediaPortal.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="SlimTv.Interfaces">
-      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\SlimTv.Client\SlimTv.Interfaces.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -65,28 +60,42 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ResourceAccess.cs" />
-    <Compile Include="TvMosaic.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="ResourceAccess\ITvMosaicNavigator.cs" />
+    <Compile Include="ResourceAccess\TvMosaicNavigator.cs" />
+    <Compile Include="ResourceAccess\TvMosaicResourceAccessor.cs" />
+    <Compile Include="ResourceAccess\TvMosaicResourceProvider.cs" />
+    <Compile Include="TvMosaicRecordedTvMetadataExtractor.cs" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NUnit">
-      <Version>3.12.0</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\TvMosaicMetadataExtractor\TvMosaicMetadataExtractor.csproj">
-      <Project>{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}</Project>
-      <Name>TvMosaicMetadataExtractor</Name>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Common</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\TV\TvMosaic\SlimTv.TvMosaicProvider\SlimTv.TvMosaicProvider.csproj">
-      <Project>{1976DE17-3729-4F01-BA45-DF359F005297}</Project>
-      <Name>SlimTv.TvMosaicProvider</Name>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}</Project>
+      <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\UI\TV\TvMosaic\TvMosaic.API\TvMosaic.API.csproj">
+    <ProjectReference Include="..\..\..\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
+      <Name>SlimTv.Interfaces</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\UI\TV\TvMosaic\TvMosaic.API\TvMosaic.API.csproj">
       <Project>{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}</Project>
       <Name>TvMosaic.API</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Language\strings_en.xml">
+      <SubType>Designer</SubType>
+    </Content>
+    <Content Include="plugin.xml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
 </Project>
