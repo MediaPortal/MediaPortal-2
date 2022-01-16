@@ -222,7 +222,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
 
     public IResourceAccessor Clone()
     {
-      return new TvMosaicResourceAccessor(_parent, _path);
+      return new TvMosaicResourceAccessor(_parent, _path, _navigator);
     }
 
     public Stream CreateOpenWrite(string file, bool overwrite)
@@ -235,7 +235,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
       // The only 'directories' are the top level containers under the root, so just ignore for all other paths
       if (!IsRootPath(_path))
         return null;      
-      return _navigator.GetRootContainerIds().Select(id => new TvMosaicResourceAccessor(_parent, id)).ToList<IFileSystemResourceAccessor>();
+      return _navigator.GetRootContainerIds().Select(id => new TvMosaicResourceAccessor(_parent, id, _navigator)).ToList<IFileSystemResourceAccessor>();
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
@@ -249,13 +249,13 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
       if (items == null)
         return null;
 
-      return items.Select(item => new TvMosaicResourceAccessor(_parent, item.ObjectID)).ToList<IFileSystemResourceAccessor>();
+      return items.Select(item => new TvMosaicResourceAccessor(_parent, item.ObjectID, _navigator)).ToList<IFileSystemResourceAccessor>();
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
       // Path should be an object id which are always absolute, so just return the new path
-      return new TvMosaicResourceAccessor(_parent, path);
+      return new TvMosaicResourceAccessor(_parent, path, _navigator);
     }
 
     public Stream OpenRead()
