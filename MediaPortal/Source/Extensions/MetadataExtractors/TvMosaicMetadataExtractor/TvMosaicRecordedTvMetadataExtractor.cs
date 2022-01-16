@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.ResourceAccess;
@@ -30,12 +32,29 @@ using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
 using TvMosaic.API;
 using TvMosaicMetadataExtractor.ResourceAccess;
 
 namespace TvMosaicMetadataExtractor
 {
+  #region Internal classes
+
+  public class CompressionWebClient : WebClient
+  {
+    protected override WebRequest GetWebRequest(Uri address)
+    {
+      Headers["Accept-Encoding"] = "gzip,deflate";
+      HttpWebRequest request = base.GetWebRequest(address) as HttpWebRequest;
+      if (request != null)
+        request.AutomaticDecompression = DecompressionMethods.Deflate | DecompressionMethods.GZip;
+      return request;
+    }
+  }
+
+  #endregion
+
   /// <summary>
   /// Implementation of <see cref="IMetadataExtractor"/> that extracts metadata from TvMosaic recorded tv described by a <see cref="TvMosaicResourceAccessor"/>.
   /// </summary>
@@ -72,6 +91,56 @@ namespace TvMosaicMetadataExtractor
       get { return _metadata; }
     }
 
+    protected async Task ExtractRecordedTvMetadata(TvMosaicResourceAccessor accessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, RecordedTV recordedTV)
+    {
+      //ToDo: Fill more attributes
+      MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, LiveTvMediaItem.MIME_TYPE_RECORDED_TV_STREAM);
+      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, accessor.CanonicalLocalResourcePath.Serialize());
+
+      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, recordedTV.VideoInfo.Name);
+      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, recordedTV.VideoInfo.Name);
+
+      MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, recordedTV.VideoInfo.ShortDesc);
+      MultipleMediaItemAspect videoStreamAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
+      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
+      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
+      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, recordedTV.VideoInfo.Duration);
+
+      // TvMosaic gives time in seconds from 1/1/1970 UTC (I think...)
+      DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
+      DateTime startTime = epoch.AddSeconds(recordedTV.VideoInfo.StartTime);
+      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, startTime.ToLocalTime());
+      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, startTime.AddSeconds(recordedTV.VideoInfo.Duration).ToLocalTime());
+      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_CHANNEL, recordedTV.ChannelName);
+
+      if (!string.IsNullOrEmpty(recordedTV.Thumbnail))
+      {
+        byte[] thumbnailData = await DownloadThumbnail(recordedTV.Thumbnail);
+        if (thumbnailData != null && thumbnailData.Length > 0)
+          MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbnailData);
+      }
+    }
+
+    protected async Task<byte[]> DownloadThumbnail(string thumbnailUrl)
+    {
+      byte[] thumbnailData;
+      try
+      {
+        using (CompressionWebClient client = new CompressionWebClient())
+          thumbnailData = await client.DownloadDataTaskAsync(thumbnailUrl);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Error("TvMosaicRecordedTvMetadataExtractor: Error retrieving thumbnail from url '{0}'", ex, thumbnailUrl);
+        thumbnailData = null;
+      }
+
+      return thumbnailData;
+    }
+
     public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       TvMosaicResourceAccessor ra = mediaItemAccessor as TvMosaicResourceAccessor;
@@ -87,27 +156,8 @@ namespace TvMosaicMetadataExtractor
       if (recordedTV == null)
         return false;
 
-      //ToDo: Fill more attributes
-      MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(extractedAspectData, ProviderResourceAspect.Metadata);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_INDEX, 0);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_MIME_TYPE, LiveTvMediaItem.MIME_TYPE_TV_STREAM);
-      providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, ra.CanonicalLocalResourcePath.Serialize());
-
-      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, recordedTV.VideoInfo.Name);
-      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, recordedTV.VideoInfo.Name);
-
-      MediaItemAspect.SetAttribute(extractedAspectData, VideoAspect.ATTR_STORYPLOT, recordedTV.VideoInfo.ShortDesc);
-      MultipleMediaItemAspect videoStreamAspect = MediaItemAspect.CreateAspect(extractedAspectData, VideoStreamAspect.Metadata);
-      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_RESOURCE_INDEX, 0);
-      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
-      videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, recordedTV.VideoInfo.Duration);
+      await ExtractRecordedTvMetadata(ra, extractedAspectData, recordedTV);
       
-      // TvMosaic gives time in seconds from 1/1/1970 local time (I think...)
-      DateTime startTime = new DateTime(1970, 1, 1).AddSeconds(recordedTV.VideoInfo.StartTime);
-      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, startTime);
-      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, startTime.AddSeconds(recordedTV.VideoInfo.Duration));
-      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_CHANNEL, recordedTV.ChannelName);
       return true;
     }
 
