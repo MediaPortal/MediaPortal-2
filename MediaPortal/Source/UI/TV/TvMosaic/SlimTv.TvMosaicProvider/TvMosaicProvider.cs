@@ -40,6 +40,9 @@ namespace SlimTv.TvMosaicProvider
     private readonly Dictionary<int, long> _tunedChannelHandles = new Dictionary<int, long>();
     private bool _supportsTimeshift;
     private string _host;
+    private bool _isInitialized = false;
+
+    public bool IsInitialized { get { return _isInitialized; } }
 
     public bool Init()
     {
@@ -57,6 +60,8 @@ namespace SlimTv.TvMosaicProvider
           streamingCapabilities.DeviceManagement,
           streamingCapabilities.SupTranscoders,
           streamingCapabilities.SupPbTranscoders);
+
+        _isInitialized = true;
         return true;
       }
 
@@ -585,12 +590,13 @@ namespace SlimTv.TvMosaicProvider
       return allRecordings.Status == StatusCode.STATUS_OK ? allRecordings.Result : null;
     }
 
-    public async Task<object> GetRecording()
+    public async Task<ObjectResponse> GetRecordings()
     {
       var allRecordings = await _dvbLink.GetObject(new ObjectRequester
       {
-        ItemType = (int)ItemType.ITEM_RECORDED_TV,
-        ObjectType = (int)ObjectType.OBJECT_CONTAINER,
+        ObjectID = "8F94B459-EFC0-4D91-9B29-EC3D72E92677:E44367A7-6293-4492-8C07-0E551195B99F",
+        //ItemType = (int)ItemType.ITEM_RECORDED_TV,
+        //ObjectType = (int)ObjectType.OBJECT_UNKNOWN,
         ChildrenRequest = true
       });
       return allRecordings.Status == StatusCode.STATUS_OK ? allRecordings.Result : null;

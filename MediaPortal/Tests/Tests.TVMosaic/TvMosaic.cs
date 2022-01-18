@@ -158,7 +158,7 @@ Grimme-Preisträger Andreas Pichler sucht Antworten auf die Fragen, warum wir ü
       //var recordingSettings = await _provider.GetRecordingSettings();
       //Assert.IsNotNull(recordingSettings);
 
-      var recordings = await _provider.GetRecording();
+      var recordings = await _provider.GetRecordings();
       Assert.IsNotNull(recordings);
     }
 

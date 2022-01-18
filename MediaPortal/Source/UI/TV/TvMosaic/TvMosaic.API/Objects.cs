@@ -40,16 +40,16 @@ namespace TvMosaic.API
     public string ObjectID { get; set; }
 
     [DataMember(Name = "object_type", EmitDefaultValue = false, Order = 2)]
-    public int ObjectType { get; set; }
+    public int ObjectType { get; set; } = (int)API.ObjectType.OBJECT_UNKNOWN;
 
     [DataMember(Name = "item_type", EmitDefaultValue = false, Order = 3)]
-    public int ItemType { get; set; }
+    public int ItemType { get; set; } = (int)API.ItemType.ITEM_UNKNOWN;
 
     [DataMember(Name = "start_position", EmitDefaultValue = false, Order = 4)]
     public int StartPosition { get; set; }
 
     [DataMember(Name = "requested_count", EmitDefaultValue = false, Order = 6)]
-    public int RequestedCount { get; set; }
+    public int RequestedCount { get; set; } = -1;
 
     [DataMember(Name = "children_request", EmitDefaultValue = false, Order = 7)]
     public bool ChildrenRequest { get; set; }
