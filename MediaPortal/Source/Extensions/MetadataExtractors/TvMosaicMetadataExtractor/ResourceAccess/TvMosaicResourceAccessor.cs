@@ -246,8 +246,10 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
 
       string objectId = GetObjectId(_path);
       Items items = _navigator.GetChildItems(objectId);
+      // This path is a directory so callers expect this method to not return
+      // null, so return an empty list in case of an error retrieving the items
       if (items == null)
-        return null;
+        return new List<IFileSystemResourceAccessor>();
 
       return items.Select(item => new TvMosaicResourceAccessor(_parent, item.ObjectID, _navigator)).ToList<IFileSystemResourceAccessor>();
     }
