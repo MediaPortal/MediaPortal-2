@@ -28,6 +28,23 @@
     <Assembly FileName="SlimTv.TvMosaicProvider.dll"/>
   </Runtime>
 
+  <Register Location="/Models">
+    <Model Id="AE53B8DA-FEA8-4CDD-82CF-2FF161AFF038" ClassName="SlimTv.TvMosaicProvider.Models.RecordingsModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <WorkflowState Id="4C1CD946-1FF8-44E1-AEED-A39577215A35"
+                   Name="TvMosaicRecordings"
+                   MainScreen="TvMosaicRecordings"
+                   DisplayLabel="[SlimTvClient.Recordings]"
+                   WorkflowModel="AE53B8DA-FEA8-4CDD-82CF-2FF161AFF038"/>
+    <!-- Workflow model = TvMosaic Recordings Model -->
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="TvMosaicClientSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
   <Register Location="/Resources/Language">
     <Resource Id="TvMosaicLanguage" Directory="Language" Type="Language"/>
   </Register>
@@ -43,14 +60,13 @@
         Redundant="true"
         Text="[Settings.Plugins]"/>
   </Register>
-  
+
   <Register Location="/Configuration/Settings/Plugins">
     <ConfigSection
         Id="TV"
         Redundant="true"
         Text="[Settings.Plugins.TV]"/>
   </Register>
-
 
   <Register Location="/Configuration/Settings/TV">
     <ConfigSetting
@@ -69,7 +85,7 @@
         HelpText="[Settings.Plugins.TV.TvMosaicPassword.Help]"
         ClassName="SlimTv.TvMosaicProvider.Settings.Configuration.Password"/>
   </Register>
-  
+
   <!-- The ResourceProvider to access Tve3. -->
   <Register Location="/ResourceProviders">
     <Instance Id="SlimTvProvider" ClassName="MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider.SlimTvResourceProvider"/>

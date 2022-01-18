@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <PushNavigationTransition Id="05EC3FBE-D201-47C8-A5DD-473EBF047E09"
+      Name="Home->TvMosaic Recordings"
+      DisplayCategory="A-SlimTvClient"
+      SortOrder="a"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="4C1CD946-1FF8-44E1-AEED-A39577215A35"
+      DisplayTitle="[SlimTvClient.Recordings]"
+      HelpText="[SlimTvClient.Recordings.Help]"/>
+  </MenuActions>
+</Workflow>

@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TODO: This screen should be adapted to match its special function, i.e. add images etc. -->
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.VideoItemsHeader]"/>
+
+    <Model x:Key="TvMosaicRecordingsModel" Id="AE53B8DA-FEA8-4CDD-82CF-2FF161AFF038"/>
+
+    <!-- Header_Text resource has to be added by including screen -->
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <!-- Style="{ThemeResource MediaItemsListListViewStyle}"
+      
+      IsVisible="{Binding ShowList}"
+      -->
+      <ListView x:Name="MediaItemsList"
+                Style="{ThemeResource ContentsMenuListViewStyle}"
+                ItemsSource="{Binding Source={StaticResource TvMosaicRecordingsModel},Path=Items}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" >
+      </ListView>
+    </ControlTemplate>
+
+    <!-- Control template for the MediaItem details (cover, thumbs, duration, genres...)-->
+    <ControlTemplate x:Key="Media_Details_Template">
+      <Include Source="screens\MediaItemFanArt.inc"/>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="Alternative_Footer_Template">
+      <Include Source="screens\MediaItemRecordingDetails.inc"/>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
