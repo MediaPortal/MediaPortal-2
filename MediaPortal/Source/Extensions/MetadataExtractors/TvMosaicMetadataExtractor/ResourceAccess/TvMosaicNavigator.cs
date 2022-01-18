@@ -22,10 +22,14 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.ServerSettings;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using TvMosaic.API;
+using TvMosaic.Shared;
 
 namespace TvMosaicMetadataExtractor.ResourceAccess
 {
@@ -39,9 +43,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     /// </summary>
     protected internal const string RECORDED_TV_OBJECT_ID = "8F94B459-EFC0-4D91-9B29-EC3D72E92677:E44367A7-6293-4492-8C07-0E551195B99F";
 
-    //ToDo: These should be retrieved from settings, but the settings are currently unavailable on the server
-    const string SERVER_IP = "127.0.0.1";
-    const int SERVER_PORT = 9270;
+    protected HttpDataProvider _httpDataProvider;
 
     public ICollection<string> GetRootContainerIds()
     {
@@ -81,7 +83,16 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
         ChildrenRequest = childrenRequest
       };
 
-      var response = await new HttpDataProvider(SERVER_IP, SERVER_PORT).GetObject(request);
+      // We could be called concurrently from multiple threads so use a local reference
+      // to the data provider to avoid another thread changing it whilst we are using it.
+      HttpDataProvider httpDataProvider = _httpDataProvider;
+      // There's a potential race condition when checking whether to create a new instance if the class
+      // reference was null, but it will just cause another instance to be constructed unnecessarily and
+      // won't effect usage so just allow it and avoid a lock.
+      if (httpDataProvider == null)
+        _httpDataProvider = httpDataProvider = GetHttpDataProvider();
+
+      var response = await httpDataProvider.GetObject(request);
       if (response.Status != StatusCode.STATUS_OK)
         return null;
       return response.Result;
@@ -93,6 +104,22 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
         return "TvMosaic Recorded TV";
       //ToDo: we could retrieve the actual name of the object from the API, but for now we avoid an additional network request.
       return objectId;
+    }
+
+    HttpDataProvider GetHttpDataProvider()
+    {
+      TvMosaicProviderSettings settings = GetSettings();
+      return new HttpDataProvider(settings.Host, 9270, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
+    }
+
+    protected TvMosaicProviderSettings GetSettings()
+    {
+      // If running on the client we need to load the settings from the server
+      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
+      if (serverSettings != null)
+        return serverSettings.Load<TvMosaicProviderSettings>();
+      // We are running on the server so can load the settings locally
+      return ServiceRegistration.Get<ISettingsManager>().Load<TvMosaicProviderSettings>();
     }
   }
 }
