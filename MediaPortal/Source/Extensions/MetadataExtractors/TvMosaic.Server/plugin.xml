@@ -1,0 +1,21 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="TvMosaic Server Plugin"
+    PluginId="{7E876B86-412C-4D90-986E-F975EF189941}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Provides API and helpers to interact with TvMosaic service."
+    AutoActivate="true">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2022-01-18 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="TvMosaic.Shared.dll"/>
+    <Assembly FileName="TvMosaic.Server.dll"/>
+  </Runtime>
+
+</Plugin>
+

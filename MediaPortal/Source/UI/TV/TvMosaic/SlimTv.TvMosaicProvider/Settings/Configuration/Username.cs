@@ -22,7 +22,10 @@
 
 #endregion
 
+using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
+using MediaPortal.Plugins.ServerSettings;
+using TvMosaic.Shared;
 
 namespace SlimTv.TvMosaicProvider.Settings.Configuration
 {
@@ -30,15 +33,20 @@ namespace SlimTv.TvMosaicProvider.Settings.Configuration
   {
     public override void Load()
     {
-      _value = SettingsManager.Load<TvMosaicProviderSettings>().Username;
+      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
+      if (serverSettings == null)
+        return;
+      _value = serverSettings.Load<TvMosaicProviderSettings>().Username;
     }
 
     public override void Save()
     {
-      base.Save();
-      TvMosaicProviderSettings settings = SettingsManager.Load<TvMosaicProviderSettings>();
+      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
+      if (serverSettings == null)
+        return;
+      TvMosaicProviderSettings settings = serverSettings.Load<TvMosaicProviderSettings>();
       settings.Username = _value;
-      SettingsManager.Save(settings);
+      serverSettings.Save(settings);
     }
 
     public override int DisplayLength

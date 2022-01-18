@@ -1,21 +1,46 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+﻿#region Copyright (C) 2007-2021 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2021 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
 using MediaPortal.Common;
 using MediaPortal.Common.Async;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.ServerSettings;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using SlimTv.TvMosaicProvider.Settings;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 using TvMosaic.API;
+using TvMosaic.Shared;
 using MPChannel = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Channel;
 using MPProgram = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Program;
 using MPSchedule = MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items.Schedule;
@@ -43,7 +68,13 @@ namespace SlimTv.TvMosaicProvider
 
     public bool Init()
     {
-      var settings = ServiceRegistration.Get<ISettingsManager>().Load<TvMosaicProviderSettings>();
+      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
+      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+
+      var settings = serverSettings != null ?
+        serverSettings.Load<TvMosaicProviderSettings>() :
+        settingsManager.Load<TvMosaicProviderSettings>();
+
       _host = settings.Host;
       _dvbLink = new HttpDataProvider(_host, 9270, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
       var caps = _dvbLink.GetStreamingCapabilities(new CapabilitiesRequest()).Result;
@@ -145,7 +176,7 @@ namespace SlimTv.TvMosaicProvider
         return new AsyncResult<IList<IChannelGroup>>(false, null);
 
       List<IChannelGroup> groups;
-      lock (_syncObj) 
+      lock (_syncObj)
         groups = _channelGroups.ToList();
 
       return new AsyncResult<IList<IChannelGroup>>(groups.Count > 0, groups);
@@ -443,7 +474,7 @@ namespace SlimTv.TvMosaicProvider
       var channelId = GetTvMosaicId(program.ChannelId);
       var programId = program.ProgramId.ToString(); // StartTime.ToUnixTime().ToString(); // Translate start time back to timestamp
       var byEpg = new ByEpgSchedule(channelId, programId);
-      byEpg.IsRepeat = recordingType != ScheduleRecordingType.Once; 
+      byEpg.IsRepeat = recordingType != ScheduleRecordingType.Once;
       var scheduleRequest = new TvMosaic.API.Schedule(byEpg);
       var result = await _dvbLink.AddSchedule(scheduleRequest);
       if (result.Status == StatusCode.STATUS_OK)
@@ -634,47 +665,6 @@ namespace SlimTv.TvMosaicProvider
     public Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName)
     {
       return Task.FromResult(new AsyncResult<ISchedule>(false, null));
-    }
-  }
-
-  public static class DateExtensions
-  {
-    public static DateTime FromUnixTime(this long ut)
-    {
-      DateTime dt = FromUnixTimeUtc(ut);
-      return dt.ToLocalTime();
-    }
-
-    public static DateTime FromUnixTimeUtc(this long ut)
-    {
-      if (ut == 0) return DateTime.MinValue;
-      long l = ut;
-      l += (long)(369 * 365 + 89) * 86400;
-      l *= 10000000;
-      return DateTime.FromFileTimeUtc(l);
-    }
-
-    public static uint ToUnixTime(this DateTime val)
-    {
-      uint ut;
-      try
-      {
-        if (val == DateTime.MinValue)
-          ut = 0;
-        else
-        {
-          long l = val.ToFileTimeUtc();
-          l /= 10000000;
-          l -= (long)(369 * 365 + 89) * 86400;
-          ut = (uint)l;
-        }
-      }
-      catch
-      {
-        ut = 0;
-      }
-
-      return ut;
     }
   }
 }

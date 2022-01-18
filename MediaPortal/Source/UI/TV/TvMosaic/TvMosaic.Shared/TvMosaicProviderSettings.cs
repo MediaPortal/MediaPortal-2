@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.Settings;
 
-namespace SlimTv.TvMosaicProvider.Settings
+namespace TvMosaic.Shared
 {
   public class TvMosaicProviderSettings
   {

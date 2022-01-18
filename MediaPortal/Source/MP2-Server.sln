@@ -190,6 +190,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvMosaic.API", "UI\TV\TvMos
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvMosaicMetadataExtractor", "Extensions\MetadataExtractors\TvMosaicMetadataExtractor\TvMosaicMetadataExtractor.csproj", "{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvMosaic.Shared", "UI\TV\TvMosaic\TvMosaic.Shared\TvMosaic.Shared.csproj", "{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvMosaic.Server", "Extensions\MetadataExtractors\TvMosaic.Server\TvMosaic.Server.csproj", "{C4177AB5-5605-4084-8512-F88658578225}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -724,6 +728,22 @@ Global
 		{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}.Release|x86.ActiveCfg = Release|Any CPU
 		{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}.Release|x86.Build.0 = Release|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Debug|x86.Build.0 = Debug|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Release|Any CPU.Build.0 = Release|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Release|x86.ActiveCfg = Release|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Release|x86.Build.0 = Release|Any CPU
+		{C4177AB5-5605-4084-8512-F88658578225}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4177AB5-5605-4084-8512-F88658578225}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4177AB5-5605-4084-8512-F88658578225}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{C4177AB5-5605-4084-8512-F88658578225}.Debug|x86.Build.0 = Debug|Any CPU
+		{C4177AB5-5605-4084-8512-F88658578225}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4177AB5-5605-4084-8512-F88658578225}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4177AB5-5605-4084-8512-F88658578225}.Release|x86.ActiveCfg = Release|Any CPU
+		{C4177AB5-5605-4084-8512-F88658578225}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -817,6 +837,8 @@ Global
 		{5B658CDD-2211-4DB5-8765-997D4501BCA2} = {4B3FDD47-818E-455A-B3AD-5AFDDABFA4D5}
 		{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 		{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5} = {1B4741DC-78EA-4D93-8EED-00CB9617AD2F}
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
+		{C4177AB5-5605-4084-8512-F88658578225} = {1D7CBAB2-F708-4A74-8DF9-610497AED552}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1EEA469D-E8FA-442D-A7DC-FA62A56A8808}

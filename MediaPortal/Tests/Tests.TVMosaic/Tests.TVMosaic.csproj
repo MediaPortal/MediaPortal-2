@@ -87,6 +87,10 @@
       <Project>{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}</Project>
       <Name>TvMosaic.API</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\TvMosaic\TvMosaic.Shared\TvMosaic.Shared.csproj">
+      <Project>{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}</Project>
+      <Name>TvMosaic.Shared</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

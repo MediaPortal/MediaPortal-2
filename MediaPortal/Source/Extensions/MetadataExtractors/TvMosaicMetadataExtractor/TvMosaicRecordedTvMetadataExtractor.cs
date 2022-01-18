@@ -35,6 +35,7 @@ using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
 using TvMosaic.API;
+using TvMosaic.Shared;
 using TvMosaicMetadataExtractor.ResourceAccess;
 
 namespace TvMosaicMetadataExtractor
@@ -109,11 +110,9 @@ namespace TvMosaicMetadataExtractor
       videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_STREAM_INDEX, 0);
       videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, recordedTV.VideoInfo.Duration);
 
-      // TvMosaic gives time in seconds from 1/1/1970 UTC (I think...)
-      DateTime epoch = new DateTime(1970, 1, 1, 0, 0, 0, DateTimeKind.Utc);
-      DateTime startTime = epoch.AddSeconds(recordedTV.VideoInfo.StartTime);
-      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, startTime.ToLocalTime());
-      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, startTime.AddSeconds(recordedTV.VideoInfo.Duration).ToLocalTime());
+      DateTime startTime = recordedTV.VideoInfo.StartTime.FromUnixTime();
+      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, startTime);
+      MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, startTime.AddSeconds(recordedTV.VideoInfo.Duration));
       MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_CHANNEL, recordedTV.ChannelName);
 
       if (!string.IsNullOrEmpty(recordedTV.Thumbnail))

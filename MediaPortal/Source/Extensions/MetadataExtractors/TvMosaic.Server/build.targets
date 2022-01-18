@@ -10,19 +10,16 @@
       <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
-  
-    <ItemGroup>
-      <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
     </ItemGroup>
-  
+
     <ItemGroup>
-      <References Include="$(TargetDir)SlimTv.Interfaces.dll" />
-      <References Include="$(TargetDir)TvMosaic.API.dll" />
       <References Include="$(TargetDir)TvMosaic.Shared.dll" />
     </ItemGroup>
-  
-      <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
   </Target>
 

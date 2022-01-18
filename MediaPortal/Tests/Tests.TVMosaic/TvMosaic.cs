@@ -12,6 +12,7 @@ using NUnit.Framework;
 using SlimTv.TvMosaicProvider;
 using SlimTv.TvMosaicProvider.Settings;
 using TvMosaic.API;
+using TvMosaic.Shared;
 
 namespace Test.TVMosaic
 {

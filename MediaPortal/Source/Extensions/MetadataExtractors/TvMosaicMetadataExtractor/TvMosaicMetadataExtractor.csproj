@@ -65,7 +65,9 @@
     <Compile Include="ResourceAccess\TvMosaicNavigator.cs" />
     <Compile Include="ResourceAccess\TvMosaicResourceAccessor.cs" />
     <Compile Include="ResourceAccess\TvMosaicResourceProvider.cs" />
-    <Compile Include="TvMosaicRecordedTvMetadataExtractor.cs" />
+    <Compile Include="TvMosaicRecordedTvMetadataExtractor.cs">
+      <SubType>Component</SubType>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj">
@@ -83,6 +85,10 @@
     <ProjectReference Include="..\..\..\UI\TV\TvMosaic\TvMosaic.API\TvMosaic.API.csproj">
       <Project>{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}</Project>
       <Name>TvMosaic.API</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\..\UI\TV\TvMosaic\TvMosaic.Shared\TvMosaic.Shared.csproj">
+      <Project>{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}</Project>
+      <Name>TvMosaic.Shared</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
