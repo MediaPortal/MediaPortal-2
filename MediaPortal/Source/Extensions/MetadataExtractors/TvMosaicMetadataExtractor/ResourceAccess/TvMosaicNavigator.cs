@@ -109,7 +109,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     HttpDataProvider GetHttpDataProvider()
     {
       TvMosaicProviderSettings settings = GetSettings();
-      return new HttpDataProvider(settings.Host, 9270, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
+      return new HttpDataProvider(settings.Host, settings.Port, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
     }
 
     protected TvMosaicProviderSettings GetSettings()

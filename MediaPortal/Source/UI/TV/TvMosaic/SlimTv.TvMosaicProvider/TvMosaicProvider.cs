@@ -76,7 +76,7 @@ namespace SlimTv.TvMosaicProvider
         settingsManager.Load<TvMosaicProviderSettings>();
 
       _host = settings.Host;
-      _dvbLink = new HttpDataProvider(_host, 9270, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
+      _dvbLink = new HttpDataProvider(_host, settings.Port, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
       var caps = _dvbLink.GetStreamingCapabilities(new CapabilitiesRequest()).Result;
       if (caps.Status == StatusCode.STATUS_OK)
       {

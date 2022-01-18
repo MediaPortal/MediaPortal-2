@@ -29,19 +29,26 @@ namespace TvMosaic.Shared
   public class TvMosaicProviderSettings
   {
     /// <summary>
-    /// Holds the host name or IP address of the TV4home service (running on same machine as TvServer).
+    /// Holds the host name or IP address of the TvMosaic service, this is used on clients and the server
+    /// so should be an address that is accessible from all machines on the network.
     /// </summary>
     [Setting(SettingScope.User, "localhost")]
     public string Host { get; set; }
-    
+
     /// <summary>
-    /// When MPExtended is configured to require authentication, this Username is used for establishing the connection.
+    /// Holds the port to use to connect of the TvMosaic service.
+    /// </summary>
+    [Setting(SettingScope.User, 9270)]
+    public int Port { get; set; }
+
+    /// <summary>
+    /// When TvMosaic is configured to require authentication, this Username is used for establishing the connection.
     /// </summary>
     [Setting(SettingScope.User)]
     public string Username { get; set; }
 
     /// <summary>
-    /// When MPExtended is configured to require authentication, this Password is used for establishing the connection.
+    /// When TvMosaic is configured to require authentication, this Password is used for establishing the connection.
     /// </summary>
     [Setting(SettingScope.User)]
     public string Password { get; set; }
