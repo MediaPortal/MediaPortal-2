@@ -26,8 +26,7 @@
                   ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MenuEditModel.MediaListItems, Mode=OneTime}" SetFocusPrio="DefaultLow"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
 
-        <Button Style="{ThemeResource DialogButtonStyle}" Margin="11,0,11,0"
-                HorizontalAlignment="Stretch" Content="[System.Ok]">
+        <Button Style="{ThemeResource DialogButtonStyle}" HorizontalAlignment="Stretch" Content="[System.Ok]">
           <Button.Command>
             <CommandList>
               <Command Source="{StaticResource HomeMenuModel}" Path="MenuEditModel.SaveMediaListEdit"/>

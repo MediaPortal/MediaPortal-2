@@ -116,7 +116,7 @@
             <!-- Common control for program duration formatting -->
             <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=SelectedCurrentProgram}" />
             <Label x:Name="GenreLabel" Content="{Binding Path=SelectedCurrentProgram.Genre}" Color="{ThemeResource TextColor}" Opacity="0.6" TextTrimming="CharacterEllipsis"
-                   IsVisible="{Binding Path=SelectedCurrentProgram.Genre,Converter={StaticResource ReferenceToBoolConverter}}"/>
+                   IsVisible="{Binding Path=SelectedCurrentProgram.Genre,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,0,10,0"/>
             <Label x:Name="Channel" Scroll="Auto" Content="{Binding SelectedChannelName}" Color="{ThemeResource TextColor}"
                    HorizontalAlignment="Left" Opacity="0.6" IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}"/>
             <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"

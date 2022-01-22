@@ -6,7 +6,7 @@
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers;assembly=SlimTv.Client"
-  x:Name="MediaItemDetails" Margin="30,220,40,60"
+  x:Name="MediaItemDetails" Margin="30,220,40,95"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
@@ -23,7 +23,7 @@
   </Grid.ColumnDefinitions>
 
   <tv:RecordingAspectWrapper Grid.Row="1" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,30">
+                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,10">
     <tv:RecordingAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -157,6 +157,6 @@
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1" Opacity="0.6" Color="{ThemeResource TextColor}"
          TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
-         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Margin="0,50,20,25"/>
+         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Margin="0,50,20,0"/>
 
 </Grid>

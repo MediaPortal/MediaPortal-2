@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+
+    <!-- Header has to be defined by the includer: "Header_Text" -->
+
+    <ControlTemplate x:Key="Client_Template">
+      <DockPanel LastChildFill="True" Margin="40,0,40,0">
+        <DockPanel.Resources>
+          <!-- Configuration model -->
+          <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+          <Model x:Key="MenuModel" Id="9E9D0CD9-4FDB-4c0f-A0C4-F356E151BDE0"/>
+        </DockPanel.Resources>
+
+        <ListView x:Name="MainMenu" DockPanel.Dock="Left" VerticalAlignment="Stretch" SetFocusPrio="Fallback"
+                  ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
+          <ListView.Style>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {2} : {1}">
+              <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+              <Binding Source="{ThemeResource LeftMenuListViewStyle}" />
+              <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
+            </MultiBinding>
+          </ListView.Style>
+          <ListView.Width>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : ({2}-80)">
+              <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+              <Binding Source="550" />
+              <Binding Source="{SkinWidth}" />
+            </MultiBinding>
+          </ListView.Width>
+          <ListView.Margin>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
+              <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+              <Binding Source="10,30,0,10" />
+              <Binding Source="0,30,0,-180" />
+            </MultiBinding>
+          </ListView.Margin>
+          <ListView.Resources>
+            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+          </ListView.Resources>
+        </ListView>
+
+        <!-- Order matters here: The content control has to be the last control to fill the rest of the space -->
+        <Grid x:Name="ContentPanel" SetFocusPrio="DefaultLow">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <GroupBox x:Name="ContentGroupBox" Grid.Row="0" Grid.Column="0" Margin="10,-15,0,0"
+                    Header="{Binding Source={DynamicResource ResourceKey=Header_Text},Path=Resource}" DockPanel.Dock="Center"
+                    VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    IsVisible="{Binding ElementName=ContentControl,Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"
+                    Style="{ThemeResource ContentGroupBoxStyle}">
+            <Control x:Name="ContentControl" Template="{DynamicResource ResourceKey=Contents_Template}"/>
+          </GroupBox>
+          <Control x:Name="AlternativeContentControl" Grid.Row="0" Grid.Column="0"
+                   VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                   Template="{DynamicResource ResourceKey=Alternative_Contents_Template}"
+                   IsVisible="{Binding RelativeSource={RelativeSource Self},Path=Template,Converter={StaticResource ReferenceToBoolConverter}}"/>
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
