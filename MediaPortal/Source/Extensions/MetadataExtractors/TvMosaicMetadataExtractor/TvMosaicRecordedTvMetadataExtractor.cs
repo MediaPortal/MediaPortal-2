@@ -111,6 +111,7 @@ namespace TvMosaicMetadataExtractor
       videoStreamAspect.SetAttribute(VideoStreamAspect.ATTR_DURATION, recordedTV.VideoInfo.Duration);
 
       DateTime startTime = recordedTV.VideoInfo.StartTime.FromUnixTime();
+      MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, startTime);
       MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_STARTTIME, startTime);
       MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, startTime.AddSeconds(recordedTV.VideoInfo.Duration));
       MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_CHANNEL, recordedTV.ChannelName);
