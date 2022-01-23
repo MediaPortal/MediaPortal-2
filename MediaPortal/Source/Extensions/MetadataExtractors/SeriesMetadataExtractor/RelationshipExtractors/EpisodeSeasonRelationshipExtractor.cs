@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,6 +42,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { EpisodeAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { SeasonAspect.ASPECT_ID };
+
+    private string _category;
+
+    public EpisodeSeasonRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
 
     public bool BuildRelationship
     {
@@ -122,7 +129,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       SeasonInfo seasonInfo = episodeInfo.CloneBasicInstance<SeasonInfo>();
 
       if (!SeriesMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateSeasonAsync(seasonInfo).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateSeasonAsync(seasonInfo, _category).ConfigureAwait(false);
 
       if (seasonInfo.SeriesName.IsEmpty)
         return false;

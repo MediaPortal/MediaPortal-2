@@ -72,6 +72,14 @@
           <fire:FirewallException Id="MP2ClientExUDPPriv" Name="MP2-Client UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
         </File>
       </Component>
+      <Component Id="Client_x64.exe" Guid="B2BE3522-BF5A-4AA9-A44E-D17C2D94781A">
+        <File Id="Client_x64.exe" Name="MP2-Client (x64).exe" KeyPath="no" Checksum="yes">
+          <fire:FirewallException Id="MP2ClientExTCPDom_x64" Name="MP2-Client (x64) TCP Domain" Profile="domain" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExTCPPriv_x64" Name="MP2-Client (x64) TCP Private" Profile="private" Protocol="tcp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExUDPDom_x64" Name="MP2-Client (x64) UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+          <fire:FirewallException Id="MP2ClientExUDPPriv_x64" Name="MP2-Client (x64) UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
+        </File>
+      </Component>
 
     </DirectoryRef>
 
@@ -82,6 +90,24 @@
                   Name="!(loc.SC_Client)"
                   Description="!(loc.SC_Client_Desc)"
                   Target="[!Client.exe]"
+                  Icon="Client"
+                  WorkingDirectory="INSTALLDIR_CLIENT" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="Client.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+      <Component Id="Client.StartMenu.Shortcut_x64" Guid="0FA9B97C-9C9E-41B1-94F0-DC00CDF4F560">
+        <Shortcut Id="Client.StartMenu.Shortcut_x64"
+                  Name="!(loc.SC_Client_x64)"
+                  Description="!(loc.SC_Client_Desc_x64)"
+                  Target="[!Client_x64.exe]"
                   Icon="Client"
                   WorkingDirectory="INSTALLDIR_CLIENT" />
         <!--
@@ -115,6 +141,24 @@
                        Value="1"
                        KeyPath="yes" />
       </Component>
+      <Component Id="Client.Desktop.Shortcut_x64" Guid="EE2BC2E2-B6ED-4F21-AFBA-0571A2AC5D0E">
+        <Shortcut Id="Client.Desktop.Shortcut_x64"
+                  Name="!(loc.SC_Client_x64)"
+                  Description="!(loc.SC_Client_Desc_x64)"
+                  Target="[!Client_x64.exe]"
+                  Icon="Client"
+                  WorkingDirectory="INSTALLDIR_CLIENT" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="Client.Desktop.Shortcut_x64"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
     </DirectoryRef>
 
     <!-- Feature -->
@@ -130,8 +174,11 @@
       <ComponentRef Id="CLIENT_LOG_FOLDER" />
 
       <ComponentRef Id="Client.exe" />
+      <ComponentRef Id="Client_x64.exe" />
       <ComponentRef Id="Client.Desktop.Shortcut" />
       <ComponentRef Id="Client.StartMenu.Shortcut" />
+      <ComponentRef Id="Client.Desktop.Shortcut_x64" />
+      <ComponentRef Id="Client.StartMenu.Shortcut_x64" />
       <ComponentRef Id="Client.Registry.InstallDir" />
 
       <ComponentGroupRef Id="Client.Heat"/>

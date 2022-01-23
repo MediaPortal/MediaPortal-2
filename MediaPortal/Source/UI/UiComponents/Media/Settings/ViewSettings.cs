@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,12 +42,13 @@ namespace MediaPortal.UiComponents.Media.Settings
     Large,
   }
 
-  public struct ScreenConfig
+  public class ScreenConfig
   {
     public string Sorting { get; set; }
     public string Grouping { get; set; }
     public LayoutType LayoutType { get; set; }
     public LayoutSize LayoutSize { get; set; }
+    public MediaDictionary<string, string> AdditionalProperties { get; set; } = new MediaDictionary<string, string>();
   }
 
   /// <summary>

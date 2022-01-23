@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">Dvalemodus</string>
   <string name="SystemState.Shutdown">Avslutt</string>
   <string name="SystemState.Suspend">Hvilemodus</string>
-  <string name="SystemState.Restart">Start på nytt</string>
   <string name="SystemState.Logoff">Logg av</string>
   <string name="SystemState.MinimizeMP">Minimer MediaPortal</string>
   <string name="SystemState.ShutdownMP">Lukk MediaPortal</string>

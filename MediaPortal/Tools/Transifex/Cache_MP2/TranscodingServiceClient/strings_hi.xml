@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.Transcode.None">कोई नहीं</string>
+  <string name="Settings.Transcode.Default">तयशुदा</string>
+
+</resources>

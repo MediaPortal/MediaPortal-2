@@ -6,4 +6,6 @@
   <string name="Menu.News">Wiadomości</string>
   <string name="Menu.Weather">Pogoda</string>
   <string name="Menu.Settings">Ustawienia</string>
+  <string name="Menu.Others">Inne</string>
+  <string name="Menu.Main">Menu główne</string>
 </resources>

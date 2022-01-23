@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,6 +45,7 @@ using MediaPortal.UI.SkinEngine.SkinManagement;
 using SharpDX;
 using SharpDX.Direct3D9;
 using Color = System.Drawing.Color;
+using NativeMethods = MediaPortal.Utilities.SystemAPI.NativeMethods;
 using Rectangle = System.Drawing.Rectangle;
 using RectangleF = SharpDX.RectangleF;
 
@@ -72,7 +73,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     public Int32 ScreenWidth;
     public Int32 ScreenHeight;
 
-    // Subtitle timestmap
+    // Subtitle timestamp
     public UInt64 TimeStamp;
 
     // How long to display subtitle
@@ -251,6 +252,10 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     /// </summary>
     public SubtitleRenderer(Action onTextureInvalidated)
     {
+      string absolutePlatformDir;
+      if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+        throw new Exception("Error adding dll probe path");
+
       _onTextureInvalidated = onTextureInvalidated;
       _subtitles = new LinkedList<Subtitle>();
       //instance.textCallBack = new TextSubtitleCallback(instance.OnTextSubtitle);
@@ -465,7 +470,8 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       IBaseFilter baseFilter = null;
       try
       {
-        _filter = FilterLoader.LoadFilterFromDll("DVBSub3.ax", CLSID_DVBSUB3, true);
+        var platform = IntPtr.Size > 4 ? "x64" : "x86";
+        _filter = FilterLoader.LoadFilterFromDll($"{platform}\\DVBSub3.ax", CLSID_DVBSUB3, true);
         baseFilter = _filter.GetFilter();
         _subFilter = baseFilter as IDVBSubtitleSource;
         ServiceRegistration.Get<ILogger>().Debug("SubtitleRenderer: CreateFilter success: " + (_filter != null) + " & " + (_subFilter != null));
@@ -496,7 +502,9 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
     public IBaseFilter AddClosedCaptionsFilter(IGraphBuilder graphBuilder)
     {
-      FilterFileWrapper ccFilter = FilterLoader.LoadFilterFromDll(CCFILTER_FILENAME, new Guid(CCFILTER_CLSID), true);
+      // ClosedCaptions filter
+      var platform = IntPtr.Size > 4 ? "x64" : "x86";
+      FilterFileWrapper ccFilter = FilterLoader.LoadFilterFromDll($"{platform}\\{CCFILTER_FILENAME}", new Guid(CCFILTER_CLSID), true);
       IBaseFilter baseFilter = ccFilter.GetFilter();
       if (baseFilter != null)
       {
@@ -579,7 +587,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       NativeSubtitle nativeSub = (NativeSubtitle)Marshal.PtrToStructure(nativeSubPtr, typeof(NativeSubtitle));
       Subtitle subtitle = new Subtitle(_device)
       {
-        SubBitmap = new Bitmap(nativeSub.Width, nativeSub.Height, PixelFormat.Format32bppArgb),
         TimeOut = nativeSub.TimeOut,
         PresentTime = ((double)nativeSub.TimeStamp / 1000.0f) + _startPos,
         Height = (uint)nativeSub.Height,
@@ -590,31 +597,28 @@ namespace MediaPortal.UI.Players.Video.Subtitles
         HorizontalPosition = nativeSub.HorizontalPosition,
         Id = _subCounter++
       };
-      CopyBits(nativeSub.Bits, ref subtitle.SubBitmap, nativeSub.Width, nativeSub.Height, nativeSub.WidthBytes);
+      CopyBits(nativeSub, subtitle);
       return subtitle;
     }
 
-    protected static void CopyBits(IntPtr srcBits, ref Bitmap destBitmap, int width, int height, int widthBytes)
+    protected static void CopyBits(NativeSubtitle nativeSubtitle, Subtitle subtitle)
     {
-      // get bits of allocated image
-      BitmapData bmData = destBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-      int newSize = bmData.Stride * height;
-      int size = widthBytes * height;
+      var bitmap = subtitle.SubBitmap = new Bitmap((int)subtitle.Width, (int)subtitle.Height, PixelFormat.Format32bppArgb);
+      BitmapData bmData = bitmap.LockBits(new Rectangle(0, 0, (int)subtitle.Width, (int)subtitle.Height), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+      int newSize = bmData.Stride * (int)subtitle.Height;
+      int size = nativeSubtitle.WidthBytes * (int)subtitle.Height;
 
       if (newSize != size)
       {
         ServiceRegistration.Get<ILogger>().Error("SubtitleRenderer: newSize != size : {0} != {1}", newSize, size);
       }
+
       // Copy to new bitmap
-      //Marshal.Copy(sub.Bits,bmData.Scan0, 0, newSize);
-      byte[] srcData = new byte[size];
-
-
-      // could be done in one copy, but no IntPtr -> IntPtr Marshal.Copy method exists?
-      Marshal.Copy(srcBits, srcData, 0, size);
-      Marshal.Copy(srcData, 0, bmData.Scan0, newSize);
-
-      destBitmap.UnlockBits(bmData);
+      unsafe
+      {
+        Buffer.MemoryCopy(nativeSubtitle.Bits.ToPointer(), bmData.Scan0.ToPointer(), newSize, size);
+      }
+      bitmap.UnlockBits(bmData);
     }
 
     #endregion
@@ -642,14 +646,13 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
             if (!string.IsNullOrWhiteSpace(currentSubtitle.Text))
             {
-              // TODO: this calculation works at the moment only in fullscreen mode. When using windowed mode, the text is off screen on bottom and not visible.
               // Calculate font size by the available target height divided by the number of teletext lines (25).
-              float fontSize = (float)Math.Floor(SkinContext.SkinResources.SkinHeight / 25f);
+              float fontSize = (float)Math.Floor(SkinContext.WindowSize.Height / 25f);
               if (_textBuffer == null)
                 _textBuffer = new TextBuffer(FontManager.DefaultFontFamily, fontSize);
               _textBuffer.Text = currentSubtitle.Text;
 
-              RectangleF rectangleF = new RectangleF(0, 0, SkinContext.SkinResources.SkinWidth, SkinContext.SkinResources.SkinHeight);
+              RectangleF rectangleF = new RectangleF(0, 0, SkinContext.WindowSize.Width, SkinContext.WindowSize.Height);
 
               HorizontalTextAlignEnum horzAlign = HorizontalTextAlignEnum.Center;
               VerticalTextAlignEnum vertAlign = VerticalTextAlignEnum.Top;
@@ -693,37 +696,6 @@ namespace MediaPortal.UI.Players.Video.Subtitles
 
         _onTextureInvalidated?.Invoke();
       }
-    }
-
-    public static Bitmap RenderText(LineContent[] lc)
-    {
-      int w = SkinContext.SkinResources.SkinWidth;
-      int h = SkinContext.SkinResources.SkinHeight;
-
-      Bitmap bmp = new Bitmap(w, h);
-
-      using (Graphics gBmp = Graphics.FromImage(bmp))
-      using (SolidBrush brush = new SolidBrush(Color.FromArgb(255, 255, 255)))
-      using (SolidBrush blackBrush = new SolidBrush(Color.FromArgb(0, 0, 0)))
-      {
-        gBmp.TextRenderingHint = System.Drawing.Text.TextRenderingHint.AntiAlias;
-        for (int i = 0; i < lc.Length; i++)
-        {
-          using (System.Drawing.Font fnt = new System.Drawing.Font("Consolas", (lc[i].doubleHeight ? 22 : 15), FontStyle.Bold)) // fixed width font!
-          {
-            int vertOffset = (h / lc.Length) * i;
-
-            SizeF size = gBmp.MeasureString(lc[i].line, fnt);
-            int horzOffset = (int)((w - size.Width) / 2); // center based on actual text width
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 1, vertOffset + 0));
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 0, vertOffset + 1));
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset - 1, vertOffset + 0));
-            gBmp.DrawString(lc[i].line, fnt, blackBrush, new PointF(horzOffset + 0, vertOffset - 1));
-            gBmp.DrawString(lc[i].line, fnt, brush, new PointF(horzOffset, vertOffset));
-          }
-        }
-      }
-      return bmp;
     }
 
     #endregion

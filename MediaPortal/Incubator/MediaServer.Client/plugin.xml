@@ -1,0 +1,89 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="MediaServer Client"
+    PluginId="{11E1CEF0-1FE2-4571-96AE-5D309FC2D3C4}"
+    Author="Henso"
+    Copyright="GPL"
+    Description="Provides Client access to MediaServer settings stored in MP2 Server"
+    AutoActivate="True">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2018-09-01 12:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/> <!-- SkinEngine -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="MediaServer.Client.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Extensions.MediaServer.Client.MediaServerClientPlugin"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="A5E439BD-6A88-4B1B-9032-0C6F1CE9DD30" Name="ClientConfigModel" ClassName="MediaPortal.Extensions.MediaServer.Client.Models.ClientConfigModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- Overview screen for all clients at the server -->
+    <WorkflowState Id="4E75F401-3C1F-46F3-BF26-F636DD0F86B9"
+        Name="ClientManagement"
+        DisplayLabel="[Settings.Clients.Config]"
+        MainScreen="ClientManagement"
+        WorkflowModel="A5E439BD-6A88-4B1B-9032-0C6F1CE9DD30"/> <!-- Client config model -->
+  </Register>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="MediaServerLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location = "/Resources/Skin">
+    <Resource Id="MediaServerSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <!-- Root configuration sections -->
+  <Register Location="/Configuration/Settings/General/Connectivity">
+    <ConfigSection
+        Id="DLNA"
+        Sort="X100"
+        Redundant="true"
+        Text="[Settings.DLNA.Title]"/>
+  </Register>
+
+  <!-- Contents of '/DLNA' section -->
+  <Register Location="/Configuration/Settings/General/Connectivity/DLNA">
+    <ConfigSetting
+        Id="AllowTranscoding"
+        RestrictionGroup="Settings"
+        Text="[Settings.DLNA.Transcoding]"
+        HelpText="[Settings.DLNA.Transcoding.Help]"
+        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.TranscodingAllowedSetting"/>
+    
+    <ConfigSetting
+        Id="AllowHardcodedSubtitles"
+        RestrictionGroup="Settings"
+        Text="[Settings.DLNA.HardcodedSubtitles]"
+        HelpText="[Settings.DLNA.HardcodedSubtitles.Help]"
+        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.HardcodedSubtitlesAllowedSetting"/>
+
+    <ConfigSetting
+        Id="ShowDLNALogin"
+        RestrictionGroup="Settings"
+        Text="[Settings.DLNA.UserLogin]"
+        HelpText="[Settings.DLNA.UserLogin.Help]"
+        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.ShowUserLoginSetting"/>
+
+    <CustomConfigSetting
+        Id="DLNAClients"
+        RestrictionGroup="Settings"
+        Text="[Settings.DLNA.Clients.Config]"
+        HelpText="[Settings.DLNA.Clients.Config.Help]"
+        ClassName="MediaPortal.Extensions.MediaServer.Client.Settings.Configuration.ClientManagementSetting"
+        AdditionalData="WorkflowState=4E75F401-3C1F-46F3-BF26-F636DD0F86B9,ConfAppPanel=..."/>
+  </Register>
+</Plugin>

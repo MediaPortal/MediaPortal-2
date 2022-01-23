@@ -1,0 +1,25 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="SubtitleDownloaderProvider"
+    PluginId="{678E18FA-E228-4B3D-8CFE-8E4BC4E2B1A7}"
+    Author = "henso, Third party: seco"
+    Copyright="GPL"
+    Description="Subtitle provider based on SubtitleDownloader"
+    AutoActivate="true">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2019-09-01 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <PluginReference PluginId="{B32504F3-4374-4640-94A1-16E1DEE84C3C}" CompatibleAPI="2"/> <!-- OnlineLibraries -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="SubtitleDownloaderProvider.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider.SubtitleDownloaderProviderPlugin"/>
+  </Runtime>
+
+</Plugin>

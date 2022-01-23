@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // Attribute gesteuert. Ändern Sie diese Attributwerte, um die Informationen zu ändern,
 // die mit einer Assembly verknüpft sind.
 [assembly: AssemblyTitle("VideoThumbnailer")]
-[assembly: AssemblyDescription("VideoThumbnailer metada extractor")]
+[assembly: AssemblyDescription("VideoThumbnailer metadata extractor")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,7 +31,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings
     /// <summary>
     /// Defines the number of rows to be visible in EPG.
     /// </summary>
-    [Setting(SettingScope.User, DefaultValue = 7)]
+    [Setting(SettingScope.User, DefaultValue = 9)]
     public int EpgNumberOfRows { get; set; }
 
     /// <summary>

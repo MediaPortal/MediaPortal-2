@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -43,6 +43,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
     /// </summary>
     public int MovieDbId = 0;
     public string NameId = null;
+    public Dictionary<string, string> CustomIds = new Dictionary<string, string>();
     /// <summary>
     /// Gets or sets the collection name.
     /// </summary>
@@ -72,6 +73,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       get
       {
         if (MovieDbId > 0)
+          return true;
+        if (CustomIds.Any())
           return true;
 
         return false;
@@ -105,6 +108,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
       if (other is MovieCollectionInfo collection)
       {
         HasChanged |= MetadataUpdater.SetOrUpdateId(ref MovieDbId, collection.MovieDbId);
+        HasChanged |= MetadataUpdater.SetOrUpdateId(ref CustomIds, collection.CustomIds);
 
         HasChanged |= MetadataUpdater.SetOrUpdateString(ref CollectionName, collection.CollectionName, overwriteShorterStrings);
 
@@ -118,6 +122,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         {
           MetadataUpdater.SetOrUpdateList(Movies, collection.Movies.Distinct().ToList(), true, overwriteShorterStrings);
         }
+
+        MergeDataProviders(collection);
         return true;
       }
       return false;
@@ -135,7 +141,6 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         return false;
 
       AssignNameId();
-      SetMetadataChanged(aspectData);
 
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_TITLE, ToString());
       MediaItemAspect.SetAttribute(aspectData, MediaAspect.ATTR_SORT_TITLE, GetSortTitle(CollectionName.Text));
@@ -145,6 +150,10 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (MovieDbId > 0) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, MovieDbId.ToString());
       if (!string.IsNullOrEmpty(NameId)) MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COLLECTION, NameId);
+      foreach (var customId in CustomIds)
+      {
+        MediaItemAspect.AddOrUpdateExternalIdentifier(aspectData, customId.Key, ExternalIdentifierAspect.TYPE_COLLECTION, customId.Value);
+      }
 
       SetThumbnailMetadata(aspectData);
 
@@ -153,6 +162,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
     public override bool FromMetadata(IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
+      bool success = false;
       GetMetadataChanged(aspectData);
 
       if (aspectData.ContainsKey(MovieCollectionAspect.ASPECT_ID))
@@ -165,16 +175,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         if (MediaItemAspect.TryGetAttribute(aspectData, MovieCollectionAspect.ATTR_NUM_MOVIES, out count))
           TotalMovies = count.Value;
 
-        string id;
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
-          MovieDbId = Convert.ToInt32(id);
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COLLECTION, out NameId);
-
         byte[] data;
         if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
           HasThumbnail = true;
 
-        return true;
+        success = true;
       }
       else if (aspectData.ContainsKey(MovieAspect.ASPECT_ID))
       {
@@ -182,12 +187,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetAttribute(aspectData, MovieAspect.ATTR_COLLECTION_NAME, out tempString);
         CollectionName = new SimpleTitle(tempString, false);
 
-        string id;
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
-          MovieDbId = Convert.ToInt32(id);
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COLLECTION, out NameId);
-
-        return true;
+        success = true;
       }
       else if (aspectData.ContainsKey(MediaAspect.ASPECT_ID))
       {
@@ -195,11 +195,15 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         MediaItemAspect.TryGetAttribute(aspectData, MediaAspect.ATTR_TITLE, out tempString);
         CollectionName = new SimpleTitle(tempString, false);
 
-        string id;
-        if (MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_TMDB, ExternalIdentifierAspect.TYPE_COLLECTION, out id))
-          MovieDbId = Convert.ToInt32(id);
-        MediaItemAspect.TryGetExternalAttribute(aspectData, ExternalIdentifierAspect.SOURCE_NAME, ExternalIdentifierAspect.TYPE_COLLECTION, out NameId);
+        byte[] data;
+        if (MediaItemAspect.TryGetAttribute(aspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, out data))
+          HasThumbnail = true;
 
+        success = true;
+      }
+
+      if (success)
+      {
         if (aspectData.ContainsKey(VideoAudioStreamAspect.ASPECT_ID))
         {
           Languages.Clear();
@@ -210,16 +214,41 @@ namespace MediaPortal.Common.MediaManagement.Helpers
             {
               string language = audioAspect.GetAttributeValue<string>(VideoAudioStreamAspect.ATTR_AUDIOLANGUAGE);
               if (!string.IsNullOrEmpty(language) && !Languages.Contains(language))
-              { 
+              {
                 Languages.Add(language);
               }
             }
           }
         }
 
-        return true;
+        CustomIds.Clear();
+        IList<MultipleMediaItemAspect> externalIdAspects;
+        if (MediaItemAspect.TryGetAspects(aspectData, ExternalIdentifierAspect.Metadata, out externalIdAspects))
+        {
+          foreach (MultipleMediaItemAspect externalId in externalIdAspects)
+          {
+            string source = externalId.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_SOURCE);
+            string id = externalId.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_ID);
+            string type = externalId.GetAttributeValue<string>(ExternalIdentifierAspect.ATTR_TYPE);
+            if (type == ExternalIdentifierAspect.TYPE_COLLECTION)
+            {
+              if (source == ExternalIdentifierAspect.SOURCE_TMDB)
+              {
+                MovieDbId = Convert.ToInt32(id);
+              }
+              else if (source == ExternalIdentifierAspect.SOURCE_NAME)
+              {
+                NameId = id;
+              }
+              else
+              {
+                CustomIds.Add(source, id);
+              }
+            }
+          }
+        }
       }
-      return false;
+      return success;
     }
 
     public override bool FromString(string name)
@@ -252,6 +281,11 @@ namespace MediaPortal.Common.MediaManagement.Helpers
 
       if (MovieDbId > 0 && other.MovieDbId > 0)
         return MovieDbId == other.MovieDbId;
+      foreach (var key in CustomIds.Keys)
+      {
+        if (other.CustomIds.ContainsKey(key))
+          return string.Equals(CustomIds[key], other.CustomIds[key], StringComparison.InvariantCultureIgnoreCase);
+      }
 
       //Name id is generated from name and can be unreliable so should only be used if matches
       if (!string.IsNullOrEmpty(NameId) && !string.IsNullOrEmpty(other.NameId) && 
@@ -272,6 +306,8 @@ namespace MediaPortal.Common.MediaManagement.Helpers
         info.MovieDbId = MovieDbId;
         info.NameId = NameId;
         info.CollectionName = CollectionName;
+        foreach (var keyVal in CustomIds)
+          info.CustomIds[keyVal.Key] = keyVal.Value;
         return (T)(object)info;
       }
       return default(T);

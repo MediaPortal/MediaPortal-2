@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,6 +32,7 @@ namespace MediaPortal.UiComponents.Login.General
     public const string KEY_NAME = "Name";
     public const string KEY_USER = "User";
     public const string KEY_SHARE = "Share";
+    public const string KEY_LANGUAGE = "Language";
     public const string KEY_PROFILE_TEMPLATE_ID = "TemplateId";
     public const string KEY_COUNTRY = "Country";
     public const string KEY_RESTRICTION_GROUP = "RestrictionGroup";

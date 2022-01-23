@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,6 +27,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor.Settings;
 using MediaPortal.Common.Localization;
+using MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor.Settings;
 
 namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
 {
@@ -63,6 +64,11 @@ namespace MediaPortal.Plugins.ServerSettings.Settings.Configuration
       settings.CacheOfflineFanArt = _selected.Contains(0);
       settings.CacheLocalFanArt = _selected.Contains(1);
       serverSettings.Save(settings);
+
+      VideoMetadataExtractorSettings videoSettings = serverSettings.Load<VideoMetadataExtractorSettings>();
+      videoSettings.CacheOfflineSeriesFanArt = settings.CacheOfflineFanArt;
+      videoSettings.CacheLocalSeriesFanArt = settings.CacheLocalFanArt;
+      serverSettings.Save(videoSettings);
     }
 
     public void Dispose()

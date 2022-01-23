@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -1839,6 +1839,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Visuals
     {
       base.SaveUIState(state, prefix);
       if (HasFocus)
+        state[prefix + "/Focused"] = true;
+      // MP2-837: If a dialog caused the screen to close it might not have a focused element,
+      // save the last focused element instead as a sensible fallback to restore focus to.
+      else if (Screen != null && Screen.FocusedElement == null && Screen.LastFocusedElement == this)
         state[prefix + "/Focused"] = true;
     }
 

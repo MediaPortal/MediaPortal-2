@@ -17,10 +17,13 @@
   <string name="Media.GenreMenuItem">Genre</string>
   <string name="Media.SizeMenuItem">Size</string>
   <string name="Media.SystemMenuItem">Sistem</string>
+  <string name="Media.ActorMenuItem">Aktör </string>
   <string name="Media.EpisodeMenuItem">Bölüm</string>
-  <string name="Media.AudioLanguageMenuItem">Language</string>
-  <string name="Media.ImageStateMenuItem">State</string>
-  <string name="Media.SeriesNameMenuItem">Dizi</string>
+  <string name="Media.AudioLanguageMenuItem">Dil</string>
+  <string name="Media.ImageCountryMenuItem">Ülke</string>
+  <string name="Media.ImageStateMenuItem">Eyalet</string>
+  <string name="Media.ImageCityMenuItem">Şehir</string>
+  <string name="Media.SeriesNameMenuItem">Diziler</string>
   <string name="Media.SimpleSearchFilterMenuItem">Ara</string>
   <!--Filter titles-->
   <string name="Media.SwitchFilterMenuItem">Filter</string>
@@ -94,10 +97,12 @@
   <string name="Media.ChooseDirectorHeader">Yönetmenler</string>
   <string name="Media.ChooseMovieHeader">Filmler</string>
   <string name="Media.ChooseWriterHeader">Yazarlar</string>
+  <string name="Media.ChooseVideoGenreHeader">Türler</string>
   <string name="Media.ChooseImageHeader">Resimler</string>
   <string name="Media.ChooseSeriesHeader">Dizi</string>
   <string name="Media.ChooseEpisodeHeader">Bölümler</string>
   <string name="Media.ChooseAudioHeader">Ses öğeleri</string>
+  <string name="Media.ChooseAudioGenreHeader">Türler</string>
   <string name="Media.ChooseVideoHeader">Videolar</string>
   <string name="Media.PlaylistsOverviewHeader">Çalma listeleri</string>
   <string name="Media.SavePlaylistEditNameHeader">Çalma listesini kaydet</string>
@@ -110,6 +115,7 @@
   <string name="Media.CannotSavePlaylistWithLocalMediaItems">Çalma listesi ancak sıraya alınan tüm medya öğelerinin yerel sunucudan seçilmiş olması durumunda mümkündür ( örneğin bağlantı sağlanmamış yerel medya seçimi durumunda çalışmaz )</string>
   <!--View occupation names-->
   <string name="Media.ArtistOccupationName">Artist</string>
+  <string name="Media.ActorOccupationName">Aktör </string>
   <!--View names (names for the view instances)-->
   <string name="Media.BrowseMediaRootViewName">Medya öğelerine gözat</string>
   <string name="Media.LocalMediaRootViewName">Yerel medya</string>
@@ -170,6 +176,7 @@
   <string name="Media.DeleteFromStorage">Depolama alanından sil</string>
   <string name="Media.ReimportMediaItem.Done">İşlem tamamlandı</string>
   <string name="Media.ReimportMediaItem.Description">Tanım</string>
+  <string name="Media.SubtitleSearch.Language">Dil</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">İçeriği çal</string>
   <string name="Media.PlayAudioItems">Ses içeriklerini çal</string>
@@ -202,7 +209,7 @@
   <string name="Media.VideoStoryPlotLabel">Konu:</string>
   <!--Person currently playing-->
   <!--Series currently playing-->
-  <string name="Media.SeriesTitleLabel">Seriler:</string>
+  <string name="Media.SeriesTitleLabel">Diziler:</string>
   <string name="Media.SeriesSeasonLabel">Sezon:</string>
   <string name="Media.SeriesEpisodeLabel">Bölüm(ler):</string>
   <string name="Media.SeriesEpisodeNameLabel">Bölüm başlığı:</string>
@@ -274,7 +281,8 @@
   <string name="Media.MediumList">Orta liste</string>
   <string name="Media.LargeList">Büyük liste</string>
   <string name="Media.LargeGrid">Izgara</string>
-  <string name="Media.CoverLayout">Kapaklar</string>
+  <string name="Media.ListSmall">Küçük</string>
+  <string name="Media.ListMedium">Orta</string>
   <string name="Media.SwitchSortingMenuItem">Sıralama</string>
   <string name="Media.SortByDate">Tarih</string>
   <string name="Media.GroupingBrowseDefault">Öntanımlı</string>
@@ -291,6 +299,4 @@
   <string name="Settings.Players.SkipStepList">Oynatıcı atlama adımları</string>
   <string name="Settings.Players.SkipStepList.Help">Atlama adım değerlerini , ile ayırarak girin</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

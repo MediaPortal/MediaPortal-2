@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -31,6 +31,10 @@ using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using System;
 using System.Net;
 using System.Net.Http;
+using System.Threading;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extractors
 {
@@ -65,6 +69,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
     protected HttpClient _httpClient;
 
     protected SettingsChangeWatcher<TSettings> _settingWatcher;
+    protected bool _settingsInited = false;
+    protected AsynchronousMessageQueue _messageQueue;
+    protected int _importerCount;
 
     #endregion
 
@@ -82,10 +89,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
       _settings = _settingWatcher.Settings;
 
       if (_settings.EnableDebugLogging)
-      {
         _debugLogger = FileLogger.CreateFileLogger(ServiceRegistration.Get<IPathManager>().GetPath(@"<LOG>\" + _name + "Debug.log"), LogLevel.Debug, false, true);
-        LogSettings();
-      }
       else
         _debugLogger = new NoLogger();
 
@@ -101,9 +105,52 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Extrac
       _httpClient = new HttpClient(handler);
       _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("gzip"));
       _httpClient.DefaultRequestHeaders.AcceptEncoding.Add(new System.Net.Http.Headers.StringWithQualityHeaderValue("deflate"));
+
+      _messageQueue = new AsynchronousMessageQueue(this, new string[]
+      {
+        ImporterWorkerMessaging.CHANNEL,
+      });
+      _messageQueue.MessageReceived += OnMessageReceived;
+      _messageQueue.Start();
     }
 
     #endregion
+
+    protected void InitSettings()
+    {
+      if (!_settingsInited)
+      {
+        _settingsInited = true;
+        if (_settings.EnableDebugLogging)
+          LogSettings();
+        LoadSettings();
+      }
+    }
+
+    protected virtual void NewImportStarting()
+    {
+
+    }
+
+    private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
+    {
+      if (message.ChannelName == ImporterWorkerMessaging.CHANNEL)
+      {
+        ImporterWorkerMessaging.MessageType messageType = (ImporterWorkerMessaging.MessageType)message.MessageType;
+        switch (messageType)
+        {
+          case ImporterWorkerMessaging.MessageType.ImportStarted:
+            if (Interlocked.Increment(ref _importerCount) == 1)
+            {
+              NewImportStarting();
+            }
+            break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            Interlocked.Decrement(ref _importerCount);
+            break;
+        }
+      }
+    }
 
     #region Virtual methods
 

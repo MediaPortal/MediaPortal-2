@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -39,6 +39,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
     public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
+      if (!IsManagedByMediaLibrary(mediaItem))
+        return Task.FromResult(false);
+
       try
       {
         if (mediaItem.PrimaryResources.Count > 0 || mediaItem.IsStub)

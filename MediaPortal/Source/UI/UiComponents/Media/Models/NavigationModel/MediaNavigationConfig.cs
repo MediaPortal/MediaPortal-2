@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -43,6 +43,11 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     /// The default screen to show if there is no saved screen hierarchy. 
     /// </summary>
     public Type DefaultScreenType { get; set; }
+
+    /// <summary>
+    /// Whether to ignore the saved screen hierarchy and always show the <see cref="DefaultScreenType"/>.
+    /// </summary>
+    public bool AlwaysUseDefaultScreen { get; set; }
 
     /// <summary>
     /// Media item id to use to apply a MediaItemIdFilter to the root media view.

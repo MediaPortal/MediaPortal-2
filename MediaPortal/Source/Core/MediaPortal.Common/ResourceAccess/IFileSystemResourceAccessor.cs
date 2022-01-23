@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -136,5 +136,14 @@ namespace MediaPortal.Common.ResourceAccess
     /// <returns>Stream opened for write operations, if supported. Else, <c>null</c> is returned.</returns>
     /// <exception cref="IllegalCallException">If this resource is not a file (see <see cref="IsFile"/>).</exception>
     Stream OpenWrite();
+
+    /// <summary>
+    /// Create and opens a stream to write file in this resource.
+    /// </summary>
+    /// <param name="file">Relative file to this resource which to create by the underlaying resource provider.</param>
+    /// <param name="overwrite">Overwrite the file if it already exists.</param>
+    /// <returns>Stream opened for write operations, if supported. Else, <c>null</c> is returned.</returns>
+    /// <exception cref="IllegalCallException">If this resource is a file (see <see cref="IsFile"/>).</exception>
+    Stream CreateOpenWrite(string file, bool overwrite);
   }
 }

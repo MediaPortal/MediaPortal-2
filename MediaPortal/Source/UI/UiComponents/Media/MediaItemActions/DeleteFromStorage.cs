@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -69,7 +69,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
     public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
-      var result = !IsRecordingItem(mediaItem) && IsResourceDeletor(mediaItem);
+      var result = !IsRecordingItem(mediaItem) && IsResourceDeletor(mediaItem) && IsManagedByMediaLibrary(mediaItem);
       return Task.FromResult(result);
     }
 

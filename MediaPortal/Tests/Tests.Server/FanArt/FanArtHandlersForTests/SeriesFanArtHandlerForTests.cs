@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -43,7 +43,7 @@ namespace Tests.Server.FanArt.FanArtHandlersForTests
     public Task TestExtractSeriesFolderFanArt(Guid mediaItemId, ResourcePath path, IList<Tuple<Guid,string>> actors = null)
     {
       IResourceLocator locator = new ResourceLocator("test", path);
-      return ExtractSeriesFolderFanArt(locator, mediaItemId, "series", actors);
+      return ExtractSeriesFolderFanArt(locator, mediaItemId, "series", null, actors);
     }
 
     public Task TestExtractSeasonFolderFanArt(Guid mediaItemId, ResourcePath path, int? seasonNumber, IList<Tuple<Guid, string>> actors = null)

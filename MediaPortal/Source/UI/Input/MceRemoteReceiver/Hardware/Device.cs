@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -113,7 +113,7 @@ namespace MediaPortal.Plugins.MceRemoteReceiver.Hardware
 
       string devicePath = null;
 
-      if (handle.ToInt32() == -1)
+      if (handle == new IntPtr(-1))
       {
         throw new Exception(string.Format("Failed in call to SetupDiGetClassDevs ({0})", GetLastError()));
       }

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,6 +29,7 @@ using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.UiComponents.Media.MediaLists;
 using MediaPortal.UiComponents.Media.Models;
 using System;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -36,9 +37,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
   {
     public SlimTvUnwatchedRecordingsMediaListProvider()
     {
+      _changeAspectId = RecordingAspect.ASPECT_ID;
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
-      //Needed for calculating play percentage
-      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID };
+      _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
       _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
     }
   }

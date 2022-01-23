@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Stopp</string>
+  <string name="AppLauncher.Settings.Title">Innstillinger</string>
+  <string name="AppLauncher.Settings.Add.Description">Beskrivelse</string>
+  <string name="AppLauncher.Settings.Add.Password">Passord</string>
+  <string name="AppLauncher.Settings.Add.Search">Søk</string>
+  <string name="AppLauncher.Settings.Add.Select">Velg</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normal</string>
+  <string name="AppLauncher.RemoveGroup">Fjern Gruppe</string>
+  <string name="AppLauncher.Delete">Slett</string>
+  <string name="AppLauncher.Menu.Clear">Klar</string>
+</resources>

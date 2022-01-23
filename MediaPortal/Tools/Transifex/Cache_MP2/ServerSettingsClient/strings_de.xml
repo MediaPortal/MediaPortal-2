@@ -17,6 +17,7 @@
   <string name="Settings.ServerSettings.SeriesMDESettings">Serien-Import Einstellungen</string>
   <string name="Settings.ServerSettings.VideoMDESettings">Video-Import Einstellungen</string>
   <string name="Settings.ServerSettings.ImageMDESettings">Bilder-Import Einstellungen</string>
+  <string name="Settings.ServerSettings.SubtitleMDESettings">Untertitel Importiereinstellungen</string>
   <string name="Settings.ServerSettings.FanArtSettings">FanArt-Einstellungen</string>
   <string name="Settings.ServerSettings.MDESettings.MDESourceEnable">Online-Quellen für Import auswählen</string>
   <string name="Settings.ServerSettings.MDESettings.MDESourceEnable.Help">Wählt die zu verwendenden Online-Quellen für den Import aus. 
@@ -72,4 +73,6 @@ Das Abwählen einzelner Quellen erhöht die Import-Geschwindigkeit, aber manche 
   <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help">Bevorzugte Sprache für online zu ladende Film-Informationen</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage">Serien-Infos - Bevorzugte Sprache</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help">Bevorzugte Sprache für online zu ladende Serien-Informationen</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage">Online Untertitel bevorzugen</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage.Help">Bevorzugte Sprache für Online Untertitel</string>
 </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,7 +45,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class SeriesMatcher<TImg, TLang> : BaseMatcher<SeriesMatch, string, TImg, TLang>, ISeriesMatcher
+  public abstract class SeriesMatcher<TImg, TLang> : BaseMediaMatcher<SeriesMatch, string, TImg, TLang>, ISeriesMatcher
   {
     public class SeriresMatcherSettings
     {
@@ -58,15 +58,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
+    protected const int MAX_CHANGES = 10000;
+    protected object _configSyncObj = new object();
+    protected List<string> _processedSeriesChanges = new List<string>();
+    protected List<string> _processedEpisodeChanges = new List<string>();
 
     #region Init
 
-    public SeriesMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
+    public SeriesMatcher(string name, string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
     {
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "SeriesMatches.xml");
       _maxCacheDuration = maxCacheDuration;
       _id = GetType().Name;
+      _name = name;
       _cacheRefreshable = cacheRefreshable;
 
       _actorMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ActorMatches.xml"));
@@ -129,6 +134,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     }
 
     public abstract Task<bool> InitWrapperAsync(bool useHttps);
+
+    public override bool Equals(object obj)
+    {
+      if (obj is SeriesMatcher<TImg, TLang> m)
+        return Id.Equals(m.Id);
+      return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return Id.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return Name;
+    }
 
     #endregion
 
@@ -246,7 +268,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    private SeriesMatch GetStroredMatch(SeriesInfo episodeSeries)
+    private SeriesMatch GetStoredMatch(SeriesInfo episodeSeries)
     {
       // Load cache or create new list
       List<SeriesMatch> matches = _storage.GetMatches();
@@ -285,7 +307,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           }
         }
 
-        SeriesMatch match = GetStroredMatch(episodeSeries);
+        SeriesMatch match = GetStoredMatch(episodeSeries);
         if (match != null)
           SetSeriesId(episodeSearch, match.Id);
 
@@ -373,7 +395,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         bool seriesMatchFound = false;
         TLang language = FindBestMatchingLanguage(episodeInfo.Languages);
 
-        if (GetSeriesId(episodeSeries, out seriesId))
+        if (GetSeriesId(episodeSeries, out seriesId) && !episodeInfo.ForceOnlineSearch)
         {
           seriesMatchFound = true;
 
@@ -390,7 +412,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         {
           altEpisodeId = seriesId + "|" + episodeInfo.SeasonNumber.Value + "|" + episodeInfo.FirstEpisodeNumber;
         }
-        if (GetSeriesEpisodeId(episodeInfo, out episodeId))
+        if (GetSeriesEpisodeId(episodeInfo, out episodeId) && !episodeInfo.ForceOnlineSearch)
         {
           // Prefer memory cache
           CheckCacheAndRefresh();
@@ -405,7 +427,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           episodeMatch = episodeInfo.Clone();
           if (string.IsNullOrEmpty(seriesId))
           {
-            SeriesMatch match = GetStroredMatch(episodeSeries);
+            SeriesMatch match = GetStoredMatch(episodeSeries);
             Logger.Debug(_id + ": Try to lookup series \"{0}\" from cache: {1}", episodeSeries, match != null && !string.IsNullOrEmpty(match.Id));
 
             if (match != null)
@@ -418,13 +440,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                return false;
+                //If item was forced, allow another search
+                if (!episodeSeries.AllowOnlineReSearch && !episodeSeries.ForceOnlineSearch)
+                  return false;
               }
             }
 
             if (seriesMatchFound)
             {
-              //If Id was found in cache the online movie info is probably also in the cache
+              //If Id was found in cache the online episode info is probably also in the cache
               if (await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeMatch, language, true).ConfigureAwait(false))
               {
                 Logger.Debug(_id + ": Found episode {0} in cache", episodeInfo.ToString());
@@ -433,19 +457,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound)
+          if (!matchFound || episodeSeries.ForceOnlineSearch)
           {
             Logger.Debug(_id + ": Search for episode {0} online", episodeInfo.ToString());
 
-            //Try to update movie information from online source if online Ids are present
+            //Try to update media information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeMatch, language, false).ConfigureAwait(false))
             {
-              //Search for the movie online and update the Ids if a match is found
-              if (await _wrapper.SearchSeriesEpisodeUniqueAndUpdateAsync(episodeMatch, language).ConfigureAwait(false))
+              //If episode had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(episodeMatch))
               {
-                //Ids were updated now try to update movie information from online source
-                if (await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeMatch, language, false).ConfigureAwait(false))
-                  matchFound = true;
+                //Search for the episode online and update the Ids if a match is found
+                if (await _wrapper.SearchSeriesEpisodeUniqueAndUpdateAsync(episodeMatch, language).ConfigureAwait(false))
+                {
+                  //Ids were updated now try to update episode information from online source
+                  if (await _wrapper.UpdateFromOnlineSeriesEpisodeAsync(episodeMatch, language, false).ConfigureAwait(false))
+                    matchFound = true;
+                }
               }
             }
             else
@@ -549,7 +577,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             {
               //Match probably stored with invalid Id to avoid retries. 
               //Searching for this series by name only failed so stop trying.
-              return false;
+              //If item was forced, allow another search
+              if (!seriesInfo.AllowOnlineReSearch && !seriesInfo.ForceOnlineSearch)
+                return false;
             }
           }
         }
@@ -567,12 +597,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           //Try to update series information from online source if online Ids are present
           if (!await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, false).ConfigureAwait(false))
           {
-            //Search for the series online and update the Ids if a match is found
-            if (await _wrapper.SearchSeriesUniqueAndUpdateAsync(seriesMatch, language).ConfigureAwait(false))
+            //If series had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+            if (!_wrapper.HasSearchableIds(seriesMatch))
             {
-              //Ids were updated now try to fetch the online series info
-              if (await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, false).ConfigureAwait(false))
-                updated = true;
+              //Search for the series online and update the Ids if a match is found
+              if (await _wrapper.SearchSeriesUniqueAndUpdateAsync(seriesMatch, language).ConfigureAwait(false))
+              {
+                //Ids were updated now try to fetch the online series info
+                if (await _wrapper.UpdateFromOnlineSeriesAsync(seriesMatch, language, false).ConfigureAwait(false))
+                  updated = true;
+              }
             }
           }
           else
@@ -719,18 +753,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             Logger.Debug(_id + ": Search for person {0} online", person.ToString());
 
-            //Try to update movie information from online source if online Ids are present
+            //Try to update person information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
             {
-              //Search for the movie online and update the Ids if a match is found
-              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
+              //If person had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(person))
               {
-                //Ids were updated now try to fetch the online movie info
-                if (await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
+                //Search for the person online and update the Ids if a match is found
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  seriesInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online person info
+                  if (await _wrapper.UpdateFromOnlineSeriesPersonAsync(seriesMatch, person, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    seriesInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -808,18 +846,22 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             Logger.Debug(_id + ": Search for character {0} online", character.ToString());
 
-            //Try to update movie information from online source if online Ids are present
+            //Try to update character information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
             {
-              //Search for the movie online and update the Ids if a match is found
-              if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
+              //If character had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(character))
               {
-                //Ids were updated now try to fetch the online movie info
-                if (await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
+                //Search for the character online and update the Ids if a match is found
+                if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  seriesInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online character info
+                  if (await _wrapper.UpdateFromOnlineSeriesCharacterAsync(seriesMatch, character, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    seriesInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -934,15 +976,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update company information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
             {
-              //Search for the company online and update the Ids if a match is found
-              if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
+              //If company had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(company))
               {
-                //Ids were updated now try to fetch the online company info
-                if (await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
+                //Search for the company online and update the Ids if a match is found
+                if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  seriesInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online company info
+                  if (await _wrapper.UpdateFromOnlineSeriesCompanyAsync(seriesMatch, company, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    seriesInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -1100,15 +1146,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update person information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
             {
-              //Search for the person online and update the Ids if a match is found
-              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
+              //If person had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(person))
               {
-                //Ids were updated now try to fetch the online person info
-                if (await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
+                //Search for the person online and update the Ids if a match is found
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  episodeInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online person info
+                  if (await _wrapper.UpdateFromOnlineSeriesEpisodePersonAsync(episodeMatch, person, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    episodeInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -1234,15 +1284,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update character information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
             {
-              //Search for the character online and update the Ids if a match is found
-              if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
+              //If character had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(character))
               {
-                //Ids were updated now try to fetch the online character info
-                if (await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
+                //Search for the character online and update the Ids if a match is found
+                if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  episodeInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online character info
+                  if (await _wrapper.UpdateFromOnlineSeriesEpisodeCharacterAsync(episodeMatch, character, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    episodeInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -1350,7 +1404,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (typeof(TLang) == typeof(string))
       {
         CultureInfo mpLocal = new CultureInfo(_preferredLanguageCulture);
-        // If we don't have movie languages available, or the MP2 setting language is available, prefer it.
+        // If we don't have media languages available, or the MP2 setting language is available, prefer it.
         if (mediaLanguages.Count == 0 || mediaLanguages.Contains(mpLocal.TwoLetterISOLanguageName))
           return (TLang)Convert.ChangeType(mpLocal.TwoLetterISOLanguageName, typeof(TLang));
 
@@ -1483,31 +1537,48 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (_wrapper != null)
             {
-              if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+              lock (_configSyncObj)
               {
-                _lastCacheRefresh = DateTime.Now;
-                _config.LastRefresh = _lastCacheRefresh.Value.ToString(dateFormat, CultureInfo.InvariantCulture);
+                if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+                {
+                  _lastCacheRefresh = DateTime.Now;
+                  _config.LastRefresh = _lastCacheRefresh.Value.ToString(dateFormat, CultureInfo.InvariantCulture);
+                }
+                SaveConfig();
               }
             }
           });
         }
-        SaveConfig();
       }
     }
 
     public List<SeriesInfo> GetLastChangedSeries()
     {
       List<SeriesInfo> series = new List<SeriesInfo>();
+      List<string> ids = new List<string>();
 
       if (!InitAsync().Result)
         return series;
 
-      foreach (string id in _config.LastUpdatedSeries)
+      lock (_configSyncObj)
       {
-        SeriesInfo s = new SeriesInfo();
-        if (SetSeriesId(s, id) && !series.Contains(s))
-          series.Add(s);
+        _processedSeriesChanges.Clear();
+        foreach (string id in _config.LastUpdatedSeries)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedSeriesChanges.Add(id);
+            SeriesInfo s = new SeriesInfo();
+            if (SetSeriesId(s, id))
+              series.Add(s);
+          }
+        }
       }
+
       return series;
     }
 
@@ -1516,23 +1587,45 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!InitAsync().Result)
         return;
 
-      _config.LastUpdatedSeries.Clear();
-      SaveConfig();
+      lock (_configSyncObj)
+      {
+        if (_processedSeriesChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedSeriesChanges)
+          _config.LastUpdatedSeries.Remove(id);
+        _processedSeriesChanges.Clear();
+        SaveConfig();
+      }
     }
 
     public List<EpisodeInfo> GetLastChangedEpisodes()
     {
       List<EpisodeInfo> episodes = new List<EpisodeInfo>();
+      List<string> ids = new List<string>();
 
       if (!InitAsync().Result)
         return episodes;
 
-      foreach (string id in _config.LastUpdatedEpisodes)
+      lock (_configSyncObj)
       {
-        EpisodeInfo e = new EpisodeInfo();
-        if (SetSeriesEpisodeId(e, id) && !episodes.Contains(e))
-          episodes.Add(e);
+        _processedEpisodeChanges.Clear();
+        foreach (string id in _config.LastUpdatedEpisodes)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedEpisodeChanges.Add(id);
+            EpisodeInfo e = new EpisodeInfo();
+            if (SetSeriesEpisodeId(e, id))
+              episodes.Add(e);
+          }
+        }
       }
+
       return episodes;
     }
 
@@ -1541,23 +1634,35 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!InitAsync().Result)
         return;
 
-      _config.LastUpdatedEpisodes.Clear();
-      SaveConfig();
+      lock (_configSyncObj)
+      {
+        if (_processedEpisodeChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedEpisodeChanges)
+          _config.LastUpdatedEpisodes.Remove(id);
+        _processedEpisodeChanges.Clear();
+        SaveConfig();
+      }
     }
 
-    private void CacheUpdateFinished(ApiWrapper<TImg, TLang>.UpdateFinishedEventArgs _event)
+    private void CacheUpdateFinished(UpdateFinishedEventArgs _event)
     {
       try
       {
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Series)
+        lock (_configSyncObj)
         {
-          _config.LastUpdatedSeries.AddRange(_event.UpdatedItems);
-          SaveConfig();
-        }
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Episode)
-        {
-          _config.LastUpdatedEpisodes.AddRange(_event.UpdatedItems);
-          SaveConfig();
+          if (_event.UpdatedItemType == UpdateType.Series)
+          {
+            _config.LastUpdatedSeries.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
+
+          if (_event.UpdatedItemType == UpdateType.Episode)
+          {
+            _config.LastUpdatedEpisodes.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
         }
       }
       catch (Exception ex)

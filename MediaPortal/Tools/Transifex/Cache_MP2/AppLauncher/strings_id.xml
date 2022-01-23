@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Berhenti</string>
+  <string name="AppLauncher.Settings.Title">Setelan</string>
+  <string name="AppLauncher.Settings.Add.Description">Deskripsi</string>
+  <string name="AppLauncher.Settings.Add.Search">Cari</string>
+  <string name="AppLauncher.Settings.Add.Select">Pilih</string>
+  <string name="AppLauncher.Settings.Add.Normal">Normal</string>
+  <string name="AppLauncher.Delete">Hapus</string>
+  <string name="AppLauncher.Menu.Clear">Jelas</string>
+</resources>

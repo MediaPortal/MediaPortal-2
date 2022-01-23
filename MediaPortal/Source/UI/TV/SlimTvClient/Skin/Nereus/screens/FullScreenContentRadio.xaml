@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    xmlns:mp_audio_viz="clr-namespace:MediaPortal.UiComponents.Media.Controls;assembly=Media"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers;assembly=SlimTv.Client"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    Context="{Model Id=D8998340-DA2D-42be-A29B-6D7A72AEA2DC}"
+    x:Name="FullscreenContentRadioScreen">
+
+  <Include Source="screens\FullscreenRadioKeybindings.inc"/>
+
+  <Grid>
+    <Grid.Background>
+      <VisualBrush x:Name="FanartVisualBrush">
+        <VisualBrush.Visual>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" Source="radio_background.jpg"/>
+          </Grid>
+        </VisualBrush.Visual>
+      </VisualBrush>
+    </Grid.Background>
+
+    <Grid.Resources>
+      <Model x:Key="ExtendedVideoSkip" Id="8573DBD8-A257-426a-9875-9DB155D32D47"/>
+      <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+      <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+      <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
+    </Grid.Resources>
+
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="18*"/>
+      <ColumnDefinition Width="30*"/>
+      <ColumnDefinition Width="52*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="350"/>
+    </Grid.RowDefinitions>
+
+    <Control Grid.RowSpan="2" Grid.ColumnSpan="3">
+      <Control.Background>
+        <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+          <GradientStop Color="{ThemeResource InfoScreenGradientColor1}" Offset="0"/>
+          <GradientStop Color="{ThemeResource InfoScreenGradientColor1}" Offset="0.6"/>
+          <GradientStop Color="{ThemeResource InfoScreenGradientColor2}" Offset="0.67"/>
+          <GradientStop Color="{ThemeResource InfoScreenGradientColor3}" Offset="1"/>
+        </LinearGradientBrush >
+      </Control.Background>
+    </Control>
+
+    <!--Playerstate overlay-->
+    <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" Grid.ColumnSpan="3" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <mp_special_controls:PlayerControl.TemplateControl>
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Image Width="250" Stretch="Uniform" Opacity="0.7" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {3} : ({1} ? {4} : ({2} ? {5} : {6}))">
+                <Binding Path="IsSeekingForward"/>
+                <Binding Path="IsSeekingBackward"/>
+                <Binding Path="IsPaused"/>
+                <Binding Source="fastforward.png"/>
+                <Binding Source="fastrewind.png"/>
+                <Binding Source="pause.png"/>
+                <Binding Source=""/>
+              </MultiBinding>
+            </Image.Source>
+          </Image>
+        </Grid>
+      </mp_special_controls:PlayerControl.TemplateControl>
+    </mp_special_controls:PlayerControl>
+
+    <Grid Grid.Row="1" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="300" Height="300" Margin="40,0,0,20" Background="{ThemeResource NereusColorMedium}">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Label x:Name="Channel" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Wrap="True" MaxHeight="75" Margin="20"
+               Content="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}" Color="{ThemeResource TextColor}"/>
+      <Image x:Name="ChannelLogo" Grid.Row="1" Margin="20" Stretch="Uniform" HorizontalAlignment="Center" VerticalAlignment="Bottom">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="ChannelRadio" fanart:FanArtType="Banner" fanart:MaxWidth="0" fanart:MaxHeight="0"
+                                      fanart:FanArtName="{Binding Source={StaticResource SlimTvClient}, Path=ChannelName}" />
+        </Image.Source>
+      </Image>
+    </Grid>
+
+    <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" Margin="60,10,20,0" 
+                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <Label x:Name="CurrentProgramTitleLabel" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" 
+             HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" 
+             Color="{ThemeResource TextColor}" Scroll="Auto"/>
+      <Label x:Name="StartTime" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+             Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}" />
+
+      <StackPanel Orientation="Horizontal">
+        <Label x:Name="RemainingDuration" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6"
+			         Color="{ThemeResource TextColor}" Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.RemainingDuration}" />
+        <Label Content=" " />
+        <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6" Color="{ThemeResource TextColor}"/>
+      </StackPanel>
+      <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Opacity="0.6"
+             Color="{ThemeResource TextColor}" Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.Genre}">
+      </Label>
+    </StackPanel>
+
+    <Label x:Name="Description" Grid.Row="1" Grid.Column="2" FontSize="{ThemeResource SmallFontSize}" 
+           Opacity="0.6" Margin="00,20,20,00" Height="150" Color="{ThemeResource TextColor}"
+           VerticalAlignment="Top" HorizontalAlignment="Stretch" Wrap="True"
+		       Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.Description}" />
+
+    <Grid x:Name="OSD_LayoutPanel" Grid.RowSpan="2" Grid.ColumnSpan="3"
+          VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="800"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="40"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="150"/>
+        <RowDefinition Height="Auto"/>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <DockPanel x:Name="OSD_RightPanel" Grid.Row="0" Grid.RowSpan="3" Grid.Column="1" Grid.ColumnSpan="2"
+                 LastChildFill="false" HorizontalAlignment="Stretch" Margin="-430,0,0,0">
+        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" DockPanel.Dock="Bottom"
+                Style="{ThemeResource PrimaryRadioOSDStyle}" IsVisible="{Binding IsOSDVisible}"
+                VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+      </DockPanel>
+
+      <Control x:Name="PiP" Grid.Column="1" Grid.Row="1" Style="{ThemeResource PipControlStyle}" IsVisible="{Binding !IsOSDVisible}"/>
+
+      <DockPanel x:Name="OSD_PiPPanel" Grid.Column="1" Grid.Row="1" LastChildFill="false" IsVisible="{Binding IsOSDVisible}" Margin="0,0,20,0">
+        <mp_special_controls:PlayerControl x:Name="SecondaryOSD" DockPanel.Dock="Right" Style="{ThemeResource SecondaryMediaOSDStyle}" AutoVisibility="true"/>
+      </DockPanel>
+
+    </Grid>
+  </Grid>
+
+</Screen>

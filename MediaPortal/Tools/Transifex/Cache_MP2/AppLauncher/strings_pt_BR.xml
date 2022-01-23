@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Parar</string>
+  <string name="AppLauncher.Settings.Title">Configurações</string>
+  <string name="AppLauncher.Settings.Add.Search">Procurar</string>
+  <string name="AppLauncher.Menu.Clear">Limpo</string>
+</resources>

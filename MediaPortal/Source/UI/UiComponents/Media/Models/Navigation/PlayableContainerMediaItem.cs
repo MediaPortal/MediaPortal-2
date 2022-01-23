@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,15 +24,17 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.General;
 using System;
+using System.Linq;
 
 namespace MediaPortal.UiComponents.Media.Models.Navigation
 {
   /// <summary>
   /// Holds a GUI item which encapsulates the basics of a playable media item.
   /// </summary>
-  public abstract class PlayableContainerMediaItem : FilterItem
+  public abstract class PlayableContainerMediaItem : FilterItem, IMediaItemListItem
   {
     public override void Update(MediaItem mediaItem)
     {
@@ -56,6 +58,20 @@ namespace MediaPortal.UiComponents.Media.Models.Navigation
 
       WatchPercentage = playPct ?? 0;
       PlayCount = playCnt ?? 0;
+
+      //Update user data
+      if (!ReferenceEquals(MediaItem, mediaItem))
+      {
+        try
+        {
+          var keys = mediaItem.UserData.Keys.ToList();
+          foreach (var key in keys)
+            MediaItem.UserData[key] = mediaItem.UserData[key];
+        }
+        catch
+        {
+        }
+      }
     }
 
     public int PlayCount

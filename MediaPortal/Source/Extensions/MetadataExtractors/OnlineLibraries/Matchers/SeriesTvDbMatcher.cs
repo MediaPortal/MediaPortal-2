@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -46,17 +46,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
   /// </summary>
   public class SeriesTvDbMatcher : SeriesMatcher<TvdbBanner, TvdbLanguage>
   {
-    #region Static instance
-
-    public static SeriesTvDbMatcher Instance
-    {
-      get { return ServiceRegistration.Get<SeriesTvDbMatcher>(); }
-    }
-
-    #endregion
-
     #region Constants
 
+    public const string NAME = "TheTVDB.com";
     public static string CACHE_PATH = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\TvDB\");
     protected static TimeSpan MAX_MEMCACHE_DURATION = TimeSpan.FromMinutes(10);
 
@@ -72,7 +64,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     #region Init
 
     public SeriesTvDbMatcher() :
-      base(CACHE_PATH, MAX_MEMCACHE_DURATION, true)
+      base(NAME, CACHE_PATH, MAX_MEMCACHE_DURATION, true)
     {
     }
 
@@ -80,7 +72,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       try
       {
-        TvDbWrapper wrapper = new TvDbWrapper();
+        TvDbWrapper wrapper = new TvDbWrapper(NAME);
         // Try to lookup online content in the configured language
         CultureInfo mpLocal = new CultureInfo(PreferredLanguageCulture);
         if (await wrapper.InitAsync(CACHE_PATH, useHttps).ConfigureAwait(false))

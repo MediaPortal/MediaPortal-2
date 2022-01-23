@@ -17,7 +17,7 @@ namespace MediaPortal.UiComponents.Media.Extensions
   public interface IMediaViewAction
   {
     /// <summary>
-    /// Checks if this action is available for the given <paramref name="MediaView"/>.
+    /// Checks if this action is available for the given <paramref name="view"/>.
     /// </summary>
     /// <param name="view">View</param>
     /// <returns><c>true</c> if available</returns>

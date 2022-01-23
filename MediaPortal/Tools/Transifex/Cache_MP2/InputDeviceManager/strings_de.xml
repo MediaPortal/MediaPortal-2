@@ -3,7 +3,9 @@
   <string name="Settings.InputDeviceManager.Section">Eingabegeräte</string>
   <string name="Settings.InputDeviceManager.EnterKeyConfig">Tasten-Funktionen</string>
   <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Hier lassen sich Tasten des Eingabegerätes verschiedenen MediaPortal-Funktionen zuweisen. So könnte man z. B. den Tasten \'+\' und \'-\' auf der Tastatur die Funktionen \"Vol +\" bzw. \"Vol -\" zuordnen, falls die Tastatur keine eigenen Lautstärke-Tasten besitzt. </string>
-  <string name="Settings.InputDeviceManager.EnterScreenConfig">Setup-Shortcuts</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfig">Shortcuts für Aktionen</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfigHelp">Diese ermöglicht globale MediaPortal Aktionen Tasten / Knöpfen ihrer Eingabegeräte für den Schnellzugriff zuzuweisen</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Konfiguriere Shortcuts</string>
   <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Hier können Tasten des Eingabegerätes einem beliebigen Setup-Screen als Schnellzugriff zugewiesen werden. </string>
   <string name="Settings.InputDeviceManager.EnterScreenHome">Screen-Shortcuts</string>
   <string name="Settings.InputDeviceManager.EnterScreenHomeHelp">Hier können Tasten des Eingabegerätes einem beliebigen MediaPortal-Screen als Schnellzugriff zugewiesen werden. Zum Beispiel könnte \'F2\' auf der Tastatur als Aufruf für den News-Screen definiert werden. </string>
@@ -14,6 +16,7 @@
   <string name="InputDeviceManager.AddKey.Header">Bitte die gewünschte Tastenkombination auf dem Eingabegerät drücken. </string>
   <string name="InputDeviceManager.Screen">Screen</string>
   <string name="InputDeviceManager.Key">Taste</string>
+  <string name="InputDeviceManager.Action">Action</string>
 
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Löschen</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Zuordnung aufheben?</string>

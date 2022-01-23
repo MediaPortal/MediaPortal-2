@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -39,6 +39,9 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common.FanArt;
+using MediaPortal.Common.Services.ResourceAccess;
+using MediaPortal.Common.SystemResolver;
 
 namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 {
@@ -60,6 +63,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
     public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
+    public const string MEDIA_CATEGORY_NAME_VIDEO = "Video";
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
@@ -73,6 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     protected AsynchronousMessageQueue _messageQueue;
     protected int _importerCount;
     protected SettingsChangeWatcher<SeriesMetadataExtractorSettings> _settingWatcher;
+    protected string _category;
 
     #endregion
 
@@ -85,6 +90,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_SERIES, out seriesCategory))
         seriesCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_SERIES, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(seriesCategory);
+      OnlineMatcherService.RegisterDefaultSeriesMatchers(MEDIA_CATEGORY_NAME_SERIES);
+      OnlineMatcherService.RegisterDefaultSeriesSubtitleMatchers(MEDIA_CATEGORY_NAME_SERIES);
 
       // All non-default media item aspects must be registered
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -98,6 +105,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
     public SeriesMetadataExtractor()
     {
+      _category = MEDIA_CATEGORY_NAME_SERIES;
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Series metadata extractor", MetadataExtractorPriority.External, true,
           MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
@@ -118,9 +126,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       LoadSettings();
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       _messageQueue.Shutdown();
+      _settingWatcher.Dispose();
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -137,6 +146,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               if (ServiceRegistration.Get<IMediaAccessor>().LocalFanArtHandlers.TryGetValue(SeriesFanArtHandler.FANARTHANDLER_ID, out fanartHandler))
                 fanartHandler.ClearCache();
             }
+            break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            Interlocked.Decrement(ref _importerCount);
             break;
         }
       }
@@ -197,6 +209,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
 
       EpisodeInfo episodeInfo = new EpisodeInfo();
       episodeInfo.FromMetadata(extractedAspectData);
+      if (!extractedAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
+        episodeInfo.AllowOnlineReSearch = true;
+      episodeInfo.ForceOnlineSearch = episodeInfo.IsDirty;
 
       if (!isReimport) //Ignore file based information for reimports because they might be the cause of the wrong match
       {
@@ -238,7 +253,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (string.IsNullOrEmpty(episodeInfo.SeriesAlternateName))
         {
           var mediaItemPath = lfsra.CanonicalLocalResourcePath;
-          var seriesMediaItemDirectoryPath = ResourcePathHelper.Combine(mediaItemPath, "../../");
+          var seriesMediaItemDirectoryPath = GetSeriesFolderFromEpisodePath(extractedAspectData, mediaItemPath, episodeInfo.SeasonNumber);
           episodeInfo.SeriesAlternateName = seriesMediaItemDirectoryPath.FileName;
         }
       }
@@ -260,13 +275,21 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         EpisodeInfo tempInfo = episodeInfo.Clone();
-        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(tempInfo).ConfigureAwait(false);
-        episodeInfo.CopyIdsFrom(tempInfo);
-        episodeInfo.HasChanged = tempInfo.HasChanged;
+        if (await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(tempInfo, _category).ConfigureAwait(false))
+        {
+          episodeInfo.CopyIdsFrom(tempInfo);
+          episodeInfo.HasChanged = tempInfo.HasChanged;
+        }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Unable to get online ids for resource '{0}'", lfsra.CanonicalLocalResourcePath);
+        }
       }
       else if (!SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
+        var success = await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, _category).ConfigureAwait(false);
+        if (!success)
+          ServiceRegistration.Get<ILogger>().Info("SeriesMetadataExtractor: Unable to get online data for resource '{0}'", lfsra.CanonicalLocalResourcePath);
       }
 
       if (episodeInfo.EpisodeName.IsEmpty)
@@ -283,7 +306,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       {
         if (!episodeInfo.SeriesName.IsEmpty && episodeInfo.SeasonNumber.HasValue && episodeInfo.DvdEpisodeNumbers.Any())
           episodeInfo.EpisodeNameSort = $"{episodeInfo.SeriesName.Text} S{episodeInfo.SeasonNumber.Value.ToString("00")}E{episodeInfo.DvdEpisodeNumbers.First().ToString("000.000")}";
-        if (!episodeInfo.SeriesName.IsEmpty && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Any())
+        else if (!episodeInfo.SeriesName.IsEmpty && episodeInfo.SeasonNumber.HasValue && episodeInfo.EpisodeNumbers.Any())
           episodeInfo.EpisodeNameSort = $"{episodeInfo.SeriesName.Text} S{episodeInfo.SeasonNumber.Value.ToString("00")}E{episodeInfo.EpisodeNumbers.First().ToString("000")}";
         else if (!episodeInfo.EpisodeName.IsEmpty)
           episodeInfo.EpisodeNameSort = BaseInfo.GetSortTitle(episodeInfo.EpisodeName.Text);
@@ -302,7 +325,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
       get { return _metadata; }
     }
 
-    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -343,13 +366,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
     {
       try
       {
-        if (!(searchCategories?.Contains(MEDIA_CATEGORY_NAME_SERIES) ?? true))
+        if (!(searchCategories?.Intersect(new[] { MEDIA_CATEGORY_NAME_SERIES, MEDIA_CATEGORY_NAME_VIDEO }).Any() ?? true))
           return null;
 
         string searchData = null;
         var reimportAspect = MediaItemAspect.GetAspect(searchAspectData, ReimportAspect.Metadata);
         if (reimportAspect != null)
           searchData = reimportAspect.GetAttributeValue<string>(ReimportAspect.ATTR_SEARCH);
+        if (string.IsNullOrEmpty(searchData) && !searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID) && !searchAspectData.ContainsKey(SeriesAspect.ASPECT_ID))
+          return null;
 
         ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Search aspects to use: '{0}'", string.Join(",", searchAspectData.Keys));
 
@@ -439,7 +464,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         if (episodeSearchinfo != null)
         {
           List<int> epNos = new List<int>(episodeSearchinfo.EpisodeNumbers.OrderBy(e => e));
-          var matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo).ConfigureAwait(false);
+          var matches = await OnlineMatcherService.Instance.FindMatchingEpisodesAsync(episodeSearchinfo, _category).ConfigureAwait(false);
           ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Episode search returned {0} matches", matches.Count());
           if (epNos.Count > 1)
           {
@@ -496,6 +521,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
                 $" S{(match.SeasonNumber.HasValue ? match.SeasonNumber.Value.ToString("00") : "??")}{(match.EpisodeNumbers.Count > 0 ? string.Join("", match.EpisodeNumbers.Select(e => "E" + e.ToString("00"))) : "E??")}" +
                 $"{(match.EpisodeName.IsEmpty ? "" : $": {match.EpisodeName.Text}")}",
               Description = match.Summary.IsEmpty ? "" : match.Summary.Text,
+              Language = string.Join(", ", match.Languages),
+              MatchPercentage = 100,
+              Providers = new List<string>(match.DataProviders),
             };
 
             //Add external Ids
@@ -505,6 +533,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               result.ExternalIds.Add("imdb.com", match.ImdbId);
             if (match.MovieDbId > 0)
               result.ExternalIds.Add("themoviedb.org", match.MovieDbId.ToString());
+            foreach (var customId in match.CustomIds)
+              result.ExternalIds.Add(customId.Key, customId.Value);
 
             //Assign aspects and remove unwanted aspects
             match.SetMetadata(result.AspectData, true);
@@ -516,7 +546,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         }
         else if (seriesSearchinfo != null)
         {
-          var matches = await OnlineMatcherService.Instance.FindMatchingSeriesAsync(seriesSearchinfo).ConfigureAwait(false);
+          var matches = await OnlineMatcherService.Instance.FindMatchingSeriesAsync(seriesSearchinfo, _category).ConfigureAwait(false);
           ServiceRegistration.Get<ILogger>().Debug("SeriesMetadataExtractor: Series search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
@@ -524,6 +554,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
             {
               Name = $"{match.SeriesName}{(match.FirstAired == null || match.SeriesName.Text.EndsWith($"({match.FirstAired.Value.Year})") ? "" : $" ({match.FirstAired.Value.Year})")}",
               Description = match.Description.IsEmpty ? "" : match.Description.Text,
+              Language = string.Join(", ", match.Languages),
+              MatchPercentage = 100,
+              Providers = new List<string>(match.DataProviders),
             };
 
             //Add external Ids
@@ -533,6 +566,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
               result.ExternalIds.Add("imdb.com", match.ImdbId);
             if (match.MovieDbId > 0)
               result.ExternalIds.Add("themoviedb.org", match.MovieDbId.ToString());
+            foreach (var customId in match.CustomIds)
+              result.ExternalIds.Add(customId.Key, customId.Value);
 
             //Assign aspects and remove unwanted aspects
             match.SetMetadata(result.AspectData, true);
@@ -577,7 +612,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         {
           EpisodeInfo info = new EpisodeInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(info).ConfigureAwait(false);
+          await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(info, _category).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;
@@ -586,7 +621,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         {
           SeriesInfo info = new SeriesInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.UpdateSeriesAsync(info, false).ConfigureAwait(false);
+          await OnlineMatcherService.Instance.UpdateSeriesAsync(info, false, _category).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;
@@ -605,6 +640,27 @@ namespace MediaPortal.Extensions.MetadataExtractors.SeriesMetadataExtractor
         SeriesAspect.ASPECT_ID, EpisodeAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID, GenreAspect.ASPECT_ID };
       foreach (var aspect in aspectData.Where(a => !reimportAspects.Contains(a.Key)).ToList())
         aspectData.Remove(aspect.Key);
+    }
+
+    private ResourcePath GetSeriesFolderFromEpisodePath(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, ResourcePath episodePath, int? knownSeasonNo)
+    {
+      var system = ServiceRegistration.Get<ISystemResolver>();
+
+      //Check series folder with season folders
+      var seriesDirectoryPath = ResourcePathHelper.Combine(episodePath, "../../");
+      using (var seriesRa = new ResourceLocator(system.LocalSystemId, seriesDirectoryPath).CreateAccessor())
+      {
+        if (LocalFanartHelper.IsSeriesFolder(seriesRa as IFileSystemResourceAccessor, knownSeasonNo))
+          return seriesDirectoryPath;
+      }
+
+      //Presume there are no season folders
+      return ResourcePathHelper.Combine(episodePath, "../");
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

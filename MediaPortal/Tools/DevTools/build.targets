@@ -9,9 +9,9 @@
     <ItemGroup>
       <BaseFiles Include="$(SolutionDir)Base\DevTools\**\*.*" />
     </ItemGroup>
-  
-      <Copy SourceFiles="@(BaseFiles)"
-          DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <Copy SourceFiles="@(BaseFiles)"
+        DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <ItemGroup>
       <CleanupFiles Include="$(AppDestination)*.pdb" />

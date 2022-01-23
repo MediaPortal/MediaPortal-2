@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!--Client Settings-->
+  <string name="Settings.DLNA.Title">DLNA</string> <!-- Section name -->
+  <string name="Settings.DLNA.Clients.Config">Client Setup</string> <!-- Group name -->
+  <string name="Settings.DLNA.Clients.Config.Help">Manage DLNA Clients auf dem Home Server</string>
+  <string name="Settings.DLNA.Clients.Config.Clients">Clients</string> 
+  <string name="Settings.DLNA.Clients.Config.ClientName">Name</string>
+  <string name="Settings.DLNA.Clients.Config.Profile">Profil</string>
+  <string name="Settings.DLNA.Clients.Config.DefaultUser">Standarduser</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteClient">Lösche Client</string>
+  <string name="Settings.DLNA.Clients.Config.SaveClients">Speichere alle Clients</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation.Title">Löschen bestätigen</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation">Sind Sie sicher den ausgewählten Client zu löschen?</string>
+  <string name="Settings.DLNA.Clients.Config.Yes">Ja</string>
+  <string name="Settings.DLNA.Clients.Config.No">Nein</string>
+  <string name="Settings.DLNA.Clients.Config.SelectProfile">Wählt Clientprofil aus</string>
+  <string name="Settings.DLNA.Clients.Config.SelectUser">Wähle Client Standarduser aus</string>
+  <string name="Settings.DLNA.Clients.NoConfigHomeServerNotConnected">Der Home Server ist momentan nicht verbunden, deswegen könnten DLNA Clients im moment nicht kontrolliert werden.</string>
+  <string name="Settings.DLNA.Clients.Config.NoUser">Kein</string>
+  <string name="Settings.DLNA.Clients.Config.AutoProfile">Automatisch</string>
+  
+  <string name="Settings.DLNA.HardcodedSubtitles">Erlaube hardcodierte Untertitel</string> <!-- Setting -->
+  <string name="Settings.DLNA.HardcodedSubtitles.Help">Sollen hardkodierte Untertitel möglich sein, wenn der Client keine Untertitel unterstützt</string>
+  <string name="Settings.DLNA.UserLogin">Zeige Benutzer-Login</string> <!-- Setting -->
+  <string name="Settings.DLNA.UserLogin.Help">Zeige Liste der Nutzer für Login Unterstützung durch den Client</string>
+  <string name="Settings.DLNA.Transcoding">Erlaube Transkodierung</string> <!-- Setting -->
+  <string name="Settings.DLNA.Transcoding.Help">Soll die Transkodierung von Medien erlaubt sein, wenn die Medien nicht vom Client unterstützt werden</string>
+
+</resources>

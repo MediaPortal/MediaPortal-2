@@ -11,7 +11,7 @@
     PluginVersion="1.0.1"
     ReleaseDate="2016-12-20 01:00:00 GMT+01:00"
     MinCompatibleAPI="1"
-    CurrentAPI="4"/>
+    CurrentAPI="5"/>
 
   <DependsOn>
     <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
@@ -19,7 +19,7 @@
     <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/> <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/> <!-- Configuration plugin -->
-    <PluginReference PluginId="{94B90D7C-EF2E-466C-9FDE-E9F57472761A}" CompatibleAPI="1"/> <!-- FreeImageLib -->
+    <!--<PluginReference PluginId="{94B90D7C-EF2E-466C-9FDE-E9F57472761A}" CompatibleAPI="1"/> --><!-- FreeImageLib -->
   </DependsOn>
 
   <Runtime>

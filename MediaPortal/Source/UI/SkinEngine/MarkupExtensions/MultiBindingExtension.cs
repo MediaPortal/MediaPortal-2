@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -424,7 +424,7 @@ namespace MediaPortal.UI.SkinEngine.MarkupExtensions
             return true; // In this case, we have finished with only assigning the value
           default: // Mode == BindingMode.OneWay || Mode == BindingMode.Default
             _bindingDependency = new BindingDependency(sourceDd, _targetDataDescriptor, true,
-                UpdateSourceTrigger.Explicit, null, null, null);
+                UpdateSourceTrigger.Explicit, null, null, null, false, false);
             _valueAssigned = true;
             break;
         }

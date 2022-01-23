@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.InputDevice.Section">Périphériques d\'Entrés</string>
+  
+  <string name="Settings.WifiRemote.Title">Wifi Remote</string> <!-- Section name -->
+  <string name="Settings.WifiRemote.AuthMode.None">Aucune authentification</string>
+  <string name="Settings.WifiRemote.AuthMode.UserPassword">Nom d\'utilisateur et mot de passe</string>
+  <string name="Settings.WifiRemote.AuthMode.Passcode">Passcode</string> 
+  <string name="Settings.WifiRemote.AuthMode.Both">Nom d\'utilisateur et mot de passe ou Passcode</string>
+
+  <string name="Settings.WifiRemote.AuthenticationMethod">Méthode d’authentification </string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AuthenticationMethod.Help">Méthode d\'authentification autorisé lors de la connexion d\'une télécommande. </string>
+  <string name="Settings.WifiRemote.Passcode">Passcode d\'authentification</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Passcode.Help">Passcode pour une authentification par passcode.</string>
+  <string name="Settings.WifiRemote.AutoLoginTimeout">Délai d’authentification </string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AutoLoginTimeout.Help">Durée en minutes, après quoi le client doit se ré-authentifier. </string>
+  <string name="Settings.WifiRemote.EnableBonjour">Disponibilité des services Broadcast (Bonjour, ZeroConf)</string> <string name="Settings.WifiRemote.Port">Port utlisée</string> </resources>

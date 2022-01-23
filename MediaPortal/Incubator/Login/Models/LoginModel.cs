@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,7 +42,7 @@ using MediaPortal.Common.Runtime;
 using MediaPortal.UI.Control.InputManager;
 using MediaPortal.UI.Presentation.Players;
 using MediaPortal.Common.Localization;
-using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.SystemResolver.Settings;
 using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserManagement;
@@ -245,15 +245,15 @@ namespace MediaPortal.UiComponents.Login.Models
 
     public void ConfirmPassword()
     {
-      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userManagement.UserProfileDataManagement == null)
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>(false);
+      if (userManagement?.UserProfileDataManagement == null)
         return;
 
       var result = userManagement.UserProfileDataManagement.GetProfileAsync(_passwordUser).Result;
       if (!result.Success)
         return;
       UserProfile userProfile = result.Result;
-      if (Utils.VerifyPassword(UserPassword, userProfile.Password))
+      if (UserProfile.VerifyPassword(UserPassword, userProfile.Password))
       {
         IsPasswordIncorrect = false;
         ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
@@ -364,7 +364,10 @@ namespace MediaPortal.UiComponents.Login.Models
             }
             else if (newState == SystemState.Suspending || newState == SystemState.Hibernating)
             {
-              LogoutUser();
+              if ((UserSettingStorage.AutoLoginUser == Guid.Empty || UserSettingStorage.AutoLoginUser != CurrentUser?.ProfileId) && UserSettingStorage.UserLoginEnabled)
+              {
+                LogoutUser();
+              }
             }
             else if (newState == SystemState.ShuttingDown)
             {
@@ -379,7 +382,8 @@ namespace MediaPortal.UiComponents.Login.Models
         switch (messageType)
         {
           case ServerConnectionMessaging.MessageType.HomeServerConnected:
-            _ = SetCurrentUser();
+            if (_firstLogin)
+              _ = SetCurrentUser(); //Auto login user on first connect
             _ = RefreshUserList();
             break;
         }
@@ -389,12 +393,13 @@ namespace MediaPortal.UiComponents.Login.Models
     private async Task SetCurrentUser(UserProfile userProfile = null)
     {
       bool refreshHome = false;
-      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>();
+      ILogger logger = ServiceRegistration.Get<ILogger>(false);
+      IUserManagement userProfileDataManagement = ServiceRegistration.Get<IUserManagement>(false);
       if (userProfile == null)
       {
         if (UserSettingStorage.AutoLoginUser != Guid.Empty && _firstLogin)
         {
-          if (userProfileDataManagement.UserProfileDataManagement != null)
+          if (userProfileDataManagement?.UserProfileDataManagement != null)
           {
             var result = await userProfileDataManagement.UserProfileDataManagement.GetProfileAsync(UserSettingStorage.AutoLoginUser);
             if (result.Success)
@@ -405,22 +410,28 @@ namespace MediaPortal.UiComponents.Login.Models
             }
           }
         }
-        if (userProfile == null)
+        if (userProfileDataManagement != null && userProfile == null)
         {
           // Init with system default
           userProfileDataManagement.CurrentUser = null;
           userProfile = userProfileDataManagement.CurrentUser;
         }
       }
-      else
+      else if (userProfileDataManagement != null)
       {
         userProfileDataManagement.CurrentUser = userProfile;
       }
+
       CurrentUserProperty.SetValue(userProfile);
 
-      if (userProfile != UserManagement.UNKNOWN_USER)
+      if (userProfile == null)
+        logger?.Debug("Login: User logged out");
+      else
+        logger?.Debug($"Login: User {userProfile.Name} ({userProfile.ProfileId}) logged in");
+
+      if (userProfile != null && userProfile != UserManagement.UNKNOWN_USER)
       {
-        if (userProfileDataManagement.UserProfileDataManagement != null)
+        if (userProfileDataManagement?.UserProfileDataManagement != null)
           await userProfileDataManagement.UserProfileDataManagement.LoginProfileAsync(userProfile.ProfileId);
         _lastActivity = DateTime.Now;
         IsUserLoggedIn = !userProfile.Name.Equals(System.Windows.Forms.SystemInformation.ComputerName, StringComparison.InvariantCultureIgnoreCase) ||
@@ -443,8 +454,8 @@ namespace MediaPortal.UiComponents.Login.Models
       _loginUserList.Clear();
       _autoLoginUserList.Clear();
 
-      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userManagement.UserProfileDataManagement == null)
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>(false);
+      if (userManagement?.UserProfileDataManagement == null)
         return;
 
       // Get our local client profile, it will be available for local login
@@ -484,15 +495,15 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private async Task LoginUser(Guid profileId, string password)
     {
-      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
-      if (userManagement.UserProfileDataManagement == null)
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>(false);
+      if (userManagement?.UserProfileDataManagement == null)
         return;
       var result = await userManagement.UserProfileDataManagement.GetProfileAsync(profileId);
       if (!result.Success)
         return;
       UserProfile userProfile = result.Result;
 
-      if (string.IsNullOrEmpty(userProfile.Password) || Utils.VerifyPassword(password, userProfile.Password))
+      if (string.IsNullOrEmpty(userProfile.Password) || UserProfile.VerifyPassword(password, userProfile.Password))
       {
         await SetCurrentUser(userProfile);
         await userManagement.UserProfileDataManagement.LoginProfileAsync(profileId);
@@ -502,13 +513,13 @@ namespace MediaPortal.UiComponents.Login.Models
 
     private async Task SetAutoLoginUser(Guid profileId, string password)
     {
-      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>(false);
       UserProfile userProfile = null;
       UserProxy listUser;
-      if (profileId != Guid.Empty && userManagement.UserProfileDataManagement != null)
+      if (profileId != Guid.Empty && userManagement?.UserProfileDataManagement != null)
       {
         var result = await userManagement.UserProfileDataManagement.GetProfileAsync(profileId);
-        if (result.Success && Utils.VerifyPassword(password, result.Result.Password))
+        if (result.Success && UserProfile.VerifyPassword(password, result.Result.Password))
           userProfile = result.Result;
       }
 

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -157,6 +157,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
               track.Album = release.Title;
               track.AlbumBarcode = release.Barcode;
               track.Country = release.Country;
+              track.ReleaseDate = release.Date;
               track.AlbumHasCover = release.CoverArt != null && release.CoverArt.Front;
               track.Artists = new List<string>();
               foreach (TrackArtistCredit artistCredit in Artists)
@@ -187,6 +188,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.MusicBrainzV2.Data
             track.Album = release.Title;
             track.AlbumBarcode = release.Barcode;
             track.Country = release.Country;
+            track.ReleaseDate = release.Date;
             track.AlbumHasCover = release.CoverArt != null && release.CoverArt.Front;
             track.Artists = new List<string>();
             foreach (TrackArtistCredit artistCredit in Artists)

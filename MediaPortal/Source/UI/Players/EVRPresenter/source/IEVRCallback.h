@@ -16,8 +16,10 @@
 // You should have received a copy of the GNU General Public License
 // along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
 
+#include "d3d9.h"
+
 DECLARE_INTERFACE_(IEVRCallback, IUnknown)
 {
-  STDMETHOD(PresentSurface)(THIS_ WORD cx, WORD cy, WORD arx, WORD ary, DWORD dwImg)PURE;
+  STDMETHOD(PresentSurface)(THIS_ WORD cx, WORD cy, WORD arx, WORD ary, IDirect3DTexture9** dwImg)PURE;
 };
 

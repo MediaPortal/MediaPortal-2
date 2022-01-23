@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">Audio</string>
+  <string name="MediaServer.GenreContainter">Žánry</string>
+  <string name="MediaServer.ShareContainter">Sdílené složky</string>
+  <string name="MediaServer.ImageContainter">obrázků</string>
+  <string name="MediaServer.MovieContainter">Filmy</string>
+  <string name="MediaServer.ActorContainter">Hrají</string>
+  <string name="MediaServer.SeriesContainter">Seriály</string>
+  <string name="MediaServer.TV">Televize</string>
+  </resources>

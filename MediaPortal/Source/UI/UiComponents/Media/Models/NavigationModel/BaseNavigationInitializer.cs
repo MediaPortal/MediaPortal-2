@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,6 +40,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.UiComponents.Media.Helpers;
 
 namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 {
@@ -69,6 +70,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
     protected Guid? _rootRole = null;
     protected IFilterTree _customFilterTree = null;
     protected FixedItemStateTracker _tracker;
+    protected bool _applyUserFilter = true;
 
     #endregion
 
@@ -118,10 +120,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       PrepareAsync().Wait();
 
       IFilterTree filterTree = _customFilterTree ?? (_rootRole.HasValue ? new RelationshipFilterTree(_rootRole.Value) : (IFilterTree)new SimpleFilterTree());
-      filterTree.AddFilter(_filter);
+      if (_filter != null)
+        filterTree.AddFilter(_filter);
 
       //Default configuration
       string viewName = _viewName;
+
+      AbstractScreenData nextScreen = null;
 
       //Apply any custom configuration
       if (config != null)
@@ -140,7 +145,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
           //Use the configured default screen if there is no saved screen hierarchy
           AbstractScreenData configDefault = config.DefaultScreenType != null ? _availableScreens.FirstOrDefault(s => s.GetType() == config.DefaultScreenType) : null;
           if (configDefault != null)
+          {
             _defaultScreen = configDefault;
+            // If we want to force the default screen to be shown, set the next screen
+            // here to avoid loading it from the screen hierarchy below.
+            if (config.AlwaysUseDefaultScreen)
+              nextScreen = configDefault;
+          }
         }
 
         //Apply any additional filters
@@ -154,11 +165,8 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       if (_optionalMias != null)
         optionalMIATypeIDs = optionalMIATypeIDs.Union(_optionalMias).Except(_necessaryMias);
 
-      string nextScreenName;
-      AbstractScreenData nextScreen = null;
-
-      // Try to load the prefered next screen from settings.
-      if (NavigationData.LoadScreenHierarchy(viewName, out nextScreenName))
+      // Try to load the prefered next screen from settings if not already set.
+      if (nextScreen == null && NavigationData.LoadScreenHierarchy(viewName, out string nextScreenName))
       {
         // Support for browsing mode.
         if (nextScreenName == Consts.USE_BROWSE_MODE)
@@ -166,6 +174,13 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
 
         if (_availableScreens != null)
           nextScreen = _availableScreens.FirstOrDefault(s => s.GetType().ToString() == nextScreenName);
+      }
+
+      if (_applyUserFilter)
+      {
+        var userFilter = UserHelper.GetUserRestrictionFilter(_necessaryMias.ToList());
+        if (userFilter != null)
+          filterTree.AddFilter(userFilter);
       }
 
       // Prefer custom view specification.
@@ -183,25 +198,37 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       if (nextScreen == null)
         nextScreen = _defaultScreen;
 
-      ScreenConfig nextScreenConfig;
-      NavigationData.LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig);
+      Sorting.Sorting nextSortingMode =  _defaultSorting;
+      Sorting.Sorting nextGroupingMode =  _defaultGrouping;
+      LayoutType nextLayoutType = LayoutType.GridLayout;
+      LayoutSize nextLayoutSize = LayoutSize.Large;
+      MediaDictionary<string, string> nextProperties = new MediaDictionary<string, string>();
 
-      Sorting.Sorting nextSortingMode = _availableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting) ?? _defaultSorting;
-      Sorting.Sorting nextGroupingMode = _availableGroupings == null || String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : _availableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping) ?? _defaultGrouping;
+      ScreenConfig nextScreenConfig;
+      if (NavigationData.LoadLayoutSettings(nextScreen.GetType().ToString(), out nextScreenConfig) && nextScreenConfig != null)
+      {
+        nextSortingMode = _availableSortings.FirstOrDefault(sorting => sorting.GetType().ToString() == nextScreenConfig.Sorting) ?? _defaultSorting;
+        nextGroupingMode = _availableGroupings == null || String.IsNullOrEmpty(nextScreenConfig.Grouping) ? null : _availableGroupings.FirstOrDefault(grouping => grouping.GetType().ToString() == nextScreenConfig.Grouping) ?? _defaultGrouping;
+
+        nextLayoutType = nextScreenConfig.LayoutType;
+        nextLayoutSize = nextScreenConfig.LayoutSize;
+        nextProperties = nextScreenConfig.AdditionalProperties;
+      }
 
       navigationData = new NavigationData(null, viewName, MediaNavigationRootState,
         MediaNavigationRootState, rootViewSpecification, nextScreen, _availableScreens, nextSortingMode, nextGroupingMode)
       {
         AvailableSortings = _availableSortings,
         AvailableGroupings = _availableGroupings,
-        LayoutType = nextScreenConfig.LayoutType,
-        LayoutSize = nextScreenConfig.LayoutSize
+        LayoutType = nextLayoutType,
+        LayoutSize = nextLayoutSize,
+        AdditionalProperties = nextProperties
       };
       mediaNavigationMode = MediaNavigationMode;
     }
 
     /// <summary>
-    /// Switches to browsing by MediaLibray shares, limited to restricted MediaCategories.
+    /// Switches to browsing by MediaLibrary shares, limited to restricted MediaCategories.
     /// </summary>
     /// <param name="optionalMIATypeIDs">Optional MIAs to use.</param>
     protected void SetBrowseMode(IEnumerable<Guid> optionalMIATypeIDs)
@@ -227,7 +254,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         try
         {
           MediaNavigationFilter navigationFilter = pluginManager.RequestPluginItem<MediaNavigationFilter>(
-              MediaNavigationFilterBuilder.MEDIA_FILTERS_PATH, itemMetadata.Id, _tracker);
+            MediaNavigationFilterBuilder.MEDIA_FILTERS_PATH, itemMetadata.Id, _tracker);
           if (navigationFilter == null)
             ServiceRegistration.Get<ILogger>().Warn("Could not instantiate Media navigation filter with id '{0}'", itemMetadata.Id);
           else
@@ -254,9 +281,9 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         return;
       }
 
-      _filter = _filters.Count == 1 ? 
+      _filter = _filters.Count == 1 ?
         // Single filter
-        _filters[0] : 
+        _filters[0] :
         // Or a "AND" combined filter
         new BooleanCombinationFilter(BooleanOperator.And, _filters);
     }

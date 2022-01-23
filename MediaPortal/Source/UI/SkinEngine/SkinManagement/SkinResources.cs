@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -193,6 +193,7 @@ namespace MediaPortal.UI.SkinEngine.SkinManagement
     public abstract string ShortDescription { get; }
 
     public abstract string PreviewResourceKey { get; }
+    public abstract bool FlexibleAspectRatio { get; }
 
     public abstract int SkinWidth { get; }
 

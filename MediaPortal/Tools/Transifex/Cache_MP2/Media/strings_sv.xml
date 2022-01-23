@@ -246,6 +246,8 @@
   <string name="Media.MoreThanMaxItemsSearchResultHint">Denna sökning gav fler än {0} media-filer. Vänligen begränsa din sökning.</string>
   <string name="Media.ListIsBeingBuiltHint">Listan med media-filer skapas...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">Söker...</string>
+  <string name="Media.EjectOpticalDisc">mata ut optisk skiva</string>
+  <string name="Media.Eject">mata ut</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">Spellistor</string>
   <string name="Media.AddSingleToPlaylist">Lägg i spellistan</string>
@@ -280,6 +282,7 @@
   <string name="Media.SetUnplayed">Merkera som inte spelad</string>
   <string name="Media.Refresh">Uppdatera</string>
   <string name="Media.Reimport">Återimportera</string>
+  <string name="Media.SubtitleSearch">sök på undertexter</string>
   <string name="Media.DeleteFromStorage">Ta bort filen</string>
   <string name="Media.DeleteFromStorage.Confirmation">Är du säker på att du vill ta bort filen? Du kan inte ångra borttagningen.</string>
   <string name="Media.ConfirmAction">Bekräfta</string>
@@ -293,7 +296,13 @@ Du kan inte ångra ersättningen.</string>
   <string name="Media.ReimportMediaItem.AutoMatch">Automatisk matchning</string>
   <string name="Media.ReimportMediaItem.ManualSearch">Manuell sökning</string>
   <string name="Media.ReimportMediaItem.Description">Beskrivning</string>
-  <string name="Media.ReimportMediaItem.Hint">OBS: Kräver internetanslutning och minst en hemsida vald i inställningar för mediabibliotek</string>
+  <string name="Media.ReimportMediaItem.Hint">kräver internet och minst en skrapare</string>
+  <string name="Media.SubtitleSearch.Id">Id</string>
+  <string name="Media.SubtitleSearch.SearchResultHeader">Sökresultat</string>
+  <string name="Media.SubtitleSearch.SearchTypeHeader">Typ av sökning</string>
+  <string name="Media.SubtitleSearch.AutoMatch">Automatisk matchning</string>
+  <string name="Media.SubtitleSearch.ManualSearch">Manuell sökning</string>
+  <string name="Media.SubtitleSearch.Language">Språk</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Spela media-fil</string>
   <string name="Media.PlayAudioItems">Spela ljud-fil</string>
@@ -407,8 +416,10 @@ Du kan inte ångra ersättningen.</string>
   <string name="Media.SmallList">Liten lista</string>
   <string name="Media.MediumList">Medelstor lista</string>
   <string name="Media.LargeList">Stor lista</string>
+  <string name="Media.List">Lista</string>
   <string name="Media.LargeGrid">Rutnät</string>
-  <string name="Media.CoverLayout">Omslag</string>
+  <string name="Media.ListSmall">Små</string>
+  <string name="Media.ListMedium">Medelstora</string>
   <string name="Media.Watched">Sedda</string>
   <string name="Media.Unwatched">Inte sedda</string>
   <string name="Media.SwitchSortingMenuItem">Sortering</string>
@@ -431,6 +442,8 @@ Du kan inte ångra ersättningen.</string>
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">Aktivera denna inställning för att MediaPortal 2 ska stänga av spelarna när speltiden är slut</string>
   <string name="Settings.Players.InstantSkipPercent">Omedelbart hopp i procent</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Välj hur många procent av videons speltid du omedelbart vill hoppa över</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds">i första hand hoppa sekunder</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds.Help">väljom du villl hoppa sekunder i stället för relativa procent</string>
   <string name="Settings.Players.SkipStepTimeout">Timeout i sekunder vid hopp</string>
   <string name="Settings.Players.SkipStepTimeout.Help">Justera timeout, för inmatning från användaren, innan hopp utförs</string>
   <string name="Settings.Players.SkipStepList">Spelarens hoppsteg</string>
@@ -454,8 +467,6 @@ Du kan inte ångra ersättningen.</string>
   <string name="Settings.Media.Certification.Series">Åldersgränser för TV-serier från land </string>
   <string name="Settings.Media.Certification.Series.Help">Välj vilket lands åldersgränser som ska användas för TV-serier</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

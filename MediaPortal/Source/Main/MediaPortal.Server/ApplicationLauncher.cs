@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,6 +41,7 @@ using MediaPortal.Common.Services.Runtime;
 using MediaPortal.Common;
 using MediaPortal.Common.Runtime;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.UI;
 using MediaPortal.Utilities.Process;
 
 [assembly: CLSCompliant(true)]
@@ -218,6 +219,8 @@ namespace MediaPortal.Server
 
       try
       {
+        Application.EnableVisualStyles();
+        FormDpiAwarenessExtension.TryEnableDPIAwareness();
         Application.Run(new MainForm());
       }
       catch (Exception e)

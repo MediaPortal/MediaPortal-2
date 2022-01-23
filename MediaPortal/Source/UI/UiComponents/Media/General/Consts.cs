@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -199,6 +199,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string RES_ADD_TO_PLAYLIST_RES = "[Media.AddAllToPlaylist]";
     public const string RES_NO_ITEMS_TO_ADD_HEADER = "[Media.NoItemsToAddHeader]";
     public const string RES_NO_ITEMS_TO_ADD_TEXT = "[Media.NoItemsToAddText]";
+    public const string RES_EJECT_OPTICAL_DISC_RES = "[Media.EjectOpticalDisc]";
 
     public const string RES_ADD_ALL_AUDIO = "[Media.AddAllAudio]";
     public const string RES_ADD_ALL_VIDEOS = "[Media.AddAllVideo]";
@@ -422,6 +423,7 @@ namespace MediaPortal.UiComponents.Media.General
     public const string SCREEN_MOVIES_FILTER_BY_CERTIFICATION = "MovieFilterByCertification";
     public const string SCREEN_SERIES_SHOW_ITEMS = "SeriesShowItems";
     public const string SCREEN_SERIES_FILTER_BY_NAME = "SeriesFilterByName";
+    public const string SCREEN_SERIES_FILTER_BY_YEAR = "SeriesFilterByYear";
     public const string SCREEN_SERIES_FILTER_BY_SEASON = "SeriesFilterBySeason";
     public const string SCREEN_SERIES_FILTER_BY_ACTOR = "SeriesFilterByActor";
     public const string SCREEN_SERIES_FILTER_BY_CHARACTER = "SeriesFilterByCharacter";
@@ -635,6 +637,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] OPTIONAL_VIDEO_MIAS = new Guid[]
       {
+          //Needed for calculating play percentage
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
@@ -681,6 +684,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] OPTIONAL_EPISODE_MIAS = new Guid[]
       {
+          //Needed for calculating play percentage
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,
@@ -708,6 +712,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public static readonly Guid[] OPTIONAL_MOVIES_MIAS = new Guid[]
       {
+          //Needed for calculating play percentage
           VideoStreamAspect.ASPECT_ID,
           VideoAudioStreamAspect.ASPECT_ID,
           SubtitleAspect.ASPECT_ID,

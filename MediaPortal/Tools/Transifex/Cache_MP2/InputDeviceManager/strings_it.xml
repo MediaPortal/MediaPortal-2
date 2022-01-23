@@ -11,6 +11,7 @@
   <string name="InputDeviceManager.AddKey.Header">Premi la combinazione di tasti che vuoi configurare!</string>
   <string name="InputDeviceManager.Screen">Schermo</string>
   <string name="InputDeviceManager.Key">Tasto</string>
+  <string name="InputDeviceManager.Action">Azione</string>
 
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Pulisci</string>
   <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Rimuovere l\'associazione?</string>

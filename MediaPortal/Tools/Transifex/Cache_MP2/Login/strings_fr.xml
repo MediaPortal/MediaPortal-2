@@ -26,8 +26,7 @@
   <string name="Settings.Users.Config.AutoLoginUser.Help">Utilisateur pour une connexion automatique</string>
   <string name="Settings.Users.Config.SystemDefault">Défaillance du système</string>
   <string name="Settings.Users.Config.AutoLoginUser.Title">Connexion automatique de l\'utilisateur</string>
-
-  <!-- User configuration workflow -->
+  <string name="Settings.Users.Config.UserLanguage">Préférence de language</string>  <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestion des utilisateurs</string>
   <string name="UserConfig.UserConfiguration.Title">Gestion des utilisateurs</string>
   <string name="UserConfig.Users">Utilisateurs</string>
@@ -53,6 +52,7 @@
   <string name="UserConfig.Ok">OK</string>
   <string name="UserConfig.Disable">Désactivé</string>
 
+  <string name="UserConfig.Default">Par défaut</string>
   <string name="UserConfig.SelectProfileTemplate">Sélectionnez un modèle de profil</string>
   <string name="UserConfig.ClientProfile">Profil Clent</string>
   <string name="UserConfig.UserProfile">Profil de l\'utilisateur</string>

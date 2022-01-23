@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -195,16 +195,6 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         };
         return true;
       }
-      CompanyFilterItem companyItem = listItem as CompanyFilterItem;
-      if (companyItem != null)
-      {
-        fanartImageSource = new FanArtImageSource
-        {
-          FanArtMediaType = FanArtMediaTypes.Company,
-          FanArtName = fanArtName
-        };
-        return true;
-      }
       TVNetworkFilterItem tvNetworkItem = listItem as TVNetworkFilterItem;
       if (tvNetworkItem != null)
       {
@@ -215,6 +205,17 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
         };
         return true;
       }
+      CompanyFilterItem companyItem = listItem as CompanyFilterItem;
+      if (companyItem != null)
+      {
+        fanartImageSource = new FanArtImageSource
+        {
+          FanArtMediaType = FanArtMediaTypes.Company,
+          FanArtName = fanArtName
+        };
+        return true;
+      }
+      
       ImageItem imgItem = listItem as ImageItem;
       if (imgItem != null)
       {

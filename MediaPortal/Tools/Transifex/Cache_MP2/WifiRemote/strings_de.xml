@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.InputDevice.Section">Eingabegeräte</string>
+  
+  <string name="Settings.WifiRemote.Title">Wifi Fernbedienung</string> <!-- Section name -->
+  <string name="Settings.WifiRemote.AuthMode.None">Keine Authentifizierung</string>
+  <string name="Settings.WifiRemote.AuthMode.UserPassword">Benutzername und Passwort</string>
+  <string name="Settings.WifiRemote.AuthMode.Passcode">Passcode</string> 
+  <string name="Settings.WifiRemote.AuthMode.Both">Benutzername und Passowort oder Passcode</string>
+
+  <string name="Settings.WifiRemote.AuthenticationMethod">Authenfizierungsmethode</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AuthenticationMethod.Help">Authenfizierungsmethode erlaubt, wenn eine Verbindung mit Remote Control Client erstellt wird</string>
+  <string name="Settings.WifiRemote.Passcode">Authenfizierungspasswort</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Passcode.Help">Passcode um Passcode Authenfizierung zu erlauben</string>
+  <string name="Settings.WifiRemote.AutoLoginTimeout">Authenfizierungstimeout</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AutoLoginTimeout.Help">Dauer in Minuten ab der Re-Authenfizierung des Client notwendig ist</string>
+  <string name="Settings.WifiRemote.EnableBonjour">Übertragungsservice Verfügbarkeit (Bonjour, ZeroConf)</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.EnableBonjour.Help">Übertrage die Serviceverfügbarkeit damit es einfacher ist von Clients zu verbinden</string>
+  <string name="Settings.WifiRemote.Port">Service Port</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Port.Help">Die Service Ports mit denen Clients verbinden können</string>
+
+</resources>

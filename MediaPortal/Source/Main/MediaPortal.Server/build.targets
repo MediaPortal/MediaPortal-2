@@ -1,17 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
 
-  <PropertyGroup>
-    <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(PlatformName)\$(ConfigurationName)\</AppDestination>
-  </PropertyGroup>
-
   <Target Name="AfterBuild">
+    <PropertyGroup>
+      <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\</AppDestination>
+    </PropertyGroup>
+
     <ItemGroup>
       <BaseFiles Include="$(SolutionDir)Base\Server\**\*.*" />
     </ItemGroup>
-  
-      <Copy SourceFiles="@(BaseFiles)"
-          DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <Copy SourceFiles="@(BaseFiles)"
+        DestinationFiles="@(BaseFiles->'$(AppDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
 
     <ItemGroup>
       <CleanupFiles Include="$(AppDestination)*.pdb" />

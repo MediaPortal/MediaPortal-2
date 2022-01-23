@@ -62,7 +62,7 @@
           </Grid.RowDefinitions>
 
           <Label Grid.Column="0" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}"
-              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="7,0,0,0"/>
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="7,0,0,0"/>
           <Label Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
                  VerticalAlignment="Center" Margin="7,0,0,0">
             <Label.Content>

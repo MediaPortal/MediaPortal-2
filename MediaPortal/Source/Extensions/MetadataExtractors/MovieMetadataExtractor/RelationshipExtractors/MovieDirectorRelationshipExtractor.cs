@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,6 +42,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
+
+    private string _category;
+
+    public MovieDirectorRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
 
     public bool BuildRelationship
     {
@@ -100,7 +107,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         movieInfo.Directors = directors;
 
       if (MovieMetadataExtractor.IncludeDirectorDetails && !MovieMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdatePersonsAsync(movieInfo, PersonAspect.OCCUPATION_DIRECTOR).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdatePersonsAsync(movieInfo, PersonAspect.OCCUPATION_DIRECTOR, _category).ConfigureAwait(false);
       
       foreach (PersonInfo person in movieInfo.Directors)
       {

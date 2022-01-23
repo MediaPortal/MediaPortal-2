@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,6 +38,9 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.Services.UserManagement;
 
 namespace MediaPortal.UiComponents.Weather.Models
 {
@@ -387,7 +390,14 @@ namespace MediaPortal.UiComponents.Weather.Models
     {
       // Add citys from settings to the locations list
       ReadSettings(false).Wait();
+      NotifyUsage();
       StartRefreshTask();
+    }
+
+    private void NotifyUsage()
+    {
+      IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
+      userManagement.NotifyUsage("weather", "main").Wait();
     }
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)

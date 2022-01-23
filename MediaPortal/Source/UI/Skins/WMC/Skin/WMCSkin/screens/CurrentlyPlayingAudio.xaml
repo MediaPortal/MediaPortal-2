@@ -137,7 +137,7 @@
                   </Grid.ColumnDefinitions>
                   
                   <Image Stretch="Uniform" Source="audio.png" HorizontalAlignment="Center" VerticalAlignment="Center" 
-                   IsVisible="{Binding ElementName=Thumb, Path=!HasImage}" Margin="50">
+                         IsVisible="{Binding ElementName=Thumb, Path=!HasImage}" Margin="50">
                   </Image>
 
                   <Image x:Name="Thumb" Stretch="Fill" IsVisible="{Binding ElementName=Album, Path=!IsChecked}"
@@ -156,34 +156,6 @@
 
               </Grid>
 
-              <!--Image x:Name="ItemTypeImage" Grid.RowSpan="2" Stretch="Fill" IsVisible="{Binding ElementName=Album, Path=!IsChecked}"
-                     Source="{Binding MediaItem}" FallbackSource="Audio.png" HorizontalAlignment="Right"
-                     VerticalAlignment="Bottom" Width="270" Height="270" Margin="20,60,40,20">
-                <Image.OpacityMask>
-                  <VisualBrush>
-                    <VisualBrush.Visual>
-                      <Border Name="mask" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-                    </VisualBrush.Visual>
-                  </VisualBrush>
-                </Image.OpacityMask>
-
-              <Image Grid.Column="0" Grid.Row="0" Grid.RowSpan="2" Stretch="Fill" HorizontalAlignment="Right" IsVisible="{Binding ElementName=Album, Path=IsChecked}"
-                     VerticalAlignment="Bottom" Width="270" Height="270" Margin="20,60,40,20">
-                <Image.Source>
-                  <fanart:FanArtImageSource fanart:FanArtMediaType="Album" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                            fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
-                </Image.Source>
-                <Image.OpacityMask>
-                  <VisualBrush>
-                    <VisualBrush.Visual>
-                      <Border Name="mask2" Background="White" CornerRadius="6" BorderThickness="0" BorderBrush="Black"/>
-                    </VisualBrush.Visual>
-                  </VisualBrush>
-                </Image.OpacityMask>
-              </Image-->
-
-              <!--<ScrollViewer Grid.Row="0" Grid.Column="1" CanContentScroll="True" 
-                            HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">-->
               <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
                 <RadioButton x:Name="General" Content="General" HorizontalAlignment="Center" VerticalAlignment="Center"
                              Style="{ThemeResource TabButtonStyle}" GroupName="Tab" IsChecked="True" Margin="0,0,40,0">

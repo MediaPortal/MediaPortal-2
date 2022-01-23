@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,5 +40,15 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     /// Gets or Sets the Name.
     /// </summary>    
     String Name { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the MediaType.
+    /// </summary>
+    MediaType MediaType { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the SortOrder
+    /// </summary>    
+    int SortOrder { get; set; }
   }
 }

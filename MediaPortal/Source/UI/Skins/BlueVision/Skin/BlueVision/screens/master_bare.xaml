@@ -85,6 +85,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <!-- Footer -->
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
 
     <Grid x:Name="HeaderPanel" Margin="0,-6,0,0" Height="{ThemeResource HeaderPanelHeight}" IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
       <Grid.RowDefinitions>
@@ -104,7 +107,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
     <!-- HeaderPanel -->
 
-    <Grid  Grid.Row="1" HorizontalAlignment="Stretch">
+    <Grid Grid.Row="1" HorizontalAlignment="Stretch">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
         <RowDefinition Height="Auto"/>
@@ -215,10 +218,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
       </StackPanel>
 
-      <Image Source="shadow_top.png" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,0,0,0" />
+      <Image Source="shadow_top.png" Margin="-35,0,-35,0" Grid.Row="1" Grid.ColumnSpan="4" Stretch="Fill" Height="27"/>
     </Grid>
 
-    <Image Source="shadow_bottom.png" Margin="-115,0,-115,0" Grid.Row="3" VerticalAlignment="Top" />
+    <Image Source="shadow_bottom.png" Margin="-35,0,-35,0" Grid.Row="3" VerticalAlignment="Top" Stretch="Fill" Height="27"/>
 
     <Grid Margin="115,10,115,0" Grid.Row="4" VerticalAlignment="Top" Height="{ThemeResource MultiDetailsFooterHeight}">
       <Grid.RowDefinitions>
@@ -236,12 +239,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <!-- PlayerControlsPanel Focusable="True"-->
       <Grid x:Name="FooterPanel" Grid.Row="3" Height="{ThemeResource FooterPanelHeight}" VerticalAlignment="Top" RenderTransformOrigin="0.5,0.5"
-                  IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
+            IsEnabled="{Binding Source={StaticResource MenuModel},Path=!IsMenuOpen}">
       </Grid>
     </Grid>
     <!-- FooterPanel -->
     <!-- Order matters here: The client area control has to be the last control (LastChildFill) -->
-    <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,17,115,-3"/>
+    <Control x:Name="ClientArea" Grid.Row="2" Template="{DynamicResource ResourceKey=Client_Template}" Margin="115,17,115,-3" HorizontalAlignment="Stretch"/>
 
     <!-- Mouse control buttons -->
     <Grid x:Name="MouseButtonsPanel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,1,2,0">

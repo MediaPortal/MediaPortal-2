@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -157,7 +157,7 @@ namespace Tests.Server.FanArt.MockFanArtAccess
 
     public ICollection<IFileSystemResourceAccessor> GetChildDirectories()
     {
-      throw new NotImplementedException();
+      return new List<IFileSystemResourceAccessor>();
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
@@ -184,6 +184,11 @@ namespace Tests.Server.FanArt.MockFanArtAccess
     }
 
     public Stream OpenWrite()
+    {
+      throw new NotImplementedException();
+    }
+
+    public Stream CreateOpenWrite(string file, bool overwrite)
     {
       throw new NotImplementedException();
     }

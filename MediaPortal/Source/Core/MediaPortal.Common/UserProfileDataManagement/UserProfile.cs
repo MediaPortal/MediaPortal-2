@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,11 +22,16 @@
 
 #endregion
 
+using MediaPortal.Common.Certifications;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Utilities.UPnP;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 using System.Xml.Serialization;
@@ -63,6 +68,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
   /// </remarks>
   public class UserProfile
   {
+    private const int MAX_PASSWORD_LENGTH = 10;
+
     protected Guid _profileId;
     protected string _name;
     protected string _password;
@@ -85,6 +92,24 @@ namespace MediaPortal.Common.UserProfileDataManagement
       _image = image;
     }
 
+    public static bool VerifyPassword(string password, string profilePassword)
+    {
+      if (string.IsNullOrEmpty(profilePassword))
+        return true;
+      string hashedPassword = HashPassword(password);
+      return string.Equals(hashedPassword, profilePassword, StringComparison.Ordinal);
+    }
+
+    public static string HashPassword(string password)
+    {
+      if (string.IsNullOrEmpty(password))
+        return "";
+
+      HashAlgorithm hash = HashAlgorithm.Create("SHA256");
+      string hashedPassword = Convert.ToBase64String(hash.ComputeHash(Encoding.Unicode.GetBytes(password)));
+      return hashedPassword.Substring(0, hashedPassword.Length < MAX_PASSWORD_LENGTH ? hashedPassword.Length : MAX_PASSWORD_LENGTH);
+    }
+
     public void Rename(string newName)
     {
       _name = newName;
@@ -102,6 +127,130 @@ namespace MediaPortal.Common.UserProfileDataManagement
       if (!AdditionalData.ContainsKey(key))
         AdditionalData.Add(key, new Dictionary<int, string>());
       AdditionalData[key].Add(valueNo, value);
+    }
+
+    public bool TryGetAdditionalData(string key, int valueNo, out string value)
+    {
+      if (AdditionalData.ContainsKey(key) &&
+          AdditionalData[key].ContainsKey(valueNo) &&
+          !string.IsNullOrEmpty(AdditionalData[key][valueNo]))
+      {
+        value = AdditionalData[key][valueNo];
+        return true;
+      }
+      value = null;
+      return false;
+    }
+
+    public IFilter GetUserFilter(ICollection<Guid> necessaryMias, bool ignoreShareRestriction = false)
+    {
+      List<IFilter> filters = new List<IFilter>();
+
+      // Shares filter
+      if (RestrictShares && !ignoreShareRestriction)
+        filters.Add(new SharePathFilter(GetAllowedShares()));
+
+      // Content filter
+      if (AllowedAge.HasValue && RestrictAges)
+      {
+        if (necessaryMias.Contains(MovieAspect.ASPECT_ID))
+        {
+          var certs = CertificationMapper.GetMovieCertificationsForAge(AllowedAge.Value, IncludeParentGuidedContent).ToList();
+          if (certs.Any())
+          {
+            if (!IncludeUnratedContent)
+              filters.Add(new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
+            else
+              filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                new InFilter(MovieAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
+                new EmptyFilter(MovieAspect.ATTR_CERTIFICATION)));
+          }
+          else if (!IncludeUnratedContent)
+          {
+            filters.Add(new NotFilter(new EmptyFilter(MovieAspect.ATTR_CERTIFICATION)));
+          }
+        }
+        else if (necessaryMias.Contains(SeriesAspect.ASPECT_ID))
+        {
+          //TODO: Should series filters reset the share filter? Series have no share dependency
+          var certs = CertificationMapper.GetSeriesCertificationsForAge(AllowedAge.Value, IncludeParentGuidedContent).ToList();
+          if (certs.Any())
+          {
+            if (!IncludeUnratedContent)
+              filters.Add(new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)));
+            else
+              filters.Add(BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
+                new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION)));
+          }
+          else if (!IncludeUnratedContent)
+          {
+            filters.Add(new NotFilter(new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION)));
+          }
+        }
+        else if (necessaryMias.Contains(EpisodeAspect.ASPECT_ID))
+        {
+          var certs = CertificationMapper.GetSeriesCertificationsForAge(AllowedAge.Value, IncludeParentGuidedContent).ToList();
+          if (certs.Any())
+          {
+            if (!IncludeUnratedContent)
+              filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES, new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId))));
+            else
+              filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES,
+                BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+                new InFilter(SeriesAspect.ATTR_CERTIFICATION, certs.Select(c => c.CertificationId)),
+                new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION))));
+          }
+          else if (!IncludeUnratedContent)
+          {
+            filters.Add(new FilteredRelationshipFilter(EpisodeAspect.ROLE_EPISODE, SeriesAspect.ROLE_SERIES,
+                new NotFilter(new EmptyFilter(SeriesAspect.ATTR_CERTIFICATION))));
+          }
+        }
+      }
+
+      if (filters.Count > 1)
+        return BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filters.ToArray());
+      else if (filters.Count > 0)
+        return filters[0];
+
+      return null;
+    }
+
+    public IEnumerable<string> GetPreferredAudioLanguages()
+    {
+      var audioList = AdditionalData?.Where(d => d.Key == UserDataKeysKnown.KEY_PREFERRED_AUDIO_LANGUAGE);
+      return audioList?.SelectMany(l => l.Value.Values).ToList();
+    }
+
+    public IEnumerable<string> GetPreferredSubtitleLanguages()
+    {
+      var subtitleList = AdditionalData?.Where(d => d.Key == UserDataKeysKnown.KEY_PREFERRED_SUBTITLE_LANGUAGE);
+      return subtitleList?.SelectMany(l => l.Value.Values).ToList();
+    }
+
+    public ICollection<Guid> GetAllowedShares()
+    {
+      if (!RestrictShares)
+        return new List<Guid>();
+
+      List<Guid> allowedShares = new List<Guid>();
+      foreach (var key in AdditionalData.Where(d => d.Key == UserDataKeysKnown.KEY_ALLOWED_SHARE))
+        allowedShares.AddRange(key.Value.Values.Select(g => Guid.Parse(g)));
+
+      return allowedShares;
+    }
+
+    public bool CheckUserAccess(IUserRestriction restrictedElement)
+    {
+      if (!EnableRestrictionGroups || string.IsNullOrEmpty(restrictedElement.RestrictionGroup))
+        return true;
+
+      foreach (var group in restrictedElement.RestrictionGroup.Split(new[] { "," }, StringSplitOptions.RemoveEmptyEntries))
+        if (RestrictionGroups.Contains(group))
+          return true;
+
+      return false;
     }
 
     /// <summary>
@@ -246,7 +395,6 @@ namespace MediaPortal.Common.UserProfileDataManagement
       }
     }
 
-
     /// <summary>
     /// Define if unrated content should be allowed.
     /// </summary>
@@ -319,6 +467,8 @@ namespace MediaPortal.Common.UserProfileDataManagement
     {
       get { return _userData; }
     }
+
+    
 
     /// <summary>
     /// Serializes this user profile instance to XML.

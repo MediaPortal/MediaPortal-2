@@ -34,8 +34,8 @@
       <Image.IsVisible>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} &amp;&amp; {1})">
           <Binding ElementName="PrimaryOSD" Path="IsPaused" />
-          <!-- VideoPlayerModel -->
-          <Binding Source="{Model Id=4E2301B4-3C17-4a1d-8DE5-2CEA169A0256}" Path="!PlayerUIContributor.IsZapping"/>
+          <!-- SlimTvClientModel -->
+          <Binding Source="{Model Id=8BEC1372-1C76-484c-8A69-C7F3103708EC}" Path="!IsZapping"/>
         </MultiBinding>
       </Image.IsVisible>
     </Image>

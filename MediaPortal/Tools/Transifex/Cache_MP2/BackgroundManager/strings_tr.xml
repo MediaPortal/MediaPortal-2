@@ -1,6 +1,10 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground">Arkaplan video</string>
+  <string name="Settings.Appearance.Skin.Background.VideoBackground.Help">Arkaplanda videoyu aktifleştir ve video seç</string>
+  <string name="Settings.Appearance.Skin.Background.EnableVideoBackground">Arkaplanda videoyu aktifleştir</string>
+  <string name="Settings.Appearance.Skin.Background.Setup">Arkaplan video yapılandırma</string>
   <string name="Settings.Appearance.Skin.Background.Setup.VideoFilename">Video dosyası</string>
   <string name="Settings.Appearance.Skin.Background.Setup.Select">Seç</string>
-  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Arkaplanda yürütlecek videotu seçin</string>
+  <string name="Settings.Appearance.Skin.Background.Setup.SelectVideo">Arkaplanda yürütlecek videoyu seçin</string>
 </resources>

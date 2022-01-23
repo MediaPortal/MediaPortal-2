@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -521,7 +521,7 @@ namespace MediaPortal.UiComponents.Login.Models
         int shareCount = 0;
         string hash = UserProxy.Password;
         if (UserProxy.IsPasswordChanged)
-          hash = Utils.HashPassword(UserProxy.Password);
+          hash = UserProfile.HashPassword(UserProxy.Password);
         UserProfile user = new UserProfile(Guid.Empty, GetUniqueName(UserProxy.Name), UserProxy.ProfileType, hash, DateTime.Now, UserProxy.Image);
         user.AllowedAge = UserProxy.AllowedAge;
         foreach (var shareId in UserProxy.SelectedShares)
@@ -604,7 +604,7 @@ namespace MediaPortal.UiComponents.Login.Models
           string hash = UserProxy.Password;
           bool wasCreated = false;
           if (UserProxy.IsPasswordChanged)
-            hash = Utils.HashPassword(UserProxy.Password);
+            hash = UserProfile.HashPassword(UserProxy.Password);
           if (UserProxy.ProfileType == UserProfileType.ClientProfile)
             hash = ""; //Client profiles can't have passwords
           IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
@@ -660,27 +660,35 @@ namespace MediaPortal.UiComponents.Login.Models
             return;
 
           shareCount = 0;
-          UserProfile user = new UserProfile(userId, UserProxy.Name, UserProxy.ProfileType, hash, UserProxy.LastLogin, UserProxy.Image);
-          if (wasCreated)
-            user.LastLogin = DateTime.Now;
-          user.RestrictAges = UserProxy.RestrictAges;
-          user.AllowedAge = UserProxy.AllowedAge;
-          user.RestrictShares = UserProxy.RestrictShares;
-          foreach (var shareId in UserProxy.SelectedShares)
-            user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
-          user.IncludeParentGuidedContent = UserProxy.IncludeParentGuidedContent;
-          user.IncludeUnratedContent = UserProxy.IncludeUnratedContent;
-          user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
-          user.RestrictionGroups = UserProxy.RestrictionGroups;
-          user.TemplateId = UserProxy.TemplateId;
+          UserProfile user = null;
+          if (!IsRestrictedToOwn)
+          {
+            user = new UserProfile(userId, UserProxy.Name, UserProxy.ProfileType, hash, UserProxy.LastLogin, UserProxy.Image);
+            if (wasCreated)
+              user.LastLogin = DateTime.Now;
+            user.RestrictAges = UserProxy.RestrictAges;
+            user.AllowedAge = UserProxy.AllowedAge;
+            user.RestrictShares = UserProxy.RestrictShares;
+            foreach (var shareId in UserProxy.SelectedShares)
+              user.AddAdditionalData(UserDataKeysKnown.KEY_ALLOWED_SHARE, ++shareCount, shareId.ToString());
+            user.IncludeParentGuidedContent = UserProxy.IncludeParentGuidedContent;
+            user.IncludeUnratedContent = UserProxy.IncludeUnratedContent;
+            user.EnableRestrictionGroups = UserProxy.EnableRestrictionGroups;
+            user.RestrictionGroups = UserProxy.RestrictionGroups;
+            user.TemplateId = UserProxy.TemplateId;
 
-          // Update current logged in user if the same
-          if (userManagement.CurrentUser.ProfileId == user.ProfileId)
-            userManagement.CurrentUser = user;
+            // Update current logged in user if the same
+            if (userManagement.CurrentUser.ProfileId == user.ProfileId)
+              userManagement.CurrentUser = user;
 
-          item.SetLabel(Consts.KEY_NAME, user.Name);
-          item.AdditionalProperties[Consts.KEY_USER] = user;
-          _userList.FireChange();
+            item.SetLabel(Consts.KEY_NAME, user.Name);
+            item.AdditionalProperties[Consts.KEY_USER] = user;
+          }
+          else
+          {
+            user = item.AdditionalProperties[Consts.KEY_USER] as UserProfile;
+          }
+          item.FireChange();
 
           SetUser(user);
         }

@@ -1,0 +1,50 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[AppLauncher.SwitchPlaying]"/>
+
+    <Model x:Key="Model" Id="624339C2-0D3B-437B-8046-6F540D704A93"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="50*"/>
+            <RowDefinition Height="50*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="60*" />
+            <ColumnDefinition Width="20*" />
+            <ColumnDefinition Width="20*" />
+          </Grid.ColumnDefinitions>
+
+          <Label Grid.Row="0" Grid.Column="0" Content="{Binding Path=PrimaryTitle, Mode=TwoWay}" 
+                 HorizontalContentAlignment="Left" HorizontalAlignment="Stretch" 
+                 VerticalAlignment="Top" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"/>
+          <Button Grid.Row="0" Grid.Column="1" Content="[AppLauncher.Pause]" 
+                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                  Command="{Command PrimaryPause}" FontSize="{ThemeResource SmallerFontSize}" />
+          <Button Grid.Row="0" Grid.Column="2" Content="[AppLauncher.Stop]" 
+                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                  Command="{Command PrimaryStop}" FontSize="{ThemeResource SmallerFontSize}" />
+
+          <Label Grid.Row="1" Grid.Column="0" Content="{Binding Path=SecondaryTitle, Mode=TwoWay}"
+                 HorizontalContentAlignment="Left" HorizontalAlignment="Stretch"
+                 VerticalAlignment="Top" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"/>
+          <Button Grid.Row="1" Grid.Column="1" Content="[AppLauncher.Pause]" 
+                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                  Command="{Command SecondaryPause}" FontSize="{ThemeResource SmallerFontSize}" IsVisible="{Binding Path=SecondaryVisible}"/>
+          <Button Grid.Row="1" Grid.Column="2" Content="[AppLauncher.Stop]" 
+                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" 
+                  Command="{Command SecondaryStop}" FontSize="{ThemeResource SmallerFontSize}" IsVisible="{Binding Path=SecondaryVisible}"/>
+          
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

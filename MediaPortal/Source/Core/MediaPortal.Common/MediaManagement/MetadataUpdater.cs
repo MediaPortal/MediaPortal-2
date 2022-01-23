@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -269,12 +269,22 @@ namespace MediaPortal.Common.MediaManagement
           return true;
         }
       }
-      if (currentId is long || currentId is int || currentId is short)
+      else if (currentId is long || currentId is int || currentId is short)
       {
         if (Convert.ToInt64(currentId) == 0 && Convert.ToInt64(newId) > 0)
         {
           currentId = newId;
           return true;
+        }
+      }
+      else if (currentId is IDictionary)
+      {
+        IDictionary currentVal = (IDictionary)currentId;
+        IDictionary newVal = (IDictionary)newId;
+        foreach(var key in newVal.Keys)
+        {
+          if (!currentVal.Contains(key))
+            currentVal.Add(key, newVal[key]);
         }
       }
       return false;

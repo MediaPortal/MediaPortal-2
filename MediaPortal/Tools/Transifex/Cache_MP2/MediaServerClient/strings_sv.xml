@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.DLNA.Clients.Config.ClientName">Namn</string>
+  <string name="Settings.DLNA.Clients.Config.DeleteConfirmation.Title">Bekräfta borttagningen</string>
+  <string name="Settings.DLNA.Clients.Config.Yes">Ja</string>
+  <string name="Settings.DLNA.Clients.Config.No">Nej</string>
+  <string name="Settings.DLNA.Clients.Config.NoUser">Ingen</string>
+  </resources>

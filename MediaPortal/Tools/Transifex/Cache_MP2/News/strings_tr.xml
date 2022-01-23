@@ -1,6 +1,7 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="News.Title">Haberler</string>
+  <string name="News.Title.Help">favori haber sitelerinizi okuyun</string>
   <string name="News.FeedsStateDisplayLabel">Haberler</string>
   <string name="News.Published">Yayınlanan</string>
   <string name="News.ConfiguredFeeds">Ayarlanmış Beslemeler</string>

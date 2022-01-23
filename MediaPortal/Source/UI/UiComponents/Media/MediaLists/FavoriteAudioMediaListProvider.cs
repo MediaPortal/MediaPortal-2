@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models.Navigation;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
@@ -32,6 +33,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteAudioMediaListProvider()
     {
+      _changeAspectId = AudioAspect.ASPECT_ID;
       _necessaryMias = Consts.NECESSARY_AUDIO_MIAS;
       _playableConverterAction = item => new AudioItem(item);
       _navigationInitializerType = typeof(AudioNavigationInitializer);

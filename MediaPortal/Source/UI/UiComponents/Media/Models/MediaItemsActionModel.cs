@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -67,16 +67,16 @@ namespace MediaPortal.UiComponents.Media.Models
 
       public IUserRestriction Restriction;
 
-      abstract public string ConfirmationMessage(ListItem item);
+      public abstract string ConfirmationMessage(ListItem item);
 
       public bool Deferred;
 
       /// <summary>
-      /// Checks if this action is available for the given <paramref name="mediaItem"/>.
+      /// Checks if this action is available for the given <paramref name="item"/>.
       /// </summary>
       /// <param name="item">ListItem</param>
       /// <returns><c>true</c> if available</returns>
-      abstract public Task<bool> IsAvailableAsync(ListItem item);
+      public abstract Task<bool> IsAvailableAsync(ListItem item);
 
       /// <summary>
       /// Executes the action for the given MediaItem.
@@ -86,7 +86,7 @@ namespace MediaPortal.UiComponents.Media.Models
       /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if successful.
       /// <see cref="AsyncResult{T}.Result"/> returns what kind of changes was done on MediaItem.
       /// </returns>
-      abstract public Task<bool> ProcessAsync(ListItem item);
+      public abstract Task<bool> ProcessAsync(ListItem item);
     }
 
     protected class MediaListItemAction : ListItemAction
@@ -103,14 +103,14 @@ namespace MediaPortal.UiComponents.Media.Models
           Restriction.RestrictionGroup = extension.RestrictionGroup;
         Deferred = _action is IDeferredMediaItemAction;
       }
-
+      
       public override string ConfirmationMessage(ListItem item)
       {
         IMediaItemActionConfirmation confirmation = _action as IMediaItemActionConfirmation;
         return confirmation?.ConfirmationMessage;
       }
 
-      public async override Task<bool> IsAvailableAsync(ListItem item)
+      public override async Task<bool> IsAvailableAsync(ListItem item)
       {
         IMediaItemListItem mediaItem = item as IMediaItemListItem;
         if (mediaItem != null)
@@ -118,7 +118,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return false;
       }
 
-      public async override Task<bool> ProcessAsync(ListItem item)
+      public override async Task<bool> ProcessAsync(ListItem item)
       {
         IMediaItemListItem mediaItem = item as IMediaItemListItem;
         if (mediaItem != null)
@@ -126,7 +126,7 @@ namespace MediaPortal.UiComponents.Media.Models
           var result = await _action.ProcessAsync(mediaItem.MediaItem);
           if (result.Success)
           {
-            if(result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
+            if (result.Result != ContentDirectoryMessaging.MediaItemChangeType.None)
               ContentDirectoryMessaging.SendMediaItemChangedMessage(mediaItem.MediaItem, result.Result);
             return true;
           }
@@ -158,7 +158,7 @@ namespace MediaPortal.UiComponents.Media.Models
         return confirmation == null || viewItem == null ? null : confirmation.ConfirmationMessage(viewItem.View);
       }
 
-      public async override Task<bool> IsAvailableAsync(ListItem item)
+      public override async Task<bool> IsAvailableAsync(ListItem item)
       {
         IViewListItem viewItem = item as IViewListItem;
         if (viewItem != null)
@@ -166,17 +166,16 @@ namespace MediaPortal.UiComponents.Media.Models
         return false;
       }
 
-      public async override Task<bool> ProcessAsync(ListItem item)
+      public override async Task<bool> ProcessAsync(ListItem item)
       {
         IViewListItem viewItem = item as IViewListItem;
         if (viewItem != null)
           return await _action.ProcessAsync(viewItem.View);
         return false;
       }
-
     }
 
-    protected class DummyListItem : IMediaItemListItem
+    protected class DummyListItem : ListItem, IMediaItemListItem
     {
       public DummyListItem(MediaItem mediaItem)
       {
@@ -207,7 +206,7 @@ namespace MediaPortal.UiComponents.Media.Models
     }
 
     /// <summary>
-    /// Tries to show actions for the given <paramref name="listItem"/>.
+    /// Tries to show actions for the given <paramref name="item"/>.
     /// </summary>
     /// <param name="item">ListItem</param>
     public void ShowMediaItemActionsEx(ListItem item)
@@ -284,21 +283,24 @@ namespace MediaPortal.UiComponents.Media.Models
       await InvokeInternal(action, item);
     }
 
-    private async Task InvokeDeferred()
+    private async Task<bool> InvokeDeferred()
     {
       if (_deferredAction != null && _deferredItem != null)
-        await InvokeInternal(_deferredAction, _deferredItem);
+        return await InvokeInternal(_deferredAction, _deferredItem);
+      return true;
     }
 
-    private async Task InvokeInternal(ListItemAction action, ListItem item)
+    private async Task<bool> InvokeInternal(ListItemAction action, ListItem item)
     {
       try
       {
-        await action.ProcessAsync(item);
+        var result = await action.ProcessAsync(item);
+        return result;
       }
       catch (Exception ex)
       {
         ServiceRegistration.Get<ILogger>().Error("Error executing MediaItemAction '{0}':", ex, action.GetType());
+        return false;
       }
     }
 
@@ -360,7 +362,8 @@ namespace MediaPortal.UiComponents.Media.Models
             mediaExtension.Action = action;
             _actions.Add(new MediaViewItemAction(mediaExtension));
           }
-        } catch (PluginInvalidStateException e)
+        }
+        catch (PluginInvalidStateException e)
         {
           ServiceRegistration.Get<ILogger>().Warn("Cannot add MediaView extension with id '{0}'", e, itemMetadata.Id);
         }
@@ -431,7 +434,7 @@ namespace MediaPortal.UiComponents.Media.Models
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       // Check for pending actions that need to be invoked in former context
-      _ = InvokeDeferred();
+      InvokeDeferred().Wait();
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

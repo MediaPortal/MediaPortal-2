@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,6 +37,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
   {
     private bool _settingProgram;
 
+    public AbstractProperty NoProgramDataProperty { get; set; }
     public AbstractProperty ProgramIdProperty { get; set; }
     public AbstractProperty IsScheduledProperty { get; set; }
     public AbstractProperty IsSeriesScheduledProperty { get; set; }
@@ -54,6 +55,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public AbstractProperty SeriesProperty { get; set; }
     public AbstractProperty ChannelNameProperty { get; set; }
     public AbstractProperty ChannelLogoTypeProperty { get; set; }
+    public AbstractProperty ChannelNumberProperty { get; set; }
 
     /// <summary>
     /// Gets or Sets the Title.
@@ -147,6 +149,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     }
 
     /// <summary>
+    /// Gets or Sets an indicator if there is no current program data available and this item is only a placeholder.
+    /// </summary>
+    public bool NoProgramData
+    {
+      get { return (bool)NoProgramDataProperty.GetValue(); }
+      set { NoProgramDataProperty.SetValue(value); }
+    }
+
+    /// <summary>
     /// Gets or Sets an indicator if the program is scheduled or currently recording.
     /// </summary>
     public int ProgramId
@@ -209,8 +220,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       set { ChannelLogoTypeProperty.SetValue(value); }
     }
 
+    /// <summary>
+    /// Exposes the current channel number to the skin.
+    /// </summary>
+    public int ChannelNumber
+    {
+      get { return (int)ChannelNumberProperty.GetValue(); }
+      set { ChannelNumberProperty.SetValue(value); }
+    }
+
     public ProgramProperties()
     {
+      NoProgramDataProperty = new WProperty(typeof(bool), false);
       ProgramIdProperty = new WProperty(typeof(int), 0);
       IsScheduledProperty = new WProperty(typeof(bool), false);
       IsSeriesScheduledProperty = new WProperty(typeof(bool), false);
@@ -228,6 +249,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       SeriesProperty = new WProperty(typeof(String), String.Empty);
       ChannelNameProperty = new WProperty(typeof(String), String.Empty);
       ChannelLogoTypeProperty = new WProperty(typeof(String), String.Empty);
+      ChannelNumberProperty = new WProperty(typeof(int), 0);
       Attach();
     }
 
@@ -258,9 +280,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       }
       try
       {
-        if (channel != null)
-          ChannelName = channel.Name;
-        else if (program != null)
+        if (channel == null && program != null)
         {
           IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvHandler>().ChannelAndGroupInfo;
           if (channelAndGroupInfo != null)
@@ -269,12 +289,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
             if (result.Success)
             {
               channel = result.Result;
-              ChannelName = channel.Name;
             }
           }
         }
-        else
-          ChannelName = "";
+
+        ChannelName = channel?.Name ?? "";
+        ChannelNumber = channel?.ChannelNumber ?? 0;
         ChannelLogoType = channel.GetFanArtMediaType();
         _settingProgram = true;
         IProgramSeries series = program as IProgramSeries;
@@ -305,7 +325,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         }
         else
         {
-          ProgramId = 0;
+          ProgramId = -1;
           Title = string.Empty;
           Description = string.Empty;
           StartTime = DateTime.Now.GetDay();
@@ -314,6 +334,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           EpgGenreId = 0;
           EpgGenreColor = string.Empty;
         }
+
+        NoProgramData = ProgramId == -1;
         UpdateDuration();
       }
       finally

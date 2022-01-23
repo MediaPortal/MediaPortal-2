@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -319,6 +319,39 @@ namespace MediaInfoLib
     public float? GetFramerate(int stream)
     {
       return GetFloatOrNull(_mediaInfo.Get(StreamKind.Video, stream, "FrameRate"));
+    }
+
+    /// <summary>
+    /// Returns the MVC 3D count of the video in the specified video <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>MVC 3D count of the stream (if more than 1 it is probably 3D) or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public int? GetMultiviewCount(int stream)
+    {
+      return GetIntOrNull(_mediaInfo.Get(StreamKind.Video, stream, "MultiView_Count"));
+    }
+
+    /// <summary>
+    /// Returns the commercial format of the video in the specified video <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Commercial format of the stream (for example HDR10) or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public string GetCommercialVideoFormat(int stream)
+    {
+      return _mediaInfo.Get(StreamKind.Video, stream, "Format_Commercial_IfAny");
+    }
+
+    /// <summary>
+    /// Returns the scan type of the video in the specified video <paramref name="stream"/>.
+    /// </summary>
+    /// <param name="stream">Number of video stream to examine.</param>
+    /// <returns>Scan type of the stream (progressive or interlaced) or <c>null</c>, if the specified video
+    /// stream doesn't exist.</returns>
+    public string GetScanType(int stream)
+    {
+      return _mediaInfo.Get(StreamKind.Video, stream, "ScanType");
     }
 
     /// <summary>

@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.SharesConfiguration.Title]"/>
+
+    <!-- Shares configuration model -->
+    <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <UniformGrid Columns="1" DataContext="{Binding Source={StaticResource Model}}" Margin="5,0,20,0">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Margin="10" Content="[SharesConfig.GlobalShares]" Color="{ThemeResource TextColor}"/>
+          <StackPanel HorizontalAlignment="Right" Margin="0,20,25,0" Orientation="Horizontal">
+            <StackPanel.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                <Binding ElementName="ServerSharesList" Path="ItemsCount" />
+              </MultiBinding>
+            </StackPanel.IsVisible>
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="ServerSharesList" Path="CurrentItem"/>
+                  <Binding ElementName="ServerSharesList" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+            <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <Binding ElementName="ServerSharesList" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+          <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="10,0,30,10" Background="White" BorderThickness="0" Height="4"/>
+          <ListView Name="ServerSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Style="{ThemeResource SharesConfigList1ViewStyle}"
+                    IsVisible="{Binding IsHomeServerConnected}"
+                    ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
+          <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
+                 Content="[SharesConfig.NoConfigGlobalSharesHomeServerNotConnected]" Wrap="true"
+                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        </Grid>
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Margin="10" Grid.Row="0" Content="[SharesConfig.LocalShares]" Color="{ThemeResource TextColor}"/>
+          <StackPanel HorizontalAlignment="Right" Margin="0,20,25,0" Orientation="Horizontal">
+            <StackPanel.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                <Binding ElementName="ClientSharesList" Path="ItemsCount" />
+              </MultiBinding>
+            </StackPanel.IsVisible>
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="ClientSharesList" Path="CurrentItem"/>
+                  <Binding ElementName="ClientSharesList" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+            <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <Binding ElementName="ClientSharesList" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </StackPanel>
+          <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="10,0,30,10" Background="White" BorderThickness="0" Height="4"/>
+          <ListView Name="ClientSharesList" Margin="10" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Style="{ThemeResource SharesConfigList1ViewStyle}"
+                    IsVisible="{Binding ShowLocalShares}"
+                    ItemsSource="{Binding Path=LocalSharesList,Mode=OneTime}"/>
+          <Label Margin="10" Grid.Row="1" IsVisible="{Binding !ShowLocalShares}"
+                 Content="[SharesConfig.NoConfigLocalSharesHomeServerLocal]" Wrap="true"
+                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+        </Grid>
+      </UniformGrid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

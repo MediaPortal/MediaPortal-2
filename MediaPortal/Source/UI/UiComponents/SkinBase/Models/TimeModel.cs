@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -52,6 +52,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     protected string _timeFormat = DEFAULT_TIMEFORMAT;
     protected bool _loggedErrorOnce = false;
 
+    protected AbstractProperty _currentTimeRawProperty = new WProperty(typeof(DateTime), DateTime.Now);
     protected AbstractProperty _currentTimeProperty = new WProperty(typeof(string), string.Empty);
     protected AbstractProperty _currentDateProperty = new WProperty(typeof(string), string.Empty);
 
@@ -113,6 +114,7 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
       try
       {
+        CurrentTimeRaw = now;
         CurrentTime = now.ToString(_timeFormat, culture);
         CurrentDate = now.ToString(_dateFormat, culture);
       }
@@ -150,6 +152,17 @@ namespace MediaPortal.UiComponents.SkinBase.Models
     {
       get { return (string) _currentTimeProperty.GetValue(); }
       set { _currentTimeProperty.SetValue(value); }
+    }
+
+    public AbstractProperty CurrentTimeRawProperty
+    {
+      get { return _currentTimeRawProperty; }
+    }
+
+    public DateTime CurrentTimeRaw
+    {
+      get { return (DateTime)_currentTimeRawProperty.GetValue(); }
+      set { _currentTimeRawProperty.SetValue(value); }
     }
 
     public AbstractProperty HourAngleProperty

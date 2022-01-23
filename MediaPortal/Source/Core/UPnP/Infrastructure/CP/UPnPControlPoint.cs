@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -188,13 +188,13 @@ namespace UPnP.Infrastructure.CP
           }
           catch (Exception ex)
           {
-            if (UPnPConfiguration.IP_ADDRESS_BINDINGS.Count > 0)
+            if (UPnPConfiguration.IP_ADDRESS_BINDINGS?.Count > 0)
               UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server with filters. Fallback to no filters", ex);
             else
               throw ex;
 
             server?.Dispose();
-            startOptions = UPnPServer.BuildStartOptions(servicePrefix, new List<string>());
+            startOptions = UPnPServer.BuildStartOptions(servicePrefix, new List<string>(), UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER);
             server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
             UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
             _httpListeners.Add(server);

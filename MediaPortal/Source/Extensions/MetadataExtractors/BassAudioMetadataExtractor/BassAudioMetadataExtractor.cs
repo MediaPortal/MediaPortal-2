@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -153,9 +153,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
         if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
         {
           trackInfo.FromMetadata(extractedAspectData);
+          trackInfo.ForceOnlineSearch = trackInfo.IsDirty;
         }
         else
         {
+          trackInfo.AllowOnlineReSearch = true;
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, title);
           IList<MultipleMediaItemAspect> providerResourceAspect;
           if (MediaItemAspect.TryGetAspects(extractedAspectData, ProviderResourceAspect.Metadata, out providerResourceAspect))
@@ -235,29 +237,51 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
               trackInfo.ReleaseDate = new DateTime(year, 1, 1);
           }
 
-          if (!trackInfo.HasThumbnail)
-          {
-            // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
-            if (tags.PictureCount > 0)
-            {
-              try
-              {
-                using (Image cover = tags.PictureGetImage(0))
-                using (MemoryStream result = new MemoryStream())
-                {
-                  cover.Save(result, ImageFormat.Jpeg);
-                  trackInfo.Thumbnail = result.ToArray();
-                  trackInfo.HasChanged = true;
-                }
-              }
-              // Decoding of invalid image data can fail, but main MediaItem is correct.
-              catch { }
-            }
-          }
+          //Should be handled by the fanart collector instead
+          //if (!trackInfo.HasThumbnail)
+          //{
+          //  // The following code gets cover art images from file (embedded) or from windows explorer cache (supports folder.jpg).
+          //  if (tags.PictureCount > 0)
+          //  {
+          //    try
+          //    {
+          //      using (Image cover = tags.PictureGetImage(0))
+          //      using (MemoryStream result = new MemoryStream())
+          //      {
+          //        cover.Save(result, ImageFormat.Jpeg);
+          //        trackInfo.Thumbnail = result.ToArray();
+          //        trackInfo.HasChanged = true;
+          //      }
+          //    }
+          //    // Decoding of invalid image data can fail, but main MediaItem is correct.
+          //    catch { }
+          //  }
+          //}
         }
 
-        if(!SkipOnlineSearches && !forceQuickMode)
-          await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo).ConfigureAwait(false);
+        if (!forceQuickMode)
+        {
+          if (SkipOnlineSearches && !SkipFanArtDownload)
+          {
+            TrackInfo tempInfo = trackInfo.Clone();
+            var success = await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(tempInfo, _category).ConfigureAwait(false);
+            if (success)
+            {
+              trackInfo.CopyIdsFrom(tempInfo);
+              trackInfo.HasChanged = tempInfo.HasChanged;
+            }
+            else
+            {
+              ServiceRegistration.Get<ILogger>().Debug("BassAudioMetadataExtractor: Unable to get online ids for audio file '{0}'", fsra.CanonicalLocalResourcePath);
+            }
+          }
+          else if (!SkipOnlineSearches)
+          {
+            var success = await OnlineMatcherService.Instance.FindAndUpdateTrackAsync(trackInfo, _category).ConfigureAwait(false);
+            if (!success)
+              ServiceRegistration.Get<ILogger>().Debug("BassAudioMetadataExtractor: Unable to get online data for audio file '{0}'", fsra.CanonicalLocalResourcePath);
+          }
+        }
 
         if (!trackInfo.HasChanged)
           return false;

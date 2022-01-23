@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <string name="Settings.Transcode.None">Žiadne</string>
+  <string name="Settings.Transcode.Auto">Automaticky</string>
+  <string name="Settings.Transcode.Default">Predvolené</string>
+
+</resources>

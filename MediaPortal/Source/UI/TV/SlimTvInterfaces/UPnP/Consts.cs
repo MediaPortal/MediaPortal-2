@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -44,7 +44,9 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_GET_NOW_NEXT_PROGRAM_FOR_GROUP = "GetNowNextProgramForGroup";
     public const string ACTION_GET_SCHEDULES = "GetSchedules";
     public const string ACTION_CREATE_SCHEDULE = "CreateSchedule";
+    public const string ACTION_CREATE_SCHEDULE_DETAILED = "CreateScheduleDetailed";
     public const string ACTION_CREATE_SCHEDULE_BY_TIME = "CreateScheduleByTime";
+    public const string ACTION_EDIT_SCHEDULE = "EditSchedule";
     public const string ACTION_REMOVE_SCHEDULE_FOR_PROGRAM = "RemoveScheduleForProgram";
     public const string ACTION_REMOVE_SCHEDULE = "RemoveSchedule";
     public const string ACTION_GET_REC_STATUS = "GetRecordingStatus";

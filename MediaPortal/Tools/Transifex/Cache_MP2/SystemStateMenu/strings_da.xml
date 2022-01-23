@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">Dvale</string>
   <string name="SystemState.Shutdown">Shutdown</string>
   <string name="SystemState.Suspend">Suspender</string>
-  <string name="SystemState.Restart">Restart</string>
   <string name="SystemState.Logoff">Logoff</string>
   <string name="SystemState.MinimizeMP">Minimer MediaPortal</string>
   <string name="SystemState.ShutdownMP">Luk MediaPortal</string>

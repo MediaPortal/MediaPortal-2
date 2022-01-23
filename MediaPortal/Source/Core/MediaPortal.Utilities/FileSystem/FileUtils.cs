@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -291,7 +291,7 @@ namespace MediaPortal.Utilities.FileSystem
     /// Gets a temporary filename with the given <paramref name="extension"/>.
     /// </summary>
     /// <param name="extension">File extension including "."</param>
-    /// <returns>Tempf file</returns>
+    /// <returns>Temp file</returns>
     public static string GetTempFileName(string extension)
     {
       return Path.Combine(Path.GetTempPath(), Guid.NewGuid() + extension);

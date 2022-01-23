@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -44,6 +44,11 @@ namespace MediaPortal.Mock
     public uint MaxObjectNameLength
     {
       get { return uint.MaxValue; }
+    }
+
+    public uint MaxNumberOfParameters
+    {
+      get { return 800; }
     }
 
     public string ConcatOperator => throw new NotImplementedException();

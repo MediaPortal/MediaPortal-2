@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,9 +35,15 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
 {
-  class FanArtTVWrapper : ApiWrapper<FanArtMovieThumb, string>
+  class FanArtTVWrapper : ApiMediaWrapper<FanArtMovieThumb, string>
   {
     protected FanArtTVApiV3 _fanArtTvHandler;
+    protected readonly string _name;
+
+    public FanArtTVWrapper(string name)
+    {
+      _name = name;
+    }
 
     /// <summary>
     /// Initializes the library. Needs to be called at first.

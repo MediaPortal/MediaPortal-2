@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -41,6 +41,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { AudioAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { PersonAspect.ASPECT_ID };
+
+    private string _category;
+
+    public TrackArtistRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
 
     public bool BuildRelationship
     {
@@ -98,7 +105,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
       AudioMetadataExtractor.TryUpdateArtists(mediaItemAccessor, trackInfo.Artists, false);
       
       if (AudioMetadataExtractor.IncludeArtistDetails && !AudioMetadataExtractor.SkipOnlineSearches)
-        await OnlineMatcherService.Instance.UpdateTrackPersonsAsync(trackInfo, PersonAspect.OCCUPATION_ARTIST, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateTrackPersonsAsync(trackInfo, PersonAspect.OCCUPATION_ARTIST, false, _category).ConfigureAwait(false);
       
       foreach (PersonInfo person in trackInfo.Artists)
       {

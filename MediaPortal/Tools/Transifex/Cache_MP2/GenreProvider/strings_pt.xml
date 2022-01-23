@@ -28,6 +28,8 @@
   <string name="Match.Video.Animation">Animação|Desenhos Animados|Anime</string>
   <string name="Match.Video.Comedy">Comédia</string>
   <string name="Match.Video.Crime">Crime</string>
+  <string name="Match.Video.Documentary">Documentário</string>
+  <string name="Match.Video.Biography">Biografia</string>
   <string name="Match.Video.Drama">Drama</string>
   <string name="Match.Video.Family">Familia</string>
   <string name="Match.Video.Fantasy">Fantasia</string>
@@ -47,23 +49,49 @@
   <string name="Match.Video.Soap">Novela</string>
   <string name="Match.Video.Talk">Falado</string>
   <string name="Match.Video.Politics">Politica</string>
+  <string name="Match.Video.Noir">Noir</string>
+  <string name="Match.Video.Sport">Desporto</string>
+  <string name="Match.Video.Superhero">Super-herói</string>
+  <string name="Match.Video.Game">Jogos</string>
+
+  <string name="Match.Epg.Movie">Filme</string>
   <string name="Match.Epg.Series">Séries</string>
   <string name="Match.Epg.Documentary">Documentário|Biografia</string>
   <string name="Match.Epg.Music">Música</string>
   <string name="Match.Epg.Kids">Garotos|Crianças|Jovens</string>
   <string name="Match.Epg.News">Notícias</string>
+  <string name="Match.Epg.Sport">Desporto</string>
+
+  <string name="Label.Audio.Classic">Clássico</string>
+  <string name="Label.Audio.Soundtrack">Banda sonora</string>
+  <string name="Label.Audio.NewAge">New Age</string>
+  <string name="Label.Audio.Rock">Rock</string>
   <string name="Label.Audio.Metal">Metal</string>
-  <string name="Label.Audio.Country">País</string>
+  <string name="Label.Audio.Country">Country</string>
+  <string name="Label.Audio.Jazz">Jazz</string>
+  <string name="Label.Audio.Soul">R&amp;B, Soul</string>
+  <string name="Label.Audio.Rap">Hip Hop, Rap</string>
+  <string name="Label.Audio.Raggae">Reggae</string>
+  <string name="Label.Audio.Pop">Pop</string>
+  <string name="Label.Audio.Dance">Dança</string>
+  <string name="Label.Audio.Electronic">Eletrónica</string>
   <string name="Label.Audio.Comedy">Comédia</string>
   <string name="Label.Audio.Folk">Folk</string>
+  <string name="Label.Audio.EasyListening">Audição Rápida</string>
+  <string name="Label.Audio.Holiday">Férias</string>
   <string name="Label.Audio.World">Mundo</string>
+  <string name="Label.Audio.Alternative">Alternativa</string>
   <string name="Label.Audio.Compilation">Compilação</string>
+  <string name="Label.Audio.Audiobook">Livro de Áudio</string>
   <string name="Label.Audio.Karaoke">Karaoke</string>
 
   <string name="Label.Video.Action">Acção</string>
   <string name="Label.Video.Adventure">Aventura</string>
+  <string name="Label.Video.Animation">Animação</string>
   <string name="Label.Video.Comedy">Comédia</string>
   <string name="Label.Video.Crime">Crime</string>
+  <string name="Label.Video.Documentary">Documentário</string>
+  <string name="Label.Video.Biography">Biografia</string>
   <string name="Label.Video.Drama">Drama</string>
   <string name="Label.Video.Family">Familia</string>
   <string name="Label.Video.Fantasy">Fantasia</string>
@@ -72,12 +100,27 @@
   <string name="Label.Video.Music">Música</string>
   <string name="Label.Video.Mystery">Mistério</string>
   <string name="Label.Video.Romance">Romance</string>
+  <string name="Label.Video.ScienceFiction">Ficção Cientifica</string>
   <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.Thriller">Suspense</string>
   <string name="Label.Video.War">Guerra</string>
   <string name="Label.Video.Western">Western</string>
+  <string name="Label.Video.Kids">Crianças</string>
   <string name="Label.Video.News">Notícias</string>
+  <string name="Label.Video.Reality">Reality-TV</string>
   <string name="Label.Video.Soap">Novela</string>
+  <string name="Label.Video.Talk">Talk Show</string>
+  <string name="Label.Video.Politics">Política</string>
+  <string name="Label.Video.Noir">Film Noir</string>
+  <string name="Label.Video.Sport">Desporto</string>
+  <string name="Label.Video.Superhero">Super-herói</string>
+  <string name="Label.Video.Game">Game Show</string>
+
+  <string name="Label.Epg.Movie">Filme</string>
   <string name="Label.Epg.Series">Séries</string>
+  <string name="Label.Epg.Documentary">Documentário</string>
   <string name="Label.Epg.Music">Música</string>
+  <string name="Label.Epg.Kids">Crianças</string>
   <string name="Label.Epg.News">Notícias</string>
-  </resources>
+  <string name="Label.Epg.Sport">Desporto</string>
+</resources>

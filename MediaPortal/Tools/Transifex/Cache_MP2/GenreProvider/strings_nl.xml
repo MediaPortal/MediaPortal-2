@@ -49,7 +49,11 @@
   <string name="Match.Video.Soap">Soap</string>
   <string name="Match.Video.Talk">Praat</string>
   <string name="Match.Video.Politics">Politiek</string>
+  <string name="Match.Video.Noir">Noir</string>
   <string name="Match.Video.Sport">Sport</string>
+  <string name="Match.Video.Superhero">Superheld</string>
+  <string name="Match.Video.Game">Game</string>
+
   <string name="Match.Epg.Movie">Films</string>
   <string name="Match.Epg.Series">Series</string>
   <string name="Match.Epg.Documentary">Documentaire|Biografie</string>
@@ -59,18 +63,33 @@
   <string name="Match.Epg.Sport">Sport</string>
 
   <string name="Label.Audio.Classic">Klassiek</string>
+  <string name="Label.Audio.Soundtrack">Filmmuziek / Soundtrack</string>
+  <string name="Label.Audio.NewAge">New Age</string>
+  <string name="Label.Audio.Rock">Rock</string>
   <string name="Label.Audio.Metal">Metal</string>
-  <string name="Label.Audio.Country">Land</string>
+  <string name="Label.Audio.Country">Country</string>
+  <string name="Label.Audio.Jazz">Jazz</string>
+  <string name="Label.Audio.Soul">R&amp;B, Soul</string>
+  <string name="Label.Audio.Rap">Hip Hop, Rap</string>
+  <string name="Label.Audio.Raggae">Reggae</string>
+  <string name="Label.Audio.Pop">Pop</string>
+  <string name="Label.Audio.Dance">Dance</string>
+  <string name="Label.Audio.Electronic">Electronisch</string>
   <string name="Label.Audio.Comedy">Komedie</string>
   <string name="Label.Audio.Folk">Folk</string>
+  <string name="Label.Audio.EasyListening">Easy Listening</string>
+  <string name="Label.Audio.Holiday">Vakantie</string>
   <string name="Label.Audio.World">Wereld</string>
+  <string name="Label.Audio.Alternative">Alternatief</string>
   <string name="Label.Audio.Compilation">Compilatie</string>
+  <string name="Label.Audio.Audiobook">Audioboek</string>
   <string name="Label.Audio.Karaoke">Karaoke</string>
 
   <string name="Label.Video.Action">Actie</string>
   <string name="Label.Video.Adventure">Avontuur</string>
+  <string name="Label.Video.Animation">Animatie</string>
   <string name="Label.Video.Comedy">Komedie</string>
-  <string name="Label.Video.Crime">Crime</string>
+  <string name="Label.Video.Crime">Misdaad</string>
   <string name="Label.Video.Documentary">Documentaire</string>
   <string name="Label.Video.Biography">Biografie</string>
   <string name="Label.Video.Drama">Drama</string>
@@ -81,16 +100,27 @@
   <string name="Label.Video.Music">Muziek</string>
   <string name="Label.Video.Mystery">Mysterieus</string>
   <string name="Label.Video.Romance">Romantiek</string>
+  <string name="Label.Video.ScienceFiction">Science Fiction</string>
   <string name="Label.Video.TVMovie">TV</string>
+  <string name="Label.Video.Thriller">Thriller</string>
   <string name="Label.Video.War">Oorlog</string>
   <string name="Label.Video.Western">Western</string>
+  <string name="Label.Video.Kids">Kinderen</string>
   <string name="Label.Video.News">Nieuws</string>
+  <string name="Label.Video.Reality">Reality-TV</string>
   <string name="Label.Video.Soap">Soap</string>
+  <string name="Label.Video.Talk">Praatshow</string>
+  <string name="Label.Video.Politics">Politiek</string>
+  <string name="Label.Video.Noir">Film Noir</string>
   <string name="Label.Video.Sport">Sport</string>
+  <string name="Label.Video.Superhero">Superheld</string>
+  <string name="Label.Video.Game">Spelshow</string>
+
   <string name="Label.Epg.Movie">Films</string>
   <string name="Label.Epg.Series">Series</string>
   <string name="Label.Epg.Documentary">Documentaire</string>
   <string name="Label.Epg.Music">Muziek</string>
+  <string name="Label.Epg.Kids">Kinderen</string>
   <string name="Label.Epg.News">Nieuws</string>
   <string name="Label.Epg.Sport">Sport</string>
 </resources>

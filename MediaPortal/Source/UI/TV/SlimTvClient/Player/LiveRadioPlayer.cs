@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -102,7 +102,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Player
       // In contrast to TV we need to use a relative path here, as the method is located inside the SlimTV assembly.
       // For TV part, the base class inside VideoPlayers is used and thus the correct path to TsReader.ax
       // The problem with different paths appears only inside RELEASE builds, but not DEBUG. Why this happens I don't know.
-      _sourceFilter = FilterLoader.LoadFilterFromDll("..\\VideoPlayers\\TsReader.ax", typeof(TsReader).GUID, true);
+      var platform = IntPtr.Size > 4 ? "x64" : "x86";
+      _sourceFilter = FilterLoader.LoadFilterFromDll($"..\\VideoPlayers\\{platform}\\TsReader.ax", typeof(TsReader).GUID, true);
       var baseFilter = _sourceFilter.GetFilter();
 
       IFileSourceFilter fileSourceFilter = (IFileSourceFilter)baseFilter;

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,7 +32,7 @@ namespace MediaPortal.Common.MediaManagement.Helpers
   public class ImdbIdMatcher
   {
     public static string GROUP_IMDBID = "imdbid";
-    public static Regex REGEXP_IMDBID = new Regex(@"(?<imdbid>tt\d{7})", RegexOptions.IgnoreCase);
+    public static Regex REGEXP_IMDBID = new Regex(@"(?<imdbid>tt\d+)", RegexOptions.IgnoreCase);
 
     /// <summary>
     /// Tries to match IMDB ids from a given <param name="textOrfolderOrFileName">string</param> using regular expressions.

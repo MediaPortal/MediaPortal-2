@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -100,9 +100,10 @@ namespace MediaPortal.Common
       logger.Info("ApplicationCore: Copyright:        {0}", fileVersionInfo.LegalCopyright);
       logger.Info("ApplicationCore: Version:          {0}", fileVersionInfo.FileVersion);
       logger.Info("ApplicationCore: Source:           {0}", fileVersionInfo.ProductVersion);
+      logger.Info("ApplicationCore: Architecture:     {0}", IntPtr.Size > 4 ? "x64" : "x86");
       // Operating system info
       logger.Info("ApplicationCore: OS version:       {0}", Environment.OSVersion);
-      foreach (string key in new[] { "ProductName", "ReleaseId", "BuildLab", "InstallationType", "EditionID", "EditionSubstring" })
+      foreach (string key in new[] { "ProductName", "ReleaseId", "BuildLab", "InstallationType", "EditionID" })
       {
         try
         {

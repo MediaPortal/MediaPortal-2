@@ -66,6 +66,7 @@
   <!--MediaItemAction dialog-->
   <string name="Media.Refresh">Ανανέωση</string>
   <string name="Media.ReimportMediaItem.Done">Έγινε</string>
+  <string name="Media.SubtitleSearch.Language">Γλώσσα</string>
   <!--Play items dialog-->
   <!--Player context names-->
   <string name="Media.AudioContextName">Ήχος</string>
@@ -79,6 +80,8 @@
   <string name="Media.RepeatMode.All">Όλα</string>
   <!--VideoPlayerUIContributor-->
   <!--Video Player time units-->
+  <string name="Media.ListSmall">Μικρό</string>
+  <string name="Media.ListMedium">Μέτριο</string>
   <string name="Media.SortByDate">Ημερομηνία</string>
   <string name="Media.GroupingBrowseDefault">Προκαθορισμένο</string>
   <!--Stubs-->
@@ -86,6 +89,4 @@
   <!--Settings-->
   <string name="Settings.Players">Παίκτες</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

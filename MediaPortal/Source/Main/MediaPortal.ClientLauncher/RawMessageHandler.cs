@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -186,8 +186,10 @@ namespace MediaPortal.Client.Launcher
 
     private int HidEventThreadWndProc(IntPtr hWnd, uint msg, IntPtr wParam, IntPtr lParam)
     {
+      const int WM_INPUT = 0x00FF;
       var message = new Message { HWnd = hWnd, LParam = lParam, WParam = wParam, Msg = (int)msg };
-      _hidHandler?.ProcessInput(ref message);
+      if (message.Msg == WM_INPUT)
+        _hidHandler?.ProcessInput(ref message);
       return NativeMethods.DefWindowProc(hWnd, msg, wParam, lParam);
     }
 

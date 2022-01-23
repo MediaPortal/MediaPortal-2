@@ -7,6 +7,7 @@ using System.Security.Permissions;
 using System.Threading;
 using System.Windows.Forms;
 using DirectShow.Helper;
+using DirectShowWrapper;
 
 namespace DirectShow.BaseClasses
 {
@@ -724,7 +725,7 @@ namespace DirectShow.BaseClasses
                     for (int i = 0; i < m_Pages.Count; i++)
                     {
                         Marshal.StructureToPtr(m_Pages[i], _ptr, false);
-                        _ptr = new IntPtr(_ptr.ToInt32() + cb);
+                        _ptr = _ptr.Add(cb);
                     }
                     return NOERROR;
                 }

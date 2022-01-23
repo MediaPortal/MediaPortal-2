@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Nereus.Home.Favorites">Uppáhald</string>
+  <string name="Nereus.Shortcut.Genre">Flokkun</string>
+  <string name="Nereus.Shortcut.Artist">Flytjandi</string>
+  <string name="Nereus.Shortcut.Search">Leita</string>
+  <string name="Nereus.Shortcut.System">Kerfi</string>
+  <string name="Nereus.Shortcut.Size">Stærð</string>
+  <string name="Nereus.Shortcut.Refresh">Endurstilla</string>
+  
+  <string name="Nereus.Home.OtherPlugins">Annað</string>
+  <string name="Nereus.Info.Subtitles">Textun</string>
+  <string name="Nereus.Info.Actors">Leikarar</string>
+  </resources>

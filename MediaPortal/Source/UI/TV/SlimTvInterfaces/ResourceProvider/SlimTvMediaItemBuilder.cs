@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -60,11 +60,11 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       return CreateMediaItem(slotIndex, path, channel, false);
     }
 
-    public static LiveTvMediaItem.LiveTvMediaItem CreateMediaItem(int slotIndex, string path, IChannel channel, bool isTv)
+    public static LiveTvMediaItem.LiveTvMediaItem CreateMediaItem(int slotIndex, string path, IChannel channel, bool isTv, string customMimeType = null)
     {
       if (!String.IsNullOrEmpty(path))
       {
-        var tvStream = CreateCommonMediaItem(slotIndex, path, isTv);
+        var tvStream = CreateCommonMediaItem(slotIndex, path, isTv, customMimeType);
         tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.SLOT_INDEX] = slotIndex;
         tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.CHANNEL] = channel;
         tvStream.AdditionalProperties[LiveTvMediaItem.LiveTvMediaItem.TUNING_TIME] = DateTime.Now;
@@ -73,7 +73,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
       return null;
     }
 
-    private static LiveTvMediaItem.LiveTvMediaItem CreateCommonMediaItem(int slotIndex, string path, bool isTv)
+    private static LiveTvMediaItem.LiveTvMediaItem CreateCommonMediaItem(int slotIndex, string path, bool isTv, string customMimeType = null)
     {
       ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
       IDictionary<Guid, IList<MediaItemAspect>> aspects = new Dictionary<Guid, IList<MediaItemAspect>>();
@@ -103,6 +103,11 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider
         title = "Live Radio";
         mimeType = LiveTvMediaItem.LiveTvMediaItem.MIME_TYPE_RADIO;
       }
+
+      // Allow overriding from argument
+      if (!string.IsNullOrEmpty(customMimeType))
+        mimeType = customMimeType;
+
       MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_TITLE, title);
       MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(title));
       MediaItemAspect.SetAttribute(aspects, MediaAspect.ATTR_ISVIRTUAL, false);

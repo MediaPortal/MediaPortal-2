@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -270,6 +270,31 @@ namespace MediaPortal.Common.Services.ServerCommunication
       if (outParameters[0] != null)
         data = MarshallingHelper.ParseCsvTuple3Collection((string)outParameters[0]).Select(t => new Tuple<string, int, string>(t.Item1, Convert.ToInt32(t.Item2), t.Item3));
       return new AsyncResult<IEnumerable<Tuple<string, int, string>>>((bool)outParameters[1], data);
+    }
+
+    public async Task<bool> NotifyFeatureUsageAsync(Guid profileId, string scope, string usedItem)
+    {
+      CpAction action = GetAction("NotifyFeatureUsage");
+      IList<object> inParameters = new List<object>
+      {
+        MarshallingHelper.SerializeGuid(profileId),
+        scope,
+        usedItem
+      };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (bool)outParameters[0];
+    }
+
+    public async Task<UsageStatistics> GetFeatureUsageStatisticsAsync(Guid profileId, string scope)
+    {
+      CpAction action = GetAction("GetFeatureUsageStatistics");
+      IList<object> inParameters = new List<object>
+      {
+        MarshallingHelper.SerializeGuid(profileId),
+        scope
+      };
+      IList<object> outParameters = await action.InvokeAsync(inParameters);
+      return (UsageStatistics)outParameters[0];
     }
 
     #endregion

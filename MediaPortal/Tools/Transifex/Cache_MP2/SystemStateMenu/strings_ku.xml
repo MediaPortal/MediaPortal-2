@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">سڕکردن (کوژاندنەوەی شاشە)</string>
   <string name="SystemState.Shutdown">کوژاندنەوە</string>
   <string name="SystemState.Suspend">ڕاگرتن</string>
-  <string name="SystemState.Restart">دووبارە داگیرساندنەوە</string>
   <string name="SystemState.Logoff">گۆڕینی بەکارهێنەر</string>
   <string name="SystemState.MinimizeMP">بچوککردنەوەی MediaPortal</string>
   <string name="SystemState.ShutdownMP">داخستنی MediaPortal</string>

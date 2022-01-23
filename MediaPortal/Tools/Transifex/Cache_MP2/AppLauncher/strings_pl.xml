@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Zatrzymaj</string>
+  <string name="AppLauncher.Pause">Wstrzymaj</string>
+  <string name="AppLauncher.Settings.Title">Ustawienia</string>
+  <string name="AppLauncher.Settings.Helptext">Wybierz swoje zewnętrzne aplikacje</string>
+  <string name="AppLauncher.Settings.Add">Dodaj aplikację</string>
+  <string name="AppLauncher.Settings.Add.Path">Ścieżka aplikacji</string>
+  <string name="AppLauncher.Settings.Add.Description">Opis</string>
+  <string name="AppLauncher.Settings.Add.Username">Nazwa użytkownika</string>
+  <string name="AppLauncher.Settings.Add.Password">Hasło</string>
+  <string name="AppLauncher.Settings.Add.Search">Wyszukaj</string>
+  <string name="AppLauncher.Settings.Add.Select">Wybierz</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">Wyszukaj aplikację</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">Uruchom jako administrator</string>
+  <string name="AppLauncher.Settings.Edit">Edytuj aplikację</string>
+  <string name="AppLauncher.Settings.Delete">Usuń aplikację</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">Edytuj istniejącą aplikację</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">Usuń istniejącą aplikację</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">Usuń istniejącą grupę</string>
+
+  <string name="AppLauncher.Group">Grupa</string>
+  <string name="AppLauncher.Ungrouped">Rozgrupowane</string>
+  <string name="AppLauncher.SelectGroup">Wybierz grupę</string>
+  <string name="AppLauncher.SelectApp">Wybierz aplikację</string>
+  <string name="AppLauncher.RemoveGroup">Usuń grupę</string>
+  <string name="AppLauncher.Delete">Usuń</string>
+  <string name="AppLauncher.MenuEntry">Uruchom aplikację</string>
+  <string name="AppLauncher.Menu">Menu</string>
+  <string name="AppLauncher.Menu.Clear">Czysto</string>
+</resources>

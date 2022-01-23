@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors,Buttons,Consts"
+    >
+
+  <ResourceWrapper x:Key="HiddenMenuRenderTransformX" Resource="200"/>
+  <ResourceWrapper x:Key="HiddenMenuRenderTransformY" Resource="-200"/>
+  <ResourceWrapper x:Key="HiddenMenuSlideDuration" Resource="00:00:00.35"/>
+
+  <Storyboard x:Key="HiddenMenuSlideIn">
+    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.X"
+                     From="0" To="{StaticResource HiddenMenuRenderTransformX}"
+                     BeginTime="0:0:0" Duration="{StaticResource HiddenMenuSlideDuration}"
+                     FillBehavior="HoldEnd"/>
+  </Storyboard>
+
+  <Storyboard x:Key="HiddenMenuSlideOut">
+    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.X"
+                     From="{StaticResource HiddenMenuRenderTransformX}" To="0"
+                     BeginTime="0:0:0" Duration="{StaticResource HiddenMenuSlideDuration}"
+                     FillBehavior="HoldEnd"/>
+  </Storyboard>
+
+  <Storyboard x:Key="HiddenMenuSlideInVertical">
+    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Y"
+                     From="0" To="{StaticResource HiddenMenuRenderTransformY}"
+                     BeginTime="0:0:0" Duration="{StaticResource HiddenMenuSlideDuration}"
+                     FillBehavior="HoldEnd"/>
+  </Storyboard>
+
+  <Storyboard x:Key="HiddenMenuSlideOutVertical">
+    <DoubleAnimation Storyboard.TargetProperty="RenderTransform.Y"
+                     From="{StaticResource HiddenMenuRenderTransformY}" To="0"
+                     BeginTime="0:0:0" Duration="{StaticResource HiddenMenuSlideDuration}"
+                     FillBehavior="HoldEnd"/>
+  </Storyboard>
+
+</ResourceDictionary>

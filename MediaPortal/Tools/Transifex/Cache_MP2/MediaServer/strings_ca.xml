@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">Audio</string>
+  <string name="MediaServer.ShareContainter">Llocs compartits</string>
+  <string name="MediaServer.ImageContainter">Imatges</string>
+  <string name="MediaServer.MovieContainter">Pel·lícules</string>
+  <string name="MediaServer.ActorContainter">Actors</string>
+  <string name="MediaServer.SeriesContainter">Sèries</string>
+  <string name="MediaServer.TV">TV</string>
+  </resources>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -44,7 +44,7 @@ using System.Threading.Tasks;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 {
-  public abstract class MovieMatcher<TImg, TLang> : BaseMatcher<MovieMatch, string, TImg, TLang>, IMovieMatcher
+  public abstract class MovieMatcher<TImg, TLang> : BaseMediaMatcher<MovieMatch, string, TImg, TLang>, IMovieMatcher
   {
     public class MovieMatcherSettings
     {
@@ -57,15 +57,20 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     protected readonly SemaphoreSlim _initSyncObj = new SemaphoreSlim(1, 1);
     protected bool _isInit = false;
+    protected const int MAX_CHANGES = 10000;
+    protected  object _configSyncObj = new object();
+    protected List<string> _processedMovieChanges = new List<string>();
+    protected List<string> _processedCollectionChanges = new List<string>();
 
     #region Init
 
-    public MovieMatcher(string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
+    public MovieMatcher(string name, string cachePath, TimeSpan maxCacheDuration, bool cacheRefreshable)
     {
       _cachePath = cachePath;
       _matchesSettingsFile = Path.Combine(cachePath, "MovieMatches.xml");
       _maxCacheDuration = maxCacheDuration;
       _id = GetType().Name;
+      _name = name;
       _cacheRefreshable = cacheRefreshable;
 
       _actorMatcher = new SimpleNameMatcher(Path.Combine(cachePath, "ActorMatches.xml"));
@@ -127,10 +132,27 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     public abstract Task<bool> InitWrapperAsync(bool useHttps);
 
+    public override bool Equals(object obj)
+    {
+      if (obj is MovieMatcher<TImg, TLang> m)
+        return Id.Equals(m.Id);
+      return false;
+    }
+
+    public override int GetHashCode()
+    {
+      return Id.GetHashCode();
+    }
+
+    public override string ToString()
+    {
+      return Name;
+    }
+
     #endregion
 
     #region Constants
-    
+
     private TimeSpan CACHE_CHECK_INTERVAL = TimeSpan.FromMinutes(60);
 
     protected override string MatchesSettingsFile
@@ -232,7 +254,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
     #region Metadata updaters
 
-    private MovieMatch GetStroredMatch(MovieInfo movieInfo)
+    private MovieMatch GetStoredMatch(MovieInfo movieInfo)
     {
       // Load cache or create new list
       List<MovieMatch> matches = _storage.GetMatches();
@@ -304,7 +326,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
         bool matchFound = false;
         TLang language = FindBestMatchingLanguage(movieInfo.Languages);
 
-        if (GetMovieId(movieInfo, out movieId))
+        if (GetMovieId(movieInfo, out movieId) && !movieInfo.ForceOnlineSearch)
         {
           // Prefer memory cache
           CheckCacheAndRefresh();
@@ -316,7 +338,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
 
         if (!matchFound)
         {
-          MovieMatch match = GetStroredMatch(movieInfo);
+          MovieMatch match = GetStoredMatch(movieInfo);
           movieMatch = movieInfo.Clone();
           if (string.IsNullOrEmpty(movieId))
           {
@@ -337,7 +359,9 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
               {
                 //Match was found but with invalid Id probably to avoid a retry
                 //No Id is available so online search will probably fail again
-                return false;
+                //If item was forced, allow another search
+                if (!movieInfo.AllowOnlineReSearch && !movieInfo.ForceOnlineSearch)
+                  return false;
               }
             }
           }
@@ -350,19 +374,23 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             }
           }
 
-          if (!matchFound)
+          if (!matchFound || movieInfo.ForceOnlineSearch)
           {
             Logger.Debug(_id + ": Search for movie {0} online", movieInfo.ToString());
 
             //Try to update movie information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, false).ConfigureAwait(false))
             {
-              //Search for the movie online and update the Ids if a match is found
-              if (await _wrapper.SearchMovieUniqueAndUpdateAsync(movieMatch, language).ConfigureAwait(false))
+              //If movie had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(movieMatch))
               {
-                //Ids were updated now try to update movie information from online source
-                if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, false).ConfigureAwait(false))
-                  matchFound = true;
+                //Search for the movie online and update the Ids if a match is found
+                if (await _wrapper.SearchMovieUniqueAndUpdateAsync(movieMatch, language).ConfigureAwait(false))
+                {
+                  //Ids were updated now try to update movie information from online source
+                  if (await _wrapper.UpdateFromOnlineMovieAsync(movieMatch, language, false).ConfigureAwait(false))
+                    matchFound = true;
+                }
               }
             }
             else
@@ -521,15 +549,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update person information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMoviePersonAsync(movieMatch, person, language, false).ConfigureAwait(false))
             {
-              //Search for the person online and update the Ids if a match is found
-              if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
-              {
-                //Ids were updated now try to fetch the online person info
-                if (await _wrapper.UpdateFromOnlineMoviePersonAsync(movieMatch, person, language, false).ConfigureAwait(false))
+              //If person had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(person))
+              { 
+                //Search for the person online and update the Ids if a match is found
+                if (await _wrapper.SearchPersonUniqueAndUpdateAsync(person, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  movieInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online person info
+                  if (await _wrapper.UpdateFromOnlineMoviePersonAsync(movieMatch, person, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    movieInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -646,15 +678,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update character information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMovieCharacterAsync(movieMatch, character, language, false).ConfigureAwait(false))
             {
-              //Search for the character online and update the Ids if a match is found
-              if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
+              //If character had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(character))
               {
-                //Ids were updated now try to fetch the online character info
-                if (await _wrapper.UpdateFromOnlineMovieCharacterAsync(movieMatch, character, language, false).ConfigureAwait(false))
+                //Search for the character online and update the Ids if a match is found
+                if (await _wrapper.SearchCharacterUniqueAndUpdateAsync(character, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  movieInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online character info
+                  if (await _wrapper.UpdateFromOnlineMovieCharacterAsync(movieMatch, character, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    movieInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -748,15 +784,19 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
             //Try to update company information from online source if online Ids are present
             if (!await _wrapper.UpdateFromOnlineMovieCompanyAsync(movieMatch, company, language, false).ConfigureAwait(false))
             {
-              //Search for the company online and update the Ids if a match is found
-              if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
+              //If company had searchable ids, a match should have been found. As this is not the case, a new search would probably need yield the correct match.
+              if (!_wrapper.HasSearchableIds(company))
               {
-                //Ids were updated now try to fetch the online company info
-                if (await _wrapper.UpdateFromOnlineMovieCompanyAsync(movieMatch, company, language, false).ConfigureAwait(false))
+                //Search for the company online and update the Ids if a match is found
+                if (await _wrapper.SearchCompanyUniqueAndUpdateAsync(company, language).ConfigureAwait(false))
                 {
-                  //Set as changed because cache has changed and might contain new/updated data
-                  movieInfo.HasChanged = true;
-                  updated = true;
+                  //Ids were updated now try to fetch the online company info
+                  if (await _wrapper.UpdateFromOnlineMovieCompanyAsync(movieMatch, company, language, false).ConfigureAwait(false))
+                  {
+                    //Set as changed because cache has changed and might contain new/updated data
+                    movieInfo.HasChanged = true;
+                    updated = true;
+                  }
                 }
               }
             }
@@ -1015,31 +1055,38 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
           {
             if (_wrapper != null)
             {
-              if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+              lock (_configSyncObj)
               {
-                _lastCacheRefresh = DateTime.Now;
-                _config.LastRefresh = _lastCacheRefresh.Value.ToString(CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
+                if (_wrapper.RefreshCache(_lastCacheRefresh.Value))
+                {
+                  _lastCacheRefresh = DateTime.Now;
+                  _config.LastRefresh = _lastCacheRefresh.Value.ToString(CONFIG_DATE_FORMAT, CultureInfo.InvariantCulture);
+                }
+                SaveConfig();
               }
             }
           });
         }
-        SaveConfig();
       }
     }
 
-    private void CacheUpdateFinished(ApiWrapper<TImg, TLang>.UpdateFinishedEventArgs _event)
+    private void CacheUpdateFinished(UpdateFinishedEventArgs _event)
     {
       try
       {
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.Movie)
+        lock (_configSyncObj)
         {
-          _config.LastUpdatedMovies.AddRange(_event.UpdatedItems);
-          SaveConfig();
-        }
-        if (_event.UpdatedItemType == ApiWrapper<TImg, TLang>.UpdateType.MovieCollection)
-        {
-          _config.LastUpdatedMovieCollections.AddRange(_event.UpdatedItems);
-          SaveConfig();
+          if (_event.UpdatedItemType == UpdateType.Movie)
+          {
+            _config.LastUpdatedMovies.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
+
+          if (_event.UpdatedItemType == UpdateType.MovieCollection)
+          {
+            _config.LastUpdatedMovieCollections.AddRange(_event.UpdatedItems);
+            SaveConfig();
+          }
         }
       }
       catch (Exception ex)
@@ -1051,16 +1098,30 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     public List<MovieInfo> GetLastChangedMovies()
     {
       List<MovieInfo> movies = new List<MovieInfo>();
+      List<string> ids = new List<string>();
 
       if (!InitAsync().Result)
         return movies;
 
-      foreach (string id in _config.LastUpdatedMovies)
+      lock (_configSyncObj)
       {
-        MovieInfo m = new MovieInfo();
-        if (SetMovieId(m, id) && !movies.Contains(m))
-          movies.Add(m);
+        _processedMovieChanges.Clear();
+        foreach (string id in _config.LastUpdatedMovies)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedMovieChanges.Add(id);
+            MovieInfo m = new MovieInfo();
+            if (SetMovieId(m, id))
+              movies.Add(m);
+          }
+        }
       }
+
       return movies;
     }
 
@@ -1068,22 +1129,44 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
     {
       if (!InitAsync().Result)
         return;
-      _config.LastUpdatedMovies.Clear();
-      SaveConfig();
+
+      lock (_configSyncObj)
+      {
+        if (_processedMovieChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedMovieChanges)
+          _config.LastUpdatedMovies.Remove(id);
+        _processedMovieChanges.Clear();
+        SaveConfig();
+      }
     }
 
     public List<MovieCollectionInfo> GetLastChangedMovieCollections()
     {
       List<MovieCollectionInfo> collections = new List<MovieCollectionInfo>();
+      List<string> ids = new List<string>();
 
       if (!InitAsync().Result)
         return collections;
 
-      foreach (string id in _config.LastUpdatedMovieCollections)
+      lock (_configSyncObj)
       {
-        MovieCollectionInfo c = new MovieCollectionInfo();
-        if (SetMovieCollectionId(c, id) && !collections.Contains(c))
-          collections.Add(c);
+        _processedCollectionChanges.Clear();
+        foreach (string id in _config.LastUpdatedMovieCollections)
+        {
+          if (!ids.Contains(id))
+          {
+            ids.Add(id);
+            if (ids.Count > MAX_CHANGES)
+              break;
+
+            _processedCollectionChanges.Add(id);
+            MovieCollectionInfo c = new MovieCollectionInfo();
+            if (SetMovieCollectionId(c, id))
+              collections.Add(c);
+          }
+        }
       }
       return collections;
     }
@@ -1093,8 +1176,16 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matchers
       if (!InitAsync().Result)
         return;
 
-      _config.LastUpdatedMovieCollections.Clear();
-      SaveConfig();
+      lock (_configSyncObj)
+      {
+        if (_processedCollectionChanges.Count == 0)
+          return;
+
+        foreach (var id in _processedCollectionChanges)
+          _config.LastUpdatedMovieCollections.Remove(id);
+        _processedCollectionChanges.Clear();
+        SaveConfig();
+      }
     }
 
     #endregion

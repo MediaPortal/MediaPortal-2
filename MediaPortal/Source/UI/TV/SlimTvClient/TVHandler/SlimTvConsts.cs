@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,6 +38,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
           MediaAspect.ASPECT_ID,
           new Guid("8DB70262-0DCE-4C80-AD03-FB1CDF7E1913") /* RecordingAspect.ASPECT_ID*/
       };
+
+    public static Guid[] OPTIONAL_RECORDING_MIAS = new[]
+    {
+      VideoStreamAspect.ASPECT_ID,    // Needed for calculating play percentage
+      VideoAspect.Metadata.AspectId,  // Needed for playing TV recording
+      AudioAspect.Metadata.AspectId   // Needed for playing Radio recording
+    };
 
     public const string KEY_CHANNEL = "Channel";
     public const string KEY_STARTTIME = "StartTime";

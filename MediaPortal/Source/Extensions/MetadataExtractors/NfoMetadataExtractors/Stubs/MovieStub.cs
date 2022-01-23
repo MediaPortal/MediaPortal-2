@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -245,6 +245,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     /// </summary>
     /// <example>KeyValuePair("IMDB", 8.7)</example>
     public Dictionary<string, decimal> Ratings { get; set; }
+
+    /// <summary>
+    /// Votes of this movie on specific websites
+    /// </summary>
+    /// <example>KeyValuePair("IMDB", 101)</example>
+    public Dictionary<string, int> RatingVotes { get; set; }
 
     /// <summary>
     /// General rating of this movie

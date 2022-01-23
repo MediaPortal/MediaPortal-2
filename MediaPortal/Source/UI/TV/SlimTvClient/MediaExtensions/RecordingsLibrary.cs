@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,11 +29,14 @@ using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
+using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
+using MediaPortal.UiComponents.Media.FilterTrees;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
@@ -57,6 +60,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
       _mediaNavigationRootState = SlimTvConsts.WF_MEDIA_NAVIGATION_ROOT_STATE;
       _viewName = SlimTvConsts.RES_RECORDINGS_VIEW_NAME;
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
+      _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
     }
 
     protected override async Task PrepareAsync()
@@ -106,7 +110,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         GenreAspect.ASPECT_ID
       }.Union(MediaNavigationModel.GetMediaSkinOptionalMIATypes(MediaNavigationMode));
 
-      _customRootViewSpecification = new StackingViewSpecification(_viewName, null, _necessaryMias, optionalMias, true)
+      IFilterTree filterTree = new SimpleFilterTree();
+      if (_filter != null)
+        filterTree.AddFilter(_filter);
+      if (_applyUserFilter)
+      {
+        var userFilter = UserHelper.GetUserRestrictionFilter(_necessaryMias.ToList());
+        if (userFilter != null)
+         filterTree.AddFilter(userFilter);
+      }
+
+      _customRootViewSpecification = new StackingViewSpecification(_viewName, filterTree, _necessaryMias, optionalMias, true)
       {
         MaxNumItems = Consts.MAX_NUM_ITEMS_VISIBLE
       };

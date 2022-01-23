@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -29,10 +29,11 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.PluginManager;
 using MediaPortal.Common.PluginManager.Exceptions;
+using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
+using MediaPortal.UI.ContentLists;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.ServerCommunication;
-using MediaPortal.UI.Services.UserManagement;
 using MediaPortal.UiComponents.Media.Extensions;
 using MediaPortal.UiComponents.Media.Helpers;
 using MediaPortal.UiComponents.Media.Models;
@@ -42,14 +43,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.Common.UserManagement;
 
 namespace MediaPortal.UiComponents.Media.MediaLists
 {
-  public abstract class BaseMediaListProvider : IMediaListProvider
+  public abstract class BaseMediaListProvider : IContentListProvider
   {
     public delegate PlayableMediaItem PlayableMediaItemToListItemAction(MediaItem mediaItem);
     public delegate PlayableContainerMediaItem PlayableContainerMediaItemToListItemAction(MediaItem mediaItem);
+       
+    // Static so that we only create the filters once across all list providers
+    protected static object _navigationFilterSync = new object();
+    protected static FixedItemStateTracker _tracker;
+    protected static IDictionary<string, IList<IFilter>> _navigationFilters;
 
     protected IList<MediaItem> _currentMediaItems;
     protected ItemsList _allItems;
@@ -58,10 +63,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected PlayableMediaItemToListItemAction _playableConverterAction;
     protected PlayableContainerMediaItemToListItemAction _playableContainerConverterAction;
 
-    protected object _navigationFilterSync = new object();
-    protected FixedItemStateTracker _tracker;
-    protected IDictionary<string, IList<IFilter>> _navigationFilters;
     protected Type _navigationInitializerType;
+
+    private MediaListItemComparer _mediaListItemComparer = new MediaListItemComparer();
 
     public BaseMediaListProvider()
     {
@@ -73,7 +77,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       get { return _allItems; }
     }
 
-    protected virtual bool ShouldUpdate(UpdateReason updateReason)
+    protected virtual bool ShouldUpdate(UpdateReason updateReason, ICollection<object> updatedObjects)
     {
       return updateReason.HasFlag(UpdateReason.Forced);
     }
@@ -95,17 +99,12 @@ namespace MediaPortal.UiComponents.Media.MediaLists
 
     public async Task<IFilter> AppendUserFilterAsync(IFilter filter, IEnumerable<Guid> filterMias)
     {
-      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(filterMias);
-      if (userFilter != null)
-      {
-        return filter != null ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And, filter, userFilter) : userFilter;
-      }
-      return filter;
+      return UserHelper.GetUserRestrictionFilter(filterMias.ToList(), filter);
     }
 
-    public virtual async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
+    public virtual async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
-      if (!ShouldUpdate(updateReason))
+      if (!ShouldUpdate(updateReason, updatedObjects))
         return false;
 
       if (_playableConverterAction == null && _playableContainerConverterAction == null)
@@ -126,8 +125,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       var items = await contentDirectory.SearchAsync(query, true, userProfile, showVirtual);
       lock (_allItems.SyncRoot)
       {
-        if (_currentMediaItems != null && _currentMediaItems.Select(m => m.MediaItemId).SequenceEqual(items.Select(m => m.MediaItemId)))
+        if (_currentMediaItems != null && _currentMediaItems.SequenceEqual(items, _mediaListItemComparer))
           return false;
+
         _currentMediaItems = items;
         IEnumerable<ListItem> listItems;
         if (_playableConverterAction != null)
@@ -135,7 +135,9 @@ namespace MediaPortal.UiComponents.Media.MediaLists
           listItems = items.Select(mi =>
           {
             PlayableMediaItem listItem = _playableConverterAction(mi);
-            listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
+            // Don't overwrite existing command if set, some plugins (e.g. Emulators) have their own special handling for starting playback
+            if (listItem.Command == null)
+              listItem.Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(listItem.MediaItem));
             return listItem;
           });
         }
@@ -158,7 +160,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     /// </summary>
     /// <param name="navigationInitializerType">The type of the derived <see cref="MediaPortal.UiComponents.Media.Models.NavigationModel.IMediaNavigationInitializer"/></param>
     /// <returns></returns>
-    protected IFilter GetNavigationFilter(Type navigationInitializerType)
+    protected static IFilter GetNavigationFilter(Type navigationInitializerType)
     {
       if (navigationInitializerType != null)
         lock (_navigationFilterSync)
@@ -170,7 +172,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       return null;
     }
 
-    private void InitNavigationFilters()
+    private static void InitNavigationFilters()
     {
       if (_tracker != null)
         return;
@@ -202,6 +204,36 @@ namespace MediaPortal.UiComponents.Media.MediaLists
         {
           ServiceRegistration.Get<ILogger>().Warn("MediaListProvider: Cannot add Media navigation filter with id '{0}'", e, itemMetadata.Id);
         }
+      }
+    }
+
+    private class MediaListItemComparer : IEqualityComparer<MediaItem>
+    {
+      public bool Equals(MediaItem x, MediaItem y)
+      {
+        if (x == null && y == null)
+          return true;
+        else if (x == null || y == null)
+          return false;
+        else if (x.MediaItemId != y.MediaItemId || x.UserData.Count != y.UserData.Count)
+          return false;
+        else if (x.UserData.Count == 0)
+          return true;
+
+        foreach (var data in x.UserData)
+        {
+          if (!y.UserData.ContainsKey(data.Key))
+            return false;
+          if (y.UserData[data.Key] != data.Value)
+            return false;
+        }
+
+        return true;
+      }
+
+      public int GetHashCode(MediaItem obj)
+      {
+        return obj.MediaItemId.GetHashCode();
       }
     }
   }

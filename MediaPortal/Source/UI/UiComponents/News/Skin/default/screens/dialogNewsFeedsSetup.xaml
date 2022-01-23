@@ -20,17 +20,17 @@
         <Label Margin="10,0,0,0" Content="[News.ConfiguredFeeds]" Color="{ThemeResource TextColor}"/>
         <StackPanel Margin="20" HorizontalAlignment="Stretch">
           <ListView Name="FeedsList" HorizontalAlignment="Stretch" Style="{ThemeResource NewsFeedsBookmarksListViewStyle}"
-              ItemsSource="{Binding Feeds}" Height="{ResolutionResource NewsFeedListHeight}">
+                    ItemsSource="{Binding Feeds}" Height="{ResolutionResource NewsFeedListHeight}">
             <ListView.Resources>
               <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="Select"
-                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+                       Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </ListView.Resources>
           </ListView>
           <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
-            <Button  Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]"
-                Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogAddNewsFeed}"/>
+            <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Add]"
+                    Command="{Command Source={Service ScreenManager},Path=ShowDialog,Parameters=dialogAddNewsFeed}"/>
             <Button Margin="5" Style="{ThemeResource ButtonWideStyle}" Content="[System.Remove]"
-                Command="{Command Source={StaticResource Model},Path=DeleteSelectedFeeds}"/>
+                    Command="{Command Source={StaticResource Model},Path=DeleteSelectedFeeds}"/>
           </StackPanel>
         </StackPanel>
         <Grid HorizontalAlignment="Stretch">
@@ -42,7 +42,7 @@
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
           <Button Grid.Column="0" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Done]"
-              HorizontalAlignment="Center">
+                  HorizontalAlignment="Center">
             <Button.Command>
               <CommandList>
                 <Command Path="SaveSettings"/>
@@ -51,7 +51,7 @@
             </Button.Command>
           </Button>
           <Button Grid.Column="1" Grid.Row="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Cancel]"
-              HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+                  HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
         </Grid>
       </StackPanel>
     </ControlTemplate>

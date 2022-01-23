@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="SkinSettings.Configuration.SkinSettings">Inställningar för skinn</string>
-</resources>
+  <string name="SkinSettings.ViewModes.LayoutType.ListLayout">Lista</string>
+  <string name="SkinSettings.ViewModes.LayoutType.GridLayout">Rutnät</string>
+  </resources>

@@ -1,4 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="SkinSettings.Configuration.SkinSettings">Impostazioni skin</string>
-</resources>
+  <string name="SkinSettings.ViewModes.LayoutType.ListLayout">Lista</string>
+  <string name="SkinSettings.ViewModes.LayoutType.GridLayout">Griglia</string>
+  </resources>

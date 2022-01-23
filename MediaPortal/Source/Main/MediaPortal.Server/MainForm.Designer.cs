@@ -56,9 +56,10 @@ namespace MediaPortal.Server
             this.colConnectionState});
       this.lvClients.FullRowSelect = true;
       this.lvClients.HideSelection = false;
-      this.lvClients.Location = new System.Drawing.Point(0, 23);
+      this.lvClients.Location = new System.Drawing.Point(0, 32);
+      this.lvClients.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.lvClients.Name = "lvClients";
-      this.lvClients.Size = new System.Drawing.Size(538, 186);
+      this.lvClients.Size = new System.Drawing.Size(538, 177);
       this.lvClients.TabIndex = 2;
       this.lvClients.UseCompatibleStateImageBehavior = false;
       this.lvClients.View = System.Windows.Forms.View.Details;
@@ -81,9 +82,10 @@ namespace MediaPortal.Server
       // lbAttachedClients
       // 
       this.lbAttachedClients.AutoSize = true;
-      this.lbAttachedClients.Location = new System.Drawing.Point(6, 5);
+      this.lbAttachedClients.Location = new System.Drawing.Point(6, 4);
+      this.lbAttachedClients.Margin = new System.Windows.Forms.Padding(2, 0, 2, 0);
       this.lbAttachedClients.Name = "lbAttachedClients";
-      this.lbAttachedClients.Size = new System.Drawing.Size(83, 13);
+      this.lbAttachedClients.Size = new System.Drawing.Size(92, 15);
       this.lbAttachedClients.TabIndex = 0;
       this.lbAttachedClients.Text = "Attached &clients";
       // 
@@ -94,6 +96,8 @@ namespace MediaPortal.Server
       this.ClientSize = new System.Drawing.Size(538, 209);
       this.Controls.Add(this.lbAttachedClients);
       this.Controls.Add(this.lvClients);
+      this.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
+      this.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.Name = "MainForm";
       this.Text = "MediaPortal 2 Server Application";
       this.FormClosed += new System.Windows.Forms.FormClosedEventHandler(this.OnMainFormClosed);

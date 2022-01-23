@@ -8,7 +8,6 @@
   <string name="Settings.ServerSettings.Username">Корисничко име:</string>
   <string name="Settings.ServerSettings.Password">Лозинка:</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Конфигуриши аутоматско освежавање дељених фајлова</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Омогући аутоматско освежавање</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Покрени у одређени сат у дану (24h)</string>
   <string name="Settings.ServerSettings.AudioMDESettings">Подешавање аудио уноса</string>
   <string name="Settings.ServerSettings.MovieMDESettings">Подешавања за унос филмова</string>

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,7 +32,7 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settings;
 using MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs;
-using MediaPortal.Extensions.OnlineLibraries.Matchers;
+using MediaPortal.Extensions.OnlineLibraries;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -42,6 +42,7 @@ using System.Net.Http;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml.Linq;
+using MediaPortal.Utilities.Cache;
 
 namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoReaders
 {
@@ -56,11 +57,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
   /// For performance reasons, the following long lasting operations have been temporarily disabled:
   /// - We do parse "set" (and therefore also "sets" elements); however, parsing and downloading
   ///   "setimage" child elements has been disabled. Reenable in <see cref="TryReadSetAsync"/>
-  /// - We do parse "actor" and "procuder" elements, however, parsing and downloading "thumb"
-  ///   child elements has been disabled. Reenable in <see cref="NfoReaderBase{T}.ParsePerson"/>
-  /// - The following elements are completely ignored:
-  ///   "fanart", "discart", "logo", "clearart", "banner", "Banner" and "Landscape"
-  ///   Reenable in <see cref="InitializeSupportedElements"/>
   /// ToDo: Reenable the above once we can store the information in our MediaLibrary
   /// </remarks>
   public class NfoMovieReader : NfoReaderBase<MovieStub>
@@ -71,17 +67,36 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// The name of the root element in a valid nfo-file for movies
     /// </summary>
     private const string MOVIE_ROOT_ELEMENT_NAME = "movie";
+    private const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+
+    /// <summary>
+    /// Default timeout for the cache is 5 minutes
+    /// </summary>
+    private static readonly TimeSpan CACHE_TIMEOUT = new TimeSpan(0, 5, 0);
+
+    /// <summary>
+    /// Cache used to temporarily store <see cref="SeriesStub"/> objects so that the same tvshow.nfo file
+    /// doesn't have to be parsed once for every episode
+    /// </summary>
+    private static AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<MovieStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<MovieStub>)>(CACHE_TIMEOUT);
 
     #endregion
+
+    public static void ClearCache()
+    {
+      CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<MovieStub>)>(CACHE_TIMEOUT);
+    }
 
     #region Private fields
 
     /// <summary>
     /// If true, file details will also be read from the nfo-file
     /// </summary>
-    private bool _readFileDetails;
+    private readonly bool _readFileDetails;
 
-    private NfoMovieMetadataExtractorSettings _movieSettings;
+    private readonly NfoMovieMetadataExtractorSettings _movieSettings;
+
+    private readonly bool _includeFanart;
 
     #endregion
 
@@ -97,12 +112,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="readFileDetails">If true, file details will also be read from the nfo-file</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
-    public NfoMovieReader(ILogger debugLogger, long miNumber, bool videoOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings)
+    public NfoMovieReader(ILogger debugLogger, long miNumber, bool videoOnly, bool forceQuickMode, bool readFileDetails, HttpClient httpClient, NfoMovieMetadataExtractorSettings settings, bool includeFanart)
       : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {
+      _includeFanart = includeFanart;
       _movieSettings = settings;
       _readFileDetails = readFileDetails;
-      InitializeSupportedElements();
+      InitializeSupportedElements(includeFanart);
       InitializeSupportedAttributes(videoOnly);
     }
 
@@ -153,7 +169,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
             _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' found when parsing the nfo-file as plain text.", _miNumber, imdbId);
 
             // Returns true, if the found IMDB-ID represents a movie (not a series)
-            if (await MovieTheMovieDbMatcher.Instance.FindAndUpdateMovieAsync(new MovieInfo { ImdbId = imdbId }).ConfigureAwait(false))
+            if (await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(new MovieInfo { ImdbId = imdbId }, MEDIA_CATEGORY_NAME_MOVIE).ConfigureAwait(false))
             {
               _debugLogger.Debug("[#{0}]: Imdb-ID: '{1}' confirmed online to represent a movie. Storing only Imdb-ID.", _miNumber, imdbId);
               var stub = new MovieStub { Id = imdbId };
@@ -222,7 +238,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <summary>
     /// Adds a delegate for each xml element in a movie nfo-file that is understood by this MetadataExtractor to NfoReaderBase._supportedElements
     /// </summary>
-    private void InitializeSupportedElements()
+    private void InitializeSupportedElements(bool includeFanart)
     {
       _supportedElements.Add("id", new TryReadElementDelegate(TryReadId));
       _supportedElements.Add("imdb", new TryReadElementDelegate(TryReadImdb));
@@ -259,14 +275,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("genres", new TryReadElementDelegate(TryReadGenres));
       _supportedElements.Add("language", new TryReadElementDelegate(TryReadLanguage));
       _supportedElements.Add("languages", new TryReadElementDelegate(TryReadLanguage)); // Synonym for <language>
-      _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
-      _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
-      _supportedElements.Add("discart", new TryReadElementAsyncDelegate(TryReadDiscArtAsync));
-      _supportedElements.Add("logo", new TryReadElementAsyncDelegate(TryReadLogoAsync));
-      _supportedElements.Add("clearart", new TryReadElementAsyncDelegate(TryReadClearArtAsync));
-      _supportedElements.Add("banner", new TryReadElementAsyncDelegate(TryReadBannerAsync));
-      _supportedElements.Add("Banner", new TryReadElementAsyncDelegate(TryReadBannerAsync)); // Used wrongly by XBNE instead of <banner>
-      _supportedElements.Add("Landscape", new TryReadElementAsyncDelegate(TryReadLandscapeAsync)); // Used by XBNE (capital letter in the beginning correct, but not according to spec)
+      if (includeFanart)
+      {
+        _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
+        _supportedElements.Add("fanart", new TryReadElementAsyncDelegate(TryReadFanArtAsync));
+        _supportedElements.Add("discart", new TryReadElementAsyncDelegate(TryReadDiscArtAsync));
+        _supportedElements.Add("logo", new TryReadElementAsyncDelegate(TryReadLogoAsync));
+        _supportedElements.Add("clearart", new TryReadElementAsyncDelegate(TryReadClearArtAsync));
+        _supportedElements.Add("banner", new TryReadElementAsyncDelegate(TryReadBannerAsync));
+        _supportedElements.Add("Banner", new TryReadElementAsyncDelegate(TryReadBannerAsync)); // Used wrongly by XBNE instead of <banner>
+        _supportedElements.Add("Landscape", new TryReadElementAsyncDelegate(TryReadLandscapeAsync)); // Used by XBNE (capital letter in the beginning correct, but not according to spec)
+      }
+      else
+      {
+        _supportedElements["thumb"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["discart"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["logo"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["clearart"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["banner"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["Banner"] = new TryReadElementDelegate(Ignore);
+        _supportedElements["Landscape"] = new TryReadElementDelegate(Ignore);
+      }
       _supportedElements.Add("certification", new TryReadElementDelegate(TryReadCertification));
       _supportedElements.Add("mpaa", new TryReadElementDelegate(TryReadMpaa));
       _supportedElements.Add("rating", new TryReadElementDelegate(TryReadRating));
@@ -284,16 +314,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("lastplayed", new TryReadElementDelegate(TryReadLastPlayed));
       _supportedElements.Add("dateadded", new TryReadElementDelegate(TryReadDateAdded));
       _supportedElements.Add("resume", new TryReadElementDelegate(TryReadResume));
-
-      // The following element readers have been added above, but are replaced by the Ignore method here for performance reasons
-      // ToDo: Reenable the below once we can store the information in the MediaLibrary
-      _supportedElements["fanart"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["discart"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["logo"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["clearart"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["banner"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["Banner"] = new TryReadElementDelegate(Ignore);
-      _supportedElements["Landscape"] = new TryReadElementDelegate(Ignore);
 
       // The following elements are contained in many movie.nfo files, but have no meaning
       // in the context of a movie. We add them here to avoid them being logged as
@@ -324,7 +344,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteVideoAspectWriters);
       _supportedAttributes.Add(TryWriteVideoAspectGenres);
 
-      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+      //Handled by FanArt collector now
+      //_supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
 
       if (!videoOnly)
       {
@@ -685,7 +706,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     private async Task<bool> TryReadActorAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra).ConfigureAwait(false);
+      var person = await ParsePerson(element, nfoDirectoryFsra, _includeFanart).ConfigureAwait(false);
       if (person == null)
         return false;
       if (_currentStub.Actors == null)
@@ -703,7 +724,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     private async Task<bool> TryReadProducerAsync(XElement element, IFileSystemResourceAccessor nfoDirectoryFsra)
     {
       // For examples of valid element values see the comment in NfoReaderBase.ParsePerson
-      var person = await ParsePerson(element, nfoDirectoryFsra).ConfigureAwait(false);
+      // We don't use this for anything currently, so don't get fanart
+      var person = await ParsePerson(element, nfoDirectoryFsra, false).ConfigureAwait(false);
       if (person == null)
         return false;
       if (_currentStub.Producers == null)
@@ -982,9 +1004,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if a value was found in <paramref name="element"/>; otherwise <c>false</c></returns>
     private bool TryReadRatings(XElement element)
     {
-      // Example of a valid element:
+      // Example of a valid elements:
       // <ratings>
       //   <rating moviedb="imdb">8.7</rating>
+      // </ratings>
+      // or
+      // <ratings>
+      //   <rating default="true" max="10" name="themoviedb">
+      //     <value>6.9</value>
+      //     <votes>1086</votes>
+      //   </rating>
       // </ratings>
       // The <ratings> element can contain one or more <rating> child elements
       // A value of 0 (zero) is ignored
@@ -995,13 +1024,49 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         if (childElement.Name == "rating")
         {
           var moviedb = ParseStringAttribute(childElement, "moviedb");
-          var rating = ParseSimpleDecimal(element);
-          if (moviedb != null && rating != null && rating.Value != decimal.Zero)
+          if (moviedb != null)
           {
-            result = true;
-            if (_currentStub.Ratings == null)
-              _currentStub.Ratings = new Dictionary<string, decimal>();
-            _currentStub.Ratings[moviedb] = rating.Value;
+            var rating = ParseSimpleDecimal(element);
+            if (rating != null && rating.Value != decimal.Zero)
+            {
+              result = true;
+              if (_currentStub.Ratings == null)
+                _currentStub.Ratings = new Dictionary<string, decimal>();
+              _currentStub.Ratings[moviedb] = rating.Value;
+            }
+          }
+          else
+          {
+            moviedb = ParseStringAttribute(childElement, "name");
+            var max = ParseIntAttribute(childElement, "max") ?? 10M;
+
+            if (moviedb != null && childElement.HasElements)
+            {
+              foreach (var subChildElement in childElement.Elements())
+              {
+                if (subChildElement.Name == "value")
+                {
+                  var rating = ParseSimpleDecimal(subChildElement);
+                  if (rating != null && rating.Value != decimal.Zero)
+                  {
+                    result = true;
+                    if (_currentStub.Ratings == null)
+                      _currentStub.Ratings = new Dictionary<string, decimal>();
+                    _currentStub.Ratings[moviedb] = (rating.Value / max) * 10M;
+                  }
+                }
+                else if (subChildElement.Name == "votes")
+                {
+                  var votes = ParseSimpleInt(subChildElement);
+                  if (votes != null && votes.Value != decimal.Zero)
+                  {
+                    if (_currentStub.RatingVotes == null)
+                      _currentStub.RatingVotes = new Dictionary<string, int>();
+                    _currentStub.RatingVotes[moviedb] = votes.Value;
+                  }
+                }
+              }
+            }
           }
         }
         else
@@ -1739,12 +1804,28 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)_stubs[0].Rating.Value);
         return true;
       }
+
       // priority 2:
       if (_stubs[0].Ratings != null && _stubs[0].Ratings.Any())
       {
-        decimal rating;
-        if (!_stubs[0].Ratings.TryGetValue("imdb", out rating))
-          rating = _stubs[0].Ratings.First().Value;
+        List<(decimal Rating, int Votes)> ratings = new List<(decimal, int)>();
+        foreach (var r in _stubs[0].Ratings)
+        {
+          if (_stubs[0].RatingVotes.TryGetValue(r.Key, out var votes))
+            ratings.Add((r.Value, votes));
+          else
+            ratings.Add((r.Value, 1));
+        }
+
+        decimal rating = 0;
+        decimal ratingVotes = 0;
+        foreach (var weightedRating in ratings)
+        {
+          rating += weightedRating.Rating * weightedRating.Votes;
+          ratingVotes += weightedRating.Votes;
+        }
+        rating = Math.Round(rating / ratingVotes, 1); //Weighted average
+
         MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_TOTAL_RATING, (double)rating);
         return true;
       }
@@ -1758,6 +1839,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <returns><c>true</c> if any information was written; otherwise <c>false</c></returns>
     private bool TryWriteMovieAspectRatingCount(IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
+      // priority 1:
       if (_stubs[0].Votes.HasValue)
       {
         if (_stubs[0].Rating.HasValue || (_stubs[0].Ratings != null && _stubs[0].Ratings.Count == 1))
@@ -1765,6 +1847,17 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
           MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RATING_COUNT, _stubs[0].Votes.Value);
           return true;
         }
+      }
+
+      // priority 2:
+      if (_stubs[0].RatingVotes != null && _stubs[0].RatingVotes.Any())
+      {
+        int ratingVotes = 0;
+        foreach (var r in _stubs[0].RatingVotes)
+          ratingVotes += r.Value;
+
+        MediaItemAspect.SetAttribute(extractedAspectData, MovieAspect.ATTR_RATING_COUNT, ratingVotes);
+        return true;
       }
       return false;
     }
@@ -1854,6 +1947,35 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
         return true;
       _debugLogger.Warn("[#{0}]: Cannot extract metadata; name of the item root element is {1} instead of {2}", _miNumber, itemRootElementName, MOVIE_ROOT_ELEMENT_NAME);
       return false;
+    }
+
+    /// <summary>
+    /// Tries to read a movie nfo-file into <see cref="MovieStub"/> objects (or gets them from cache)
+    /// </summary>
+    /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
+    /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
+    public override async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
+    {
+      var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path => await ReadMetadataAsync(path, nfoFsra)).ConfigureAwait(false);
+      if (!stubs.HasFanart && _includeFanart)
+        await CACHE.UpdateValue(nfoFsra.CanonicalLocalResourcePath, async path => stubs = await ReadMetadataAsync(path, nfoFsra)).ConfigureAwait(false);
+
+      if (stubs.Stubs == null)
+        return false;
+      _stubs = stubs.Stubs;
+      return true;
+    }
+
+    protected async Task<(bool HasFanart, List<MovieStub> Stubs)> ReadMetadataAsync(ResourcePath path, IFileSystemResourceAccessor nfoFsra)
+    {
+      _debugLogger.Info("[#{0}]: MovieStub object for movie nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
+      if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
+      {
+        if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
+          LogStubObjects();
+        return (_includeFanart, _stubs);
+      }
+      return (_includeFanart, null);
     }
 
     #endregion

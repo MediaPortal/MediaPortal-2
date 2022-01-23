@@ -163,6 +163,7 @@
   <string name="Media.Refresh">Värskenda</string>
   <string name="Media.ReimportMediaItem.Done">Valmis</string>
   <string name="Media.ReimportMediaItem.Description">Kirjeldus</string>
+  <string name="Media.SubtitleSearch.Language">Keel</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Esita</string>
   <string name="Media.PlayAudioItems">Esita audio</string>
@@ -256,6 +257,8 @@
   <string name="Media.MediumList">Mediumite list</string>
   <string name="Media.LargeList">Suur nimekiri</string>
   <string name="Media.LargeGrid">Võrk</string>
+  <string name="Media.ListSmall">Väike</string>
+  <string name="Media.ListMedium">Keskmine</string>
   <string name="Media.SwitchSortingMenuItem">Sorteerimine</string>
   <string name="Media.SortByDate">Kuupäev</string>
   <string name="Media.GroupingBrowseDefault">Vaikimisi</string>
@@ -274,6 +277,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">Ava pleieri strateegia</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strateegia kuidas uued pleierid paigutada juba avatud pleierite suhtes</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

@@ -7,7 +7,6 @@
   <string name="SystemState.Hibernate">Хибернација</string>
   <string name="SystemState.Shutdown">Затвори програм</string>
   <string name="SystemState.Suspend">Обуставити</string>
-  <string name="SystemState.Restart">Рестартуј</string>
   <string name="SystemState.Logoff">Одлогуј се</string>
   <string name="SystemState.SleepTimerConfig">Подеси време спавања</string>
   <string name="SystemState.SleepTimerStop">Заустави тајмер за спавање</string>

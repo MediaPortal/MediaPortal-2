@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,8 @@
 
 using System;
 using System.Collections.Generic;
+using MediaPortal.Backend.Database;
+using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
@@ -44,22 +46,33 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
     {
       MediaItemIdFilter mediaItemIdFilter = (MediaItemIdFilter)filter;
 
-      bool first = true;
-      foreach (IList<Guid> mediaItemIdsCluster in CollectionUtils.Cluster(mediaItemIdFilter.MediaItemIds, MAX_IN_VALUES_SIZE))
+      if (mediaItemIdFilter.TryGetSubQuery(out string subQuery))
       {
         QueryAttribute qa = new QueryAttribute(RelationshipAspect.ATTR_LINKED_ID);
-        IList<string> bindVarRefs = new List<string>(MAX_IN_VALUES_SIZE);
-        foreach (Guid mediaItemId in mediaItemIdsCluster)
-        {
-          BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), mediaItemId, typeof(Guid));
-          bindVarRefs.Add("@" + bindVar.Name);
-          resultBindVars.Add(bindVar);
-        }
-        if (!first)
-          resultParts.Add(" OR ");
-        first = false;
         resultParts.Add(qa);
-        resultParts.Add(" IN (" + StringUtils.Join(", ", bindVarRefs) + ")");
+        resultParts.Add(" IN (" + subQuery + ")");
+      }
+      else
+      {
+        bool first = true;
+        ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
+        var maxParams = Convert.ToInt32(database.MaxNumberOfParameters);
+        foreach (IList<Guid> mediaItemIdsCluster in CollectionUtils.Cluster(mediaItemIdFilter.MediaItemIds, maxParams))
+        {
+          QueryAttribute qa = new QueryAttribute(RelationshipAspect.ATTR_LINKED_ID);
+          IList<string> bindVarRefs = new List<string>(maxParams);
+          foreach (Guid mediaItemId in mediaItemIdsCluster)
+          {
+            BindVar bindVar = new BindVar(bvNamespace.CreateNewBindVarName("V"), mediaItemId, typeof(Guid));
+            bindVarRefs.Add("@" + bindVar.Name);
+            resultBindVars.Add(bindVar);
+          }
+          if (!first)
+            resultParts.Add(" OR ");
+          first = false;
+          resultParts.Add(qa);
+          resultParts.Add(" IN (" + StringUtils.Join(", ", bindVarRefs) + ")");
+        }
       }
     }
   }

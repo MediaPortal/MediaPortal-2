@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -80,7 +80,7 @@ namespace UPnP.Infrastructure.Dv
     protected IDictionary<DvService, ServicePaths> _servicePaths = new Dictionary<DvService, ServicePaths>();
 
     protected ICollection<EventSubscription> _eventSubscriptions = new List<EventSubscription>();
-    protected Int32 _configId = 0;
+    protected UInt32 _configId = 0;
 
     /// <summary>
     /// Socket which is used to a) send unicast and multicast messages and b) receive unicast messages for the SSDP protocol.
@@ -256,7 +256,7 @@ namespace UPnP.Infrastructure.Dv
     /// UPnP CONFIGID. Contains a value indicating the current UPnP server configuration.
     /// Must be increased when the configuration changes. Must be in the range from 0 to 16777215 (2^24-1).
     /// </summary>
-    public Int32 ConfigId
+    public UInt32 ConfigId
     {
       get { return _configId; }
       internal set { _configId = value; }

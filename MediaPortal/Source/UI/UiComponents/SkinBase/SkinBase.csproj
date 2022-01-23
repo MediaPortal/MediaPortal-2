@@ -40,6 +40,26 @@
     <Prefer32Bit>false</Prefer32Bit>
     <NoWarn>CS0067</NoWarn>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <NoWarn>CS0067</NoWarn>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <NoWarn>CS0067</NoWarn>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -155,6 +175,86 @@
     <Content Include="Skin\default\images\server-error-icon.png" />
     <Content Include="Skin\default\images\server-icon.png" />
     <Content Include="Skin\default\images\server-search-icon.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Appearance.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Appearance_General.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Appearance_Skin.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Appearance_SkinSettings.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\General.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\General_Connectivity.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\General_Regional.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\General_System.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Appearance.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Appearance_General.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Appearance_Skin.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Appearance_SkinSettings.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_General.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_General_Connectivity.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_General_Regional.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_General_System.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_InputDevices.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_AudioMDESettings.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_Certifications.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_FanArtSettings.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_General.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_ImageMDESettings.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_LanguageSettings.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_MovieMDESettings.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_SeriesMDESettings.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_SubtitleMDESettings.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Media_VideoMDESettings.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Players.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Players_AudioPlayer.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Players_Codecs.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Players_Codecs_AudioCodecs.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Players_Codecs_SourceFilters.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Players_Codecs_VideoCodecs.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Players_General.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Players_Image.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Players_VideoPlayer.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_Alexa.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_AppLauncher.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_Emulators.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_News.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_OnlineVideos.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_Weather.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_WebRadio.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Shares.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_TV.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Users.png" />
+    <Content Include="Skin\default\images\SettingsMenu\InputDevices.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_AudioMDESettings.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_Certifications.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_FanArtSettings.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_General.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_ImageMDESettings.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_LanguageSettings.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_MovieMDESettings.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_SeriesMDESettings.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_SubtitleMDESettings.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Media_VideoMDESettings.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Players.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Players_AudioPlayer.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Players_Codecs.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Players_Codecs_AudioCodecs.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Players_Codecs_SourceFilters.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Players_Codecs_VideoCodecs.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Players_General.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Players_Image.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Players_VideoPlayer.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_Alexa.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_AppLauncher.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_Emulators.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_News.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_OnlineVideos.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_Weather.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_WebRadio.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Shares.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\TV.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Users.jpg" />
     <Content Include="Skin\default\images\sound.png" />
     <Content Include="Skin\default\images\sound_off.png" />
     <Content Include="Skin\default\images\video.png" />

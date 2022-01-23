@@ -1,11 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="Settings.InputDeviceManager.Section">Input Management</string>
-  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Hiermee kunt u HID-apparaten toewijzen aan verschillende belangrijke acties.</string>
-  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Hiermee kunt u HID-apparaten toewijzen aan verschillende schermen.</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Functiesnelkoppelingen</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Hiermee kunt u MediaPortal functies toewijzen aan toetsen/knoppen op uw invoerapparaten. U kan bijvoorbeeld Volume Op/Neer toewijzen aan \'+\' en \'-\' op uw toetsenbord als u geen volumetoetsen heeft op uw toetsenbord.</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfig">Actiesnelkoppelingen</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfigHelp">Hiermee kunt u MediaPortal globale acties toewijzen aan toetsen/knoppen van uw invoerapparaat voor snelle toegang.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Configuratiesnelkoppelingen</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Hiermee kunt u MediaPortal configuratie- en instelschermen toewijzen aan toetsen/knoppen van uw invoerapparaat voor snelle toegang.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenHome">Schermsnelkoppelingen</string>
+  <string name="Settings.InputDeviceManager.EnterScreenHomeHelp">Hiermee kunt u MediaPortal menuschermen toewijzen aan toetsen/knoppen op uw invoerapparaten voor snelle toegang. U kan bijvoorbeeld \'F2\' op uw toetsenbord instellen om het \'Nieuws\' scherm te openen..</string>
+
   <string name="InputDeviceManager.SelectDevice.Header">Druk op een knop op het invoerapparaat dat u wilt configureren.</string>
   <string name="InputDeviceManager.FocusItem">Bekijk de huidige toewijzingen en selecteer een item om de toewijzing te wijzigen.</string>
 
+  <string name="InputDeviceManager.AddKey.Header">Druk de gewenste toets/knop combinatie in op het invoerapparaat!</string>
   <string name="InputDeviceManager.Screen">Scherm</string>
-  <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Helder</string>
-  </resources>
+  <string name="InputDeviceManager.Key">Toets/Knop</string>
+  <string name="InputDeviceManager.Action">Actie</string>
+
+  <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Leegmaken</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Toewijzing verwijderen?</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Toewijzing toevoegen?</string>
+
+  <string name="InputDeviceManager.DefaultConfig.Title">Kies standaard toewijzing</string>
+  <string name="InputDeviceManager.DefaultConfig.Description">Opgelet, de gekozen toewijzing zal elke bestaande toewijzing overschrijven!</string>
+  <string name="InputDeviceManager.DefaultConfig.Keyboard">Standaard toetsenbord</string>
+  <string name="InputDeviceManager.DefaultConfig.Remote">Standaard Afstandsbediening</string>
+</resources>

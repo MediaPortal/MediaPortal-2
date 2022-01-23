@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
@@ -60,6 +61,46 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
     /// Gets or Sets the MediaType.
     /// </summary>
     MediaType MediaType { get; set; }
+
+    /// <summary>
+    /// Gets or Sets if the EPG has Gaps.
+    /// </summary>
+    bool EpgHasGaps { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the External ID.
+    /// </summary>      
+    String ExternalId { get; set; }
+
+    /// <summary>
+    /// Gets or Sets if EPG gets grabbed for this channel.
+    /// </summary>
+    bool GrapEpg { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the last grab Time.
+    /// </summary>
+    DateTime? LastGrabTime { get; set; }
+
+    /// <summary>
+    /// Gets or Sets how often teh channel was watched
+    /// </summary>    
+    int TimesWatched { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the total watch time on this channel.
+    /// </summary>    
+    DateTime? TotalTimeWatched { get; set; }
+
+    /// <summary>
+    /// Gets or Sets if the channel is visible in the Tv Guide.
+    /// </summary>
+    bool VisibleInGuide { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the list of groups in which the channel is.
+    /// </summary>
+    List<string> GroupNames { get; set; }
   }
 
   public static class ChannelExtensions

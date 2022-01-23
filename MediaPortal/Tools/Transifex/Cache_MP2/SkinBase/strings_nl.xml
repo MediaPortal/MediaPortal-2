@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Verbreek verbinding met server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ThuisServer</string>
   <string name="ServerConnection.AttachedText.Before">Deze MediaPortal 2 client is momenteel verbonden met de thuisserver</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Deze MediaPortal 2 client is momenteel niet verbonden met de thuisserver</string>
   <string name="ServerConnection.HomeServerIsConnected">De thuisserver is momenteel verbonden.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">De thuisserver is momenteel niet verbonden</string>
@@ -63,6 +62,7 @@
   <string name="Notifications.NMoreNotifications">({0} meer)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Meldingen</string>
   <string name="Notifications.Handle">Hanteer</string>
+  <string name="Notifications.Upgrading">Aan het upgraden...</string>
   <string name="ImporterMessages.ImportStartedTitle">Importeren gestart</string>
   <string name="ImporterMessages.ImportStartedText">Het importeren van \'{0}\' is gestart.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importeren voltooid</string>
@@ -71,8 +71,10 @@
   <string name="LocalFsResourceProvider.Description">Toegang tot het lokale bestandssysteem</string>
   <string name="RemoteResourceProvider.Name">Netwerkbronnen</string>
   <string name="RemoteResourceProvider.Description">Toegang tot bronnen op een ander MediaPortal 2-systeem</string>
-  <string name="RawUrlResourceProvider.Name">Ruwe Url</string>
+  <string name="RawUrlResourceProvider.Name">Rauwe Url</string>
   <string name="RawUrlResourceProvider.Description">Toegang onbewerkte Uri bronnen</string>
+  <string name="VirtualResourceProvider.Name">Virtuele bronnen</string>
+  <string name="VirtualResourceProvider.Description">Virtuele bronnen toegang</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Geen speler</string>
@@ -105,7 +107,9 @@
   <string name="Settings.Appearance">Uiterlijk</string>
   <string name="Settings.Appearance.Skin">Skin</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Datum notatie</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Datumformaat gebruikt in de skin. Gebruik \'d\' voor \"1/14/2017\" of \'D\' voor \"zaterdag, 1/14/2017\".</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Tijd notatie</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Tijd formaat gebruikt in de skin. Gebruik \'t\' voor \"11:50\" of \'T\' voor \"11:50:37\".</string>
   <string name="Settings.General">Algemeen</string>
   <string name="Settings.General.System">Systeem</string>
   <string name="Settings.General.System.Autostart">Autostart</string>
@@ -117,6 +121,14 @@
   <string name="Settings.General.Connectivity.ServerListener.Help">Statusmelding inschakelen voor wanneer een MediaPortal 2 server beschikbaar komt in het netwerk</string>
   <string name="Settings.General.Connectivity.ClientName">Client naam</string>
   <string name="Settings.General.Connectivity.ClientName.Help">Stel de naam van deze MediaPortal 2 client in</string>
+  <string name="Settings.General.Connectivity.HttpServerPort">HTTP server poort</string>
+  <string name="Settings.General.Connectivity.HttpServerPort.Help">Stel de poort van de HTTP Server in</string>
+  <string name="Settings.General.Connectivity.UseIPv4">Gebruik IPv4</string>
+  <string name="Settings.General.Connectivity.UseIPv4.Help">Stel in of deze MediaPortal 2 cliënt IPv4 verbindingen naar de Home server moet gebruiken</string>
+  <string name="Settings.General.Connectivity.UseIPv6">Gebruik IPv6</string>
+  <string name="Settings.General.Connectivity.UseIPv6.Help">Stel in of deze MediaPortal 2 cliënt IPv6 verbindingen naar de Home server moet gebruiken</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">IP adres banden</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings.Help">Stel een lijst van IP adressen op die moet gebruikt worden door deze MediaPortal 2 cliënt voor verbindingen naar de Home server</string>
   <string name="Settings.Regional">Regionaal</string>
   <string name="Settings.Regional.Language">Taal</string>
   <string name="Settings.Regional.Language.Main">Taal</string>
@@ -132,6 +144,7 @@
   <!--Group name-->
   <string name="Settings.Shares.Overview.SharesOverview">Overzicht mediabronnen</string>
   <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Algemeen overzicht van mediabronnen</string>
   <string name="Settings.Shares.Imports.ReImportAllShares">Herimporteer alle mediabronnen</string>
   <string name="Settings.Plugins">Plug-ins</string>
   <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Overzicht mediabronnen</string>
@@ -155,8 +168,10 @@
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Bewerk naam</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">Selecteer categorieën</string>
   <string name="SharesConfig.CannotAddSharesTitle">Kan de mediabron niet toevoegen</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">De home server zit op dezelfde computer, dus alle mediabronnen moeten bij de server geregistreerd zijn. Maar de server is nu niet verbonden. Start a.u.b. de home server en probeer opnieuw.</string>
   <string name="SharesConfig.SharesConfiguration.Title">Mediabronnen configuratie</string>
   <string name="SharesConfig.NoSharesAvailable">Er zijn geen mediabronnen beschikbaar</string>
+  <string name="SharesConfig.ShareInformationHeader">Mediabronnen informatie</string>
   <string name="SharesConfig.ShareNameInfo">Naam:</string>
   <string name="SharesConfig.ShareResourceProviderInfo">Basis bron:</string>
   <string name="SharesConfig.ShareSystem">Systeem:</string>
@@ -164,15 +179,29 @@
   <string name="SharesConfig.ShareResourcePathInfo">Technisch pad:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Media categorieën:</string>
   <string name="SharesConfig.ReImportShare">Herimporteer mediabron</string>
+  <string name="SharesConfig.SetupDefaultShares">Standaard bronnen instellen</string>
   <string name="SharesConfig.RemoveShares">Verwijder mediabronnen</string>
+  <string name="SharesConfig.EditShare">Mediabronnen bewerken</string>
   <string name="SharesConfig.ChooseSystem">Selecteer systeem</string>
+  <string name="SharesConfig.ChooseSharesToBeRemoved">Selecteer a.u.b. mediabronnen om te verwijderen</string>
+  <string name="SharesConfig.ChooseSystemForShare">Mediabronnen kiezen</string>
   <string name="SharesConfig.LocalShare">Client mediabron</string>
   <string name="SharesConfig.LocalShares">Client mediabronnen</string>
   <string name="SharesConfig.GlobalShare">Server mediabron</string>
   <string name="SharesConfig.GlobalShares">Server mediabronnen</string>
   <string name="SharesConfig.NoConfigGlobalSharesHomeServerNotConnected">De thuisserver is op dit moment niet verbonden, media op de server kan daarom niet worden beheerd.</string>
   <string name="SharesConfig.NoConfigLocalSharesHomeServerLocal">De thuisserver is op dezelfde computer, daarom kunnen er alleen mediabronnen op de server worden geconfigureerd.</string>
+  <string name="SharesConfig.ChooseResourceProviderForShare">Selecteer a.u.b. een bronleverancier voor de mediabron</string>
+  <string name="SharesConfig.EditResourceProviderPathForShare">Pad naar de mediabron bewerken</string>
   <string name="SharesConfig.ResourceProviderPathIsNotValid">Geef een geldig pad voor de geselecteerde bron. Je kunt een eenvoudig pad opgeven dat begrijpelijk is voor de bron. Je kunt ook een complex pad opgeven met de volgende notatie {[Base-ResourceProvider-ID]}://[Base-ResourceProvider-Path]&gt;{[Chained-ResourceProvider-ID]}://[Chained-ResourceProvider-Path]&gt;...</string>
+  <string name="SharesConfig.ChooseResourceProviderPathForShare">Pad naar de mediabron bewerken</string>
+  <string name="SharesConfig.EditShareName">Naam van de mediabron bewerken</string>
+  <string name="SharesConfig.ChooseShareCategories">Media-inhoud categorieën in de mediabron kiezen</string>
+  <string name="SharesConfig.SharePathExists">Een mediabron met dat pad bestaat al</string>
+  <string name="SharesConfig.ShareNameExists">Een mediabron met die naam bestaat al</string>
+  <string name="SharesConfig.ShareNameEmpty">Een naam voor de mediabron bewerken</string>
+  <string name="SharesConfig.EditShareProblemHeader">Probleem bij configuratie mediabron</string>
+  <string name="SharesConfig.EditShareProblemText">Er was een interne fout bij het configureren van de mediabron</string>
   <string name="SharesConfig.MenuAddShare">Mediabron toevoegen</string>
   <string name="SharesConfig.MenuEditShares">Bewerken</string>
   <string name="SharesConfig.MenuRemoveShares">Verwijder mediabronnen</string>
@@ -183,13 +212,18 @@
   <string name="SharesConfig.AddLocalShare">Client mediabron toevoegen</string>
   <string name="SharesConfig.EditLocalShare">Client mediabron bewerken</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Mediabron bijwerken</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Info">De hulpbronleverancier en/of het pad van de mediabron zijn geüpdatet.</string>
+  <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Description">De informatie van de mediabibliotheek over de media items in die mediabron kunnen geüpdatet worden (verplaatst) of gewist en herimporteerd.</string>
   <string name="SharesConfig.UpdateShareRelocateItemsQueryText.Query">Wil je verplaatsen of wissen en opnieuw importeren?</string>
   <string name="SharesConfig.Relocate">Verplaatsen</string>
   <string name="SharesConfig.ReImport">Opnieuw importeren</string>
   <string name="SharesConfig.ManualPathInput">Handmatige invoer</string>
+  <string name="SharesConfig.UseShareWatcher">Share kijker:</string>
+  <string name="SharesConfig.UseShareWatcher.Help">Kijkt toe op de bron voor veranderingen en updatet de mediabibliotheek automatisch</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">MediaPortal 2 client</string>
   <string name="UPnPFrontendServer.Manufacturer">Team MediaPortal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="UPnPFrontendServer.ModelDescription">MediaPortal 2 cliënt - de MediaPortal GUI. Speelt mediainhoud, host cliënt mediabronnen en voorziet de gebruikersinterface.</string>
   <string name="UPnPFrontendServer.ModelName">MediaPortal 2 client</string>
   <string name="UPnPFrontendServer.ModelNumber">1</string>
   <!--<string name="UPnPFrontendServer.ModelUrl">...</string>-->

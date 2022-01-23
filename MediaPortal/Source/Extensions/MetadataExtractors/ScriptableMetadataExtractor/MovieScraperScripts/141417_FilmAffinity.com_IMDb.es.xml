@@ -1,0 +1,462 @@
+﻿<ScriptableScraper>
+
+<details>
+	<name>FilmAffinity.com (IMDb.es)</name>
+	<author>RoChess, LRFalk01, Slas, PeQuE</author>
+	<description>Aquest script agafa la informacio de FilmAffinity.com, pero complete la informacio amb imdb.es pels fanarts.</description>
+	<id>141417</id>
+	<version major="2" minor="1" point="9" />
+  <published month="10" day="30" year="2019" />
+	<type>MovieDetailsFetcher|MovieCoverFetcher</type>
+	<language>es</language>
+</details>
+
+<action name="search">
+
+	<set name="offset" value="0" />
+	<if test="${movie[0].title}=">
+
+		<!-- Regular Expressions -->
+
+		<set name="rx_id_check">
+			<![CDATA[
+			(?<MovieID>\d+)
+			]]>
+		</set>
+
+		<set name="rx_search_results">
+			<![CDATA[
+			<div\s*class="mc-title"><a\s*href="[^"]+/es/film(?<MovieID>\d+)[^>]+>(?<MovieTitle>[^<]+)[^(]+\((?<MovieYear>\d+)
+			]]>
+		</set>
+
+		<set name="rx_movie_id">
+			<![CDATA[
+			reviews2/1/(?<MovieID>\d+).html
+			]]>
+		</set>
+
+		<set name="rx_title">
+			<![CDATA[
+			/images/movie.gif"\sborder="0">\s(?<MovieTitle>[^<]+)
+			]]>
+		</set>
+
+		<set name="rx_alternate_title">
+			<![CDATA[
+			ORIGINAL(?:[^>]+>){4}(?<MovieAlternate>[^<]+)
+			]]>
+		</set>
+
+		<set name="rx_year">
+			<![CDATA[
+			AÑO(?:[^>]+>){6}(?<MovieYear>\d{4})
+			]]>
+		</set>
+
+		<set name="rx_parentheses">
+			<![CDATA[
+			\(.+\)
+			]]>
+		</set>
+
+		<!-- Retrieve results using Title -->
+		<retrieve name="search_page" url="https://www.filmaffinity.com/es/advsearch.php?stext=${search.title:safe(UTF-8)}&amp;fromyear=${search.year}&amp;toyear=${search.year}" encoding="UTF-8" />
+
+		<!-- if we got a details page, this is used. if not, regex does not match so we dont process the loop-->
+		<parse name="details_page_block" input="${search_page}" regex="${rx_search_results}" />
+		<if test="${details_page_block[0][0]}!=">
+			<loop name="item_return" on="details_page_block">
+				<add name="counter" value1="${count}" value2="${offset}" />
+				<set name="movie[${counter}].title" value="${item_return[1]:htmldecode}" />
+				<replace name="movie[${counter}].title" input="${movie[${counter}].title}" pattern="${rx_parentheses}" with='' />
+
+				<!-- tests the existence of a year before trying to put on in the movie info -->
+				<if test="${item_return[2]}!=">
+					<set name="movie[${counter}].year" value="${item_return[2]:htmldecode}" />
+				</if>
+
+				<set name="movie[${counter}].imdb_id" value="${search.imdb_id}" />
+				<set name="movie[${counter}].site_id" value="${item_return[0]}" />
+				<set name="movie[${counter}].details_url" value="https://www.filmaffinity.com/es/film${item_return[0]}.html" />
+				<subtract name="movie[${counter}].popularity" value1="100" value2="${counter}" />
+			</loop>
+		</if>
+
+		<if test="${details_page_block[0][0]}=">
+			<parse name="movie_id" input="${search_page}" regex="${rx_movie_id}" />
+			<if test="${movie_id[0][0]}!=">
+				<parse name="movie_title" input="${search_page}" regex="${rx_title}" />
+				<set name="movie[0].title" value="${movie_title[0][0]:htmldecode}" />
+				<replace name="movie[0].title" input="${movie[0].title}" pattern="${rx_parentheses}" with='' />
+
+				<!-- Check for alternate title -->
+				<parse name="movie_alternate" input="${search_page}" regex="${rx_alternate_title}" />
+				<if test="${movie_alternate[0][0]}!=">
+					<set name="movie[0].alternate_titles" value="${movie_alternate[0][0]}" />
+				</if>
+
+				<!-- tests the existence of a year before trying to put on in the movie info -->
+				<parse name="movie_year" input="${search_page}" regex="${rx_year}" />
+				<if test="${movie_year[0][0]}!=">
+					<set name="movie[0].year" value="${movie_year[0][0]:htmldecode}" />
+				</if>
+
+				<set name="movie[0].imdb_id" value="${search.imdb_id}" />
+				<set name="movie[0].site_id" value="${movie_id[0][0]}" />
+				<set name="movie[0].details_url" value="https://www.filmaffinity.com/es/film${movie_id[0][0]}.html" />
+			</if>
+		</if>
+	</if>
+
+	<!-- Try search by movie ID if movie not found -->
+	<if test="${movie[0].title}=">
+		<parse name="movie_search" input="${search.title}" regex="${rx_id_check}" />
+
+		<if test="${movie_search[0]}=${movie_search[0][0]}">
+			<retrieve name="search_page" url="https://www.filmaffinity.com/es/film${search.title}.html" encoding="UTF-8" />
+			<parse name="movie_title" input="${search_page}" regex="${rx_title}" />
+			<set name="movie[0].title" value="${movie_title[0][0]:htmldecode}" />
+			<replace name="movie[0].title" input="${movie[0].title}" pattern="${rx_parentheses}" with='' />
+
+			<!-- Check for alternate title -->
+			<parse name="movie_alternate" input="${search_page}" regex="${rx_alternate_title}" />
+			<if test="${movie_alternate[0][0]}!=">
+				<set name="movie[0].alternate_titles" value="${movie_alternate[0][0]}" />
+			</if>
+
+			<!-- tests the existance of a year before trying to put on in the movie info -->
+			<parse name="movie_year" input="${search_page}" regex="${rx_year}" />
+			<if test="${movie_year[0][0]}!=">
+				<set name="movie[0].year" value="${movie_year[0][0]:htmldecode}" />
+			</if>
+
+			<set name="movie[0].imdb_id" value="${search.imdb_id}" />
+			<set name="movie[0].site_id" value="${movie_search[0][0]}" />
+			<set name="movie[0].details_url" value="https://www.filmaffinity.com/es/film${movie_search[0][0]}.html" />
+		</if>
+	</if>
+</action>
+
+
+<action name="get_details">
+
+	<!-- Make sure there is a Movie ID we can use -->
+	<if test="${movie.site_id}!="> 
+
+		<set name="rx_director">
+			<![CDATA[
+			<dt>Dirección</dt>\s*<dd[^>]*>(?<blockDirectors>.+?)</dd>
+			]]>
+		</set>
+
+		<set name="rx_votes">
+			<![CDATA[
+			<span\s*itemprop="ratingCount"\s*content="(?<movieVotes>\d+)"
+			]]>
+		</set>
+
+		<set name="rx_score">
+			<![CDATA[
+			<div\s*id="movie-rat-avg"[^>]*>\s*(?<movieScore>\d(?:[,.]\d)?)
+			]]>
+		</set>
+
+		<set name="rx_actors">
+			<![CDATA[
+			<dt>Reparto</dt>\s*<dd[^>]*>\s*(?<movieActors>.+?)\s*</dd>
+			]]>
+		</set>
+
+		<set name="rx_writers">
+			<![CDATA[
+			<dt>Gui(?:Ã³|ó|o)n</dt>\s*<dd[^>]*>(?<blockWriters>.+?)</dd>
+			]]>
+		</set>
+
+		<set name="rx_alternate_title">
+			<![CDATA[
+			<dt>T(?:Ã­|í)tulo original</dt>\s*<dd[^>]*>(?<movieAKA>[^<]+)</dd>
+			]]>
+		</set>
+
+		<set name="rx_title">
+			<![CDATA[
+			<h1\s*id="main-title">\s*(?:<a[^>]+>)?(?:<span[^>]+>)?\s*(?<movieTitle>[^<]+?)(?:\s*</span>)?(?:</a>)?\s*</h1>
+			]]>
+		</set>
+
+		<set name="rx_year">
+			<![CDATA[
+			<dt>A(?:Ã±|ñ)o</dt>\s*<dd[^>]*>(?<movieYear>\d{4})</dd>
+			]]>
+		</set>
+
+		<set name="rx_runtime">
+			<![CDATA[
+			<dt>Duraci(?:Ã³|ó|o)n</dt>\s*<dd[^>]*>(?<movieTime>\d+)[^<]+</dd>
+			]]>
+		</set>
+
+		<set name="rx_studios">
+			<![CDATA[
+			<dt>Productora</dt>\s*<dd[^>]*>(?:<[^>]*>)*(?<movieStudios>[^<]+)(?:</[^>]*>)*</dd>
+			]]>
+		</set>
+
+		<!-- look for the genre list -->
+		<set name="rx_genre_list">
+			<![CDATA[
+			<dt>G(?:Ã©|é)nero[s]*</dt>\s*<dd[^>]*>\s*(?<blockGenres>.+?)\s*</dd>
+			]]>
+		</set>
+
+		<!-- look for each genre in the list -->
+		<set name="rx_break_genre">
+			<![CDATA[
+			<a[^>]+>\s*(?:<span[^>]+>\s*)?(?<movieGenre>[^<]+)(?:</span>\s*)?</a>
+			]]>
+		</set>
+
+		<!-- look for the sumary "sinopsis" and drop the final string -->
+		<set name="rx_description">
+			<![CDATA[
+			<dt>Sinopsis</dt>\s*<dd[^>]*>(?<movieSummary>.+?)(?:\s*\(FILMAFFINITY\))?</dd>
+			]]>
+		</set>
+
+		<set name="rx_breakpalo">
+			<![CDATA[
+			(?<Genres>[^\|]+)
+			]]>
+		</set>
+
+		<set name="rx_parentheses">
+			<![CDATA[
+			\(.+\)
+			]]>
+		</set>
+
+		<set name="rx_breakComaList">
+			<![CDATA[
+			(?<MovieItems>[^,]+)
+			]]>
+		</set>
+
+		<set name="rx_breakPeriodList">
+			<![CDATA[
+			(?<MovieItems>[^\.]+)
+			]]>
+		</set>
+
+		<!-- Example (Avatar): https://www.filmaffinity.com/es/film495280.html -->
+		<retrieve name="details_page" url="https://www.filmaffinity.com/es/film${movie.site_id}.html" encoding="UTF-8" />
+
+		<!-- Title and Year -->
+		<parse name="title" input="${details_page}" regex="${rx_title}" />
+		<set name="movie.title" value="${title[0][0]:htmldecode}" />
+		<replace name="movie.title" input="${movie.title}" pattern="${rx_parentheses}" with='' />
+
+		<parse name="year" input="${details_page}" regex="${rx_year}" />
+		<if test="${year[0][0]}!=">
+			<set name="movie.year" value="${year[0][0]:htmldecode}" />
+		</if>
+
+		<parse name="movie_alternate" input="${details_page}" regex="${rx_alternate_title}" />
+		<if test="${movie_alternate[0][0]}!=">
+			<set name="movie.alternate_titles" value="${movie_alternate[0][0]}" />
+		</if>
+		
+		<!-- Directors -->
+		<set name="movie.directors" value="|" />
+		<parse name="directors" input="${details_page}" regex="${rx_director}" />
+		<replace name="directors" input="${directors[0][0]:htmldecode}" pattern="${rx_parentheses}" with='' />
+		<parse name="directors" input="${directors}" regex="${rx_break_genre}" />
+		<if test="${directors[0][0]}!=">
+			<loop name="currDirector" on="directors">
+				<set name="movie.directors" value="${movie.directors}${currDirector[0]:htmldecode}|" />
+			</loop>
+		</if>
+
+		<!-- Writers -->
+		<set name="movie.writers" value="|" />
+		<parse name="writers" input="${details_page}" regex="${rx_writers}" />
+		<replace name="writers" input="${writers[0][0]:htmldecode}" pattern="${rx_parentheses}" with='' />
+		<parse name="writers" input="${writers}" regex="${rx_breakComaList}" />
+		<if test="${writers[0][0]}!=">
+			<loop name="currDirector" on="writers">
+				<set name="temp_writers" value="${currDirector[0]:htmldecode}" />
+				<set name="movie.writers" value="${movie.writers}${temp_writers:striptags}|" />
+			</loop>
+		</if> 
+		
+		<!-- Actors -->
+		<set name="movie.actors" value="|" />
+		<parse name="actors" input="${details_page}" regex="${rx_actors}" />
+		<parse name="actors" input="${actors}" regex="${rx_break_genre}" />
+		<if test="${actors[0][0]}!=">
+			<loop name="currActor" on="actors">
+				<set name="movie.actors" value="${movie.actors}${currActor[0]:htmldecode}|" />
+			</loop>
+		</if>
+
+		<!-- Genres -->
+		<parse name="genres" input="${details_page}]" regex="${rx_genre_list}" />
+		<parse name="genres_bons" input="${genres}" regex="${rx_breakpalo}" />
+		<if test="${genres_bons[0][0]}!=">
+			<set name="genresList" value="${genres_bons[0][0]}" />
+			<parse name="genre" input="${genresList}" regex="${rx_break_genre}" />
+			<set name="movie.genres" value="|" />
+			<loop name="currGenre" on="genre">
+				<set name="movie.genres" value="${movie.genres}${currGenre[0]:htmldecode}|" />
+			</loop>
+		</if>
+
+		<!-- Runtime -->
+		<parse name="runtime" input="${details_page}" regex="${rx_runtime}" />
+		<if test="${runtime[0][0]}!=">
+			<set name="movie.runtime" value="${runtime[0][0]:htmldecode}" />
+		</if>
+
+		<!-- Tagline -->
+
+		<!-- Score -->
+		<parse name="score" input="${details_page}" regex="${rx_score}" />
+		<if test="${score[0][0]}!=">
+			<replace name="movie.score" input="${score[0][0]:htmldecode}" pattern="[,]" with="." />
+		</if>
+
+		<!-- Popularity -->
+		<parse name="votes" input="${details_page}" regex="${rx_votes}" />
+		<if test="${votes[0][0]}!=">
+			<replace name="movie.popularity" input="${votes[0][0]:htmldecode}" pattern="[,.]" with='' />
+		</if>
+
+		<!-- Plot Summary -->
+		<parse name="summary" input="${details_page}" regex="${rx_description}" />
+		<set name="summary" value="${summary[0][0]:striptags}" />
+		<if test="${summary}!=">
+			<set name="movie.summary" value="${summary:htmldecode}" />
+		</if>
+
+		<!-- Studios -->
+		<parse name="studios" input="${details_page}" regex="${rx_studios}" />
+		<if test="${studios[0][0]}!=">
+			<replace name="studios" input="${studios[0][0]:htmldecode}" pattern=" / " with="|" />
+			<set name="movie.studios" value="|${studios}|" />
+		</if>
+
+	<!-- Get IMDb tt-ID via imdb.com website to assist in obtaining fanarts -->
+
+		<set name="rx_search_page">
+			<![CDATA[
+			<div\s*class="findSection"[^>]*>.+<div\s*id="sidebar"[^>]*>
+			]]>
+		</set>
+
+		<set name="rx_locate_title">
+			<![CDATA[
+			<title>(.+?)\((\d{4})[\/IVX]*\).*?</title>
+			]]>
+		</set>
+
+		<set name="rx_locate_imdb_year">
+			<![CDATA[
+			=/title/(tt\d+)/.*?\((\d{4})[\/IVX]*\)
+			]]>
+		</set>
+
+		<set name="rx_locate_imdb_year_search">
+			<![CDATA[
+			<tr\s*class="findResult[^>]+>(?:\s*<td\s*class="primary_photo">\s*<a[^>]+><img[^>]+></a>\s*</td>)?\s*<td\s*class="result_text">\s*<a\s*href="/title/(?<imdb_id>tt\d+)[^"]+"\s*>(?<title>[^<]+)</a>(?:\s*\([\/IVX]*\))?\s*\((?<year>\d{4})[^)]*\)(?:(?:\s*<br/>aka\s*<i>")(?<aka>[^"]+)(?:"</i>\s*))?[^<]+</td>\s*</tr>
+			]]>
+		</set>
+
+
+		<!-- We can not rely on user interaction to select the right movie -->
+		<!-- So this will rely solely on imdb.es for a correct match -->
+
+
+		<retrieve name="imdb_search" url="http://akas.imdb.com/find?s=tt&amp;q=${movie.title:safe(UTF-8)}" />
+
+
+  		<!-- Verify first to see if the search results is an instant match -->
+  		<parse name="details_page" input="${imdb_search}" regex="${rx_locate_title}" />
+  		<!-- Verify Release Year -->
+  		<if test="${details_page[0][1]:htmldecode}=${movie.year}">
+  			<parse name="imdb_id" input="${imdb_search}" regex="${rx_locate_imdb_year}" />
+  			<set name="movie.imdb_id" value="${imdb_id[0][0]:htmldecode}" />
+  		</if>
+
+  		<!-- Use the Search page results otherwise -->
+  		
+  		<if test="${details_page[0][1]:htmldecode}!=${movie.year}">
+  			<parse name="search_results" input="${imdb_search}" regex="${rx_search_page}" />
+  			
+  			<if test="${search_results}!=">
+  				<parse name="imdb_id" input="${imdb_search}" regex="${rx_locate_imdb_year_search}" />
+  				<!-- Verify Release Year -->
+  				<if test="${imdb_id[0][2]:htmldecode}=${movie.year}">
+  					<set name="movie.imdb_id" value="${imdb_id[0][0]:htmldecode}" />
+  				</if>
+  				<if test="${imdb_id[0][2]:htmldecode}!=${movie.year}">
+  					<if test="${imdb_id[1][2]:htmldecode}=${movie.year}">
+    						<set name="movie.imdb_id" value="${imdb_id[1][0]:htmldecode}" />
+    					</if>
+	    				<if test="${imdb_id[1][2]:htmldecode}!=${movie.year}">
+    						<if test="${imdb_id[2][2]:htmldecode}=${movie.year}">
+    								<set name="movie.imdb_id" value="${imdb_id[2][0]:htmldecode}" />
+    						</if>
+    					</if>
+  				</if>
+  			</if>
+  		</if>
+	</if>
+
+	<!-- Si tenems el id de imdb buscamos el idioma i la certificacion en imdb.es -->
+	<if test="${movie.imdb_id}!=">
+		<set name="rx_certification">
+			<![CDATA[
+			(?:>\s*USA:|Rated\s*)(?<movieCertification>(?:G)|(?:PG)|(?:PG-13)|(?:R)|(?:X)|(?:NC-17))(?:</a>|\s*for)
+			]]>
+		</set>
+
+		<retrieve name="imdb_page" url="http://www.imdb.com/title/${movie.imdb_id}/" />
+			
+		<if test="${movie.certification}=">
+			<parse name="certification_usa" input="${imdb_page}" regex="${rx_certification}" />
+			<!-- Fix localized rating, forced to swap order, as "G" gets replaced inside "PG" and "PG-13" otherwise  -->
+			<if test="${certification_usa[0][0]:htmldecode}!=">
+				<replace name="certification1" input="${certification_usa[0][0]:htmldecode}" pattern="X" with="X" />
+				<replace name="certification2" input="${certification1}" pattern="NC-17" with="18" />
+				<replace name="certification3" input="${certification2}" pattern="R" with="16" />
+				<replace name="certification4" input="${certification3}" pattern="PG-13" with="12" />
+				<replace name="certification5" input="${certification4}" pattern="PG" with="7" />
+				<replace name="certification6" input="${certification5}" pattern="G" with="TP" />
+				<set name="movie.certification" value="${certification6}" />
+    			</if>
+		</if>
+	</if>
+</action>
+
+<action name="get_cover_art">
+
+	<!-- We need to find the link to the posters page from the details page -->
+	<if test="${movie.site_id}!="> 
+
+		<set name="rx_poster_link">
+			<![CDATA[
+			https://pics.filmaffinity.com/(?<MoviePoster>[^"]+)
+			]]>
+		</set>
+
+		<retrieve name="details_page_cover" url="https://www.filmaffinity.com/es/film${movie.site_id}.html" encoding="UTF-8" />
+		<parse name="posterLink" input="${details_page_cover}" regex="${rx_poster_link}" />
+		<!-- If link found, continue -->
+		<if test="${posterLink[0][0]}!=">
+			<set name="cover_art[0].url" value="https://pics.filmaffinity.com/${posterLink[0][0]}" />
+		</if>
+	</if>
+</action>
+
+</ScriptableScraper>

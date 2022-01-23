@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -43,12 +43,13 @@ namespace MediaPortal.Common.MediaManagement
   /// </remarks>
   public class MediaItem : IEquatable<MediaItem>, IXmlSerializable
   {
+    public static readonly string[] OPTICAL_DISC_MIMES = new string[] { "video/dvd", "video/bluray" };
+
     #region Protected fields
 
     protected Guid _id;
     protected readonly IDictionary<Guid, IList<MediaItemAspect>> _aspects;
     protected readonly IDictionary<string, string> _userData = new Dictionary<string, string>();
-    protected readonly string[] _opticalDiscMimes = new string[] { "video/dvd", "video/bluray" };
 
     #endregion
 
@@ -226,7 +227,7 @@ namespace MediaPortal.Common.MediaManagement
             return false;
 
           //Special case for optical discs
-          if (providerAspects.Count(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))) > 1)
+          if (providerAspects.Count(pra => OPTICAL_DISC_MIMES.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase))) > 1)
             return true;
         }
 
@@ -267,7 +268,7 @@ namespace MediaPortal.Common.MediaManagement
             isPrimary = providerAspects.Any(pra => pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_TYPE) == ProviderResourceAspect.TYPE_PRIMARY &&
               videoStreams.Any(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)));
 
-            isOpticalDisc = providerAspects.Any(pra => _opticalDiscMimes.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)) &&
+            isOpticalDisc = providerAspects.Any(pra => OPTICAL_DISC_MIMES.Any(m => m.Equals(pra.GetAttributeValue<string>(ProviderResourceAspect.ATTR_MIME_TYPE), StringComparison.InvariantCultureIgnoreCase)) &&
               videoStreams.Any(s => s.GetAttributeValue<int>(VideoStreamAspect.ATTR_RESOURCE_INDEX) == pra.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX)));
           }
 
@@ -366,6 +367,20 @@ namespace MediaPortal.Common.MediaManagement
     }
 
     /// <summary>
+    /// Get title of the current MediaItem
+    /// </summary>
+    public string Title
+    {
+      get
+      {
+        if (MediaItemAspect.TryGetAspect(_aspects, MediaAspect.Metadata, out var mediaAspect))
+          return mediaAspect.GetAttributeValue<string>(MediaAspect.ATTR_TITLE);
+
+        return "<Unknown>";
+      }
+    }
+
+    /// <summary>
     /// Returns a resource locator instance for this item.
     /// </summary>
     /// <returns>Resource locator instance or <c>null</c>, if this item doesn't contain a <see cref="ProviderResourceAspect"/>.</returns>
@@ -381,8 +396,8 @@ namespace MediaPortal.Common.MediaManagement
         if (ActiveEditionIndex <= MaximumEditionIndex)
         {
           var currentEdition = Editions[ActiveEditionIndex];
-          var resourceIndex = Editions[ActiveEditionIndex].PrimaryResourceIndexes.First();
-          if (resourceIndex < providerAspects.Count)
+          var resourceIndex = currentEdition.PrimaryResourceIndexes.First();
+          if (resourceIndex <= providerAspects.Count)
             aspect = providerAspects.First(p => p.GetAttributeValue<int>(ProviderResourceAspect.ATTR_RESOURCE_INDEX) == resourceIndex);
         }
       }
@@ -518,11 +533,7 @@ namespace MediaPortal.Common.MediaManagement
 
     public override string ToString()
     {
-      string mimeType;
-      string title;
-      if (GetPlayData(out mimeType, out title))
-        return title;
-      return "<Unknown>";
+      return Title;
     }
 
     #region IEquatable<MediaItem> implementation

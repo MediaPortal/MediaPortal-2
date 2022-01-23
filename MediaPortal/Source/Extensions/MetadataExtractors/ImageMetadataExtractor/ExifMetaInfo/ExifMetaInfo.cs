@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -28,6 +28,7 @@ using System.IO;
 using System.Linq;
 using FreeImageAPI;
 using FreeImageAPI.Metadata;
+using FreeImageLib;
 using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifMetaInfo
@@ -212,15 +213,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
 
     private void ReadMetaInfo(Stream mediaStream)
     {
+      const int FIF_LOAD_NOPIXELS = 32768;
       FIBITMAP dib = new FIBITMAP();
       try
       {
         // Check if FreeImage is available
-        if (!FreeImage.IsAvailable())
+        if (!FreeImageInit.IsAvailable())
           throw new Exception("FreeImage is not available!");
 
         // Load the image from stream, try to read headers only, without decoding
-        dib = FreeImage.LoadFromStream(mediaStream, FREE_IMAGE_LOAD_FLAGS.LOAD_NOPIXELS);
+        dib = FreeImage.LoadFromStream(mediaStream, (FREE_IMAGE_LOAD_FLAGS)FIF_LOAD_NOPIXELS);
         if (dib.IsNull)
           throw new Exception("FreeImage could not load image");
 

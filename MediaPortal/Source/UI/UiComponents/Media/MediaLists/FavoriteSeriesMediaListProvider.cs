@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common.Commands;
+using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.UiComponents.Media.General;
 using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.Navigation;
@@ -34,7 +35,11 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteSeriesMediaListProvider()
     {
+      _changeAspectId = EpisodeAspect.ASPECT_ID;
+      _role = SeriesAspect.ROLE_SERIES;
+      _linkedRole = EpisodeAspect.ROLE_EPISODE;
       _necessaryMias = Consts.NECESSARY_SERIES_MIAS;
+      _necessaryLinkedMias = Consts.NECESSARY_EPISODE_MIAS;
       _playableContainerConverterAction = item => new SeriesFilterItem(item)
       {
         Command = new MethodDelegateCommand(() => SeriesNavigationInitializer.NavigateToSeries(item.MediaItemId))

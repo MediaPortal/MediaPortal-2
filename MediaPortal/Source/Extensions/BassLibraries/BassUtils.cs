@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -32,6 +32,19 @@ namespace MediaPortal.Extensions.BassLibraries
 {
   public class BassUtils
   {
+
+    #region Fields
+
+    protected static BassLibraryManager _lib;
+
+    #endregion
+
+    static BassUtils()
+    {
+      // Make sure to initialize library first, otherwise required dll paths are not set.
+      _lib = BassLibraryManager.Get();
+    }
+
     public class AudioTrack
     {
       protected byte _trackNo;

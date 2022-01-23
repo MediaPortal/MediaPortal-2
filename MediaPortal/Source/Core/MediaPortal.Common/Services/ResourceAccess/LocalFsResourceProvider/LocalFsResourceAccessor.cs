@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -144,6 +144,17 @@ namespace MediaPortal.Common.Services.ResourceAccess.LocalFsResourceProvider
       if (string.IsNullOrEmpty(dosPath) || !File.Exists(dosPath))
         return null;
       return File.OpenWrite(dosPath);
+    }
+
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      string dosPath = LocalFsResourceProviderBase.ToDosPath(_path);
+      if (string.IsNullOrEmpty(dosPath) || !Directory.Exists(dosPath))
+        return null;
+      string filePath = System.IO.Path.Combine(dosPath, file);
+      if (File.Exists(filePath) && !overwrite)
+        return File.OpenWrite(filePath);
+      return File.Create(filePath);
     }
 
     public IResourceAccessor Clone()

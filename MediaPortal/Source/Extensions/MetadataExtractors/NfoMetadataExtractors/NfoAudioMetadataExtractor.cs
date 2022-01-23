@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -65,11 +65,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     /// MediaCategories this MetadataExtractor is applied to
     /// </summary>
     private const string MEDIA_CATEGORY_NAME_AUDIO = "Audio";
-    private readonly static ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
+    private static readonly ICollection<MediaCategory> MEDIA_CATEGORIES = new List<MediaCategory>();
 
     #endregion
 
-    #region Private fields
+    #region Private/Protected fields
 
     /// <summary>
     /// Metadata of this MetadataExtractor
@@ -182,7 +182,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
         {
           // If we found one, we (asynchronously) extract the metadata into a stub object and, if metadata was found,
           // we store it into the MediaItemAspects.
-          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings);
+          var albumNfoReader = new NfoAlbumReader(_debugLogger, miNumber, forceQuickMode, isStub, _httpClient, _settings, false);
           using (albumNfoFsra)
           {
             if (await albumNfoReader.TryReadMetadataAsync(albumNfoFsra).ConfigureAwait(false))
@@ -366,6 +366,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     #endregion
 
+    protected override void NewImportStarting()
+    {
+      NfoArtistReader.ClearCache();
+      NfoAlbumReader.ClearCache();
+    }
+
     #endregion
 
     #region IMetadataExtractor implementation
@@ -377,6 +383,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
 
     public Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
+      InitSettings();
       //if (extractedAspectData.ContainsKey(AudioAspect.ASPECT_ID))
       //  return false;
 
@@ -404,6 +411,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
     }
 
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       return Task.FromResult(false);
     }

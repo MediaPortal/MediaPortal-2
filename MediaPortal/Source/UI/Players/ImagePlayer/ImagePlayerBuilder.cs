@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -47,7 +47,7 @@ namespace MediaPortal.UI.Players.Image
       ImagePlayer player = new ImagePlayer();
       try
       {
-        if (!player.NextItem(mediaItem, StartTime.AtOnce))
+        if (!player.SetMediaItem(mediaItem))
         {
           player.Dispose();
           return null;

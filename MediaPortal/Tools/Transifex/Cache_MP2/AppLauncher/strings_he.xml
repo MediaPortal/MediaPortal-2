@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">עצור</string>
+  <string name="AppLauncher.Pause">הפסק</string>
+  <string name="AppLauncher.Settings.Title">הגדרות</string>
+  <string name="AppLauncher.Settings.Add.Arguments">ארגומנטים</string>
+  <string name="AppLauncher.Settings.Add.Description">תיאור</string>
+  <string name="AppLauncher.Settings.Add.Password">סיסמה</string>
+  <string name="AppLauncher.Settings.Add.Search">חפש</string>
+  <string name="AppLauncher.Settings.Add.Select">בחר</string>
+  <string name="AppLauncher.Settings.Add.Minimum">מינימום</string>
+  <string name="AppLauncher.Settings.Add.Normal">רגיל</string>
+  <string name="AppLauncher.Settings.Add.Maximum">מקסימום</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">ללא חלון</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">חפש סמל</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">חפש אפליקציה</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">הפעל כמנהל</string>
+  <string name="AppLauncher.Settings.Add.Helptext">נוספה אפליקציה חדשה</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">ערוך אפליקציה קיימת</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">הסר אפליקציה קיימת</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">הסר קבוצה קיימת</string>
+
+  <string name="AppLauncher.Group">קבוצה</string>
+  <string name="AppLauncher.SelectGroup">בחר קבוצה</string>
+  <string name="AppLauncher.RemoveGroup">הסר קבוצה</string>
+  <string name="AppLauncher.Delete">מחק</string>
+  <string name="AppLauncher.Menu.Clear">בהיר</string>
+</resources>

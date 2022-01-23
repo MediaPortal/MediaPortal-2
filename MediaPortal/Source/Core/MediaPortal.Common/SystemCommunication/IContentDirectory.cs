@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -411,6 +411,15 @@ namespace MediaPortal.Common.SystemCommunication
     /// </summary>
     /// <returns>Collection of share ids.</returns>
     Task<ICollection<Guid>> GetCurrentlyImportingSharesAsync();
+
+    /// <summary>
+    /// Downloads metadata based on aspect data <paramref name="mediaItemAspects"/>.
+    /// The downloads from various sources like files, online data etc.
+    /// </summary>
+    /// <param name="mediaItemId">The media item the aspect data comes from.</param>
+    /// <param name="mediaItemAspects">A dictionary containing all the current aspects from which the needed metadata should be found.</param>
+    /// <returns><c>true</c> if metadata was downloaded, else <c>false</c>.
+    Task<bool> DownloadMetadataAsync(Guid mediaItemId, IEnumerable<MediaItemAspect> mediaItemAspects);
 
     #endregion
 

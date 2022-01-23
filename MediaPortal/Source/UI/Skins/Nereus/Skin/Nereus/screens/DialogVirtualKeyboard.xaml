@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!--
+Virtual keyboard dialog
+-->
+
+<Screen 
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <VirtualKeyboardControl Style="{ThemeResource VirtualKeyboardControlStyle}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+</Screen>

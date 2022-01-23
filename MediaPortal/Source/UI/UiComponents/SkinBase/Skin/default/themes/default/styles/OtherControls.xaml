@@ -31,6 +31,9 @@
   <SafeFilenameConverter x:Key="SafeFilenameConverter"/>
   <StringSplitConverter x:Key="StringSplitConverter"/>
   <BoolToFocusPriorityConverter x:Key="BoolToFocusPriorityConverter"/>
+  <ConfigurationRootConverter x:Key="ConfigurationRootConverter"/>
+  <ConfigurationPathConverter x:Key="ConfigurationPathConverter"/>
+  <ConfigurationLevelConverter x:Key="ConfigurationLevelConverter"/>
 
   <!-- ******************* Screen/dialog animation storyboards ****************** -->
 
@@ -1676,6 +1679,15 @@
                         <Binding Path="IsAudioPlayerPresent"/>
                       </MultiBinding>
                     </Image.IsVisible>
+                  </Image>
+                  <Image Width="90" Stretch="Uniform" Opacity="0.9" VerticalAlignment="Center" HorizontalAlignment="Center">
+                    <Image.Source>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                        <Binding Path="IsPaused"/>
+                        <Binding Source="pause.png"/>
+                        <Binding Source=""/>
+                      </MultiBinding>
+                    </Image.Source>
                   </Image>
                 </Grid>
               </Border>

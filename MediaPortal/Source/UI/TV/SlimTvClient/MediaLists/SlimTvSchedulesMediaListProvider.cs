@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Utilities;
+using MediaPortal.UI.ContentLists;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -111,15 +112,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       workflowManager.NavigatePush(WF_STATE_ID_SCHEDULE_LIST);
     }
 
-    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason)
+    public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)
     {
-      if (!TryInitTvHandler() || _tvHandler.ScheduleControl == null)
+      if (!TryInitTvHandler())
+        return false;
+      var tvHandlerScheduleControl = _tvHandler.ScheduleControl;
+      if (tvHandlerScheduleControl == null)
         return false;
 
       if (!updateReason.HasFlag(UpdateReason.Forced) && !updateReason.HasFlag(UpdateReason.PeriodicMinute))
         return true;
 
-      var scheduleResult = await _tvHandler.ScheduleControl.GetSchedulesAsync();
+      var scheduleResult = await tvHandlerScheduleControl.GetSchedulesAsync();
       if (!scheduleResult.Success)
         return false;
 
@@ -127,7 +131,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       var scheduleSortList = new List<Tuple<ISchedule, ProgramProperties>>();
       foreach (ISchedule schedule in schedules)
       {
-        var programResult = await _tvHandler.ScheduleControl.GetProgramsForScheduleAsync(schedule);
+        var programResult = await tvHandlerScheduleControl.GetProgramsForScheduleAsync(schedule);
         if (!programResult.Success || programResult.Result.Count == 0)
           continue;
         ProgramProperties programProperties = new ProgramProperties();
@@ -141,7 +145,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       if (_currentSchedules.Select(s => s.Item1.ScheduleId).SequenceEqual(scheduleList.Select(s => s.Item1.ScheduleId)))
         return true;
 
-      ListItem[]  items = scheduleList.Select(s => CreateScheduleItem(s.Item1, s.Item2)).ToArray();
+      ListItem[] items = scheduleList.Select(s => CreateScheduleItem(s.Item1, s.Item2)).ToArray();
       lock (_allItems.SyncRoot)
       {
         _currentSchedules = scheduleList;

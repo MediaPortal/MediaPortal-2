@@ -8,6 +8,5 @@
   <string name="Settings.ServerSettings.Username">Käyttäjätunnus:</string>
   <string name="Settings.ServerSettings.Password">Salasana:</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Määritä levyjakojen automaattinen päivitys</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Ota käyttöön automaattinen päivitys</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Suorita tiettynä aikana päivästä(24 tuntinen)</string>
 </resources>

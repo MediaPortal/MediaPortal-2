@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.AudiotContainter">دەنگ</string>
+  <string name="MediaServer.ImageContainter">وێنە</string>
+  <string name="MediaServer.TV">تەلەڤزیۆن</string>
+  </resources>

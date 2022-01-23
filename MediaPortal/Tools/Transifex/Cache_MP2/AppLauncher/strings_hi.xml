@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">रोकें</string>
+  <string name="AppLauncher.Settings.Title">सेटिंग्स</string>
+  <string name="AppLauncher.Settings.Add.Description">विवरण</string>
+  <string name="AppLauncher.Settings.Add.Search">खोजें</string>
+  <string name="AppLauncher.Delete">मिटाएँ</string>
+  <string name="AppLauncher.Menu.Clear">साफ</string>
+</resources>

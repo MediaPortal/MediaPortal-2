@@ -43,6 +43,24 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Net.Http" />
@@ -58,9 +76,11 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Backend\TestLibrary.cs" />
+    <Compile Include="Backend\TestMediaAspectMerging.cs" />
     <Compile Include="Backend\TestMediaItemAspectMetadata.cs" />
     <Compile Include="Backend\TestQueryEngine.cs" />
     <Compile Include="Backend\TestReconciler.cs" />
+    <Compile Include="Backend\TestUserProfile.cs" />
     <Compile Include="Backend\TestUtils.cs" />
     <Compile Include="FanArt\FanArtHandlersForTests\AudioFanArtHandlerForTests.cs" />
     <Compile Include="FanArt\FanArtHandlersForTests\BaseFanArtHandlerForTests.cs" />
@@ -105,6 +125,10 @@
       <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
       <Name>MediaPortal.Utilities</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\UPnP\UPnP.csproj">
+      <Project>{455e7d70-1c85-4d7f-9f01-dc801b8b8c34}</Project>
+      <Name>UPnP</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\AudioMetadataExtractor\AudioMetadataExtractor.csproj">
       <Project>{11fd64f0-97c0-40b5-8aaa-1e56255d3ef7}</Project>
       <Name>AudioMetadataExtractor</Name>
@@ -125,10 +149,6 @@
       <Project>{e34b06d1-8dcd-4027-9c2f-26fb29eb58a7}</Project>
       <Name>NfoMetadataExtractors</Name>
     </ProjectReference>
-    <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OCVVideoThumbnailer\OCVVideoThumbnailer.csproj">
-      <Project>{9049f675-1a23-46a1-b0a9-bba94c492aad}</Project>
-      <Name>OCVVideoThumbnailer</Name>
-    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj">
       <Project>{dca4d19e-75f4-4a8a-b70a-f3f4291dc62b}</Project>
       <Name>OnlineLibraries</Name>
@@ -144,6 +164,10 @@
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\VideoMetadataExtractor\VideoMetadataExtractor.csproj">
       <Project>{000c12a6-9734-4acb-99e9-d3f726c5858f}</Project>
       <Name>VideoMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
+      <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\TV\SlimTvResources\SlimTv.Resources.csproj">
       <Project>{9158967E-4FEB-4504-8C1E-02BE96045D34}</Project>

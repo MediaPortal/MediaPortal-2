@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -24,6 +24,8 @@
 
 using System;
 using System.Globalization;
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using MediaPortal.Plugins.SlimTv.Client.Controls;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Helpers
@@ -72,7 +74,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     {
       if (dateTime == DateTime.MinValue)
         return string.Empty;
-      cultureInfo = cultureInfo ?? CultureInfo.CurrentUICulture;
+      cultureInfo = cultureInfo ?? ServiceRegistration.Get<ILocalization>().CurrentCulture;
       string result = "";
 
       // Date formats are exclusive

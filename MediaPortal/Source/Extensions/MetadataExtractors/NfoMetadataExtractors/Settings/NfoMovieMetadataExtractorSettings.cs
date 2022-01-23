@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,8 +38,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Settin
   {
     #region Consts
 
-    // A valid IMDB-ID starts with "tt" followed by exactly 7 digits
-    private const string REGEX_STRING_IMDBID = @"(tt\d{7})";
+    // A valid IMDB-ID starts with "tt" followed by exactly 7+ digits
+    private const string REGEX_STRING_IMDBID = @"(tt\d+)";
     private const int DEFAULT_MAXIMUM_ACTOR_COUNT = 10;
     private const int DEFAULT_MAXIMUM_CHARACTER_COUNT = 10;
 

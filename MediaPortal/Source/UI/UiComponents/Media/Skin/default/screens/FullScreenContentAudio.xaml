@@ -42,7 +42,7 @@
       </Control.RenderTransform>
     </Control>
 
-    <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer" Grid.Row="2" Grid.Column="0"
+    <mp_special_controls:PlayerControl Margin="20" Grid.Row="2" Grid.Column="0"
         HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource FullScreenContentAudioCurrentTitleInformationStyle}"/>
   </Grid>
 </Screen>

@@ -4,5 +4,4 @@
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Jméno uživatele a heslo</string>
   <string name="Settings.ServerSettings.Username">Jméno uživatele:</string>
   <string name="Settings.ServerSettings.Password">Heslo:</string>
-  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Povolit automatickou aktualizaci</string>
 </resources>

@@ -41,6 +41,7 @@
 
 using System;
 using System.Runtime.InteropServices;
+using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaInfoLib
 {
@@ -95,6 +96,13 @@ namespace MediaInfoLib
 
     public class MediaInfo
     {
+        static MediaInfo()
+        {
+          string absolutePlatformDir;
+          if (!NativeMethods.SetPlatformSearchDirectories(out absolutePlatformDir))
+            throw new Exception("Error adding dll probe path");
+        }
+
         //Import of DLL functions. DO NOT USE until you know what you do (MediaInfo DLL do NOT use CoTaskMemAlloc to allocate memory)  
         [DllImport("MediaInfo.dll")]
         private static extern IntPtr MediaInfo_New();

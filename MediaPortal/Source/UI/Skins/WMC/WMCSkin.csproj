@@ -42,6 +42,24 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -91,8 +109,6 @@
     <Content Include="Skin\WMCSkin\fonts\default-font.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4EFocus.png" />
-    <Content Include="Skin\WMCSkin\images\0983AB07-5EC6-4F38-B657-F07FF0819A4ENofocus.png" />
     <Content Include="Skin\WMCSkin\images\Certification\AU_G.png" />
     <Content Include="Skin\WMCSkin\images\Certification\AU_M.png" />
     <Content Include="Skin\WMCSkin\images\Certification\AU_MA.png" />
@@ -503,7 +519,7 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\BOTTOM.RIGHT.SHADOW.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\Bottom.shadow.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\Chapter.FOCUS.png" />
-    <Content Include="Skin\WMCSkin\images\PlayerControl\Chapter.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Chapter.NOFOCUS.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\Current.position.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\CURRENT.POSITION.SHADOW.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\DIVIDER.PNG" />
@@ -523,6 +539,8 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.NOFOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\GUIDE.PRESSED.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Left_Double.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Left_Double_Focus.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\Maximize.focus.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\Maximize.nofocus.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\MENU.PRESSED.PNG" />
@@ -563,6 +581,8 @@
     <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.DISABLED.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.FOCUS.PNG" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\RECORD.NOFOCUS.PNG" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Right_Double.png" />
+    <Content Include="Skin\WMCSkin\images\PlayerControl\Right_Double_Focus.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\SCHEDULE.FOCUS.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\SCHEDULE.NOFOCUS.png" />
     <Content Include="Skin\WMCSkin\images\PlayerControl\SEARCH.FOCUS.png" />
@@ -1184,21 +1204,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\NewsFeeds.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\screens\NewsItems.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\WMCSkin\themes\default\styles\NewsStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\WMCSkin\themes\default\styles\Animations.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -1271,11 +1276,16 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="SharpDX">
-      <Version>4.0.1</Version>
+      <Version>4.2.0</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\WMCSkin\screens\FullscreenContentDVD.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\WMCSkin\screens\master_configuration_menu.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

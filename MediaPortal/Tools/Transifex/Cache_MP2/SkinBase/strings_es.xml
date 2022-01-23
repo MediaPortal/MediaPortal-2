@@ -40,7 +40,6 @@
   <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Desconectarse del servivor</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">Servidor inicial</string>
   <string name="ServerConnection.AttachedText.Before">Este cliente de MediaPortal 2 está actualmetne conectado al servidor inicial</string>
-  <string name="ServerConnection.AttachedText.After"></string>
   <string name="ServerConnection.NoHomeServerAttached">Actualmente, Este cliente de MediaPortal 2 no está conectado al servidor inicial</string>
   <string name="ServerConnection.HomeServerIsConnected">El servidor de inicio esta actualmente conectado.</string>
   <string name="ServerConnection.HomeServerIsNotConnected">El servidor de inicio esta actualmente desconectado.</string>
@@ -63,6 +62,7 @@
   <string name="Notifications.NMoreNotifications">({0} más)</string>
   <string name="Notifications.WatchNotificationsWorkflowStateLabel">Notificaciones</string>
   <string name="Notifications.Handle">Manipular</string>
+  <string name="Notifications.Upgrading">Actualizando...</string>
   <string name="ImporterMessages.ImportStartedTitle">Importación comenzada</string>
   <string name="ImporterMessages.ImportStartedText">La importación de \'{0}\' a empezado.</string>
   <string name="ImporterMessages.ImportCompletedTitle">Importación finalizada</string>
@@ -73,6 +73,8 @@
   <string name="RemoteResourceProvider.Description">Recurso de acceso localizado en otro sistema MediaPortal 2</string>
   <string name="RawUrlResourceProvider.Name">Url Raw</string>
   <string name="RawUrlResourceProvider.Description">Acceso a fuentes de raw Uri</string>
+  <string name="VirtualResourceProvider.Name">Recursos virtuales</string>
+  <string name="VirtualResourceProvider.Description">Acceso a recursos virtuales</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
   <string name="Players.NoPlayerAvailableNotificationTitle">Sin reproductor</string>
@@ -105,7 +107,9 @@
   <string name="Settings.Appearance">Aspecto</string>
   <string name="Settings.Appearance.Skin">Piel</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Formato de la fecha</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">Formato de fecha usado en el skin. Usa \'d\' for \"1/14/2017\" o \'D\' for \"Sabado, 1/14/2017\".</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Formato de la hora</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">Formato de hora usado en el skin. Usa \'t\' for \"11:50\" o \'T\' para \"11:50:37\".</string>
   <string name="Settings.General">General</string>
   <string name="Settings.General.System">Sistema</string>
   <string name="Settings.General.System.Autostart">Autocomenzar</string>
@@ -214,6 +218,8 @@
   <string name="SharesConfig.Relocate">Recolocar</string>
   <string name="SharesConfig.ReImport">Reimportar</string>
   <string name="SharesConfig.ManualPathInput">Entrada manual</string>
+  <string name="SharesConfig.UseShareWatcher">Visualizador compartido:</string>
+  <string name="SharesConfig.UseShareWatcher.Help">Monitoriza el origen de los archivos para posibles cambios y automáticamente actualiza la libreria de medios</string>
   <string name="UPnPFrontendServer.DefaultFriendlyName">Cliente MediaPortal 2</string>
   <string name="UPnPFrontendServer.Manufacturer">Team Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>

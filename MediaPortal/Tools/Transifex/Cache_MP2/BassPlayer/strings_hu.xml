@@ -1,8 +1,24 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.Players">Lejátszók</string>
+  <string name="Settings.Players.AudioPlayer">Hang lejátszó</string>
+  <string name="Settings.Players.BassPlayer.Setup">Kimeneti eszköz konfigurálása</string>
+  <string name="Settings.Players.BassPlayer.Setup.Help">A BassPlayer kimeneti eszközének konfigurálása és opciói</string>
+  <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
+  <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Kizárólagos mód</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Hangátvezetés mód</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Számok közti szünet/átkeverési idő beállítása</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Normál</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Szünetmentes</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Átkeverés</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Visszajátszó puffer</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">Pufferelési idő ms-ban [0-300]</string>
+  <string name="Settings.Players.Rendering.DirectSoundBufferSize">DirectSound</string>
+  <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">Renderelés</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">Átkeverés időtartama</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration.Help">Az átkeverés időtartama másodpercekben</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds">Keresés növelése másodpercekben</string>
+  <string name="Settings.Players.Rendering.Playback.SeekIncrementSeconds.Help"> Keresés növelése másodpercekben segéd leírás...</string>
 </resources>

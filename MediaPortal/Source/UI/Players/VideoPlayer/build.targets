@@ -18,16 +18,19 @@
     </ItemGroup>
 
     <ItemGroup>
-      <References Include="$(TargetDir)TsReader.ax" />
-      <References Include="$(TargetDir)DVBSub3.ax" />
-      <References Include="$(TargetDir)mpcSubs.dll" />
-      <References Include="$(TargetDir)cccp.ax" />
-      <References Include="$(SolutionDir)\Ui\Players\EVRPresenter\Release\EVRPresenter.dll" />
+      <ReferencesX86 Include="$(TargetDir)x86\*.*" />
+      <ReferencesX86 Include="$(SolutionDir)\Ui\Players\EVRPresenter\Release\Win32\EVRPresenter.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ReferencesX64 Include="$(TargetDir)x64\*.*" />
+      <ReferencesX64 Include="$(SolutionDir)\Ui\Players\EVRPresenter\Release\x64\EVRPresenter.dll" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
-    <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(ReferencesX86)" DestinationFolder="$(PluginDestination)\x86" />
+    <Copy SourceFiles="@(ReferencesX64)" DestinationFolder="$(PluginDestination)\x64" />
   </Target>
 
 </Project>

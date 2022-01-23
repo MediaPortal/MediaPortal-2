@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -263,6 +263,13 @@ namespace MediaPortal.Common.Services.ResourceAccess.RemoteResourceProvider
     {
       if (!_isFile)
         throw new IllegalCallException("Only files can provide stream access");
+      return null;
+    }
+
+    public Stream CreateOpenWrite(string file, bool overwrite)
+    {
+      if (_isFile)
+        throw new IllegalCallException("Only directories can create stream access");
       return null;
     }
 

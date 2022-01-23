@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -40,6 +40,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
   {
     private static readonly Guid[] ROLE_ASPECTS = { MovieAspect.ASPECT_ID };
     private static readonly Guid[] LINKED_ROLE_ASPECTS = { MovieCollectionAspect.ASPECT_ID };
+
+    private string _category;
+
+    public MovieCollectionRelationshipExtractor(string category)
+    {
+      _category = category;
+    }
 
     public bool BuildRelationship
     {
@@ -95,7 +102,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         collection[0] : movieInfo.CloneBasicInstance<MovieCollectionInfo>();
 
       if (!MovieMetadataExtractor.SkipOnlineSearches && collectionInfo.HasExternalId)
-        await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, false).ConfigureAwait(false);
+        await OnlineMatcherService.Instance.UpdateCollectionAsync(collectionInfo, false, _category).ConfigureAwait(false);
 
       IDictionary<Guid, IList<MediaItemAspect>> collectionAspects = collectionInfo.LinkedAspects != null ?
         collectionInfo.LinkedAspects : new Dictionary<Guid, IList<MediaItemAspect>>();

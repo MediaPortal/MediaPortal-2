@@ -19,8 +19,7 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer"
-          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+      <mp_special_controls:PlayerControl HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
         <mp_special_controls:PlayerControl.TemplateControl>
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.Background>

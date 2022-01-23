@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -61,6 +61,10 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
     public bool TryGetFanArt(string mediaType, string fanArtType, string name, int maxWidth, int maxHeight, bool singleRandom, out IList<FanArtImage> result)
     {
       result = null;
+
+      if (mediaType != FanArtMediaTypes.Episode && mediaType != FanArtMediaTypes.Movie)
+        return false;
+
       Guid mediaItemId;
       if (!Guid.TryParse(name, out mediaItemId))
         return false;
@@ -89,6 +93,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
         case FanArtTypes.ClearArt:
           patterns.Add("clearart.");
           break;
+        case FanArtTypes.Undefined:
         case FanArtTypes.Poster:
         case FanArtTypes.Thumbnail:
           patterns.Add("cover.");

@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_configuration_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.RemovePlaylistsHeader]"/>
+
+    <!-- Manage playlists model -->
+    <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}"
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid Grid.Row="0" Grid.Column="0"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Label Grid.Row="0" Content="[Media.ChoosePlaylistsToBeRemovedText]" Color="{ThemeResource TextColor}" Wrap="True" Opacity="0.5"/>
+          <DockPanel LastChildFill="True" Grid.Row="1">
+            <DockPanel x:Name="PlaylistsPanel" Margin="0,0,0,10" DockPanel.Dock="Center"
+                       LastChildFill="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              <ListView Margin="10" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                        Style="{ThemeResource MultiMarkablePlaylistsListViewStyle}"
+                        IsVisible="{Binding IsHomeServerConnected}" ItemsSource="{Binding Path=Playlists,Mode=OneTime}"/>
+              <Label Margin="10" DockPanel.Dock="Center" IsVisible="{Binding !IsHomeServerConnected}"
+                     Content="[Media.NoConfigPlaylistsHomeServerNotConnectedText]" Wrap="true"
+                     Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            </DockPanel>
+          </DockPanel>
+          <Grid Grid.Row="2" Margin="10,10,10,150">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+              <ColumnDefinition Width="500"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button x:Name="RemoveButton" Grid.Column="1" Style="{ThemeResource WizardButtonStyle}"
+                    Content="[System.Finish]" IsEnabled="{Binding IsPlaylistsSelected}"
+                    Command="{Command Source={StaticResource Model},Path=RemoveSelectedPlaylistsAndFinish}"/>
+          </Grid>
+        </Grid>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

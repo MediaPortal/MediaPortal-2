@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -37,11 +37,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
     public SlimTvLatestRecordingsMediaListProvider()
     {
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
-      _optionalMias = new Guid[] {
-        VideoStreamAspect.ASPECT_ID,    // Needed for calculating play percentage
-        VideoAspect.Metadata.AspectId,  // Needed for playing TV recording
-        AudioAspect.Metadata.AspectId   // Needed for playing Radio recording
-      };
+      _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
       _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
     }
   }

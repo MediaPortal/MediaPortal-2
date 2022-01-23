@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -59,6 +59,13 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
         SendEvents = false,
       };
       AddStateVariable(A_ARG_TYPE_UserProfile);
+
+      //Used for transporting usage statistics
+      DvStateVariable A_ARG_TYPE_UsageStatistics = new DvStateVariable("A_ARG_TYPE_UsageStatistics", new DvExtendedDataType(UPnPExtendedDataTypes.DtUsageStatistics))
+      {
+        SendEvents = false,
+      };
+      AddStateVariable(A_ARG_TYPE_UsageStatistics);
 
       // Used for boolean values
       DvStateVariable A_ARG_TYPE_Bool = new DvStateVariable("A_ARG_TYPE_Bool", new DvStandardDataType(UPnPStandardDataType.Boolean))
@@ -330,6 +337,26 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
             new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
           });
       AddAction(getUserSelectedAdditionalDataListAction);
+
+      // Feature usage statistics
+      DvAction notifyFeatureUsageAction = new DvAction("NotifyFeatureUsage", OnNotifyFeatureUsage,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("Scope", A_ARG_TYPE_String, ArgumentDirection.In),
+            new DvArgument("UsedItem", A_ARG_TYPE_String, ArgumentDirection.In)},
+          new DvArgument[] {
+            new DvArgument("Success", A_ARG_TYPE_Bool, ArgumentDirection.Out, true)
+          });
+      AddAction(notifyFeatureUsageAction);
+
+      DvAction getFeatureUsageStatisticsAction = new DvAction("GetFeatureUsageStatistics", OnGetFeatureUsageStatistics,
+          new DvArgument[] {
+            new DvArgument("ProfileId", A_ARG_TYPE_Uuid, ArgumentDirection.In),
+            new DvArgument("Scope", A_ARG_TYPE_String, ArgumentDirection.In)},
+          new DvArgument[] {
+            new DvArgument("Statistic", A_ARG_TYPE_UsageStatistics, ArgumentDirection.Out, true)
+          });
+      AddAction(getFeatureUsageStatisticsAction);
 
       // Cleanup user data
       DvAction clearAllUserDataAction = new DvAction("ClearAllUserData", OnClearAllUserData,
@@ -603,6 +630,32 @@ namespace MediaPortal.Backend.Services.UserProfileDataManagement
       outParams = new List<object> { data, result.Success };
       return null;
     }
+
+    // Feature usage stats
+
+    static UPnPError OnNotifyFeatureUsage(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string scope = (string)inParams[1];
+      string usedItem = (string)inParams[2];
+
+      var result = ServiceRegistration.Get<IUserProfileDataManagement>().NotifyFeatureUsageAsync(profileId, scope, usedItem).Result;
+
+      outParams = new List<object> { result };
+      return null;
+    }
+
+    static UPnPError OnGetFeatureUsageStatistics(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      Guid profileId = MarshallingHelper.DeserializeGuid((string)inParams[0]);
+      string scope = (string)inParams[1];
+
+      var result = ServiceRegistration.Get<IUserProfileDataManagement>().GetFeatureUsageStatisticsAsync(profileId, scope).Result;
+
+      outParams = new List<object> { result };
+      return null;
+    }
+
 
     // Cleanup user data
 

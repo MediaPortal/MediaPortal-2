@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -51,7 +51,7 @@ namespace MediaPortal.UPnPRenderer.Players
     protected SizeF _textureMaxUv = new SizeF(1, 1);
 
     // Image animation effect
-    IImageAnimator _animator;
+    IImageAnimator _animator = STILL_IMAGE_ANIMATION;
 
     string _itemTitle;
     PlayerState _state = PlayerState.Stopped;
@@ -153,8 +153,6 @@ namespace MediaPortal.UPnPRenderer.Players
         if (!_texture.IsAllocated)
           return;
 
-        //ImagePlayerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ImagePlayerSettings>() ?? new ImagePlayerSettings();
-        _animator = STILL_IMAGE_ANIMATION; //settings.UseKenBurns ? new KenBurnsAnimator() : STILL_IMAGE_ANIMATION;
         SurfaceDescription desc = _texture.Texture.GetLevelDescription(0);
         _textureMaxUv = new SizeF(_texture.Width / (float)desc.Width, _texture.Height / (float)desc.Height);
 

@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -63,7 +63,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// Cache used to temporarily store <see cref="SeriesStub"/> objects so that the same tvshow.nfo file
     /// doesn't have to be parsed once for every episode
     /// </summary>
-    private static readonly AsyncStaticTimeoutCache<ResourcePath, List<ArtistStub>> CACHE = new AsyncStaticTimeoutCache<ResourcePath, List<ArtistStub>>(CACHE_TIMEOUT);
+    private static AsyncStaticTimeoutCache<ResourcePath, (bool HasFanart, List<ArtistStub> Stubs)> CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<ArtistStub>)>(CACHE_TIMEOUT);
+
+    #endregion
+
+    public static void ClearCache()
+    {
+      CACHE = new AsyncStaticTimeoutCache<ResourcePath, (bool, List<ArtistStub>)>(CACHE_TIMEOUT);
+    }
+
+    #region Private fields
+
+    private readonly bool _includeFanart;
 
     #endregion
 
@@ -77,11 +88,13 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <param name="forceQuickMode">If true, no long lasting operations such as parsing images are performed</param>
     /// <param name="httpClient"><see cref="HttpClient"/> used to download from http URLs contained in nfo-files</param>
     /// <param name="settings">Settings of the <see cref="NfoMovieMetadataExtractor"/></param>
-    public NfoArtistReader(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoAudioMetadataExtractorSettings settings)
+    /// <param name="includeFanart">Include fanart</param>
+    public NfoArtistReader(ILogger debugLogger, long miNumber, bool forceQuickMode, HttpClient httpClient, NfoAudioMetadataExtractorSettings settings, bool includeFanart)
       : base(debugLogger, miNumber, forceQuickMode, httpClient, settings)
     {
+      _includeFanart = includeFanart;
       _settings = settings;
-      InitializeSupportedElements();
+      InitializeSupportedElements(includeFanart);
       InitializeSupportedAttributes();
     }
 
@@ -94,7 +107,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     /// <summary>
     /// Adds a delegate for each xml element in a movie nfo-file that is understood by this MetadataExtractor to NfoReaderBase._supportedElements
     /// </summary>
-    private void InitializeSupportedElements()
+    private void InitializeSupportedElements(bool includeFanart)
     {
       _supportedElements.Add("musicBrainzArtistID", new TryReadElementDelegate(TryReadMbArtistId));
       _supportedElements.Add("audioDbID", new TryReadElementDelegate(TryReadAudiodbId));
@@ -103,8 +116,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("born", new TryReadElementDelegate(TryReadBirthDate));
       _supportedElements.Add("died", new TryReadElementDelegate(TryReadDeathDate));
       _supportedElements.Add("disbanded", new TryReadElementDelegate(TryReadDisbandedDate));
-      //_supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
       _supportedElements.Add("biography", new TryReadElementDelegate(TryReadBiography));
+
+      if (includeFanart)
+        _supportedElements.Add("thumb", new TryReadElementAsyncDelegate(TryReadThumbAsync));
+      else
+        _supportedElements.Add("thumb", new TryReadElementDelegate(Ignore));
 
       //Ignored. No attribute in aspects to store them or irrelevant
       _supportedElements.Add("genre", new TryReadElementDelegate(Ignore));
@@ -113,7 +130,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedElements.Add("yearsactive", new TryReadElementDelegate(Ignore));
       _supportedElements.Add("instruments", new TryReadElementDelegate(Ignore));
       _supportedElements.Add("album", new TryReadElementDelegate(Ignore));
-      _supportedElements.Add("thumb", new TryReadElementDelegate(Ignore));
     }
 
     /// <summary>
@@ -133,7 +149,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
       _supportedAttributes.Add(TryWriteExternalIdentifierAspectAudioDbId);
       _supportedAttributes.Add(TryWriteExternalIdentifierAspectMusicBrainzArtistId);
 
-      _supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
+      //Handled by FanArt collector now
+      //_supportedAttributes.Add(TryWriteThumbnailLargeAspectThumbnail);
     }
 
     #endregion
@@ -506,27 +523,32 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.NfoRea
     }
 
     /// <summary>
-    /// Tries to read a series nfo-file into <see cref="ArtistStub"/> objects (or gets them from cache)
+    /// Tries to read a artist nfo-file into <see cref="ArtistStub"/> objects (or gets them from cache)
     /// </summary>
     /// <param name="nfoFsra"><see cref="IFileSystemResourceAccessor"/> pointing to the nfo-file</param>
     /// <returns><c>true</c> if any usable metadata was found; else <c>false</c></returns>
     public override async Task<bool> TryReadMetadataAsync(IFileSystemResourceAccessor nfoFsra)
     {
-      var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path =>
-      {
-        _debugLogger.Info("[#{0}]: ArtistStub object for series nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
-        if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
-        {
-          if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
-            LogStubObjects();
-          return _stubs;
-        }
-        return null;
-      }).ConfigureAwait(false);
-      if (stubs == null)
+      var stubs = await CACHE.GetValue(nfoFsra.CanonicalLocalResourcePath, async path => await ReadMetadataAsync(path, nfoFsra)).ConfigureAwait(false);
+      if (!stubs.HasFanart && _includeFanart)
+        await CACHE.UpdateValue(nfoFsra.CanonicalLocalResourcePath, async path => stubs = await ReadMetadataAsync(path, nfoFsra)).ConfigureAwait(false);
+
+      if (stubs.Stubs == null)
         return false;
-      _stubs = stubs;
+      _stubs = stubs.Stubs;
       return true;
+    }
+
+    protected async Task<(bool HasFanart, List<ArtistStub> Stubs)> ReadMetadataAsync(ResourcePath path, IFileSystemResourceAccessor nfoFsra)
+    {
+      _debugLogger.Info("[#{0}]: ArtistStub object for series nfo-file not found in cache; parsing nfo-file {1}", _miNumber, nfoFsra.CanonicalLocalResourcePath);
+      if (await base.TryReadMetadataAsync(nfoFsra).ConfigureAwait(false))
+      {
+        if (_settings.EnableDebugLogging && _settings.WriteStubObjectIntoDebugLog)
+          LogStubObjects();
+        return (_includeFanart, _stubs);
+      }
+      return (_includeFanart, null);
     }
 
     #endregion

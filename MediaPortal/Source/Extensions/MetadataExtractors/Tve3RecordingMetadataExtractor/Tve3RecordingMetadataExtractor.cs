@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -30,8 +30,8 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.GenreConverter;
-using MediaPortal.Extensions.MetadataExtractors.Aspects;
 using MediaPortal.Extensions.OnlineLibraries;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
@@ -47,6 +47,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
   /// </summary>
   public class Tve3RecordingSeriesMetadataExtractor : Tve3RecordingMetadataExtractor
   {
+    public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
+
     /// <summary>
     /// GUID string for the Tve3 Recording metadata extractor.
     /// </summary>
@@ -103,7 +105,7 @@ namespace MediaPortal.Extensions.MetadataExtractors
         if (episodeInfo.IsBaseInfoPresent)
         {
           if (!forceQuickMode)
-            await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo).ConfigureAwait(false);
+            await OnlineMatcherService.Instance.FindAndUpdateEpisodeAsync(episodeInfo, MEDIA_CATEGORY_NAME_SERIES).ConfigureAwait(false);
           if (episodeInfo.IsBaseInfoPresent)
             episodeInfo.SetMetadata(extractedAspectData);
         }
@@ -159,8 +161,6 @@ namespace MediaPortal.Extensions.MetadataExtractors
     /// Tve3 metadata extractor GUID.
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
-
-    public const string MEDIA_CATEGORY_NAME_SERIES = "Series";
 
     const string TAG_TITLE = "TITLE";
     const string TAG_PLOT = "COMMENT";
@@ -289,8 +289,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
         //Assign all tags to the aspects for both tv and radio recordings
         string value;
         MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_ISVIRTUAL, false);
-        if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value) && !value.Equals("manual", StringComparison.InvariantCultureIgnoreCase))
+        if (TryGet(tags, TAG_TITLE, out value) && !string.IsNullOrEmpty(value))
         {
+          if (value.Equals("manual", StringComparison.InvariantCultureIgnoreCase))
+            value = ResourcePathHelper.GetFileNameWithoutExtension(metaFileAccessor.Path);
+          
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, value);
           MediaItemAspect.SetAttribute(extractedAspectData, MediaAspect.ATTR_SORT_TITLE, BaseInfo.GetSortTitle(value));
         }
@@ -439,6 +442,11 @@ namespace MediaPortal.Extensions.MetadataExtractors
     }
 
     public Task<bool> AddMatchedAspectDetailsAsync(IDictionary<Guid, IList<MediaItemAspect>> matchedAspectData)
+    {
+      return Task.FromResult(false);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
     {
       return Task.FromResult(false);
     }

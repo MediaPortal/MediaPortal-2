@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -36,9 +36,11 @@ namespace MediaPortal.Extensions.OnlineLibraries
     protected MatcherSetting[] _musicMatchers = new MatcherSetting[0];
     protected MatcherSetting[] _seriesMatchers = new MatcherSetting[0];
     protected MatcherSetting[] _movieMatchers = new MatcherSetting[0];
+    protected MatcherSetting[] _subtitleMatchers = new MatcherSetting[0];
     protected string _musicLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
     protected string _seriesLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
     protected string _movieLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
+    protected string _subtitleLanguageCulture = ServiceRegistration.Get<ILocalization>().CurrentCulture.Name;
     protected bool _useMovieAudioIfUnmatched = false;
     protected bool _useSeriesAudioIfUnmatched = false;
     protected bool _useMusicAudioIfUnmatched = false;
@@ -51,6 +53,8 @@ namespace MediaPortal.Extensions.OnlineLibraries
         _movieLanguageCulture = "en-US";
       if (string.IsNullOrEmpty(_seriesLanguageCulture))
         _seriesLanguageCulture = "en-US";
+      if (string.IsNullOrEmpty(_subtitleLanguageCulture))
+        _subtitleLanguageCulture = "en-US";
     }
 
     //Only download basic FanArt like backdrops, banners, posters and thumbnails
@@ -137,6 +141,21 @@ namespace MediaPortal.Extensions.OnlineLibraries
     {
       get { return _useMovieAudioIfUnmatched; }
       set { _useMovieAudioIfUnmatched = value; }
+    }
+
+    //Subtitle matcher settings
+    [Setting(SettingScope.Global)]
+    public MatcherSetting[] SubtitleMatchers
+    {
+      get { return _subtitleMatchers; }
+      set { _subtitleMatchers = value; }
+    }
+
+    [Setting(SettingScope.Global)]
+    public string SubtitleLanguageCulture
+    {
+      get { return _subtitleLanguageCulture; }
+      set { _subtitleLanguageCulture = value; }
     }
   }
 }

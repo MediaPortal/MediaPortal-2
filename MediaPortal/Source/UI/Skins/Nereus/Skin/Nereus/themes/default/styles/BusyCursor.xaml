@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    DependsOnStyleResources="Colors"
+    >
+
+  <Storyboard x:Key="RotationsStoryboard" FillBehavior="HoldEnd" RepeatBehavior="Forever">
+    <DoubleAnimationUsingKeyFrames  Storyboard.TargetProperty="RenderTransform.Angle" RepeatBehavior="Forever">
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0" Value="0"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.1" Value="30"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.2" Value="60"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.3" Value="90"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.4" Value="120"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.5" Value="150"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.6" Value="180"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.7" Value="210"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.8" Value="240"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:0.9" Value="270"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.0" Value="300"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.1" Value="330"/>
+      <DiscreteDoubleKeyFrame KeyTime="0:0:1.2" Value="360"/>
+    </DoubleAnimationUsingKeyFrames>
+  </Storyboard>
+
+  <Style x:Key="BusyCursorControlStyle" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Control}">
+          <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image x:Name="BusyIcon" Source="busycursor.png" Stretch="Uniform" RenderTransformOrigin="0.5,0.5" Width="250" Height="250"
+                   HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image.RenderTransform>
+                <RotateTransform x:Name="AnimatedRotateTransform" Angle="0" />
+              </Image.RenderTransform>
+              <Image.Triggers>
+                <Trigger Property="IsEnabled" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard x:Name="BeginStoryBoard" Storyboard="{ThemeResource RotationsStoryboard}"/>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <StopStoryboard BeginStoryboardName="BeginStoryBoard"/>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </Image.Triggers>
+            </Image>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

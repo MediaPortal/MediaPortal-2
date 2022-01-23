@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -690,7 +690,7 @@ namespace MediaPortal.Common.Services.MediaManagement
       IFileSystemResourceAccessor fsra = mediaItemAccessor as IFileSystemResourceAccessor;
       if (fsra != null)
       {
-        ServiceRegistration.Get<ILogger>().Debug("MediaAccessor: Importing file '{0}'", fsra.ResourceName);
+        ServiceRegistration.Get<ILogger>().Debug("MediaAccessor: Importing file '{0}'", fsra.ResourcePathName);
       }
 
       bool success = false;
@@ -707,7 +707,7 @@ namespace MediaPortal.Common.Services.MediaManagement
           MetadataExtractorMetadata mem = extractor.Metadata;
           ServiceRegistration.Get<ILogger>().Error("MediaAccessor: Error extracting metadata from metadata extractor '{0}' (Id: '{1}')",
               e, mem.Name, mem.MetadataExtractorId);
-          throw;
+          //throw;
         }
       }
       return success ? result : null;

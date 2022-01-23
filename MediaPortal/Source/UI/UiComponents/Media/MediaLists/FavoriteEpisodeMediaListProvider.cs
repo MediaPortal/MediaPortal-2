@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -34,9 +34,10 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     public FavoriteEpisodeMediaListProvider()
     {
+      _changeAspectId = EpisodeAspect.ASPECT_ID;
       _necessaryMias = Consts.NECESSARY_EPISODE_MIAS;
       //Needed for calculating play percentage
-      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID };
+      _optionalMias = new Guid[] { VideoStreamAspect.ASPECT_ID, VideoAudioStreamAspect.ASPECT_ID, SubtitleAspect.ASPECT_ID };
       _playableConverterAction = item => new EpisodeItem(item);
       _navigationInitializerType = typeof(SeriesNavigationInitializer);
     }

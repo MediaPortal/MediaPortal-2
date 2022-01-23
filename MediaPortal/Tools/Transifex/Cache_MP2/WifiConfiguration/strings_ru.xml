@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Network.Connect">Подключиться</string>
+  <string name="Network.Disconnect">Отключиться</string>
+  <string name="Network.EnterWifiPassword">Ввести пароль Wifi</string>
+  <string name="Network.DeleteProfile">Удалить профиль Wifi</string>
+  <string name="Settings.General.Connectivity.WifiConnection">Подключение Wifi</string>
+  <string name="Settings.General.Connectivity.WifiConnection.Help">Подключиться к беспроводной сети</string>
+</resources>

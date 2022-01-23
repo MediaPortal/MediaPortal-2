@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -194,7 +194,7 @@ namespace UPnP.Infrastructure.Dv
               throw ex;
 
             server?.Dispose();
-            startOptions = UPnPServer.BuildStartOptions(servicePrefix, new List<string>());
+            startOptions = UPnPServer.BuildStartOptions(servicePrefix, new List<string>(), UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER);
             server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
             UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
             _serverData.HTTPListeners.Add(server);
@@ -226,10 +226,10 @@ namespace UPnP.Infrastructure.Dv
 
     public static StartOptions BuildStartOptions(string servicePrefix)
     {
-      return BuildStartOptions(servicePrefix, UPnPConfiguration.IP_ADDRESS_BINDINGS);
+      return BuildStartOptions(servicePrefix, UPnPConfiguration.IP_ADDRESS_BINDINGS, UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER);
     }
 
-    public static StartOptions BuildStartOptions(string servicePrefix, List<string> filters)
+    public static StartOptions BuildStartOptions(string servicePrefix, List<string> filters, int port)
     {
       ICollection<IPAddress> listenAddresses = new HashSet<IPAddress>();
       if (UPnPConfiguration.USE_IPV4)
@@ -240,7 +240,6 @@ namespace UPnP.Infrastructure.Dv
           listenAddresses.Add(address);
 
       StartOptions startOptions = new StartOptions();
-      int port = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
       foreach (IPAddress address in listenAddresses)
       {
         var bindableAddress = NetworkHelper.TranslateBindableAddress(address);
@@ -463,7 +462,7 @@ namespace UPnP.Infrastructure.Dv
       DeviceTreeURLGenerator.GenerateObjectURLs(this, config);
     }
 
-    protected Int32 GenerateConfigId(EndpointConfiguration config)
+    protected UInt32 GenerateConfigId(EndpointConfiguration config)
     {
       Int64 result = config.RootDeviceDescriptionPathsToRootDevices.Values.Select(
           rootDevice => rootDevice.BuildRootDeviceDescription(
@@ -474,7 +473,7 @@ namespace UPnP.Infrastructure.Dv
       result += HashGenerator.CalculateHash(0, NetworkHelper.IPAddrToString(config.EndPointIPAddress));
       //result += HashGenerator.CalculateHash(0, config.ServicePrefix);
       result += HashGenerator.CalculateHash(0, config.ControlPathBase + config.DescriptionPathBase + config.EventSubPathBase);
-      return (int)result;
+      return (UInt32)result;
     }
 
     protected void UpdateInterfaceConfiguration()

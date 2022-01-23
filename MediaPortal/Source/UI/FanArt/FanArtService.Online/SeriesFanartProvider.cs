@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -102,9 +102,9 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
       // Try fallback
       if (fanArtFiles.Count == 0 &&
-        (mediaType == FanArtMediaTypes.SeriesSeason ||
+        (mediaType == FanArtMediaTypes.Series || mediaType == FanArtMediaTypes.SeriesSeason ||
         mediaType == FanArtMediaTypes.Character ||
-        (mediaType == FanArtMediaTypes.Episode && fanArtType == FanArtTypes.FanArt)))
+        (mediaType == FanArtMediaTypes.Episode && (fanArtType == FanArtTypes.FanArt || fanArtType == FanArtTypes.ClearArt))))
       {
         IMediaLibrary mediaLibrary = ServiceRegistration.Get<IMediaLibrary>(false);
         if (mediaLibrary == null)
@@ -117,7 +117,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
         MediaItem mediaItem = items.First();
 
-        if (mediaType == FanArtMediaTypes.Episode && fanArtType == FanArtTypes.FanArt)
+        if (mediaType == FanArtMediaTypes.Episode && (fanArtType == FanArtTypes.FanArt || fanArtType == FanArtTypes.ClearArt))
         {
           if (mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID))
           {
@@ -161,6 +161,25 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
               foreach (MultipleMediaItemAspect relation in relationAspects)
               {
                 if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeriesAspect.ROLE_SERIES)
+                {
+                  fanArtFiles.AddRange(fanArtCache.GetFanArtFiles((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], fanArtType));
+                  if (fanArtFiles.Count > 0)
+                    break;
+                }
+              }
+            }
+          }
+        }
+        else if (mediaType == FanArtMediaTypes.Series)
+        {
+          if (mediaItem.Aspects.ContainsKey(SeriesAspect.ASPECT_ID))
+          {
+            IList<MultipleMediaItemAspect> relationAspects;
+            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, RelationshipAspect.Metadata, out relationAspects))
+            {
+              foreach (MultipleMediaItemAspect relation in relationAspects)
+              {
+                if ((Guid?)relation[RelationshipAspect.ATTR_LINKED_ROLE] == SeasonAspect.ROLE_SEASON)
                 {
                   fanArtFiles.AddRange(fanArtCache.GetFanArtFiles((Guid)relation[RelationshipAspect.ATTR_LINKED_ID], fanArtType));
                   if (fanArtFiles.Count > 0)

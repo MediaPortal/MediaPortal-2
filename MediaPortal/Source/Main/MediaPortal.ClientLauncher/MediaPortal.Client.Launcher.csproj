@@ -41,6 +41,26 @@
   <PropertyGroup>
     <StartupObject>MediaPortal.Client.Launcher.ApplicationLauncher</StartupObject>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -54,6 +74,7 @@
     </Compile>
     <Compile Include="CommandLineOptions.cs" />
     <Compile Include="ApplicationLauncher.cs" />
+    <Compile Include="Settings\ClientLauncherSettings.cs" />
     <Compile Include="StartCode.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="RawMessageHandler.cs" />
@@ -86,7 +107,7 @@
       <Version>1.9.71</Version>
     </PackageReference>
     <PackageReference Include="SharpLibHid">
-      <Version>1.4.3</Version>
+      <Version>1.4.4</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

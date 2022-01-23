@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!-- Section name -->
+  <string name="Settings.WifiRemote.AuthMode.None">Bez autentizace</string>
+  <string name="Settings.WifiRemote.AuthMode.UserPassword">Uživatelské jméno a heslo</string>
+  <string name="Settings.WifiRemote.AuthMode.Passcode">Přístupový kód</string> 
+  <string name="Settings.WifiRemote.AuthMode.Both">Uživatelské jméno a heslo nebo přístupový kód</string>
+
+  <string name="Settings.WifiRemote.AuthenticationMethod">Autorizační metoda</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Port.Help">Servisní port, ke kterému se muže uživatel připojit</string>
+
+</resources>

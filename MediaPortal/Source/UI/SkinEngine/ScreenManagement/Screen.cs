@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -801,6 +801,16 @@ namespace MediaPortal.UI.SkinEngine.ScreenManagement
     public FrameworkElement FocusedElement
     {
       get { return _focusedElement; }
+    }
+
+    /// <summary>
+    /// Returns the element that had focus before <see cref="FocusedElement"/>.
+    /// If <see cref="FocusedElement"/> element is null, this is the element
+    /// that had focus before focus was lost.
+    /// </summary>
+    public FrameworkElement LastFocusedElement
+    {
+      get { return (FrameworkElement)_lastFocusedElement.Target; }
     }
 
     /// <summary>

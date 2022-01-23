@@ -183,6 +183,7 @@
   <string name="Media.DeleteFromStorage">Ištrinti iš saugyklos</string>
   <string name="Media.ReimportMediaItem.Done">Baigta</string>
   <string name="Media.ReimportMediaItem.Description">Aprašymas</string>
+  <string name="Media.SubtitleSearch.Language">Kalba</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Atkurti įrašą</string>
   <string name="Media.PlayAudioItems">Groti audio įrašus</string>
@@ -288,8 +289,10 @@
   <string name="Media.SmallList">Trumpas sąrašas</string>
   <string name="Media.MediumList">Vidutinis sąrašas</string>
   <string name="Media.LargeList">Ilgas sąrašas</string>
+  <string name="Media.List">Sąrašas</string>
   <string name="Media.LargeGrid">Tinklelis</string>
-  <string name="Media.CoverLayout">Viršeliai</string>
+  <string name="Media.ListSmall">Mažas</string>
+  <string name="Media.ListMedium">Vidutinis</string>
   <string name="Media.Watched">Peržiūrėta</string>
   <string name="Media.SwitchSortingMenuItem">Rūšiuojama</string>
   <string name="Media.SortByDate">Data</string>
@@ -309,6 +312,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">Atverti grotuvo strategiją</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Strategija, kaip naujai paleisti grotuvai bus išdėstyti tarp esamų atvirų grotuvų</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

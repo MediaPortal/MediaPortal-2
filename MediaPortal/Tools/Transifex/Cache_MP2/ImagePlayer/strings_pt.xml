@@ -1,8 +1,8 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
-  <string name="Settings.Players.Image">Visualizador de Imagens</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration">Duração da apresentação de imagens</string>
-  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Ajusta a duração em segundos de quanto tempo cada imagem é visível no modo de apresentação</string>
-  <string name="Settings.Players.Image.KenBurnsEffect">Usar o efeito Ken Burns</string>
-  <string name="Settings.Players.Image.KenBurnsEffect.Help">Usar animações de deslocar e zoom ao mostrar imagem</string>
+  <string name="Settings.Players.Image">Reprodutor de Imagem</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration">Duração do diaporama</string>
+  <string name="Settings.Players.Image.SlideShowImageDuration.Help">Define a duração em segundos, de quanto tempo cada imagem é visível no modo de diaporama</string>
+  <string name="Settings.Players.Image.KenBurnsEffect">Utilizar efeito Ken Burns</string>
+  <string name="Settings.Players.Image.KenBurnsEffect.Help">Utiliza animações de deslocar e zoom quando mostra uma imagem</string>
 </resources>

@@ -38,6 +38,23 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -52,6 +69,8 @@
     <Compile Include="..\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="ContentLists\ContentListProviderBuilder.cs" />
+    <Compile Include="ContentLists\IContentListProvider.cs" />
     <Compile Include="Control\InputManager\IClipboardManager.cs" />
     <Compile Include="Control\InputManager\Touch.cs" />
     <Compile Include="PluginItemBuilders\AdditionalPluginItemBuilders.cs" />
@@ -60,6 +79,10 @@
     <Compile Include="FrontendServer\IFrontendServer.cs" />
     <Compile Include="General\WindowsMessaging.cs" />
     <Compile Include="Presentation\Actions\KeyAction.cs" />
+    <Compile Include="Presentation\DataObjects\KeyValueItem.cs" />
+    <Compile Include="Presentation\DataObjects\ObservableDictionary.cs" />
+    <Compile Include="Presentation\Models\BaseContentListModel.cs" />
+    <Compile Include="Presentation\Models\IContentListModel.cs" />
     <Compile Include="Presentation\Players\IResumablePlayer.cs" />
     <Compile Include="Presentation\Players\ITitlePlayer.cs" />
     <Compile Include="Presentation\Players\IAudioPlayerAnalyze.cs" />

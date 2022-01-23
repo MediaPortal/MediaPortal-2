@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,8 +38,10 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
+using MediaPortal.Common.Settings;
 
 namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 {
@@ -60,7 +62,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     /// </summary>
     public static Guid METADATAEXTRACTOR_ID = new Guid(METADATAEXTRACTOR_ID_STR);
 
-    protected const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+    public const string MEDIA_CATEGORY_NAME_MOVIE = "Movie";
+    public const string MEDIA_CATEGORY_NAME_VIDEO = "Video";
     public const double MINIMUM_HOUR_AGE_BEFORE_UPDATE = 0.5;
 
     #endregion
@@ -74,6 +77,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     protected AsynchronousMessageQueue _messageQueue;
     protected int _importerCount;
     protected SettingsChangeWatcher<MovieMetadataExtractorSettings> _settingWatcher;
+    protected string _category;
 
     #endregion
 
@@ -86,6 +90,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (!mediaAccessor.MediaCategories.TryGetValue(MEDIA_CATEGORY_NAME_MOVIE, out movieCategory))
         movieCategory = mediaAccessor.RegisterMediaCategory(MEDIA_CATEGORY_NAME_MOVIE, new List<MediaCategory> { DefaultMediaCategories.Video });
       MEDIA_CATEGORIES.Add(movieCategory);
+      OnlineMatcherService.RegisterDefaultMovieMatchers(MEDIA_CATEGORY_NAME_MOVIE);
+      OnlineMatcherService.RegisterDefaultMovieSubtitleMatchers(MEDIA_CATEGORY_NAME_MOVIE);
 
       // Register reimport support
       IMediaItemAspectTypeRegistration miatr = ServiceRegistration.Get<IMediaItemAspectTypeRegistration>();
@@ -93,8 +99,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       miatr.RegisterLocallySupportedReimportMediaItemAspectTypeAsync(VideoAspect.Metadata);
     }
 
+
+
     public MovieMetadataExtractor()
     {
+      _category = MEDIA_CATEGORY_NAME_MOVIE;
       _metadata = new MetadataExtractorMetadata(METADATAEXTRACTOR_ID, "Movies metadata extractor", MetadataExtractorPriority.External, true,
           MEDIA_CATEGORIES, new MediaItemAspectMetadata[]
               {
@@ -115,9 +124,10 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       LoadSettings();
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
       _messageQueue.Shutdown();
+      _settingWatcher.Dispose();
     }
 
     private void OnMessageReceived(AsynchronousMessageQueue queue, SystemMessage message)
@@ -134,6 +144,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               if (ServiceRegistration.Get<IMediaAccessor>().LocalFanArtHandlers.TryGetValue(MovieFanArtHandler.FANARTHANDLER_ID, out fanartHandler))
                 fanartHandler.ClearCache();
             }
+            break;
+          case ImporterWorkerMessaging.MessageType.ImportCompleted:
+            Interlocked.Decrement(ref _importerCount);
             break;
         }
       }
@@ -156,7 +169,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     public static int MaximumActorCount { get; private set; }
     public static int MaximumCharacterCount { get; private set; }
 
-    private void LoadSettings()
+    protected void LoadSettings()
     {
       SkipOnlineSearches = _settingWatcher.Settings.SkipOnlineSearches;
       SkipFanArtDownload = _settingWatcher.Settings.SkipFanArtDownload;
@@ -181,7 +194,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
 
     #region Private methods
 
-    private async Task<bool> ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
+    protected async Task<bool> ExtractMovieData(ILocalFsResourceAccessor lfsra, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData)
     {
       // VideoAspect must be present to be sure it is actually a video resource.
       if (!extractedAspectData.ContainsKey(VideoAspect.ASPECT_ID) && !extractedAspectData.ContainsKey(SubtitleAspect.ASPECT_ID))
@@ -193,9 +206,16 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       string sortTitle = null;
       bool isReimport = extractedAspectData.ContainsKey(ReimportAspect.ASPECT_ID);
 
-        MovieInfo movieInfo = new MovieInfo();
+      MovieInfo movieInfo = new MovieInfo();
       if (extractedAspectData.ContainsKey(MovieAspect.ASPECT_ID))
+      {
         movieInfo.FromMetadata(extractedAspectData);
+        movieInfo.ForceOnlineSearch = movieInfo.IsDirty;
+      }
+      else
+      {
+        movieInfo.AllowOnlineReSearch = true;
+      }
 
       if (movieInfo.MovieName.IsEmpty)
       {
@@ -203,8 +223,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_TITLE, out title) &&
           !string.IsNullOrEmpty(title) && !lfsra.ResourceName.StartsWith(title, StringComparison.InvariantCultureIgnoreCase))
         {
-          //The title may still contain tags and other noise, try and parse it for a title and year.
-          MovieNameMatcher.MatchTitleYear(title, movieInfo);
+          //The title may still contain tags and other noise. Don't parse for a year as the title may contain a year other than the actual production date.
+          movieInfo.MovieName = title;
         }
       }
       if (movieInfo.MovieNameSort.IsEmpty)
@@ -266,13 +286,14 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           MovieNameMatcher.CleanupTitle(movieInfo);
         }
 
-        if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
-        {
-          // When searching movie title, the year can be relevant for multiple titles with same name but different years
-          DateTime recordingDate;
-          if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
-            movieInfo.ReleaseDate = recordingDate;
-        }
+        // Using the recording time causes the movies to have a wrong year which means no match is found
+        //if (!movieInfo.ReleaseDate.HasValue && !movieInfo.HasExternalId)
+        //{
+        //  // When searching movie title, the year can be relevant for multiple titles with same name but different years
+        //  DateTime recordingDate;
+        //  if (MediaItemAspect.TryGetAttribute(extractedAspectData, MediaAspect.ATTR_RECORDINGTIME, out recordingDate))
+        //    movieInfo.ReleaseDate = recordingDate;
+        //}
 
         try
         {
@@ -303,15 +324,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       if (SkipOnlineSearches && !SkipFanArtDownload)
       {
         MovieInfo tempInfo = movieInfo.Clone();
-        if (await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(tempInfo).ConfigureAwait(false))
+        if (await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(tempInfo, _category).ConfigureAwait(false))
         {
           movieInfo.CopyIdsFrom(tempInfo);
           movieInfo.HasChanged = tempInfo.HasChanged;
         }
+        else
+        {
+          ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Unable to get online ids for resource '{0}'", lfsra.CanonicalLocalResourcePath);
+        }
       }
       else if (!SkipOnlineSearches)
       {
-        await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(movieInfo).ConfigureAwait(false);
+        movieInfo.SearchFilePath = lfsra.LocalFileSystemPath;
+        var success = await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(movieInfo, _category).ConfigureAwait(false);
+        if (!success)
+          ServiceRegistration.Get<ILogger>().Info("MoviesMetadataExtractor: Unable to get online data for resource '{0}'", lfsra.CanonicalLocalResourcePath);
       }
 
       //Asign genre ids
@@ -423,7 +451,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
       get { return _metadata; }
     }
 
-    public async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
+    public virtual async Task<bool> TryExtractMetadataAsync(IResourceAccessor mediaItemAccessor, IDictionary<Guid, IList<MediaItemAspect>> extractedAspectData, bool forceQuickMode)
     {
       try
       {
@@ -463,7 +491,9 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       try
       {
-        if (!(searchCategories?.Contains(MEDIA_CATEGORY_NAME_MOVIE) ?? true))
+        if (!(searchCategories?.Intersect(new [] { MEDIA_CATEGORY_NAME_MOVIE, MEDIA_CATEGORY_NAME_VIDEO }).Any() ?? true))
+          return null;
+        if (searchAspectData.ContainsKey(EpisodeAspect.ASPECT_ID))
           return null;
 
         string searchData = null;
@@ -509,7 +539,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         //Perform online search
         if (movieSearchinfo != null)
         {
-          var matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo).ConfigureAwait(false);
+          var matches = await OnlineMatcherService.Instance.FindMatchingMoviesAsync(movieSearchinfo, _category).ConfigureAwait(false);
           ServiceRegistration.Get<ILogger>().Debug("MoviesMetadataExtractor: Movie search returned {0} matches", matches.Count());
           foreach (var match in matches)
           {
@@ -518,6 +548,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               Name = $"{match.MovieName.Text}{(match.ReleaseDate == null ? "" : $" ({match.ReleaseDate.Value.Year})")}" +
                 $"{(string.IsNullOrWhiteSpace(match.OriginalName) || string.Compare(match.MovieName.Text, match.OriginalName, true) == 0 ? "" : $" [{match.OriginalName}]")}",
               Description = match.Summary.IsEmpty ? "" : match.Summary.Text,
+              MatchPercentage = 100,
+              Providers = new List<string>(match.DataProviders),
             };
 
             //Add external Ids
@@ -525,6 +557,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
               result.ExternalIds.Add("imdb.com", match.ImdbId);
             if (match.MovieDbId > 0)
               result.ExternalIds.Add("themoviedb.org", match.MovieDbId.ToString());
+            foreach (var customId in match.CustomIds)
+              result.ExternalIds.Add(customId.Key, customId.Value);
 
             //Assign aspects and remove unwanted aspects
             match.SetMetadata(result.AspectData, true);
@@ -550,7 +584,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         {
           MovieInfo info = new MovieInfo();
           info.FromMetadata(matchedAspectData);
-          await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(info).ConfigureAwait(false);
+          await OnlineMatcherService.Instance.FindAndUpdateMovieAsync(info, _category).ConfigureAwait(false);
           info.SetMetadata(matchedAspectData, true);
           CleanReimportAspects(matchedAspectData);
           return true;
@@ -569,6 +603,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
         MovieAspect.ASPECT_ID, VideoAspect.ASPECT_ID, ReimportAspect.ASPECT_ID, GenreAspect.ASPECT_ID };
       foreach (var aspect in aspectData.Where(a => !reimportAspects.Contains(a.Key)).ToList())
         aspectData.Remove(aspect.Key);
+    }
+
+    public Task<bool> DownloadMetadataAsync(Guid mediaItemId, IDictionary<Guid, IList<MediaItemAspect>> aspectData)
+    {
+      return Task.FromResult(false);
     }
 
     #endregion

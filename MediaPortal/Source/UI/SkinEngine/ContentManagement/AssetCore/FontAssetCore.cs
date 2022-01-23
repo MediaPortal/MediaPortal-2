@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -74,14 +74,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       _family = family;
       _resolution = resolution;
 
-      FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_family.Face, typeof(FT_FaceRec));
+      FT_FaceRec face = (FT_FaceRec)Marshal.PtrToStructure(_family.Face, typeof(FT_FaceRec));
 
       _charSet = new BitmapCharacterSet(face.num_glyphs)
-        {
-          RenderedSize = size,
-          Width = MAX_WIDTH,
-          Height = MAX_HEIGHT
-        };
+      {
+        RenderedSize = size,
+        Width = MAX_WIDTH,
+        Height = MAX_HEIGHT
+      };
       _charSet.Ascender = _charSet.RenderedSize * face.ascender / face.height;
     }
 
@@ -191,7 +191,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     /// <param name="text">The string containing the character to measure.</param>
     /// <param name="charIndex">The index of the character in the string.</param>
     /// <param name="fontSize">The size of font to use for measurement.</param>
-    /// <returns>The additonal width required for the specified character.</returns>
+    /// <returns>The additional width required for the specified character.</returns>
     public float CharWidthExtension(string text, int charIndex, float fontSize)
     {
       if (charIndex < 0 || charIndex >= text.Length) return 0.0f;
@@ -201,7 +201,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     /// <summary>
     /// Get the height of a text block containing the specified number of lines. In order to get correct vertical 
-    /// centering we add an additonal value of the font face descender above the text to compensate for the space required
+    /// centering we add an additional value of the font face descender above the text to compensate for the space required
     /// under the font's base line for the last text line.
     /// </summary>
     /// <param name="fontSize">The actual font size.</param>
@@ -281,7 +281,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       lock (_syncObj)
       {
         float pointSize = 64.0f * _charSet.RenderedSize * 72.0f / _resolution;
-        FT.FT_Set_Char_Size(_family.Face, (int) pointSize, 0, _resolution, 0);
+        FT.FT_Set_Char_Size(_family.Face, (int)pointSize, 0, _resolution, 0);
 
         // Font does not contain that glyph, the 'missing' glyph will be shown instead
         if (glyphIndex == 0 && _charSet.GetCharacter(0) != null)
@@ -291,7 +291,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         if (FT.FT_Load_Glyph(_family.Face, glyphIndex, FT.FT_LOAD_DEFAULT) != 0)
           return false;
 
-        FT_FaceRec face = (FT_FaceRec) Marshal.PtrToStructure(_family.Face, typeof(FT_FaceRec));
+        FT_FaceRec face = (FT_FaceRec)Marshal.PtrToStructure(_family.Face, typeof(FT_FaceRec));
 
         IntPtr glyphPtr;
         // Load the glyph data into our local array.
@@ -303,7 +303,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           return false;
 
         // Get the structure fron the intPtr
-        FT_BitmapGlyph glyph = (FT_BitmapGlyph) Marshal.PtrToStructure(glyphPtr, typeof(FT_BitmapGlyph));
+        FT_BitmapGlyph glyph = (FT_BitmapGlyph)Marshal.PtrToStructure(glyphPtr, typeof(FT_BitmapGlyph));
 
         // Width/height of char
         int cwidth = glyph.bitmap.width;
@@ -357,16 +357,16 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     {
       lock (_syncObj)
         return new BitmapCharacter
-          {
-            Width = glyph.bitmap.width + PAD * 2,
-            Height = glyph.bitmap.rows + PAD * 2,
-            X = _currentX,
-            Y = _currentY,
-            XOffset = glyph.left,
-            YOffset = _charSet.Ascender - glyph.top,
-            // Convert fixed point 16.16 to float by divison with 2^16
-            XAdvance = (int) (glyph.root.advance.x / 65536.0f)
-          };
+        {
+          Width = glyph.bitmap.width + PAD * 2,
+          Height = glyph.bitmap.rows + PAD * 2,
+          X = _currentX,
+          Y = _currentY,
+          XOffset = glyph.left,
+          YOffset = _charSet.Ascender - glyph.top,
+          // Convert fixed point 16.16 to float by divison with 2^16
+          XAdvance = (int)(glyph.root.advance.x / 65536.0f)
+        };
     }
 
     private void WriteGlyphToTexture(FT_BitmapGlyph glyph, int pwidth, int pheight, Byte[] bitmapBuffer)
@@ -379,7 +379,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
         Rectangle charArea = new Rectangle(_currentX, _currentY, pwidth, pheight);
         DataStream dataStream;
         _texture.LockRectangle(0, charArea, LockFlags.None, out dataStream);
-        using(dataStream)
+        using (dataStream)
         {
           // Copy FreeType glyph bitmap into our font texture.
           Byte[] fontPixels = new Byte[pwidth];
@@ -412,7 +412,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     /// <summary>
     /// Creates an array of <see cref="PositionColoredTextured"/> objects representing the character positions of the
-    /// given <paramref name="text"/> for the given parameters in the underlaying <see cref="Texture"/>.
+    /// given <paramref name="text"/> for the given parameters in the underlying <see cref="Texture"/>.
     /// </summary>
     /// <param name="text">Text to render.</param>
     /// <param name="size">Font size.</param>
@@ -445,7 +445,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
       textSize = new SizeF(0.0f, verts[verts.Count - 1].Y);
 
-      // Stores the line widths as the Z coordinate of the verices. This means alignment
+      // Stores the line widths as the Z coordinate of the vertices. This means alignment
       // can be performed by a vertex shader during rendering
       PositionColoredTextured[] vertArray = verts.ToArray();
       for (int i = 0; i < lineIndex.Length; ++i)
@@ -485,7 +485,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           BitmapCharacter c = Character(' ');
           CreateQuad(c, sizeScale, c.XOffset, y, ref verts);
         }
-        return x*sizeScale;
+        return x * sizeScale;
       }
     }
 
@@ -498,14 +498,14 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
           y * sizeScale,
           1.0f,
           (c.X + 0.5f) / _charSet.Width,
-          c.Y / (float) _charSet.Height,
+          c.Y / (float)_charSet.Height,
           Color.Transparent
           );
       PositionColoredTextured br = new PositionColoredTextured(
           (x + c.Width) * sizeScale,
           (y + c.Height) * sizeScale,
           1.0f,
-          (c.X + c.Width) / (float) _charSet.Width,
+          (c.X + c.Width) / (float)_charSet.Width,
           (c.Y + c.Height - 0.5f) / _charSet.Height,
           Color.Transparent
           );
@@ -550,17 +550,28 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
 
     public bool IsAllocated
     {
-      get { return _texture != null; }
+      get
+      {
+        lock (_syncObj)
+        {
+          return _texture != null;
+        }
+      }
     }
 
     public void Free()
     {
-      if (_texture != null)
+      Texture texture;
+      lock (_syncObj)
       {
-        if (AllocationChanged != null)
-          AllocationChanged(-AllocationSize);
-        _texture.Dispose();
+        texture = _texture;
         _texture = null;
+      }
+
+      if (texture != null)
+      {
+        AllocationChanged?.Invoke(-AllocationSize);
+        texture.Dispose();
         _charSet.Clear();
         _currentX = 0;
         _rowHeight = 0;
@@ -638,15 +649,15 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
     public object Clone()
     {
       BitmapCharacter result = new BitmapCharacter
-        {
-          X = X,
-          Y = Y,
-          Width = Width,
-          Height = Height,
-          XOffset = XOffset,
-          YOffset = YOffset,
-          XAdvance = XAdvance
-        };
+      {
+        X = X,
+        Y = Y,
+        Width = Width,
+        Height = Height,
+        XOffset = XOffset,
+        YOffset = YOffset,
+        XAdvance = XAdvance
+      };
       result.KerningList.AddRange(KerningList);
       result.Page = Page;
       return result;

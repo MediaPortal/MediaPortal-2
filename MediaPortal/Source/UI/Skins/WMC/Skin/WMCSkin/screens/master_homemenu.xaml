@@ -120,7 +120,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Grid x:Name="SubItemsFadeControl" Grid.Row="2" Grid.Column="0" Opacity="0" Panel.ZIndex="100"
               HorizontalAlignment="Stretch" VerticalAlignment="Top">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1620"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>

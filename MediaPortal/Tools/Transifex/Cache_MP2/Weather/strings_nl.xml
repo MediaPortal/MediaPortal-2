@@ -6,6 +6,7 @@
   <string name="Weather.WeatherLocationStateDisplayLabel">Kies locatie</string>
   <!--Dialog state, doesn't appear at the UI-->
   <string name="Weather.Title">Weer</string>
+  <string name="Weather.Title.Help">Bekijk de huidige weersituatie en -voorspellingen.</string>
   <string name="Weather.ChooseLocation">Kies locatie</string>
   <string name="Weather.Refresh">Vernieuw</string>
   <string name="Weather.Updating">Bijwerken...</string>
@@ -76,6 +77,8 @@
   <string name="Settings.Plugins.Weather">Weer</string>
   <string name="Settings.Plugins.Weather.LocationSetup">Locaties instellen</string>
   <string name="Settings.Plugins.Weather.LocationSetup.Help">Configureer de plaatsen die beschikbaar zijn in het weer-scherm</string>
+  <string name="Settings.Plugins.Weather.ApiKey">Setup persoonlijke API sleutel</string>
+  <string name="Settings.Plugins.Weather.ApiKey.Help">Configureert een persoonlijke API sleutel gecreëerd op https://openweathermap.org/api om verzoek limieten te vermijden.</string>
   <string name="WeatherSetup.Title">Configueer plaatsen</string>
   <string name="WeatherSetup.ConfiguredCities">Geconfigureerde plaatsen</string>
   <string name="WeatherSetup.EnterCity">Voer de naam van de toe te voegen plaats:</string>

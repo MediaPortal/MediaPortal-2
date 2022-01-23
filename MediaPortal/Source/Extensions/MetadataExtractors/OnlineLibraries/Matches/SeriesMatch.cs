@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -27,7 +27,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Matches
   /// <summary>
   /// SeriesMatch stores name matches for Series.
   /// </summary>
-  public class SeriesMatch : BaseMatch<string>
+  public class SeriesMatch : BaseMediaMatch<string>
   {
     /// <summary>
     /// Contains the name found in online library.

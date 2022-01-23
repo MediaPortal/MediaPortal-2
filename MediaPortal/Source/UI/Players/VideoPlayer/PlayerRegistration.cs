@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -59,6 +59,8 @@ namespace MediaPortal.UI.Players.Video
       EXTENSIONS2PLAYER.Add(".webm", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".mov", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".flv", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".ogm", typeof(VideoPlayer));
+      EXTENSIONS2PLAYER.Add(".ogv", typeof(VideoPlayer));
       EXTENSIONS2PLAYER.Add(".vob", typeof(DvdPlayer));
       EXTENSIONS2PLAYER.Add(".ifo", typeof(DvdPlayer));
       // TODO: Go on with extensions mapping

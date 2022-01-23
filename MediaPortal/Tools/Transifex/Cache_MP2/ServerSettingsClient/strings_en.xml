@@ -18,6 +18,7 @@
   <string name="Settings.ServerSettings.SeriesMDESettings">Series import settings</string>
   <string name="Settings.ServerSettings.VideoMDESettings">Video import settings</string>
   <string name="Settings.ServerSettings.ImageMDESettings">Image import settings</string>
+  <string name="Settings.ServerSettings.SubtitleMDESettings">Subtitle import settings</string>
   <string name="Settings.ServerSettings.FanArtSettings">FanArt settings</string>
 
   <string name="Settings.ServerSettings.MDESettings.MDESourceEnable">Online sources to allow during import</string>
@@ -78,4 +79,6 @@
   <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help">The preferred language of online movie details.</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage">Preferred online series language</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help">The preferred language of online series details.</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage">Preferred online subtitle language</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage.Help">The preferred language of online subtitles.</string>
 </resources>

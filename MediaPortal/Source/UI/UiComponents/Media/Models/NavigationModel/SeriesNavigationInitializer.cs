@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -48,6 +48,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _optionalMias = Consts.OPTIONAL_EPISODE_MIAS;
       _restrictedMediaCategories = RESTRICTED_MEDIA_CATEGORIES;
       _rootRole = EpisodeAspect.ROLE_EPISODE;
+      _applyUserFilter = false; //Is handled by filter tree
     }
 
     public static void NavigateToSeries(Guid seriesId)
@@ -82,11 +83,11 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
       _customFilterTree = new RelationshipFilterTree(_rootRole.Value);
 
       //Update filter by adding the user filter to the already loaded filters
-      IFilter userFilter = await CertificationHelper.GetUserCertificateFilter(_necessaryMias);
+      IFilter userFilter = UserHelper.GetUserRestrictionFilter(_necessaryMias);
       if (userFilter != null)
         _customFilterTree.AddFilter(userFilter);
 
-      userFilter = await CertificationHelper.GetUserCertificateFilter(new[] { SeriesAspect.ASPECT_ID });
+      userFilter = UserHelper.GetUserRestrictionFilter(new[] { SeriesAspect.ASPECT_ID });
       if (userFilter != null)
         _customFilterTree.AddFilter(userFilter, new FilterTreePath(SeriesAspect.ROLE_SERIES));
     }
@@ -102,6 +103,7 @@ namespace MediaPortal.UiComponents.Media.Models.NavigationModel
         new SeriesShowItemsScreenData(_genericPlayableItemCreatorDelegate),
         // C# doesn't like it to have an assignment inside a collection initializer
         _defaultScreen,
+        new SeriesFilterByYearScreenData(),
         new SeriesFilterBySeasonScreenData(),
         new VideosFilterByLanguageScreenData(),
         new VideosFilterByPlayCountScreenData(),

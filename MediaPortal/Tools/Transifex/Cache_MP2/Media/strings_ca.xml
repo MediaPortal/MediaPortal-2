@@ -168,6 +168,7 @@
   <string name="Media.Refresh">Actualitza</string>
   <string name="Media.ReimportMediaItem.Done">Fet</string>
   <string name="Media.ReimportMediaItem.Description">Descripció</string>
+  <string name="Media.SubtitleSearch.Language">Idioma</string>
   <!--Play items dialog-->
   <string name="Media.PlayItemDialogHeader">Reprodueix l\'element</string>
   <string name="Media.PlayAudioItems">Reprodueix els elements audio</string>
@@ -271,7 +272,8 @@
   <string name="Media.MediumList">Llista mitjana</string>
   <string name="Media.LargeList">Llista gran</string>
   <string name="Media.LargeGrid">Graella</string>
-  <string name="Media.CoverLayout">Cobertes</string>
+  <string name="Media.ListSmall">Petit</string>
+  <string name="Media.ListMedium">Mitjà</string>
   <string name="Media.SwitchSortingMenuItem">S\'està ordenant</string>
   <string name="Media.SortByDate">Data</string>
   <string name="Media.GroupingBrowseDefault">Per defecte</string>
@@ -290,6 +292,4 @@
   <string name="Settings.Players.OpenPlayerStrategy">Obre l\'estrategia del reproductor</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">Estrategia, referent a la posició dels reproductors que s\'obrin respecte als que ja ho estiguin</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

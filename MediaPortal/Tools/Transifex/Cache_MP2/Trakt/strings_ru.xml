@@ -1,0 +1,20 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<resources>
+  <string name="Trakt.Close">Закрыть</string>
+  <string name="Trakt.UsernamePasswordGroup">Свойства аккаунта</string>
+  <string name="Trakt.Username">Логин</string>
+  <string name="Trakt.PinUrl">http://trakt.tv/pin/6601</string>
+  <string name="Trakt.PinCode">Полученный пин-код</string>
+  <string name="Trakt.Authorize">Авторизация</string>
+  <string name="Trakt.Sync">Синхронизация с trakt</string>
+  <string name="Trakt.SyncMovies">Синхронизация фильмов...</string>
+  <string name="Trakt.SyncSeries">Синхронизация сериалов...</string>
+  <string name="Trakt.SyncFinished">Синхронизация завершена!</string>
+  <string name="Trakt.WrongToken">Токен недоступен</string>
+  <string name="Trakt.EmptyUsername">Пожалуйста, введите логин</string>
+  <string name="Trakt.NotAuthorized">Сначала авторизуйтесь!</string>
+  <string name="Trakt.CheckPin">Не удалось войти в trakt, неверный пин?</string>
+  <string name="Trakt.LoggedIn">Успешный вход!</string>
+  <string name="Settings.Plugins.Trakt">Trakt.tv</string>
+  <string name="Settings.Plugins.Trakt.TraktSetup">Настроить Trakt.tv</string>
+</resources>

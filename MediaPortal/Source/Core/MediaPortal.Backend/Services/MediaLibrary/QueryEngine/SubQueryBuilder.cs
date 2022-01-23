@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -67,6 +67,13 @@ namespace MediaPortal.Backend.Services.MediaLibrary.QueryEngine
       IDictionary<MediaItemAspectMetadata, string> miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
       IDictionary<QueryAttribute, string> attributeAliases = new Dictionary<QueryAttribute, string>();
       GenerateSqlStatement(false, miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
+    }
+
+    public void GenerateDistinctSqlStatement(out string mediaItemIdAlias, out string statementStr, out IList<BindVar> bindVars)
+    {
+      IDictionary<MediaItemAspectMetadata, string> miamAliases = new Dictionary<MediaItemAspectMetadata, string>();
+      IDictionary<QueryAttribute, string> attributeAliases = new Dictionary<QueryAttribute, string>();
+      GenerateDistinctSqlStatement(miamAliases, out mediaItemIdAlias, out attributeAliases, out statementStr, out bindVars);
     }
   }
 }

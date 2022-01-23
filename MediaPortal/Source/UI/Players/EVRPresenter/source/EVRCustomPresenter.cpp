@@ -64,7 +64,7 @@ EVRCustomPresenter::~EVRCustomPresenter()
 
 
 // Init EVR Presenter (called by VideoPlayer.cs)
-__declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd, EVRCustomPresenter** ppPresenterInstance)
+__declspec(dllexport) int EvrInit(IEVRCallback* callback, IDirect3DDevice9Ex* dwD3DDevice, IBaseFilter* evrFilter, HWND hwnd, EVRCustomPresenter** ppPresenterInstance)
 {
   HRESULT hr;
   *ppPresenterInstance = NULL;
@@ -82,7 +82,7 @@ __declspec(dllexport) int EvrInit(IEVRCallback* callback, DWORD dwD3DDevice, IBa
     return hr;
   }
 
-  EVRCustomPresenter* presenter = new EVRCustomPresenter(callback, (IDirect3DDevice9Ex*)dwD3DDevice, hwnd, hr);
+  EVRCustomPresenter* presenter = new EVRCustomPresenter(callback, dwD3DDevice, hwnd, hr);
   if (FAILED(hr))
   {
     Log("EvrInit EVRCustomPresenter() failed");

@@ -1,7 +1,7 @@
-﻿#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2020 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2020 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -38,7 +38,7 @@ namespace Tests.Server.NfoMetadataExtractor
     protected SeriesStub _seriesStub;
 
     public NfoEpisodeReaderForTests(bool includeEpisodeStub)
-      : base(new ConsoleLogger(LogLevel.All, true), 1, false, false, null, new NfoSeriesMetadataExtractorSettings())
+      : base(new ConsoleLogger(LogLevel.All, true), 1, false, false, null, new NfoSeriesMetadataExtractorSettings(), false)
     {
       _episodeStub = includeEpisodeStub ? CreateEpisodeStub(1, 1) : new SeriesEpisodeStub();
       _seriesStub = CreateSeriesStub();

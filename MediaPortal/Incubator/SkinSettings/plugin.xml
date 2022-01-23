@@ -25,6 +25,8 @@
 
   <Register Location="/Models">
     <Model Id="13961014-16C4-4361-9751-8E2C585EFD44" Name="SkinSettingsModel" ClassName="SkinSettings.SkinSettingsModel"/>
+    <Model Id="08BB1CFE-8AF3-4DD1-BB9C-582DD7EA8BBF" Name="WorkflowStateViewModeModel" ClassName="SkinSettings.WorkflowStateViewModeModel"/>
+    <Model Id="93C73448-DE70-44F7-A248-624B0BE31747" Name="SwitchViewModeContributorModel" ClassName="SkinSettings.Actions.SwitchViewModeAction"/>
   </Register>
 
   <!-- Language resources -->
@@ -33,6 +35,11 @@
   </Register>
 
   <Builder Name="SkinSettings" ClassName="SkinSettings.SkinSettingsBuilder"/>
+  <Builder Name="WorkflowStateViewModes" ClassName="SkinSettings.WorkflowStateViewModesBuilder"/>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="SkinSettingsSkin" Directory="Skin" Type="Skin"/>
+  </Register>
 
   <!--Registered settings classes can be accessed from the GUI using the SkinSettingsModel (SkinSettingsModel[MySettingsName].MySetting)-->
   <!--

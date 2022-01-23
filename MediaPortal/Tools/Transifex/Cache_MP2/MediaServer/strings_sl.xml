@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="MediaServer.ManufacturerUrl">www.team-mediaportal.com</string>
+  <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
+
+  <string name="MediaServer.AudiotContainter">Audio</string>
+  <string name="MediaServer.GenreContainter">Žanri</string>
+  <string name="MediaServer.ShareContainter">Deljene datoteke</string>
+  <string name="MediaServer.ImageContainter">Slike</string>
+  <string name="MediaServer.MovieContainter">Filmi</string>
+  <string name="MediaServer.ActorContainter">Igralci</string>
+  <string name="MediaServer.SeriesContainter">Nanizanke</string>
+  <string name="MediaServer.TV">TV</string>
+  </resources>

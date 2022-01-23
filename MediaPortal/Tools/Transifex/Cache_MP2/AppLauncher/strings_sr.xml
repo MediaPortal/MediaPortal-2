@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resources>
+  <string name="AppLauncher.Stop">Стоп</string>
+  <string name="AppLauncher.Settings.Title">Подешавања</string>
+  <string name="AppLauncher.Settings.Add.Description">Опис</string>
+  <string name="AppLauncher.Settings.Add.Search">Потражи</string>
+  <string name="AppLauncher.Settings.Add.Select">Одабери</string>
+  <string name="AppLauncher.Settings.Add.Normal">Нормалан</string>
+  <string name="AppLauncher.RemoveGroup">Уклони групу</string>
+  <string name="AppLauncher.Delete">Обриши</string>
+  <string name="AppLauncher.Menu.Clear">Ведро</string>
+</resources>

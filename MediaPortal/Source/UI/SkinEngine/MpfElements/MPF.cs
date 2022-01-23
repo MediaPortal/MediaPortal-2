@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -42,6 +42,7 @@ using MediaPortal.Utilities;
 using SharpDX;
 using TypeConverter = MediaPortal.UI.SkinEngine.Xaml.TypeConverter;
 using MediaPortal.UI.SkinEngine.Controls.Visuals.Shapes;
+using MediaPortal.UI.SkinEngine.MarkupExtensions;
 using Brush = MediaPortal.UI.SkinEngine.Controls.Brushes.Brush;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements
@@ -67,8 +68,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
       // dependency objects with abstract base classes (needed for Qualified event names in XAML)
       RegisterObjectClasses(typeof(DependencyObject).Assembly, typeof(DependencyObject), true);
       // markup extensions 
-      //TODO: add the next line when merged with latest changes as in Weekly
-      //RegisterObjectClasses(typeof(MPFExtensionBase).Assembly, typeof(MPFExtensionBase), false);
+      RegisterObjectClasses(typeof(MPFExtensionBase).Assembly, typeof(MPFExtensionBase), false);
       // this covers several more types
       RegisterObjectClasses(typeof(ISkinEngineManagedObject).Assembly, typeof(ISkinEngineManagedObject), false);
       // remaining types

@@ -6,4 +6,5 @@
   <string name="VEC.HigherEffect">Effect hoge resolutie</string>
   <string name="VEC.ResolutionLimit">Resolutie grens</string>
   <string name="Settings.Players.VideoPlayer.VEC">Wissel video-effect</string>
+  <string name="Settings.Plugins.VideoPlayer.VEC.Help">Laat toe om standaard shader effecten voor video playback in te stellen</string>
 </resources>

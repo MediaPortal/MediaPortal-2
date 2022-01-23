@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -45,6 +45,9 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     {
       try
       {
+        if (!IsManagedByMediaLibrary(mediaItem))
+          return Task.FromResult(false);
+
         MediaItemMatchModel mimm = ServiceRegistration.Get<IWorkflowManager>().GetModel(MediaItemMatchModel.MODEL_ID_MIMATCH) as MediaItemMatchModel;
         return Task.FromResult(mimm?.IsValidMediaItem(mediaItem) ?? false);
       }
@@ -56,7 +59,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
 
     public override async Task<AsyncResult<ContentDirectoryMessaging.MediaItemChangeType>> ProcessAsync(MediaItem mediaItem)
     {
-      // If the MediaItem was loaded from ML, remove it there as well.
+      // If the MediaItem was loaded from ML
       if (IsManagedByMediaLibrary(mediaItem))
       {
         IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;

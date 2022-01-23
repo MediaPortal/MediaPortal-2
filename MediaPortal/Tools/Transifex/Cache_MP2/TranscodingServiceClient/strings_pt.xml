@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+  <!--Client Settings-->
+  <string name="Settings.Transcode.Title">Transcoding</string> <!-- Section name -->
+  <string name="Settings.Transcode.HWAcceleration">Aceleração Hardware</string> <!-- Setting -->
+  <string name="Settings.Transcode.HWAcceleration.Help">Permite a aceleração por Hardware durante transcoding, se suportado.</string>
+  <string name="Settings.Transcode.Cache">Cache</string> <!-- Setting -->
+  <string name="Settings.Transcode.Cache.Help">Permite o caching de transcodes para que possam ser usados mais tarde</string>
+  <string name="Settings.Transcode.CacheAge">Idade máxima da cache, em dias</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheAge.Help">O número máximo de dias que os transcodings podem ser guardados entes que expirem. Utilize 0 para nunca expirar.</string>
+  <string name="Settings.Transcode.CacheSize">Tamanho máximo de cache (GB)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheSize.Help">O tamanho máximo da cache em GB. Transcodings mais antigos serão apagados quando a cache estiver cheia. Utilize 0 para nunca restringir.</string>
+  <string name="Settings.Transcode.SubtitleForce">Forçar legendas embutidas</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleForce.Help">Força legendas embutidas se nenhuma outra forma de legendas for possivel.</string>
+  <string name="Settings.Transcode.SubtitleBox">Mostrar caixa de legendas</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleBox.Help">Mostrar uma caixa ao redor de legendas embutidas</string>
+  <string name="Settings.Transcode.SubtitleFont">Fonte de legendas</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFont.Help">A fonte a usar para legendas embutidas</string>
+  <string name="Settings.Transcode.SubtitleFontSize">Tamanho de fonte para legendas</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontSize.Help">O tamanho de fonte a usar para legendas embutidas</string>
+  <string name="Settings.Transcode.SubtitleFontColor">Cor de fonte para legendas</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontColor.Help">A cor da fonte a utilizar em legendas embutidas</string>
+
+  <string name="Settings.Transcode.None">Nenhum</string>
+  <string name="Settings.Transcode.Auto">Automaticamente</string>
+  <string name="Settings.Transcode.Default">Por defeito</string>
+
+</resources>

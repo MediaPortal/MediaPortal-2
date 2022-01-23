@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   
+  <string name="UserConfig.UserName">Nazwa użytkownika</string>
+  <string name="UserConfig.Password">Hasło</string>
   <string name="UserConfig.AddUser">Dodaj</string>
   <string name="UserConfig.CopyUser">Kopiuj</string>
   <string name="UserConfig.DeleteUser">Usuń</string>
   <string name="UserConfig.Yes">Tak</string>
   <string name="UserConfig.No">Nie</string>
+  <string name="UserConfig.Default">Domyślne</string>
   <string name="UserConfig.SharesText">Udziały</string>
   </resources>

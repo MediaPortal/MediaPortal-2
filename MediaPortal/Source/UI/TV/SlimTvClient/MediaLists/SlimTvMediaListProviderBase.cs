@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2018 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2018 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -36,10 +36,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common.UserManagement;
+using MediaPortal.UI.ContentLists;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Common.MediaManagement;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
-  public abstract class SlimTvMediaListProviderBase : IMediaListProvider
+  public abstract class SlimTvMediaListProviderBase : IContentListProvider
   {
     protected MediaType _mediaType = MediaType.TV;
     protected ITvHandler _tvHandler;
@@ -55,7 +58,37 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       get { return _allItems; }
     }
 
-    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason);
+    public abstract Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects);
+
+    protected bool ShouldUpdate(UpdateReason updateReason, ICollection<object> updatedObjects)
+    {
+      if (updateReason.HasFlag(UpdateReason.Forced) || updateReason.HasFlag(UpdateReason.UserChanged))
+        return true;
+
+      bool update = false;
+      if (updateReason.HasFlag(UpdateReason.PlaybackComplete))
+      {
+        if (updatedObjects?.Count > 0)
+        {
+          foreach (MediaItem item in updatedObjects)
+          {
+            if (!item.GetPlayData(out string mimeType, out string title))
+              continue;
+            if (mimeType == LiveTvMediaItem.MIME_TYPE_TV || mimeType == LiveTvMediaItem.MIME_TYPE_RADIO)
+            {
+              update = true;
+              break;
+            }
+          }
+        }
+        else
+        {
+          update = true;
+        }
+      }
+
+      return update;
+    }
     
     protected ListItem CreateChannelItem(IChannel channel)
     {
@@ -101,9 +134,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       IEnumerable<Tuple<int, string>> channelList = userResult.Result;
 
       //Add favorite channels first
+      var channelAndGroupInfo = _tvHandler.ChannelAndGroupInfo;
       foreach (int channelId in channelList.Select(c => c.Item1))
       {
-        var result = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
+        var result = await channelAndGroupInfo.GetChannelAsync(channelId);
         if (result.Success && result.Result.MediaType == _mediaType)
           userChannels.Add(result.Result);
         if (userChannels.Count >= maxItems)
@@ -115,7 +149,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       {
         foreach (int channelId in ChannelContext.Instance.Channels.Where(c => c.MediaType == _mediaType).Select(c => c.ChannelId).Except(channelList.Select(c => c.Item1)))
         {
-          var result = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(channelId);
+          var result = await channelAndGroupInfo.GetChannelAsync(channelId);
           if (result.Success)
             userChannels.Add(result.Result);
           if (userChannels.Count >= maxItems)

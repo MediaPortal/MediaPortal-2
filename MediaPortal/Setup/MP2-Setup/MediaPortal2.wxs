@@ -128,7 +128,7 @@
     <!-- User Interface -->
     <!-- Remove this when the MP2 bootstrapper app is finished
     <WixVariable Id="WixUILicenseRtf"
-                 Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\x86\$(var.Configuration)\Docs\MediaPortal License.rtf" />
+                 Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\$(var.Configuration)\Docs\MediaPortal License.rtf" />
     <WixVariable Id="WixUIBannerBmp"
                  Value="Resources\MPBanner.jpg" />
     <WixVariable Id="WixUIDialogBmp"
@@ -153,9 +153,10 @@
       <Custom Action="PrepareXmlPathVariables" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
 
-      <RemoveExistingProducts After="InstallInitialize" />
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>
+
+    <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="You cannot downgrade to [ProductName]" Schedule="afterInstallInitialize" />
 
   </Product>
 </Wix>
