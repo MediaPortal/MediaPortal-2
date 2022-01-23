@@ -5,49 +5,52 @@ using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 using MP2BootstrapperApp.WizardSteps;
 using NSubstitute;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using Xunit;
 
 namespace Tests
 {
   public class WizardTests
   {
-    //[Fact] TODO: mock bundle packages 
+    [Fact] //TODO: mock bundle packages 
     public void Should_GoToNewTypeStep_When_PreviousStepIsWelcomeAndGoForward()
     {
       // Arrange
-      IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
-      IBootstrapperApp bootstrapperApp = Substitute.For<IBootstrapperApp>();
-      applicationModel.BootstrapperApplication.Returns(bootstrapperApp);
-      IDispatcher dispatcher = Substitute.For<IDispatcher>();
-      InstallWizardViewModel viewModel = new InstallWizardViewModel(applicationModel, dispatcher);
+      //IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      //IBootstrapperApp bootstrapperApp = Substitute.For<IBootstrapperApp>();
+      //applicationModel.BootstrapperApplication.Returns(bootstrapperApp);
+      //IDispatcher dispatcher = Substitute.For<IDispatcher>();
+      //InstallWizardViewModel viewModel = new InstallWizardViewModel(applicationModel, dispatcher);
+
+      Wizard wizard = new Wizard(new InstallWelcomeStep(new ReadOnlyCollection<BundlePackage>(new List<BundlePackage>())));
 
       // Act
-      Wizard wizard = new Wizard(new InstallWelcomeStep(viewModel), applicationModel);
       wizard.GoNext();
 
       // Assert
       Assert.True(wizard.Step is InstallNewTypeStep);
-      Assert.True(viewModel.CurrentPage is InstallNewTypePageViewModel);
+      //Assert.True(viewModel.CurrentPage is InstallNewTypePageViewModel);
     }
 
-    //[Fact] TODO: mock bundle packages
+    [Fact] //TODO: mock bundle packages
     public void Should_GoToOverviewStep_When_PreviousStepIsNewTypeAndGoForward()
     {
       // Arrange
-      IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
-      IDispatcher dispatcher = Substitute.For<IDispatcher>();
-      InstallWizardViewModel viewModelMain = new InstallWizardViewModel(applicationModel, dispatcher);
-      InstallNewTypePageViewModel viewModelNewInstall = new InstallNewTypePageViewModel(viewModelMain);
-      viewModelMain.CurrentPage = viewModelNewInstall;
-      viewModelNewInstall.InstallType = InstallType.Client;
+      //IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      //IDispatcher dispatcher = Substitute.For<IDispatcher>();
+      //InstallWizardViewModel viewModelMain = new InstallWizardViewModel(applicationModel, dispatcher);
+      //InstallNewTypePageViewModel viewModelNewInstall = new InstallNewTypePageViewModel(viewModelMain);
+      //viewModelMain.CurrentPage = viewModelNewInstall;
+      //viewModelNewInstall.InstallType = InstallType.Client;
+      Wizard wizard = new Wizard(new InstallNewTypeStep(new ReadOnlyCollection<BundlePackage>(new List<BundlePackage>())));
 
       // Act
-      Wizard wizard = new Wizard(new InstallNewTypeStep(viewModelMain), applicationModel);
       wizard.GoNext();
 
       // Assert
       Assert.True(wizard.Step is InstallOverviewStep);
-      Assert.True(viewModelMain.CurrentPage is InstallOverviewPageViewModel);
+      //Assert.True(viewModelMain.CurrentPage is InstallOverviewPageViewModel);
     }
 
     public void TestsWithBurnEngine()
