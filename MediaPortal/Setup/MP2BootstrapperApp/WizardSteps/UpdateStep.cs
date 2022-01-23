@@ -23,35 +23,28 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.ViewModels;
+using MP2BootstrapperApp.Models;
+using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class UpdateStep : IStep
+  public class UpdateStep : AbstractInstallStep, IStep
   {
-    private readonly InstallWizardViewModel _viewModel;
-
-    public UpdateStep(InstallWizardViewModel viewModel)
+    public UpdateStep(ReadOnlyCollection<BundlePackage> bundlePackages)
+      : base(bundlePackages)
     {
-      _viewModel = viewModel;
-      _viewModel.CurrentPage = new UpdatePageViewModel(_viewModel);
     }
     
-    public void Next(Wizard wizard)
+    public IStep Next()
     {
-      foreach (var bundlePackage in _viewModel.BundlePackages)
+      foreach (var bundlePackage in _bundlePackages)
       {
         if (bundlePackage.CurrentInstallState == PackageState.Absent)
         {
           bundlePackage.RequestedInstallState = RequestState.Present;
         }
       }
-      wizard.Step = new InstallOverviewStep(_viewModel);
-    }
-
-    public void Back(Wizard wizard)
-    {
-      wizard.Step = new InstallExistInstallStep(_viewModel);
+      return new InstallOverviewStep(_bundlePackages);
     }
 
     public bool CanGoNext()

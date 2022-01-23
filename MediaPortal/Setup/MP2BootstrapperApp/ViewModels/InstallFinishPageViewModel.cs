@@ -22,16 +22,22 @@
 
 #endregion
 
+using MP2BootstrapperApp.WizardSteps;
+
 namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallFinishPageViewModel : InstallWizardPageViewModelBase
   {
-    public InstallFinishPageViewModel(InstallWizardViewModel viewModel)
+    public InstallFinishPageViewModel(InstallFinishStep step)
+      : base(step)
     {
+    }
+
+    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
+    {
+      base.UpdateWizardViewModel(viewModel);
       viewModel.Header = "Enjoy your Mediaportal 2 experience";
       viewModel.ButtonNextContent = "Finish";
-      viewModel.ButtonBackContent = "Back";
-      viewModel.ButtonCancelContent = "Abort";
     }
   }
 }

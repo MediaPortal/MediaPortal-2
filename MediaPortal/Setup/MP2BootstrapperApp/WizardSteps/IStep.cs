@@ -26,9 +26,7 @@ namespace MP2BootstrapperApp.WizardSteps
 {
   public interface IStep
   {
-    void Next(Wizard wizard);
-
-    void Back(Wizard wizard);
+    IStep Next();
 
     bool CanGoNext();
 

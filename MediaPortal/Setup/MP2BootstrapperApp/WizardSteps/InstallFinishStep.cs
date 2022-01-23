@@ -23,7 +23,6 @@
 #endregion
 
 using MP2BootstrapperApp.BootstrapperWrapper;
-using MP2BootstrapperApp.ViewModels;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
@@ -31,21 +30,15 @@ namespace MP2BootstrapperApp.WizardSteps
   {
     private readonly IDispatcher _dispatcher;
 
-    public InstallFinishStep(InstallWizardViewModel viewModel, IDispatcher dispatcher)
+    public InstallFinishStep(IDispatcher dispatcher)
     {
-      InstallWizardViewModel wizardViewModel = viewModel;
-      wizardViewModel.CurrentPage = new InstallFinishPageViewModel(viewModel);
       _dispatcher = dispatcher;
     }
 
-    public void Next(Wizard wizard)
+    public IStep Next()
     {
       _dispatcher.InvokeShutdown();
-    }
-
-    public void Back(Wizard wizard)
-    {
-      // not allowed
+      return null;
     }
 
     public bool CanGoNext()

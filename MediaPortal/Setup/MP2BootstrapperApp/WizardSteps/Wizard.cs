@@ -22,30 +22,44 @@
 
 #endregion
 
-using MP2BootstrapperApp.Models;
+using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class Wizard
   {
-    public Wizard(IStep step, IBootstrapperApplicationModel model)
+    private Stack<IStep> stepsStack = new Stack<IStep>();
+
+    public Wizard(IStep step)
     {
-      Step = step;
-      BootstrapperApplicationModel = model;
+      stepsStack.Push(step);
     }
 
-    public IStep Step { get; set; }
-
-    public IBootstrapperApplicationModel BootstrapperApplicationModel { get; }
-    
-    public void GoNext()
+    public IStep Step
     {
-      Step.Next(this);
+      get { return stepsStack.Peek(); }
     }
 
-    public void GoBack()
+    public bool GoNext()
     {
-      Step.Back(this);
+      IStep next = Step.Next();
+      return Push(next);
+    }
+
+    public bool Push(IStep step)
+    {
+      if (step == null)
+        return false;
+      stepsStack.Push(step);
+      return true;
+    }
+
+    public bool GoBack()
+    {
+      if (stepsStack.Count == 1)
+        return false;
+      stepsStack.Pop();
+      return true;
     }
 
     public bool CanGoNext()

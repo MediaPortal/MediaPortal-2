@@ -99,6 +99,7 @@
     <Compile Include="ViewModels\RepairPageViewModel.cs" />
     <Compile Include="ViewModels\UninstallPageViewModel.cs" />
     <Compile Include="ViewModels\UpdatePageViewModel.cs" />
+    <Compile Include="ViewModels\WizardStepViewModelBuilder.cs" />
     <Compile Include="Views\InstallationInProgressPageView.xaml.cs">
       <DependentUpon>InstallationInProgressPageView.xaml</DependentUpon>
     </Compile>
@@ -114,6 +115,7 @@
     <Compile Include="Views\UpdatePageView.xaml.cs">
       <DependentUpon>UpdatePageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="WizardSteps\AbstractInstallStep.cs" />
     <Compile Include="WizardSteps\InstallationInProgressStep.cs" />
     <Compile Include="WizardSteps\InstallExistInstallStep.cs" />
     <Compile Include="WizardSteps\InstallFinishStep.cs" />

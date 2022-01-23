@@ -22,16 +22,21 @@
 
 #endregion
 
+using MP2BootstrapperApp.WizardSteps;
+
 namespace MP2BootstrapperApp.ViewModels
 {
   public class ModifyPageViewModel : InstallWizardPageViewModelBase
   {
-    public ModifyPageViewModel(InstallWizardViewModel viewModel)
+    public ModifyPageViewModel(ModifyStep step)
+      : base(step)
     {
+    }
+
+    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
+    {
+      base.UpdateWizardViewModel(viewModel);
       viewModel.Header = "Modify Installation";
-      viewModel.ButtonNextContent = "Next";
-      viewModel.ButtonBackContent = "Back";
-      viewModel.ButtonCancelContent = "Abort";
     }
   }
 }

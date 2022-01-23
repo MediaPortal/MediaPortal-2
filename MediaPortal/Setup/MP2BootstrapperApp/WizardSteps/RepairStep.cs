@@ -23,28 +23,20 @@
 #endregion
 
 using MP2BootstrapperApp.Models;
-using MP2BootstrapperApp.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class RepairStep : IStep
+  public class RepairStep : AbstractInstallStep, IStep
   {
-    private readonly InstallWizardViewModel _viewModel;
-
-    public RepairStep(InstallWizardViewModel viewModel)
+    public RepairStep(ReadOnlyCollection<BundlePackage> bundlePackages)
+      : base(bundlePackages)
     {
-      _viewModel = viewModel;
-      _viewModel.CurrentPage = new RepairPageViewModel(_viewModel);
     }
 
-    public void Next(Wizard wizard)
+    public IStep Next()
     {
       throw new System.NotImplementedException();
-    }
-
-    public void Back(Wizard wizard)
-    {
-      wizard.Step = new InstallExistInstallStep(_viewModel);
     }
 
     public bool CanGoNext()

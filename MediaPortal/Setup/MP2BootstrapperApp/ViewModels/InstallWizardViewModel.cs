@@ -64,6 +64,7 @@ namespace MP2BootstrapperApp.ViewModels
     private readonly PackageContext _packageContext;
     private readonly Wizard _wizard;
     private readonly IDispatcher _dispatcher;
+    private WizardStepViewModelBuilder _wizardViewModelBuilder;
 
     public InstallWizardViewModel(IBootstrapperApplicationModel model, IDispatcher dispatcher)
     {
@@ -75,13 +76,14 @@ namespace MP2BootstrapperApp.ViewModels
       WireUpEventHandlers();
       ComputeBundlePackages();
 
-      IStep welcomeStep = new InstallWelcomeStep(this);
-      _wizard = new Wizard(welcomeStep, model);
+      InstallWelcomeStep welcomeStep = new InstallWelcomeStep(BundlePackages);
+      _wizard = new Wizard(welcomeStep);
+      _wizardViewModelBuilder = new WizardStepViewModelBuilder();
 
-      NextCommand = new DelegateCommand(() => _wizard.GoNext(), () => _wizard.CanGoNext());
-      BackCommand = new DelegateCommand(() => _wizard.GoBack(), () => _wizard.CanGoBack());
+      NextCommand = new DelegateCommand(() => GoNextStep(), () => _wizard.CanGoNext());
+      BackCommand = new DelegateCommand(() => GoBackStep(), () => _wizard.CanGoBack());
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
-      CurrentPage = new InstallWelcomePageViewModel(this);
+      CurrentPage = new InstallWelcomePageViewModel(welcomeStep);
     }
 
     public InstallState State
@@ -145,6 +147,7 @@ namespace MP2BootstrapperApp.ViewModels
         if (_currentPage != null)
         {
           _currentPage.IsCurrentPage = true;
+          _currentPage.WizardViewModel = this;
         }
 
         RaisePropertyChanged();
@@ -161,6 +164,30 @@ namespace MP2BootstrapperApp.ViewModels
       {
         _progress = value;
         RaisePropertyChanged();
+      }
+    }
+
+    private void GoNextStep()
+    {
+      if (_wizard.GoNext())
+      {
+        CurrentPage = _wizardViewModelBuilder.GetViewModel(_wizard.Step);
+      }
+    }
+
+    private void GoToStep(IStep step)
+    {
+      if (_wizard.Push(step))
+      {
+        CurrentPage = _wizardViewModelBuilder.GetViewModel(_wizard.Step);
+      }
+    }
+
+    private void GoBackStep()
+    {
+      if (_wizard.GoBack())
+      {
+        CurrentPage = _wizardViewModelBuilder.GetViewModel(_wizard.Step);
       }
     }
 
@@ -217,7 +244,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
-      _wizard.Step = new InstallExistInstallStep(this);
+      GoToStep(new InstallExistInstallStep(BundlePackages));
     }
 
     protected void PlanComplete(object sender, PlanCompleteEventArgs e)
@@ -253,7 +280,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
-      _wizard.Step = new InstallFinishStep(this, _dispatcher);
+      GoToStep(new InstallFinishStep(_dispatcher));
       _bootstrapperApplicationModel.FinalResult = e.Status;
     }
 

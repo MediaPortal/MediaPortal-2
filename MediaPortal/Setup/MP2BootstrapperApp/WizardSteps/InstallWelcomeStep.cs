@@ -22,27 +22,21 @@
 
 #endregion
 
-using MP2BootstrapperApp.ViewModels;
+using MP2BootstrapperApp.Models;
+using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallWelcomeStep : IStep
+  public class InstallWelcomeStep : AbstractInstallStep, IStep
   {
-    private readonly InstallWizardViewModel _viewModel;
-
-    public InstallWelcomeStep(InstallWizardViewModel viewModel)
+    public InstallWelcomeStep(ReadOnlyCollection<BundlePackage> bundlePackages)
+      : base(bundlePackages)
     {
-      _viewModel = viewModel;
     }
 
-    public void Next(Wizard wizard)
+    public IStep Next()
     {
-      wizard.Step = new InstallNewTypeStep(_viewModel);
-    }
-
-    public void Back(Wizard wizard)
-    {
-      // do nothing
+      return new InstallNewTypeStep(_bundlePackages);
     }
 
     public bool CanGoNext()

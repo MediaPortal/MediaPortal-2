@@ -22,43 +22,42 @@
 
 #endregion
 
-using MP2BootstrapperApp.ViewModels;
+using MP2BootstrapperApp.Models;
+using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallExistInstallStep : IStep
+  public class InstallExistInstallStep : AbstractInstallStep, IStep
   {
-    private readonly InstallWizardViewModel _viewModel;
-
-    public InstallExistInstallStep(InstallWizardViewModel viewModel)
+    public InstallExistInstallStep(ReadOnlyCollection<BundlePackage> bundlePackages)
+      : base(bundlePackages)
     {
-      _viewModel = viewModel;
-      _viewModel.CurrentPage = new InstallExistTypePageViewModel(_viewModel);
     }
 
-    public void Next(Wizard wizard)
-    {
-      InstallExistTypePageViewModel page = _viewModel.CurrentPage as InstallExistTypePageViewModel;
+    public ActionType ActionType { get; set; } = ActionType.Update;
 
-      switch (page?.ActionType)
+    public IStep Next()
+    {
+      IStep nextStep;
+      switch (ActionType)
       {
         case ActionType.Update:
-          wizard.Step = new UpdateStep(_viewModel);
+          nextStep = new UpdateStep(_bundlePackages);
           break;
         case ActionType.Modify:
-          wizard.Step = new ModifyStep(_viewModel);
+          nextStep = new ModifyStep(_bundlePackages);
           break;
         case ActionType.Repair:
-          wizard.Step = new RepairStep(_viewModel);
+          nextStep = new RepairStep(_bundlePackages);
           break;
         case ActionType.Uninstall:
-          wizard.Step = new UninstallStep(_viewModel);
+          nextStep = new UninstallStep(_bundlePackages);
+          break;
+        default:
+          nextStep = null;
           break;
       }
-    }
-
-    public void Back(Wizard wizard)
-    {
+      return nextStep;
     }
 
     public bool CanGoNext()

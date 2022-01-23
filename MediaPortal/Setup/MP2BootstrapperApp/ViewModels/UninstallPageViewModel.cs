@@ -22,17 +22,21 @@
 
 #endregion
 
+using MP2BootstrapperApp.WizardSteps;
+
 namespace MP2BootstrapperApp.ViewModels
 {
   public class UninstallPageViewModel : InstallWizardPageViewModelBase
   {
-    public UninstallPageViewModel(InstallWizardViewModel viewModel)
+    public UninstallPageViewModel(UninstallStep step)
+      : base(step)
     {
-      viewModel.Header = "Uninstall Mediaportal";
-      viewModel.ButtonNextContent = "Next";
-      viewModel.ButtonBackContent = "Back";
-      viewModel.ButtonCancelContent = "Abort";
     }
-    
+
+    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
+    {
+      base.UpdateWizardViewModel(viewModel);
+      viewModel.Header = "Uninstall Mediaportal";
+    }
   }
 }

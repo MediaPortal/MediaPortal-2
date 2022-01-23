@@ -25,29 +25,26 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
-using MP2BootstrapperApp.ViewModels;
+using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallNewTypeStep : IStep
+  public class InstallNewTypeStep : AbstractInstallStep, IStep
   {
-    private readonly InstallWizardViewModel _viewModel;
-
-    public InstallNewTypeStep(InstallWizardViewModel viewModel)
+    public InstallNewTypeStep(ReadOnlyCollection<BundlePackage> bundlePackages)
+      : base(bundlePackages)
     {
-      _viewModel = viewModel;
-      _viewModel.CurrentPage = new InstallNewTypePageViewModel(_viewModel);
-      foreach (BundlePackage package in _viewModel.BundlePackages)
+      foreach (BundlePackage package in bundlePackages)
       {
         package.RequestedInstallState = RequestState.None;
       }
     }
 
-    public void Next(Wizard wizard)
-    {
-      InstallNewTypePageViewModel page = _viewModel.CurrentPage as InstallNewTypePageViewModel;
+    public InstallType InstallType { get; set; } = InstallType.ClientServer;
 
-      switch (page?.InstallType)
+    public IStep Next()
+    {
+      switch (InstallType)
       {
         case InstallType.ClientServer:
           SetInstallStateForClientAndServer();
@@ -62,12 +59,7 @@ namespace MP2BootstrapperApp.WizardSteps
           // TODO
           break;
       }
-      wizard.Step = new InstallOverviewStep(_viewModel);
-    }
-
-    public void Back(Wizard wizard)
-    {
-      wizard.Step = new InstallWelcomeStep(_viewModel);
+      return new InstallOverviewStep(_bundlePackages);
     }
 
     public bool CanGoNext()
@@ -79,10 +71,10 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       return true;
     }
-    
+
     private void SetInstallStateForClientAndServer()
     {
-      foreach (BundlePackage package in _viewModel.BundlePackages)
+      foreach (BundlePackage package in _bundlePackages)
       {
         if (package.CurrentInstallState != PackageState.Present)
         {
@@ -93,7 +85,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     private void SetInstallStateForServer()
     {
-      foreach (BundlePackage package in _viewModel.BundlePackages)
+      foreach (BundlePackage package in _bundlePackages)
       {
         if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Client || package.GetId() == PackageId.LAVFilters)
         {
@@ -105,7 +97,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     private void SetInstallStateForClient()
     {
-      foreach (BundlePackage package in _viewModel.BundlePackages)
+      foreach (BundlePackage package in _bundlePackages)
       {
         if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Server)
         {

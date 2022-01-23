@@ -24,19 +24,17 @@
 
 using System.Collections.ObjectModel;
 using MP2BootstrapperApp.Models;
+using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
   public class UpdatePageViewModel : InstallWizardPageViewModelBase
   {
-    public UpdatePageViewModel(InstallWizardViewModel viewModel)
+    public UpdatePageViewModel(UpdateStep step)
+      : base(step)
     {
-      viewModel.Header = "Update MediaPortal 2";
-      viewModel.ButtonNextContent = "Next";
-      viewModel.ButtonBackContent = "Back";
-      viewModel.ButtonCancelContent = "Abort";
       Packages = new ObservableCollection<Package>();
-      foreach (BundlePackage package in viewModel.BundlePackages)
+      foreach (BundlePackage package in step.BundlePackages)
       {
         Packages.Add(new Package
         {
@@ -50,5 +48,11 @@ namespace MP2BootstrapperApp.ViewModels
     }
     
     public ObservableCollection<Package> Packages { get; }
+
+    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
+    {
+      base.UpdateWizardViewModel(viewModel);
+      viewModel.Header = "Update MediaPortal 2";
+    }
   }
 }

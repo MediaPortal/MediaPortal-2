@@ -22,24 +22,34 @@
 
 #endregion
 
+using MP2BootstrapperApp.WizardSteps;
+
 namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallExistTypePageViewModel : InstallWizardPageViewModelBase
   {
-    private ActionType _actionType = ActionType.Update;
+    private ActionType _actionType;
 
-    public InstallExistTypePageViewModel(InstallWizardViewModel viewModel)
+    public InstallExistTypePageViewModel(InstallExistInstallStep step)
+      : base(step)
     {
-      viewModel.Header = "Installation already exists";
-      viewModel.ButtonNextContent = "Next";
-      viewModel.ButtonBackContent = "Back";
-      viewModel.ButtonCancelContent = "Abort";
+      _actionType = step.ActionType;
     }
 
     public ActionType ActionType
     {
       get { return _actionType; }
-      set { SetProperty(ref _actionType, value); }
+      set 
+      {
+        ((InstallExistInstallStep)_step).ActionType = value;
+        SetProperty(ref _actionType, value); 
+      }
+    }
+
+    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
+    {
+      base.UpdateWizardViewModel(viewModel);
+      viewModel.Header = "Installation already exists";
     }
   }
 }

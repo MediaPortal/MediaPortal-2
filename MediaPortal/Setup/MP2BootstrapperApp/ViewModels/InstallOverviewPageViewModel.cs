@@ -24,19 +24,17 @@
 
 using System.Collections.ObjectModel;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallOverviewPageViewModel : InstallWizardPageViewModelBase
   {
-    public InstallOverviewPageViewModel(InstallWizardViewModel viewModel)
+    public InstallOverviewPageViewModel(InstallOverviewStep step)
+      : base(step)
     {
-      viewModel.Header = "Overview";
-      viewModel.ButtonNextContent = "Install";
-      viewModel.ButtonBackContent = "Back";
-      viewModel.ButtonCancelContent = "Abort";
       Packages = new ObservableCollection<string>();
-      foreach (var package in viewModel.BundlePackages)
+      foreach (var package in step.BundlePackages)
       {
         if (package.RequestedInstallState == RequestState.Present)
         {
@@ -46,5 +44,12 @@ namespace MP2BootstrapperApp.ViewModels
     }
 
     public ObservableCollection<string> Packages { get; }
+
+    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
+    {
+      base.UpdateWizardViewModel(viewModel);
+      viewModel.Header = "Overview";
+      viewModel.ButtonNextContent = "Install";
+    }
   }
 }

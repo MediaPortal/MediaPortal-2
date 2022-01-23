@@ -1,24 +1,20 @@
 ﻿
-using MP2BootstrapperApp.ViewModels;
+using MP2BootstrapperApp.Models;
+using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallationInProgressStep : IStep
+  public class InstallationInProgressStep : AbstractInstallStep, IStep
   {
-    public InstallationInProgressStep(InstallWizardViewModel viewModel)
+    public InstallationInProgressStep(ReadOnlyCollection<BundlePackage> bundlePackages)
+      : base(bundlePackages)
     {
-      InstallWizardViewModel wizardViewModel = viewModel;
-      wizardViewModel.CurrentPage = new InstallationInProgressPageViewModel(viewModel);
-    }
-    
-    public void Next(Wizard wizard)
-    {
-      // not allowed
     }
 
-    public void Back(Wizard wizard)
+    public IStep Next()
     {
       // not allowed
+      return null;
     }
 
     public bool CanGoNext()

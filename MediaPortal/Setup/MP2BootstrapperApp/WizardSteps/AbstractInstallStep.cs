@@ -22,34 +22,23 @@
 
 #endregion
 
-using MP2BootstrapperApp.WizardSteps;
+using MP2BootstrapperApp.Models;
+using System.Collections.ObjectModel;
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallNewTypePageViewModel : InstallWizardPageViewModelBase
+  public abstract class AbstractInstallStep
   {
-    private InstallType _installType;
+    protected readonly ReadOnlyCollection<BundlePackage> _bundlePackages;
 
-    public InstallNewTypePageViewModel(InstallNewTypeStep step)
-      : base(step)
+    public AbstractInstallStep(ReadOnlyCollection<BundlePackage> bundlePackages)
     {
-      _installType = step.InstallType;
+      _bundlePackages = bundlePackages;
     }
 
-    public InstallType InstallType
+    public ReadOnlyCollection<BundlePackage> BundlePackages
     {
-      get { return _installType; }
-      set 
-      {
-        ((InstallNewTypeStep)_step).InstallType = value;
-        SetProperty(ref _installType, value); 
-      }
-    }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "New Installation";
+      get { return _bundlePackages; }
     }
   }
 }
