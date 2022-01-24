@@ -50,7 +50,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Height="80" MaxWidth="150" Margin="0,-10,15,10">
+          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Height="80" MaxWidth="150" Margin="0,-30,15,30">
             <Image.Source>
               <ImageSourceWrapper Delay="0" DelayInOut="false" VerticalTextureAlignment="Bottom" HorizontalTextureAlignment="Right">
                 <ImageSourceWrapper.Source>
@@ -64,14 +64,48 @@
     </media:MovieAspectWrapper.Template>
   </media:MovieAspectWrapper>
 
-   <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" Grid.Row="1">
-      <mp_special_controls:PlayerControl.TemplateControl>
+  <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" Grid.Row="1" 
+                            IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableAutoScrolling}">
+    <media:VideoAspectWrapper.Template>
+      <ControlTemplate>
+        <ScrollViewer CanContentScroll="True" HorizontalScrollBarVisibility="Disabled" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                      Focusable="True" Margin="0,30,10,30" Width="460" MaxHeight="300" VerticalAlignment="Bottom">
+           <ScrollViewer.Triggers>
+             <Trigger Property="HasFocus" Value="True">
+               <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+               <Setter Property="Opacity" Value="1"/>
+             </Trigger>
+             <Trigger Property="HasFocus" Value="False">
+               <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+               <Setter Property="Opacity" Value="0.7"/>
+              </Trigger>
+              </ScrollViewer.Triggers>
+              <ScrollViewer.Resources>
+                  <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+                    <TranslateTransform X="0" />
+                  </ResourceWrapper>
+              </ScrollViewer.Resources>
+            <Label x:Name="StoryPlot" Wrap="True" Color="White"
+                   FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Content="{Binding StoryPlot}"/>
+         </ScrollViewer>
+      </ControlTemplate>
+    </media:VideoAspectWrapper.Template>
+  </media:VideoAspectWrapper>
 
-        <Label x:Name="StoryPlot" Wrap="True" Margin="0,40,10,20" TextTrimming="WordEllipsis" Color="{ThemeResource MenuTextBackground}"
-               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" 
-               Content="{Binding VideoStoryPlot}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
-      </mp_special_controls:PlayerControl.TemplateControl>
-   </mp_special_controls:PlayerControl>
+  <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" Grid.Row="1" 
+                            IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAutoScrolling}">
+    <media:VideoAspectWrapper.Template>
+      <ControlTemplate>
+            <Label x:Name="StoryPlot" Wrap="True" Color="White" Width="460" MaxHeight="300" Margin="0,30,10,30"
+                   ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
+                   ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Scroll="Auto" Opacity="0.7"
+                   FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Content="{Binding StoryPlot}"/>
+      </ControlTemplate>
+    </media:VideoAspectWrapper.Template>
+  </media:VideoAspectWrapper>
 
   <StackPanel Grid.ColumnSpan="2" Grid.Row="0" Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
 
@@ -170,58 +204,151 @@
       </media:MovieAspectWrapper.Template>
     </media:MovieAspectWrapper>
 
-    <StackPanel Orientation="Horizontal">
+    <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
       <media:UserDataWrapper MediaItem="{Binding MediaItem}">
         <media:UserDataWrapper.Template>
-          <ControlTemplate>
-            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                  IsVisible="{Binding Path=PlayPercentage,Converter={StaticResource ReferenceToBoolConverter}}">
-              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseTorquoise}">
-                <Image.Source>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_torquoise.png"/>
-                </Image.Source>
-              </Image>
-              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseYellow}">
-                <Image.Source>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_yellow.png"/>
-                </Image.Source>
-              </Image>
-              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseOrange}">
-                <Image.Source>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_orange.png"/>
-                </Image.Source>
-              </Image>
-              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseRed}">
-                <Image.Source>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_red.png"/>
-                </Image.Source>
-              </Image>
-              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UsePurple}">
-                <Image.Source>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_purple.png"/>
-                </Image.Source>
-              </Image>
-              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseGreen}">
-                <Image.Source>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_green.png"/>
-                </Image.Source>
-              </Image>
-              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseBlue}">
-                <Image.Source>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_blue.png"/>
-                </Image.Source>
-              </Image>
-              <Image VerticalAlignment="Center" Stretch="Fill" Width="95" Height="95" Margin="0,10,40,0" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].UseGrey}">
-                <Image.Source>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBar\{0}_grey.png"/>
-                </Image.Source>
-              </Image>
-              <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="20" Color="White" FontFamily="SegoeUIBold"
-                     Width="95" Height="95" Margin="0,0,40,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-                <Label.Content>
-                  <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
-                </Label.Content>
-              </Label>
+                 <ControlTemplate>
+            <Grid RenderTransformOrigin="0.5,0.5" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+              <Grid.RenderTransform>
+                <TransformGroup>
+                  <ScaleTransform ScaleX="0.7" ScaleY="0.7"/>
+                </TransformGroup>
+              </Grid.RenderTransform>
+              <Control Style="{ThemeResource CircularBackgroundStyle_0}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_18}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_36}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_54}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_72}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_90}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_108}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_126}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_144}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_162}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_180}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_198}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_216}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_234}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_252}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_270}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_288}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_306}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_324}"/>
+              <Control Style="{ThemeResource CircularBackgroundStyle_342}"/>
+
+              <Control Style="{ThemeResource CircularIndicatorStyle_0}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>0"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_18}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>5"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_36}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>10"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_54}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>15"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_72}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>20"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_90}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>25"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_108}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>30"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_126}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>35"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_144}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>40"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_162}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>45"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_180}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>50"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_198}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>55"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_216}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>60"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_234}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>65"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_252}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>70"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_270}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>75"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_288}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>80"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_306}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>85"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_324}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>90"/>
+                </Control.IsVisible>
+              </Control>
+              <Control Style="{ThemeResource CircularIndicatorStyle_342}">
+                <Control.IsVisible>
+                  <Binding Path="PlayPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>95"/>
+                </Control.IsVisible>
+              </Control>
+              <Grid Margin="-70,-6,70,0">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
+                       HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                  <Label.Content>
+                    <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
+                  </Label.Content>
+                </Label>
+              </Grid>
             </Grid>
           </ControlTemplate>
         </media:UserDataWrapper.Template>
@@ -233,6 +360,7 @@
         </Image.Source>
       </Image>
     </StackPanel>
+
   </StackPanel>
 
 </Grid>

@@ -75,7 +75,7 @@
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0"
                      Grid.Column="1" VerticalAlignment="Center">
                 <Label.Content>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60 &gt; 0 ? {0}/60 : {0}">
                     <Binding Path="Duration"/>
                   </MultiBinding>
                 </Label.Content>
@@ -83,8 +83,17 @@
               
               <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"
                      FontSize="{ThemeResource SmallerFontSize}" Grid.Column="2" VerticalAlignment="Center"/>
-              <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
-                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Grid.Column="3" Opacity="0.6"  Margin="0,0,30,0"/>
+              <Label FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Grid.Column="3" Opacity="0.6"  Margin="0,0,30,0">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60 &gt; 0 ? {1} : {2}">
+                    <Binding Path="Duration"/>
+                    <Binding Source="[Media.Minutes]"/>
+                    <Binding Source="[Media.Seconds]"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+
             </Grid>
           </ControlTemplate>
         </media:VideoStreamAspectWrapper.Template>
