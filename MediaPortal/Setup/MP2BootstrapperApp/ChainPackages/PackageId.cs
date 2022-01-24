@@ -35,6 +35,7 @@ namespace MP2BootstrapperApp.ChainPackages
     VC2010_x86,
     VC2013_x86,
     VC2019_x86,
+    VC2019_x64,
     NetFx471Web,
     Unknown
   }

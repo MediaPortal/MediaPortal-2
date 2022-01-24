@@ -8,7 +8,7 @@
   <Target Name="BeforeBuild">
 
     <HeatDirectory
-      Directory="$(SolutionDir)..\Bin\MP2-Client\bin\x86\$(Configuration)"
+      Directory="$(SolutionDir)..\Bin\MP2-Client\bin\$(Configuration)"
       PreprocessorVariable="var.MediaPortal.Client.TargetDir"
       ComponentGroupName="Client.Heat"
       DirectoryRefId="INSTALLDIR_CLIENT"

@@ -8,7 +8,7 @@
   <Target Name="BeforeBuild">
 
     <HeatDirectory
-      Directory="$(SolutionDir)..\Bin\MP2-ServiceMonitor\bin\x86\$(Configuration)"
+      Directory="$(SolutionDir)..\Bin\MP2-ServiceMonitor\bin\$(Configuration)"
       PreprocessorVariable="var.MediaPortal.ServiceMonitor.TargetDir"
       ComponentGroupName="ServiceMonitor.Heat"
       DirectoryRefId="INSTALLDIR_SERVICE_MONITOR"
@@ -17,7 +17,7 @@
       GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
 
     <HeatDirectory
-      Directory="$(SolutionDir)..\Bin\MP2-LogCollector\bin\x86\$(Configuration)"
+      Directory="$(SolutionDir)..\Bin\MP2-LogCollector\bin\$(Configuration)"
       PreprocessorVariable="var.MediaPortal.LogCollector.TargetDir"
       ComponentGroupName="LogCollector.Heat"
       DirectoryRefId="INSTALLDIR_LOG_COLLECTOR"

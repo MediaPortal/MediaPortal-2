@@ -15,7 +15,11 @@ namespace MP2BootstrapperApp.ChainPackages
     public Version GetInstalledVersion()
     {
       const string mfc140Dll = "mfc140.dll";
-      string vc2019Path = Path.Combine(Environment.SystemDirectory, mfc140Dll);
+
+      // Explicitly check the x86 system path for the x86 version of the dll. The installer is currently always run
+      // as x86 so this is not technically necessary as the OS will automatically redirect to the x86 path, but in
+      // case we change to x64 in future this will ensure we are looking in the x86 directory.
+      string vc2019Path = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.SystemX86), mfc140Dll);
 
       if (!_packageChecker.Exists(vc2019Path))
       {
