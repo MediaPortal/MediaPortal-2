@@ -34,7 +34,7 @@ namespace MP2BootstrapperApp.ViewModels
       : base(step)
     {
       Packages = new ObservableCollection<string>();
-      foreach (var package in step.BundlePackages)
+      foreach (var package in step.BootstrapperApplicationModel.BundlePackages)
       {
         if (package.RequestedInstallState == RequestState.Present)
         {

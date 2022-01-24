@@ -25,16 +25,15 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
-using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallNewTypeStep : AbstractInstallStep, IStep
   {
-    public InstallNewTypeStep(ReadOnlyCollection<BundlePackage> bundlePackages)
-      : base(bundlePackages)
+    public InstallNewTypeStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
+      : base(bootstrapperApplicationModel)
     {
-      foreach (BundlePackage package in bundlePackages)
+      foreach (BundlePackage package in bootstrapperApplicationModel.BundlePackages)
       {
         package.RequestedInstallState = RequestState.None;
       }
@@ -59,7 +58,7 @@ namespace MP2BootstrapperApp.WizardSteps
           // TODO
           break;
       }
-      return new InstallOverviewStep(_bundlePackages);
+      return new InstallOverviewStep(_bootstrapperApplicationModel);
     }
 
     public bool CanGoNext()
@@ -74,7 +73,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     private void SetInstallStateForClientAndServer()
     {
-      foreach (BundlePackage package in _bundlePackages)
+      foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
       {
         if (package.CurrentInstallState != PackageState.Present)
         {
@@ -85,7 +84,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     private void SetInstallStateForServer()
     {
-      foreach (BundlePackage package in _bundlePackages)
+      foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
       {
         if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Client || package.GetId() == PackageId.LAVFilters)
         {
@@ -97,7 +96,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     private void SetInstallStateForClient()
     {
-      foreach (BundlePackage package in _bundlePackages)
+      foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
       {
         if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Server)
         {

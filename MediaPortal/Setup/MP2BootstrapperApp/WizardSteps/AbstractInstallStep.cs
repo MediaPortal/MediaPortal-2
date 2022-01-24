@@ -29,16 +29,16 @@ namespace MP2BootstrapperApp.WizardSteps
 {
   public abstract class AbstractInstallStep
   {
-    protected readonly ReadOnlyCollection<BundlePackage> _bundlePackages;
+    protected readonly IBootstrapperApplicationModel _bootstrapperApplicationModel;
 
-    public AbstractInstallStep(ReadOnlyCollection<BundlePackage> bundlePackages)
+    public AbstractInstallStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
     {
-      _bundlePackages = bundlePackages;
+      _bootstrapperApplicationModel = bootstrapperApplicationModel;
     }
 
-    public ReadOnlyCollection<BundlePackage> BundlePackages
+    public IBootstrapperApplicationModel BootstrapperApplicationModel
     {
-      get { return _bundlePackages; }
+      get { return _bootstrapperApplicationModel; }
     }
   }
 }

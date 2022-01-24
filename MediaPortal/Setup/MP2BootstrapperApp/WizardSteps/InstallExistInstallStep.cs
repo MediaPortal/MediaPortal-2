@@ -23,14 +23,13 @@
 #endregion
 
 using MP2BootstrapperApp.Models;
-using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallExistInstallStep : AbstractInstallStep, IStep
   {
-    public InstallExistInstallStep(ReadOnlyCollection<BundlePackage> bundlePackages)
-      : base(bundlePackages)
+    public InstallExistInstallStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
+      : base(bootstrapperApplicationModel)
     {
     }
 
@@ -42,16 +41,16 @@ namespace MP2BootstrapperApp.WizardSteps
       switch (ActionType)
       {
         case ActionType.Update:
-          nextStep = new UpdateStep(_bundlePackages);
+          nextStep = new UpdateStep(_bootstrapperApplicationModel);
           break;
         case ActionType.Modify:
-          nextStep = new ModifyStep(_bundlePackages);
+          nextStep = new ModifyStep(_bootstrapperApplicationModel);
           break;
         case ActionType.Repair:
-          nextStep = new RepairStep(_bundlePackages);
+          nextStep = new RepairStep(_bootstrapperApplicationModel);
           break;
         case ActionType.Uninstall:
-          nextStep = new UninstallStep(_bundlePackages);
+          nextStep = new UninstallStep(_bootstrapperApplicationModel);
           break;
         default:
           nextStep = null;

@@ -24,22 +24,21 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.Models;
-using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallOverviewStep : AbstractInstallStep, IStep
   {
-    public InstallOverviewStep(ReadOnlyCollection<BundlePackage> bundlePackages)
-      : base(bundlePackages)
+    public InstallOverviewStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
+      : base(bootstrapperApplicationModel)
     {
     }
 
     public IStep Next()
     {
-      //wizard.BootstrapperApplicationModel.PlanAction(LaunchAction.Install);
-      //wizard.BootstrapperApplicationModel.LogMessage(LogLevel.Standard, "starting installation");
-      return new InstallationInProgressStep(_bundlePackages);
+      //_bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
+      //_bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "starting installation");
+      return new InstallationInProgressStep(_bootstrapperApplicationModel);
     }
 
     public bool CanGoNext()

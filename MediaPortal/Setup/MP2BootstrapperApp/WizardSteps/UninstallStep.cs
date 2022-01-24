@@ -23,14 +23,13 @@
 #endregion
 
 using MP2BootstrapperApp.Models;
-using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class UninstallStep : AbstractInstallStep, IStep
   {
-    public UninstallStep(ReadOnlyCollection<BundlePackage> bundlePackages)
-      : base(bundlePackages)
+    public UninstallStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
+      : base(bootstrapperApplicationModel)
     {
     }
     

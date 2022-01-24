@@ -17,13 +17,14 @@ namespace Tests
     public void Should_GoToNewTypeStep_When_PreviousStepIsWelcomeAndGoForward()
     {
       // Arrange
-      //IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
-      //IBootstrapperApp bootstrapperApp = Substitute.For<IBootstrapperApp>();
-      //applicationModel.BootstrapperApplication.Returns(bootstrapperApp);
+      IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      IBootstrapperApp bootstrapperApp = Substitute.For<IBootstrapperApp>();
+      applicationModel.BootstrapperApplication.Returns(bootstrapperApp);
+      applicationModel.BundlePackages.Returns(new List<BundlePackage>().AsReadOnly());
       //IDispatcher dispatcher = Substitute.For<IDispatcher>();
       //InstallWizardViewModel viewModel = new InstallWizardViewModel(applicationModel, dispatcher);
 
-      Wizard wizard = new Wizard(new InstallWelcomeStep(new ReadOnlyCollection<BundlePackage>(new List<BundlePackage>())));
+      Wizard wizard = new Wizard(new InstallWelcomeStep(applicationModel));
 
       // Act
       wizard.GoNext();
@@ -37,13 +38,14 @@ namespace Tests
     public void Should_GoToOverviewStep_When_PreviousStepIsNewTypeAndGoForward()
     {
       // Arrange
-      //IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      applicationModel.BundlePackages.Returns(new List<BundlePackage>().AsReadOnly());
       //IDispatcher dispatcher = Substitute.For<IDispatcher>();
       //InstallWizardViewModel viewModelMain = new InstallWizardViewModel(applicationModel, dispatcher);
       //InstallNewTypePageViewModel viewModelNewInstall = new InstallNewTypePageViewModel(viewModelMain);
       //viewModelMain.CurrentPage = viewModelNewInstall;
       //viewModelNewInstall.InstallType = InstallType.Client;
-      Wizard wizard = new Wizard(new InstallNewTypeStep(new ReadOnlyCollection<BundlePackage>(new List<BundlePackage>())));
+      Wizard wizard = new Wizard(new InstallNewTypeStep(applicationModel));
 
       // Act
       wizard.GoNext();

@@ -23,20 +23,19 @@
 #endregion
 
 using MP2BootstrapperApp.Models;
-using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallWelcomeStep : AbstractInstallStep, IStep
   {
-    public InstallWelcomeStep(ReadOnlyCollection<BundlePackage> bundlePackages)
-      : base(bundlePackages)
+    public InstallWelcomeStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
+      : base(bootstrapperApplicationModel)
     {
     }
 
     public IStep Next()
     {
-      return new InstallNewTypeStep(_bundlePackages);
+      return new InstallNewTypeStep(_bootstrapperApplicationModel);
     }
 
     public bool CanGoNext()

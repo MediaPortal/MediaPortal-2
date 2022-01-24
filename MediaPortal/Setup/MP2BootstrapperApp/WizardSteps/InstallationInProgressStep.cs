@@ -1,13 +1,12 @@
 ﻿
 using MP2BootstrapperApp.Models;
-using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallationInProgressStep : AbstractInstallStep, IStep
   {
-    public InstallationInProgressStep(ReadOnlyCollection<BundlePackage> bundlePackages)
-      : base(bundlePackages)
+    public InstallationInProgressStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
+      : base(bootstrapperApplicationModel)
     {
     }
 

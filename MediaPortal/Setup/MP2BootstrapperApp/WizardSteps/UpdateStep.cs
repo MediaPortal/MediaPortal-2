@@ -24,27 +24,26 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.Models;
-using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class UpdateStep : AbstractInstallStep, IStep
   {
-    public UpdateStep(ReadOnlyCollection<BundlePackage> bundlePackages)
-      : base(bundlePackages)
+    public UpdateStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
+      : base(bootstrapperApplicationModel)
     {
     }
     
     public IStep Next()
     {
-      foreach (var bundlePackage in _bundlePackages)
+      foreach (var bundlePackage in _bootstrapperApplicationModel.BundlePackages)
       {
         if (bundlePackage.CurrentInstallState == PackageState.Absent)
         {
           bundlePackage.RequestedInstallState = RequestState.Present;
         }
       }
-      return new InstallOverviewStep(_bundlePackages);
+      return new InstallOverviewStep(_bootstrapperApplicationModel);
     }
 
     public bool CanGoNext()

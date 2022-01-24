@@ -34,7 +34,7 @@ namespace MP2BootstrapperApp.ViewModels
       : base(step)
     {
       Packages = new ObservableCollection<Package>();
-      foreach (BundlePackage package in step.BundlePackages)
+      foreach (BundlePackage package in step.BootstrapperApplicationModel.BundlePackages)
       {
         Packages.Add(new Package
         {
