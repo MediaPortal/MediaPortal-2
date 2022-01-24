@@ -84,8 +84,7 @@
       </Label>
     </Grid>
 
-    <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                                    VerticalAlignment="Center">
+    <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center">
       <media:VideoStreamAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -101,13 +100,21 @@
             <StackPanel Orientation="Horizontal" Grid.Column="1" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" >
               <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="5,0,0,0" VerticalAlignment="Center">
                 <Label.Content>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60 &gt; 0 ? {0}/60 : {0}">
                     <Binding Path="Duration"/>
                   </MultiBinding>
                 </Label.Content>
               </Label>
               <Label Content=" " VerticalAlignment="Center"/>
-              <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60 &gt; 0 ? {1} : {2}">
+                    <Binding Path="Duration"/>
+                    <Binding Source="[Media.Minutes]"/>
+                    <Binding Source="[Media.Seconds]"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
             </StackPanel>
           </Grid>
         </ControlTemplate>
