@@ -71,6 +71,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ActionType.cs" />
+    <Compile Include="BootstrapperWrapper\Hresult.cs" />
     <Compile Include="ChainPackages\Vc2019x64.cs" />
     <Compile Include="PackageStateToVisibilityConverter.cs" />
     <Compile Include="BootstrapperWrapper\BootstrapperApplicationWrapper.cs" />
@@ -95,6 +96,7 @@
     <Compile Include="InstallType.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
     <Compile Include="Models\Package.cs" />
+    <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />
     <Compile Include="ViewModels\ModifyPageViewModel.cs" />
     <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />
     <Compile Include="ViewModels\RepairPageViewModel.cs" />
@@ -103,6 +105,9 @@
     <Compile Include="ViewModels\WizardStepViewModelBuilder.cs" />
     <Compile Include="Views\InstallationInProgressPageView.xaml.cs">
       <DependentUpon>InstallationInProgressPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallErrorPageView.xaml.cs">
+      <DependentUpon>InstallErrorPageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ModifyPageView.xaml.cs">
       <DependentUpon>ModifyPageView.xaml</DependentUpon>
@@ -119,6 +124,7 @@
     <Compile Include="WizardSteps\AbstractInstallStep.cs" />
     <Compile Include="WizardSteps\InstallationInProgressStep.cs" />
     <Compile Include="WizardSteps\InstallExistInstallStep.cs" />
+    <Compile Include="WizardSteps\InstallErrorStep.cs" />
     <Compile Include="WizardSteps\InstallFinishStep.cs" />
     <Compile Include="WizardSteps\ModifyStep.cs" />
     <Compile Include="WizardSteps\RepairStep.cs" />
@@ -171,6 +177,10 @@
     <Page Include="Views\InstallationInProgressPageView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\InstallErrorPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\InstallExistTypePageView.xaml">
       <SubType>Designer</SubType>

@@ -22,21 +22,13 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.IO;
-using System.Linq;
-using System.Reflection;
-using System.Windows.Input;
-using System.Xml.Linq;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BootstrapperWrapper;
-using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
 using Prism.Commands;
 using Prism.Mvvm;
+using System.Windows.Input;
 
 namespace MP2BootstrapperApp.ViewModels
 {
@@ -136,15 +128,14 @@ namespace MP2BootstrapperApp.ViewModels
 
         if (_currentPage != null)
         {
-          _currentPage.IsCurrentPage = false;
+          _currentPage.Detach();
         }
          
         _currentPage = value;
 
         if (_currentPage != null)
         {
-          _currentPage.IsCurrentPage = true;
-          _currentPage.WizardViewModel = this;
+          _currentPage.Attach(this);
         }
 
         RaisePropertyChanged();
@@ -199,7 +190,7 @@ namespace MP2BootstrapperApp.ViewModels
     }
 
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
-    {
+    {      
       GoToStep(new InstallExistInstallStep(_bootstrapperApplicationModel));
     }
 
@@ -236,7 +227,14 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
-      GoToStep(new InstallFinishStep(_dispatcher));
+      if (Hresult.Succeeded(e.Status))
+      {
+        GoToStep(new InstallFinishStep(_dispatcher));
+      }
+      else
+      {
+        GoToStep(new InstallErrorStep(_dispatcher));
+      }
     }
 
     private void CacheAcquireProgress(object sender, CacheAcquireProgressEventArgs e)

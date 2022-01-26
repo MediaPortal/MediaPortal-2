@@ -22,37 +22,33 @@
 
 #endregion
 
-using MP2BootstrapperApp.WizardSteps;
-using Prism.Mvvm;
+using MP2BootstrapperApp.BootstrapperWrapper;
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp.WizardSteps
 {
-  public abstract class InstallWizardPageViewModelBase : BindableBase
+  public class InstallErrorStep : IStep
   {
-    protected InstallWizardViewModel _wizardViewModel;
-    protected IStep _step;
+    private readonly IDispatcher _dispatcher;
 
-    public InstallWizardPageViewModelBase(IStep step)
+    public InstallErrorStep(IDispatcher dispatcher)
     {
-      _step = step;
+      _dispatcher = dispatcher;
     }
 
-    public virtual void Attach(InstallWizardViewModel parent)
+    public IStep Next()
     {
-      _wizardViewModel = parent;
-      UpdateWizardViewModel(parent);
+      _dispatcher.InvokeShutdown();
+      return null;
     }
 
-    public virtual void Detach()
+    public bool CanGoNext()
     {
-
+      return true;
     }
 
-    protected virtual void UpdateWizardViewModel(InstallWizardViewModel viewModel)
+    public bool CanGoBack()
     {
-      viewModel.ButtonNextContent = "Next";
-      viewModel.ButtonBackContent = "Back";
-      viewModel.ButtonCancelContent = "Abort";
+      return false;
     }
   }
 }
