@@ -134,6 +134,50 @@ namespace TvMosaic.API
     [DataMember(Name = "cat_special", EmitDefaultValue = false, Order = 62)]
     public bool CatSpecial { get; set; }
 
+    [DataMember(Name = "cat_action", EmitDefaultValue = false, Order = 63)]
+    public bool CatAction { get; set; }
+
+    [DataMember(Name = "cat_comedy", EmitDefaultValue = false, Order = 64)]
+    public bool CatComedy { get; set; }
+
+    [DataMember(Name = "cat_documentary", EmitDefaultValue = false, Order = 65)]
+    public bool CatDocumentary { get; set; }
+
+    [DataMember(Name = "cat_drama", EmitDefaultValue = false, Order = 66)]
+    public bool CatDrama { get; set; }
+
+    [DataMember(Name = "cat_educational", EmitDefaultValue = false, Order = 66)]
+    public bool CatEducational { get; set; }
+
+    [DataMember(Name = "cat_horror", EmitDefaultValue = false, Order = 67)]
+    public bool CatHorror { get; set; }
+
+    [DataMember(Name = "cat_kids", EmitDefaultValue = false, Order = 68)]
+    public bool CatKids { get; set; }
+
+    [DataMember(Name = "cat_music", EmitDefaultValue = false, Order = 69)]
+    public bool CatMusic { get; set; }
+
+    [DataMember(Name = "cat_reality", EmitDefaultValue = false, Order = 70)]
+    public bool CatReality { get; set; }
+
+    [DataMember(Name = "cat_romance", EmitDefaultValue = false, Order = 71)]
+    public bool CatRomance { get; set; }
+
+    [DataMember(Name = "cat_scifi", EmitDefaultValue = false, Order = 72)]
+    public bool CatScifi { get; set; }
+
+    [DataMember(Name = "cat_soap", EmitDefaultValue = false, Order = 73)]
+    public bool CatSoap { get; set; }
+
+    [DataMember(Name = "cat_sports", EmitDefaultValue = false, Order = 73)]
+    public bool CatSports { get; set; }
+
+    [DataMember(Name = "cat_thriller", EmitDefaultValue = false, Order = 74)]
+    public bool CatThriller { get; set; }
+
+    [DataMember(Name = "cat_adult", EmitDefaultValue = false, Order = 75)]
+    public bool CatAdult { get; set; }
   }
 
   [DataContract(Name = "recorded_tv", Namespace = "")]

@@ -34,6 +34,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using MediaPortal.Common.MediaManagement.Helpers;
+using MediaPortal.Common.Services.GenreConverter;
 using TvMosaic.API;
 using TvMosaic.Shared;
 using TvMosaicMetadataExtractor.ResourceAccess;
@@ -116,6 +118,22 @@ namespace TvMosaicMetadataExtractor
       MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_ENDTIME, startTime.AddSeconds(recordedTV.VideoInfo.Duration));
       MediaItemAspect.SetAttribute(extractedAspectData, RecordingAspect.ATTR_CHANNEL, recordedTV.ChannelName);
 
+      IGenreConverter converter = ServiceRegistration.Get<IGenreConverter>();
+
+      extractedAspectData.Remove(GenreAspect.ASPECT_ID);
+      var genres = recordedTV.VideoInfo.MapGenres();
+      var genreInfos = genres.Select(g => new GenreInfo { Name = g.Trim() }).ToList();
+
+      foreach (var genre in genreInfos)
+      {
+        if (!genre.Id.HasValue && converter.GetGenreId(genre.Name, GenreCategory.Series, null, out int genreId))
+          genre.Id = genreId;
+
+        MultipleMediaItemAspect genreAspect = MediaItemAspect.CreateAspect(extractedAspectData, GenreAspect.Metadata);
+        genreAspect.SetAttribute(GenreAspect.ATTR_ID, genre.Id);
+        genreAspect.SetAttribute(GenreAspect.ATTR_GENRE, genre.Name);
+      }
+
       if (!string.IsNullOrEmpty(recordedTV.Thumbnail))
       {
         byte[] thumbnailData = await DownloadThumbnail(recordedTV.Thumbnail);
@@ -157,7 +175,7 @@ namespace TvMosaicMetadataExtractor
         return false;
 
       await ExtractRecordedTvMetadata(ra, extractedAspectData, recordedTV);
-      
+
       return true;
     }
 
