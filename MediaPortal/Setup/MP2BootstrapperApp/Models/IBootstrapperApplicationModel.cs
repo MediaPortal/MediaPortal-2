@@ -9,6 +9,7 @@ namespace MP2BootstrapperApp.Models
   {
     IBootstrapperApp BootstrapperApplication { get; }
     ReadOnlyCollection<BundlePackage> BundlePackages { get; }
+    DetectionState DetectionState { get; set; }
     int FinalResult { get; set; }
     void SetWindowHandle(Window view);
     void PlanAction(LaunchAction action);

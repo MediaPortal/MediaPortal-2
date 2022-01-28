@@ -33,16 +33,13 @@ namespace MP2BootstrapperApp.WizardSteps
     {
     }
 
-    public ActionType ActionType { get; set; } = ActionType.Update;
+    public ActionType ActionType { get; set; } = ActionType.Modify;
 
     public IStep Next()
     {
       IStep nextStep;
       switch (ActionType)
       {
-        case ActionType.Update:
-          nextStep = new UpdateStep(_bootstrapperApplicationModel);
-          break;
         case ActionType.Modify:
           nextStep = new ModifyStep(_bootstrapperApplicationModel);
           break;

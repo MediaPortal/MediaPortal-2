@@ -39,7 +39,7 @@ namespace MP2BootstrapperApp.ViewModels
       Initializing,
       Present,
       NotPresent,
-      Applaying,
+      Applying,
       Canceled
     }
 
@@ -179,7 +179,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void CancelInstall()
     {
-      if (State == InstallState.Applaying)
+      if (State == InstallState.Applying)
       {
         State = InstallState.Canceled;
       }
@@ -189,9 +189,20 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
-    private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
-    {      
-      GoToStep(new InstallExistInstallStep(_bootstrapperApplicationModel));
+    private void DetectComplete(object sender, DetectCompleteEventArgs e)
+    {
+      DetectionState detectionState = _bootstrapperApplicationModel.DetectionState;
+      // Current version installed, show the repair/modify/uninstall step
+      if (detectionState == DetectionState.Present)
+      {
+        GoToStep(new InstallExistInstallStep(_bootstrapperApplicationModel));
+      }
+      // Different version installed, show upgrade step.
+      // ToDo: Downgrade step?
+      else if (detectionState == DetectionState.Newer || detectionState == DetectionState.Older)
+      {
+        GoToStep(new UpdateStep(_bootstrapperApplicationModel));
+      }
     }
 
     protected void PlanComplete(object sender, PlanCompleteEventArgs e)
@@ -206,7 +217,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void ApplyBegin(object sender, ApplyBeginEventArgs e)
     {
-      State = InstallState.Applaying;
+      State = InstallState.Applying;
     }
 
     protected void ExecutePackageBegin(object sender, ExecutePackageBeginEventArgs e)
@@ -261,7 +272,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void WireUpEventHandlers()
     {
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperDetectRelatedBundle += DetectRelatedBundle;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperDetectComplete += DetectComplete;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperPlanComplete += PlanComplete;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyComplete += ApplyComplete;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyBegin += ApplyBegin;

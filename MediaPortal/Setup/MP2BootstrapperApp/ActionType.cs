@@ -26,7 +26,6 @@ namespace MP2BootstrapperApp
 {
   public enum ActionType
   {
-    Update,
     Modify,
     Repair,
     Uninstall

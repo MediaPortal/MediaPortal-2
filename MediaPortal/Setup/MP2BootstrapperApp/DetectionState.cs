@@ -22,38 +22,16 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.Models;
-
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp
 {
-  public class UpdateStep : AbstractInstallStep, IStep
+  /// <summary>
+  /// The states of detection.
+  /// </summary>
+  public enum DetectionState
   {
-    public UpdateStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
-      : base(bootstrapperApplicationModel)
-    {
-    }
-    
-    public IStep Next()
-    {
-      foreach (var bundlePackage in _bootstrapperApplicationModel.BundlePackages)
-      {
-        if (bundlePackage.CurrentInstallState == PackageState.Absent)
-        {
-          bundlePackage.RequestedInstallState = RequestState.Present;
-        }
-      }
-      return new InstallOverviewStep(_bootstrapperApplicationModel);
-    }
-
-    public bool CanGoNext()
-    {
-      return true;
-    }
-
-    public bool CanGoBack()
-    {
-      return false;
-    }
+    Absent,
+    Present,
+    Newer,
+    Older
   }
 }

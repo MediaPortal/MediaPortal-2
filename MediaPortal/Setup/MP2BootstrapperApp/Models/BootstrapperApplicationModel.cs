@@ -50,8 +50,8 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication = bootstreApplication;
       _hwnd = IntPtr.Zero;
       _packageContext = new PackageContext();
-      WireUpEventHandlers();
       ComputeBundlePackages();
+      WireUpEventHandlers();
     }
 
     public IBootstrapperApp BootstrapperApplication { get; }
@@ -59,6 +59,8 @@ namespace MP2BootstrapperApp.Models
     public int FinalResult { get; set; }
 
     public ReadOnlyCollection<BundlePackage> BundlePackages { get; private set; }
+
+    public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 
     public void SetWindowHandle(Window view)
     {
@@ -78,6 +80,16 @@ namespace MP2BootstrapperApp.Models
     public void LogMessage(LogLevel logLevel, string message)
     {
       BootstrapperApplication.Engine.Log(logLevel, message);
+    }
+
+    private void DetectBegin(object sender, DetectBeginEventArgs e)
+    {
+      DetectionState = e.Installed ? DetectionState.Present : DetectionState.Absent;
+    }
+
+    private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
+    {
+      DetectionState = e.Operation == RelatedOperation.Downgrade ? DetectionState.Newer : DetectionState.Older;
     }
 
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs detectPackageCompleteEventArgs)
@@ -155,6 +167,8 @@ namespace MP2BootstrapperApp.Models
 
     private void WireUpEventHandlers()
     {
+      BootstrapperApplication.WrapperDetectBegin += DetectBegin;
+      BootstrapperApplication.WrapperDetectRelatedBundle += DetectRelatedBundle;
       BootstrapperApplication.WrapperDetectPackageComplete += DetectedPackageComplete;
       BootstrapperApplication.WrapperApplyComplete += ApplyComplete;
       BootstrapperApplication.WrapperPlanPackageBegin += PlanPackageBegin;

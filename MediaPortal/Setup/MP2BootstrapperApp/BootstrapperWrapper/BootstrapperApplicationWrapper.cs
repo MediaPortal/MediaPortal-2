@@ -5,6 +5,12 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
 {
   public abstract class BootstrapperApplicationWrapper : BootstrapperApplication, IBootstrapperApp
   {
+    public event EventHandler<DetectBeginEventArgs> WrapperDetectBegin
+    {
+      add { DetectBegin += value; }
+      remove { DetectBegin -= value; }
+    }
+
     public event EventHandler<DetectRelatedBundleEventArgs> WrapperDetectRelatedBundle
     {
       add { DetectRelatedBundle += value; }
@@ -15,6 +21,12 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     {
       add { DetectPackageComplete += value; }
       remove { DetectPackageComplete -= value; }
+    }
+
+    public event EventHandler<DetectCompleteEventArgs> WrapperDetectComplete
+    {
+      add { DetectComplete += value; }
+      remove { DetectComplete -= value; }
     }
 
     public event EventHandler<PlanCompleteEventArgs> WrapperPlanComplete
