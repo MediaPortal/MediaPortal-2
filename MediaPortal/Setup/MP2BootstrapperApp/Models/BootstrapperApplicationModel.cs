@@ -110,28 +110,9 @@ namespace MP2BootstrapperApp.Models
           PackageId bundlePackageId = bundlePackage.GetId();
           Version installed = _packageContext.GetInstalledVersion(bundlePackageId);
           bundlePackage.InstalledVersion = installed;
-          bundlePackage.CurrentInstallState = GetInstallState(installed, bundlePackage.GetVersion());
+          bundlePackage.CurrentInstallState = detectPackageCompleteEventArgs.State;
         }
       }
-    }
-
-    private PackageState GetInstallState(Version installed, Version bundled)
-    {
-      PackageState state;
-      int comparisonResult = installed.CompareTo(bundled);
-      if (comparisonResult > 0)
-      {
-        state = PackageState.Present;
-      }
-      else if (comparisonResult < 0)
-      {
-        state = PackageState.Absent;
-      }
-      else
-      {
-        state = PackageState.Present;
-      }
-      return state;
     }
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
@@ -156,7 +137,12 @@ namespace MP2BootstrapperApp.Models
         BundlePackage bundlePackage = BundlePackages.FirstOrDefault(p => p.GetId() == id);
         if (bundlePackage != null)
         {
-          planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
+          // All packages should have the correct requested state by default for a complete installation (determined based on InstallCondition),
+          // any that aren't already requested Present shouldn't be changed as we only set Requested packages to Absent (rather than vice versa)
+          // when doing a partial install of only the client/server. Any packages marked absent before this point are either already present or
+          // not valid for this machine (e.g. a 64bit package on a 32bit machine).
+          if (planPackageBeginEventArgs.State == RequestState.Present)
+            planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
         }
       }
     }
