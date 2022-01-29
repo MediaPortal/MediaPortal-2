@@ -62,6 +62,8 @@ namespace MP2BootstrapperApp.Models
 
     public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 
+    public LaunchAction LaunchAction { get; set; } = LaunchAction.Unknown;
+
     public void SetWindowHandle(Window view)
     {
       _hwnd = new WindowInteropHelper(view).Handle;
@@ -69,6 +71,7 @@ namespace MP2BootstrapperApp.Models
 
     public void PlanAction(LaunchAction action)
     {
+      LaunchAction = action;
       BootstrapperApplication.Engine.Plan(action);
     }
 
@@ -143,6 +146,11 @@ namespace MP2BootstrapperApp.Models
 
     private void UpdatePackageRequestState(PlanPackageBeginEventArgs planPackageBeginEventArgs)
     {
+      // Don't override the BA's default state when uninstalling or repairing, let it use
+      // the appropriate state based on the packages' current install state.
+      if (LaunchAction == LaunchAction.Uninstall || LaunchAction == LaunchAction.Repair)
+        return;
+
       if (Enum.TryParse(planPackageBeginEventArgs.PackageId, out PackageId id))
       {
         BundlePackage bundlePackage = BundlePackages.FirstOrDefault(p => p.GetId() == id);
