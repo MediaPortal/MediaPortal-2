@@ -194,7 +194,7 @@
   <ResourceWrapper x:Key="InfoScreenGradientColor3" Resource="#F2000000"/>
 
   <ResourceWrapper x:Key="OSDProgressBarBackgroundColor" Resource="#636363"/>
-  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#009999"/>
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="{ThemeResource NereusColorLight}"/>
 
   <!-- ************************** Black theme colors ****************************** -->
 

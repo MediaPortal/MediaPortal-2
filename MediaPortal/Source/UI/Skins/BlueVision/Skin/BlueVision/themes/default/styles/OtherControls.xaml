@@ -637,11 +637,11 @@
         <Grid.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="16" BorderThickness="0" BorderBrush="Black"/>
+              <Border Name="mask" Background="White" CornerRadius="17" BorderThickness="0" BorderBrush="Black"/>
             </VisualBrush.Visual>
           </VisualBrush>
         </Grid.OpacityMask>
-        <!-- Light blue background fill -->
+        <!-- Background fill -->
         <Rectangle Grid.Row="0" Grid.Column="0" Grid.RowSpan="2"
             x:Name="HomeFill" Fill="#FF808080" Opacity="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
         <!-- Image -->
@@ -649,10 +649,10 @@
                Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.jpg}"/>
         <!-- Darkened band -->
         <Rectangle Grid.Row="1" Grid.Column="0" Fill="#FF000000" Opacity="0.749"
-                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,0" />
+                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
         <!-- Item label -->
         <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding [Name]}"
-               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,0,0,0"/>
+               FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}"/>
       </Grid>
     </Grid>
   </DataTemplate>

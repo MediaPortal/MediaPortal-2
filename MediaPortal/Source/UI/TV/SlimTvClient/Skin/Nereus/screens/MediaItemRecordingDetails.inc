@@ -4,8 +4,9 @@
   xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+  xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
   xmlns:tv="clr-namespace:MediaPortal.Plugins.SlimTv.Client.Models.AspectWrappers;assembly=SlimTv.Client"
-  x:Name="MediaItemDetails" Margin="30,220,40,60"
+  x:Name="MediaItemDetails" Margin="30,220,40,95"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
@@ -22,7 +23,7 @@
   </Grid.ColumnDefinitions>
 
   <tv:RecordingAspectWrapper Grid.Row="1" Grid.Column="1" MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,30">
+                             HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,0,10">
     <tv:RecordingAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
@@ -66,6 +67,20 @@
       </media:EpisodeAspectWrapper>
     </Grid>
 
+    <Grid IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+      <Image Source="HomeContentIcons\genre.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0" 
+             VerticalAlignment="Center" HorizontalAlignment="Left"/>
+      <Label x:Name="Genre" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis" Margin="40,0,-100,0"
+             Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource MultiAspectAttributeConverter}">
+            <Binding Source="{StaticResource FanArtBackgroundModel}" Path="MediaItem"/>
+            <Binding Source="{x:Static aspect:GenreAspect.ATTR_GENRE}" />
+          </MultiBinding>
+        </Label.Content>
+      </Label>
+    </Grid>
+
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
@@ -79,31 +94,44 @@
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
-    <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
+
+    <media:VideoStreamAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Center">
       <media:VideoStreamAspectWrapper.Template>
         <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                IsVisible="{Binding ElementName=Duration, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-            <Image Source="HomeContentIcons\duration.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
-                   IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"
-                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <StackPanel Orientation="Horizontal">
-              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center"
-                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="40,0,0,0">
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="1,-1,4,1"
+                   VerticalAlignment="Center" HorizontalAlignment="Left" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="1" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" >
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="5,0,0,0" VerticalAlignment="Center">
                 <Label.Content>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60">
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60 &gt; 0 ? {0}/60 : {0}">
                     <Binding Path="Duration"/>
                   </MultiBinding>
                 </Label.Content>
               </Label>
-              <Label Content=" " IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" VerticalAlignment="Center"/>
-              <Label Content="[Media.Minutes]" Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallFontSize}"
-                     IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" VerticalAlignment="Center"/>
+              <Label Content=" " VerticalAlignment="Center"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60 &gt; 0 ? {1} : {2}">
+                    <Binding Path="Duration"/>
+                    <Binding Source="[Media.Minutes]"/>
+                    <Binding Source="[Media.Seconds]"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
             </StackPanel>
           </Grid>
         </ControlTemplate>
       </media:VideoStreamAspectWrapper.Template>
     </media:VideoStreamAspectWrapper>
+
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" >
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
@@ -117,11 +145,14 @@
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
+
+  </StackPanel>
+
     <tv:RecordingAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                               HorizontalAlignment="Left" VerticalAlignment="Top">
+                               Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom">
       <tv:RecordingAspectWrapper.Template>
         <ControlTemplate>
-          <Image x:Name="ChannelLogo" Width="100" Margin="0,10,0,0"
+          <Image x:Name="ChannelLogo" Width="200" Margin="0,10,10,0"
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                  Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top"
                  IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=Channel,Converter={StaticResource ReferenceToBoolConverter}}">
@@ -133,10 +164,10 @@
         </ControlTemplate>
       </tv:RecordingAspectWrapper.Template>
     </tv:RecordingAspectWrapper>
-  </StackPanel>
+
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1" Opacity="0.6" Color="{ThemeResource TextColor}"
          TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
-         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Margin="0,50,20,25"/>
+         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Margin="0,50,20,0"/>
 
 </Grid>

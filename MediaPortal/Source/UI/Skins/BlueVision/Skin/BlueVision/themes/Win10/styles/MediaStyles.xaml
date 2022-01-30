@@ -89,7 +89,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,43,0" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -121,32 +121,7 @@
           </MultiBinding>
         </Label.Opacity>
       </Label>
-
-      <!--Control x:Name="ListViewCover" Grid.Row="0" Grid.Column="0" Grid.RowSpan="2" Margin="0,0,8,0"
-               Template="{ThemeResource FilterCoverTemplate}" RenderTransformOrigin="0.5,0.5"
-               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
-        <Control.LayoutTransform>
-          <ScaleTransform>
-            <ScaleTransform.ScaleX>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
-                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
-                <Binding Source="0.5"/>
-                <Binding Source="0.7"/>
-                <Binding Source="1"/>
-              </MultiBinding>
-            </ScaleTransform.ScaleX>
-            <ScaleTransform.ScaleY>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Small} ? {1} : ({0} == {LayoutSize}.{Medium} ? {2}: {3})">
-                <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize"/>
-                <Binding Source="0.5"/>
-                <Binding Source="0.7"/>
-                <Binding Source="1"/>
-              </MultiBinding>
-            </ScaleTransform.ScaleY>
-          </ScaleTransform>
-        </Control.LayoutTransform>
-      </-->
-
+      
       <Grid x:Name="FocusDetails" Grid.Row="1" Grid.Column="1" Margin="0,0,30,0"
             HorizontalAlignment="Stretch"
             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}">
@@ -239,7 +214,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewContainerItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,43,0" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -381,7 +356,7 @@
   <!-- Series Filter -->
 
   <ControlTemplate x:Key="ListViewSeriesFilterItemTemplate">
-    <Grid x:Name="ItemControl" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -490,7 +465,7 @@
   <!-- Series Season Filter -->
 
   <ControlTemplate x:Key="ListViewSeriesSeasonFilterItemTemplate">
-    <Grid x:Name="ItemControl" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -615,7 +590,7 @@
   <!--++++++++++++++++++++ Series Episodes ++++++++++++++++++++++-->
 
   <ControlTemplate x:Key="ListViewEpisodeItemTemplate">
-    <Grid x:Name="ItemControl" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -763,7 +738,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewMovieFilterItemTemplate">
-    <Grid x:Name="ItemControl" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -825,7 +800,7 @@
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
   <ControlTemplate x:Key="GridViewMovieItemTemplate">
-    <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
@@ -876,7 +851,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewMovieItemTemplate">
-    <Grid x:Name="ItemControl" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1003,7 +978,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewVideoItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,43,0" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1067,7 +1042,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewAudioItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,43,0" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1176,7 +1151,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewAlbumItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,43,0" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1287,7 +1262,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewImageItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,45,0" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1346,7 +1321,7 @@
       </Grid.RowDefinitions>
       <Image x:Name="Thumb" Source="{Binding MediaItem}" Stretch="Uniform"
              HorizontalAlignment="Center" VerticalAlignment="Center"/>
-      <Image Stretch="Uniform" Source="E1748A80-347C-4E1A-8A26-DABEC246A540.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+      <Image Stretch="Uniform" Source="E1748A80-347C-4E1A-8A26-DABEC246A600.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
              Margin="30" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
       <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
@@ -1374,7 +1349,7 @@
             <ImageSourceWrapper Delay="0" DelayInOut="false" Transition="transitions\dissolve" TransitionDuration="0" Source="{Binding MediaItem}"/>
           </Image.Source>
         </Image>
-        <Image Stretch="Uniform" Source="E1748A80-347C-4E1A-8A26-DABEC246A540.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
+        <Image Stretch="Uniform" Source="E1748A80-347C-4E1A-8A26-DABEC246A600.png" IsVisible="{Binding ElementName=Thumb, Path=!HasImage}"
                Margin="80" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6"/>
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
@@ -1419,7 +1394,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewPersonFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,45,0" Width="540">
+    <Grid x:Name="ItemControl" Margin="0,0,45,0" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1529,7 +1504,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewSeriesGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,45,0" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1635,7 +1610,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewMovieGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,45,0" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -1741,7 +1716,7 @@
   </ControlTemplate>
 
   <ControlTemplate x:Key="ListViewAudioGenreFilterItemTemplate">
-    <Grid x:Name="ItemControl" Margin="0,0,45,0" Width="540">
+    <Grid x:Name="ItemControl" Width="600">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
@@ -2074,8 +2049,8 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Style="{ThemeResource MediaItemButtonWideStyle}" Margin="5,0,0,5"
-              Command="{DynamicResource ResourceKey=Menu_Command}"
-              IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -2214,7 +2189,7 @@
                   <ControlTemplate TargetType="{x:Type ListView}">
                     <ScrollViewer CanContentScroll="True" Margin="25,5,5,5" Style="{ThemeResource HorizontalGradientScrollViewerStyle}"
                                   HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-                      <ItemsPresenter VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Width="1900"/>
+                      <ItemsPresenter VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Width="{SkinWidth}"/>
                     </ScrollViewer>
                   </ControlTemplate>
                 </Binding.Source>

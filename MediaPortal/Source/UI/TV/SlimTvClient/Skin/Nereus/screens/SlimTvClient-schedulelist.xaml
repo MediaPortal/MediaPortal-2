@@ -117,14 +117,14 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,0,0,100">
+          <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,50,0,100">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
               <CheckBox x:Name="EnableSeriesModeCheckbox" Margin="-5,5,0,5" Style="{ThemeResource DefaultCheckBoxStyle}"
                         IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}" Content="{Binding}" VerticalAlignment="Center" />
               <Label Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource TextColor}" Margin="7,10,10,10" VerticalAlignment="Center" />
             </StackPanel>
 
-            <Button x:Name="NewScheduleButton" Style="{ThemeResource ButtonWideStyle}" Margin="55,0,10,10"
+            <Button x:Name="NewScheduleButton" Style="{ThemeResource ButtonWideStyle}" Margin="50,0,10,10"
                     HorizontalAlignment="Left" VerticalAlignment="Top" Content="[SlimTvClient.NewSchedule]"
                     Command="{Command Source={StaticResource SlimTvManualSchedule}, Path=Show}" />
           </StackPanel>

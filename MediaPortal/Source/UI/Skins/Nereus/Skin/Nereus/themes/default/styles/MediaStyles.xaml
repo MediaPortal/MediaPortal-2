@@ -471,42 +471,56 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
-          <Grid x:Name="PlayerGrid" Margin="10"  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
+          <Grid x:Name="PlayerGrid" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                HorizontalAlignment="Stretch" VerticalAlignment="Bottom" Width="{SkinWidth}">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
               <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
+              <RowDefinition Height="110"/>
             </Grid.RowDefinitions>
 
-            <Image Source="PlayerControl\BOTTOM.RIGHT.SHADOW.PNG" Stretch="Fill" Height="90" Margin="0,-10,-20,-20" Opacity="0.8" Grid.Column="1" Grid.Row="1" />
+            <Grid.Background>
+              <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+                <GradientStop Color="#00000000" Offset="0"/>
+                <GradientStop Color="#FF000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Grid.Background>
 
-            <DockPanel x:Name="HeadLine" Grid.Row="0" Grid.Column="0" LastChildFill="True" HorizontalAlignment="Center">
-              <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" FontFamily="SegoeUIBold"
-                     Color="{ThemeResource TextColor}" HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <DockPanel HorizontalAlignment="Stretch" VerticalAlignment="Center" LastChildFill="False" Margin="10">
+              <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" DockPanel.Dock="Left"  VerticalAlignment="Center" HorizontalAlignment="Left">
+                <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}" Command="{Command Stop}"/>
+                <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}" Command="{Command Previous}"/>
+                <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}" Command="{Command Play}"/>
+                <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}" Command="{Command Pause}"/>
+                <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}" Command="{Command Next}"/>
+              </StackPanel>
+
+              <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="10" Content="{Binding Path=MediaItemTitle}" FontFamily="SegoeUIBold"
+                     Color="{ThemeResource TextColor}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
+
+              <StackPanel x:Name="NavigateControlsPanel" Orientation="Horizontal" DockPanel.Dock="Right"  VerticalAlignment="Center" HorizontalAlignment="Right">
+                <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
+                <Button x:Name="PlayingInfoButton" Style="{ThemeResource PlayerInfoButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=5764A810-F298-4a20-BF84-F03D16F775B1}"/>
+                <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        Command="{Command AudioButtonPressed}"/>
+                <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        Command="{Command AudioButtonPressed}"/>
+                <StackPanel Orientation="Vertical" Margin="0,3,1,-3">
+                  <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}"  
+                          Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
+                  <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}"
+                          Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}"/>
+                </StackPanel>
+                <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                <Button x:Name="CloseButton" Style="{ThemeResource CloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                        Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+              </StackPanel>
             </DockPanel>
-
-            <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="0" Margin="0"
-                        VerticalAlignment="Center" HorizontalAlignment="Right">
-              <StackPanel.LayoutTransform>
-                <TransformGroup>
-                  <ScaleTransform ScaleX="1.3" ScaleY="1.3"/>
-                </TransformGroup>
-              </StackPanel.LayoutTransform>
-              <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}"
-                      Command="{Command Stop}"/>
-              <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}"
-                      Command="{Command Previous}"/>
-              <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
-                      Command="{Command Play}"/>
-              <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
-                      Command="{Command Pause}"/>
-              <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}"
-                      Command="{Command Next}"/>
-            </StackPanel>
-              <!-- PlayControlsPanel -->
-            </Grid>
+          </Grid>
           <!-- OSD_Background -->
           <ControlTemplate.Triggers>
             <Trigger Property="IsCurrentPlayer" Value="True">

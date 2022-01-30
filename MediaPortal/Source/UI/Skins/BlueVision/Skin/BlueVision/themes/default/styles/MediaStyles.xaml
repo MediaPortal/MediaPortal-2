@@ -847,8 +847,13 @@
   <!-- +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++ -->
 
   <ControlTemplate x:Key="GridViewMovieItemTemplate">
-    <Grid Width="{StaticResource MEDIA_POSTER_WIDTH}" Height="{StaticResource MEDIA_POSTER_HEIGHT}" Margin="3,2,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
-      <Grid>
+    <Grid Margin="3,2.5,3,2" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="{StaticResource MEDIA_POSTER_HEIGHT}"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="{StaticResource MEDIA_POSTER_WIDTH}"/>
+      </Grid.ColumnDefinitions>
         <Grid.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
@@ -862,8 +867,7 @@
                fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
           </Image.Source>
         </Image>
-        <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
-      </Grid>
+      <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
     </Grid>
   </ControlTemplate>
 
@@ -877,7 +881,7 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
 
-      <Grid Grid.Row="1" Background="#BF666666" >
+      <Grid Grid.Row="1" Background="#BF666666" Margin="1,0,1,1">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -887,7 +891,7 @@
         <Grid.OpacityMask>
           <VisualBrush>
             <VisualBrush.Visual>
-              <Border Name="mask" Background="White" CornerRadius="{ThemeResource MediumRadius}" BorderThickness="0" BorderBrush="Black"/>
+              <Border Name="mask" Background="White" CornerRadius="{ThemeResource LargeRadius}" BorderThickness="0" BorderBrush="Black"/>
             </VisualBrush.Visual>
           </VisualBrush>
         </Grid.OpacityMask>
@@ -900,7 +904,7 @@
         <Control HorizontalAlignment="Right" VerticalAlignment="Top" Template="{StaticResource Cover_WatchedFlag_Template}"/>
       </Grid>
 
-      <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadiusFocus}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
+      <Border Grid.Row="1" CornerRadius="{ThemeResource MediumRadius}" BorderBrush="{ThemeResource MediaItemsFocusedBorderBrush}"
               BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-5.5"
               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
     </Grid>

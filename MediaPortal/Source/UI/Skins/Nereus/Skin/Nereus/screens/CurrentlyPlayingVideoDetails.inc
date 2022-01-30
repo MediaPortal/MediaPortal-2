@@ -17,52 +17,23 @@
     <RowDefinition Height="*"/>
   </Grid.RowDefinitions>
   <Grid.ColumnDefinitions>
-    <ColumnDefinition Width="600"/>
+    <ColumnDefinition Width="455"/>
     <ColumnDefinition Width="*"/>
   </Grid.ColumnDefinitions>
 
-  <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Width="294" Height="428" Margin="0,-30,10,30">
-    <Image HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Width="294" Height="428">
+  <Grid Grid.Row="1" Grid.Column="1" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,10,30">
+    <Image HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Fill" Width="456" Height="316" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}">
       <Image.Source>
-        <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
-                            Source="Poster_large.png"/>
+        <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" Source="Thumbnail_large.png"/>
       </Image.Source>
     </Image>
-    <Image x:Name="MoviePoster" HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Fill" Margin="8" Width="278" Height="412">
+    <Image x:Name="fallback_thumb" Stretch="UniformToFill" Grid.Row="1" Grid.Column="1" VerticalAlignment="Bottom" Margin="8,8,8,6" Width="440" Height="302">
       <Image.Source>
-        <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="Poster" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                  fanart:MaxWidth="{StaticResource FANART_POSTER_WIDTH}" fanart:MaxHeight="{StaticResource FANART_POSTER_HEIGHT}"/>
+        <ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5" VerticalTextureAlignment="Bottom"
+                            Source="{Binding MediaItem}"/>
       </Image.Source>
     </Image>
-    <Image HorizontalAlignment="Center" VerticalAlignment="Center" Stretch="Uniform" Width="200" Height="200"
-           Source="video.png" IsVisible="{Binding ElementName=MoviePoster, Path=!HasImage}"/>
   </Grid>
-
-  <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" Grid.Column="1"
-                            IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableAgeCertificationLogos}">
-    <media:MovieAspectWrapper.Template>
-      <ControlTemplate>
-        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-              IsVisible="{Binding Path=Certification,Converter={StaticResource ReferenceToBoolConverter}}">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Image HorizontalAlignment="Right" VerticalAlignment="Bottom" Stretch="Uniform" Height="80" MaxWidth="150" Margin="0,-30,15,30">
-            <Image.Source>
-              <ImageSourceWrapper Delay="0" DelayInOut="false" VerticalTextureAlignment="Bottom" HorizontalTextureAlignment="Right">
-                <ImageSourceWrapper.Source>
-                  <Binding Path="Certification" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Certification\{0}.png"/>
-                </ImageSourceWrapper.Source>
-              </ImageSourceWrapper>
-            </Image.Source>
-          </Image>
-        </Grid>
-      </ControlTemplate>
-    </media:MovieAspectWrapper.Template>
-  </media:MovieAspectWrapper>
 
   <media:VideoAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch" Grid.Row="1" 
                             IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableAutoScrolling}">
@@ -109,51 +80,14 @@
 
   <StackPanel Grid.ColumnSpan="2" Grid.Row="0" Margin="0,0,10,0" VerticalAlignment="Stretch" Orientation="Vertical">
 
-    <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Stretch">
-      <media:MovieAspectWrapper.Template>
-        <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="MediaItemName" Wrap="True" TextTrimming="WordEllipsis"
-                   VerticalAlignment="Stretch" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
-                   Content="{Binding MovieName}" Color="{ThemeResource TextColor}"/>
-          </Grid>
-        </ControlTemplate>
-      </media:MovieAspectWrapper.Template>
-    </media:MovieAspectWrapper>
+    <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer">
+      <mp_special_controls:PlayerControl.TemplateControl>
+        <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+               Content="{Binding MediaItemTitle}" Margin="0,0,-100,0" Wrap="True" TextTrimming="WordEllipsis" VerticalAlignment="Stretch"
+               DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
+      </mp_special_controls:PlayerControl.TemplateControl>
+    </mp_special_controls:PlayerControl>
     
-    <StackPanel Orientation="Horizontal">
-      <media:MovieAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Center">
-        <media:MovieAspectWrapper.Template>
-          <ControlTemplate>
-            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,3,0,3">
-                <StarRatingPanel x:Name="RatingReadOnly" IsReadOnly="True" StarReadOnlyTemplate="{StaticResource StarReadOnlyTemplate}"
-                                 Maximum="5" VerticalAlignment="Center" IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
-                  <StarRatingPanel.Value>
-                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
-                      <Binding Path="TotalRating"/>
-                    </MultiBinding>  
-                  </StarRatingPanel.Value>
-                  <StarRatingPanel.LayoutTransform>
-                    <TransformGroup>
-                      <ScaleTransform ScaleX="1.6" ScaleY="1.5"/>
-                    </TransformGroup>
-                  </StarRatingPanel.LayoutTransform>
-                </StarRatingPanel>
-                <Label x:Name="RatingCountLabel" Color="{ThemeResource TextColorForeground}" Margin="15,2,5,1" 
-                       FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Center"
-                       IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}">
-                  <Label.Content>
-                    <Binding Path="TotalRating" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}({0:F1})"/>
-                  </Label.Content>
-                </Label>
-              </StackPanel>
-            </Grid>
-          </ControlTemplate>
-        </media:MovieAspectWrapper.Template>
-      </media:MovieAspectWrapper>      
-    </StackPanel>
-
     <media:MediaAspectWrapper MediaItem="{Binding MediaItem}">
         <media:MediaAspectWrapper.Template>
           <ControlTemplate>
@@ -163,7 +97,7 @@
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" 
                      Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center" Margin="40,0,0,0"
-                     Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" />
+                     Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" />
             </Grid>
           </ControlTemplate>
         </media:MediaAspectWrapper.Template>
@@ -183,26 +117,42 @@
       </Label>
     </Grid>
 
-    <media:MovieAspectWrapper MediaItem="{Binding MediaItem}"
-                              VerticalAlignment="Center" >
-      <media:MovieAspectWrapper.Template>
+    <media:VideoStreamAspectWrapper MediaItem="{Binding MediaItem}" VerticalAlignment="Center">
+      <media:VideoStreamAspectWrapper.Template>
         <ControlTemplate>
-          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" 
-                IsVisible="{Binding ElementName=Duration, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-            <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="3,-1,4,1"
-                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <StackPanel Orientation="Horizontal">
-              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
-                     IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"
-                     Content="{Binding Path=Runtime}" VerticalAlignment="Center" Margin="40,0,0,0"/>
-              <Label Content=" " IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}" VerticalAlignment="Center"/>
-              <Label Content="[Media.Minutes]" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
-                     IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}" VerticalAlignment="Center"/>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="1,-1,4,1"
+                   VerticalAlignment="Center" HorizontalAlignment="Left" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
+            <StackPanel Orientation="Horizontal" Grid.Column="1" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" >
+              <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="5,0,0,0" VerticalAlignment="Center">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60 &gt; 0 ? {0}/60 : {0}">
+                    <Binding Path="Duration"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label Content=" " VerticalAlignment="Center"/>
+              <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/60 &gt; 0 ? {1} : {2}">
+                    <Binding Path="Duration"/>
+                    <Binding Source="[Media.Minutes]"/>
+                    <Binding Source="[Media.Seconds]"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
             </StackPanel>
           </Grid>
         </ControlTemplate>
-      </media:MovieAspectWrapper.Template>
-    </media:MovieAspectWrapper>
+      </media:VideoStreamAspectWrapper.Template>
+    </media:VideoStreamAspectWrapper>
 
     <StackPanel Orientation="Horizontal" Margin="30,0,0,0">
       <media:UserDataWrapper MediaItem="{Binding MediaItem}">
@@ -360,7 +310,6 @@
         </Image.Source>
       </Image>
     </StackPanel>
-
   </StackPanel>
 
 </Grid>

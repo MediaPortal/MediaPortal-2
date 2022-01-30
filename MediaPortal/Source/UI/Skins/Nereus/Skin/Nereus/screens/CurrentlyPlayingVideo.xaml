@@ -38,16 +38,37 @@
     </ControlTemplate>
 
     <ControlTemplate x:Key="FanArtBackground_Template">
+      <ControlTemplate.Resources>
+        <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+      </ControlTemplate.Resources>
       <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer">
         <mp_special_controls:PlayerControl.TemplateControl>
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Image x:Name="FanArtImageBackground" Stretch="UniformToFill">
+            <Image x:Name="FanArtImageBackground_Movie" Stretch="UniformToFill">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Image.IsVisible>
               <Image.Source>
-                <fanart:FanArtImageSource fanart:FanArtMediaType="Other" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                           fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
               </Image.Source>
             </Image>
-            <Image Stretch="Fill" Source="Background_ListView.png"/>
+            <Image x:Name="FanArtImageBackground_Series" Stretch="UniformToFill">
+              <Image.IsVisible>
+                <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                  <Binding Path="MediaItem"  />
+                  <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
+                </MultiBinding>
+              </Image.IsVisible>
+              <Image.Source>
+                <fanart:FanArtImageSource fanart:FanArtMediaType="Episode" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                          fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
+              </Image.Source>
+            </Image>
+            <Image Stretch="Fill" Source="Background_ListView.png" Opacity="0.92"/>
           </Grid>
         </mp_special_controls:PlayerControl.TemplateControl>
       </mp_special_controls:PlayerControl>
@@ -81,10 +102,28 @@
                 <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
               </Grid.Resources>
 
-              <Image x:Name="FanArtImageBackgroundOverlay" Stretch="Uniform" VerticalAlignment="Top">
+              <Image Stretch="Uniform" VerticalAlignment="Top">
+                <Image.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"  />
+                    <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Image.IsVisible>
                 <Image.Source>
-                  <fanart:FanArtImageSource fanart:FanArtMediaType="Other" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
-                                            fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="Movie" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                        fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
+                </Image.Source>
+              </Image>
+              <Image Stretch="Uniform" VerticalAlignment="Top">
+                <Image.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"  />
+                    <Binding Source="{x:Static aspect:EpisodeAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Image.IsVisible>
+                <Image.Source>
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="Episode" fanart:FanArtType="FanArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                        fanart:MaxWidth="{SkinWidth}" fanart:MaxHeight="{SkinHeight}"/>
                 </Image.Source>
               </Image>
               <Image Stretch="Fill" Source="List_overlay.png"/>
@@ -155,14 +194,14 @@
                           </Image>
                         </Grid>
 
-                        <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                        <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" IsVisible="{Binding Path=AspectWidth,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Image.Source>
-                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 340 ? {1} : ({0} &lt; 460 ? {2} : ({0} &lt; 520 ? {3} : ({0} &lt; 570 ? {4} : ({0} &lt; 700 ? {5} : ({0} &lt; 1000 ? {6} : ({0} &lt; 2000 ? {7} : ({0} &lt; 4000 ? {8} : {9})))))))">
+                            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{1} &lt; 320 ? {2} : ({1} &lt; 450 ? {3} : ((({1} &lt; 485) &amp;&amp; ({0} &lt; 725)) ? {4} : ((({0} &lt; 725) &amp;&amp; ({1} &lt; 580)) ? {5} : ({0} &lt; 1285 ? {6} : ({0} &lt; 1925 ? {7} : ({0} &lt; 3845 ? {8} : {9}))))))">
+                              <Binding Path="AspectWidth"/>
                               <Binding Path="AspectHeight"/>
                               <Binding Source="Medialogos\resolution\240.png"/>
                               <Binding Source="Medialogos\resolution\360.png"/>
                               <Binding Source="Medialogos\resolution\480.png"/>
-                              <Binding Source="Medialogos\resolution\540.png"/>
                               <Binding Source="Medialogos\resolution\576.png"/>
                               <Binding Source="Medialogos\resolution\720p.png"/>
                               <Binding Source="Medialogos\resolution\1080p.png"/>
@@ -172,7 +211,7 @@
                           </Image.Source>
                         </Image>
 
-                        <Grid HorizontalAlignment="Center">
+                        <Grid HorizontalAlignment="Center" IsVisible="{Binding Path=AspectWidth,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Source="Medialogos\aspectratio\aspectratio.png"/>
                           <Label Margin="8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
                                HorizontalAlignment="Center" VerticalAlignment="Bottom">
@@ -239,6 +278,18 @@
                   </Control.TemplateControl>
                 </Control>
 
+                <Control x:Name="Info_Video" Grid.Row="1" Margin="0,0,0,100">
+                  <Control.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible}))">
+                      <Binding ElementName="Info_Movie" Path="Visibility" />
+                      <Binding ElementName="Info_Series" Path="Visibility" />
+                    </MultiBinding>
+                  </Control.IsVisible>
+                  <Control.TemplateControl>
+                    <Include Source="screens\CurrentlyPlayingVideoDetails.inc"/>
+                  </Control.TemplateControl>
+                </Control>
+
               </Grid>
             </Grid>
 
@@ -249,6 +300,9 @@
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
               </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
 
               <!-- AUDIO INFO TAB-->
               <Grid HorizontalAlignment="Stretch">
@@ -288,6 +342,13 @@
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
+                <Grid.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem" />
+                    <Binding Source="{x:Static aspect:SubtitleAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Grid.IsVisible>
+
                 <Grid Margin="200,15,0,-2">
                   <Image Source="HomeContentIcons\language.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1" 
                          VerticalAlignment="Center" HorizontalAlignment="Left"/>
@@ -309,21 +370,14 @@
               <!-- Actors -->
               <Grid HorizontalAlignment="Stretch" Grid.Row="2">
                 <Grid.RowDefinitions>
-                  <RowDefinition Height="45"/>
+                  <RowDefinition Height="Auto"/>
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid Margin="200,15,0,-2">
-                  <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
-                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                  <Label x:Name="Actors" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Actors"/>
-                </Grid>
-
-                <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
+                <ListView x:Name="actorlist" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1" 
                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
                   <ListView.ItemsSource>
                     <RelationshipQuery
@@ -333,26 +387,35 @@
                        LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
                   </ListView.ItemsSource>
                 </ListView>
+
+                <Grid Margin="200,10,0,-5">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                  </Grid.RowDefinitions>
+                  <Grid.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                      <Binding ElementName="actorlist" Path="ItemsSource.Count" />
+                    </MultiBinding>
+                  </Grid.IsVisible>
+                  <Image Source="HomeContentIcons\person.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                  <Label x:Name="Actors" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Actors"/>
+                </Grid>
+
               </Grid>
 
               <!-- Director -->
               <Grid HorizontalAlignment="Stretch" Grid.Row="3">
                 <Grid.RowDefinitions>
-                  <RowDefinition Height="45"/>
+                  <RowDefinition Height="Auto"/>
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
-                <Grid Margin="200,15,0,-2">
-                  <Image Source="HomeContentIcons\director.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
-                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
-                  <Label x:Name="Director" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
-                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Director"/>
-                </Grid>
-
-                <ListView Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
+                <ListView x:Name="directorlist" Style="{ThemeResource PersonCPListViewStyle}" Grid.Row="1"
                           HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
                   <ListView.ItemsSource>
                     <RelationshipQuery
@@ -362,6 +425,22 @@
                        LinkedMediaItemId="{Binding Source={Binding MediaItem}, Path=MediaItemId}"/>
                   </ListView.ItemsSource>
                 </ListView>
+
+                <Grid Margin="200,10,0,-5">
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="40"/>
+                  </Grid.RowDefinitions>
+                  <Grid.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                      <Binding ElementName="directorlist" Path="ItemsSource.Count" />
+                    </MultiBinding>
+                  </Grid.IsVisible>
+                  <Image Source="HomeContentIcons\director.png" Height="27" Width="27" Stretch="Uniform" Margin="0,1,5,-1"
+                         VerticalAlignment="Center" HorizontalAlignment="Left"/>
+                  <Label x:Name="Director" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.5"
+                         Color="{ThemeResource TextColor}" VerticalAlignment="Center" Margin="40,0,0,0" Content="Director"/>
+                </Grid>
+
               </Grid>
 
               <!-- Collection -->
@@ -373,6 +452,13 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="300"/>
                 </Grid.ColumnDefinitions>
+
+                <Grid.IsVisible>
+                  <MultiBinding Converter="{StaticResource MediaItemAspectToBoolConverter}">
+                    <Binding Path="MediaItem"  />
+                    <Binding Source="{x:Static aspect:MovieAspect.ASPECT_ID}" />
+                  </MultiBinding>
+                </Grid.IsVisible>
 
                 <Grid.Triggers>
                   <DataTrigger Binding="{Binding ElementName=CollectionLabel, Path=Visibility}" Value="Hidden">
