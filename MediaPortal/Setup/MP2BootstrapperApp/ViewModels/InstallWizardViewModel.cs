@@ -37,9 +37,12 @@ namespace MP2BootstrapperApp.ViewModels
     public enum InstallState
     {
       Initializing,
-      Present,
-      NotPresent,
+      Detecting,
+      Waiting,
+      Planning,
       Applying,
+      Applied,
+      Failed,
       Canceled
     }
 
@@ -191,6 +194,15 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void DetectComplete(object sender, DetectCompleteEventArgs e)
     {
+      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
+      if (display == Display.None || display == Display.Passive)
+      {
+        _bootstrapperApplicationModel.PlanAction(_bootstrapperApplicationModel.BootstrapperApplication.Command.Action);
+        if (display == Display.Passive)
+          GoToStep(new InstallationInProgressStep(_bootstrapperApplicationModel));
+        return;
+      }
+
       DetectionState detectionState = _bootstrapperApplicationModel.DetectionState;
       // Current version installed, show the repair/modify/uninstall step
       if (detectionState == DetectionState.Present)
@@ -238,6 +250,13 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
+      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
+      if (display == Display.None || display == Display.Passive)
+      {
+        _dispatcher.InvokeShutdown();
+        return;
+      }
+
       if (Hresult.Succeeded(e.Status))
       {
         GoToStep(new InstallFinishStep(_dispatcher));

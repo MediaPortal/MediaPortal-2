@@ -23,6 +23,7 @@
 #endregion
 
 using System.Windows;
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
@@ -51,7 +52,9 @@ namespace MP2BootstrapperApp
 
       Engine.Detect();
 
-      view.Show();
+      if (Command.Display != Display.None)
+        view.Show();
+
       _dispatcher.Run();
       Engine.Quit(model.FinalResult);
     }
