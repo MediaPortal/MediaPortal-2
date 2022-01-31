@@ -32,31 +32,31 @@ namespace TvMosaic.Shared
     /// Holds the host name or IP address of the TvMosaic service, this is used on clients and the server
     /// so should be an address that is accessible from all machines on the network.
     /// </summary>
-    [Setting(SettingScope.User, "localhost")]
+    [Setting(SettingScope.Global, "localhost")]
     public string Host { get; set; }
 
     /// <summary>
     /// Holds the port to use to connect of the TvMosaic service.
     /// </summary>
-    [Setting(SettingScope.User, 9270)]
+    [Setting(SettingScope.Global, 9270)]
     public int Port { get; set; }
 
     /// <summary>
     /// When TvMosaic is configured to require authentication, this Username is used for establishing the connection.
     /// </summary>
-    [Setting(SettingScope.User)]
+    [Setting(SettingScope.Global)]
     public string Username { get; set; }
 
     /// <summary>
     /// When TvMosaic is configured to require authentication, this Password is used for establishing the connection.
     /// </summary>
-    [Setting(SettingScope.User)]
+    [Setting(SettingScope.Global)]
     public string Password { get; set; }
 
     /// <summary>
     /// Holds the last selected channel group ID.
     /// </summary>
-    [Setting(SettingScope.User)]
+    [Setting(SettingScope.Global)]
     public int LastChannelGroupId { get; set; }
   }
 }
