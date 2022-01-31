@@ -18,7 +18,7 @@
             SummaryCodepage="!(loc.SummaryCodepage)"
             InstallScope="perMachine" />
 
-		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." />
+		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowSameVersionUpgrades="yes" />
 		<MediaTemplate EmbedCab="yes" />
 
 	  <!-- Directories -->

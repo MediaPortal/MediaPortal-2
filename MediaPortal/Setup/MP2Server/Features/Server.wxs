@@ -44,7 +44,7 @@
 
       <Component Id="Server.Registry.InstallDir" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
         <RegistryKey Root="HKLM"
-                     Key="Software\[Manufacturer]\[ProductName]">
+                     Key="$(var.RegKeyRoot)">
           <RegistryValue Type="string" Name="INSTALLDIR_SERVER" Value="[INSTALLDIR_SERVER]"/>
         </RegistryKey>
         <CreateFolder />
