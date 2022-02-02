@@ -18,7 +18,6 @@
             SummaryCodepage="!(loc.SummaryCodepage)"
             InstallScope="perMachine" />
 
-		<MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowSameVersionUpgrades="yes" />
 		<MediaTemplate EmbedCab="yes" />
 
 	  <!-- Directories -->
@@ -122,6 +121,20 @@
       <RemoveExistingProducts After="InstallInitialize" />
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>     -->
+
+    <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowSameVersionUpgrades="yes" Schedule="afterInstallInitialize" />
+
+    <!-- The old MP2 Setup had a single MSI with this upgrade code, we have since split the MSI into separate MSIs with different upgrade codes.
+         We want to make sure the old MSI is uninstalled before any of our new MSIs are installed otherwise it is uninstalled at the end of the
+         installation when the old Bootstrapper bundle is removed, removing most of the installation files with it and breaking the new install.
+         We could have given the MP2Common MSI the same upgrade code, which would have automatically uninstalled the old single MSI, but then
+         successful installation would have been dependent on the MP2Common MSI always being installed first, in addition the old MSI upgrade code
+         was the same as the bundle upgrade code, which seemed to work OK but isn't recommended so we should move to new independent upgrade codes.
+         This tag is present and identical in each of the new MSIs to ensure the order of the new MSI installation doesn't matter and the old
+         MSI is always removed before any new files are installed. -->
+    <Upgrade Id="9743129C-FED3-404A-A66E-3C1557BE0178">
+      <UpgradeVersion Property="OLDMP2SETUP" IncludeMinimum="yes" Minimum="0.0.0" />
+    </Upgrade>
     
 	</Product>
 </Wix>
