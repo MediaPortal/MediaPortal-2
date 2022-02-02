@@ -52,7 +52,7 @@ namespace MP2BootstrapperApp
 
       Engine.Detect();
 
-      if (Command.Display != Display.None)
+      if (Command.Display == Display.Full || Command.Display == Display.Passive)
         view.Show();
 
       _dispatcher.Run();

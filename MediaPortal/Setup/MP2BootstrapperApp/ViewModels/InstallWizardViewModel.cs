@@ -194,12 +194,25 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void DetectComplete(object sender, DetectCompleteEventArgs e)
     {
-      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
-      if (display == Display.None || display == Display.Passive)
+      LaunchAction launchAction = _bootstrapperApplicationModel.BootstrapperApplication.Command.Action;
+      if (launchAction == LaunchAction.Uninstall)
       {
-        _bootstrapperApplicationModel.PlanAction(_bootstrapperApplicationModel.BootstrapperApplication.Command.Action);
-        if (display == Display.Passive)
-          GoToStep(new InstallationInProgressStep(_bootstrapperApplicationModel));
+        _bootstrapperApplicationModel.PlanAction(launchAction);
+        GoToStep(new InstallationInProgressStep(_bootstrapperApplicationModel));
+        return;
+      }
+
+      if (!Hresult.Succeeded(e.Status))
+      {
+        GoToStep(new InstallErrorStep(_dispatcher));
+        return;
+      }
+
+      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
+      if (display != Display.Full)
+      {
+        _bootstrapperApplicationModel.PlanAction(launchAction);
+        GoToStep(new InstallationInProgressStep(_bootstrapperApplicationModel));
         return;
       }
 
@@ -251,7 +264,7 @@ namespace MP2BootstrapperApp.ViewModels
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
       Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
-      if (display == Display.None || display == Display.Passive)
+      if (display != Display.Full)
       {
         _dispatcher.InvokeShutdown();
         return;
