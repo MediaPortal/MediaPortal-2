@@ -124,6 +124,16 @@
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>     -->
 
+    <InstallExecuteSequence>
+      <!-- Stop all MP2 processes -->
+      <Custom Action="StopProcesses" Before="FileCost"/>
+      <Custom Action="ListenerServiceDeleteReservation" Before="InstallFinalize">Installed</Custom>
+      <Custom Action="ListenerServiceAddReservation" Before="InstallFinalize">NOT Installed</Custom>
+      <Custom Action="FirewallPortRemove" Before="InstallFinalize">Installed</Custom>
+      <Custom Action="FirewallPortAdd" Before="InstallFinalize">NOT Installed</Custom>
+      <InstallExecute After="RemoveExistingProducts" />
+    </InstallExecuteSequence>
+
     <MajorUpgrade DowngradeErrorMessage="A newer version of [ProductName] is already installed." AllowSameVersionUpgrades="yes" Schedule="afterInstallInitialize" />
     
     <!-- The old MP2 Setup had a single MSI with this upgrade code, we have since split the MSI into separate MSIs with different upgrade codes.
