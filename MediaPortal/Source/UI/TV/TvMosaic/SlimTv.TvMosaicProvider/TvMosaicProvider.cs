@@ -531,23 +531,35 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
     {
-      var programId = program.ProgramId;
-      var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
-      if (sResult.Status == StatusCode.STATUS_OK)
+      var scheduledPrograms = await _dvbLink.GetRecordings(new RecordingsRequest());
+      bool success = scheduledPrograms.Status == StatusCode.STATUS_OK;
+      if (success)
       {
-        var schedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && ToUniqueProgramId(s.ByEpg.ChannelId, s.ByEpg.ProgramId) == programId);
-        if (schedule != null)
+        foreach (var scheduledProgram in scheduledPrograms.Result)
         {
-          var result = await _dvbLink.RemoveSchedule(new ScheduleRemover(schedule.ScheduleID));
-          return result.Status == StatusCode.STATUS_OK;
+          if (scheduledProgram.Program.Id == program.ProgramId.ToString())
+          {
+            // Only remove single program from schedule
+            if (recordingType == ScheduleRecordingType.Once)
+            {
+              var response = await _dvbLink.RemoveRecording(new RecordingRemover(scheduledProgram.RecordingId));
+              success = response.Status == StatusCode.STATUS_OK;
+            }
+            else
+            {
+              // Remove full schedule
+              var response = await _dvbLink.RemoveSchedule(new ScheduleRemover(scheduledProgram.ScheduleId));
+              success = response.Status == StatusCode.STATUS_OK;
+            }
+          }
         }
       }
-
-      return false;
+      return success;
     }
 
     public async Task<bool> RemoveScheduleAsync(ISchedule schedule)
     {
+      // Schedule means here the single / series definition what to record. The actual "timer" for a single program is named "recording" inside TvMosaic API.
       var result = await _dvbLink.RemoveSchedule(new ScheduleRemover(schedule.ScheduleId.ToString()));
       return result.Status == StatusCode.STATUS_OK;
     }
@@ -559,17 +571,21 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
-      var programId = program.ProgramId;
-      var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
-      if (sResult.Status == StatusCode.STATUS_OK)
+      var scheduledPrograms = await _dvbLink.GetRecordings(new RecordingsRequest());
+      IList<IProgram> programs = new List<IProgram>();
+      RecordingStatus status = RecordingStatus.None;
+      bool success = scheduledPrograms.Status == StatusCode.STATUS_OK;
+      if (success)
       {
-        var createdSchedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && ToUniqueProgramId(s.ByEpg.ChannelId, s.ByEpg.ProgramId) == programId);
-        if (createdSchedule != null)
+        foreach (var scheduledProgram in scheduledPrograms.Result)
         {
-          return new AsyncResult<RecordingStatus>(true, RecordingStatus.Scheduled);
+          if (scheduledProgram.Program.Id == program.ProgramId.ToString())
+          {
+            status = RecordingStatus.Scheduled;
+          }
         }
       }
-      return new AsyncResult<RecordingStatus>(true, RecordingStatus.None);
+      return new AsyncResult<RecordingStatus>(success, status);
     }
 
     public Task<AsyncResult<string>> GetRecordingFileOrStreamAsync(IProgram program)
@@ -579,38 +595,18 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
     {
-      var schedules = await _dvbLink.GetSchedules(new SchedulesRequest());
-      if (schedules.Status == StatusCode.STATUS_OK)
+      var scheduledPrograms = await _dvbLink.GetRecordings(new RecordingsRequest());
+      IList<IProgram> programs = new List<IProgram>();
+      bool success = scheduledPrograms.Status == StatusCode.STATUS_OK;
+      if (success)
       {
-        var requestedSchedule = schedules.Result.FirstOrDefault(s => s.ScheduleID == schedule.ScheduleId.ToString());
-        if (requestedSchedule != null)
+        foreach (Recording recording in scheduledPrograms.Result.Where(r => r.ScheduleId == schedule.ScheduleId.ToString()))
         {
-          MPProgram program = null;
-          if (requestedSchedule.ByEpg != null)
-          {
-            program = ToProgram(requestedSchedule.ByEpg.Program, requestedSchedule.ByEpg.ChannelId);
-            program.RecordingStatus = requestedSchedule.ByEpg.IsRepeat ? RecordingStatus.SeriesScheduled : RecordingStatus.Scheduled;
-            var now = DateTime.Now;
-            if (now > program.StartTime && now <= program.EndTime)
-              program.RecordingStatus |= requestedSchedule.ByEpg.IsRepeat ? RecordingStatus.RecordingSeries : RecordingStatus.RecordingOnce;
-          }
-
-          if (requestedSchedule.Manual != null)
-          {
-            program = ToProgram(requestedSchedule.Manual);
-            var now = DateTime.Now;
-            if (now > program.StartTime && now <= program.EndTime)
-              program.RecordingStatus |= RecordingStatus.RecordingOnce;
-          }
-
-          if (program == null)
-            return new AsyncResult<IList<IProgram>>(false, null);
-
-          IList<IProgram> programs = new List<IProgram> { program };
-          return new AsyncResult<IList<IProgram>>(true, programs);
+          MPProgram program = ToProgram(recording.Program);
+          programs.Add(program);
         }
       }
-      return new AsyncResult<IList<IProgram>>(false, null);
+      return new AsyncResult<IList<IProgram>>(success, programs);
     }
 
     public async Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
