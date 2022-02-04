@@ -42,7 +42,9 @@ namespace MP2BootstrapperApp
     {
       _dispatcher = new DispatcherWrapper();
 
+#if DEBUG
       MessageBox.Show("dd");
+#endif
 
       IBootstrapperApplicationModel model = new BootstrapperApplicationModel(this);
       InstallWizardViewModel viewModel = new InstallWizardViewModel(model, _dispatcher);
