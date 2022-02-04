@@ -33,6 +33,8 @@ namespace MP2BootstrapperApp.ViewModels
     public UpdatePageViewModel(UpdateStep step)
       : base(step)
     {
+      Header = "Update MediaPortal 2";
+
       Packages = new ObservableCollection<Package>();
       foreach (BundlePackage package in step.BootstrapperApplicationModel.BundlePackages)
       {
@@ -48,11 +50,5 @@ namespace MP2BootstrapperApp.ViewModels
     }
     
     public ObservableCollection<Package> Packages { get; }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Update MediaPortal 2";
-    }
   }
 }

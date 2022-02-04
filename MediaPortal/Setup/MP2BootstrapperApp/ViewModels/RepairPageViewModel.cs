@@ -31,12 +31,7 @@ namespace MP2BootstrapperApp.ViewModels
     public RepairPageViewModel(RepairStep step)
       : base(step)
     {
-    }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Repair installation";
+      Header = "Repair installation";
     }
   }
 }

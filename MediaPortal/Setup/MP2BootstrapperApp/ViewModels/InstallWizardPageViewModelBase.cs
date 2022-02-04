@@ -29,30 +29,49 @@ namespace MP2BootstrapperApp.ViewModels
 {
   public abstract class InstallWizardPageViewModelBase : BindableBase
   {
-    protected InstallWizardViewModel _wizardViewModel;
     protected IStep _step;
+
+    private string _header;
+    private string _buttonNextContent = "Next";
+    private string _buttonBackContent = "Back";
+    private string _buttonCancelContent = "Abort";
 
     public InstallWizardPageViewModelBase(IStep step)
     {
       _step = step;
     }
 
-    public virtual void Attach(InstallWizardViewModel parent)
+    public string Header
     {
-      _wizardViewModel = parent;
-      UpdateWizardViewModel(parent);
+      get { return _header; }
+      set { SetProperty(ref _header, value); }
+    }
+
+    public string ButtonNextContent
+    {
+      get { return _buttonNextContent; }
+      set { SetProperty(ref _buttonNextContent, value); }
+    }
+
+    public string ButtonBackContent
+    {
+      get { return _buttonBackContent; }
+      set { SetProperty(ref _buttonBackContent, value); }
+    }
+
+    public string ButtonCancelContent
+    {
+      get { return _buttonCancelContent; }
+      set { SetProperty(ref _buttonCancelContent, value); }
+    }
+
+    public virtual void Attach()
+    {
     }
 
     public virtual void Detach()
     {
 
-    }
-
-    protected virtual void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      viewModel.ButtonNextContent = "Next";
-      viewModel.ButtonBackContent = "Back";
-      viewModel.ButtonCancelContent = "Abort";
     }
   }
 }

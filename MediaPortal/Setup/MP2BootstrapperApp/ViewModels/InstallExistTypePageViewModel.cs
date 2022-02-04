@@ -34,6 +34,8 @@ namespace MP2BootstrapperApp.ViewModels
       : base(step)
     {
       _actionType = step.ActionType;
+
+      Header = "Installation already exists";
     }
 
     public ActionType ActionType
@@ -44,12 +46,6 @@ namespace MP2BootstrapperApp.ViewModels
         ((InstallExistInstallStep)_step).ActionType = value;
         SetProperty(ref _actionType, value); 
       }
-    }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Installation already exists";
     }
   }
 }

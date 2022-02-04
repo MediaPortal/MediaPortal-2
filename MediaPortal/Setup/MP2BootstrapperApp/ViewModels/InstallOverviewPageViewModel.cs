@@ -33,6 +33,9 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallOverviewPageViewModel(InstallOverviewStep step)
       : base(step)
     {
+      Header = "Overview";
+      ButtonNextContent = "Install";
+
       Packages = new ObservableCollection<string>();
       foreach (var package in step.BootstrapperApplicationModel.BundlePackages)
       {
@@ -44,12 +47,5 @@ namespace MP2BootstrapperApp.ViewModels
     }
 
     public ObservableCollection<string> Packages { get; }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Overview";
-      viewModel.ButtonNextContent = "Install";
-    }
   }
 }

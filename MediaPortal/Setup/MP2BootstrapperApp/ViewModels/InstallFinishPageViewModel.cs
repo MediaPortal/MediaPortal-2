@@ -31,13 +31,8 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallFinishPageViewModel(InstallFinishStep step)
       : base(step)
     {
-    }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Enjoy your Mediaportal 2 experience";
-      viewModel.ButtonNextContent = "Finish";
+      Header = "Enjoy your Mediaportal 2 experience";
+      ButtonNextContent = "Finish";
     }
   }
 }

@@ -44,7 +44,9 @@ namespace MP2BootstrapperApp.ViewModels
       : base(step)
     {
       _bootstrapperModel = step.BootstrapperApplicationModel;
-      _currentAction = "Installing ...";
+      _currentAction = "Processing ...";
+
+      Header = GetHeaderForAction(_bootstrapperModel.LaunchAction);
     }
 
     public int Progress
@@ -59,9 +61,9 @@ namespace MP2BootstrapperApp.ViewModels
       set { SetProperty(ref _currentAction, value); }
     }
 
-    public override void Attach(InstallWizardViewModel parent)
+    public override void Attach()
     {
-      base.Attach(parent);
+      base.Attach();
       AttachProgressHandlers();
     }
 
@@ -71,11 +73,21 @@ namespace MP2BootstrapperApp.ViewModels
       DetachProgressHandlers();
     }
 
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
+    private string GetHeaderForAction(LaunchAction action)
     {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Installing";
-      viewModel.ButtonNextContent = "Install";
+      switch (action)
+      {
+        case LaunchAction.Install:
+          return "Installing";
+        case LaunchAction.Modify:
+          return "Modifying";
+        case LaunchAction.Repair:
+          return "Repairing";
+        case LaunchAction.Uninstall:
+          return "Uninstalling";
+        default:
+          return "Processing";
+      }
     }
 
     private void AttachProgressHandlers()
@@ -102,7 +114,7 @@ namespace MP2BootstrapperApp.ViewModels
 
       _executeProgress = e.OverallPercentage;
       Progress = (_cacheProgress + _executeProgress) / 2;
-      CurrentAction = $"Installing {packageName}";
+      CurrentAction = $"Processing {packageName}";
     }
   }
 }

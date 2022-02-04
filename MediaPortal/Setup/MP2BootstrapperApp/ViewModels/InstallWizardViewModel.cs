@@ -138,7 +138,7 @@ namespace MP2BootstrapperApp.ViewModels
 
         if (_currentPage != null)
         {
-          _currentPage.Attach(this);
+          _currentPage.Attach();
         }
 
         RaisePropertyChanged();

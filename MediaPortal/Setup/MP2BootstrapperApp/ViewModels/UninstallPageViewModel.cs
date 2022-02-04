@@ -31,12 +31,7 @@ namespace MP2BootstrapperApp.ViewModels
     public UninstallPageViewModel(UninstallStep step)
       : base(step)
     {
-    }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Uninstall Mediaportal";
+      Header = "Uninstall Mediaportal";
     }
   }
 }

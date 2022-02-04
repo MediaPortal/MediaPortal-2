@@ -31,12 +31,7 @@ namespace MP2BootstrapperApp.ViewModels
     public ModifyPageViewModel(ModifyStep step)
       : base(step)
     {
-    }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Modify Installation";
+      Header = "Modify Installation";
     }
   }
 }

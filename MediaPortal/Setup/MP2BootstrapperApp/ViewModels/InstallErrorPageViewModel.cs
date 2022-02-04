@@ -31,13 +31,8 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallErrorPageViewModel(InstallErrorStep step)
       : base(step)
     {
-    }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Installation Error";
-      viewModel.ButtonNextContent = "Finish";
+      Header = "Installation Error";
+      ButtonNextContent = "Finish";
     }
   }
 }

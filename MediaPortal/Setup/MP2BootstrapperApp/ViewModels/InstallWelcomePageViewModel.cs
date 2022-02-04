@@ -31,12 +31,7 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallWelcomePageViewModel(InstallWelcomeStep step)
       : base(step)
     {
-    }
-
-    protected override void UpdateWizardViewModel(InstallWizardViewModel viewModel)
-    {
-      base.UpdateWizardViewModel(viewModel);
-      viewModel.Header = "Welcome to MediaPortal 2";
+      Header = "Welcome to MediaPortal 2";
     }
   }
 }
