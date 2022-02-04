@@ -36,8 +36,8 @@ namespace MP2BootstrapperApp.WizardSteps
     
     public IStep Next()
     {
-      //_bootstrapperApplicationModel.PlanAction(LaunchAction.Uninstall);
-      //_bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "starting uninstallation");
+      _bootstrapperApplicationModel.PlanAction(LaunchAction.Uninstall);
+      _bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "starting uninstallation");
       return new InstallationInProgressStep(_bootstrapperApplicationModel);
     }
 

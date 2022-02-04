@@ -32,6 +32,7 @@ namespace MP2BootstrapperApp.ViewModels
       : base(step)
     {
       Header = "Uninstall Mediaportal";
+      ButtonNextContent = "Uninstall";
     }
   }
 }
