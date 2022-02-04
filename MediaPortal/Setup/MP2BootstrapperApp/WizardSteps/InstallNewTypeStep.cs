@@ -33,16 +33,13 @@ namespace MP2BootstrapperApp.WizardSteps
     public InstallNewTypeStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
       : base(bootstrapperApplicationModel)
     {
-      foreach (BundlePackage package in bootstrapperApplicationModel.BundlePackages)
-      {
-        package.RequestedInstallState = RequestState.None;
-      }
     }
 
     public InstallType InstallType { get; set; } = InstallType.ClientServer;
 
     public IStep Next()
     {
+      ResetRequestedInstallState();
       switch (InstallType)
       {
         case InstallType.ClientServer:
@@ -71,6 +68,14 @@ namespace MP2BootstrapperApp.WizardSteps
       return true;
     }
 
+    private void ResetRequestedInstallState()
+    {
+      foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
+      {
+        package.RequestedInstallState = RequestState.None;
+      }
+    }
+
     private void SetInstallStateForClientAndServer()
     {
       foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
@@ -86,7 +91,8 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
       {
-        if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Client || package.GetId() == PackageId.LAVFilters)
+        PackageId packageId = package.GetId();
+        if (package.CurrentInstallState == PackageState.Present || packageId == PackageId.MP2Client || packageId == PackageId.LAVFilters)
         {
           continue;
         }
@@ -98,7 +104,8 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
       {
-        if (package.CurrentInstallState == PackageState.Present || package.GetId() == PackageId.MP2Server)
+        PackageId packageId = package.GetId();
+        if (package.CurrentInstallState == PackageState.Present || packageId == PackageId.MP2Server || packageId == PackageId.VC2008SP1_x86 || packageId == PackageId.VC2010_x86 || packageId == PackageId.VC2013_x86)
         {
           continue;
         }
