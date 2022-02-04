@@ -426,10 +426,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       };
       var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(currentSchedule.ChannelId).Result;
       if (result.Success)
+      {
         item.SetLabel("ChannelName", result.Result.Name);
+        item.SetLabel("ChannelLogoType", result.Result.GetFanArtMediaType());
+      }
+
       item.SetLabel("StartTime", schedule.StartTime.FormatProgramStartTime());
       item.SetLabel("EndTime", schedule.EndTime.FormatProgramEndTime());
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
+      item.SetLabel("ScheduleTypeEnum", schedule.RecordingType.ToString());
       item.AdditionalProperties["SCHEDULE"] = currentSchedule;
       return item;
     }
@@ -447,8 +452,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         Command = new MethodDelegateCommand(() => ShowActions(schedule, program))
       };
       if (channel != null)
+      {
         item.SetLabel("ChannelName", channel.Name);
+        item.SetLabel("ChannelLogoType", channel.GetFanArtMediaType());
+      }
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
+      item.SetLabel("ScheduleTypeEnum", schedule.RecordingType.ToString());
+
       item.AdditionalProperties["PROGRAM"] = currentProgram;
       item.AdditionalProperties["SCHEDULE"] = schedule;
       return item;
