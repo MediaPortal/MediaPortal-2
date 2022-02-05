@@ -36,10 +36,6 @@ namespace MP2BootstrapperApp.ViewModels
   {
     private readonly IBootstrapperApplicationModel _bootstrapperApplicationModel;
     private InstallWizardPageViewModelBase _currentPage;
-    private string _header;
-    private string _buttonNextContent;
-    private string _buttonBackContent;
-    private string _buttonCancelContent;
     private int _applyPhaseCount = 1;
     private int _progress;
     private int _cacheProgress;
@@ -63,30 +59,6 @@ namespace MP2BootstrapperApp.ViewModels
       BackCommand = new DelegateCommand(() => GoBackStep(), () => _wizard.CanGoBack());
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => !_bootstrapperApplicationModel.Cancelled);
       CurrentPage = new InstallWelcomePageViewModel(welcomeStep);
-    }
-
-    public string Header
-    {
-      get { return _header; }
-      set { SetProperty(ref _header, value); }
-    }
-
-    public string ButtonNextContent
-    {
-      get { return _buttonNextContent; }
-      set { SetProperty(ref _buttonNextContent, value); }
-    }
-
-    public string ButtonBackContent
-    {
-      get { return _buttonBackContent; }
-      set { SetProperty(ref _buttonBackContent, value); }
-    }
-
-    public string ButtonCancelContent
-    {
-      get { return _buttonCancelContent; }
-      set { SetProperty(ref _buttonCancelContent, value); }
     }
 
     public ICommand CancelCommand { get; }
