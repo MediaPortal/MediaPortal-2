@@ -18,6 +18,7 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     event EventHandler<ExecutePackageCompleteEventArgs> WrapperExecutePackageComplete;
     event EventHandler<PlanPackageBeginEventArgs> WrapperPlanPackageBegin;
     event EventHandler<ResolveSourceEventArgs> WrapperResolveSource;
+    event EventHandler<ApplyPhaseCountArgs> WrapperApplyPhaseCount;
     event EventHandler<CacheAcquireProgressEventArgs> WrapperCacheAcquireProgress;
     event EventHandler<ExecuteProgressEventArgs> WrapperExecuteProgress;
   }

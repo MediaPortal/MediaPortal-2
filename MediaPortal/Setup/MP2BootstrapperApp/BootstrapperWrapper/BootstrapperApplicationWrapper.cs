@@ -71,6 +71,12 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
       remove { ResolveSource -= value; }
     }
 
+    public event EventHandler<ApplyPhaseCountArgs> WrapperApplyPhaseCount
+    {
+      add { ApplyPhaseCount += value; }
+      remove { ApplyPhaseCount -= value; }
+    }
+
     public event EventHandler<CacheAcquireProgressEventArgs> WrapperCacheAcquireProgress
     {
       add { CacheAcquireProgress += value; }

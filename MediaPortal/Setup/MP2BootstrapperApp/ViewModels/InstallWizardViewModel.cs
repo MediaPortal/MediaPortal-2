@@ -53,6 +53,7 @@ namespace MP2BootstrapperApp.ViewModels
     private string _buttonBackContent;
     private string _buttonCancelContent;
     private InstallState _state;
+    private int _applyPhaseCount = 1;
     private int _progress;
     private int _cacheProgress;
     private int _executeProgress;
@@ -280,16 +281,21 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
+    private void ApplyPhaseCount(object sender, ApplyPhaseCountArgs e)
+    {
+      _applyPhaseCount = e.PhaseCount;
+    }
+
     private void CacheAcquireProgress(object sender, CacheAcquireProgressEventArgs e)
     {
       _cacheProgress = e.OverallPercentage;
-      Progress = (_cacheProgress + _executeProgress) / 2;
+      Progress = (_cacheProgress + _executeProgress) / _applyPhaseCount;
     }
 
     private void ExecuteProgress(object sender, ExecuteProgressEventArgs e)
     {
       _executeProgress = e.OverallPercentage;
-      Progress = (_cacheProgress + _executeProgress) / 2;
+      Progress = (_cacheProgress + _executeProgress) / _applyPhaseCount;
     }
 
     private void Refresh()
@@ -310,6 +316,7 @@ namespace MP2BootstrapperApp.ViewModels
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyBegin += ApplyBegin;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecutePackageBegin += ExecutePackageBegin;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecutePackageComplete += ExecutePackageComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyPhaseCount += ApplyPhaseCount;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperCacheAcquireProgress += CacheAcquireProgress;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecuteProgress += ExecuteProgress;
     }
