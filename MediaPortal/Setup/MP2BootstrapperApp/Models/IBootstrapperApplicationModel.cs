@@ -11,6 +11,8 @@ namespace MP2BootstrapperApp.Models
     ReadOnlyCollection<BundlePackage> BundlePackages { get; }
     DetectionState DetectionState { get; set; }
     LaunchAction LaunchAction { get; set; }
+    InstallState InstallState { get; set; }
+    bool Cancelled { get; set; }
     int FinalResult { get; set; }
     void SetWindowHandle(Window view);
     void PlanAction(LaunchAction action);

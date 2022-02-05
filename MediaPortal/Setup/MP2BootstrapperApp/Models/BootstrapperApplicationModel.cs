@@ -64,6 +64,10 @@ namespace MP2BootstrapperApp.Models
 
     public LaunchAction LaunchAction { get; set; } = LaunchAction.Unknown;
 
+    public InstallState InstallState { get; set; } = InstallState.Initializing;
+
+    public bool Cancelled { get; set; }
+
     public void SetWindowHandle(Window view)
     {
       _hwnd = new WindowInteropHelper(view).Handle;
@@ -71,12 +75,14 @@ namespace MP2BootstrapperApp.Models
 
     public void PlanAction(LaunchAction action)
     {
+      InstallState = InstallState.Planning;
       LaunchAction = action;
       BootstrapperApplication.Engine.Plan(action);
     }
 
     public void ApplyAction()
     {
+      InstallState = InstallState.Applying;
       BootstrapperApplication.Engine.Apply(_hwnd);
     }
 
@@ -87,6 +93,7 @@ namespace MP2BootstrapperApp.Models
 
     private void DetectBegin(object sender, DetectBeginEventArgs e)
     {
+      InstallState = InstallState.Detecting;
       DetectionState = e.Installed ? DetectionState.Present : DetectionState.Absent;
     }
 
@@ -115,9 +122,28 @@ namespace MP2BootstrapperApp.Models
       }
     }
 
+    private void DetectComplete(object sender, DetectCompleteEventArgs e)
+    {
+      InstallState = Hresult.Succeeded(e.Status) ? InstallState.Waiting : InstallState.Failed;
+    }
+
+    private void PlanComplete(object sender, PlanCompleteEventArgs e)
+    {
+      if (!Cancelled && Hresult.Succeeded(e.Status))
+      {
+        InstallState = InstallState.Applying;
+        ApplyAction();
+      }
+      else
+      {
+        InstallState = InstallState.Failed;
+      }
+    }
+
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
       FinalResult = e.Status;
+      InstallState = Hresult.Succeeded(e.Status) ? InstallState.Applied : InstallState.Failed;
     }
 
     protected void PlanPackageBegin(object sender, PlanPackageBeginEventArgs planPackageBeginEventArgs)
@@ -164,8 +190,10 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication.WrapperDetectBegin += DetectBegin;
       BootstrapperApplication.WrapperDetectRelatedBundle += DetectRelatedBundle;
       BootstrapperApplication.WrapperDetectPackageComplete += DetectedPackageComplete;
+      BootstrapperApplication.WrapperDetectComplete += DetectComplete;
       BootstrapperApplication.WrapperApplyComplete += ApplyComplete;
       BootstrapperApplication.WrapperPlanPackageBegin += PlanPackageBegin;
+      BootstrapperApplication.WrapperPlanComplete += PlanComplete;
       BootstrapperApplication.WrapperResolveSource += ResolveSource;
     }
 

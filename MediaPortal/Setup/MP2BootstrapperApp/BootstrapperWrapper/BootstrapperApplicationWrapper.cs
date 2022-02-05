@@ -29,6 +29,12 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
       remove { DetectComplete -= value; }
     }
 
+    public event EventHandler<PlanBeginEventArgs> WrapperPlanBegin
+    {
+      add { PlanBegin += value; }
+      remove { PlanBegin -= value; }
+    }
+
     public event EventHandler<PlanCompleteEventArgs> WrapperPlanComplete
     {
       add { PlanComplete += value; }
@@ -87,6 +93,12 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     {
       add { ExecuteProgress += value; }
       remove { ExecuteProgress -= value; }
+    }
+
+    public event EventHandler<ErrorEventArgs> WrapperError
+    {
+      add { Error += value; }
+      remove { Error -= value; }
     }
   }
 }

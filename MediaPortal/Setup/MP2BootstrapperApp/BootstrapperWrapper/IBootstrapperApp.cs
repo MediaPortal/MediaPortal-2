@@ -11,6 +11,7 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     event EventHandler<DetectRelatedBundleEventArgs> WrapperDetectRelatedBundle;
     event EventHandler<DetectPackageCompleteEventArgs> WrapperDetectPackageComplete;
     event EventHandler<DetectCompleteEventArgs> WrapperDetectComplete;
+    event EventHandler<PlanBeginEventArgs> WrapperPlanBegin;
     event EventHandler<PlanCompleteEventArgs> WrapperPlanComplete;
     event EventHandler<ApplyCompleteEventArgs> WrapperApplyComplete;
     event EventHandler<ApplyBeginEventArgs> WrapperApplyBegin;
@@ -21,5 +22,6 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     event EventHandler<ApplyPhaseCountArgs> WrapperApplyPhaseCount;
     event EventHandler<CacheAcquireProgressEventArgs> WrapperCacheAcquireProgress;
     event EventHandler<ExecuteProgressEventArgs> WrapperExecuteProgress;
+    event EventHandler<ErrorEventArgs> WrapperError;
   }
 }

@@ -34,25 +34,12 @@ namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallWizardViewModel : BindableBase
   {
-    public enum InstallState
-    {
-      Initializing,
-      Detecting,
-      Waiting,
-      Planning,
-      Applying,
-      Applied,
-      Failed,
-      Canceled
-    }
-
     private readonly IBootstrapperApplicationModel _bootstrapperApplicationModel;
     private InstallWizardPageViewModelBase _currentPage;
     private string _header;
     private string _buttonNextContent;
     private string _buttonBackContent;
     private string _buttonCancelContent;
-    private InstallState _state;
     private int _applyPhaseCount = 1;
     private int _progress;
     private int _cacheProgress;
@@ -65,7 +52,6 @@ namespace MP2BootstrapperApp.ViewModels
     {
       _bootstrapperApplicationModel = model;
       _dispatcher = dispatcher;
-      State = InstallState.Initializing;
 
       WireUpEventHandlers();
 
@@ -75,21 +61,8 @@ namespace MP2BootstrapperApp.ViewModels
 
       NextCommand = new DelegateCommand(() => GoNextStep(), () => _wizard.CanGoNext());
       BackCommand = new DelegateCommand(() => GoBackStep(), () => _wizard.CanGoBack());
-      CancelCommand = new DelegateCommand(() => CancelInstall(), () => State != InstallState.Canceled);
+      CancelCommand = new DelegateCommand(() => CancelInstall(), () => !_bootstrapperApplicationModel.Cancelled);
       CurrentPage = new InstallWelcomePageViewModel(welcomeStep);
-    }
-
-    public InstallState State
-    {
-      get { return _state; }
-      set
-      {
-        if (_state != value)
-        {
-          SetProperty(ref _state, value);
-          Refresh();
-        }
-      }
     }
 
     public string Header
@@ -183,13 +156,14 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void CancelInstall()
     {
-      if (State == InstallState.Applying)
+      _bootstrapperApplicationModel.Cancelled = true;
+      if (_bootstrapperApplicationModel.InstallState != InstallState.Applying)
       {
-        State = InstallState.Canceled;
+        _dispatcher.InvokeShutdown();
       }
       else
       {
-        _dispatcher.InvokeShutdown();
+        Refresh();
       }
     }
 
@@ -205,6 +179,7 @@ namespace MP2BootstrapperApp.ViewModels
 
       if (!Hresult.Succeeded(e.Status))
       {
+        _bootstrapperApplicationModel.InstallState = InstallState.Failed;
         GoToStep(new InstallErrorStep(_dispatcher));
         return;
       }
@@ -231,34 +206,11 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
-    protected void PlanComplete(object sender, PlanCompleteEventArgs e)
+    private void PlanComplete(object sender, PlanCompleteEventArgs e)
     {
-      if (State == InstallState.Canceled)
+      if (!Hresult.Succeeded(e.Status))
       {
-        _dispatcher.InvokeShutdown();
-        return;
-      }
-      _bootstrapperApplicationModel.ApplyAction();
-    }
-
-    protected void ApplyBegin(object sender, ApplyBeginEventArgs e)
-    {
-      State = InstallState.Applying;
-    }
-
-    protected void ExecutePackageBegin(object sender, ExecutePackageBeginEventArgs e)
-    {
-      if (State == InstallState.Canceled)
-      {
-        e.Result = Result.Cancel;
-      }
-    }
-
-    protected void ExecutePackageComplete(object sender, ExecutePackageCompleteEventArgs e)
-    {
-      if (State == InstallState.Canceled)
-      {
-        e.Result = Result.Cancel;
+        GoToStep(new InstallErrorStep(_dispatcher));
       }
     }
 
@@ -277,7 +229,15 @@ namespace MP2BootstrapperApp.ViewModels
       }
       else
       {
-        GoToStep(new InstallErrorStep(_dispatcher));
+        _bootstrapperApplicationModel.InstallState = InstallState.Failed;
+        if (_bootstrapperApplicationModel.Cancelled)
+        {
+          GoToStep(new InstallCancelledStep(_dispatcher));
+        }
+        else
+        {
+          GoToStep(new InstallErrorStep(_dispatcher));
+        }
       }
     }
 
@@ -290,12 +250,18 @@ namespace MP2BootstrapperApp.ViewModels
     {
       _cacheProgress = e.OverallPercentage;
       Progress = (_cacheProgress + _executeProgress) / _applyPhaseCount;
+      e.Result = _bootstrapperApplicationModel.Cancelled ? Result.Cancel : Result.Ok;
     }
 
     private void ExecuteProgress(object sender, ExecuteProgressEventArgs e)
     {
       _executeProgress = e.OverallPercentage;
       Progress = (_cacheProgress + _executeProgress) / _applyPhaseCount;
+      e.Result = _bootstrapperApplicationModel.Cancelled ? Result.Cancel : Result.Ok;
+    }
+
+    private void Error(object sender, ErrorEventArgs e)
+    {
     }
 
     private void Refresh()
@@ -311,14 +277,12 @@ namespace MP2BootstrapperApp.ViewModels
     private void WireUpEventHandlers()
     {
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperDetectComplete += DetectComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperPlanComplete += PlanComplete;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyComplete += ApplyComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyBegin += ApplyBegin;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecutePackageBegin += ExecutePackageBegin;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecutePackageComplete += ExecutePackageComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperPlanComplete += PlanComplete;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyPhaseCount += ApplyPhaseCount;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperCacheAcquireProgress += CacheAcquireProgress;
       _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecuteProgress += ExecuteProgress;
+      _bootstrapperApplicationModel.BootstrapperApplication.WrapperError += Error;
     }
   }
 }
