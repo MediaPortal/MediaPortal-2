@@ -7,7 +7,7 @@ build_script:
 - cmd: >-
     cd c:\project\mediaportal-2\MediaPortal\build\
     
-    MSBUILD_Create_Release_Full_Installer.bat
+    MSBUILD_Create_Release_Full_Installer_NoTransifex.bat
 
     7z a ..\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip ..\Setup\MP2-Setup\Bin\Release\en-us\MP2-Setup.msi
 artifacts:
