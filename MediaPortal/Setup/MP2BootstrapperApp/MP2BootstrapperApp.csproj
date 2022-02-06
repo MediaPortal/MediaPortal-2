@@ -101,6 +101,7 @@
     <Compile Include="Models\Package.cs" />
     <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallInitializingPageViewModel.cs" />
     <Compile Include="ViewModels\ModifyPageViewModel.cs" />
     <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />
     <Compile Include="ViewModels\RepairPageViewModel.cs" />
@@ -115,6 +116,9 @@
     </Compile>
     <Compile Include="Views\InstallErrorPageView.xaml.cs">
       <DependentUpon>InstallErrorPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallInitializingPageView.xaml.cs">
+      <DependentUpon>InstallInitializingPageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\ModifyPageView.xaml.cs">
       <DependentUpon>ModifyPageView.xaml</DependentUpon>
@@ -134,6 +138,7 @@
     <Compile Include="WizardSteps\InstallErrorStep.cs" />
     <Compile Include="WizardSteps\InstallCancelledStep.cs" />
     <Compile Include="WizardSteps\InstallFinishStep.cs" />
+    <Compile Include="WizardSteps\InstallInitializingStep.cs" />
     <Compile Include="WizardSteps\ModifyStep.cs" />
     <Compile Include="WizardSteps\RepairStep.cs" />
     <Compile Include="WizardSteps\UninstallStep.cs" />
@@ -199,6 +204,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\InstallFinishPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallInitializingPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

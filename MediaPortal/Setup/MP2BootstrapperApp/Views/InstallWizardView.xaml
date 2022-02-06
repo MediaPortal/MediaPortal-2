@@ -21,6 +21,10 @@
     </Window.Background>
     <Window.Resources>
 
+        <DataTemplate DataType="{x:Type viewModels:InstallInitializingPageViewModel}">
+            <view:InstallInitializingPageView />
+        </DataTemplate>
+
         <DataTemplate DataType="{x:Type viewModels:InstallWelcomePageViewModel}">
             <view:InstallWelcomePageView />
         </DataTemplate>

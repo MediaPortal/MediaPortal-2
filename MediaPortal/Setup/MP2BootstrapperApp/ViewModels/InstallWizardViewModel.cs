@@ -51,14 +51,14 @@ namespace MP2BootstrapperApp.ViewModels
 
       WireUpEventHandlers();
 
-      InstallWelcomeStep welcomeStep = new InstallWelcomeStep(model);
-      _wizard = new Wizard(welcomeStep);
+      InstallInitializingStep initialStep = new InstallInitializingStep(model);
+      _wizard = new Wizard(initialStep);
       _wizardViewModelBuilder = new WizardStepViewModelBuilder();
 
       NextCommand = new DelegateCommand(() => GoNextStep(), () => _wizard.CanGoNext());
       BackCommand = new DelegateCommand(() => GoBackStep(), () => _wizard.CanGoBack());
       CancelCommand = new DelegateCommand(() => CancelInstall(), () => !_bootstrapperApplicationModel.Cancelled);
-      CurrentPage = new InstallWelcomePageViewModel(welcomeStep);
+      CurrentPage = new InstallInitializingPageViewModel(initialStep);
     }
 
     public ICommand CancelCommand { get; }
@@ -179,8 +179,13 @@ namespace MP2BootstrapperApp.ViewModels
       }
 
       DetectionState detectionState = _bootstrapperApplicationModel.DetectionState;
+      // Fresh install, show the welcome step
+      if (detectionState == DetectionState.Absent)
+      {
+        GoToStep(new InstallWelcomeStep(_bootstrapperApplicationModel));
+      }
       // Current version installed, show the repair/modify/uninstall step
-      if (detectionState == DetectionState.Present)
+      else if (detectionState == DetectionState.Present)
       {
         GoToStep(new InstallExistInstallStep(_bootstrapperApplicationModel));
       }
