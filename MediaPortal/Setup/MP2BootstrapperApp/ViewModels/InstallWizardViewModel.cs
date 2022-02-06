@@ -28,6 +28,7 @@ using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
 using Prism.Commands;
 using Prism.Mvvm;
+using System;
 using System.Windows.Input;
 
 namespace MP2BootstrapperApp.ViewModels
@@ -78,6 +79,7 @@ namespace MP2BootstrapperApp.ViewModels
         if (_currentPage != null)
         {
           _currentPage.Detach();
+          _currentPage.ButtonStateChanged -= PageButtonStateChanged;
         }
          
         _currentPage = value;
@@ -85,11 +87,17 @@ namespace MP2BootstrapperApp.ViewModels
         if (_currentPage != null)
         {
           _currentPage.Attach();
+          _currentPage.ButtonStateChanged += PageButtonStateChanged;
         }
 
         RaisePropertyChanged();
         Refresh();
       }
+    }
+
+    private void PageButtonStateChanged(object sender, EventArgs e)
+    {
+      Refresh();
     }
 
     public int Progress

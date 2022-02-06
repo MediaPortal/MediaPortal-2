@@ -24,6 +24,7 @@
 
 using MP2BootstrapperApp.WizardSteps;
 using Prism.Mvvm;
+using System;
 
 namespace MP2BootstrapperApp.ViewModels
 {
@@ -63,6 +64,13 @@ namespace MP2BootstrapperApp.ViewModels
     {
       get { return _buttonCancelContent; }
       set { SetProperty(ref _buttonCancelContent, value); }
+    }
+
+    public event EventHandler ButtonStateChanged;
+
+    protected virtual void RaiseButtonStateChanged()
+    {
+      ButtonStateChanged?.Invoke(this, EventArgs.Empty);
     }
 
     public virtual void Attach()

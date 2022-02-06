@@ -33,6 +33,8 @@ namespace MP2BootstrapperApp.WizardSteps
     {
     }
 
+    public bool LicenceAgreed { get; set; }
+
     public IStep Next()
     {
       return new InstallNewTypeStep(_bootstrapperApplicationModel);
@@ -40,7 +42,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public bool CanGoNext()
     {
-      return true;
+      return LicenceAgreed;
     }
 
     public bool CanGoBack()

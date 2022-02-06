@@ -33,5 +33,20 @@ namespace MP2BootstrapperApp.ViewModels
     {
       Header = "Welcome to MediaPortal 2";
     }
+
+    public bool LicenceAgreed
+    {
+      get { return ((InstallWelcomeStep)_step).LicenceAgreed; }
+      set
+      {
+        if (value == LicenceAgreed)
+        {
+          return;
+        }
+        ((InstallWelcomeStep)_step).LicenceAgreed = value;
+        RaisePropertyChanged();
+        RaiseButtonStateChanged();
+      }
+    }
   }
 }
