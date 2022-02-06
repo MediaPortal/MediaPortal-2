@@ -1,10 +1,5 @@
 version: 2.Master.{build}
-image: Visual Studio 2019
-shallow_clone: true
 clone_folder: c:\project\mediaportal-2
-install:
-- cmd: >-
-    git submodule update --init --recursive
 build_script:
 - cmd: >-
     cd c:\project\mediaportal-2\MediaPortal\build\
@@ -12,4 +7,6 @@ build_script:
     MSBUILD_Create_Release_Full_Installer.bat
 
     7z a ..\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip ..\Setup\MP2-Setup\Bin\Release\en-us\MP2-Setup.msi
-test: off
+artifacts:
+- path: ..\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip
+  name: Installer
