@@ -160,15 +160,24 @@ namespace MP2BootstrapperApp.ViewModels
         return;
       }
 
+      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
+
       // Failure on detect, shouldn't happen unless the wix projects aren't configured
       // correctly or something has gone terribly wrong, show the error page
       if (!Hresult.Succeeded(e.Status))
       {
-        GoToStep(new InstallErrorStep(_dispatcher));
+        // If not waiting for user input, close on failure
+        if (display != Display.Full)
+        {
+          _dispatcher.InvokeShutdown();
+        }
+        else
+        {
+          GoToStep(new InstallErrorStep(_dispatcher));
+        }
         return;
       }
 
-      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
       // If not waiting for user interaction, e.g. in hidden, passive or embedded mode, start the launched action automatically.
       // Notably this will be the case when being uninstalled by a later bundle that's currently upgrading.
       if (display != Display.Full)
@@ -207,7 +216,15 @@ namespace MP2BootstrapperApp.ViewModels
     {
       if (!Hresult.Succeeded(e.Status))
       {
-        GoToStep(new InstallErrorStep(_dispatcher));
+        // If not waiting for user input, close on failure
+        if (_bootstrapperApplicationModel.BootstrapperApplication.Command.Display != Display.Full)
+        {
+          _dispatcher.InvokeShutdown();
+        }
+        else
+        {
+          GoToStep(new InstallErrorStep(_dispatcher));
+        }
       }
       // Apply automatically called in _bootstrapperApplicationModel
     }
