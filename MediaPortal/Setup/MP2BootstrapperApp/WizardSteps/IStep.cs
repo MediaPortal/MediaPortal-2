@@ -32,4 +32,11 @@ namespace MP2BootstrapperApp.WizardSteps
 
     bool CanGoBack();
   }
+
+  /// <summary>
+  /// Marker interface for steps that should close the wizard when completed.
+  /// </summary>
+  public interface IFinalStep : IStep
+  {
+  }
 }

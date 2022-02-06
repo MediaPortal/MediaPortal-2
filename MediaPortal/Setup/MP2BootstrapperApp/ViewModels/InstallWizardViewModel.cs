@@ -104,7 +104,11 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void GoNextStep()
     {
-      if (_wizard.GoNext())
+      if (_wizard.Step is IFinalStep)
+      {
+        _dispatcher.InvokeShutdown();
+      }
+      else if (_wizard.GoNext())
       {
         CurrentPage = _wizardViewModelBuilder.GetViewModel(_wizard.Step);
       }
@@ -183,7 +187,7 @@ namespace MP2BootstrapperApp.ViewModels
         }
         else
         {
-          GoToStep(new DowngradeStep(_dispatcher));
+          GoToStep(new DowngradeStep());
         }
         return;
       }
@@ -250,7 +254,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         // Set progress to complete on success
         Progress = 100;
-        GoToStep(new InstallFinishStep(_dispatcher));
+        GoToStep(new InstallFinishStep());
       }
       else
       {
@@ -261,11 +265,11 @@ namespace MP2BootstrapperApp.ViewModels
         // show the cancelled page rather than the error page.
         if (_bootstrapperApplicationModel.Cancelled)
         {
-          GoToStep(new InstallCancelledStep(_dispatcher));
+          GoToStep(new InstallCancelledStep());
         }
         else
         {
-          GoToStep(new InstallErrorStep(_dispatcher));
+          GoToStep(new InstallErrorStep());
         }
       }
     }
@@ -328,7 +332,7 @@ namespace MP2BootstrapperApp.ViewModels
       // Else show error page
       else
       {
-        GoToStep(new InstallErrorStep(_dispatcher));
+        GoToStep(new InstallErrorStep());
       }
       return true;
     }

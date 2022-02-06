@@ -22,22 +22,12 @@
 
 #endregion
 
-using MP2BootstrapperApp.BootstrapperWrapper;
-
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class DowngradeStep : IStep
+  public class DowngradeStep : IFinalStep
   {
-    private readonly IDispatcher _dispatcher;
-
-    public DowngradeStep(IDispatcher dispatcher)
-    {
-      _dispatcher = dispatcher;
-    }
-
     public IStep Next()
     {
-      _dispatcher.InvokeShutdown();
       return null;
     }
 
