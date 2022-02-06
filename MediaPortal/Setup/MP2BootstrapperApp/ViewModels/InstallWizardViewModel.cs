@@ -129,19 +129,30 @@ namespace MP2BootstrapperApp.ViewModels
     private void CancelInstall()
     {
       _bootstrapperApplicationModel.Cancelled = true;
+      // If currently applying the cancelled state will be returned to the engine
+      // in one of it;s event handlers so if can cancel/roll back gracefully, else
+      // it's safe to just quit now.
       if (_bootstrapperApplicationModel.InstallState != InstallState.Applying)
       {
         _dispatcher.InvokeShutdown();
       }
       else
       {
+        // Refresh the can execute state of the cancel button
         Refresh();
       }
     }
 
+    /// <summary>
+    /// Fired after detection of any currently installed bundles/packages have been detected.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void DetectComplete(object sender, DetectCompleteEventArgs e)
     {
       LaunchAction launchAction = _bootstrapperApplicationModel.BootstrapperApplication.Command.Action;
+      // If the setup was launched with the uninstall action, e.g. from ARP, a later bundle being installed
+      // or with a command line argument, automatically start the uninstallation.
       if (launchAction == LaunchAction.Uninstall)
       {
         _bootstrapperApplicationModel.PlanAction(launchAction);
@@ -149,14 +160,17 @@ namespace MP2BootstrapperApp.ViewModels
         return;
       }
 
+      // Failure on detect, shouldn't happen unless the wix projects aren't configured
+      // correctly or something has gone terribly wrong, show the error page
       if (!Hresult.Succeeded(e.Status))
       {
-        _bootstrapperApplicationModel.InstallState = InstallState.Failed;
         GoToStep(new InstallErrorStep(_dispatcher));
         return;
       }
 
       Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
+      // If not waiting for user interaction, e.g. in hidden, passive or embedded mode, start the launched action automatically.
+      // Notably this will be the case when being uninstalled by a later bundle that's currently upgrading.
       if (display != Display.Full)
       {
         _bootstrapperApplicationModel.PlanAction(launchAction);
@@ -178,30 +192,46 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
+    /// <summary>
+    /// Called when the plan phase is complete, the main <see cref="IBootstrapperApplicationModel"/>
+    /// handles calling apply, this model just needs to show the error page if there was an error.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void PlanComplete(object sender, PlanCompleteEventArgs e)
     {
       if (!Hresult.Succeeded(e.Status))
       {
         GoToStep(new InstallErrorStep(_dispatcher));
       }
+      // Apply automatically called in _bootstrapperApplicationModel
     }
 
+    /// <summary>
+    /// Called when the apply phase is complete.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
       Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
+      
+      // If not waiting for user interaction just close regardless of success
       if (display != Display.Full)
       {
         _dispatcher.InvokeShutdown();
         return;
       }
 
+      // Show finished, error or cancelled page
       if (Hresult.Succeeded(e.Status))
       {
         GoToStep(new InstallFinishStep(_dispatcher));
       }
       else
       {
-        _bootstrapperApplicationModel.InstallState = InstallState.Failed;
+        // If the error was caused by the user cancelling the install
+        // show the cancelled page rather than the error page.
         if (_bootstrapperApplicationModel.Cancelled)
         {
           GoToStep(new InstallCancelledStep(_dispatcher));
@@ -213,14 +243,22 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
+    /// <summary>
+    /// Event which contains the number of phases in the apply phase.
+    /// </summary>
+    /// <param name="sender"></param>
+    /// <param name="e"></param>
     private void ApplyPhaseCount(object sender, ApplyPhaseCountArgs e)
     {
+      // For an install this will ususally be 2, cache and execute, but for an
+      // uninstall it will only be 1 as there's no cache phase.
       _applyPhaseCount = e.PhaseCount;
     }
 
     private void CacheAcquireProgress(object sender, CacheAcquireProgressEventArgs e)
     {
       _cacheProgress = e.OverallPercentage;
+      // Total progress given the specified phase count
       Progress = (_cacheProgress + _executeProgress) / _applyPhaseCount;
       e.Result = _bootstrapperApplicationModel.Cancelled ? Result.Cancel : Result.Ok;
     }
@@ -228,12 +266,16 @@ namespace MP2BootstrapperApp.ViewModels
     private void ExecuteProgress(object sender, ExecuteProgressEventArgs e)
     {
       _executeProgress = e.OverallPercentage;
+      // Total progress given the specified phase count
       Progress = (_cacheProgress + _executeProgress) / _applyPhaseCount;
       e.Result = _bootstrapperApplicationModel.Cancelled ? Result.Cancel : Result.Ok;
     }
 
     private void Error(object sender, ErrorEventArgs e)
     {
+      // This is called by the engine when there was an error applying a package, it contains
+      // the info required to show a message box to allow the user to determine how to proceed.
+      // TODO: Implement this.
     }
 
     private void Refresh()
