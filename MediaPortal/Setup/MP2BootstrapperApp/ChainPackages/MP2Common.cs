@@ -46,8 +46,14 @@ namespace MP2BootstrapperApp.ChainPackages
       {
         return new Version();
       }
+
       const string mp2SrvMonitorExe = "MP2-ServiceMonitor.exe";
       string pathToMp2SrvMonitorExe = Path.Combine(mp2SrvMonitorInstallDir, mp2SrvMonitorExe);
+      if (!_packageChecker.Exists(pathToMp2SrvMonitorExe))
+      {
+        return new Version();
+      }
+
       int majorVersion = _packageChecker.GetFileMajorVersion(pathToMp2SrvMonitorExe);
       int minorVersion = _packageChecker.GetFileMinorVersion(pathToMp2SrvMonitorExe);
       int buildVersion = _packageChecker.GetFileBuildVersion(pathToMp2SrvMonitorExe);
