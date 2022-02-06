@@ -290,5 +290,8 @@
     <Resource Include="Resources\absent.png" />
     <Resource Include="Resources\present.png" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\VC2019_x64.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

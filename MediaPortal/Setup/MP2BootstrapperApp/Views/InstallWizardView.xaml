@@ -157,11 +157,11 @@
                 <Grid>
                     <Image Source="..\resources\background.jpg" Stretch="Fill">
                         <Image.Effect>
-                            <BlurEffect Radius="30"/>
+                            <BlurEffect Radius="5"/>
                         </Image.Effect>
-                        <Image.OpacityMask>
+                        <!--Image.OpacityMask>
                             <SolidColorBrush Color="Black" Opacity="0.155"/>
-                        </Image.OpacityMask>
+                        </Image.OpacityMask-->
                     </Image>
                 </Grid>
             </VisualBrush.Visual>
