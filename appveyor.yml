@@ -13,3 +13,4 @@ build_script:
 artifacts:
 - path: ..\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip
   name: Installer
+test: off
