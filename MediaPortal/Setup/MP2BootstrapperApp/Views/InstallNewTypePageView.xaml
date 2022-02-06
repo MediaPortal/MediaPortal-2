@@ -11,6 +11,7 @@
   <Grid>
     <Grid.Resources>
       <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+      <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
       <Style x:Key="InstallerButton" TargetType="RadioButton">
         <Style.Triggers>
@@ -67,6 +68,7 @@
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
     </Grid.RowDefinitions>
 
     <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -100,6 +102,23 @@
       <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Custom"
              Opacity="{Binding Opacity, ElementName=Radio4, Mode=Default}"/>
     </StackPanel>
+
+    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Complete single seat or server installation with user interface" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,50,40,20" SelectionBrush="{x:Null}" 
+             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="4"
+             Visibility="{Binding ElementName=Radio1, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Install the user interface only. The server is available in the network" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,50,40,20" SelectionBrush="{x:Null}" 
+             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="4"
+             Visibility="{Binding ElementName=Radio2, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Install a dedicated server without user interface" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,50,40,20" SelectionBrush="{x:Null}" 
+             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="4"
+             Visibility="{Binding ElementName=Radio3, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Configure the installation paths and packages" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,50,40,20" SelectionBrush="{x:Null}" 
+             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="4"
+             Visibility="{Binding ElementName=Radio4, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
   </Grid>
 </UserControl>

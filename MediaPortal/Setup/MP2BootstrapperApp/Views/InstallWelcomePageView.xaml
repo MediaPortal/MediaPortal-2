@@ -7,7 +7,20 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
   <Grid>
-       <TextBox HorizontalAlignment="Center" Height="64" TextWrapping="Wrap" FontSize="20" Text="This is the next generation media center software available to all, open source, for free.
-                 Making use of advanced technologies to bring you the best possible HTPC experience." VerticalAlignment="Top" Width="877" Background="{x:Null}" Foreground="White" Margin="0,35,0,0" SelectionBrush="{x:Null}" BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False"/>
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <TextBox HorizontalAlignment="Center" Height="64" TextWrapping="Wrap" FontSize="20" Text="This is the next generation media center software available to all, open source, for free.
+                 Making use of advanced technologies to bring you the best possible HTPC experience." VerticalAlignment="Center" Width="877" Background="{x:Null}" Foreground="White" Margin="0,35,0,0" SelectionBrush="{x:Null}" BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False"/>
+
+    <CheckBox x:Name="LicenceAgreed" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1" FontSize="16" Foreground="White" Margin="50" Opacity="0.5">
+      <TextBlock VerticalAlignment="Center" Text="I accept the terms in the Licence Agreement below" Margin="0,-3,0,0"/>
+    </CheckBox>
+
   </Grid>
 </UserControl>
