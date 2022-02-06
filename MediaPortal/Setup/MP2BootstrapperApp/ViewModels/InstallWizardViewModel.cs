@@ -231,10 +231,15 @@ namespace MP2BootstrapperApp.ViewModels
       // Show finished, error or cancelled page
       if (Hresult.Succeeded(e.Status))
       {
+        // Set progress to complete on success
+        Progress = 100;
         GoToStep(new InstallFinishStep(_dispatcher));
       }
       else
       {
+        // Set progress back to 0 on failure
+        Progress = 0;
+
         // If the error was caused by the user cancelling the install
         // show the cancelled page rather than the error page.
         if (_bootstrapperApplicationModel.Cancelled)
