@@ -28,6 +28,7 @@ using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
 using Prism.Commands;
 using Prism.Mvvm;
+using System;
 using System.Windows.Input;
 
 namespace MP2BootstrapperApp.ViewModels
@@ -78,6 +79,7 @@ namespace MP2BootstrapperApp.ViewModels
         if (_currentPage != null)
         {
           _currentPage.Detach();
+          _currentPage.ButtonStateChanged -= PageButtonStateChanged;
         }
          
         _currentPage = value;
@@ -85,11 +87,17 @@ namespace MP2BootstrapperApp.ViewModels
         if (_currentPage != null)
         {
           _currentPage.Attach();
+          _currentPage.ButtonStateChanged += PageButtonStateChanged;
         }
 
         RaisePropertyChanged();
         Refresh();
       }
+    }
+
+    private void PageButtonStateChanged(object sender, EventArgs e)
+    {
+      Refresh();
     }
 
     public int Progress
@@ -104,7 +112,11 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void GoNextStep()
     {
-      if (_wizard.GoNext())
+      if (_wizard.Step is IFinalStep)
+      {
+        _dispatcher.InvokeShutdown();
+      }
+      else if (_wizard.GoNext())
       {
         CurrentPage = _wizardViewModelBuilder.GetViewModel(_wizard.Step);
       }
@@ -160,20 +172,30 @@ namespace MP2BootstrapperApp.ViewModels
         return;
       }
 
-      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
-
       // Failure on detect, shouldn't happen unless the wix projects aren't configured
       // correctly or something has gone terribly wrong, show the error page
-      if (!Hresult.Succeeded(e.Status))
+      if (HandleErrorResult(e.Status))
       {
-        // If not waiting for user input, close on failure
+        return;
+      }
+
+      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
+      DetectionState detectionState = _bootstrapperApplicationModel.DetectionState;
+
+      // Downgrades are not supported so either close the setup if not waiting for user interaction
+      // or show the downgrade page informing the user. The exception to this is the case where this
+      // setup is being uninstalled by a newer version, in which case we will detect the newer version
+      // but need to allow the uninstall to continue.
+      if (detectionState == DetectionState.Older && launchAction != LaunchAction.Uninstall)
+      {
         if (display != Display.Full)
         {
+          _bootstrapperApplicationModel.LogMessage(LogLevel.Error, "Newer version of bundle detected, setup cannot continue");
           _dispatcher.InvokeShutdown();
         }
         else
         {
-          GoToStep(new InstallErrorStep(_dispatcher));
+          GoToStep(new DowngradeStep());
         }
         return;
       }
@@ -187,7 +209,6 @@ namespace MP2BootstrapperApp.ViewModels
         return;
       }
 
-      DetectionState detectionState = _bootstrapperApplicationModel.DetectionState;
       // Fresh install, show the welcome step
       if (detectionState == DetectionState.Absent)
       {
@@ -198,9 +219,8 @@ namespace MP2BootstrapperApp.ViewModels
       {
         GoToStep(new InstallExistInstallStep(_bootstrapperApplicationModel));
       }
-      // Different version installed, show upgrade step.
-      // ToDo: Downgrade step?
-      else if (detectionState == DetectionState.Newer || detectionState == DetectionState.Older)
+      // Older version installed, show upgrade step.
+      else //if (detectionState == DetectionState.Newer)
       {
         GoToStep(new UpdateStep(_bootstrapperApplicationModel));
       }
@@ -214,17 +234,9 @@ namespace MP2BootstrapperApp.ViewModels
     /// <param name="e"></param>
     private void PlanComplete(object sender, PlanCompleteEventArgs e)
     {
-      if (!Hresult.Succeeded(e.Status))
+      if (HandleErrorResult(e.Status))
       {
-        // If not waiting for user input, close on failure
-        if (_bootstrapperApplicationModel.BootstrapperApplication.Command.Display != Display.Full)
-        {
-          _dispatcher.InvokeShutdown();
-        }
-        else
-        {
-          GoToStep(new InstallErrorStep(_dispatcher));
-        }
+        return;
       }
       // Apply automatically called in _bootstrapperApplicationModel
     }
@@ -250,7 +262,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         // Set progress to complete on success
         Progress = 100;
-        GoToStep(new InstallFinishStep(_dispatcher));
+        GoToStep(new InstallFinishStep());
       }
       else
       {
@@ -261,11 +273,11 @@ namespace MP2BootstrapperApp.ViewModels
         // show the cancelled page rather than the error page.
         if (_bootstrapperApplicationModel.Cancelled)
         {
-          GoToStep(new InstallCancelledStep(_dispatcher));
+          GoToStep(new InstallCancelledStep());
         }
         else
         {
-          GoToStep(new InstallErrorStep(_dispatcher));
+          GoToStep(new InstallErrorStep());
         }
       }
     }
@@ -313,6 +325,24 @@ namespace MP2BootstrapperApp.ViewModels
         ((DelegateCommand) BackCommand).RaiseCanExecuteChanged();
         ((DelegateCommand) CancelCommand).RaiseCanExecuteChanged();
       });
+    }
+
+    private bool HandleErrorResult(int result)
+    {
+      if (Hresult.Succeeded(result))
+        return false;
+
+      // If not waiting for user input, close on failure
+      if (_bootstrapperApplicationModel.BootstrapperApplication.Command.Display != Display.Full)
+      {
+        _dispatcher.InvokeShutdown();
+      }
+      // Else show error page
+      else
+      {
+        GoToStep(new InstallErrorStep());
+      }
+      return true;
     }
 
     private void WireUpEventHandlers()

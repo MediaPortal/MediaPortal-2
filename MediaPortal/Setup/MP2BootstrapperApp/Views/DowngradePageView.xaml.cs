@@ -22,32 +22,18 @@
 
 #endregion
 
-using MP2BootstrapperApp.Models;
+using System.Windows.Controls;
 
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp.Views
 {
-  public class InstallWelcomeStep : AbstractInstallStep, IStep
+  /// <summary>
+  /// Interaction logic for DowngradePageView.xaml
+  /// </summary>
+  public partial class DowngradePageView : UserControl
   {
-    public InstallWelcomeStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
-      : base(bootstrapperApplicationModel)
+    public DowngradePageView()
     {
-    }
-
-    public bool LicenceAgreed { get; set; }
-
-    public IStep Next()
-    {
-      return new InstallNewTypeStep(_bootstrapperApplicationModel);
-    }
-
-    public bool CanGoNext()
-    {
-      return LicenceAgreed;
-    }
-
-    public bool CanGoBack()
-    {
-      return false;
+      InitializeComponent();
     }
   }
 }

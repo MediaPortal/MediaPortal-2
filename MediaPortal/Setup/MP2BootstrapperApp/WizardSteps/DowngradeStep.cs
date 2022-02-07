@@ -22,27 +22,18 @@
 
 #endregion
 
-using MP2BootstrapperApp.Models;
-
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallWelcomeStep : AbstractInstallStep, IStep
+  public class DowngradeStep : IFinalStep
   {
-    public InstallWelcomeStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
-      : base(bootstrapperApplicationModel)
-    {
-    }
-
-    public bool LicenceAgreed { get; set; }
-
     public IStep Next()
     {
-      return new InstallNewTypeStep(_bootstrapperApplicationModel);
+      return null;
     }
 
     public bool CanGoNext()
     {
-      return LicenceAgreed;
+      return true;
     }
 
     public bool CanGoBack()

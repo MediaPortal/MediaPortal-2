@@ -101,6 +101,7 @@
     <Compile Include="Models\Package.cs" />
     <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
+    <Compile Include="ViewModels\DowngradePageViewModel.cs" />
     <Compile Include="ViewModels\InstallInitializingPageViewModel.cs" />
     <Compile Include="ViewModels\ModifyPageViewModel.cs" />
     <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />
@@ -108,6 +109,9 @@
     <Compile Include="ViewModels\UninstallPageViewModel.cs" />
     <Compile Include="ViewModels\UpdatePageViewModel.cs" />
     <Compile Include="ViewModels\WizardStepViewModelBuilder.cs" />
+    <Compile Include="Views\DowngradePageView.xaml.cs">
+      <DependentUpon>DowngradePageView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\InstallationInProgressPageView.xaml.cs">
       <DependentUpon>InstallationInProgressPageView.xaml</DependentUpon>
     </Compile>
@@ -137,6 +141,7 @@
     <Compile Include="WizardSteps\InstallExistInstallStep.cs" />
     <Compile Include="WizardSteps\InstallErrorStep.cs" />
     <Compile Include="WizardSteps\InstallCancelledStep.cs" />
+    <Compile Include="WizardSteps\DowngradeStep.cs" />
     <Compile Include="WizardSteps\InstallFinishStep.cs" />
     <Compile Include="WizardSteps\InstallInitializingStep.cs" />
     <Compile Include="WizardSteps\ModifyStep.cs" />
@@ -187,6 +192,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\DowngradePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\InstallationInProgressPageView.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

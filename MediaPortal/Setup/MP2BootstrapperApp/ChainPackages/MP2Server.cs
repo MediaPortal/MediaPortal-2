@@ -46,8 +46,14 @@ namespace MP2BootstrapperApp.ChainPackages
       {
         return new Version();
       }
+
       const string mp2ServerExe = "MP2-Server.exe";
       string pathToMp2ServerExe = Path.Combine(mp2ServerInstallDir, mp2ServerExe);
+      if (!_packageChecker.Exists(pathToMp2ServerExe))
+      {
+        return new Version();
+      }
+
       int majorVersion = _packageChecker.GetFileMajorVersion(pathToMp2ServerExe);
       int minorVersion = _packageChecker.GetFileMinorVersion(pathToMp2ServerExe);
       int buildVersion = _packageChecker.GetFileBuildVersion(pathToMp2ServerExe);

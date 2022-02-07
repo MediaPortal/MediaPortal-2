@@ -22,22 +22,12 @@
 
 #endregion
 
-using MP2BootstrapperApp.BootstrapperWrapper;
-
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallCancelledStep : IStep
+  public class InstallCancelledStep : IFinalStep
   {
-    private readonly IDispatcher _dispatcher;
-
-    public InstallCancelledStep(IDispatcher dispatcher)
-    {
-      _dispatcher = dispatcher;
-    }
-
     public IStep Next()
     {
-      _dispatcher.InvokeShutdown();
       return null;
     }
 

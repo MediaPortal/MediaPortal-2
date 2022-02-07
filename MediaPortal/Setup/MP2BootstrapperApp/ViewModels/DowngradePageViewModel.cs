@@ -22,32 +22,17 @@
 
 #endregion
 
-using MP2BootstrapperApp.Models;
+using MP2BootstrapperApp.WizardSteps;
 
-namespace MP2BootstrapperApp.WizardSteps
+namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallWelcomeStep : AbstractInstallStep, IStep
+  public class DowngradePageViewModel : InstallWizardPageViewModelBase
   {
-    public InstallWelcomeStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
-      : base(bootstrapperApplicationModel)
+    public DowngradePageViewModel(DowngradeStep step)
+      : base(step)
     {
-    }
-
-    public bool LicenceAgreed { get; set; }
-
-    public IStep Next()
-    {
-      return new InstallNewTypeStep(_bootstrapperApplicationModel);
-    }
-
-    public bool CanGoNext()
-    {
-      return LicenceAgreed;
-    }
-
-    public bool CanGoBack()
-    {
-      return false;
+      Header = "Newer Version Installed";
+      ButtonNextContent = "Finish";
     }
   }
 }
