@@ -16,7 +16,6 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
 
@@ -40,6 +39,24 @@
           <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
           <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
         </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:9" Duration="0:0:4" Storyboard.TargetName="img4" Storyboard.TargetProperty="Opacity">
+          <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:12" Duration="0:0:4" Storyboard.TargetName="img5" Storyboard.TargetProperty="Opacity">
+          <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:15" Duration="0:0:4" Storyboard.TargetName="img6" Storyboard.TargetProperty="Opacity">
+          <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
+        </DoubleAnimationUsingKeyFrames>
       </Storyboard>
     </Grid.Resources>
 
@@ -49,17 +66,46 @@
       </EventTrigger>
     </Grid.Triggers>
 
-    <TextBlock x:Name="ProgressStatus" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Row="1"
-               Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="0,40,0,0">
-      <Run Text="{Binding Path=CurrentAction}"/>
-    </TextBlock>
-    
-    <ProgressBar Margin="0,10,0,10" Height="10" Width="{Binding ElementName=ProgressStatus, Path=ActualWidth}" 
-                 HorizontalAlignment="Center" IsIndeterminate="True" Grid.Row="2" Background="#80FFFFFF"/>
+    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Grid.Row="1" Margin="0,-20,0,90">
+      <TextBlock x:Name="ProgressStatus" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="0,0,0,0">
+        <Run Text="{Binding Path=CurrentAction}"/>
+      </TextBlock>
 
-    <Image x:Name="img1" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Source="..\resources\1.jpg" Margin="25,0,25,40" Opacity="0"/>
-    <Image x:Name="img2" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Source="..\resources\2.jpg" Margin="25,0,25,40" Opacity="0"/>
-    <Image x:Name="img3" Grid.Column="1" Grid.Row="1" Grid.RowSpan="2" Source="..\resources\3.jpg" Margin="25,0,25,40" Opacity="0"/>
+      <ProgressBar Margin="0,10,0,10" Height="10" Width="{Binding ElementName=ProgressStatus, Path=ActualWidth}" 
+                 HorizontalAlignment="Center" IsIndeterminate="True" Background="#80FFFFFF"/>
+    </StackPanel>
+
+    <Image x:Name="img1" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\1.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img2" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\2.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img3" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\3.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img4" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\4.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img5" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\5.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img6" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\6.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
 
   </Grid>
 </UserControl>

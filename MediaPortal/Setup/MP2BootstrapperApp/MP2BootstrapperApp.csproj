@@ -300,10 +300,14 @@
     <Resource Include="Resources\present.png" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Resources\1.jpg" />
-    <Content Include="Resources\2.jpg" />
+    <Resource Include="Resources\1.jpg" />
+    <Resource Include="Resources\2.jpg" />
+    <Resource Include="Resources\3.jpg" />
+    <Resource Include="Resources\4.jpg" />
+    <Resource Include="Resources\5.jpg" />
+    <Resource Include="Resources\6.jpg" />
     <Content Include="Resources\update.png" />
-    <Content Include="Resources\VC2019_x64.png" />
+    <Resource Include="Resources\VC2019_x64.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
