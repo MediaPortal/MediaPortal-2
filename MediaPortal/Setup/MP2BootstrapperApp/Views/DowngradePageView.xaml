@@ -7,7 +7,7 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
   <Grid>
-    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="0,40,0,0">
+    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="0,40,0,0" TextWrapping="Wrap">
       <Run Text="A newer version of MediaPortal 2 is already installed. If you want to downgrade you must uninstall the existing version before running this setup."/>
     </TextBlock>
   </Grid>
