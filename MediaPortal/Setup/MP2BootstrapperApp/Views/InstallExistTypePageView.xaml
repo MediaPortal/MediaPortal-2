@@ -7,8 +7,8 @@
              xmlns:conv="clr-namespace:MP2BootstrapperApp" Margin="10,20,10,0"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-  <Grid HorizontalAlignment="Center">
-    <Grid.Resources>
+  <UniformGrid HorizontalAlignment="Center" Columns="3" Rows="1">
+    <UniformGrid.Resources>
       <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
       <Style x:Key="ActionButton" TargetType="RadioButton">
         <Style.Triggers>
@@ -55,16 +55,8 @@
           </Setter.Value>
         </Setter>
       </Style>
-    </Grid.Resources>
+    </UniformGrid.Resources>
 
-    <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="*" />
-      <ColumnDefinition Width="*" />
-      <ColumnDefinition Width="*" />
-    </Grid.ColumnDefinitions>
-    <Grid.RowDefinitions>
-      <RowDefinition Height="*" />
-    </Grid.RowDefinitions>
     <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
       <RadioButton Name="Radio2" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\modify.png"
                    IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}"
@@ -92,5 +84,5 @@
     <!--<RadioButton Grid.Column="1" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}" Content="Modify" Foreground="White" FontSize="26"/>
     <RadioButton Grid.Column="2" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Repair}}" Content="Repair" Foreground="White" FontSize="26"/>
     <RadioButton Grid.Column="3" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}" Content="Uninstall" Foreground="White" FontSize="26"/-->
-    </Grid>
+    </UniformGrid>
 </UserControl>

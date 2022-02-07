@@ -107,7 +107,7 @@
              VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,50,40,20" SelectionBrush="{x:Null}" 
              BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="4"
              Visibility="{Binding ElementName=Radio1, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Install the user interface only. The server is available in the network" 
+    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Install the user interface only, the server is available in the network" 
              VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,50,40,20" SelectionBrush="{x:Null}" 
              BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="4"
              Visibility="{Binding ElementName=Radio2, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
