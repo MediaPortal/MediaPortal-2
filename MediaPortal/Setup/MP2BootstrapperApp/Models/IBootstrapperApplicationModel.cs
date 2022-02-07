@@ -29,7 +29,7 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// The action that has been planned.
     /// </summary>
-    LaunchAction LaunchAction { get; }
+    LaunchAction PlannedAction { get; }
 
     /// <summary>
     /// The current state of the bootstrapper application.

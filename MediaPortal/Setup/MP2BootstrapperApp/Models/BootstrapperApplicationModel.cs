@@ -62,7 +62,7 @@ namespace MP2BootstrapperApp.Models
 
     public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 
-    public LaunchAction LaunchAction { get; set; } = LaunchAction.Unknown;
+    public LaunchAction PlannedAction { get; set; } = LaunchAction.Unknown;
 
     public InstallState InstallState { get; set; } = InstallState.Initializing;
 
@@ -76,19 +76,19 @@ namespace MP2BootstrapperApp.Models
     public void PlanAction(LaunchAction action)
     {
       InstallState = InstallState.Planning;
-      LaunchAction = action;
-      BootstrapperApplication.Engine.Plan(action);
+      PlannedAction = action;
+      BootstrapperApplication.Plan(action);
     }
 
     public void ApplyAction()
     {
       InstallState = InstallState.Applying;
-      BootstrapperApplication.Engine.Apply(_hwnd);
+      BootstrapperApplication.Apply(_hwnd);
     }
 
     public void LogMessage(LogLevel logLevel, string message)
     {
-      BootstrapperApplication.Engine.Log(logLevel, message);
+      BootstrapperApplication.Log(logLevel, message);
     }
 
     private void DetectBegin(object sender, DetectBeginEventArgs e)
@@ -155,7 +155,7 @@ namespace MP2BootstrapperApp.Models
     {
       // Don't override the BA's default state when uninstalling or repairing, let it use
       // the appropriate state based on the packages' current install state.
-      if (LaunchAction == LaunchAction.Uninstall || LaunchAction == LaunchAction.Repair)
+      if (PlannedAction == LaunchAction.Uninstall || PlannedAction == LaunchAction.Repair)
         return;
 
       if (Enum.TryParse(planPackageBeginEventArgs.PackageId, out PackageId id))

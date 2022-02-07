@@ -5,8 +5,15 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
 {
   public interface IBootstrapperApp
   {
-    Engine Engine { get; }
-    Command Command { get; }
+    LaunchAction LaunchAction { get; }
+    Display Display { get; }
+    string[] CommandLineArguments { get; }
+
+    void Detect();
+    void Plan(LaunchAction action);
+    void Apply(IntPtr hwndParent);
+    void Log(LogLevel level, string message);
+
     event EventHandler<DetectBeginEventArgs> WrapperDetectBegin;
     event EventHandler<DetectRelatedBundleEventArgs> WrapperDetectRelatedBundle;
     event EventHandler<DetectPackageCompleteEventArgs> WrapperDetectPackageComplete;

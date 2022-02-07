@@ -162,7 +162,7 @@ namespace MP2BootstrapperApp.ViewModels
     /// <param name="e"></param>
     private void DetectComplete(object sender, DetectCompleteEventArgs e)
     {
-      LaunchAction launchAction = _bootstrapperApplicationModel.BootstrapperApplication.Command.Action;
+      LaunchAction launchAction = _bootstrapperApplicationModel.BootstrapperApplication.LaunchAction;
       // If the setup was launched with the uninstall action, e.g. from ARP, a later bundle being installed
       // or with a command line argument, automatically start the uninstallation.
       if (launchAction == LaunchAction.Uninstall)
@@ -179,7 +179,7 @@ namespace MP2BootstrapperApp.ViewModels
         return;
       }
 
-      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
+      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Display;
       DetectionState detectionState = _bootstrapperApplicationModel.DetectionState;
 
       // Downgrades are not supported so either close the setup if not waiting for user interaction
@@ -248,7 +248,7 @@ namespace MP2BootstrapperApp.ViewModels
     /// <param name="e"></param>
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
-      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Command.Display;
+      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Display;
       
       // If not waiting for user interaction just close regardless of success
       if (display != Display.Full)
@@ -333,7 +333,7 @@ namespace MP2BootstrapperApp.ViewModels
         return false;
 
       // If not waiting for user input, close on failure
-      if (_bootstrapperApplicationModel.BootstrapperApplication.Command.Display != Display.Full)
+      if (_bootstrapperApplicationModel.BootstrapperApplication.Display != Display.Full)
       {
         _dispatcher.InvokeShutdown();
       }
