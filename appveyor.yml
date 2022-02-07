@@ -3,10 +3,15 @@ clone_folder: c:\project\mediaportal-2
 install:
 - cmd: >-
     git -C "c:\project\mediaportal-2" submodule update --init --recursive
-    echo [https://www.transifex.com]>%USERPROFILE%\.transifexrc    
-    echo api_hostname = https://api.transifex.com>>%USERPROFILE%\.transifexrc    
-    echo hostname = https://www.transifex.com>>%USERPROFILE%\.transifexrc    
-    echo password = %TX_TOKEN%>>%USERPROFILE%\.transifexrc    
+    
+    echo [https://www.transifex.com]>%USERPROFILE%\.transifexrc
+    
+    echo api_hostname = https://api.transifex.com>>%USERPROFILE%\.transifexrc
+    
+    echo hostname = https://www.transifex.com>>%USERPROFILE%\.transifexrc
+    
+    echo password = %TX_TOKEN%>>%USERPROFILE%\.transifexrc
+    
     echo username = api>>%USERPROFILE%\.transifexrc
 build_script:
 - cmd: >-
