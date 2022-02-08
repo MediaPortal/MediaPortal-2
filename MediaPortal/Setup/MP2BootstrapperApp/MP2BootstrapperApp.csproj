@@ -306,6 +306,9 @@
     <Resource Include="Resources\4.jpg" />
     <Resource Include="Resources\5.jpg" />
     <Resource Include="Resources\6.jpg" />
+    <Resource Include="Resources\cancel.png" />
+    <Resource Include="Resources\completed.png" />
+    <Resource Include="Resources\error.png" />
     <Content Include="Resources\update.png" />
     <Resource Include="Resources\VC2019_x64.png" />
   </ItemGroup>
