@@ -9,106 +9,106 @@
         Title="Mediaportal" Height="600" Width="1000" ResizeMode="NoResize" WindowStyle="None"
         WindowStartupLocation="CenterScreen" UseLayoutRounding="False" AllowsTransparency="True"
         MouseDown="Window_MouseDown" >
-  
-    <Window.Effect>
-        <DropShadowEffect ShadowDepth="3" BlurRadius="25"/>
-    </Window.Effect>
-    <Window.Foreground>
-        <SolidColorBrush Color="Black"/>
-    </Window.Foreground>
-    <Window.Background>
-        <SolidColorBrush Color="#FF0E0E0E"/>
-    </Window.Background>
-    <Window.Resources>
 
-        <DataTemplate DataType="{x:Type viewModels:InstallInitializingPageViewModel}">
-            <view:InstallInitializingPageView />
-        </DataTemplate>
+  <Window.Effect>
+    <DropShadowEffect ShadowDepth="3" BlurRadius="25"/>
+  </Window.Effect>
+  <Window.Foreground>
+    <SolidColorBrush Color="Black"/>
+  </Window.Foreground>
+  <Window.Background>
+    <SolidColorBrush Color="#FF0E0E0E"/>
+  </Window.Background>
+  <Window.Resources>
 
-        <DataTemplate DataType="{x:Type viewModels:InstallWelcomePageViewModel}">
-            <view:InstallWelcomePageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:InstallInitializingPageViewModel}">
+      <view:InstallInitializingPageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:InstallExistTypePageViewModel}">
-            <view:InstallExistTypePageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:InstallWelcomePageViewModel}">
+      <view:InstallWelcomePageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:InstallNewTypePageViewModel}">
-            <view:InstallNewTypePageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:InstallExistTypePageViewModel}">
+      <view:InstallExistTypePageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:InstallOverviewPageViewModel}">
-            <view:InstallOverviewPageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:InstallNewTypePageViewModel}">
+      <view:InstallNewTypePageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:InstallFinishPageViewModel}">
-            <view:InstallFinishPageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:InstallOverviewPageViewModel}">
+      <view:InstallOverviewPageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:UpdatePageViewModel}">
-            <view:UpdatePageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:InstallFinishPageViewModel}">
+      <view:InstallFinishPageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:ModifyPageViewModel}">
-            <view:ModifyPageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:UpdatePageViewModel}">
+      <view:UpdatePageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:RepairPageViewModel}">
-            <view:RepairPageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:ModifyPageViewModel}">
+      <view:ModifyPageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:UninstallPageViewModel}">
-            <view:UninstallView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:RepairPageViewModel}">
+      <view:RepairPageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:InstallationInProgressPageViewModel}">
-            <view:InstallationInProgressPageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:UninstallPageViewModel}">
+      <view:UninstallView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:InstallErrorPageViewModel}">
-            <view:InstallErrorPageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:InstallationInProgressPageViewModel}">
+      <view:InstallationInProgressPageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:InstallCancelledPageViewModel}">
-            <view:InstallCancelledPageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:InstallErrorPageViewModel}">
+      <view:InstallErrorPageView />
+    </DataTemplate>
 
-        <DataTemplate DataType="{x:Type viewModels:DowngradePageViewModel}">
-            <view:DowngradePageView />
-        </DataTemplate>
+    <DataTemplate DataType="{x:Type viewModels:InstallCancelledPageViewModel}">
+      <view:InstallCancelledPageView />
+    </DataTemplate>
 
-        <!-- Our style for the ToggleButton -->
-        <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
-            <!-- Here you can set the initial properties for the control -->
-            <Setter Property="Background" Value="Transparent" />
-            <Setter Property="SnapsToDevicePixels" Value="True" />
+    <DataTemplate DataType="{x:Type viewModels:DowngradePageViewModel}">
+      <view:DowngradePageView />
+    </DataTemplate>
 
-            <!-- Template needs to completely re-writing the standard control -->
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type ToggleButton}">
-                        <Grid>
-                            <!-- Then responsible for the content. In our case it did not really need, because it is set Path -->
-                            <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-                            <!-- Our Path. Shows a cross -->
-                            <Path x:Name="CloseWindow" SnapsToDevicePixels="True" ToolTip="Close window" Width="12" Height="12" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Fill="#FF919191" Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z " />
-                        </Grid>
-                        <!-- Trigger fires on the property -->
-                        <ControlTemplate.Triggers>
-                            <!-- Here change the color when the mouse cursor -->
-                            <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="CloseWindow" Property="Fill" Value="#C10000" />
-                            </Trigger>
+    <!-- Our style for the ToggleButton -->
+    <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
+      <!-- Here you can set the initial properties for the control -->
+      <Setter Property="Background" Value="Transparent" />
+      <Setter Property="SnapsToDevicePixels" Value="True" />
 
-                            <!-- Use ToggleButton, because it has a property IsChecked, accessible through the style -->
-                            <Trigger Property="IsChecked" Value="True">
+      <!-- Template needs to completely re-writing the standard control -->
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ToggleButton}">
+            <Grid>
+              <!-- Then responsible for the content. In our case it did not really need, because it is set Path -->
+              <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+              <!-- Our Path. Shows a cross -->
+              <Path x:Name="CloseWindow" SnapsToDevicePixels="True" ToolTip="Close window" Width="12" Height="12" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Fill="#FF919191" Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z " />
+            </Grid>
+            <!-- Trigger fires on the property -->
+            <ControlTemplate.Triggers>
+              <!-- Here change the color when the mouse cursor -->
+              <Trigger Property="IsMouseOver" Value="True">
+                <Setter TargetName="CloseWindow" Property="Fill" Value="#C10000" />
+              </Trigger>
 
-                            </Trigger>
-                        </ControlTemplate.Triggers>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+              <!-- Use ToggleButton, because it has a property IsChecked, accessible through the style -->
+              <Trigger Property="IsChecked" Value="True">
+
+              </Trigger>
+            </ControlTemplate.Triggers>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
 
     <Style TargetType="{x:Type Button}">
       <Setter Property="Foreground" Value="#D8000000"/>
@@ -131,85 +131,85 @@
     </Style>
 
     <Style TargetType="HeaderedContentControl">
-            <Setter Property="Template">
-                <Setter.Value>
-                    <ControlTemplate TargetType="{x:Type HeaderedContentControl}">
-                        <StackPanel>
-                            <Grid Margin="0,-120,-30,60" HorizontalAlignment="Right" Width="500">
-                                <Rectangle Stroke="{TemplateBinding Background}"/>
-                                <ContentPresenter ContentSource="Header" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-                            </Grid>
-                            <Grid>
-                                <Rectangle Fill="{TemplateBinding Background}"/>
-                                <ContentPresenter ContentSource="Content"/>
-                            </Grid>
-                        </StackPanel>
-                    </ControlTemplate>
-                </Setter.Value>
-            </Setter>
-        </Style>
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type HeaderedContentControl}">
+            <StackPanel>
+              <Grid Margin="0,-120,-30,60" HorizontalAlignment="Right" Width="500">
+                <Rectangle Stroke="{TemplateBinding Background}"/>
+                <ContentPresenter ContentSource="Header" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+              </Grid>
+              <Grid>
+                <Rectangle Fill="{TemplateBinding Background}"/>
+                <ContentPresenter ContentSource="Content"/>
+              </Grid>
+            </StackPanel>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
 
-        <DataTemplate x:Key="HeaderTemplate">
-            <TextBlock Text="{Binding}" 
+    <ControlTemplate x:Key="HeaderTemplate">
+      <TextBlock Text="{Binding Path=CurrentPage.Header}" Margin="-500,0,20,20"
                  Foreground="White" 
                  FontSize="26"
-                 TextAlignment="Center"/>
-        </DataTemplate>
+                 TextAlignment="Right"/>
+    </ControlTemplate>
 
-        <VisualBrush x:Key="Background">
-            <VisualBrush.Visual>
-                <Grid>
-                    <Image Source="..\resources\background.jpg" Stretch="Fill">
-                        <Image.Effect>
-                            <BlurEffect Radius="5"/>
-                        </Image.Effect>
-                        <!--Image.OpacityMask>
-                            <SolidColorBrush Color="Black" Opacity="0.155"/>
-                        </Image.OpacityMask-->
-                    </Image>
-                </Grid>
-            </VisualBrush.Visual>
-        </VisualBrush>
-
-        <VisualBrush x:Key="Banner">
-            <VisualBrush.Visual>
-                <Grid>
-                    <Image Source="..\resources\banner.png" Stretch="Fill">
-                    </Image>
-                </Grid>
-            </VisualBrush.Visual>
-        </VisualBrush>
-
-    </Window.Resources>
-    <Grid Background="{StaticResource Background}">
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="138"/>
-            <RowDefinition Height="*"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="Auto"/>
-        </Grid.RowDefinitions>
-
-        <Grid Grid.Row="0" Grid.Column="0" Opacity="1" Height="138">
-            <Grid.Effect>
-                <DropShadowEffect Color="#FF060606" Opacity="0.45"/>
-            </Grid.Effect>
-            <Grid.Background>
-                <SolidColorBrush Color="#FF151515" Opacity="1"/>
-            </Grid.Background>
-
-            <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Top" Height="30" Width="30" Margin="0,20,20,0" Name="CloseButton"
-                    Style="{StaticResource ToggleButtonWindowClose}" BorderBrush="White" Foreground="White" Visibility="Hidden" />
-            <Rectangle Fill="{StaticResource Banner}" HorizontalAlignment="Left" Height="120" VerticalAlignment="Top" Width="753" Margin="22,18,0,0"/>
+    <VisualBrush x:Key="Background">
+      <VisualBrush.Visual>
+        <Grid>
+          <Image Source="..\resources\background.jpg" Stretch="Fill">
+            <Image.Effect>
+              <BlurEffect Radius="5"/>
+            </Image.Effect>
+            <!--Image.OpacityMask>
+               <SolidColorBrush Color="Black" Opacity="0.155"/>
+            </Image.OpacityMask-->
+          </Image>
         </Grid>
+      </VisualBrush.Visual>
+    </VisualBrush>
 
+    <VisualBrush x:Key="Banner">
+      <VisualBrush.Visual>
+        <Grid>
+          <Image Source="..\resources\banner.png" Stretch="Fill">
+          </Image>
+        </Grid>
+      </VisualBrush.Visual>
+    </VisualBrush>
+
+  </Window.Resources>
+  <Grid Background="{StaticResource Background}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="138"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0" Grid.Column="0" Opacity="1" Height="138">
+      <Grid.Effect>
+        <DropShadowEffect Color="#FF060606" Opacity="0.45"/>
+      </Grid.Effect>
+      <Grid.Background>
+        <SolidColorBrush Color="#FF151515" Opacity="1"/>
+      </Grid.Background>
+
+      <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Top" Height="30" Width="30" Margin="0,20,20,0" Name="CloseButton"
+                    Style="{StaticResource ToggleButtonWindowClose}" BorderBrush="White" Foreground="White" Visibility="Hidden" />
+      <Rectangle Fill="{StaticResource Banner}" HorizontalAlignment="Left" Height="120" VerticalAlignment="Top" Width="753" Margin="22,18,0,0"/>
+    </Grid>
+
+    <Control Template="{StaticResource HeaderTemplate}" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+    
     <HeaderedContentControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" HorizontalContentAlignment="Stretch"
-                            Margin="10,40" Width="900" FontSize="26" Foreground="White"
-                            HeaderTemplate="{StaticResource HeaderTemplate}"
-                            Header="{Binding Path=CurrentPage.Header}"
+                            Margin="10,40" Width="900" FontSize="26" Foreground="White" Height="200"
                             Content="{Binding Path=CurrentPage}"/>
 
     <Grid Grid.Column="0" Grid.Row="2" Height="45" Background="#66FFFFFF">
@@ -228,26 +228,25 @@
     </Grid>
 
     <ProgressBar Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" Height="5"  VerticalAlignment="Bottom" 
-                 Width="1000" Foreground="#03B023" Minimum="0" Value="{Binding Path=Progress}" BorderThickness="0"/>
-        <Grid Grid.Column="0" Grid.Row="4">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="26*"/>
-                <ColumnDefinition Width="35*"/>
-                <ColumnDefinition Width="939*"/>
-            </Grid.ColumnDefinitions>
-            <Rectangle HorizontalAlignment="Left" Height="131" Stroke="Black" VerticalAlignment="Top"
-                 Width="1000" StrokeThickness="0" Grid.ColumnSpan="3">
-                <Rectangle.Fill>
-                    <SolidColorBrush Color="#FF151515" Opacity="0.8" />
-                </Rectangle.Fill>
-                <Rectangle.Effect>
-                    <DropShadowEffect Opacity="0.57" Direction="482" BlurRadius="8" />
-                </Rectangle.Effect>
-            </Rectangle>
+                 Width="1000" Foreground="#E8641B" Minimum="0" Value="{Binding Path=Progress}" BorderThickness="0"/>
+    <Grid Grid.Column="0" Grid.Row="4">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="26*"/>
+        <ColumnDefinition Width="35*"/>
+        <ColumnDefinition Width="939*"/>
+      </Grid.ColumnDefinitions>
+      <Rectangle HorizontalAlignment="Left" Height="131" Stroke="Black" VerticalAlignment="Top" Width="1000" StrokeThickness="0" Grid.ColumnSpan="3">
+        <Rectangle.Fill>
+          <SolidColorBrush Color="#FF151515" Opacity="0.8" />
+        </Rectangle.Fill>
+        <Rectangle.Effect>
+          <DropShadowEffect Opacity="0.5" Direction="180" BlurRadius="9" />
+        </Rectangle.Effect>
+      </Rectangle>
 
-            <TextBlock TextAlignment="Center" HorizontalAlignment="Center" Height="111" TextWrapping="Wrap"
-                 VerticalAlignment="Bottom" Width="1001" Foreground="#FF919191" FontStretch="SemiCondensed"
-                 FontSize="14" Grid.ColumnSpan="3" Margin="0,0,-1,0">
+      <TextBlock TextAlignment="Center" HorizontalAlignment="Center" Height="111" TextWrapping="Wrap"
+                       VerticalAlignment="Bottom" Width="1001" Foreground="#FF919191" FontStretch="SemiCondensed"
+                       FontSize="14" Grid.ColumnSpan="3" Margin="0,0,-1,0">
         <Run Text="MediaPortal is a free open source mediacenter software" /><LineBreak /><LineBreak />
         <Run Text="You may use, distribute and copy MediaPortal under the terms of" />
         <Run FontFamily="Arial" Text=" " />
@@ -262,8 +261,8 @@
         <Span>
           <Run Text="Version 3, 29 June 2007" />
         </Span>
-            </TextBlock>
-        </Grid>
+      </TextBlock>
     </Grid>
+  </Grid>
 </Window>
 
