@@ -43,6 +43,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj
 EndProject
 Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2Shared", "MP2Shared\MP2Shared.wixproj", "{0D8DB480-534A-469B-B613-7B932D7E20D2}"
 EndProject
+Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2-Setup", "MP2-Setup\MP2-Setup.wixproj", "{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -248,6 +250,16 @@ Global
 		{0D8DB480-534A-469B-B613-7B932D7E20D2}.Test|Any CPU.Build.0 = Debug|x86
 		{0D8DB480-534A-469B-B613-7B932D7E20D2}.Test|x86.ActiveCfg = Debug|x86
 		{0D8DB480-534A-469B-B613-7B932D7E20D2}.Test|x86.Build.0 = Debug|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Debug|x86.ActiveCfg = Debug|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Debug|x86.Build.0 = Debug|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Release|Any CPU.ActiveCfg = Release|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Release|x86.ActiveCfg = Release|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Release|x86.Build.0 = Release|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Test|Any CPU.ActiveCfg = Debug|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Test|Any CPU.Build.0 = Debug|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Test|x86.ActiveCfg = Debug|x86
+		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Test|x86.Build.0 = Debug|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

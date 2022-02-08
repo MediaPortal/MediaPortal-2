@@ -16,6 +16,7 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
 
     event EventHandler<DetectBeginEventArgs> WrapperDetectBegin;
     event EventHandler<DetectRelatedBundleEventArgs> WrapperDetectRelatedBundle;
+    event EventHandler<DetectMsiFeatureEventArgs> WrapperDetectMsiFeature;
     event EventHandler<DetectPackageCompleteEventArgs> WrapperDetectPackageComplete;
     event EventHandler<DetectCompleteEventArgs> WrapperDetectComplete;
     event EventHandler<PlanBeginEventArgs> WrapperPlanBegin;
@@ -25,6 +26,7 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     event EventHandler<ExecutePackageBeginEventArgs> WrapperExecutePackageBegin;
     event EventHandler<ExecutePackageCompleteEventArgs> WrapperExecutePackageComplete;
     event EventHandler<PlanPackageBeginEventArgs> WrapperPlanPackageBegin;
+    event EventHandler<PlanMsiFeatureEventArgs> WrapperPlanMsiFeature;
     event EventHandler<ResolveSourceEventArgs> WrapperResolveSource;
     event EventHandler<ApplyPhaseCountArgs> WrapperApplyPhaseCount;
     event EventHandler<CacheAcquireProgressEventArgs> WrapperCacheAcquireProgress;

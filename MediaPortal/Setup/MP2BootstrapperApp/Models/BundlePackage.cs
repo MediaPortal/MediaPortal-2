@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
@@ -35,10 +36,12 @@ namespace MP2BootstrapperApp.Models
   public class BundlePackage
   {
     private readonly XElement _packageElement;
+    private readonly IDictionary<string, FeatureState> _featureStates;
 
     public BundlePackage(XElement packageElement)
     {
       _packageElement = packageElement;
+      _featureStates = new Dictionary<string, FeatureState>();
     }
 
     /// <summary>
@@ -80,5 +83,10 @@ namespace MP2BootstrapperApp.Models
     /// 
     /// </summary>
     public RequestState RequestedInstallState { get; set; }
+
+    public IDictionary<string, FeatureState> FeatureStates
+    {
+      get { return _featureStates; }
+    }
   }
 }

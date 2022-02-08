@@ -122,9 +122,33 @@ namespace MP2BootstrapperApp.Models
       }
     }
 
+    private void DetectpackageFeature(object sender, DetectMsiFeatureEventArgs e)
+    {
+      if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
+      {
+        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+        if (bundlePackage != null)
+        {
+          bundlePackage.FeatureStates[e.FeatureId] = e.State;
+        }
+      }
+    }
+
     private void DetectComplete(object sender, DetectCompleteEventArgs e)
     {
       InstallState = Hresult.Succeeded(e.Status) ? InstallState.Waiting : InstallState.Failed;
+    }
+
+    private void PlanMsiFeature(object sender, PlanMsiFeatureEventArgs e)
+    {
+      if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
+      {
+        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+        if (bundlePackage != null && bundlePackage.FeatureStates.TryGetValue(e.FeatureId, out FeatureState featureState))
+        {
+          e.State = featureState;
+        }
+      }
     }
 
     private void PlanComplete(object sender, PlanCompleteEventArgs e)
@@ -190,9 +214,11 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication.WrapperDetectBegin += DetectBegin;
       BootstrapperApplication.WrapperDetectRelatedBundle += DetectRelatedBundle;
       BootstrapperApplication.WrapperDetectPackageComplete += DetectedPackageComplete;
+      BootstrapperApplication.WrapperDetectMsiFeature += DetectpackageFeature;
       BootstrapperApplication.WrapperDetectComplete += DetectComplete;
       BootstrapperApplication.WrapperApplyComplete += ApplyComplete;
       BootstrapperApplication.WrapperPlanPackageBegin += PlanPackageBegin;
+      BootstrapperApplication.WrapperPlanMsiFeature += PlanMsiFeature;
       BootstrapperApplication.WrapperPlanComplete += PlanComplete;
       BootstrapperApplication.WrapperResolveSource += ResolveSource;
     }

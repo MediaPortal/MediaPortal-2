@@ -52,6 +52,12 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
       remove { DetectRelatedBundle -= value; }
     }
 
+    public event EventHandler<DetectMsiFeatureEventArgs> WrapperDetectMsiFeature
+    {
+      add { DetectMsiFeature += value; }
+      remove { DetectMsiFeature -= value; }
+    }
+
     public event EventHandler<DetectPackageCompleteEventArgs> WrapperDetectPackageComplete
     {
       add { DetectPackageComplete += value; }
@@ -104,6 +110,12 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     {
       add { PlanPackageBegin += value; }
       remove { PlanPackageBegin -= value; }
+    }
+
+    public event EventHandler<PlanMsiFeatureEventArgs> WrapperPlanMsiFeature
+    {
+      add { PlanMsiFeature += value; }
+      remove { PlanMsiFeature -= value; }
     }
 
     public event EventHandler<ResolveSourceEventArgs> WrapperResolveSource
