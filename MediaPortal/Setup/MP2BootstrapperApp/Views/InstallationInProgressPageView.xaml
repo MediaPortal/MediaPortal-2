@@ -21,41 +21,41 @@
 
     <Grid.Resources>
       <Storyboard x:Key="AnimateTarget" RepeatBehavior="Forever">
-        <DoubleAnimationUsingKeyFrames BeginTime="0:0:0" Duration="0:0:4" Storyboard.TargetName="img1" Storyboard.TargetProperty="Opacity">
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:0" Duration="0:0:5" Storyboard.TargetName="img1" Storyboard.TargetProperty="Opacity">
           <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-          <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
           <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
-          <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
         </DoubleAnimationUsingKeyFrames>
-        <DoubleAnimationUsingKeyFrames BeginTime="0:0:4" Duration="0:0:4" Storyboard.TargetName="img2" Storyboard.TargetProperty="Opacity">
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:5" Duration="0:0:5" Storyboard.TargetName="img2" Storyboard.TargetProperty="Opacity">
           <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-          <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
           <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
-          <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
         </DoubleAnimationUsingKeyFrames>
-        <DoubleAnimationUsingKeyFrames BeginTime="0:0:8" Duration="0:0:4" Storyboard.TargetName="img3" Storyboard.TargetProperty="Opacity">
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:10" Duration="0:0:5" Storyboard.TargetName="img3" Storyboard.TargetProperty="Opacity">
           <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-          <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
           <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
-          <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
         </DoubleAnimationUsingKeyFrames>
-        <DoubleAnimationUsingKeyFrames BeginTime="0:0:12" Duration="0:0:4" Storyboard.TargetName="img4" Storyboard.TargetProperty="Opacity">
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:15" Duration="0:0:5" Storyboard.TargetName="img4" Storyboard.TargetProperty="Opacity">
           <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-          <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
           <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
-          <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
         </DoubleAnimationUsingKeyFrames>
-        <DoubleAnimationUsingKeyFrames BeginTime="0:0:16" Duration="0:0:4" Storyboard.TargetName="img5" Storyboard.TargetProperty="Opacity">
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:20" Duration="0:0:5" Storyboard.TargetName="img5" Storyboard.TargetProperty="Opacity">
           <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-          <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
           <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
-          <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
         </DoubleAnimationUsingKeyFrames>
-        <DoubleAnimationUsingKeyFrames BeginTime="0:0:20" Duration="0:0:4" Storyboard.TargetName="img6" Storyboard.TargetProperty="Opacity">
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:25" Duration="0:0:5" Storyboard.TargetName="img6" Storyboard.TargetProperty="Opacity">
           <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
-          <EasingDoubleKeyFrame KeyTime="0:0:1" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
           <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
-          <EasingDoubleKeyFrame KeyTime="0:0:4" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
         </DoubleAnimationUsingKeyFrames>
       </Storyboard>
     </Grid.Resources>
