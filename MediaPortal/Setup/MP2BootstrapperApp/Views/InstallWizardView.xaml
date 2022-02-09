@@ -255,7 +255,7 @@
           <Span.Foreground>
             <SolidColorBrush Color="#FF006493" />
           </Span.Foreground>
-          <!--Hyperlink NavigateUri="http://www.gnu.de/documents/gpl-3.0.en.html" RequestNavigate="Hyperlink_RequestNavigate">GNU GENERAL PUBLIC LICENSE</Hyperlink-->
+          <Hyperlink NavigateUri="http://www.gnu.de/documents/gpl-3.0.en.html">GNU GENERAL PUBLIC LICENSE</Hyperlink>
         </Span>
         <LineBreak />
         <Span>

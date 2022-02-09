@@ -12,7 +12,13 @@
       <Image Source="..\resources\completed.png" Height="30" VerticalAlignment="Center"/>
       <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="10,0,0,0"> <Run Text="Installation is now complete"/></TextBlock>
     </StackPanel>
-    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="18" Margin="10,30,0,0"> <Run Text="In our wiki you can find help to setup everything"/></TextBlock>
+    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="18" Margin="10,30,0,0"> 
+      <Run Text="In our "/>
+      <Hyperlink NavigateUri="http://www.google.com">
+          wiki
+      </Hyperlink>
+      <Run Text=" you can find help to setup everything"/>
+    </TextBlock>
   </StackPanel>
 
 </UserControl>
