@@ -22,7 +22,9 @@
 
 #endregion
 
+using System;
 using System.Windows;
+using System.Windows.Threading;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.Models;
@@ -40,6 +42,8 @@ namespace MP2BootstrapperApp
 
     protected override void Run()
     {
+      Dispatcher.CurrentDispatcher.UnhandledException += UnhandledException;
+
       _dispatcher = new DispatcherWrapper();
 
 #if DEBUG
@@ -60,6 +64,10 @@ namespace MP2BootstrapperApp
       _dispatcher.Run();
       Engine.Quit(model.FinalResult);
     }
-  }
 
+    private void UnhandledException(object sender, DispatcherUnhandledExceptionEventArgs e)
+    {
+      Log(LogLevel.Error, $"MP2BootstrapperApplication: Unhandled exception - {e.Exception.Message}\r\n{e.Exception.StackTrace}");
+    }
+  }
 }
