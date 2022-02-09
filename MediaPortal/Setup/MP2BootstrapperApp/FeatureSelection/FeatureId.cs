@@ -22,13 +22,13 @@
 
 #endregion
 
-namespace MP2BootstrapperApp
+namespace MP2BootstrapperApp.FeatureSelection
 {
-  public enum InstallType
+  public static class FeatureId
   {
-    ClientServer,
-    Client,
-    Server,
-    Custom
+    public static readonly string Client = "Client";
+    public static readonly string Server = "Server";
+    public static readonly string ServiceMonitor = "ServiceMonitor";
+    public static readonly string LogCollector = "LogCollector";
   }
 }

@@ -24,6 +24,8 @@
 
 using System.Collections.ObjectModel;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
@@ -41,7 +43,22 @@ namespace MP2BootstrapperApp.ViewModels
       {
         if (package.RequestedInstallState == RequestState.Present)
         {
-          Packages.Add(@"..\resources\" + package.GetId() + ".png");
+          if (package.GetId() == PackageId.MediaPortal2)
+          {
+            Packages.Add(@"..\resources\MP2Common.png");
+            if (package.FeatureStates.TryGetValue(FeatureId.Client, out FeatureState clientState) && clientState == FeatureState.Local)
+            {
+              Packages.Add(@"..\resources\MP2Client.png");
+            }
+            if (package.FeatureStates.TryGetValue(FeatureId.Server, out FeatureState serverState) && serverState == FeatureState.Local)
+            {
+              Packages.Add(@"..\resources\MP2Server.png");
+            }
+          }
+          else
+          {
+            Packages.Add(@"..\resources\" + package.GetId() + ".png");
+          }
         }
       }
     }

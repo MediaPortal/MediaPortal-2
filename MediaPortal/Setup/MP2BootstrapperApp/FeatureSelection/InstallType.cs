@@ -22,22 +22,13 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.ChainPackages
+namespace MP2BootstrapperApp.FeatureSelection
 {
-  public enum PackageId
+  public enum InstallType
   {
-    MP2Client,
-    MP2Server,
-    MP2Common,
-    MediaPortal2,
-    dokan,
-    LAVFilters,
-    VC2008SP1_x86,
-    VC2010_x86,
-    VC2013_x86,
-    VC2019_x86,
-    VC2019_x64,
-    NetFx471Web,
-    Unknown
+    ClientServer,
+    Client,
+    Server,
+    Custom
   }
 }

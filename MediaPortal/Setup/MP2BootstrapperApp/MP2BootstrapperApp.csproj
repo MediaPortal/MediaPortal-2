@@ -76,6 +76,12 @@
     <Compile Include="ChainPackages\Vc2019x64.cs" />
     <Compile Include="DetectionState.cs" />
     <Compile Include="InstallState.cs" />
+    <Compile Include="FeatureSelection\AbstractFeatureSelection.cs" />
+    <Compile Include="FeatureSelection\ClientServer.cs" />
+    <Compile Include="FeatureSelection\Server.cs" />
+    <Compile Include="FeatureSelection\Client.cs" />
+    <Compile Include="FeatureSelection\FeatureId.cs" />
+    <Compile Include="FeatureSelection\IFeatureSelection.cs" />
     <Compile Include="PackageStateToVisibilityConverter.cs" />
     <Compile Include="BootstrapperWrapper\BootstrapperApplicationWrapper.cs" />
     <Compile Include="ChainPackages\Dokan.cs" />
@@ -96,7 +102,7 @@
     <Compile Include="BootstrapperWrapper\IBootstrapperApp.cs" />
     <Compile Include="BootstrapperWrapper\IDispatcher.cs" />
     <Compile Include="BootstrapperWrapper\DispatcherWrapper.cs" />
-    <Compile Include="InstallType.cs" />
+    <Compile Include="FeatureSelection\InstallType.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
     <Compile Include="Models\Package.cs" />
     <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />

@@ -24,7 +24,9 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.Models;
+using System.Linq;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
@@ -40,21 +42,27 @@ namespace MP2BootstrapperApp.WizardSteps
     public IStep Next()
     {
       ResetRequestedInstallState();
+
+      IFeatureSelection featureSelection = null;
       switch (InstallType)
       {
         case InstallType.ClientServer:
-          SetInstallStateForClientAndServer();
+          featureSelection = new ClientServer();
           break;
         case InstallType.Server:
-          SetInstallStateForServer();
+          featureSelection = new Server();
           break;
         case InstallType.Client:
-          SetInstallStateForClient();
+          featureSelection = new Client();
           break;
         case InstallType.Custom:
           // TODO
           break;
       }
+
+      if (featureSelection != null)
+        SetInstallType(featureSelection);
+
       return new InstallOverviewStep(_bootstrapperApplicationModel);
     }
 
@@ -76,40 +84,23 @@ namespace MP2BootstrapperApp.WizardSteps
       }
     }
 
-    private void SetInstallStateForClientAndServer()
+    private void SetInstallType(IFeatureSelection featureSelection)
     {
       foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
       {
-        if (package.CurrentInstallState != PackageState.Present)
+        PackageId packageId = package.GetId();
+        if (package.CurrentInstallState != PackageState.Present && !featureSelection.ExcludePackages.Contains(packageId))
         {
           package.RequestedInstallState = RequestState.Present;
         }
-      }
-    }
 
-    private void SetInstallStateForServer()
-    {
-      foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
-      {
-        PackageId packageId = package.GetId();
-        if (package.CurrentInstallState == PackageState.Present || packageId == PackageId.MP2Client || packageId == PackageId.LAVFilters)
+        if (package.GetId() == PackageId.MediaPortal2)
         {
-          continue;
+          foreach (var feature in package.FeatureStates.Keys.ToList())
+          {
+            package.FeatureStates[feature] = featureSelection.ExcludeFeatures.Contains(feature) ? FeatureState.Absent : FeatureState.Local;
+          }
         }
-        package.RequestedInstallState = RequestState.Present;
-      }
-    }
-
-    private void SetInstallStateForClient()
-    {
-      foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
-      {
-        PackageId packageId = package.GetId();
-        if (package.CurrentInstallState == PackageState.Present || packageId == PackageId.MP2Server || packageId == PackageId.VC2008SP1_x86 || packageId == PackageId.VC2010_x86 || packageId == PackageId.VC2013_x86)
-        {
-          continue;
-        }
-        package.RequestedInstallState = RequestState.Present;
       }
     }
   }

@@ -22,22 +22,26 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.ChainPackages
+using MP2BootstrapperApp.ChainPackages;
+using System.Collections.Generic;
+
+namespace MP2BootstrapperApp.FeatureSelection
 {
-  public enum PackageId
+  public class Client : AbstractFeatureSelection
   {
-    MP2Client,
-    MP2Server,
-    MP2Common,
-    MediaPortal2,
-    dokan,
-    LAVFilters,
-    VC2008SP1_x86,
-    VC2010_x86,
-    VC2013_x86,
-    VC2019_x86,
-    VC2019_x64,
-    NetFx471Web,
-    Unknown
+    public Client()
+    {
+      _excludePackages = new HashSet<PackageId>
+      {
+        PackageId.VC2008SP1_x86,
+        PackageId.VC2010_x86,
+        PackageId.VC2013_x86
+      };
+
+      _excludeFeatures = new HashSet<string>
+      {
+        FeatureId.Server
+      };
+    }
   }
 }
