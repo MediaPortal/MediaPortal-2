@@ -55,6 +55,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _channelLogoTypeProperty = null;
     protected AbstractProperty _scheduleNameProperty = null;
     protected AbstractProperty _scheduleTypeProperty = null;
+    protected AbstractProperty _scheduleTypeEnumProperty = null;
     protected AbstractProperty _startTimeProperty = null;
     protected AbstractProperty _endTimeProperty = null;
     protected AbstractProperty _currentProgramProperty = null;
@@ -176,11 +177,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     /// <summary>
-    /// Exposes the schedule type of current schedule to the skin.
+    /// Exposes the localized schedule type of current schedule to the skin.
     /// </summary>
     public AbstractProperty ScheduleTypeProperty
     {
       get { return _scheduleTypeProperty; }
+    }
+
+    /// <summary>
+    /// Exposes the schedule type (enum name) of current schedule to the skin.
+    /// </summary>
+    public string ScheduleTypeEnum
+    {
+      get { return (string)_scheduleTypeEnumProperty.GetValue(); }
+      set { _scheduleTypeEnumProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes the schedule type of current schedule to the skin.
+    /// </summary>
+    public AbstractProperty ScheduleTypeEnumProperty
+    {
+      get { return _scheduleTypeEnumProperty; }
     }
 
     /// <summary>
@@ -256,7 +274,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (schedule == null)
       {
         StartTime = EndTime = DateTime.MinValue;
-        ChannelName = ScheduleName = ScheduleType = string.Empty;
+        ChannelName = ScheduleName = ScheduleType = ScheduleTypeEnum = string.Empty;
         ChannelNumber = 0;
         return;
       }
@@ -278,6 +296,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       ChannelLogoType = channel.GetFanArtMediaType();
       ScheduleName = schedule.Name;
       ScheduleType = string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType);
+      ScheduleTypeEnum = schedule.RecordingType.ToString();
     }
     #endregion
 
@@ -527,6 +546,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _channelLogoTypeProperty = new WProperty(typeof(string), string.Empty);
         _scheduleNameProperty = new WProperty(typeof(string), string.Empty);
         _scheduleTypeProperty = new WProperty(typeof(string), string.Empty);
+        _scheduleTypeEnumProperty = new WProperty(typeof(string), string.Empty);
         _startTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
         _endTimeProperty = new WProperty(typeof(DateTime), DateTime.MinValue);
         _currentProgramProperty = new WProperty(typeof(ProgramProperties), new ProgramProperties());
