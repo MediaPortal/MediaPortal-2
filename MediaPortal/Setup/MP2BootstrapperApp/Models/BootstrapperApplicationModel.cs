@@ -211,16 +211,16 @@ namespace MP2BootstrapperApp.Models
 
     private void WireUpEventHandlers()
     {
-      BootstrapperApplication.WrapperDetectBegin += DetectBegin;
-      BootstrapperApplication.WrapperDetectRelatedBundle += DetectRelatedBundle;
-      BootstrapperApplication.WrapperDetectPackageComplete += DetectedPackageComplete;
-      BootstrapperApplication.WrapperDetectMsiFeature += DetectpackageFeature;
-      BootstrapperApplication.WrapperDetectComplete += DetectComplete;
-      BootstrapperApplication.WrapperApplyComplete += ApplyComplete;
-      BootstrapperApplication.WrapperPlanPackageBegin += PlanPackageBegin;
-      BootstrapperApplication.WrapperPlanMsiFeature += PlanMsiFeature;
-      BootstrapperApplication.WrapperPlanComplete += PlanComplete;
-      BootstrapperApplication.WrapperResolveSource += ResolveSource;
+      BootstrapperApplication.DetectBegin += DetectBegin;
+      BootstrapperApplication.DetectRelatedBundle += DetectRelatedBundle;
+      BootstrapperApplication.DetectPackageComplete += DetectedPackageComplete;
+      BootstrapperApplication.DetectMsiFeature += DetectpackageFeature;
+      BootstrapperApplication.DetectComplete += DetectComplete;
+      BootstrapperApplication.ApplyComplete += ApplyComplete;
+      BootstrapperApplication.PlanPackageBegin += PlanPackageBegin;
+      BootstrapperApplication.PlanMsiFeature += PlanMsiFeature;
+      BootstrapperApplication.PlanComplete += PlanComplete;
+      BootstrapperApplication.ResolveSource += ResolveSource;
     }
 
     private void ComputeBundlePackages()

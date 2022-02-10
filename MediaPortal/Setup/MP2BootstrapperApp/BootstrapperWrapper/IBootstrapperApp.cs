@@ -14,23 +14,23 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     void Apply(IntPtr hwndParent);
     void Log(LogLevel level, string message);
 
-    event EventHandler<DetectBeginEventArgs> WrapperDetectBegin;
-    event EventHandler<DetectRelatedBundleEventArgs> WrapperDetectRelatedBundle;
-    event EventHandler<DetectMsiFeatureEventArgs> WrapperDetectMsiFeature;
-    event EventHandler<DetectPackageCompleteEventArgs> WrapperDetectPackageComplete;
-    event EventHandler<DetectCompleteEventArgs> WrapperDetectComplete;
-    event EventHandler<PlanBeginEventArgs> WrapperPlanBegin;
-    event EventHandler<PlanCompleteEventArgs> WrapperPlanComplete;
-    event EventHandler<ApplyCompleteEventArgs> WrapperApplyComplete;
-    event EventHandler<ApplyBeginEventArgs> WrapperApplyBegin;
-    event EventHandler<ExecutePackageBeginEventArgs> WrapperExecutePackageBegin;
-    event EventHandler<ExecutePackageCompleteEventArgs> WrapperExecutePackageComplete;
-    event EventHandler<PlanPackageBeginEventArgs> WrapperPlanPackageBegin;
-    event EventHandler<PlanMsiFeatureEventArgs> WrapperPlanMsiFeature;
-    event EventHandler<ResolveSourceEventArgs> WrapperResolveSource;
-    event EventHandler<ApplyPhaseCountArgs> WrapperApplyPhaseCount;
-    event EventHandler<CacheAcquireProgressEventArgs> WrapperCacheAcquireProgress;
-    event EventHandler<ExecuteProgressEventArgs> WrapperExecuteProgress;
-    event EventHandler<ErrorEventArgs> WrapperError;
+    event EventHandler<DetectBeginEventArgs> DetectBegin;
+    event EventHandler<DetectRelatedBundleEventArgs> DetectRelatedBundle;
+    event EventHandler<DetectMsiFeatureEventArgs> DetectMsiFeature;
+    event EventHandler<DetectPackageCompleteEventArgs> DetectPackageComplete;
+    event EventHandler<DetectCompleteEventArgs> DetectComplete;
+    event EventHandler<PlanBeginEventArgs> PlanBegin;
+    event EventHandler<PlanCompleteEventArgs> PlanComplete;
+    event EventHandler<ApplyCompleteEventArgs> ApplyComplete;
+    event EventHandler<ApplyBeginEventArgs> ApplyBegin;
+    event EventHandler<ExecutePackageBeginEventArgs> ExecutePackageBegin;
+    event EventHandler<ExecutePackageCompleteEventArgs> ExecutePackageComplete;
+    event EventHandler<PlanPackageBeginEventArgs> PlanPackageBegin;
+    event EventHandler<PlanMsiFeatureEventArgs> PlanMsiFeature;
+    event EventHandler<ResolveSourceEventArgs> ResolveSource;
+    event EventHandler<ApplyPhaseCountArgs> ApplyPhaseCount;
+    event EventHandler<CacheAcquireProgressEventArgs> CacheAcquireProgress;
+    event EventHandler<ExecuteProgressEventArgs> ExecuteProgress;
+    event EventHandler<ErrorEventArgs> Error;
   }
 }

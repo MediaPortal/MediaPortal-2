@@ -347,13 +347,13 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void WireUpEventHandlers()
     {
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperDetectComplete += DetectComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyComplete += ApplyComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperPlanComplete += PlanComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperApplyPhaseCount += ApplyPhaseCount;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperCacheAcquireProgress += CacheAcquireProgress;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperExecuteProgress += ExecuteProgress;
-      _bootstrapperApplicationModel.BootstrapperApplication.WrapperError += Error;
+      _bootstrapperApplicationModel.BootstrapperApplication.DetectComplete += DetectComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.ApplyComplete += ApplyComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.PlanComplete += PlanComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.ApplyPhaseCount += ApplyPhaseCount;
+      _bootstrapperApplicationModel.BootstrapperApplication.CacheAcquireProgress += CacheAcquireProgress;
+      _bootstrapperApplicationModel.BootstrapperApplication.ExecuteProgress += ExecuteProgress;
+      _bootstrapperApplicationModel.BootstrapperApplication.Error += Error;
     }
   }
 }

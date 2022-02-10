@@ -92,14 +92,14 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void AttachProgressHandlers()
     {
-      _bootstrapperModel.BootstrapperApplication.WrapperCacheAcquireProgress += CacheAquireProgress;
-      _bootstrapperModel.BootstrapperApplication.WrapperExecuteProgress += ExecuteProgress;
+      _bootstrapperModel.BootstrapperApplication.CacheAcquireProgress += CacheAquireProgress;
+      _bootstrapperModel.BootstrapperApplication.ExecuteProgress += ExecuteProgress;
     }
 
     private void DetachProgressHandlers()
     {
-      _bootstrapperModel.BootstrapperApplication.WrapperCacheAcquireProgress -= CacheAquireProgress;
-      _bootstrapperModel.BootstrapperApplication.WrapperExecuteProgress -= ExecuteProgress;
+      _bootstrapperModel.BootstrapperApplication.CacheAcquireProgress -= CacheAquireProgress;
+      _bootstrapperModel.BootstrapperApplication.ExecuteProgress -= ExecuteProgress;
     }
 
     private void CacheAquireProgress(object sender, CacheAcquireProgressEventArgs e)

@@ -58,7 +58,7 @@ namespace Tests
     public void TestsWithBurnEngine()
     {
       IBootstrapperApp bootstrapperApp = Substitute.For<IBootstrapperApp>();
-      bootstrapperApp.WrapperDetectRelatedBundle += Raise.EventWith(new DetectRelatedBundleEventArgs("", RelationType.Update, "", true, 2, RelatedOperation.Install));
+      bootstrapperApp.DetectRelatedBundle += Raise.EventWith(new DetectRelatedBundleEventArgs("", RelationType.Update, "", true, 2, RelatedOperation.Install));
     }
   }
 }
