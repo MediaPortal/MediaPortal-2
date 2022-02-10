@@ -1800,8 +1800,16 @@
           </MultiBinding>
         </Label.IsVisible>
       </Label>
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" ScrollDelay="0" Scroll="None"
-             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+      <Label x:Name="ItemLabel" Grid.Column="1" Color="{ThemeResource TextColor}" ScrollDelay="0" Scroll="None"
+             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+({2})">
+            <Binding Path="[Name]"/>
+            <Binding Source=" "/>
+            <Binding Path="[Series]"/>
+          </MultiBinding>
+        </Label.Content>
+      </Label>
       <Label Grid.Column="2" x:Name="ProgramStartEnd" Margin="10,0,10,0" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
              FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Opacity="0.6">
         <Label.IsVisible>
