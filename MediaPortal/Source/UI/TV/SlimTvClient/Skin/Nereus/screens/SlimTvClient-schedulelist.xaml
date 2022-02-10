@@ -111,13 +111,16 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,50,0,100">
+          <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,40,0,20">
             <StackPanel Orientation="Horizontal" VerticalAlignment="Top">
               <CheckBox x:Name="EnableSeriesModeCheckbox" Margin="-5,5,0,5" Style="{ThemeResource DefaultCheckBoxStyle}"
                         IsChecked="{Binding Path=ScheduleSeriesMode,Mode=TwoWay}" Content="{Binding}" VerticalAlignment="Center" />
@@ -129,40 +132,100 @@
                     Command="{Command Source={StaticResource SlimTvManualSchedule}, Path=Show}" />
           </StackPanel>
 
-          <!-- Common control for program duration formatting -->
-          <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
-                 IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}" Grid.Row="1"/>
+          <!-- Common control for program duration formatting -->          
           <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Grid.Row="1"
-                 Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="0,10,0,0">
+                 Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0">
             <Image.Source>
               <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
                                         fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
             </Image.Source>
+            <Image.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1} || {2}!={3}">
+                <Binding ElementName="SeriesRecIndicator" Path="HasImage"/>
+                <Binding ElementName="RecIndicator" Path="HasImage"/>
+                <Binding Path="ScheduleTypeEnum"/>
+                <Binding Source="EveryTimeOnEveryChannel"/>
+              </MultiBinding>
+            </Image.IsVisible>
           </Image>
+          
           <Label x:Name="Program" Grid.Row="2" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                  Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+          <Label x:Name="Schedule" Grid.Row="2" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+                 Content="{Binding Path=ScheduleName}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
 
-          <Grid Grid.Row="3" IsVisible="{Binding ElementName=ScheduleTypeLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+          <Grid Grid.Row="3">
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0">
+                <Binding ElementName="ScheduleList" Path="ItemsCount" />
+              </MultiBinding>
+            </Grid.IsVisible>
             <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="TypeLabel" Content="{Binding ScheduleSeriesMode}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+                  <Binding Path="ScheduleSeriesMode"/>
+                  <Binding Path="CurrentProgram.IsSeriesScheduled"/>
+                  <Binding Source="[SlimTvClient.SeriesSchedule]"/>
+                  <Binding Source="[SlimTvClient.SeriesSingleSchedule]"/>
+                  <Binding Source="[SlimTvClient.SingleSchedule]"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+          </Grid>
+
+          <Grid Grid.Row="4" IsVisible="{Binding ElementName=ScheduleTypeLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\recording.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Label x:Name="ScheduleTypeLabel" Content="{Binding ScheduleType}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
           </Grid>
 
-          <Grid Grid.Row="4" DataContext="{Binding Path=CurrentProgram}"
-                IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+          <Grid Grid.Row="5">
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1} || {2}!={3}">
+                <Binding ElementName="SeriesRecIndicator" Path="HasImage"/>
+                <Binding ElementName="RecIndicator" Path="HasImage"/>
+                <Binding Path="ScheduleTypeEnum"/>
+                <Binding Source="EveryTimeOnEveryChannel"/>
+              </MultiBinding>
+            </Grid.IsVisible>
+            <Image Source="HomeContentIcons\channel.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   IsVisible="{Binding Path=ChannelName, Converter={StaticResource EmptyStringToFalseConverter}}"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="ChannelLabel" Content="{Binding ChannelName}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+          </Grid>
+
+          <Grid Grid.Row="6" IsVisible="{Binding ElementName=GenreLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\genre.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="GenreLabel" Content="{Binding  Path=CurrentProgram.Genre}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+          </Grid>
+
+          <Grid Grid.Row="7">
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1} || ({2} != {3} &amp;&amp; {2} != {4} &amp;&amp; {2} != {5})">
+                <Binding ElementName="SeriesRecIndicator" Path="HasImage"/>
+                <Binding ElementName="RecIndicator" Path="HasImage"/>
+                <Binding Path="ScheduleTypeEnum"/>
+                <Binding Source="WeeklyEveryTimeOnThisChannel"/>
+                <Binding Source="EveryTimeOnThisChannel"/>
+                <Binding Source="EveryTimeOnEveryChannel"/>
+              </MultiBinding>
+            </Grid.IsVisible>
             <Image Source="HomeContentIcons\duration.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="40,0,0,0" >
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="40,0,0,0"
+                        IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
               <Label x:Name="ProgramStart" Margin="0,0,0,0"  Color="{ThemeResource TextColorForeground}"
                      Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}"/>
               <Label x:Name="Delimiter" Margin="10,0,10,0"  Color="{ThemeResource TextColorForeground}" Content="-"
-                     IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
               <Label x:Name="ProgramEnd" Content="{Binding Path=EndTime, Converter={StaticResource SlimTvDateFormatConverter},ConverterParameter=Time}"
                      Color="{ThemeResource TextColorForeground}"/>
             </StackPanel>
           </Grid>
 
-          <Grid Grid.Row="5" Grid.ColumnSpan="2" IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource EmptyStringToFalseConverter}}">
+          <Grid Grid.Row="8" Grid.ColumnSpan="2" IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image Source="HomeContentIcons\series.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Label HorizontalAlignment="Stretch" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" x:Name="SeriesLabel" >
@@ -173,7 +236,7 @@
           </Grid>
 
           <Label x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 Wrap="True" Scroll="Auto" Opacity="0.6" Grid.Row="6"
+                 Wrap="True" Scroll="Auto" Opacity="0.6" Grid.Row="9"
                  ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
                  ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"                 
                  Content="{Binding Path=CurrentProgram.Description}" Color="{ThemeResource TextColor}" Margin="0,0,0,40" />
