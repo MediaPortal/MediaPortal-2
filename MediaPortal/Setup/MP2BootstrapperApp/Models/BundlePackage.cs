@@ -36,12 +36,12 @@ namespace MP2BootstrapperApp.Models
   public class BundlePackage
   {
     private readonly XElement _packageElement;
-    private readonly IDictionary<string, FeatureState> _featureStates;
+    private readonly IDictionary<string, BundlePackageFeature> _features;
 
     public BundlePackage(XElement packageElement)
     {
       _packageElement = packageElement;
-      _featureStates = new Dictionary<string, FeatureState>();
+      _features = new Dictionary<string, BundlePackageFeature>();
     }
 
     /// <summary>
@@ -84,9 +84,9 @@ namespace MP2BootstrapperApp.Models
     /// </summary>
     public RequestState RequestedInstallState { get; set; }
 
-    public IDictionary<string, FeatureState> FeatureStates
+    public IDictionary<string, BundlePackageFeature> Features
     {
-      get { return _featureStates; }
+      get { return _features; }
     }
   }
 }

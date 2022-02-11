@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="ActionType.cs" />
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
+    <Compile Include="ChainPackages\MediaPortal2.cs" />
     <Compile Include="ChainPackages\Vc2019x64.cs" />
     <Compile Include="DetectionState.cs" />
     <Compile Include="InstallState.cs" />
@@ -82,6 +83,7 @@
     <Compile Include="FeatureSelection\Client.cs" />
     <Compile Include="FeatureSelection\FeatureId.cs" />
     <Compile Include="FeatureSelection\IFeatureSelection.cs" />
+    <Compile Include="Models\BundlePackageFeature.cs" />
     <Compile Include="PackageStateToVisibilityConverter.cs" />
     <Compile Include="BootstrapperWrapper\BootstrapperApplicationWrapper.cs" />
     <Compile Include="ChainPackages\Dokan.cs" />

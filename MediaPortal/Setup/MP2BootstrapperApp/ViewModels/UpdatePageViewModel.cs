@@ -23,6 +23,8 @@
 #endregion
 
 using System.Collections.ObjectModel;
+using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
 
@@ -30,6 +32,12 @@ namespace MP2BootstrapperApp.ViewModels
 {
   public class UpdatePageViewModel : InstallWizardPageViewModelBase
   {
+    private readonly string[] _features = new[]
+    {
+      FeatureId.Client,
+      FeatureId.Server
+    };
+
     public UpdatePageViewModel(UpdateStep step)
       : base(step)
     {
@@ -38,14 +46,32 @@ namespace MP2BootstrapperApp.ViewModels
       Packages = new ObservableCollection<Package>();
       foreach (BundlePackage package in step.BootstrapperApplicationModel.BundlePackages)
       {
-        Packages.Add(new Package
+        if (package.GetId() == PackageId.MediaPortal2)
         {
-          BundleVersion = package.GetVersion().ToString(),
-          InstalledVersion = package.InstalledVersion.ToString(),
-          ImagePath = @"..\resources\" + package.GetId() + ".png",
-          Name = package.Id,
-          PackageState = package.CurrentInstallState
-        });
+          PackageContext packageContext = new PackageContext();
+          foreach (string featureName in _features)
+          {
+            Packages.Add(new Package
+            {
+              BundleVersion = package.GetVersion().ToString(),
+              InstalledVersion = package.Features.TryGetValue(featureName, out BundlePackageFeature feature) && feature.PreviousVersionInstalled ? package.InstalledVersion.ToString() : string.Empty,
+              ImagePath = @"..\resources\MP2" + featureName + ".png",
+              Name = featureName,
+              PackageState = package.CurrentInstallState
+            });
+          }
+        }
+        else
+        {
+          Packages.Add(new Package
+          {
+            BundleVersion = package.GetVersion().ToString(),
+            InstalledVersion = package.InstalledVersion.ToString(),
+            ImagePath = @"..\resources\" + package.GetId() + ".png",
+            Name = package.Id,
+            PackageState = package.CurrentInstallState
+          });
+        }
       }
     }
     

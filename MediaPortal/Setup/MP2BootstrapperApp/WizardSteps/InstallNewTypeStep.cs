@@ -96,9 +96,9 @@ namespace MP2BootstrapperApp.WizardSteps
 
         if (package.GetId() == PackageId.MediaPortal2)
         {
-          foreach (var feature in package.FeatureStates.Keys.ToList())
+          foreach (var feature in package.Features.Values)
           {
-            package.FeatureStates[feature] = featureSelection.ExcludeFeatures.Contains(feature) ? FeatureState.Absent : FeatureState.Local;
+            feature.RequestedFeatureState = featureSelection.ExcludeFeatures.Contains(feature.FeatureName) ? FeatureState.Absent : FeatureState.Local;
           }
         }
       }

@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.ChainPackages;
@@ -122,15 +123,35 @@ namespace MP2BootstrapperApp.Models
       }
     }
 
-    private void DetectpackageFeature(object sender, DetectMsiFeatureEventArgs e)
+    private void DetectMsiFeature(object sender, DetectMsiFeatureEventArgs e)
     {
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
         BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
-        if (bundlePackage != null)
+        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out BundlePackageFeature feature))
         {
-          bundlePackage.FeatureStates[e.FeatureId] = e.State;
+          feature.CurrentFeatureState = e.State;
         }
+      }
+    }
+
+    private void DetectRelatedMsiPackage(object sender, DetectRelatedMsiPackageEventArgs e)
+    {
+      if (e.Operation == RelatedOperation.MajorUpgrade)
+      {
+        BundlePackage bundledPackage = BundlePackages.FirstOrDefault(p => p.Id == e.PackageId);
+        if (bundledPackage != null)
+        {
+          ProductInstallation installedPackage = new ProductInstallation(e.ProductCode);
+          bundledPackage.InstalledVersion = e.Version;
+          foreach (FeatureInstallation feature in installedPackage.Features)
+          {
+            if (bundledPackage.Features.TryGetValue(feature.FeatureName, out BundlePackageFeature bundleFeature))
+            {
+              bundleFeature.PreviousVersionInstalled = feature.State == Microsoft.Deployment.WindowsInstaller.InstallState.Local;
+            }
+          }
+        }        
       }
     }
 
@@ -144,9 +165,9 @@ namespace MP2BootstrapperApp.Models
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
         BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
-        if (bundlePackage != null && bundlePackage.FeatureStates.TryGetValue(e.FeatureId, out FeatureState featureState))
+        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out BundlePackageFeature feature))
         {
-          e.State = featureState;
+          e.State = feature.RequestedFeatureState;
         }
       }
     }
@@ -214,7 +235,8 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication.DetectBegin += DetectBegin;
       BootstrapperApplication.DetectRelatedBundle += DetectRelatedBundle;
       BootstrapperApplication.DetectPackageComplete += DetectedPackageComplete;
-      BootstrapperApplication.DetectMsiFeature += DetectpackageFeature;
+      BootstrapperApplication.DetectMsiFeature += DetectMsiFeature;
+      BootstrapperApplication.DetectRelatedMsiPackage += DetectRelatedMsiPackage;
       BootstrapperApplication.DetectComplete += DetectComplete;
       BootstrapperApplication.ApplyComplete += ApplyComplete;
       BootstrapperApplication.PlanPackageBegin += PlanPackageBegin;
@@ -225,7 +247,7 @@ namespace MP2BootstrapperApp.Models
 
     private void ComputeBundlePackages()
     {
-      IEnumerable<BundlePackage> packages = new List<BundlePackage>();
+      IList<BundlePackage> packages = new List<BundlePackage>();
 
       XNamespace manifestNamespace = "http://schemas.microsoft.com/wix/2010/BootstrapperApplicationData";
 
@@ -252,11 +274,21 @@ namespace MP2BootstrapperApp.Models
         const string wixPackageProperties = "WixPackageProperties";
         packages = bundleManifestData?.Descendants(manifestNamespace + wixPackageProperties)
           .Select(x => new BundlePackage(x))
-          .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.GetId()));
+          .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.GetId())).ToList();
+
+        const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
+        IEnumerable<BundlePackageFeature> features = bundleManifestData?.Descendants(manifestNamespace + wixPackageFeatureInfo)
+          .Select(x => new BundlePackageFeature(x));
+        foreach (BundlePackageFeature feature in features)
+        {
+          BundlePackage parent = packages.FirstOrDefault(p => p.Id == feature.Package);
+          if (parent != null)
+            parent.Features[feature.FeatureName] = feature;
+        }
       }
 
       BundlePackages = packages != null
-        ? new ReadOnlyCollection<BundlePackage>(packages.ToList())
+        ? new ReadOnlyCollection<BundlePackage>(packages)
         : new ReadOnlyCollection<BundlePackage>(new List<BundlePackage>());
     }
   }

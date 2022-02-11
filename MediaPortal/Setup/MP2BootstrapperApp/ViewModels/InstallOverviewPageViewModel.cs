@@ -22,11 +22,12 @@
 
 #endregion
 
-using System.Collections.ObjectModel;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.FeatureSelection;
+using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
+using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.ViewModels
 {
@@ -46,11 +47,11 @@ namespace MP2BootstrapperApp.ViewModels
           if (package.GetId() == PackageId.MediaPortal2)
           {
             Packages.Add(@"..\resources\MP2Common.png");
-            if (package.FeatureStates.TryGetValue(FeatureId.Client, out FeatureState clientState) && clientState == FeatureState.Local)
+            if (package.Features.TryGetValue(FeatureId.Client, out BundlePackageFeature client) && client.RequestedFeatureState != FeatureState.Absent)
             {
               Packages.Add(@"..\resources\MP2Client.png");
             }
-            if (package.FeatureStates.TryGetValue(FeatureId.Server, out FeatureState serverState) && serverState == FeatureState.Local)
+            if (package.Features.TryGetValue(FeatureId.Server, out BundlePackageFeature server) && server.RequestedFeatureState != FeatureState.Absent)
             {
               Packages.Add(@"..\resources\MP2Server.png");
             }

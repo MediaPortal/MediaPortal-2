@@ -17,6 +17,7 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     event EventHandler<DetectBeginEventArgs> DetectBegin;
     event EventHandler<DetectRelatedBundleEventArgs> DetectRelatedBundle;
     event EventHandler<DetectMsiFeatureEventArgs> DetectMsiFeature;
+    event EventHandler<DetectRelatedMsiPackageEventArgs> DetectRelatedMsiPackage;
     event EventHandler<DetectPackageCompleteEventArgs> DetectPackageComplete;
     event EventHandler<DetectCompleteEventArgs> DetectComplete;
     event EventHandler<PlanBeginEventArgs> PlanBegin;
