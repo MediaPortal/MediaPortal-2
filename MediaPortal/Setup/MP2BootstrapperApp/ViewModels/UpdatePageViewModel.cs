@@ -44,7 +44,7 @@ namespace MP2BootstrapperApp.ViewModels
       Header = "Update MediaPortal 2";
 
       Packages = new ObservableCollection<Package>();
-      foreach (BundlePackage package in step.BootstrapperApplicationModel.BundlePackages)
+      foreach (IBundlePackage package in step.BootstrapperApplicationModel.BundlePackages)
       {
         if (package.GetId() == PackageId.MediaPortal2)
         {
@@ -54,7 +54,7 @@ namespace MP2BootstrapperApp.ViewModels
             Packages.Add(new Package
             {
               BundleVersion = package.GetVersion().ToString(),
-              InstalledVersion = package.Features.TryGetValue(featureName, out BundlePackageFeature feature) && feature.PreviousVersionInstalled ? package.InstalledVersion.ToString() : string.Empty,
+              InstalledVersion = package.Features.TryGetValue(featureName, out IBundlePackageFeature feature) && feature.PreviousVersionInstalled ? package.InstalledVersion.ToString() : string.Empty,
               ImagePath = @"..\resources\" + featureName + ".png",
               Name = featureName,
               PackageState = package.CurrentInstallState

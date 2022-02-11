@@ -59,7 +59,7 @@ namespace MP2BootstrapperApp.Models
    
     public int FinalResult { get; set; }
 
-    public ReadOnlyCollection<BundlePackage> BundlePackages { get; private set; }
+    public ReadOnlyCollection<IBundlePackage> BundlePackages { get; private set; }
 
     public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 
@@ -112,7 +112,7 @@ namespace MP2BootstrapperApp.Models
     {
       if (Enum.TryParse(detectPackageCompleteEventArgs.PackageId, out PackageId detectedPackageId))
       {
-        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
         if (bundlePackage != null)
         {
           PackageId bundlePackageId = bundlePackage.GetId();
@@ -127,8 +127,8 @@ namespace MP2BootstrapperApp.Models
     {
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
-        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
-        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out BundlePackageFeature feature))
+        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out IBundlePackageFeature feature))
         {
           feature.CurrentFeatureState = e.State;
         }
@@ -139,14 +139,14 @@ namespace MP2BootstrapperApp.Models
     {
       if (e.Operation == RelatedOperation.MajorUpgrade)
       {
-        BundlePackage bundledPackage = BundlePackages.FirstOrDefault(p => p.Id == e.PackageId);
+        IBundlePackage bundledPackage = BundlePackages.FirstOrDefault(p => p.Id == e.PackageId);
         if (bundledPackage != null)
         {
           ProductInstallation installedPackage = new ProductInstallation(e.ProductCode);
           bundledPackage.InstalledVersion = e.Version;
           foreach (FeatureInstallation feature in installedPackage.Features)
           {
-            if (bundledPackage.Features.TryGetValue(feature.FeatureName, out BundlePackageFeature bundleFeature))
+            if (bundledPackage.Features.TryGetValue(feature.FeatureName, out IBundlePackageFeature bundleFeature))
             {
               bundleFeature.PreviousVersionInstalled = feature.State == Microsoft.Deployment.WindowsInstaller.InstallState.Local;
             }
@@ -164,8 +164,8 @@ namespace MP2BootstrapperApp.Models
     {
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
-        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
-        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out BundlePackageFeature feature))
+        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out IBundlePackageFeature feature))
         {
           e.State = feature.RequestedFeatureState;
         }
@@ -205,7 +205,7 @@ namespace MP2BootstrapperApp.Models
 
       if (Enum.TryParse(planPackageBeginEventArgs.PackageId, out PackageId id))
       {
-        BundlePackage bundlePackage = BundlePackages.FirstOrDefault(p => p.GetId() == id);
+        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(p => p.GetId() == id);
         if (bundlePackage != null)
         {
           // All packages should have the correct requested state by default for a complete installation (determined based on InstallCondition),
@@ -247,7 +247,7 @@ namespace MP2BootstrapperApp.Models
 
     private void ComputeBundlePackages()
     {
-      IList<BundlePackage> packages = new List<BundlePackage>();
+      IList<IBundlePackage> packages = new List<IBundlePackage>();
 
       XNamespace manifestNamespace = "http://schemas.microsoft.com/wix/2010/BootstrapperApplicationData";
 
@@ -273,23 +273,23 @@ namespace MP2BootstrapperApp.Models
 
         const string wixPackageProperties = "WixPackageProperties";
         packages = bundleManifestData?.Descendants(manifestNamespace + wixPackageProperties)
-          .Select(x => new BundlePackage(x))
+          .Select(x => (IBundlePackage)new BundlePackage(x))
           .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.GetId())).ToList();
 
         const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
-        IEnumerable<BundlePackageFeature> features = bundleManifestData?.Descendants(manifestNamespace + wixPackageFeatureInfo)
+        IEnumerable<IBundlePackageFeature> features = bundleManifestData?.Descendants(manifestNamespace + wixPackageFeatureInfo)
           .Select(x => new BundlePackageFeature(x));
-        foreach (BundlePackageFeature feature in features)
+        foreach (IBundlePackageFeature feature in features)
         {
-          BundlePackage parent = packages.FirstOrDefault(p => p.Id == feature.Package);
+          IBundlePackage parent = packages.FirstOrDefault(p => p.Id == feature.Package);
           if (parent != null)
             parent.Features[feature.FeatureName] = feature;
         }
       }
 
       BundlePackages = packages != null
-        ? new ReadOnlyCollection<BundlePackage>(packages)
-        : new ReadOnlyCollection<BundlePackage>(new List<BundlePackage>());
+        ? new ReadOnlyCollection<IBundlePackage>(packages)
+        : new ReadOnlyCollection<IBundlePackage>(new List<IBundlePackage>());
     }
   }
 }

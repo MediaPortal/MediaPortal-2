@@ -23,49 +23,49 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ChainPackages;
 using System;
-using System.Xml.Linq;
+using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.Models
 {
-  public class BundlePackageFeature : IBundlePackageFeature
+  public interface IBundlePackage
   {
-    private readonly XElement _featureElement;
-
-    public BundlePackageFeature(XElement featureElement)
-    {
-      _featureElement = featureElement;
-    }
+    /// <summary>
+    /// Parse the id of the package as <see cref="PackageId"/>.
+    /// </summary>
+    /// <returns></returns>
+    PackageId GetId();
 
     /// <summary>
-    /// <inheritdoc/>
+    /// Gets the id of the package as <see cref="string"/>.
     /// </summary>
-    public string Package
-    {
-      get { return _featureElement.Attribute("Package")?.Value; }
-    }
+    string Id { get; }
 
     /// <summary>
-    /// <inheritdoc/>
+    /// Gets the bundled version of the package.
     /// </summary>
-    public string FeatureName
-    {
-      get { return _featureElement.Attribute("Feature")?.Value; }
-    }
+    /// <returns></returns>
+    Version GetVersion();
 
     /// <summary>
-    /// <inheritdoc/>
+    /// Gets or sets the currently installed version of the package.
     /// </summary>
-    public bool PreviousVersionInstalled { get; set; }
+    Version InstalledVersion { get; set; }
 
     /// <summary>
-    /// <inheritdoc/>
+    /// Gets or sets the current install state of the package.
     /// </summary>
-    public FeatureState CurrentFeatureState { get; set; }
+    PackageState CurrentInstallState { get; set; }
 
     /// <summary>
-    /// <inheritdoc/>
+    /// Gets or sets the requested install state of the package.
     /// </summary>
-    public FeatureState RequestedFeatureState { get; set; }
+    RequestState RequestedInstallState { get; set; }
+
+    /// <summary>
+    /// Gets the available features of the package.
+    /// </summary>
+    IDictionary<string, IBundlePackageFeature> Features { get; }
   }
 }

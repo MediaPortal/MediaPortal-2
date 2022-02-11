@@ -33,25 +33,28 @@ namespace MP2BootstrapperApp.Models
   /// <summary>
   /// 
   /// </summary>
-  public class BundlePackage
+  public class BundlePackage : IBundlePackage
   {
     private readonly XElement _packageElement;
-    private readonly IDictionary<string, BundlePackageFeature> _features;
+    private readonly IDictionary<string, IBundlePackageFeature> _features;
 
     public BundlePackage(XElement packageElement)
     {
       _packageElement = packageElement;
-      _features = new Dictionary<string, BundlePackageFeature>();
+      _features = new Dictionary<string, IBundlePackageFeature>();
     }
 
     /// <summary>
-    /// 
+    /// <inheritdoc/>
     /// </summary>
     public PackageId GetId()
     {
       return Enum.TryParse(_packageElement.Attribute("Package")?.Value, out PackageId packageId) ? packageId : PackageId.Unknown;
     }
 
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public string Id
     {
       get
@@ -62,7 +65,7 @@ namespace MP2BootstrapperApp.Models
     }
 
     /// <summary>
-    /// 
+    /// <inheritdoc/>
     /// </summary>
     public Version GetVersion()
     {
@@ -70,21 +73,24 @@ namespace MP2BootstrapperApp.Models
     }
 
     /// <summary>
-    /// 
+    /// <inheritdoc/>
     /// </summary>
     public Version InstalledVersion { get; set; }
 
     /// <summary>
-    /// 
+    /// <inheritdoc/>
     /// </summary>
     public PackageState CurrentInstallState { get; set; }
 
     /// <summary>
-    /// 
+    /// <inheritdoc/>
     /// </summary>
     public RequestState RequestedInstallState { get; set; }
 
-    public IDictionary<string, BundlePackageFeature> Features
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public IDictionary<string, IBundlePackageFeature> Features
     {
       get { return _features; }
     }

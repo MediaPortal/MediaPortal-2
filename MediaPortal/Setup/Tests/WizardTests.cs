@@ -20,7 +20,7 @@ namespace Tests
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       IBootstrapperApp bootstrapperApp = Substitute.For<IBootstrapperApp>();
       applicationModel.BootstrapperApplication.Returns(bootstrapperApp);
-      applicationModel.BundlePackages.Returns(new List<BundlePackage>().AsReadOnly());
+      applicationModel.BundlePackages.Returns(new List<IBundlePackage>().AsReadOnly());
       //IDispatcher dispatcher = Substitute.For<IDispatcher>();
       //InstallWizardViewModel viewModel = new InstallWizardViewModel(applicationModel, dispatcher);
 
@@ -39,7 +39,7 @@ namespace Tests
     {
       // Arrange
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
-      applicationModel.BundlePackages.Returns(new List<BundlePackage>().AsReadOnly());
+      applicationModel.BundlePackages.Returns(new List<IBundlePackage>().AsReadOnly());
       //IDispatcher dispatcher = Substitute.For<IDispatcher>();
       //InstallWizardViewModel viewModelMain = new InstallWizardViewModel(applicationModel, dispatcher);
       //InstallNewTypePageViewModel viewModelNewInstall = new InstallNewTypePageViewModel(viewModelMain);

@@ -22,28 +22,35 @@
 
 #endregion
 
-using MP2BootstrapperApp.ChainPackages;
-using MP2BootstrapperApp.Models;
-using System.Collections.Generic;
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 
-namespace MP2BootstrapperApp.FeatureSelection
+namespace MP2BootstrapperApp.Models
 {
-  public interface IFeatureSelection
+  public interface IBundlePackageFeature
   {
     /// <summary>
-    /// Gets the features to exclude based on the selected features.
+    /// The id of the feature within a package.
     /// </summary>
-    ISet<string> ExcludeFeatures { get; }
+    string FeatureName { get; }
 
     /// <summary>
-    /// Gets the packages to exclude based on the selected features.
+    /// The parent package id.
     /// </summary>
-    ISet<PackageId> ExcludePackages { get; }
+    string Package { get; }
 
     /// <summary>
-    /// Sets the install state and feature state of the packages based on the selected features.
+    /// Whether a previous version of this feature is installed in a previous version of the parent package.
     /// </summary>
-    /// <param name="bundlePackages">The packages to update.</param>
-    void SetInstallState(IEnumerable<IBundlePackage> bundlePackages);
+    bool PreviousVersionInstalled { get; set; }
+
+    /// <summary>
+    /// The current state of the feature if the current version of the parent package is installed. 
+    /// </summary>
+    FeatureState CurrentFeatureState { get; set; }
+
+    /// <summary>
+    /// The requested state of the feature.
+    /// </summary>
+    FeatureState RequestedFeatureState { get; set; }
   }
 }

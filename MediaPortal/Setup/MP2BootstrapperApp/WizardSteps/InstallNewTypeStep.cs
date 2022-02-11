@@ -56,7 +56,7 @@ namespace MP2BootstrapperApp.WizardSteps
       }
 
       if (featureSelection != null)
-        featureSelection.SetInstallType(_bootstrapperApplicationModel.BundlePackages);
+        featureSelection.SetInstallState(_bootstrapperApplicationModel.BundlePackages);
 
       return new InstallOverviewStep(_bootstrapperApplicationModel);
     }

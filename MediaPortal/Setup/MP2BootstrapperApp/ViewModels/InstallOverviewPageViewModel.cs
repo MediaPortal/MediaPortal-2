@@ -48,7 +48,7 @@ namespace MP2BootstrapperApp.ViewModels
           {
             foreach (string featureName in FeatureId.All)
             {
-              if (package.Features.TryGetValue(featureName, out BundlePackageFeature feature) && feature.RequestedFeatureState != FeatureState.Absent)
+              if (package.Features.TryGetValue(featureName, out IBundlePackageFeature feature) && feature.RequestedFeatureState != FeatureState.Absent)
               {
                 Packages.Add(@"..\resources\" + featureName + ".png");
               }

@@ -44,9 +44,9 @@ namespace MP2BootstrapperApp.FeatureSelection
       get { return _excludeFeatures ?? new HashSet<string>(); }
     }
 
-    public void SetInstallType(IEnumerable<BundlePackage> bundlePackages)
+    public void SetInstallState(IEnumerable<IBundlePackage> bundlePackages)
     {
-      foreach (BundlePackage package in bundlePackages)
+      foreach (IBundlePackage package in bundlePackages)
       {
         PackageId packageId = package.GetId();
         if (package.CurrentInstallState != PackageState.Present && !ExcludePackages.Contains(packageId))

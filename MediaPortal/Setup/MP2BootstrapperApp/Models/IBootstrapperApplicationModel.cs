@@ -15,7 +15,7 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// The packages included in the bundle.
     /// </summary>
-    ReadOnlyCollection<BundlePackage> BundlePackages { get; }
+    ReadOnlyCollection<IBundlePackage> BundlePackages { get; }
 
     /// <summary>
     /// The detected state of this bundle.
