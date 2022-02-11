@@ -26,8 +26,8 @@ And these are only the basics.
 
 ## Links & Resources
 
- * [Hompage](http://www.team-mediaportal.com/)
- * [Getting Started](http://wiki.team-mediaportal.com/2_MEDIAPORTAL_2/1_Getting_Started)
- * [Support Forum](http://forum.team-mediaportal.com/categories/mediaportal-2.528/)
- * [Contribute](http://wiki.team-mediaportal.com/2_MEDIAPORTAL_2/8_Contribute)
- * [Issue Tracker](http://issues.team-mediaportal.com/browse/MP2) (includes changelog & roadmap)
+ * [Hompage](https://www.team-mediaportal.com/)
+ * [Getting Started](https://www.team-mediaportal.com/wiki/display/MediaPortal2)
+ * [Support Forum](https://forum.team-mediaportal.com/categories/mediaportal-2.528/)
+ * [Contribute](https://www.team-mediaportal.com/wiki/display/MediaPortal2/Contribute)
+ * [Issue Tracker](https://issues.team-mediaportal.com/browse/MP2) (includes changelog & roadmap)
