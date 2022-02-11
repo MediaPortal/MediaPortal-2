@@ -27,18 +27,23 @@ using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.FeatureSelection
 {
-  public class Server : AbstractFeatureSelection
+  public class ServiceMonitorFeature : AbstractFeatureSelection
   {
-    public Server()
+    public ServiceMonitorFeature()
     {
       _excludePackages = new HashSet<PackageId>
       {
+        PackageId.VC2008SP1_x86,
+        PackageId.VC2010_x86,
+        PackageId.VC2013_x86,
         PackageId.LAVFilters
       };
 
       _excludeFeatures = new HashSet<string>
       {
-        FeatureId.Client
+        FeatureId.Client,
+        FeatureId.Server,
+        FeatureId.LogCollector
       };
     }
   }

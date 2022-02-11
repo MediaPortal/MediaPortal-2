@@ -24,24 +24,17 @@
 
 using MP2BootstrapperApp.ChainPackages;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MP2BootstrapperApp.FeatureSelection
 {
-  public class Client : AbstractFeatureSelection
+  public class CombinedFeatures : AbstractFeatureSelection
   {
-    public Client()
+    public CombinedFeatures(IEnumerable<IFeatureSelection> featureSelections)
     {
-      _excludePackages = new HashSet<PackageId>
-      {
-        PackageId.VC2008SP1_x86,
-        PackageId.VC2010_x86,
-        PackageId.VC2013_x86
-      };
+      _excludePackages = new HashSet<PackageId>(featureSelections.Select(f => (IEnumerable<PackageId>)f.ExcludePackages).Aggregate((p1, p2) => p1.Intersect(p2)));
 
-      _excludeFeatures = new HashSet<string>
-      {
-        FeatureId.Server
-      };
+      _excludeFeatures = new HashSet<string>(featureSelections.Select(f => (IEnumerable<string>)f.ExcludeFeatures).Aggregate((f1, f2) => f1.Intersect(f2)));
     }
   }
 }

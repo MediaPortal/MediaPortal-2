@@ -22,11 +22,8 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.Models;
-using System.Linq;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
@@ -41,19 +38,17 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      ResetRequestedInstallState();
-
       IFeatureSelection featureSelection = null;
       switch (InstallType)
       {
         case InstallType.ClientServer:
-          featureSelection = new ClientServer();
+          featureSelection = new CombinedFeatures(new IFeatureSelection[] { new ClientFeature(), new ServerFeature(), new LogCollectorFeature(), new ServiceMonitorFeature() });
           break;
         case InstallType.Server:
-          featureSelection = new Server();
+          featureSelection = new CombinedFeatures(new IFeatureSelection[] { new ServerFeature(), new LogCollectorFeature(), new ServiceMonitorFeature() });
           break;
         case InstallType.Client:
-          featureSelection = new Client();
+          featureSelection = new CombinedFeatures(new IFeatureSelection[] { new ClientFeature(), new LogCollectorFeature(), new ServiceMonitorFeature() });
           break;
         case InstallType.Custom:
           // TODO
@@ -61,7 +56,7 @@ namespace MP2BootstrapperApp.WizardSteps
       }
 
       if (featureSelection != null)
-        SetInstallType(featureSelection);
+        featureSelection.SetInstallType(_bootstrapperApplicationModel.BundlePackages);
 
       return new InstallOverviewStep(_bootstrapperApplicationModel);
     }
@@ -74,34 +69,6 @@ namespace MP2BootstrapperApp.WizardSteps
     public bool CanGoBack()
     {
       return true;
-    }
-
-    private void ResetRequestedInstallState()
-    {
-      foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
-      {
-        package.RequestedInstallState = RequestState.None;
-      }
-    }
-
-    private void SetInstallType(IFeatureSelection featureSelection)
-    {
-      foreach (BundlePackage package in _bootstrapperApplicationModel.BundlePackages)
-      {
-        PackageId packageId = package.GetId();
-        if (package.CurrentInstallState != PackageState.Present && !featureSelection.ExcludePackages.Contains(packageId))
-        {
-          package.RequestedInstallState = RequestState.Present;
-        }
-
-        if (package.GetId() == PackageId.MediaPortal2)
-        {
-          foreach (var feature in package.Features.Values)
-          {
-            feature.RequestedFeatureState = featureSelection.ExcludeFeatures.Contains(feature.FeatureName) ? FeatureState.Absent : FeatureState.Local;
-          }
-        }
-      }
     }
   }
 }

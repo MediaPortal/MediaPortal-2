@@ -22,12 +22,14 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.Models;
 using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.FeatureSelection
 {
-  public class AbstractFeatureSelection : IFeatureSelection
+  public abstract class AbstractFeatureSelection : IFeatureSelection
   {
     protected ISet<PackageId> _excludePackages;
     protected ISet<string> _excludeFeatures;
@@ -40,6 +42,30 @@ namespace MP2BootstrapperApp.FeatureSelection
     public ISet<string> ExcludeFeatures
     {
       get { return _excludeFeatures ?? new HashSet<string>(); }
+    }
+
+    public void SetInstallType(IEnumerable<BundlePackage> bundlePackages)
+    {
+      foreach (BundlePackage package in bundlePackages)
+      {
+        PackageId packageId = package.GetId();
+        if (package.CurrentInstallState != PackageState.Present && !ExcludePackages.Contains(packageId))
+        {
+          package.RequestedInstallState = RequestState.Present;
+        }
+        else
+        {
+          package.RequestedInstallState = RequestState.None;
+        }
+
+        if (packageId == PackageId.MediaPortal2)
+        {
+          foreach (var feature in package.Features.Values)
+          {
+            feature.RequestedFeatureState = ExcludeFeatures.Contains(feature.FeatureName) ? FeatureState.Absent : FeatureState.Local;
+          }
+        }
+      }
     }
   }
 }

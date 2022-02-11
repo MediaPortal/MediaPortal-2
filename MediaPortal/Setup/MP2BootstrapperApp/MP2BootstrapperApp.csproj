@@ -76,11 +76,13 @@
     <Compile Include="ChainPackages\MediaPortal2.cs" />
     <Compile Include="ChainPackages\Vc2019x64.cs" />
     <Compile Include="DetectionState.cs" />
+    <Compile Include="FeatureSelection\CombinedFeatures.cs" />
+    <Compile Include="FeatureSelection\ServiceMonitorFeature.cs" />
+    <Compile Include="FeatureSelection\LogCollectorFeature.cs" />
     <Compile Include="InstallState.cs" />
     <Compile Include="FeatureSelection\AbstractFeatureSelection.cs" />
-    <Compile Include="FeatureSelection\ClientServer.cs" />
-    <Compile Include="FeatureSelection\Server.cs" />
-    <Compile Include="FeatureSelection\Client.cs" />
+    <Compile Include="FeatureSelection\ServerFeature.cs" />
+    <Compile Include="FeatureSelection\ClientFeature.cs" />
     <Compile Include="FeatureSelection\FeatureId.cs" />
     <Compile Include="FeatureSelection\IFeatureSelection.cs" />
     <Compile Include="Models\BundlePackageFeature.cs" />
