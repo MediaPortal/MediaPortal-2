@@ -1,3 +1,6 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/r1epbqfpf72b5o3v?svg=true)](https://ci.appveyor.com/project/MediaPortal/mediaportal-2)
+ ![GitHub release (latest SemVer including pre-releases)](https://img.shields.io/github/v/release/MediaPortal/MediaPortal-2?include_prereleases) ![GitHub release (latest by date including pre-releases)](https://img.shields.io/github/downloads-pre/Mediaportal/Mediaportal-2/latest/total?label=release@downloads)
+
 ## Welcome to MediaPortal 2
 
 The main goal of __MediaPortal 2__ is to provide __the__ best mediacenter software available when it comes to usability, flexibility and extensibility.
