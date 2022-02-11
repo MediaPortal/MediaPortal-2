@@ -30,5 +30,13 @@ namespace MP2BootstrapperApp.FeatureSelection
     public static readonly string Server = "Server";
     public static readonly string ServiceMonitor = "ServiceMonitor";
     public static readonly string LogCollector = "LogCollector";
+
+    public static readonly string[] All = new[]
+    {
+      Client,
+      Server,
+      ServiceMonitor,
+      LogCollector
+    };
   }
 }

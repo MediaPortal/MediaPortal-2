@@ -55,7 +55,7 @@ namespace MP2BootstrapperApp.ViewModels
             {
               BundleVersion = package.GetVersion().ToString(),
               InstalledVersion = package.Features.TryGetValue(featureName, out BundlePackageFeature feature) && feature.PreviousVersionInstalled ? package.InstalledVersion.ToString() : string.Empty,
-              ImagePath = @"..\resources\MP2" + featureName + ".png",
+              ImagePath = @"..\resources\" + featureName + ".png",
               Name = featureName,
               PackageState = package.CurrentInstallState
             });

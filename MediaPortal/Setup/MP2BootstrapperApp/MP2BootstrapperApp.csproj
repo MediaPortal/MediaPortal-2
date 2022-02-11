@@ -268,10 +268,10 @@
     <Resource Include="Resources\banner.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\MP2Client.png" />
+    <Resource Include="Resources\Client.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\MP2Server.png" />
+    <Resource Include="Resources\Server.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\dokan.png" />
@@ -283,9 +283,6 @@
   <ItemGroup>
     <Resource Include="Resources\VC2010_x86.png" />
     <Resource Include="Resources\VC2013_x86.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <Resource Include="Resources\MP2Common.png" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Resources\InstallTypes\custom_install.png" />
@@ -317,6 +314,8 @@
     <Resource Include="Resources\cancel.png" />
     <Resource Include="Resources\completed.png" />
     <Resource Include="Resources\error.png" />
+    <Resource Include="Resources\LogCollector.png" />
+    <Resource Include="Resources\ServiceMonitor.png" />
     <Content Include="Resources\update.png" />
     <Resource Include="Resources\VC2019_x64.png" />
   </ItemGroup>

@@ -46,14 +46,12 @@ namespace MP2BootstrapperApp.ViewModels
         {
           if (package.GetId() == PackageId.MediaPortal2)
           {
-            Packages.Add(@"..\resources\MP2Common.png");
-            if (package.Features.TryGetValue(FeatureId.Client, out BundlePackageFeature client) && client.RequestedFeatureState != FeatureState.Absent)
+            foreach (string featureName in FeatureId.All)
             {
-              Packages.Add(@"..\resources\MP2Client.png");
-            }
-            if (package.Features.TryGetValue(FeatureId.Server, out BundlePackageFeature server) && server.RequestedFeatureState != FeatureState.Absent)
-            {
-              Packages.Add(@"..\resources\MP2Server.png");
+              if (package.Features.TryGetValue(featureName, out BundlePackageFeature feature) && feature.RequestedFeatureState != FeatureState.Absent)
+              {
+                Packages.Add(@"..\resources\" + featureName + ".png");
+              }
             }
           }
           else
