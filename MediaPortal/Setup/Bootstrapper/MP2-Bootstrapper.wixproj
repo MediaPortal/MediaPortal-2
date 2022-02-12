@@ -50,10 +50,12 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Fragments" />
+    <Folder Include="Resources" />
     <Folder Include="Theme" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.targets" />
+    <Content Include="Resources\Setup.ico" />
     <Content Include="Theme\CustomTheme.xml" />
     <None Include="MP2-Setup-Logging.bat" />
   </ItemGroup>
