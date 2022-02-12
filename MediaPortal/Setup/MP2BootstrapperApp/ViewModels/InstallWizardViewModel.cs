@@ -142,7 +142,7 @@ namespace MP2BootstrapperApp.ViewModels
     {
       _bootstrapperApplicationModel.Cancelled = true;
       // If currently applying the cancelled state will be returned to the engine
-      // in one of it;s event handlers so if can cancel/roll back gracefully, else
+      // in one of its event handlers so it can cancel/roll back gracefully, else
       // it's safe to just quit now.
       if (_bootstrapperApplicationModel.InstallState != InstallState.Applying)
       {
