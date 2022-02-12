@@ -5,6 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:view="clr-namespace:MP2BootstrapperApp.Views"
         xmlns:viewModels="clr-namespace:MP2BootstrapperApp.ViewModels"
+        xmlns:extensions="clr-namespace:MP2BootstrapperApp.Extensions"
         mc:Ignorable="d"
         Title="Mediaportal" Height="600" Width="1000" ResizeMode="NoResize" WindowStyle="None"
         WindowStartupLocation="CenterScreen" UseLayoutRounding="False" AllowsTransparency="True"
@@ -251,7 +252,7 @@
           <Span.Foreground>
             <SolidColorBrush Color="#FF006493" />
           </Span.Foreground>
-          <Hyperlink NavigateUri="http://www.gnu.de/documents/gpl-3.0.en.html">GNU GENERAL PUBLIC LICENSE</Hyperlink>
+          <extensions:ExternalHyperlink NavigateUri="http://www.gnu.de/documents/gpl-3.0.en.html">GNU GENERAL PUBLIC LICENSE</extensions:ExternalHyperlink>
         </Span>
         <LineBreak />
         <Span>
