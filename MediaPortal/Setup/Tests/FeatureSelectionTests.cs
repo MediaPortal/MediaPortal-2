@@ -17,24 +17,24 @@ namespace Tests
       yield return new object[] { new LogCollectorFeature(), new[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor } };
       yield return new object[] { new ServiceMonitorFeature(), new[] { FeatureId.Client, FeatureId.Server, FeatureId.LogCollector } };
 
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature() }), new[] { FeatureId.Server, FeatureId.LogCollector, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServiceMonitorFeature() }), new[] { FeatureId.Server, FeatureId.LogCollector } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new LogCollectorFeature() }), new[] { FeatureId.Server, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServiceMonitorFeature(), new LogCollectorFeature() }), new[] { FeatureId.Server } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature()), new[] { FeatureId.Server, FeatureId.LogCollector, FeatureId.ServiceMonitor } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServiceMonitorFeature()), new[] { FeatureId.Server, FeatureId.LogCollector } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new LogCollectorFeature()), new[] { FeatureId.Server, FeatureId.ServiceMonitor } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { FeatureId.Server } };
 
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServerFeature() }), new[] { FeatureId.Client, FeatureId.LogCollector, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServerFeature(), new ServiceMonitorFeature() }), new[] { FeatureId.Client, FeatureId.LogCollector } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServerFeature(), new LogCollectorFeature() }), new[] { FeatureId.Client, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature() }), new[] { FeatureId.Client } };
+      yield return new object[] { new CombinedFeatures(new ServerFeature()), new[] { FeatureId.Client, FeatureId.LogCollector, FeatureId.ServiceMonitor } };
+      yield return new object[] { new CombinedFeatures(new ServerFeature(), new ServiceMonitorFeature()), new[] { FeatureId.Client, FeatureId.LogCollector } };
+      yield return new object[] { new CombinedFeatures(new ServerFeature(), new LogCollectorFeature()), new[] { FeatureId.Client, FeatureId.ServiceMonitor } };
+      yield return new object[] { new CombinedFeatures(new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { FeatureId.Client } };
 
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServerFeature() }), new[] { FeatureId.LogCollector, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature() }), new[] { FeatureId.LogCollector } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServerFeature(), new LogCollectorFeature() }), new[] { FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature() }), new string[0] };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature()), new[] { FeatureId.LogCollector, FeatureId.ServiceMonitor } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature()), new[] { FeatureId.LogCollector } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new LogCollectorFeature()), new[] { FeatureId.ServiceMonitor } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new string[0] };
 
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServiceMonitorFeature() }), new[] { FeatureId.Client, FeatureId.Server, FeatureId.LogCollector } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new LogCollectorFeature() }), new[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServiceMonitorFeature(), new LogCollectorFeature() }), new[] { FeatureId.Client, FeatureId.Server } };
+      yield return new object[] { new CombinedFeatures(new ServiceMonitorFeature()), new[] { FeatureId.Client, FeatureId.Server, FeatureId.LogCollector } };
+      yield return new object[] { new CombinedFeatures(new LogCollectorFeature()), new[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor } };
+      yield return new object[] { new CombinedFeatures(new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { FeatureId.Client, FeatureId.Server } };
     }
 
     #endregion
@@ -55,24 +55,24 @@ namespace Tests
       yield return new object[] { new LogCollectorFeature(), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
       yield return new object[] { new ServiceMonitorFeature(), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
 
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature() }), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServiceMonitorFeature() }), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new LogCollectorFeature() }), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServiceMonitorFeature(), new LogCollectorFeature() }), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServiceMonitorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new LogCollectorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
 
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServerFeature() }), new[] { PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServerFeature(), new ServiceMonitorFeature() }), new[] { PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServerFeature(), new LogCollectorFeature() }), new[] { PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature() }), new[] { PackageId.LAVFilters } };
+      yield return new object[] { new CombinedFeatures(new ServerFeature()), new[] { PackageId.LAVFilters } };
+      yield return new object[] { new CombinedFeatures(new ServerFeature(), new ServiceMonitorFeature()), new[] { PackageId.LAVFilters } };
+      yield return new object[] { new CombinedFeatures(new ServerFeature(), new LogCollectorFeature()), new[] { PackageId.LAVFilters } };
+      yield return new object[] { new CombinedFeatures(new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { PackageId.LAVFilters } };
 
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServerFeature() }), new PackageId[0] };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature() }), new PackageId[0] };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServerFeature(), new LogCollectorFeature() }), new PackageId[0] };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature() }), new PackageId[0] };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature()), new PackageId[0] };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature()), new PackageId[0] };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new LogCollectorFeature()), new PackageId[0] };
+      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new PackageId[0] };
 
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServiceMonitorFeature() }), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new LogCollectorFeature() }), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new IFeature[] { new ServiceMonitorFeature(), new LogCollectorFeature() }), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
+      yield return new object[] { new CombinedFeatures(new ServiceMonitorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
+      yield return new object[] { new CombinedFeatures(new LogCollectorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
+      yield return new object[] { new CombinedFeatures(new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
     }
 
     #endregion

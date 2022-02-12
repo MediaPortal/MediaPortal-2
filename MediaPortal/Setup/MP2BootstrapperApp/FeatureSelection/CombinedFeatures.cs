@@ -30,11 +30,16 @@ namespace MP2BootstrapperApp.FeatureSelection
 {
   public class CombinedFeatures : AbstractFeature
   {
-    public CombinedFeatures(IEnumerable<IFeature> featureSelections)
+    public CombinedFeatures(params IFeature[] features)
+      : this((IEnumerable<IFeature>)features)
     {
-      _excludePackages = new HashSet<PackageId>(featureSelections.Select(f => (IEnumerable<PackageId>)f.ExcludePackages).Aggregate((p1, p2) => p1.Intersect(p2)));
+    }
 
-      _excludeFeatures = new HashSet<string>(featureSelections.Select(f => (IEnumerable<string>)f.ExcludeFeatures).Aggregate((f1, f2) => f1.Intersect(f2)));
+    public CombinedFeatures(IEnumerable<IFeature> features)
+    {
+      _excludePackages = new HashSet<PackageId>(features.Select(f => (IEnumerable<PackageId>)f.ExcludePackages).Aggregate((p1, p2) => p1.Intersect(p2)));
+
+      _excludeFeatures = new HashSet<string>(features.Select(f => (IEnumerable<string>)f.ExcludeFeatures).Aggregate((f1, f2) => f1.Intersect(f2)));
     }
   }
 }

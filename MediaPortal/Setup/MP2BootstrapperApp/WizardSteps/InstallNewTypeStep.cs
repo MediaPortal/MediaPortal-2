@@ -42,13 +42,13 @@ namespace MP2BootstrapperApp.WizardSteps
       switch (InstallType)
       {
         case InstallType.ClientServer:
-          featureSelection = new CombinedFeatures(new IFeature[] { new ClientFeature(), new ServerFeature(), new LogCollectorFeature(), new ServiceMonitorFeature() });
+          featureSelection = new CombinedFeatures(new ClientFeature(), new ServerFeature(), new LogCollectorFeature(), new ServiceMonitorFeature());
           break;
         case InstallType.Server:
-          featureSelection = new CombinedFeatures(new IFeature[] { new ServerFeature(), new LogCollectorFeature(), new ServiceMonitorFeature() });
+          featureSelection = new CombinedFeatures(new ServerFeature(), new LogCollectorFeature(), new ServiceMonitorFeature());
           break;
         case InstallType.Client:
-          featureSelection = new CombinedFeatures(new IFeature[] { new ClientFeature(), new LogCollectorFeature(), new ServiceMonitorFeature() });
+          featureSelection = new CombinedFeatures(new ClientFeature(), new LogCollectorFeature(), new ServiceMonitorFeature());
           break;
         case InstallType.Custom:
           // TODO
