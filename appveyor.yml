@@ -15,7 +15,7 @@ install:
     echo username = api>>%USERPROFILE%\.transifexrc
 build_script:
 - cmd: >-
-    cd %APPVEYOR_BUILD_FOLDER%\build\
+    cd %APPVEYOR_BUILD_FOLDER%\MediaPortal\build\
     
     MSBUILD_Create_Release_Full_Installer.bat
 
