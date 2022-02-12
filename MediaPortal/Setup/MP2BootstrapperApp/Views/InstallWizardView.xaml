@@ -45,10 +45,6 @@
       <view:InstallFinishPageView />
     </DataTemplate>
 
-    <DataTemplate DataType="{x:Type viewModels:UpdatePageViewModel}">
-      <view:UpdatePageView />
-    </DataTemplate>
-
     <DataTemplate DataType="{x:Type viewModels:ModifyPageViewModel}">
       <view:ModifyPageView />
     </DataTemplate>
