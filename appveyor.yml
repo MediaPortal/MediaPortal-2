@@ -1,8 +1,5 @@
 version: 2.Master.{build}
 clone_folder: c:\project\mediaportal-2
-cache:
-  - 'MediaPortal\Packages -> **.sln, **.csproj'  
-  - 'OnlineVideos\Packages -> **.sln, **.csproj'
 install:
 - cmd: >-
     git -C %APPVEYOR_BUILD_FOLDER% submodule update --init --recursive
