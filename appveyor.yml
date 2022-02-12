@@ -1,7 +1,8 @@
 version: 2.Master.{build}
 clone_folder: c:\project\mediaportal-2
 cache:
-  - '%USERPROFILE%.nuget\packages -> **.sln, **.csproj'  # preserve nuget folder (packages) unless the solution or projects change
+  - 'MediaPortal\Packages -> **.sln, **.csproj'  
+  - 'OnlineVideos\Packages -> **.sln, **.csproj'
 install:
 - cmd: >-
     git -C %APPVEYOR_BUILD_FOLDER% submodule update --init --recursive
