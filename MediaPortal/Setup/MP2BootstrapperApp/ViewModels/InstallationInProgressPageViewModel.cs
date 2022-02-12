@@ -35,10 +35,12 @@ namespace MP2BootstrapperApp.ViewModels
   {
     protected IBootstrapperApplicationModel _bootstrapperModel;
 
+    protected readonly object _syncObj = new object();
     protected int _cacheProgress;
     protected int _executeProgress;
     protected int _progress;
     protected string _currentAction;
+    protected string _lastMsiMessage = "Processing...";
 
     public InstallationInProgressPageViewModel(InstallationInProgressStep step)
       : base(step)
@@ -94,27 +96,55 @@ namespace MP2BootstrapperApp.ViewModels
     {
       _bootstrapperModel.BootstrapperApplication.CacheAcquireProgress += CacheAquireProgress;
       _bootstrapperModel.BootstrapperApplication.ExecuteProgress += ExecuteProgress;
+      _bootstrapperModel.BootstrapperApplication.ExecuteMsiMessage += ExecuteMsiMessage;
     }
 
     private void DetachProgressHandlers()
     {
       _bootstrapperModel.BootstrapperApplication.CacheAcquireProgress -= CacheAquireProgress;
       _bootstrapperModel.BootstrapperApplication.ExecuteProgress -= ExecuteProgress;
+      _bootstrapperModel.BootstrapperApplication.ExecuteMsiMessage -= ExecuteMsiMessage;
     }
 
     private void CacheAquireProgress(object sender, CacheAcquireProgressEventArgs e)
     {
-      _cacheProgress = e.OverallPercentage;
-      Progress = (_cacheProgress + _executeProgress) / 2;
+      string packageName = Enum.TryParse(e.PackageOrContainerId, out PackageId packageId) ? packageId.ToString() + ": " : string.Empty;
+      lock (_syncObj)
+      {
+        _cacheProgress = e.OverallPercentage;
+        Progress = (_cacheProgress + _executeProgress) / 2;
+        CurrentAction = $"Caching: {packageName}";
+      }
     }
 
     private void ExecuteProgress(object sender, ExecuteProgressEventArgs e)
     {
-      string packageName = Enum.TryParse(e.PackageId, out PackageId packageId) ? packageId.ToString() : "...";
+      string packageName = Enum.TryParse(e.PackageId, out PackageId packageId) ? packageId.ToString() + ": " : string.Empty;
+      lock (_syncObj)
+      {
+        _executeProgress = e.OverallPercentage;
+        Progress = (_cacheProgress + _executeProgress) / 2;
+        CurrentAction = $"{packageName}{_lastMsiMessage}";
+      }
+    }
 
-      _executeProgress = e.OverallPercentage;
-      Progress = (_cacheProgress + _executeProgress) / 2;
-      CurrentAction = $"Processing {packageName}";
+    private void ExecuteMsiMessage(object sender, ExecuteMsiMessageEventArgs e)
+    {
+      if (e.MessageType == InstallMessage.ActionStart)
+      {
+        //_bootstrapperModel.LogMessage(LogLevel.Standard, $"Display: {e.DisplayParameters}, Message: {e.Message}, Data: {string.Join(",,", e.Data ?? new string[0])}");
+        
+        // This is quite noisy, the best I can tell is that human readable messages for display seem to be the second argument in the message data, when present
+        if (e.Data != null && e.Data.Count > 1 && !string.IsNullOrEmpty(e.Data[1]))
+        {
+          string packageName = Enum.TryParse(e.PackageId, out PackageId packageId) ? packageId.ToString() + ": " : string.Empty;
+          lock (_syncObj)
+          {
+            _lastMsiMessage = e.Data[1];
+            CurrentAction = $"{packageName}{_lastMsiMessage}";
+          }
+        }
+      }
     }
   }
 }

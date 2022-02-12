@@ -32,6 +32,7 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     event EventHandler<ApplyPhaseCountArgs> ApplyPhaseCount;
     event EventHandler<CacheAcquireProgressEventArgs> CacheAcquireProgress;
     event EventHandler<ExecuteProgressEventArgs> ExecuteProgress;
+    event EventHandler<ExecuteMsiMessageEventArgs> ExecuteMsiMessage;
     event EventHandler<ErrorEventArgs> Error;
   }
 }
