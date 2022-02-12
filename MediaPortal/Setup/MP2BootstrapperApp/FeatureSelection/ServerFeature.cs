@@ -27,7 +27,7 @@ using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.FeatureSelection
 {
-  public class ServerFeature : AbstractFeatureSelection
+  public class ServerFeature : AbstractFeature
   {
     public ServerFeature()
     {

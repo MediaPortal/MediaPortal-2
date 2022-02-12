@@ -29,7 +29,7 @@ using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.FeatureSelection
 {
-  public abstract class AbstractFeatureSelection : IFeatureSelection
+  public abstract class AbstractFeature : IFeature
   {
     protected ISet<PackageId> _excludePackages;
     protected ISet<string> _excludeFeatures;

@@ -28,7 +28,7 @@ using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.FeatureSelection
 {
-  public interface IFeatureSelection
+  public interface IFeature
   {
     /// <summary>
     /// Gets the features to exclude based on the selected features.

@@ -80,11 +80,11 @@
     <Compile Include="FeatureSelection\ServiceMonitorFeature.cs" />
     <Compile Include="FeatureSelection\LogCollectorFeature.cs" />
     <Compile Include="InstallState.cs" />
-    <Compile Include="FeatureSelection\AbstractFeatureSelection.cs" />
+    <Compile Include="FeatureSelection\AbstractFeature.cs" />
     <Compile Include="FeatureSelection\ServerFeature.cs" />
     <Compile Include="FeatureSelection\ClientFeature.cs" />
     <Compile Include="FeatureSelection\FeatureId.cs" />
-    <Compile Include="FeatureSelection\IFeatureSelection.cs" />
+    <Compile Include="FeatureSelection\IFeature.cs" />
     <Compile Include="Models\BundlePackageFeature.cs" />
     <Compile Include="Models\IBundlePackage.cs" />
     <Compile Include="Models\IBundlePackageFeature.cs" />
