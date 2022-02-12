@@ -35,7 +35,7 @@
             </Grid.RowDefinitions>
 
             <!--Icon-->
-            <Image Grid.Row="0" Source="{Binding ImagePath}" Margin="5"/>
+            <Image Grid.Row="0" Source="{Binding ImagePath}" />
 
             <!--Installed version-->
             <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,-10,0,-5">
