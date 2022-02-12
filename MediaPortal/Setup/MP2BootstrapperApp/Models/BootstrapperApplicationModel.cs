@@ -100,7 +100,7 @@ namespace MP2BootstrapperApp.Models
 
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
-      DetectionState = e.Operation == RelatedOperation.Downgrade ? DetectionState.Newer : DetectionState.Older;
+      DetectionState = e.Operation == RelatedOperation.Downgrade ? DetectionState.Older : DetectionState.Newer;
     }
 
     protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs detectPackageCompleteEventArgs)
