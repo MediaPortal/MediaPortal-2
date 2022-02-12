@@ -209,20 +209,15 @@ namespace MP2BootstrapperApp.ViewModels
         return;
       }
 
-      // Fresh install, show the welcome step
-      if (detectionState == DetectionState.Absent)
-      {
-        GoToStep(new InstallWelcomeStep(_bootstrapperApplicationModel));
-      }
       // Current version installed, show the repair/modify/uninstall step
-      else if (detectionState == DetectionState.Present)
+      if (detectionState == DetectionState.Present)
       {
         GoToStep(new InstallExistInstallStep(_bootstrapperApplicationModel));
       }
-      // Older version installed, show upgrade step.
-      else //if (detectionState == DetectionState.Newer)
+      // Fresh install or update, show the welcome step
+      else //if (detectionState == DetectionState.Absent || detectionState == DetectionState.Newer)
       {
-        GoToStep(new UpdateStep(_bootstrapperApplicationModel));
+        GoToStep(new InstallWelcomeStep(_bootstrapperApplicationModel));
       }
     }
 

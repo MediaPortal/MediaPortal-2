@@ -27,6 +27,8 @@ using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
+using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.ViewModels
@@ -39,29 +41,60 @@ namespace MP2BootstrapperApp.ViewModels
       Header = "Overview";
       ButtonNextContent = "Install";
 
-      Packages = new ObservableCollection<string>();
-      foreach (var package in step.BootstrapperApplicationModel.BundlePackages)
+      Packages = new ObservableCollection<Package>();
+      AddPackages(step.BootstrapperApplicationModel.BundlePackages);
+    }
+
+    public ObservableCollection<Package> Packages { get; }
+
+    protected void AddPackages(IEnumerable<IBundlePackage> bundlePackages)
+    {
+      foreach (IBundlePackage bundlePackage in bundlePackages)
       {
-        if (package.RequestedInstallState == RequestState.Present)
+        if (bundlePackage.RequestedInstallState == RequestState.Present)
         {
-          if (package.GetId() == PackageId.MediaPortal2)
+          if (bundlePackage.GetId() == PackageId.MediaPortal2)
           {
             foreach (string featureName in FeatureId.All)
             {
-              if (package.Features.TryGetValue(featureName, out IBundlePackageFeature feature) && feature.RequestedFeatureState != FeatureState.Absent)
+              if (bundlePackage.Features.TryGetValue(featureName, out IBundlePackageFeature feature) && feature.RequestedFeatureState == FeatureState.Local)
               {
-                Packages.Add(@"..\resources\" + featureName + ".png");
+                Packages.Add(CreatePackageFeature(bundlePackage, feature));
               }
             }
           }
           else
           {
-            Packages.Add(@"..\resources\" + package.GetId() + ".png");
+            Packages.Add(CreatePackage(bundlePackage));
           }
         }
       }
     }
 
-    public ObservableCollection<string> Packages { get; }
+    protected Package CreatePackage(IBundlePackage bundlePackage)
+    {
+      return new Package
+      {
+        BundleVersion = bundlePackage.GetVersion(),
+        InstalledVersion = bundlePackage.InstalledVersion,
+        ImagePath = @"..\resources\" + bundlePackage.GetId() + ".png",
+        Name = bundlePackage.Id,
+        PackageState = bundlePackage.CurrentInstallState,
+        RequestState = bundlePackage.RequestedInstallState
+      };
+    }
+
+    protected Package CreatePackageFeature(IBundlePackage bundlePackage, IBundlePackageFeature feature)
+    {
+      return new Package
+      {
+        BundleVersion = bundlePackage.GetVersion(),
+        InstalledVersion = feature.PreviousVersionInstalled ? bundlePackage.InstalledVersion : new Version(),
+        ImagePath = @"..\resources\" + feature.FeatureName + ".png",
+        Name = feature.FeatureName,
+        PackageState = bundlePackage.CurrentInstallState,
+        RequestState = bundlePackage.RequestedInstallState
+      };
+    }
   }
 }

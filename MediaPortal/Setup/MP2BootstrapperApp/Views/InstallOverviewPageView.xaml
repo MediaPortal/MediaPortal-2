@@ -6,6 +6,9 @@
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+  <UserControl.Resources>
+    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+  </UserControl.Resources>
 
   <Grid>
     <Grid.ColumnDefinitions>
@@ -23,8 +26,37 @@
       </ItemsControl.ItemsPanel>
       <ItemsControl.ItemTemplate>
         <DataTemplate>
-          <Grid Height="61" Width="169" Margin="5" Background="#20FFFFFF">
-            <Image Source="{Binding}" Margin="5"/>
+          <Grid Height="90" Width="140" Margin="5" Background="#20FFFFFF">
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <!--Icon-->
+            <Image Grid.Row="0" Source="{Binding ImagePath}" Margin="5"/>
+
+            <!--Installed version-->
+            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,-10,0,-5">
+              <Label FontSize="9" Foreground="White" Content="Installed: " Opacity="0.4"/>
+              <Label FontSize="9" Foreground="White" Content="{Binding InstalledVersion}" Opacity="0.4"/>
+            </StackPanel>
+
+            <!--Bundled version-->
+            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,-5,0,0">
+              <Label FontSize="9" Foreground="White" Content="Bundled: " Opacity="0.4"/>
+              <Label FontSize="9" Foreground="White" Content="{Binding BundleVersion}" Opacity="0.4"/>
+            </StackPanel>
+
+            <!--Install/upgrade indicators-->
+            <Image x:Name="InstallingIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                   Width="20" Height="20" Margin="0,0,3,3" Source="..\resources\present.png" 
+                   Visibility="{Binding Path=Installing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+            <Image x:Name="UpgradingIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+                   Width="20" Height="20" Margin="0,0,3,3" Source="..\resources\update.png"
+                   Visibility="{Binding Path=Upgrading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
           </Grid>
         </DataTemplate>
       </ItemsControl.ItemTemplate>

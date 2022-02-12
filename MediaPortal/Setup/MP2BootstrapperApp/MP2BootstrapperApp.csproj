@@ -320,7 +320,7 @@
     <Resource Include="Resources\error.png" />
     <Resource Include="Resources\LogCollector.png" />
     <Resource Include="Resources\ServiceMonitor.png" />
-    <Content Include="Resources\update.png" />
+    <Resource Include="Resources\update.png" />
     <Resource Include="Resources\VC2019_x64.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

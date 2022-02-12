@@ -53,8 +53,8 @@ namespace MP2BootstrapperApp.ViewModels
           {
             Packages.Add(new Package
             {
-              BundleVersion = package.GetVersion().ToString(),
-              InstalledVersion = package.Features.TryGetValue(featureName, out IBundlePackageFeature feature) && feature.PreviousVersionInstalled ? package.InstalledVersion.ToString() : string.Empty,
+              BundleVersion = package.GetVersion(),
+              InstalledVersion = package.Features.TryGetValue(featureName, out IBundlePackageFeature feature) && feature.PreviousVersionInstalled ? package.InstalledVersion : new System.Version(),
               ImagePath = @"..\resources\" + featureName + ".png",
               Name = featureName,
               PackageState = package.CurrentInstallState
@@ -65,8 +65,8 @@ namespace MP2BootstrapperApp.ViewModels
         {
           Packages.Add(new Package
           {
-            BundleVersion = package.GetVersion().ToString(),
-            InstalledVersion = package.InstalledVersion.ToString(),
+            BundleVersion = package.GetVersion(),
+            InstalledVersion = package.InstalledVersion,
             ImagePath = @"..\resources\" + package.GetId() + ".png",
             Name = package.Id,
             PackageState = package.CurrentInstallState
