@@ -33,20 +33,22 @@ namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallationInProgressPageViewModel : InstallWizardPageViewModelBase
   {
+
+    const string DEFAULT_ACTION = "Processing...";
     protected IBootstrapperApplicationModel _bootstrapperModel;
 
     protected readonly object _syncObj = new object();
     protected int _cacheProgress;
     protected int _executeProgress;
     protected int _progress;
+    protected string _currentPackage;
     protected string _currentAction;
-    protected string _lastMsiMessage = "Processing...";
 
     public InstallationInProgressPageViewModel(InstallationInProgressStep step)
       : base(step)
     {
       _bootstrapperModel = step.BootstrapperApplicationModel;
-      _currentAction = "Processing ...";
+      _currentAction = DEFAULT_ACTION;
 
       Header = GetHeaderForAction(_bootstrapperModel.PlannedAction);
     }
@@ -55,6 +57,12 @@ namespace MP2BootstrapperApp.ViewModels
     {
       get { return _progress; }
       set { SetProperty(ref _progress, value); }
+    }
+
+    public string CurrentPackage
+    {
+      get { return _currentPackage; }
+      set { SetProperty(ref _currentPackage, value); }
     }
 
     public string CurrentAction
@@ -108,23 +116,29 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void CacheAquireProgress(object sender, CacheAcquireProgressEventArgs e)
     {
-      string packageName = Enum.TryParse(e.PackageOrContainerId, out PackageId packageId) ? packageId.ToString() + ": " : string.Empty;
+      string packageName = Enum.TryParse(e.PackageOrContainerId, out PackageId packageId) ? packageId.ToString() : string.Empty;
       lock (_syncObj)
       {
         _cacheProgress = e.OverallPercentage;
         Progress = (_cacheProgress + _executeProgress) / 2;
+        CurrentPackage = packageName;
         CurrentAction = $"Caching: {packageName}";
       }
     }
 
     private void ExecuteProgress(object sender, ExecuteProgressEventArgs e)
     {
-      string packageName = Enum.TryParse(e.PackageId, out PackageId packageId) ? packageId.ToString() + ": " : string.Empty;
+      string packageName = Enum.TryParse(e.PackageId, out PackageId packageId) ? packageId.ToString() : string.Empty;
       lock (_syncObj)
       {
         _executeProgress = e.OverallPercentage;
         Progress = (_cacheProgress + _executeProgress) / 2;
-        CurrentAction = $"{packageName}{_lastMsiMessage}";
+        if (packageName != CurrentPackage)
+        {
+          CurrentPackage = packageName;
+          // Reset the message if the package has changed
+          CurrentAction = DEFAULT_ACTION;
+        }
       }
     }
 
@@ -137,11 +151,11 @@ namespace MP2BootstrapperApp.ViewModels
         // This is quite noisy, the best I can tell is that human readable messages for display seem to be the second argument in the message data, when present
         if (e.Data != null && e.Data.Count > 1 && !string.IsNullOrEmpty(e.Data[1]))
         {
-          string packageName = Enum.TryParse(e.PackageId, out PackageId packageId) ? packageId.ToString() + ": " : string.Empty;
+          string packageName = Enum.TryParse(e.PackageId, out PackageId packageId) ? packageId.ToString() : string.Empty;
           lock (_syncObj)
           {
-            _lastMsiMessage = e.Data[1];
-            CurrentAction = $"{packageName}{_lastMsiMessage}";
+            CurrentPackage = packageName;
+            CurrentAction = e.Data[1].Trim();
           }
         }
       }
