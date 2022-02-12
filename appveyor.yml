@@ -2,7 +2,7 @@ version: 2.Master.{build}
 clone_folder: c:\project\mediaportal-2
 install:
 - cmd: >-
-    git -C "c:\project\mediaportal-2" submodule update --init --recursive
+    git submodule update --init --recursive
     
     echo [https://www.transifex.com]>%USERPROFILE%\.transifexrc
     
@@ -15,7 +15,7 @@ install:
     echo username = api>>%USERPROFILE%\.transifexrc
 build_script:
 - cmd: >-
-    cd c:\project\mediaportal-2\MediaPortal\build\
+    cd MediaPortal\build\
     
     MSBUILD_Create_Release_Full_Installer.bat
 
