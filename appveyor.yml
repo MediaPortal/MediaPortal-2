@@ -1,5 +1,10 @@
 version: 2.Master.{build}
 clone_folder: c:\project\mediaportal-2
+cache:
+- C:\Users\appveyor\.nuget\packages\ -> \MediaPortal\packages.config
+- 'MediaPortal\Packages -> \MediaPortal\packages.config
+- 'OnlineVideos\Packages -> \OnlineVideos\packages.config
+  
 install:
 - cmd: >-
     git -C %APPVEYOR_BUILD_FOLDER% submodule update --init --recursive
