@@ -22,31 +22,18 @@
 
 #endregion
 
-using System.Collections.Generic;
+using System.Windows.Controls;
 
-namespace MP2BootstrapperApp.FeatureSelection
+namespace MP2BootstrapperApp.Views
 {
-  public static class FeatureId
+  /// <summary>
+  /// Interaction logic for InstallCustomPageView.xaml
+  /// </summary>
+  public partial class InstallCustomPageView : UserControl
   {
-    public static readonly string Client = "Client";
-    public static readonly string Server = "Server";
-    public static readonly string ServiceMonitor = "ServiceMonitor";
-    public static readonly string LogCollector = "LogCollector";
-
-    public static readonly string[] All = new[]
+    public InstallCustomPageView()
     {
-      Client,
-      Server,
-      ServiceMonitor,
-      LogCollector
-    };
-
-    public static readonly IDictionary<string, IFeature> FeatureSelections = new Dictionary<string, IFeature>
-    {
-      { Client, new ClientFeature() },
-      { Server, new ServerFeature() },
-      { ServiceMonitor, new ServiceMonitorFeature() },
-      { LogCollector, new LogCollectorFeature() }
-    };
+      InitializeComponent();
+    }
   }
 }

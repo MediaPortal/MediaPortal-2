@@ -41,12 +41,12 @@ namespace MP2BootstrapperApp.Models
 
     public bool Upgrading
     {
-      get { return RequestState == RequestState.Present && InstalledVersion != ZERO_VERSION; }
+      get { return InstalledVersion != ZERO_VERSION; }
     }
 
     public bool Installing 
     {
-      get { return RequestState == RequestState.Present && !Upgrading; }
+      get { return !Upgrading; }
     }
 
     public RequestState RequestState { get; set; } 

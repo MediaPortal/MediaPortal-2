@@ -115,12 +115,18 @@
     <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
     <Compile Include="ViewModels\DowngradePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallCustomPageViewModel.cs" />
     <Compile Include="ViewModels\InstallInitializingPageViewModel.cs" />
     <Compile Include="ViewModels\ModifyPageViewModel.cs" />
     <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />
     <Compile Include="ViewModels\RepairPageViewModel.cs" />
+    <Compile Include="ViewModels\SelectableFeatureViewModel.cs" />
+    <Compile Include="ViewModels\SelectablePackageViewModel.cs" />
     <Compile Include="ViewModels\UninstallPageViewModel.cs" />
     <Compile Include="ViewModels\WizardStepViewModelBuilder.cs" />
+    <Compile Include="Views\InstallCustomPageView.xaml.cs">
+      <DependentUpon>InstallCustomPageView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\DowngradePageView.xaml.cs">
       <DependentUpon>DowngradePageView.xaml</DependentUpon>
     </Compile>
@@ -153,6 +159,7 @@
     <Compile Include="WizardSteps\DowngradeStep.cs" />
     <Compile Include="WizardSteps\InstallFinishStep.cs" />
     <Compile Include="WizardSteps\InstallInitializingStep.cs" />
+    <Compile Include="WizardSteps\InstallCustomStep.cs" />
     <Compile Include="WizardSteps\ModifyStep.cs" />
     <Compile Include="WizardSteps\RepairStep.cs" />
     <Compile Include="WizardSteps\UninstallStep.cs" />
@@ -200,6 +207,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Views\InstallCustomPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\DowngradePageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

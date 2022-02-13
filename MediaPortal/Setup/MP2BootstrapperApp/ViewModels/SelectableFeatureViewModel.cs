@@ -22,31 +22,12 @@
 
 #endregion
 
-using System.Collections.Generic;
-
-namespace MP2BootstrapperApp.FeatureSelection
+namespace MP2BootstrapperApp.ViewModels
 {
-  public static class FeatureId
+  /// <summary>
+  /// Bindable wrapper for a package feature that can be selected.
+  /// </summary>
+  public class SelectableFeatureViewModel : SelectablePackageViewModel
   {
-    public static readonly string Client = "Client";
-    public static readonly string Server = "Server";
-    public static readonly string ServiceMonitor = "ServiceMonitor";
-    public static readonly string LogCollector = "LogCollector";
-
-    public static readonly string[] All = new[]
-    {
-      Client,
-      Server,
-      ServiceMonitor,
-      LogCollector
-    };
-
-    public static readonly IDictionary<string, IFeature> FeatureSelections = new Dictionary<string, IFeature>
-    {
-      { Client, new ClientFeature() },
-      { Server, new ServerFeature() },
-      { ServiceMonitor, new ServiceMonitorFeature() },
-      { LogCollector, new LogCollectorFeature() }
-    };
   }
 }

@@ -22,31 +22,24 @@
 
 #endregion
 
-using System.Collections.Generic;
+using MP2BootstrapperApp.Models;
+using Prism.Mvvm;
 
-namespace MP2BootstrapperApp.FeatureSelection
+namespace MP2BootstrapperApp.ViewModels
 {
-  public static class FeatureId
+  /// <summary>
+  /// Bindable wrapper for a package that can be selected.
+  /// </summary>
+  public class SelectablePackageViewModel : BindableBase
   {
-    public static readonly string Client = "Client";
-    public static readonly string Server = "Server";
-    public static readonly string ServiceMonitor = "ServiceMonitor";
-    public static readonly string LogCollector = "LogCollector";
+    protected bool _selected;
 
-    public static readonly string[] All = new[]
+    public bool Selected
     {
-      Client,
-      Server,
-      ServiceMonitor,
-      LogCollector
-    };
+      get { return _selected; }
+      set { SetProperty(ref _selected, value); }
+    }
 
-    public static readonly IDictionary<string, IFeature> FeatureSelections = new Dictionary<string, IFeature>
-    {
-      { Client, new ClientFeature() },
-      { Server, new ServerFeature() },
-      { ServiceMonitor, new ServiceMonitorFeature() },
-      { LogCollector, new LogCollectorFeature() }
-    };
+    public Package Package { get; set; }
   }
 }

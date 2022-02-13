@@ -38,7 +38,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      IFeature featureSelection = null;
+      IFeature featureSelection;
       switch (InstallType)
       {
         case InstallType.ClientServer:
@@ -50,13 +50,12 @@ namespace MP2BootstrapperApp.WizardSteps
         case InstallType.Client:
           featureSelection = new CombinedFeatures(new ClientFeature(), new LogCollectorFeature(), new ServiceMonitorFeature());
           break;
-        case InstallType.Custom:
-          // TODO
-          break;
+        //case InstallType.Custom:
+        default:
+          return new InstallCustomStep(_bootstrapperApplicationModel);
       }
 
-      if (featureSelection != null)
-        featureSelection.SetInstallState(_bootstrapperApplicationModel.BundlePackages);
+      featureSelection.SetInstallState(_bootstrapperApplicationModel.BundlePackages);
 
       return new InstallOverviewStep(_bootstrapperApplicationModel);
     }

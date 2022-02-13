@@ -27,7 +27,6 @@ using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
-using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 
@@ -69,32 +68,6 @@ namespace MP2BootstrapperApp.ViewModels
           }
         }
       }
-    }
-
-    protected Package CreatePackage(IBundlePackage bundlePackage)
-    {
-      return new Package
-      {
-        BundleVersion = bundlePackage.GetVersion(),
-        InstalledVersion = bundlePackage.InstalledVersion,
-        ImagePath = @"..\resources\" + bundlePackage.GetId() + ".png",
-        Name = bundlePackage.Id,
-        PackageState = bundlePackage.CurrentInstallState,
-        RequestState = bundlePackage.RequestedInstallState
-      };
-    }
-
-    protected Package CreatePackageFeature(IBundlePackage bundlePackage, IBundlePackageFeature feature)
-    {
-      return new Package
-      {
-        BundleVersion = bundlePackage.GetVersion(),
-        InstalledVersion = feature.PreviousVersionInstalled ? bundlePackage.InstalledVersion : new Version(),
-        ImagePath = @"..\resources\" + feature.FeatureName + ".png",
-        Name = feature.FeatureName,
-        PackageState = bundlePackage.CurrentInstallState,
-        RequestState = bundlePackage.RequestedInstallState
-      };
     }
   }
 }

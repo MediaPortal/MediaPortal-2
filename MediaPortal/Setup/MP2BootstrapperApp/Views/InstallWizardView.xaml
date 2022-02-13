@@ -38,6 +38,10 @@
       <view:InstallNewTypePageView />
     </DataTemplate>
 
+    <DataTemplate DataType="{x:Type viewModels:InstallCustomPageViewModel}">
+      <view:InstallCustomPageView />
+    </DataTemplate>
+
     <DataTemplate DataType="{x:Type viewModels:InstallOverviewPageViewModel}">
       <view:InstallOverviewPageView />
     </DataTemplate>
