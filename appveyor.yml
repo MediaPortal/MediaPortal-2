@@ -2,8 +2,8 @@ version: 2.Master.{build}
 clone_folder: c:\project\mediaportal-2
 cache:
 - C:\Users\appveyor\.nuget\packages\ -> \MediaPortal\packages.config
-- 'MediaPortal\Packages -> \MediaPortal\packages.config'
-- 'OnlineVideos\Packages -> \OnlineVideos\packages.config'
+- '%USERPROFILE%\.nuget\packages -> \MediaPortal\packages.config'
+- '%LocalAppData%\NuGet\Cache -> \MediaPortal\packages.config'
   
 install:
 - cmd: >-
