@@ -35,7 +35,10 @@
             </Grid.RowDefinitions>
 
             <!--Package marker bar-->
-            <Border Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="8" BorderThickness="0">
+            <Border Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="5" BorderThickness="0">
+              <Border.Effect>
+                <DropShadowEffect Opacity="0.25" Direction="270" ShadowDepth="2"/>
+              </Border.Effect>
               <Border.Style>
                 <Style TargetType="{x:Type Border}">
                   <Style.Triggers>
