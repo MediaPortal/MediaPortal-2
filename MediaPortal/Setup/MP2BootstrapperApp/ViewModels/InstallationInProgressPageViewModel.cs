@@ -146,7 +146,7 @@ namespace MP2BootstrapperApp.ViewModels
     {
       if (e.MessageType == InstallMessage.ActionStart)
       {
-        //_bootstrapperModel.LogMessage(LogLevel.Standard, $"Display: {e.DisplayParameters}, Message: {e.Message}, Data: {string.Join(",,", e.Data ?? new string[0])}");
+        _bootstrapperModel.LogMessage(LogLevel.Standard, $"Display: {e.DisplayParameters}, Message: {e.Message}, Data: {string.Join(",,", e.Data ?? new string[0])}");
         
         // This is quite noisy, the best I can tell is that human readable messages for display seem to be the second argument in the message data, when present
         if (e.Data != null && e.Data.Count > 1 && !string.IsNullOrEmpty(e.Data[1]))
