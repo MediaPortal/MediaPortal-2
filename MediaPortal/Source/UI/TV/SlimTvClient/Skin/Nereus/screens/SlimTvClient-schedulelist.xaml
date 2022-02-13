@@ -148,7 +148,7 @@
                    Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,10,10,0">
               <Image.Source>
                 <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
-                                        fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                                        fanart:FanArtName="{Binding Path=CurrentProgram.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
               </Image.Source>
               <Image.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}!={2}">
@@ -160,11 +160,11 @@
             </Image>
 
             <Label x:Name="Program" Grid.Row="1" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
-                 IsVisible="{Binding ElementName=EnableSeriesModeCheckbox, Path=!IsChecked}"
-                 Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+                   IsVisible="{Binding ElementName=EnableSeriesModeCheckbox, Path=!IsChecked}"
+                   Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
             <Label x:Name="Schedule" Grid.Row="1" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
-                 IsVisible="{Binding ElementName=EnableSeriesModeCheckbox, Path=IsChecked}"
-                 Content="{Binding Path=ScheduleName}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+                   IsVisible="{Binding ElementName=EnableSeriesModeCheckbox, Path=IsChecked}"
+                   Content="{Binding Path=ScheduleName}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
 
             <Grid Grid.Row="2">
               <Grid.IsVisible>

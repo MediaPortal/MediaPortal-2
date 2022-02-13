@@ -934,6 +934,25 @@
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
                 </Image.IsVisible>
               </Image>
+              <!--Label Grid.Column="1" x:Name="FallbackNameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
+                     Color="{ThemeResource TextColor}">
+                <Label.IsVisible>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
+                    <Binding ElementName="ChannelLogoImage" Path="!HasImage"/>
+                  </MultiBinding>
+                </Label.IsVisible>
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+                <Label.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter TargetName="FallbackNameLabel" Property="Scroll" Value="Auto"/>
+                  </DataTrigger>
+                </Label.Triggers>
+              </Label-->
               <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
                      Color="{ThemeResource TextColor}">
                 <Label.IsVisible>
