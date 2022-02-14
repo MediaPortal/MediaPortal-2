@@ -163,12 +163,23 @@ namespace MP2BootstrapperApp.ViewModels
     private void DetectComplete(object sender, DetectCompleteEventArgs e)
     {
       LaunchAction launchAction = _bootstrapperApplicationModel.BootstrapperApplication.LaunchAction;
+      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Display;
+      DetectionState detectionState = _bootstrapperApplicationModel.DetectionState;
+
       // If the setup was launched with the uninstall action, e.g. from ARP, a later bundle being installed
-      // or with a command line argument, automatically start the uninstallation.
+      // or with a command line argument, automatically start the uninstallation if not waiting for user interaction
+      // or show the uninstall confirm screen if user interaction is available.
       if (launchAction == LaunchAction.Uninstall)
       {
-        _bootstrapperApplicationModel.PlanAction(launchAction);
-        GoToStep(new InstallationInProgressStep(_bootstrapperApplicationModel));
+        if (display != Display.Full)
+        {
+          _bootstrapperApplicationModel.PlanAction(launchAction);
+          GoToStep(new InstallationInProgressStep(_bootstrapperApplicationModel));
+        }
+        else
+        {
+          GoToStep(new UninstallStep(_bootstrapperApplicationModel, false));
+        }
         return;
       }
 
@@ -178,9 +189,6 @@ namespace MP2BootstrapperApp.ViewModels
       {
         return;
       }
-
-      Display display = _bootstrapperApplicationModel.BootstrapperApplication.Display;
-      DetectionState detectionState = _bootstrapperApplicationModel.DetectionState;
 
       // Downgrades are not supported so either close the setup if not waiting for user interaction
       // or show the downgrade page informing the user. The exception to this is the case where this

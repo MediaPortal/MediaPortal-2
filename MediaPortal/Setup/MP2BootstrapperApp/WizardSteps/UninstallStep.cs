@@ -29,9 +29,18 @@ namespace MP2BootstrapperApp.WizardSteps
 {
   public class UninstallStep : AbstractInstallStep, IStep
   {
-    public UninstallStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
+    protected bool _canGoBack;
+
+    /// <summary>
+    /// The uninstall confirmation step. May be reached from the repair/modify/uninstall step or shown initially on startup if the setup
+    /// was launched with the uninstall action. If the latter, then set <paramref name="canGoBack"/> to <c>false</c> to hide the back button.
+    /// </summary>
+    /// <param name="bootstrapperApplicationModel">The bootstrapper model used to plan the uninstall action.</param>
+    /// <param name="canGoBack">Whether navigating back should be allowed.</param>
+    public UninstallStep(IBootstrapperApplicationModel bootstrapperApplicationModel, bool canGoBack = true)
       : base(bootstrapperApplicationModel)
     {
+      _canGoBack = canGoBack;
     }
     
     public IStep Next()
@@ -48,7 +57,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public bool CanGoBack()
     {
-      return true;
+      return _canGoBack;
     }
   }
 }
