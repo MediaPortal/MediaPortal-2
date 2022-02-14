@@ -39,6 +39,16 @@ namespace MP2BootstrapperApp.Models
     string Package { get; }
 
     /// <summary>
+    /// The title of the feature.
+    /// </summary>
+    string Title { get; }
+
+    /// <summary>
+    /// The description of the feature.
+    /// </summary>
+    string Description { get; }
+
+    /// <summary>
     /// Whether a previous version of this feature is installed in a previous version of the parent package.
     /// </summary>
     bool PreviousVersionInstalled { get; set; }

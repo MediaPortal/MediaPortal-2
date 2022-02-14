@@ -75,6 +75,22 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
+    public string DisplayName
+    {
+      get { return _packageElement.Attribute("DisplayName")?.Value; }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public string Description
+    {
+      get { return _packageElement.Attribute("Description")?.Value; }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public Version InstalledVersion { get; set; }
 
     /// <summary>

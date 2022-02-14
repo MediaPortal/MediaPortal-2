@@ -23,7 +23,6 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using System;
 using System.Xml.Linq;
 
 namespace MP2BootstrapperApp.Models
@@ -51,6 +50,22 @@ namespace MP2BootstrapperApp.Models
     public string FeatureName
     {
       get { return _featureElement.Attribute("Feature")?.Value; }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public string Title
+    {
+      get { return _featureElement.Attribute("Title")?.Value; }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public string Description
+    {
+      get { return _featureElement.Attribute("Description")?.Value; }
     }
 
     /// <summary>

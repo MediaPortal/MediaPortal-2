@@ -86,7 +86,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         if (sender is SelectableFeatureViewModel featureViewModel)
         {
-          IBundlePackageFeature feature = _installCustomStep.AvailableFeatures.FirstOrDefault(f => f.FeatureName == featureViewModel.Package.Name);
+          IBundlePackageFeature feature = _installCustomStep.AvailableFeatures.FirstOrDefault(f => f.FeatureName == featureViewModel.Package.Id);
           if (feature != null)
           {
             UpdateSelectedItems(feature, _installCustomStep.SelectedFeatures, featureViewModel.Selected);
@@ -94,7 +94,7 @@ namespace MP2BootstrapperApp.ViewModels
         }
         else if (sender is SelectablePackageViewModel packageViewModel)
         {
-          IBundlePackage package = _installCustomStep.AvailablePackages.FirstOrDefault(p => p.Id == packageViewModel.Package.Name);
+          IBundlePackage package = _installCustomStep.AvailablePackages.FirstOrDefault(p => p.Id == packageViewModel.Package.Id);
           if (package != null)
           {
             UpdateSelectedItems(package, _installCustomStep.SelectedPackages, packageViewModel.Selected);

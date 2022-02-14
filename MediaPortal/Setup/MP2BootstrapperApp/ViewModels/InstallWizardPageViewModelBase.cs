@@ -90,7 +90,9 @@ namespace MP2BootstrapperApp.ViewModels
         BundleVersion = bundlePackage.GetVersion(),
         InstalledVersion = bundlePackage.InstalledVersion,
         ImagePath = @"..\resources\" + bundlePackage.GetId() + ".png",
-        Name = bundlePackage.Id,
+        Id = bundlePackage.Id,
+        DisplayName = bundlePackage.DisplayName,
+        Description = bundlePackage.Description,
         PackageState = bundlePackage.CurrentInstallState,
         RequestState = bundlePackage.RequestedInstallState
       };
@@ -103,7 +105,9 @@ namespace MP2BootstrapperApp.ViewModels
         BundleVersion = bundlePackage.GetVersion(),
         InstalledVersion = feature.PreviousVersionInstalled ? bundlePackage.InstalledVersion : new Version(),
         ImagePath = @"..\resources\" + feature.FeatureName + ".png",
-        Name = feature.FeatureName,
+        Id = feature.FeatureName,
+        DisplayName = feature.Title,
+        Description = feature.Description,
         PackageState = bundlePackage.CurrentInstallState,
         RequestState = bundlePackage.RequestedInstallState
       };

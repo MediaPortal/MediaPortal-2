@@ -38,15 +38,25 @@ namespace MP2BootstrapperApp.Models
     PackageId GetId();
 
     /// <summary>
+    /// Gets the bundled version of the package.
+    /// </summary>
+    /// <returns></returns>
+    Version GetVersion();
+
+    /// <summary>
     /// Gets the id of the package as <see cref="string"/>.
     /// </summary>
     string Id { get; }
 
     /// <summary>
-    /// Gets the bundled version of the package.
+    /// The display name of the package.
     /// </summary>
-    /// <returns></returns>
-    Version GetVersion();
+    string DisplayName { get; }
+
+    /// <summary>
+    /// The description of the package.
+    /// </summary>
+    string Description { get; }
 
     /// <summary>
     /// Gets or sets the currently installed version of the package.
