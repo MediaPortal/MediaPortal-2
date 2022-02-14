@@ -35,8 +35,33 @@
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
+                <!--Package marker bar-->
+                <Border Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="5" BorderThickness="0">
+                  <Border.Effect>
+                    <DropShadowEffect Opacity="0.25" Direction="270" ShadowDepth="2"/>
+                  </Border.Effect>
+                  <Border.Style>
+                    <Style TargetType="{x:Type Border}">
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding Package.Id}" Value="Client">
+                          <Setter Property="Border.Background" Value="#E8641B" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Package.Id}" Value="Server">
+                          <Setter Property="Border.Background" Value="#FFFFFF" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Package.Id}" Value="ServiceMonitor">
+                          <Setter Property="Border.Background" Value="#A2B8A4" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Package.Id}" Value="LogCollector">
+                          <Setter Property="Border.Background" Value="#7C7C7C" />
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Border.Style>
+                </Border>
+
                 <!--Icon-->
-                <Image Grid.Row="0" Source="{Binding Package.ImagePath}" Margin="5"/>
+                <Image Grid.Row="0" Source="{Binding Package.ImagePath}"/>
 
                 <!--Installed version-->
                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,-10,0,-5">

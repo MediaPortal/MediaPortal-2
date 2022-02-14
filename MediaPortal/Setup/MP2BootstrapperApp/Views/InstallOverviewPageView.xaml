@@ -42,16 +42,16 @@
               <Border.Style>
                 <Style TargetType="{x:Type Border}">
                   <Style.Triggers>
-                    <DataTrigger Binding="{Binding Name}" Value="Client">
+                    <DataTrigger Binding="{Binding Id}" Value="Client">
                       <Setter Property="Border.Background" Value="#E8641B" />
                     </DataTrigger>
-                    <DataTrigger Binding="{Binding Name}" Value="Server">
+                    <DataTrigger Binding="{Binding Id}" Value="Server">
                       <Setter Property="Border.Background" Value="#FFFFFF" />
                     </DataTrigger>
-                    <DataTrigger Binding="{Binding Name}" Value="ServiceMonitor">
+                    <DataTrigger Binding="{Binding Id}" Value="ServiceMonitor">
                       <Setter Property="Border.Background" Value="#A2B8A4" />
                     </DataTrigger>
-                    <DataTrigger Binding="{Binding Name}" Value="LogCollector">
+                    <DataTrigger Binding="{Binding Id}" Value="LogCollector">
                       <Setter Property="Border.Background" Value="#7C7C7C" />
                     </DataTrigger>
                   </Style.Triggers>
