@@ -24,16 +24,14 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
-using System;
+using System.Linq;
 
 namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallationInProgressPageViewModel : InstallWizardPageViewModelBase
   {
-
     const string DEFAULT_ACTION = "Processing...";
     protected IBootstrapperApplicationModel _bootstrapperModel;
 
@@ -41,7 +39,7 @@ namespace MP2BootstrapperApp.ViewModels
     protected int _cacheProgress;
     protected int _executeProgress;
     protected int _progress;
-    protected string _currentPackage;
+    protected Package _currentPackage;
     protected string _currentAction;
 
     public InstallationInProgressPageViewModel(InstallationInProgressStep step)
@@ -59,7 +57,7 @@ namespace MP2BootstrapperApp.ViewModels
       set { SetProperty(ref _progress, value); }
     }
 
-    public string CurrentPackage
+    public Package CurrentPackage
     {
       get { return _currentPackage; }
       set { SetProperty(ref _currentPackage, value); }
@@ -116,26 +114,25 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void CacheAquireProgress(object sender, CacheAcquireProgressEventArgs e)
     {
-      string packageName = Enum.TryParse(e.PackageOrContainerId, out PackageId packageId) ? packageId.ToString() : string.Empty;
+      IBundlePackage bundlePackage = GetBundlePackage(e.PackageOrContainerId);
       lock (_syncObj)
       {
         _cacheProgress = e.OverallPercentage;
         Progress = (_cacheProgress + _executeProgress) / 2;
-        CurrentPackage = packageName;
-        CurrentAction = $"Caching: {packageName}";
+        CurrentAction = $"Caching: {bundlePackage?.DisplayName}";
+        UpdateCurrentPackage(bundlePackage);
       }
     }
 
     private void ExecuteProgress(object sender, ExecuteProgressEventArgs e)
     {
-      string packageName = Enum.TryParse(e.PackageId, out PackageId packageId) ? packageId.ToString() : string.Empty;
+      IBundlePackage bundlePackage = GetBundlePackage(e.PackageId);
       lock (_syncObj)
       {
         _executeProgress = e.OverallPercentage;
         Progress = (_cacheProgress + _executeProgress) / 2;
-        if (packageName != CurrentPackage)
+        if (UpdateCurrentPackage(bundlePackage))
         {
-          CurrentPackage = packageName;
           // Reset the message if the package has changed
           CurrentAction = DEFAULT_ACTION;
         }
@@ -144,21 +141,36 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void ExecuteMsiMessage(object sender, ExecuteMsiMessageEventArgs e)
     {
+      IBundlePackage bundlePackage = GetBundlePackage(e.PackageId);
       if (e.MessageType == InstallMessage.ActionStart)
       {
-        _bootstrapperModel.LogMessage(LogLevel.Standard, $"Display: {e.DisplayParameters}, Message: {e.Message}, Data: {string.Join(",,", e.Data ?? new string[0])}");
-        
+        //_bootstrapperModel.LogMessage(LogLevel.Standard, $"Display: {e.DisplayParameters}, Message: {e.Message}, Data: {string.Join(",,", e.Data ?? new string[0])}");
+
         // This is quite noisy, the best I can tell is that human readable messages for display seem to be the second argument in the message data, when present
         if (e.Data != null && e.Data.Count > 1 && !string.IsNullOrEmpty(e.Data[1]))
         {
-          string packageName = Enum.TryParse(e.PackageId, out PackageId packageId) ? packageId.ToString() : string.Empty;
           lock (_syncObj)
           {
-            CurrentPackage = packageName;
             CurrentAction = e.Data[1].Trim();
+            UpdateCurrentPackage(bundlePackage);
           }
         }
       }
+    }
+
+    protected IBundlePackage GetBundlePackage(string packageId)
+    {
+      return _bootstrapperModel.BundlePackages.FirstOrDefault(p => p.Id == packageId);
+    }
+
+    protected bool UpdateCurrentPackage(IBundlePackage bundlePackage)
+    {
+      if (CurrentPackage?.Id != bundlePackage?.Id)
+      {
+        CurrentPackage = bundlePackage != null ? CreatePackage(bundlePackage) : null;
+        return true;
+      }
+      return false;
     }
   }
 }
