@@ -93,9 +93,9 @@
                   <Trigger.EnterActions>
                     <BeginStoryboard>
                       <Storyboard>
-                        <DoubleAnimation Storyboard.TargetName="ButtonContent" To="1.2"  Duration="0:0:0.09"
+                        <DoubleAnimation Storyboard.TargetName="ButtonContent" To="1.1"  Duration="0:0:0.09"
                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"/>
-                        <DoubleAnimation Storyboard.TargetName="ButtonContent" To="1.2" Duration="0:0:0.09" 
+                        <DoubleAnimation Storyboard.TargetName="ButtonContent" To="1.1" Duration="0:0:0.09" 
                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
                       </Storyboard>
                     </BeginStoryboard>
