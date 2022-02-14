@@ -7,7 +7,7 @@
         xmlns:viewModels="clr-namespace:MP2BootstrapperApp.ViewModels"
         xmlns:extensions="clr-namespace:MP2BootstrapperApp.Extensions"
         mc:Ignorable="d"
-        Title="Mediaportal" Height="600" Width="1000" ResizeMode="NoResize" WindowStyle="None"
+        Title="MediaPortal 2 Setup" Height="600" Width="1000" ResizeMode="NoResize" WindowStyle="None"
         WindowStartupLocation="CenterScreen" UseLayoutRounding="False" AllowsTransparency="True"
         MouseDown="Window_MouseDown" >
 

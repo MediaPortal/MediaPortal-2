@@ -6,7 +6,9 @@
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-            
-    </Grid>
+  <Grid>
+    <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="10,0,0,0">
+      <Run Text="Are you sure you want to uninstall MediaPortal 2?"/>
+    </TextBlock>
+  </Grid>
 </UserControl>
