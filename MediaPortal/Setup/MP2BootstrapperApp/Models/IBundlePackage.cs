@@ -59,6 +59,11 @@ namespace MP2BootstrapperApp.Models
     string Description { get; }
 
     /// <summary>
+    /// Whether this package is optional.
+    /// </summary>
+    bool Optional { get; set; }
+
+    /// <summary>
     /// Gets or sets the currently installed version of the package.
     /// </summary>
     Version InstalledVersion { get; set; }

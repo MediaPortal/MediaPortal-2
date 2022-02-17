@@ -23,20 +23,28 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using System.IO;
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class MediaPortal2 : IPackage 
+  public class MediaPortal2 : AbstractPackage
   {
     private readonly IPackageChecker _packageChecker;
-    
+
+    private static readonly ISet<string> _optionalFeatures = new HashSet<string> { "Client", "Server", "ServiceMonitor", "LogCollector" };
+
     public MediaPortal2(IPackageChecker packageChecker)
     {
       _packageChecker = packageChecker;
     }
 
-    public Version GetInstalledVersion()
+    public override bool IsFeatureOptional(string feature)
+    {
+      return _optionalFeatures.Contains(feature);
+    }
+
+    public override Version GetInstalledVersion()
     {
       const string mp2RegKey = "SOFTWARE\\Team MediaPortal\\MediaPortal 2";
       const string mp2SrvMonitorRegValue = "INSTALLDIR_SERVICE_MONITOR";

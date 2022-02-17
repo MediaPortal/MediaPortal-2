@@ -46,7 +46,17 @@ namespace MP2BootstrapperApp.ChainPackages
 
     public Version GetInstalledVersion(PackageId id)
     {
-      return _packages[id].GetInstalledVersion();
+      return _packages.TryGetValue(id, out IPackage package) ? package.GetInstalledVersion() : new Version();
+    }
+
+    public bool IsOptional(PackageId id)
+    {
+      return _packages.TryGetValue(id, out IPackage package) ? package.IsOptional : false;
+    }
+
+    public bool IsFeatureOptional(PackageId id, string feature)
+    {
+      return _packages.TryGetValue(id, out IPackage package) ? package.IsFeatureOptional(feature) : false;
     }
   }
 }

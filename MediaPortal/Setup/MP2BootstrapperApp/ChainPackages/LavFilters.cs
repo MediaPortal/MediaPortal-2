@@ -27,7 +27,7 @@ using System.IO;
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class LavFilters : IPackage
+  public class LavFilters : AbstractPackage
   {
     private readonly IPackageChecker _packageChecker;
 
@@ -36,7 +36,12 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public Version GetInstalledVersion()
+    public override bool IsOptional
+    {
+      get { return true; }
+    }
+
+    public override Version GetInstalledVersion()
     {
       // TODO: add registry check to find the installed path
       // TODO: does the LAV filters installer allows at all a custom install path?

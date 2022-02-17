@@ -23,34 +23,24 @@
 #endregion
 
 using System;
-using System.IO;
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class Vc2010 : AbstractPackage
+  /// <summary>
+  /// Abstract implementation of <see cref="IPackage"/> which defaults to a non-optional package with no optional features.
+  /// </summary>
+  public abstract class AbstractPackage : IPackage
   {
-    private readonly IPackageChecker _packageChecker;
+    public abstract Version GetInstalledVersion();
 
-    public Vc2010(IPackageChecker packageChecker)
+    public virtual bool IsOptional
     {
-      _packageChecker = packageChecker;
+      get { return false; }
     }
 
-    public override Version GetInstalledVersion()
+    public virtual bool IsFeatureOptional(string feature)
     {
-      const string mfc100Dll = "mfc100.dll";
-      string vc2010Path = Path.Combine(Environment.SystemDirectory, mfc100Dll);
-
-      if (!_packageChecker.Exists(vc2010Path))
-      {
-        return new Version();
-      }
-      int majorVersion = _packageChecker.GetFileMajorVersion(vc2010Path);
-      int minorVersion = _packageChecker.GetFileMinorVersion(vc2010Path);
-      int buildVersion = _packageChecker.GetFileBuildVersion(vc2010Path);
-      int revision = _packageChecker.GetFilePrivateVersion(vc2010Path);
-      
-      return new Version(majorVersion, minorVersion, buildVersion, revision);
+      return false;
     }
   }
 }

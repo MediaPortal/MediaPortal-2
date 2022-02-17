@@ -91,6 +91,11 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
+    public bool Optional { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
     public Version InstalledVersion { get; set; }
 
     /// <summary>

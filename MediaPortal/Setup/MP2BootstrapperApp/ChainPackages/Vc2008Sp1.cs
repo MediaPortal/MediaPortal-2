@@ -26,7 +26,7 @@ using System;
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class Vc2008Sp1 : IPackage
+  public class Vc2008Sp1 : AbstractPackage
   {
     private readonly IPackageChecker _packageChecker;
     
@@ -35,7 +35,7 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public Version GetInstalledVersion()
+    public override Version GetInstalledVersion()
     {
       const string vc2008Sp1X86ProductCode = "{9A25302D-30C0-39D9-BD6F-21E6EC160475}";
 

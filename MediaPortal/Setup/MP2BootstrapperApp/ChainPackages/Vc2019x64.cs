@@ -27,7 +27,7 @@ using System.IO;
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class Vc2019x64 : IPackage
+  public class Vc2019x64 : AbstractPackage
   {
     private readonly IPackageChecker _packageChecker;
 
@@ -36,7 +36,7 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public Version GetInstalledVersion()
+    public override Version GetInstalledVersion()
     {
       // ToDO: We should probably block this x64 package entirely earlier
       // on in the installation if this is a 32 bit OS.

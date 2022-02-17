@@ -27,7 +27,7 @@ using System.IO;
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class Dokan : IPackage
+  public class Dokan : AbstractPackage
   {
     private readonly IPackageChecker _packageChecker;
 
@@ -36,7 +36,7 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public Version GetInstalledVersion()
+    public override Version GetInstalledVersion()
     {
       const string dokanDll = "DOKAN1.dll";
       string dokanDllPath = Path.Combine(Environment.SystemDirectory, dokanDll);

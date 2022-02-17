@@ -115,9 +115,8 @@ namespace MP2BootstrapperApp.Models
         IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
         if (bundlePackage != null)
         {
-          PackageId bundlePackageId = bundlePackage.GetId();
-          Version installed = _packageContext.GetInstalledVersion(bundlePackageId);
-          bundlePackage.InstalledVersion = installed;
+          bundlePackage.InstalledVersion = _packageContext.GetInstalledVersion(detectedPackageId);
+          bundlePackage.Optional = _packageContext.IsOptional(detectedPackageId);
           bundlePackage.CurrentInstallState = detectPackageCompleteEventArgs.State;
         }
       }
@@ -128,9 +127,10 @@ namespace MP2BootstrapperApp.Models
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
         IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
-        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out IBundlePackageFeature feature))
+        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out IBundlePackageFeature bundleFeature))
         {
-          feature.CurrentFeatureState = e.State;
+          bundleFeature.Optional = _packageContext.IsFeatureOptional(detectedPackageId, e.FeatureId);
+          bundleFeature.CurrentFeatureState = e.State;
         }
       }
     }

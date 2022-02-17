@@ -73,6 +73,7 @@
   <ItemGroup>
     <Compile Include="ActionType.cs" />
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
+    <Compile Include="ChainPackages\AbstractPackage.cs" />
     <Compile Include="ChainPackages\MediaPortal2.cs" />
     <Compile Include="ChainPackages\Vc2019x64.cs" />
     <Compile Include="DetectionState.cs" />
@@ -95,9 +96,6 @@
     <Compile Include="ChainPackages\IPackageChecker.cs" />
     <Compile Include="ChainPackages\IPackage.cs" />
     <Compile Include="ChainPackages\LavFilters.cs" />
-    <Compile Include="ChainPackages\MP2Client.cs" />
-    <Compile Include="ChainPackages\MP2Common.cs" />
-    <Compile Include="ChainPackages\MP2Server.cs" />
     <Compile Include="ChainPackages\PackageChecker.cs" />
     <Compile Include="ChainPackages\PackageContext.cs" />
     <Compile Include="ChainPackages\PackageId.cs" />

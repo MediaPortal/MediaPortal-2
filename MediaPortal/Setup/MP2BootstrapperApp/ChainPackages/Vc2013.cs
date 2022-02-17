@@ -27,7 +27,7 @@ using System.IO;
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class Vc2013 : IPackage
+  public class Vc2013 : AbstractPackage
   {
     private readonly IPackageChecker _packageChecker;
 
@@ -36,7 +36,7 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public Version GetInstalledVersion()
+    public override Version GetInstalledVersion()
     {
       const string mfc120Dll = "mfc120.dll";
       string vc2013Path = Path.Combine(Environment.SystemDirectory, mfc120Dll);

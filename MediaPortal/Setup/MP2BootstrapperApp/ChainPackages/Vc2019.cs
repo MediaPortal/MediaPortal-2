@@ -27,7 +27,7 @@ using System.IO;
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class Vc2019 : IPackage
+  public class Vc2019 : AbstractPackage
   {
     private readonly IPackageChecker _packageChecker;
 
@@ -36,7 +36,7 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public Version GetInstalledVersion()
+    public override Version GetInstalledVersion()
     {
       const string mfc140Dll = "mfc140.dll";
 
