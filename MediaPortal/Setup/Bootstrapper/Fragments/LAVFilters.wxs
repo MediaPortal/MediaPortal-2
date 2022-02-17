@@ -19,8 +19,7 @@
                   Name="LAVFilters.exe"
                   DownloadUrl="http://install.team-mediaportal.com/MP2/install/LAVFilters.exe"
                   InstallCommand="/VERYSILENT /SP-"
-                  DetectCondition="LAVFilters_Version >= v0.74.1.0"
-                  InstallCondition="(NOT LAVFilters_Version >= v0.74.1.0) OR (NOT LAVFilters_Version)">
+                  DetectCondition="LAVFilters_Version >= v0.74.1.0">
         <RemotePayload 
                   CertificatePublicKey="13D546F374FB43B26E99D5E16F9CC35FEEE9F890" 
                   CertificateThumbprint="394983FFD62B9BEB9FA2C1B0F4BD50BFA71B088E" 

@@ -10,8 +10,7 @@
                   Name="DokanSetup-1.0.5.1000.exe"
                   DownloadUrl="http://install.team-mediaportal.com/MP2/install/DokanSetup-1.0.5.1000.exe"
                   InstallCommand="/q"
-                  DetectCondition="Dokan_1000_Version >= v1.0.0.0"
-                  InstallCondition="(NOT Dokan_1000_Version >= v1.0.0.0) OR NOT Dokan_1000_Version">
+                  DetectCondition="Dokan_1000_Version >= v1.0.0.0">
         <RemotePayload
                   CertificatePublicKey="70E450EF45A7F579112248987E26294ACCDC3D2F"
                   CertificateThumbprint="0AC18DDF5466B05A1A00D9D346259C94A5488A9F"
