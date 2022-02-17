@@ -24,7 +24,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
-      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="0,-30,20,-50">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="0,-30,0,-50">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
@@ -89,13 +89,13 @@
         <Label Grid.Row="1" Grid.Column="1" Margin="20,5,5,5"
                Content="[UserConfig.UserName]" Color="{ThemeResource TextColor}"/>
         <TextBox Grid.Row="1" Grid.Column="3" TextAlign="Center" HorizontalContentAlignment="Center"
-                 Text="{Binding Path=UserProxy.Name,Mode=TwoWay}" PreferredTextLength="40"
+                 Text="{Binding Path=UserProxy.Name,Mode=TwoWay}" PreferredTextLength="40" Margin="0,0,40,0"
                  IsEnabled="{Binding Path=!IsSystemUserSelected}"/>
 
         <Label Grid.Row="2" Grid.Column="1" Margin="20,5,5,5"
                Content="[UserConfig.Password]" Color="{ThemeResource TextColor}"/>
         <TextBox Grid.Row="2" Grid.Column="3" Style="{ThemeResource PasswordTextBoxStyle}" 
-                 HorizontalContentAlignment="Center" TextAlign="Center"
+                 HorizontalContentAlignment="Center" TextAlign="Center" Margin="0,0,40,0"
                  Text="{Binding Path=UserProxy.Password,Mode=TwoWay}" PreferredTextLength="40">
           <TextBox.IsEnabled>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
@@ -148,7 +148,7 @@
           <Label Margin="5" Content="[UserConfig.AgeFilter]" Color="{ThemeResource TextColor}"/>
         </StackPanel>
         <TextBox Grid.Row="6" Grid.Column="3" IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}" IsVisible="{Binding !IsRestrictedToOwn}"
-                 TextAlign="Center" HorizontalContentAlignment="Center"
+                 TextAlign="Center" HorizontalContentAlignment="Center" Margin="0,0,40,0"
                  Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40"/>
 
         <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1" Margin="35,0,0,0" IsVisible="{Binding !IsRestrictedToOwn}">
@@ -166,7 +166,7 @@
           </Label>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" Margin="35,0,0,0" IsVisible="{Binding !IsRestrictedToOwn}">
+        <StackPanel Orientation="Horizontal" Grid.Row="8" Grid.Column="1" Margin="35,0,40,0" IsVisible="{Binding !IsRestrictedToOwn}">
           <CheckBox x:Name="CheckIncludeUnratedContentFilter" HorizontalAlignment="Center"
                   IsChecked="{Binding Path=UserProxy.IncludeUnratedContent,Mode=TwoWay}"
                   IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
@@ -181,13 +181,13 @@
           </Label>
         </StackPanel>
 
-        <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="20,0,0,0">
+        <StackPanel Orientation="Horizontal" Grid.Row="9" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom" Margin="20,0,40,0">
           <Label Margin="5" Content="[UserConfig.LastLogin]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
           <Label Margin="5" Content=": " Color="{ThemeResource TextColor}" Opacity="0.5"/>
           <Label Margin="5" Content="{Binding UserProxy.LastLogin}" Color="{ThemeResource TextColor}" Scroll="Auto" Opacity="0.5"/>
         </StackPanel>
 
-        <Button Grid.Row="7" Grid.RowSpan="3" Grid.Column="3"
+        <Button Grid.Row="7" Grid.RowSpan="3" Grid.Column="3" Margin="0,0,40,0"
                 HorizontalAlignment="Right" VerticalAlignment="Bottom"
                 Width="150" Height="150" Command="{Command OpenSelectUserImageDialog}" >
           <Image x:Name="BigIcon" Source="{Binding UserProxy.Image}" FallbackSource="person.png" Stretch="Uniform"/>
@@ -199,7 +199,7 @@
           </Button.IsVisible>
         </Button>
 
-        <UniformGrid Columns="4" Grid.Column="1"  Grid.ColumnSpan="3" Grid.Row="10" Height="80" VerticalAlignment="Bottom" Margin="10,40,0,0">
+        <UniformGrid Columns="4" Grid.Column="1"  Grid.ColumnSpan="3" Grid.Row="10" Height="80" VerticalAlignment="Bottom" Margin="20,40,40,0">
           <Button x:Name="AddUserButton" Style="{ThemeResource WizardButtonStyle}" IsEnabled="{Binding !IsRestrictedToOwn}"
                   Content="[UserConfig.AddUser]" Command="{Command AddUser}" Margin="10" />
           <Button x:Name="CopyUserButton" Style="{ThemeResource WizardButtonStyle}" Margin="10"
