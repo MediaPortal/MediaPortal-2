@@ -41,10 +41,7 @@ namespace MP2BootstrapperApp.ChainPackages
       _packages.Add(PackageId.VC2019_x64, new Vc2019x64(_packageChecker));
       _packages.Add(PackageId.LAVFilters, new LavFilters(_packageChecker));
       _packages.Add(PackageId.dokan, new Dokan(_packageChecker));
-      _packages.Add(PackageId.MediaPortal2, new MP2Common(_packageChecker));
-      _packages.Add(PackageId.MP2Client, new MP2Client(_packageChecker));
-      _packages.Add(PackageId.MP2Server, new MP2Server(_packageChecker));
-      _packages.Add(PackageId.MP2Common, new MP2Common(_packageChecker));
+      _packages.Add(PackageId.MediaPortal2, new MediaPortal2(_packageChecker));
     }
 
     public Version GetInstalledVersion(PackageId id)

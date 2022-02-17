@@ -26,9 +26,6 @@ namespace MP2BootstrapperApp.ChainPackages
 {
   public enum PackageId
   {
-    MP2Client,
-    MP2Server,
-    MP2Common,
     MediaPortal2,
     dokan,
     LAVFilters,
