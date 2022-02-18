@@ -60,7 +60,7 @@ namespace MP2BootstrapperApp.FeatureSelection
 
         if (packageId == PackageId.MediaPortal2)
         {
-          foreach (var feature in package.Features.Values)
+          foreach (var feature in package.Features)
           {
             feature.RequestedFeatureState = ExcludeFeatures.Contains(feature.FeatureName) ? FeatureState.Absent : FeatureState.Local;
           }

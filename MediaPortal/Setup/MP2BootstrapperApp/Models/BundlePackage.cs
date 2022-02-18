@@ -36,12 +36,12 @@ namespace MP2BootstrapperApp.Models
   public class BundlePackage : IBundlePackage
   {
     private readonly XElement _packageElement;
-    private readonly IDictionary<string, IBundlePackageFeature> _features;
+    private readonly ICollection<IBundlePackageFeature> _features;
 
     public BundlePackage(XElement packageElement)
     {
       _packageElement = packageElement;
-      _features = new Dictionary<string, IBundlePackageFeature>();
+      _features = new List<IBundlePackageFeature>();
     }
 
     /// <summary>
@@ -111,7 +111,7 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public IDictionary<string, IBundlePackageFeature> Features
+    public ICollection<IBundlePackageFeature> Features
     {
       get { return _features; }
     }

@@ -127,7 +127,8 @@ namespace MP2BootstrapperApp.Models
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
         IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
-        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out IBundlePackageFeature bundleFeature))
+        IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.FeatureName == e.FeatureId);
+        if (bundleFeature != null)
         {
           bundleFeature.Optional = _packageContext.IsFeatureOptional(detectedPackageId, e.FeatureId);
           bundleFeature.CurrentFeatureState = e.State;
@@ -146,10 +147,9 @@ namespace MP2BootstrapperApp.Models
           bundledPackage.InstalledVersion = e.Version;
           foreach (FeatureInstallation feature in installedPackage.Features)
           {
-            if (bundledPackage.Features.TryGetValue(feature.FeatureName, out IBundlePackageFeature bundleFeature))
-            {
+            IBundlePackageFeature bundleFeature = bundledPackage.Features.FirstOrDefault(f => f.FeatureName == feature.FeatureName);
+            if (bundleFeature != null)
               bundleFeature.PreviousVersionInstalled = feature.State == Microsoft.Deployment.WindowsInstaller.InstallState.Local;
-            }
           }
         }        
       }
@@ -165,10 +165,9 @@ namespace MP2BootstrapperApp.Models
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
         IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
-        if (bundlePackage != null && bundlePackage.Features.TryGetValue(e.FeatureId, out IBundlePackageFeature feature))
-        {
-          e.State = feature.RequestedFeatureState;
-        }
+        IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.FeatureName == e.FeatureId);
+        if (bundleFeature != null)
+          e.State = bundleFeature.RequestedFeatureState;
       }
     }
 

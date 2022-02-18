@@ -81,6 +81,6 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// Gets the available features of the package.
     /// </summary>
-    IDictionary<string, IBundlePackageFeature> Features { get; }
+    ICollection<IBundlePackageFeature> Features { get; }
   }
 }

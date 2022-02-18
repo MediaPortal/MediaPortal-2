@@ -69,7 +69,7 @@ namespace MP2BootstrapperApp.WizardSteps
     /// Features that have been selected for installation.
     /// </summary>
     public ICollection<IBundlePackageFeature> SelectedFeatures { get; }
-    
+
     /// <summary>
     /// All packages available for installation.
     /// </summary>
@@ -132,12 +132,10 @@ namespace MP2BootstrapperApp.WizardSteps
       }
 
       // Get the optional features, namely Client, Server, ServiceMonitor and Log Collector
-      foreach (string featureName in FeatureId.All)
+      foreach (IBundlePackageFeature feature in mainPackage.Features)
       {
-        if (mainPackage.Features.TryGetValue(featureName, out IBundlePackageFeature feature))
-        {
+        if (feature.Optional)
           selectableFeatures.Add(feature);
-        }
       }
       return selectableFeatures;
     }
@@ -147,10 +145,10 @@ namespace MP2BootstrapperApp.WizardSteps
       ICollection<IBundlePackage> selectablePackages = new List<IBundlePackage>();
 
       // Optional packages, currently this is only the LAV Filters package
-      IBundlePackage lavPackage = bundlePackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
-      if (lavPackage != null && lavPackage.CurrentInstallState != PackageState.Present)
+      foreach (IBundlePackage bundlePackage in _bootstrapperApplicationModel.BundlePackages)
       {
-        selectablePackages.Add(lavPackage);
+        if (bundlePackage.Optional)
+          selectablePackages.Add(bundlePackage);
       }
       return selectablePackages;
     }

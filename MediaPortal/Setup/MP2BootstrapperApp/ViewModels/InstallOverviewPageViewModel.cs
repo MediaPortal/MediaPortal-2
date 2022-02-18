@@ -24,7 +24,6 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
-using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
 using System.Collections.Generic;
@@ -54,12 +53,10 @@ namespace MP2BootstrapperApp.ViewModels
         {
           if (bundlePackage.GetId() == PackageId.MediaPortal2)
           {
-            foreach (string featureName in FeatureId.All)
+            foreach (IBundlePackageFeature feature in bundlePackage.Features)
             {
-              if (bundlePackage.Features.TryGetValue(featureName, out IBundlePackageFeature feature) && feature.RequestedFeatureState == FeatureState.Local)
-              {
+              if (feature.Optional && feature.RequestedFeatureState == FeatureState.Local)
                 Packages.Add(CreatePackageFeature(bundlePackage, feature));
-              }
             }
           }
           else
