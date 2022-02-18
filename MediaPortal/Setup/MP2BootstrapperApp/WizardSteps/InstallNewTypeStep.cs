@@ -22,8 +22,10 @@
 
 #endregion
 
+using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.Models;
+using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
@@ -38,24 +40,25 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      IFeature featureSelection;
+      IEnumerable<string> features;
       switch (InstallType)
       {
         case InstallType.ClientServer:
-          featureSelection = new CombinedFeatures(new ClientFeature(), new ServerFeature(), new LogCollectorFeature(), new ServiceMonitorFeature());
+          features = new string[] { "Client", "Server", "ServiceMonitor", "LogCollector" };
           break;
         case InstallType.Server:
-          featureSelection = new CombinedFeatures(new ServerFeature(), new LogCollectorFeature(), new ServiceMonitorFeature());
+          features = new string[] { "Server", "ServiceMonitor", "LogCollector" };
           break;
         case InstallType.Client:
-          featureSelection = new CombinedFeatures(new ClientFeature(), new LogCollectorFeature(), new ServiceMonitorFeature());
+          features = new string[] { "Client", "ServiceMonitor", "LogCollector" };
           break;
         //case InstallType.Custom:
         default:
           return new InstallCustomStep(_bootstrapperApplicationModel);
       }
 
-      featureSelection.SetInstallState(_bootstrapperApplicationModel.BundlePackages);
+      InstallPlan plan = new InstallPlan(features, null, new PlanContext());
+      plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);
 
       return new InstallOverviewStep(_bootstrapperApplicationModel);
     }

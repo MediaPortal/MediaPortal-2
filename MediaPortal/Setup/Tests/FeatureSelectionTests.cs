@@ -1,5 +1,9 @@
-﻿using MP2BootstrapperApp.ChainPackages;
-using MP2BootstrapperApp.FeatureSelection;
+﻿using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.ActionPlans;
+using MP2BootstrapperApp.Models;
+using NSubstitute;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using Xunit;
@@ -8,80 +12,147 @@ namespace Tests
 {
   public class FeatureSelectionTests
   {
-    #region Should_ExcludeFeature_Test_Cases
-
-    public static IEnumerable<object[]> Should_ExcludeFeature_Test_Cases()
+    [Fact]
+    void Should_IncludeNonOptionalFeatures()
     {
-      yield return new object[] { new ClientFeature(), new[] { FeatureId.Server, FeatureId.LogCollector, FeatureId.ServiceMonitor } };
-      yield return new object[] { new ServerFeature(), new[] { FeatureId.Client, FeatureId.LogCollector, FeatureId.ServiceMonitor } };
-      yield return new object[] { new LogCollectorFeature(), new[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor } };
-      yield return new object[] { new ServiceMonitorFeature(), new[] { FeatureId.Client, FeatureId.Server, FeatureId.LogCollector } };
+      InstallPlan plan = new InstallPlan(new[] { "Server" }, null, new PlanContext());
+      IList<IBundlePackage> packages = CreateTestBundlePackages();
 
-      yield return new object[] { new CombinedFeatures(new ClientFeature()), new[] { FeatureId.Server, FeatureId.LogCollector, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServiceMonitorFeature()), new[] { FeatureId.Server, FeatureId.LogCollector } };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new LogCollectorFeature()), new[] { FeatureId.Server, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { FeatureId.Server } };
+      plan.SetRequestedInstallStates(packages);
 
-      yield return new object[] { new CombinedFeatures(new ServerFeature()), new[] { FeatureId.Client, FeatureId.LogCollector, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new ServerFeature(), new ServiceMonitorFeature()), new[] { FeatureId.Client, FeatureId.LogCollector } };
-      yield return new object[] { new CombinedFeatures(new ServerFeature(), new LogCollectorFeature()), new[] { FeatureId.Client, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { FeatureId.Client } };
-
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature()), new[] { FeatureId.LogCollector, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature()), new[] { FeatureId.LogCollector } };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new LogCollectorFeature()), new[] { FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new string[0] };
-
-      yield return new object[] { new CombinedFeatures(new ServiceMonitorFeature()), new[] { FeatureId.Client, FeatureId.Server, FeatureId.LogCollector } };
-      yield return new object[] { new CombinedFeatures(new LogCollectorFeature()), new[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor } };
-      yield return new object[] { new CombinedFeatures(new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { FeatureId.Client, FeatureId.Server } };
+      IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);
+      IBundlePackageFeature nonOptionalFeature = featurePackage.Features.First(f => f.FeatureName == "MediaPortal");
+      Assert.Equal(false, nonOptionalFeature.Optional);
+      Assert.Equal(FeatureState.Local, nonOptionalFeature.RequestedFeatureState);
     }
 
-    #endregion
-
-    [Theory]
-    [MemberData(nameof(Should_ExcludeFeature_Test_Cases))]
-    void Should_ExcludeFeature_When_FeatureSelectionDoesNotIncludeFeature(IFeature featureSelection, string[] expectedExcludedFeatures)
+    [Fact]
+    void Should_IncludeOptionalFeatures_When_Selected()
     {
-      Assert.Equal(expectedExcludedFeatures.OrderBy(f => f), featureSelection.ExcludeFeatures.OrderBy(f => f));
+      InstallPlan plan = new InstallPlan(new[] { "Server" }, null, new PlanContext());
+      IList<IBundlePackage> packages = CreateTestBundlePackages();
+
+      plan.SetRequestedInstallStates(packages);
+
+      IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);
+      IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.FeatureName == "Server");
+      Assert.Equal(true, optionalFeature.Optional);
+      Assert.Equal(FeatureState.Local, optionalFeature.RequestedFeatureState);
     }
 
-    #region Should_ExcludePackage_Test_Cases
-
-    public static IEnumerable<object[]> Should_ExcludePackage_Test_Cases()
+    [Fact]
+    void Should_ExcludeOptionalFeatures_When_NotSelected()
     {
-      yield return new object[] { new ClientFeature(), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
-      yield return new object[] { new ServerFeature(), new[] { PackageId.LAVFilters } };
-      yield return new object[] { new LogCollectorFeature(), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
-      yield return new object[] { new ServiceMonitorFeature(), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
+      InstallPlan plan = new InstallPlan(new[] { "Server" }, null, new PlanContext());
+      IList<IBundlePackage> packages = CreateTestBundlePackages();
 
-      yield return new object[] { new CombinedFeatures(new ClientFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServiceMonitorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new LogCollectorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } };
+      plan.SetRequestedInstallStates(packages);
 
-      yield return new object[] { new CombinedFeatures(new ServerFeature()), new[] { PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new ServerFeature(), new ServiceMonitorFeature()), new[] { PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new ServerFeature(), new LogCollectorFeature()), new[] { PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { PackageId.LAVFilters } };
-
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature()), new PackageId[0] };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature()), new PackageId[0] };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new LogCollectorFeature()), new PackageId[0] };
-      yield return new object[] { new CombinedFeatures(new ClientFeature(), new ServerFeature(), new ServiceMonitorFeature(), new LogCollectorFeature()), new PackageId[0] };
-
-      yield return new object[] { new CombinedFeatures(new ServiceMonitorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new LogCollectorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
-      yield return new object[] { new CombinedFeatures(new ServiceMonitorFeature(), new LogCollectorFeature()), new[] { PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } };
+      IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);
+      IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.FeatureName == "Client");
+      Assert.Equal(true, optionalFeature.Optional);
+      Assert.Equal(FeatureState.Absent, optionalFeature.RequestedFeatureState);
     }
 
-    #endregion
-
-    [Theory]
-    [MemberData(nameof(Should_ExcludePackage_Test_Cases))]
-    void Should_ExcludePackage_When_FeatureSelectionDoesNotIncludePackage(IFeature featureSelection, PackageId[] expectedExcludedPackages)
+    [Fact]
+    void Should_IncludeNonOptionalPackage_When_NotExcludedByFeature()
     {
-      Assert.Equal(expectedExcludedPackages.OrderBy(f => f), featureSelection.ExcludePackages.OrderBy(f => f));
+      InstallPlan plan = new InstallPlan(new[] { "Client" }, null, new PlanContext());
+      IList<IBundlePackage> packages = CreateTestBundlePackages();
+
+      plan.SetRequestedInstallStates(packages);
+
+      IBundlePackage package = packages.First(p => p.GetId() == PackageId.VC2019_x86);
+      Assert.Equal(RequestState.Present, package.RequestedInstallState);
+    }
+
+    [Fact]
+    void Should_ExcludeNonOptionalPackage_When_ExcludedByFeature()
+    {
+      InstallPlan plan = new InstallPlan(new[] { "Client" }, null, new PlanContext());
+      IList<IBundlePackage> packages = CreateTestBundlePackages();
+
+      plan.SetRequestedInstallStates(packages);
+
+      IBundlePackage package = packages.First(p => p.GetId() == PackageId.VC2013_x86);
+      Assert.Equal(RequestState.None, package.RequestedInstallState);
+    }
+
+    [Fact]
+    void Should_IncludeOptionalPackage_When_Selected_And_ExcludedByFeature()
+    {
+      InstallPlan plan = new InstallPlan(new[] { "Server" }, new[] { PackageId.LAVFilters }, new PlanContext());
+      IList<IBundlePackage> packages = CreateTestBundlePackages();
+
+      plan.SetRequestedInstallStates(packages);
+
+      IBundlePackage lavPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      Assert.Equal(RequestState.Present, lavPackage.RequestedInstallState);
+    }
+
+    [Fact]
+    void Should_ExcludeOptionalPackage_When_NotSelected_And_NotExcludedByFeature()
+    {
+      InstallPlan plan = new InstallPlan(new[] { "Client" }, new PackageId[0], new PlanContext());
+      IList<IBundlePackage> packages = CreateTestBundlePackages();
+
+      plan.SetRequestedInstallStates(packages);
+
+      IBundlePackage lavPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      Assert.Equal(RequestState.None, lavPackage.RequestedInstallState);
+    }
+
+    [Fact]
+    void Should_IncludeOptionalPackage_When_SelectedOptionalPackagesIsNull_And_NotExcludedByFeature()
+    {
+      InstallPlan plan = new InstallPlan(new[] { "Client" }, null, new PlanContext());
+      IList<IBundlePackage> packages = CreateTestBundlePackages();
+
+      plan.SetRequestedInstallStates(packages);
+
+      IBundlePackage lavPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      Assert.Equal(RequestState.Present, lavPackage.RequestedInstallState);
+    }
+
+    [Fact]
+    void Should_ExcludeOptionalPackage_When_SelectedOptionalPackagesIsNull_And_ExcludedByFeature()
+    {
+      InstallPlan plan = new InstallPlan(new[] { "Server" }, null, new PlanContext());
+      IList<IBundlePackage> packages = CreateTestBundlePackages();
+
+      plan.SetRequestedInstallStates(packages);
+
+      IBundlePackage lavPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      Assert.Equal(RequestState.None, lavPackage.RequestedInstallState);
+    }
+
+    IList<IBundlePackage> CreateTestBundlePackages()
+    {
+      List<IBundlePackage> packages = new List<IBundlePackage>();
+      foreach (PackageId packageId in Enum.GetValues(typeof(PackageId)))
+      {
+        if (packageId == PackageId.Unknown)
+          continue;
+
+        IBundlePackage package = Substitute.For<IBundlePackage>();
+        package.GetId().Returns(packageId);
+        package.Optional.Returns(packageId == PackageId.LAVFilters);
+
+        if (packageId == PackageId.MediaPortal2)
+        {
+          List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
+          foreach (string featureName in new[] { "MediaPortal", "Client", "Server", "ServiceMonitor", "LogCollector" })
+          {
+            IBundlePackageFeature feature = Substitute.For<IBundlePackageFeature>();
+            feature.FeatureName.Returns(featureName);
+            feature.Optional.Returns(featureName != "MediaPortal");
+            features.Add(feature);
+          }
+          package.Features.Returns(features);
+        }
+        packages.Add(package);
+      }
+      return packages;
     }
   }
 }

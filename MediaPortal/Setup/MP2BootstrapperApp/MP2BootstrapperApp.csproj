@@ -81,6 +81,11 @@
     <Compile Include="FeatureSelection\CombinedFeatures.cs" />
     <Compile Include="FeatureSelection\ServiceMonitorFeature.cs" />
     <Compile Include="FeatureSelection\LogCollectorFeature.cs" />
+    <Compile Include="ActionPlans\IPlan.cs" />
+    <Compile Include="ActionPlans\IPlanContext.cs" />
+    <Compile Include="ActionPlans\InstallPlan.cs" />
+    <Compile Include="ActionPlans\PlanContext.cs" />
+    <Compile Include="ActionPlans\RepairPlan.cs" />
     <Compile Include="InstallState.cs" />
     <Compile Include="FeatureSelection\AbstractFeature.cs" />
     <Compile Include="FeatureSelection\ServerFeature.cs" />

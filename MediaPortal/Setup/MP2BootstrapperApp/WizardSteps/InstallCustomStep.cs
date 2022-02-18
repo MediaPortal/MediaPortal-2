@@ -22,9 +22,8 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.ChainPackages;
-using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.Models;
 using System;
 using System.Collections.Generic;
@@ -82,30 +81,11 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      // Set the install state for selected features and dependency packages
-      if (SelectedFeatures.Count > 0)
-      {
-        List<IFeature> features = new List<IFeature>();
-        foreach (IBundlePackageFeature selectedFeature in SelectedFeatures)
-        {
-          if (FeatureId.FeatureSelections.TryGetValue(selectedFeature.FeatureName, out IFeature feature))
-          {
-            features.Add(feature);
-          }
-        }
-        CombinedFeatures combinedFeatures = new CombinedFeatures(features);
-        combinedFeatures.SetInstallState(_bootstrapperApplicationModel.BundlePackages);
-      }
+      IEnumerable<string> features = SelectedFeatures.Select(f => f.FeatureName);
+      IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.GetId());
 
-      // Set the install state for selected packages, must be done after features have been selected
-      // because feature selection will set optional packages to present unless explicitly excluded
-      if (SelectedPackages.Count > 0)
-      {
-        foreach (IBundlePackage package in AvailablePackages)
-        {
-          package.RequestedInstallState = SelectedPackages.Contains(package) ? RequestState.Present : RequestState.None;
-        }
-      }
+      InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
+      plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);
 
       return new InstallOverviewStep(_bootstrapperApplicationModel);
     }
