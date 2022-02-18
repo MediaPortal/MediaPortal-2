@@ -197,24 +197,28 @@ namespace MP2BootstrapperApp.Models
 
     private void UpdatePackageRequestState(PlanPackageBeginEventArgs planPackageBeginEventArgs)
     {
+      IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(p => p.Id == planPackageBeginEventArgs.PackageId);
+      // Packages not present in BundlePackages are bootstrapper prerequisite packages (currently only .net),
+      // We shouldn't ever need to take action on these packages, they are already installed before the bootstrapper
+      // app is run and repairing .net takes a long time, often require a restart, and is unlikely to be the cause
+      // of issues with the MediaPortal 2 installation.
+      if (bundlePackage == null)
+      {
+        planPackageBeginEventArgs.State = RequestState.None;
+        return;
+      }
+
       // Don't override the BA's default state when uninstalling or repairing, let it use
       // the appropriate state based on the packages' current install state.
       if (PlannedAction == LaunchAction.Uninstall || PlannedAction == LaunchAction.Repair)
         return;
 
-      if (Enum.TryParse(planPackageBeginEventArgs.PackageId, out PackageId id))
-      {
-        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(p => p.GetId() == id);
-        if (bundlePackage != null)
-        {
-          // All packages should have the correct requested state by default for a complete installation (determined based on InstallCondition),
-          // any that aren't already requested Present shouldn't be changed as we only set Requested packages to Absent (rather than vice versa)
-          // when doing a partial install of only the client/server. Any packages marked absent before this point are either already present or
-          // not valid for this machine (e.g. a 64bit package on a 32bit machine).
-          if (planPackageBeginEventArgs.State == RequestState.Present)
-            planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
-        }
-      }
+      // All packages should have the correct requested state by default for a complete installation (determined based on InstallCondition),
+      // any that aren't already requested Present shouldn't be changed as we only set Requested packages to Absent (rather than vice versa)
+      // when doing a partial install of only the client/server. Any packages marked absent before this point are either already present or
+      // not valid for this machine (e.g. a 64bit package on a 32bit machine).
+      if (planPackageBeginEventArgs.State == RequestState.Present)
+        planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
     }
 
     private void ResolveSource(object sender, ResolveSourceEventArgs e)
@@ -282,7 +286,7 @@ namespace MP2BootstrapperApp.Models
         {
           IBundlePackage parent = packages.FirstOrDefault(p => p.Id == feature.Package);
           if (parent != null)
-            parent.Features[feature.FeatureName] = feature;
+            parent.Features.Add(feature);
         }
       }
 
