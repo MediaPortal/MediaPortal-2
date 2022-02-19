@@ -41,6 +41,7 @@ namespace MP2BootstrapperApp.ViewModels
       _installCustomStep = step;
 
       Header = "Custom installation";
+      SubHeader = "Un-/select the packages to install";
 
       Items = new ObservableCollection<SelectablePackageViewModel>();
       AddItems(step);

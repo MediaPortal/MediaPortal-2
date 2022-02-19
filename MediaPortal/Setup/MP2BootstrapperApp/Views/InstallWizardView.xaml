@@ -151,10 +151,16 @@
     </Style>
 
     <ControlTemplate x:Key="HeaderTemplate">
-      <TextBlock Text="{Binding Path=CurrentPage.Header}" Margin="-500,0,20,20"
-                 Foreground="White" 
-                 FontSize="26"
-                 TextAlignment="Right"/>
+      <Grid Margin="-500,0,20,15">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="35"/>
+          <RowDefinition Height="25"/>
+        </Grid.RowDefinitions>
+        <TextBlock Grid.Row="0" Text="{Binding Path=CurrentPage.Header}"
+                   Foreground="White" FontSize="28" TextAlignment="Right"/>
+        <TextBlock Grid.Row="1" Text="{Binding Path=CurrentPage.SubHeader}" Opacity="0.7"
+                   Foreground="White" FontSize="16" TextAlignment="Right"/>
+      </Grid>
     </ControlTemplate>
 
     <VisualBrush x:Key="Background">

@@ -38,6 +38,7 @@ namespace MP2BootstrapperApp.ViewModels
     {
       Header = "Overview";
       ButtonNextContent = "Install";
+      SubHeader = "Below packages will be installed";
 
       Packages = new ObservableCollection<Package>();
       AddPackages(step.BootstrapperApplicationModel.BundlePackages);

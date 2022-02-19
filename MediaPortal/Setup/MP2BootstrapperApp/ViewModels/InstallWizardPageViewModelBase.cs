@@ -34,6 +34,7 @@ namespace MP2BootstrapperApp.ViewModels
     protected IStep _step;
 
     private string _header;
+    private string _subHeader;
     private string _buttonNextContent = "Next";
     private string _buttonBackContent = "Back";
     private string _buttonCancelContent = "Abort";
@@ -47,6 +48,12 @@ namespace MP2BootstrapperApp.ViewModels
     {
       get { return _header; }
       set { SetProperty(ref _header, value); }
+    }
+
+    public string SubHeader
+    {
+      get { return _subHeader; }
+      set { SetProperty(ref _subHeader, value); }
     }
 
     public string ButtonNextContent
