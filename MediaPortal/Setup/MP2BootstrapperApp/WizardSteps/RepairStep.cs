@@ -22,6 +22,8 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.Models;
 
 namespace MP2BootstrapperApp.WizardSteps
@@ -35,12 +37,17 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      throw new System.NotImplementedException();
+      RepairPlan plan = new RepairPlan(new PlanContext());
+      plan.SetRequestedInstallStates(BootstrapperApplicationModel.BundlePackages);
+
+      _bootstrapperApplicationModel.PlanAction(LaunchAction.Repair);
+      _bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "Starting repair");
+      return new InstallationInProgressStep(_bootstrapperApplicationModel);
     }
 
     public bool CanGoNext()
     {
-      return false;
+      return true;
     }
 
     public bool CanGoBack()

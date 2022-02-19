@@ -208,16 +208,15 @@ namespace MP2BootstrapperApp.Models
         return;
       }
 
-      // Don't override the BA's default state when uninstalling or repairing, let it use
+      // Don't override the BA's default state when uninstalling, let it use
       // the appropriate state based on the packages' current install state.
-      if (PlannedAction == LaunchAction.Uninstall || PlannedAction == LaunchAction.Repair)
+      if (PlannedAction == LaunchAction.Uninstall)
         return;
 
-      // All packages should have the correct requested state by default for a complete installation (determined based on InstallCondition),
-      // any that aren't already requested Present shouldn't be changed as we only set Requested packages to Absent (rather than vice versa)
-      // when doing a partial install of only the client/server. Any packages marked absent before this point are either already present or
-      // not valid for this machine (e.g. a 64bit package on a 32bit machine).
-      if (planPackageBeginEventArgs.State == RequestState.Present)
+      // planPackageBeginEventArgs.State should initially have the correct state for a complete installation (determined based on InstallCondition).
+      // If the initial state is Absent then it shouldn't be changed as it indicates that the package should never be installed on this machine,
+      // (e.g. a 64bit package on a 32bit machine).
+      if (planPackageBeginEventArgs.State != RequestState.Absent)
         planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
     }
 
