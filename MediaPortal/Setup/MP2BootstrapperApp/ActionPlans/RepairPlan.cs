@@ -50,7 +50,7 @@ namespace MP2BootstrapperApp.ActionPlans
     {
       // Get the currently installed features.
       IBundlePackage featurePackage = packages.FirstOrDefault(p => p.GetId() == _planContext.FeaturePackageId);
-      IEnumerable<string> installedFeatures = featurePackage?.Features.Where(f => f.CurrentFeatureState == FeatureState.Local).Select(f => f.FeatureName);
+      IEnumerable<FeatureId> installedFeatures = featurePackage?.Features.Where(f => f.CurrentFeatureState == FeatureState.Local).Select(f => f.Id);
 
       // Get the packages that are not required to be installed.
       ISet<PackageId> excludedPackages = new HashSet<PackageId>(_planContext.GetExcludedPackagesForFeatures(installedFeatures));

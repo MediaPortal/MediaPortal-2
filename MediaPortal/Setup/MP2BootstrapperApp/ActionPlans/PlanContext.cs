@@ -35,12 +35,12 @@ namespace MP2BootstrapperApp.ActionPlans
   {
     // Packages not required for each feature, implemented like this, rather than specifying the required packages, so that
     // a new package added later will be installed by default rather than having to be explcitly added here.
-    protected static readonly IDictionary<string, PackageId[]> _excludedPackages = new Dictionary<string, PackageId[]>
+    protected static readonly IDictionary<FeatureId, PackageId[]> _excludedPackages = new Dictionary<FeatureId, PackageId[]>
     {
-      { "Client", new[]{ PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } },
-      { "Server", new[]{ PackageId.LAVFilters } },
-      { "ServiceMonitor", new[]{ PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } },
-      { "LogCollector", new[]{ PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } }
+      { FeatureId.Client, new[]{ PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86 } },
+      { FeatureId.Server, new[]{ PackageId.LAVFilters } },
+      { FeatureId.ServiceMonitor, new[]{ PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } },
+      { FeatureId.LogCollector, new[]{ PackageId.VC2008SP1_x86, PackageId.VC2010_x86, PackageId.VC2013_x86, PackageId.LAVFilters } }
     };
 
     /// <summary>
@@ -56,7 +56,7 @@ namespace MP2BootstrapperApp.ActionPlans
     /// </summary>
     /// <param name="feature"><inheritdoc/></param>
     /// <returns><inheritdoc/></returns>
-    public IEnumerable<PackageId> GetExcludedPackagesForFeature(string feature)
+    public IEnumerable<PackageId> GetExcludedPackagesForFeature(FeatureId feature)
     {
       return _excludedPackages.TryGetValue(feature, out PackageId[] packageIds) ? packageIds : new PackageId[0];
     }
@@ -66,7 +66,7 @@ namespace MP2BootstrapperApp.ActionPlans
     /// </summary>
     /// <param name="features"><inheritdoc/></param>
     /// <returns><inheritdoc/></returns>
-    public IEnumerable<PackageId> GetExcludedPackagesForFeatures(IEnumerable<string> features)
+    public IEnumerable<PackageId> GetExcludedPackagesForFeatures(IEnumerable<FeatureId> features)
     {
       if (features == null)
         return new List<PackageId>();

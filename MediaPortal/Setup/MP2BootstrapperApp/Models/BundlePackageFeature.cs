@@ -23,6 +23,8 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ChainPackages;
+using System;
 using System.Xml.Linq;
 
 namespace MP2BootstrapperApp.Models
@@ -34,6 +36,14 @@ namespace MP2BootstrapperApp.Models
     public BundlePackageFeature(XElement featureElement)
     {
       _featureElement = featureElement;
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public FeatureId Id
+    {
+      get { return Enum.TryParse(FeatureName, out FeatureId id) ? id : FeatureId.Unknown; }
     }
 
     /// <summary>

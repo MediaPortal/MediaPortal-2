@@ -23,13 +23,19 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ChainPackages;
 
 namespace MP2BootstrapperApp.Models
 {
   public interface IBundlePackageFeature
   {
     /// <summary>
-    /// The id of the feature within a package.
+    /// The <see cref="FeatureId"/> of a package, or <see cref="FeatureId.Unknown"/> for an unknown feature.
+    /// </summary>
+    FeatureId Id { get; }
+
+    /// <summary>
+    /// The name of the feature within a package.
     /// </summary>
     string FeatureName { get; }
 

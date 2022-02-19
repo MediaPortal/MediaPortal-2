@@ -1,4 +1,5 @@
-﻿using MP2BootstrapperApp.Models;
+﻿using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.Models;
 using System.Linq;
 using System.Xml.Linq;
 using Xunit;
@@ -41,6 +42,7 @@ namespace Tests
       BundlePackageFeature bundlePackageFeature = new BundlePackageFeature(featureElement);
 
       Assert.Equal("MediaPortal2", bundlePackageFeature.Package);
+      Assert.Equal(FeatureId.Client, bundlePackageFeature.Id);
       Assert.Equal("Client", bundlePackageFeature.FeatureName);
       Assert.Equal("Client Title", bundlePackageFeature.Title);
       Assert.Equal("The user interface. Plays media files.", bundlePackageFeature.Description);

@@ -15,13 +15,13 @@ namespace Tests
     [Fact]
     void Should_IncludeNonOptionalFeatures()
     {
-      InstallPlan plan = new InstallPlan(new[] { "Server" }, null, new PlanContext());
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
       IList<IBundlePackage> packages = CreateTestBundlePackages();
 
       plan.SetRequestedInstallStates(packages);
 
       IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);
-      IBundlePackageFeature nonOptionalFeature = featurePackage.Features.First(f => f.FeatureName == "MediaPortal");
+      IBundlePackageFeature nonOptionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.MediaPortal_2);
       Assert.Equal(false, nonOptionalFeature.Optional);
       Assert.Equal(FeatureState.Local, nonOptionalFeature.RequestedFeatureState);
     }
@@ -29,13 +29,13 @@ namespace Tests
     [Fact]
     void Should_IncludeOptionalFeatures_When_Selected()
     {
-      InstallPlan plan = new InstallPlan(new[] { "Server" }, null, new PlanContext());
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
       IList<IBundlePackage> packages = CreateTestBundlePackages();
 
       plan.SetRequestedInstallStates(packages);
 
       IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);
-      IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.FeatureName == "Server");
+      IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.Server);
       Assert.Equal(true, optionalFeature.Optional);
       Assert.Equal(FeatureState.Local, optionalFeature.RequestedFeatureState);
     }
@@ -43,13 +43,13 @@ namespace Tests
     [Fact]
     void Should_ExcludeOptionalFeatures_When_NotSelected()
     {
-      InstallPlan plan = new InstallPlan(new[] { "Server" }, null, new PlanContext());
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
       IList<IBundlePackage> packages = CreateTestBundlePackages();
 
       plan.SetRequestedInstallStates(packages);
 
       IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);
-      IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.FeatureName == "Client");
+      IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.Client);
       Assert.Equal(true, optionalFeature.Optional);
       Assert.Equal(FeatureState.Absent, optionalFeature.RequestedFeatureState);
     }
@@ -57,7 +57,7 @@ namespace Tests
     [Fact]
     void Should_IncludeNonOptionalPackage_When_NotExcludedByFeature()
     {
-      InstallPlan plan = new InstallPlan(new[] { "Client" }, null, new PlanContext());
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, null, new PlanContext());
       IList<IBundlePackage> packages = CreateTestBundlePackages();
 
       plan.SetRequestedInstallStates(packages);
@@ -69,7 +69,7 @@ namespace Tests
     [Fact]
     void Should_ExcludeNonOptionalPackage_When_ExcludedByFeature()
     {
-      InstallPlan plan = new InstallPlan(new[] { "Client" }, null, new PlanContext());
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, null, new PlanContext());
       IList<IBundlePackage> packages = CreateTestBundlePackages();
 
       plan.SetRequestedInstallStates(packages);
@@ -81,7 +81,7 @@ namespace Tests
     [Fact]
     void Should_IncludeOptionalPackage_When_Selected_And_ExcludedByFeature()
     {
-      InstallPlan plan = new InstallPlan(new[] { "Server" }, new[] { PackageId.LAVFilters }, new PlanContext());
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, new[] { PackageId.LAVFilters }, new PlanContext());
       IList<IBundlePackage> packages = CreateTestBundlePackages();
 
       plan.SetRequestedInstallStates(packages);
@@ -93,7 +93,7 @@ namespace Tests
     [Fact]
     void Should_ExcludeOptionalPackage_When_NotSelected_And_NotExcludedByFeature()
     {
-      InstallPlan plan = new InstallPlan(new[] { "Client" }, new PackageId[0], new PlanContext());
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, new PackageId[0], new PlanContext());
       IList<IBundlePackage> packages = CreateTestBundlePackages();
 
       plan.SetRequestedInstallStates(packages);
@@ -105,7 +105,7 @@ namespace Tests
     [Fact]
     void Should_IncludeOptionalPackage_When_SelectedOptionalPackagesIsNull_And_NotExcludedByFeature()
     {
-      InstallPlan plan = new InstallPlan(new[] { "Client" }, null, new PlanContext());
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, null, new PlanContext());
       IList<IBundlePackage> packages = CreateTestBundlePackages();
 
       plan.SetRequestedInstallStates(packages);
@@ -117,7 +117,7 @@ namespace Tests
     [Fact]
     void Should_ExcludeOptionalPackage_When_SelectedOptionalPackagesIsNull_And_ExcludedByFeature()
     {
-      InstallPlan plan = new InstallPlan(new[] { "Server" }, null, new PlanContext());
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
       IList<IBundlePackage> packages = CreateTestBundlePackages();
 
       plan.SetRequestedInstallStates(packages);
@@ -141,11 +141,13 @@ namespace Tests
         if (packageId == PackageId.MediaPortal2)
         {
           List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
-          foreach (string featureName in new[] { "MediaPortal", "Client", "Server", "ServiceMonitor", "LogCollector" })
+          foreach (FeatureId featureId in Enum.GetValues(typeof(FeatureId)))
           {
+            if (featureId == FeatureId.Unknown)
+              continue;
             IBundlePackageFeature feature = Substitute.For<IBundlePackageFeature>();
-            feature.FeatureName.Returns(featureName);
-            feature.Optional.Returns(featureName != "MediaPortal");
+            feature.Id.Returns(featureId);
+            feature.Optional.Returns(featureId != FeatureId.MediaPortal_2);
             features.Add(feature);
           }
           package.Features.Returns(features);

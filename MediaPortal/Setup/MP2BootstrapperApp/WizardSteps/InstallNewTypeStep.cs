@@ -23,6 +23,7 @@
 #endregion
 
 using MP2BootstrapperApp.ActionPlans;
+using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using System.Collections.Generic;
 
@@ -39,17 +40,17 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      IEnumerable<string> features;
+      IEnumerable<FeatureId> features;
       switch (InstallType)
       {
         case InstallType.ClientServer:
-          features = new string[] { "Client", "Server", "ServiceMonitor", "LogCollector" };
+          features = new FeatureId[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
           break;
         case InstallType.Server:
-          features = new string[] { "Server", "ServiceMonitor", "LogCollector" };
+          features = new FeatureId[] { FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
           break;
         case InstallType.Client:
-          features = new string[] { "Client", "ServiceMonitor", "LogCollector" };
+          features = new FeatureId[] { FeatureId.Client, FeatureId.ServiceMonitor, FeatureId.LogCollector };
           break;
         //case InstallType.Custom:
         default:

@@ -42,13 +42,13 @@ namespace MP2BootstrapperApp.ActionPlans
     /// </summary>
     /// <param name="feature">The feature to use when determining packages that are not required.</param>
     /// <returns>Enumeration of packages not required to be installed for the specified feature.</returns>
-    IEnumerable<PackageId> GetExcludedPackagesForFeature(string feature);
+    IEnumerable<PackageId> GetExcludedPackagesForFeature(FeatureId feature);
 
     /// <summary>
     /// Gets the packages that are not required to be installed for any of the specified features.
     /// </summary>
     /// <param name="features">The features to use when determining packages that are not required.</param>
     /// <returns>Enumeration of packages not required to be installed for any of the specified features.</returns>
-    IEnumerable<PackageId> GetExcludedPackagesForFeatures(IEnumerable<string> features);
+    IEnumerable<PackageId> GetExcludedPackagesForFeatures(IEnumerable<FeatureId> features);
   }
 }

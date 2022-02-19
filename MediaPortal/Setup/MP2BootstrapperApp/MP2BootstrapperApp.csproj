@@ -75,6 +75,7 @@
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
     <Compile Include="ChainPackages\AbstractPackage.cs" />
     <Compile Include="ChainPackages\MediaPortal2.cs" />
+    <Compile Include="ChainPackages\FeatureId.cs" />
     <Compile Include="ChainPackages\Vc2019x64.cs" />
     <Compile Include="DetectionState.cs" />
     <Compile Include="Extensions\ExternalHyperlink.cs" />

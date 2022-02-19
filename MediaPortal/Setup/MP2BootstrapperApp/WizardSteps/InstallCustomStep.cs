@@ -81,7 +81,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      IEnumerable<string> features = SelectedFeatures.Select(f => f.FeatureName);
+      IEnumerable<FeatureId> features = SelectedFeatures.Select(f => f.Id);
       IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.GetId());
 
       InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
