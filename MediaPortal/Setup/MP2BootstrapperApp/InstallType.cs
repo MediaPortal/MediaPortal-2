@@ -22,7 +22,7 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.FeatureSelection
+namespace MP2BootstrapperApp
 {
   public enum InstallType
   {

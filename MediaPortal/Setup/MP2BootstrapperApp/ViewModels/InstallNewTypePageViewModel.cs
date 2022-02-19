@@ -22,7 +22,6 @@
 
 #endregion
 
-using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels

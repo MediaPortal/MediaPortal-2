@@ -23,7 +23,6 @@
 #endregion
 
 using MP2BootstrapperApp.ActionPlans;
-using MP2BootstrapperApp.FeatureSelection;
 using MP2BootstrapperApp.Models;
 using System.Collections.Generic;
 
