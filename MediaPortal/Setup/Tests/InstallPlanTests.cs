@@ -10,7 +10,7 @@ using Xunit;
 
 namespace Tests
 {
-  public class FeatureSelectionTests
+  public class InstallPlanTests
   {
     [Fact]
     void Should_IncludeNonOptionalFeatures()

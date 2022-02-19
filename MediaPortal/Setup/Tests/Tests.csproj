@@ -56,7 +56,7 @@
   <ItemGroup>
     <Compile Include="BootstrapperTests.cs" />
     <Compile Include="ConverterTests.cs" />
-    <Compile Include="FeatureSelectionTests.cs" />
+    <Compile Include="InstallPlanTests.cs" />
     <Compile Include="PackagesTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WizardTests.cs" />
