@@ -1,11 +1,34 @@
-﻿using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.ChainPackages;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
+using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
-using NSubstitute;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tests.Mocks;
 using Xunit;
 
 namespace Tests
@@ -16,7 +39,7 @@ namespace Tests
     void Should_IncludeNonOptionalFeatures()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IList<IBundlePackage> packages = CreateTestBundlePackages();
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
 
       plan.SetRequestedInstallStates(packages);
 
@@ -30,7 +53,7 @@ namespace Tests
     void Should_IncludeOptionalFeatures_When_Selected()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IList<IBundlePackage> packages = CreateTestBundlePackages();
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
 
       plan.SetRequestedInstallStates(packages);
 
@@ -44,7 +67,7 @@ namespace Tests
     void Should_ExcludeOptionalFeatures_When_NotSelected()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IList<IBundlePackage> packages = CreateTestBundlePackages();
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
 
       plan.SetRequestedInstallStates(packages);
 
@@ -58,7 +81,7 @@ namespace Tests
     void Should_IncludeNonOptionalPackage_When_NotExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, null, new PlanContext());
-      IList<IBundlePackage> packages = CreateTestBundlePackages();
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
 
       plan.SetRequestedInstallStates(packages);
 
@@ -70,7 +93,7 @@ namespace Tests
     void Should_ExcludeNonOptionalPackage_When_ExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, null, new PlanContext());
-      IList<IBundlePackage> packages = CreateTestBundlePackages();
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
 
       plan.SetRequestedInstallStates(packages);
 
@@ -82,7 +105,7 @@ namespace Tests
     void Should_IncludeOptionalPackage_When_Selected_And_ExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, new[] { PackageId.LAVFilters }, new PlanContext());
-      IList<IBundlePackage> packages = CreateTestBundlePackages();
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
 
       plan.SetRequestedInstallStates(packages);
 
@@ -94,7 +117,7 @@ namespace Tests
     void Should_ExcludeOptionalPackage_When_NotSelected_And_NotExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, new PackageId[0], new PlanContext());
-      IList<IBundlePackage> packages = CreateTestBundlePackages();
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
 
       plan.SetRequestedInstallStates(packages);
 
@@ -106,7 +129,7 @@ namespace Tests
     void Should_IncludeOptionalPackage_When_SelectedOptionalPackagesIsNull_And_NotExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, null, new PlanContext());
-      IList<IBundlePackage> packages = CreateTestBundlePackages();
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
 
       plan.SetRequestedInstallStates(packages);
 
@@ -118,43 +141,12 @@ namespace Tests
     void Should_ExcludeOptionalPackage_When_SelectedOptionalPackagesIsNull_And_ExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IList<IBundlePackage> packages = CreateTestBundlePackages();
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
 
       plan.SetRequestedInstallStates(packages);
 
       IBundlePackage lavPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
       Assert.Equal(RequestState.None, lavPackage.RequestedInstallState);
-    }
-
-    IList<IBundlePackage> CreateTestBundlePackages()
-    {
-      List<IBundlePackage> packages = new List<IBundlePackage>();
-      foreach (PackageId packageId in Enum.GetValues(typeof(PackageId)))
-      {
-        if (packageId == PackageId.Unknown)
-          continue;
-
-        IBundlePackage package = Substitute.For<IBundlePackage>();
-        package.GetId().Returns(packageId);
-        package.Optional.Returns(packageId == PackageId.LAVFilters);
-
-        if (packageId == PackageId.MediaPortal2)
-        {
-          List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
-          foreach (FeatureId featureId in Enum.GetValues(typeof(FeatureId)))
-          {
-            if (featureId == FeatureId.Unknown)
-              continue;
-            IBundlePackageFeature feature = Substitute.For<IBundlePackageFeature>();
-            feature.Id.Returns(featureId);
-            feature.Optional.Returns(featureId != FeatureId.MediaPortal_2);
-            features.Add(feature);
-          }
-          package.Features.Returns(features);
-        }
-        packages.Add(package);
-      }
-      return packages;
     }
   }
 }

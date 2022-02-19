@@ -1,11 +1,34 @@
-﻿using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.ChainPackages;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
+using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
-using NSubstitute;
-using System;
 using System.Collections.Generic;
 using System.Linq;
+using Tests.Mocks;
 using Xunit;
 
 namespace Tests
@@ -17,7 +40,7 @@ namespace Tests
     {
       RepairPlan plan = new RepairPlan(new PlanContext());
       FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = CreateTestBundlePackages(new[] { PackageId.MediaPortal2 }, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackages.Create(new[] { PackageId.MediaPortal2 }, installedFeatures);
 
       plan.SetRequestedInstallStates(packages);
 
@@ -36,7 +59,7 @@ namespace Tests
 
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
       FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = CreateTestBundlePackages(installedPackages, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackages.Create(installedPackages, installedFeatures);
 
       plan.SetRequestedInstallStates(packages);
 
@@ -51,7 +74,7 @@ namespace Tests
 
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
       FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = CreateTestBundlePackages(installedPackages, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackages.Create(installedPackages, installedFeatures);
 
       plan.SetRequestedInstallStates(packages);
 
@@ -66,51 +89,12 @@ namespace Tests
 
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
       FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = CreateTestBundlePackages(installedPackages, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackages.Create(installedPackages, installedFeatures);
 
       plan.SetRequestedInstallStates(packages);
 
       IBundlePackage missingNonDependencyPackage = packages.First(p => p.GetId() == PackageId.VC2013_x86);
       Assert.Equal(RequestState.None, missingNonDependencyPackage.RequestedInstallState);
-    }
-
-    IList<IBundlePackage> CreateTestBundlePackages(IEnumerable<PackageId> installedPackages = null, IEnumerable<FeatureId> installedFeatures = null)
-    {
-      if (installedPackages == null)
-        installedPackages = new PackageId[0];
-      if (installedFeatures == null)
-        installedFeatures = new FeatureId[0];
-
-      List<IBundlePackage> packages = new List<IBundlePackage>();
-      foreach (PackageId packageId in Enum.GetValues(typeof(PackageId)))
-      {
-        if (packageId == PackageId.Unknown)
-          continue;
-
-        IBundlePackage package = Substitute.For<IBundlePackage>();
-        package.GetId().Returns(packageId);
-        package.Optional.Returns(packageId == PackageId.LAVFilters);
-        package.CurrentInstallState.Returns(installedPackages.Contains(packageId) ? PackageState.Present : PackageState.Absent);
-
-        if (packageId == PackageId.MediaPortal2)
-        {
-          List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
-          foreach (FeatureId featureId in Enum.GetValues(typeof(FeatureId)))
-          {
-            if (featureId == FeatureId.Unknown)
-              continue;
-            IBundlePackageFeature feature = Substitute.For<IBundlePackageFeature>();
-            feature.Id.Returns(featureId);
-            feature.Optional.Returns(featureId != FeatureId.MediaPortal_2);
-            FeatureState currentState = (!feature.Optional || installedFeatures.Contains(featureId)) ? FeatureState.Local : FeatureState.Absent;
-            feature.CurrentFeatureState.Returns(currentState);
-            features.Add(feature);
-          }
-          package.Features.Returns(features);
-        }
-        packages.Add(package);
-      }
-      return packages;
     }
   }
 }

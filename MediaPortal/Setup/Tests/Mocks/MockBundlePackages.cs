@@ -1,0 +1,87 @@
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.Models;
+using NSubstitute;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+
+namespace Tests.Mocks
+{
+  public static class MockBundlePackages
+  {
+    public static IList<IBundlePackage> Create(IEnumerable<PackageId> installedPackages = null, IEnumerable<FeatureId> installedFeatures = null)
+    {
+      if (installedPackages == null)
+        installedPackages = new PackageId[0];
+      if (installedFeatures == null)
+        installedFeatures = new FeatureId[0];
+
+      List<IBundlePackage> packages = new List<IBundlePackage>();
+      foreach (PackageId packageId in Enum.GetValues(typeof(PackageId)))
+      {
+        if (packageId == PackageId.Unknown)
+          continue;
+
+        IBundlePackage package = CreatePackage(packageId, installedPackages.Contains(packageId), packageId == PackageId.LAVFilters);
+
+        if (packageId == PackageId.MediaPortal2)
+        {
+          List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
+          foreach (FeatureId featureId in Enum.GetValues(typeof(FeatureId)))
+          {
+            if (featureId == FeatureId.Unknown)
+              continue;
+            IBundlePackageFeature feature = CreateFeature(featureId, installedFeatures.Contains(featureId), featureId != FeatureId.MediaPortal_2);
+            features.Add(feature);
+          }
+          package.Features.Returns(features);
+        }
+        packages.Add(package);
+      }
+      return packages;
+    }
+
+    public static IBundlePackage CreatePackage(PackageId packageId, bool installed, bool optional)
+    {
+      IBundlePackage package = Substitute.For<IBundlePackage>();
+      package.GetId().Returns(packageId);
+      package.Optional.Returns(optional);
+      package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
+      return package;
+    }
+
+    public static IBundlePackageFeature CreateFeature(FeatureId featureId, bool installed, bool optional)
+    {
+      IBundlePackageFeature feature = Substitute.For<IBundlePackageFeature>();
+      feature.Id.Returns(featureId);
+      feature.Optional.Returns(optional);
+      feature.CurrentFeatureState.Returns((installed || !optional) ? FeatureState.Local : FeatureState.Absent);
+      return feature;
+    }
+  }
+}
