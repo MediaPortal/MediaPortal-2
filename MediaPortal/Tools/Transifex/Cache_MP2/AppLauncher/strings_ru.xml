@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+  <string name="AppLauncher.Title">Пусковая установка </string>
+  <string name="AppLauncher.Helptext">Свяжите внешние приложения и запустите их из MediaPortal 2 </string>
   <string name="AppLauncher.Stop">Стоп</string>
   <string name="AppLauncher.Pause">Пауза</string>
   <string name="AppLauncher.SwitchPlaying">Изменить статус воспроизведения</string>
@@ -12,17 +14,21 @@
   <string name="AppLauncher.Settings.Add.Description">Описание</string>
   <string name="AppLauncher.Settings.Add.Username">Имя пользователя</string>
   <string name="AppLauncher.Settings.Add.Password">Пароль</string>
+  <string name="AppLauncher.Settings.Add.Icon">Путь к значку </string>
   <string name="AppLauncher.Settings.Add.Screenmode">Режим экрана</string>
   <string name="AppLauncher.Settings.Add.Search">Поиск</string>
   <string name="AppLauncher.Settings.Add.Select">Выбрать</string>
   <string name="AppLauncher.Settings.Add.Minimum">Минимум</string>
+  <string name="AppLauncher.Settings.Add.Normal">Нормальный</string>
   <string name="AppLauncher.Settings.Add.Maximum">Максимум</string>
+  <string name="AppLauncher.Settings.Add.NoWindow">Нет окна </string>
   <string name="AppLauncher.Settings.Add.SearchIcon">Иконка поиска</string>
   <string name="AppLauncher.Settings.Add.SearchApp">Поиск приложения</string>
   <string name="AppLauncher.Settings.Add.AsAdmin">Запуск от имени администратора</string>
   <string name="AppLauncher.Settings.Edit">Изменить приложение</string>
   <string name="AppLauncher.Settings.Delete">Удалить приложение</string>
   <string name="AppLauncher.Settings.Menu">Меню приложения</string>
+  <string name="AppLauncher.Settings.Menu.ClearMapping">Очистить сопоставление </string>
   <string name="AppLauncher.Settings.Test">Тестовое приложение</string>
   <string name="AppLauncher.Settings.Add.Helptext">Добавлено новое приложение</string>
   <string name="AppLauncher.Settings.Edit.Helptext">Изменить существующее приложение</string>

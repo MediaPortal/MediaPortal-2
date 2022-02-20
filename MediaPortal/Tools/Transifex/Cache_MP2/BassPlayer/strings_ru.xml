@@ -9,6 +9,7 @@
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">Режим эксклюзивного использования</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">Режим перехода песни</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">Установить длительность паузы/плавного затухания звука при смене треков</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">Нормальный</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">Играть треки без пауз</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">Плавное затухание звука</string>
   <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">Буфер воспроизведения</string>
