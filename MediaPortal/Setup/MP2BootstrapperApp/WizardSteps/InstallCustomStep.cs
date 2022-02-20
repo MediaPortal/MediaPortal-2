@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
@@ -127,7 +128,7 @@ namespace MP2BootstrapperApp.WizardSteps
       // Optional packages, currently this is only the LAV Filters package
       foreach (IBundlePackage bundlePackage in _bootstrapperApplicationModel.BundlePackages)
       {
-        if (bundlePackage.Optional)
+        if (bundlePackage.Optional && bundlePackage.CurrentInstallState != PackageState.Present)
           selectablePackages.Add(bundlePackage);
       }
       return selectablePackages;

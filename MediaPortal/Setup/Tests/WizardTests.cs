@@ -1,64 +1,67 @@
-﻿using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp;
-using MP2BootstrapperApp.BootstrapperWrapper;
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
+
+/*
+    Copyright (C) 2007-2017 Team MediaPortal
+    http://www.team-mediaportal.com
+
+    This file is part of MediaPortal 2
+
+    MediaPortal 2 is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    MediaPortal 2 is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with MediaPortal 2. If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#endregion
+
+using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
-using MP2BootstrapperApp.ViewModels;
 using MP2BootstrapperApp.WizardSteps;
 using NSubstitute;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
+using Tests.Mocks;
 using Xunit;
 
 namespace Tests
 {
   public class WizardTests
   {
-    [Fact] //TODO: mock bundle packages 
-    public void Should_GoToNewTypeStep_When_PreviousStepIsWelcomeAndGoForward()
+    [Fact]
+    void Should_IncludeOptionalPackagesInCustomStep_If_Not_Installed()
     {
-      // Arrange
+      IList<IBundlePackage> packages = MockBundlePackages.Create();
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
-      IBootstrapperApp bootstrapperApp = Substitute.For<IBootstrapperApp>();
-      applicationModel.BootstrapperApplication.Returns(bootstrapperApp);
-      applicationModel.BundlePackages.Returns(new List<IBundlePackage>().AsReadOnly());
-      //IDispatcher dispatcher = Substitute.For<IDispatcher>();
-      //InstallWizardViewModel viewModel = new InstallWizardViewModel(applicationModel, dispatcher);
+      applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
 
-      Wizard wizard = new Wizard(new InstallWelcomeStep(applicationModel));
+      InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
-      // Act
-      wizard.GoNext();
+      IBundlePackage availablePackage = customStep.AvailablePackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
 
-      // Assert
-      Assert.True(wizard.Step is InstallNewTypeStep);
-      //Assert.True(viewModel.CurrentPage is InstallNewTypePageViewModel);
+      Assert.NotNull(availablePackage);
     }
 
-    [Fact] //TODO: mock bundle packages
-    public void Should_GoToOverviewStep_When_PreviousStepIsNewTypeAndGoForward()
+    [Fact]
+    void Should_Not_IncludeOptionalPackagesInCustomStep_If_Installed()
     {
-      // Arrange
+      IList<IBundlePackage> packages = MockBundlePackages.Create(new[] { PackageId.LAVFilters });
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
-      applicationModel.BundlePackages.Returns(new List<IBundlePackage>().AsReadOnly());
-      //IDispatcher dispatcher = Substitute.For<IDispatcher>();
-      //InstallWizardViewModel viewModelMain = new InstallWizardViewModel(applicationModel, dispatcher);
-      //InstallNewTypePageViewModel viewModelNewInstall = new InstallNewTypePageViewModel(viewModelMain);
-      //viewModelMain.CurrentPage = viewModelNewInstall;
-      //viewModelNewInstall.InstallType = InstallType.Client;
-      Wizard wizard = new Wizard(new InstallNewTypeStep(applicationModel));
+      applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+      
+      InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
-      // Act
-      wizard.GoNext();
+      IBundlePackage availablePackage = customStep.AvailablePackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
 
-      // Assert
-      Assert.True(wizard.Step is InstallOverviewStep);
-      //Assert.True(viewModelMain.CurrentPage is InstallOverviewPageViewModel);
-    }
-
-    public void TestsWithBurnEngine()
-    {
-      IBootstrapperApp bootstrapperApp = Substitute.For<IBootstrapperApp>();
-      bootstrapperApp.DetectRelatedBundle += Raise.EventWith(new DetectRelatedBundleEventArgs("", RelationType.Update, "", true, 2, RelatedOperation.Install));
+      Assert.Null(availablePackage);
     }
   }
 }
