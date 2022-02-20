@@ -34,12 +34,14 @@ namespace Tests.Mocks
 {
   public static class MockBundlePackages
   {
-    public static IList<IBundlePackage> Create(IEnumerable<PackageId> installedPackages = null, IEnumerable<FeatureId> installedFeatures = null)
+    public static IList<IBundlePackage> CreateCurrentInstall(IEnumerable<PackageId> installedPackages = null, IEnumerable<FeatureId> installedFeatures = null)
     {
       if (installedPackages == null)
         installedPackages = new PackageId[0];
       if (installedFeatures == null)
         installedFeatures = new FeatureId[0];
+
+      installedFeatures = installedFeatures.Union(new[] { FeatureId.MediaPortal_2 });
 
       List<IBundlePackage> packages = new List<IBundlePackage>();
       foreach (PackageId packageId in Enum.GetValues(typeof(PackageId)))
@@ -47,7 +49,7 @@ namespace Tests.Mocks
         if (packageId == PackageId.Unknown)
           continue;
 
-        IBundlePackage package = CreatePackage(packageId, installedPackages.Contains(packageId), packageId == PackageId.LAVFilters);
+        IBundlePackage package = CreatePackage(packageId, installedPackages.Contains(packageId), packageId == PackageId.LAVFilters, null);
 
         if (packageId == PackageId.MediaPortal2)
         {
@@ -56,7 +58,7 @@ namespace Tests.Mocks
           {
             if (featureId == FeatureId.Unknown)
               continue;
-            IBundlePackageFeature feature = CreateFeature(featureId, installedFeatures.Contains(featureId), featureId != FeatureId.MediaPortal_2);
+            IBundlePackageFeature feature = CreateFeature(featureId, installedFeatures.Contains(featureId), featureId != FeatureId.MediaPortal_2, false);
             features.Add(feature);
           }
           package.Features.Returns(features);
@@ -66,21 +68,57 @@ namespace Tests.Mocks
       return packages;
     }
 
-    public static IBundlePackage CreatePackage(PackageId packageId, bool installed, bool optional)
+    public static IList<IBundlePackage> CreatePreviousInstall(Version previousInstalledVersion, IEnumerable<PackageId> installedPackages = null, IEnumerable<FeatureId> installedFeatures = null)
+    {
+      if (installedPackages == null)
+        installedPackages = new PackageId[0];
+      if (installedFeatures == null)
+        installedFeatures = new FeatureId[0];
+
+      installedFeatures = installedFeatures.Union(new[] { FeatureId.MediaPortal_2 });
+
+      List<IBundlePackage> packages = new List<IBundlePackage>();
+      foreach (PackageId packageId in Enum.GetValues(typeof(PackageId)))
+      {
+        if (packageId == PackageId.Unknown)
+          continue;
+
+        IBundlePackage package = CreatePackage(packageId, false, packageId == PackageId.LAVFilters, installedPackages.Contains(packageId) ? previousInstalledVersion : null);
+
+        if (packageId == PackageId.MediaPortal2)
+        {
+          List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
+          foreach (FeatureId featureId in Enum.GetValues(typeof(FeatureId)))
+          {
+            if (featureId == FeatureId.Unknown)
+              continue;
+            IBundlePackageFeature feature = CreateFeature(featureId, false, featureId != FeatureId.MediaPortal_2, installedFeatures.Contains(featureId));
+            features.Add(feature);
+          }
+          package.Features.Returns(features);
+        }
+        packages.Add(package);
+      }
+      return packages;
+    }
+
+    public static IBundlePackage CreatePackage(PackageId packageId, bool installed, bool optional, Version installedVersion)
     {
       IBundlePackage package = Substitute.For<IBundlePackage>();
       package.GetId().Returns(packageId);
       package.Optional.Returns(optional);
       package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
+      package.InstalledVersion.Returns(installedVersion ?? new Version());
       return package;
     }
 
-    public static IBundlePackageFeature CreateFeature(FeatureId featureId, bool installed, bool optional)
+    public static IBundlePackageFeature CreateFeature(FeatureId featureId, bool installed, bool optional, bool previousVersionInstalled)
     {
       IBundlePackageFeature feature = Substitute.For<IBundlePackageFeature>();
       feature.Id.Returns(featureId);
       feature.Optional.Returns(optional);
-      feature.CurrentFeatureState.Returns((installed || !optional) ? FeatureState.Local : FeatureState.Absent);
+      feature.CurrentFeatureState.Returns(installed ? FeatureState.Local : FeatureState.Absent);
+      feature.PreviousVersionInstalled.Returns(previousVersionInstalled);
       return feature;
     }
   }

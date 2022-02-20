@@ -40,7 +40,7 @@ namespace Tests
     {
       RepairPlan plan = new RepairPlan(new PlanContext());
       FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = MockBundlePackages.Create(new[] { PackageId.MediaPortal2 }, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(new[] { PackageId.MediaPortal2 }, installedFeatures);
 
       plan.SetRequestedInstallStates(packages);
 
@@ -59,7 +59,7 @@ namespace Tests
 
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
       FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = MockBundlePackages.Create(installedPackages, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(installedPackages, installedFeatures);
 
       plan.SetRequestedInstallStates(packages);
 
@@ -74,7 +74,7 @@ namespace Tests
 
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
       FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = MockBundlePackages.Create(installedPackages, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(installedPackages, installedFeatures);
 
       plan.SetRequestedInstallStates(packages);
 
@@ -89,7 +89,7 @@ namespace Tests
 
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
       FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = MockBundlePackages.Create(installedPackages, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(installedPackages, installedFeatures);
 
       plan.SetRequestedInstallStates(packages);
 

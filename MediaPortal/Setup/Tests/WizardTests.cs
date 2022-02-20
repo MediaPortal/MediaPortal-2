@@ -26,6 +26,7 @@ using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
 using NSubstitute;
+using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
@@ -39,7 +40,7 @@ namespace Tests
     [Fact]
     void Should_IncludeOptionalPackagesInCustomStep_If_Not_Installed()
     {
-      IList<IBundlePackage> packages = MockBundlePackages.Create();
+      IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall();
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
 
@@ -53,7 +54,7 @@ namespace Tests
     [Fact]
     void Should_Not_IncludeOptionalPackagesInCustomStep_If_Installed()
     {
-      IList<IBundlePackage> packages = MockBundlePackages.Create(new[] { PackageId.LAVFilters });
+      IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(new[] { PackageId.LAVFilters });
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
       
@@ -62,6 +63,81 @@ namespace Tests
       IBundlePackage availablePackage = customStep.AvailablePackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
 
       Assert.Null(availablePackage);
+    }
+
+    [Fact]
+    void Should_SelectInstalledFeaturesInCustomStep_If_PreviousVersionInstalled()
+    {
+      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
+      IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+
+      InstallCustomStep customStep = new InstallCustomStep(applicationModel);
+
+      IBundlePackageFeature selectedFeature = customStep.SelectedFeatures.Single();
+
+      Assert.Equal(FeatureId.Server, selectedFeature.Id);
+    }
+
+    [Fact]
+    void Should_SelectAllFeaturesInCustomStep_If_PreviousVersionNotInstalled()
+    {
+      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), null, null);
+      IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+
+      InstallCustomStep customStep = new InstallCustomStep(applicationModel);
+
+      IEnumerable<FeatureId> expectedFeatures = new[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
+      IEnumerable<FeatureId> actualFeatures = customStep.SelectedFeatures.Select(f => f.Id).OrderBy(f => f);
+
+      Assert.Equal(expectedFeatures, actualFeatures);
+    }
+
+    [Fact]
+    void Should_SelectAllOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
+    {
+      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), null, null);
+      IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+
+      InstallCustomStep customStep = new InstallCustomStep(applicationModel);
+
+      IEnumerable<PackageId> expectedPackages = new[] { PackageId.LAVFilters };
+      IEnumerable<PackageId> actualPackages = customStep.SelectedPackages.Select(p => p.GetId());
+
+      Assert.Equal(expectedPackages, actualPackages);
+    }
+
+    [Fact]
+    void Should_SelectOptionalPackagesInCustomStep_If_PreviousVersionInstalled()
+    {
+      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2, PackageId.LAVFilters }, new[] { FeatureId.Server });
+      IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+
+      InstallCustomStep customStep = new InstallCustomStep(applicationModel);
+
+      IBundlePackage selectedPackage = customStep.SelectedPackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
+
+      Assert.NotNull(selectedPackage);
+    }
+
+    [Fact]
+    void Should_Not_SelectOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
+    {
+      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
+      IBundlePackage notInstalledPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      notInstalledPackage.InstalledVersion = new Version();
+
+      IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
+      applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+
+      InstallCustomStep customStep = new InstallCustomStep(applicationModel);
+
+      IBundlePackage selectedPackage = customStep.SelectedPackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
+
+      Assert.Null(selectedPackage);
     }
   }
 }
