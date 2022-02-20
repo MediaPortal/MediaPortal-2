@@ -31,7 +31,8 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallFinishPageViewModel(InstallFinishStep step)
       : base(step)
     {
-      Header = "Enjoy your MediaPortal 2 experience";
+      Header = "Installation Completed";
+      SubHeader = "Enjoy your MediaPortal 2 experience";
       ButtonNextContent = "Finish";
     }
   }

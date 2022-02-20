@@ -36,6 +36,7 @@ namespace MP2BootstrapperApp.ViewModels
       _installType = step.InstallType;
 
       Header = "New Installation";
+      SubHeader = "Select the installation type";
     }
 
     public InstallType InstallType

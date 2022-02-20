@@ -153,7 +153,7 @@
     <ControlTemplate x:Key="HeaderTemplate">
       <Grid Margin="-500,0,20,15">
         <Grid.RowDefinitions>
-          <RowDefinition Height="35"/>
+          <RowDefinition Height="37"/>
           <RowDefinition Height="25"/>
         </Grid.RowDefinitions>
         <TextBlock Grid.Row="0" Text="{Binding Path=CurrentPage.Header}"
