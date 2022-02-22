@@ -46,7 +46,7 @@ namespace MP2BootstrapperApp.ViewModels
     {
       _wizardStepToViewModelMap = Assembly.GetExecutingAssembly().GetTypes()
         // All view models that inherit from InstallWizardPageViewModelBase
-        .Where(t => typeof(InstallWizardPageViewModelBase).IsAssignableFrom(t))
+        .Where(t => typeof(InstallWizardPageViewModelBase).IsAssignableFrom(t) && !t.IsAbstract)
         // With a constructor that accepts a single parameter that implements IStep
         .Select(t => t.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 1 && typeof(IStep).IsAssignableFrom(c.GetParameters().Single().ParameterType)))
         .Where(c=>c != null)
