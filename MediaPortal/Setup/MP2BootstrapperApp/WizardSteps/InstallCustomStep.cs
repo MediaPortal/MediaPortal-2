@@ -22,7 +22,6 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
@@ -35,16 +34,13 @@ namespace MP2BootstrapperApp.WizardSteps
   /// <summary>
   /// Custom install step that provides optional packages and features that can be indiviually selected for installation.
   /// </summary>
-  public class InstallCustomStep : AbstractInstallStep, IStep
+  public class InstallCustomStep : AbstractPackageSelectionStep
   {
     private static readonly Version ZERO_VERSION = new Version();
 
     public InstallCustomStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
       : base(bootstrapperApplicationModel)
     {
-      AvailableFeatures = GetSelectableFeatures(bootstrapperApplicationModel.BundlePackages);
-      AvailablePackages = GetSelectablePackages(bootstrapperApplicationModel.BundlePackages);
-
       bool isPreviousVersionInstalled = AvailableFeatures.Any(f => f.PreviousVersionInstalled);
       if (isPreviousVersionInstalled)
       {
@@ -60,27 +56,7 @@ namespace MP2BootstrapperApp.WizardSteps
       }
     }
 
-    /// <summary>
-    /// All features available for installation.
-    /// </summary>
-    public ICollection<IBundlePackageFeature> AvailableFeatures { get; }
-
-    /// <summary>
-    /// Features that have been selected for installation.
-    /// </summary>
-    public ICollection<IBundlePackageFeature> SelectedFeatures { get; }
-
-    /// <summary>
-    /// All packages available for installation.
-    /// </summary>
-    public ICollection<IBundlePackage> AvailablePackages { get; }
-
-    /// <summary>
-    /// Packages selected for installation.
-    /// </summary>
-    public ICollection<IBundlePackage> SelectedPackages { get; }
-
-    public IStep Next()
+    public override IStep Next()
     {
       IEnumerable<FeatureId> features = SelectedFeatures.Select(f => f.Id);
       IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.GetId());
@@ -89,49 +65,6 @@ namespace MP2BootstrapperApp.WizardSteps
       plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);
 
       return new InstallOverviewStep(_bootstrapperApplicationModel);
-    }
-
-    public bool CanGoNext()
-    {
-      return SelectedFeatures.Count > 0;
-    }
-
-    public bool CanGoBack()
-    {
-      return true;
-    }
-
-    protected ICollection<IBundlePackageFeature> GetSelectableFeatures(IEnumerable<IBundlePackage> bundlePackages)
-    {
-      ICollection<IBundlePackageFeature> selectableFeatures = new List<IBundlePackageFeature>();
-
-      // Only features in the main MP2 package should be selectable
-      IBundlePackage mainPackage = bundlePackages.FirstOrDefault(p => p.GetId() == PackageId.MediaPortal2);
-      if (mainPackage == null)
-      {
-        return selectableFeatures;
-      }
-
-      // Get the optional features, namely Client, Server, ServiceMonitor and Log Collector
-      foreach (IBundlePackageFeature feature in mainPackage.Features)
-      {
-        if (feature.Optional)
-          selectableFeatures.Add(feature);
-      }
-      return selectableFeatures;
-    }
-
-    protected ICollection<IBundlePackage> GetSelectablePackages(IEnumerable<IBundlePackage> bundlePackages)
-    {
-      ICollection<IBundlePackage> selectablePackages = new List<IBundlePackage>();
-
-      // Optional packages, currently this is only the LAV Filters package
-      foreach (IBundlePackage bundlePackage in _bootstrapperApplicationModel.BundlePackages)
-      {
-        if (bundlePackage.Optional && bundlePackage.CurrentInstallState != PackageState.Present)
-          selectablePackages.Add(bundlePackage);
-      }
-      return selectablePackages;
     }
   }
 }

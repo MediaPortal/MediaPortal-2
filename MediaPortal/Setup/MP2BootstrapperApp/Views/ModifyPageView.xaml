@@ -5,8 +5,127 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-            
-    </Grid>
+             d:DesignHeight="450" d:DesignWidth="800">
+  <Grid>
+    <Grid.Resources>
+      <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+      <Style x:Key="InstallerButton" TargetType="CheckBox">
+        <Style.Triggers>
+          <Trigger Property="IsChecked" Value="False">
+            <Setter Property="Opacity" Value="0.5"/>
+          </Trigger>
+        </Style.Triggers>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="CheckBox">
+
+              <Grid x:Name="ButtonContent" Height="90" Width="140" Margin="5" Background="#20FFFFFF"
+                    RenderTransformOrigin="0.5,0.5">
+
+                <Grid.RenderTransform>
+                  <TransformGroup>
+                    <ScaleTransform/>
+                  </TransformGroup>
+                </Grid.RenderTransform>
+
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                  <RowDefinition Height="Auto"/>
+                  <RowDefinition Height="Auto"/>
+                </Grid.RowDefinitions>
+
+                <!--Package marker bar-->
+                <Border Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="5" BorderThickness="0">
+                  <Border.Effect>
+                    <DropShadowEffect Opacity="0.25" Direction="270" ShadowDepth="2"/>
+                  </Border.Effect>
+                  <Border.Style>
+                    <Style TargetType="{x:Type Border}">
+                      <Style.Triggers>
+                        <DataTrigger Binding="{Binding Package.Id}" Value="Client">
+                          <Setter Property="Border.Background" Value="#E8641B" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Package.Id}" Value="Server">
+                          <Setter Property="Border.Background" Value="#FFFFFF" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Package.Id}" Value="ServiceMonitor">
+                          <Setter Property="Border.Background" Value="#A2B8A4" />
+                        </DataTrigger>
+                        <DataTrigger Binding="{Binding Package.Id}" Value="LogCollector">
+                          <Setter Property="Border.Background" Value="#7C7C7C" />
+                        </DataTrigger>
+                      </Style.Triggers>
+                    </Style>
+                  </Border.Style>
+                </Border>
+
+                <!--Icon-->
+                <Image Grid.Row="0" Source="{Binding Package.ImagePath}"/>
+
+                <!--Installed version-->
+                <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,-10,0,-5">
+                  <Label FontSize="9" Foreground="White" Content="Installed: " Opacity="0.4"/>
+                  <Label FontSize="9" Foreground="White" Content="{Binding Package.InstalledVersion}" Opacity="0.4"/>
+                </StackPanel>
+
+                <!--Bundled version-->
+                <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,-5,0,0">
+                  <Label FontSize="9" Foreground="White" Content="Bundled: " Opacity="0.4"/>
+                  <Label FontSize="9" Foreground="White" Content="{Binding Package.BundleVersion}" Opacity="0.4"/>
+                </StackPanel>
+
+                <!--Install/upgrade indicators-->
+                <Grid Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,3,3"
+                      Visibility="{Binding Path=Selected, Converter={StaticResource BooleanToVisibilityConverter}}">
+                  <Image x:Name="InstallingIndicator" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                         Width="20" Height="20" Source="..\resources\present.png"/>
+                </Grid>
+
+              </Grid>
+
+              <ControlTemplate.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                  <Trigger.EnterActions>
+                    <BeginStoryboard>
+                      <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="ButtonContent" To="1.1"  Duration="0:0:0.09"
+                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"/>
+                        <DoubleAnimation Storyboard.TargetName="ButtonContent" To="1.1" Duration="0:0:0.09" 
+                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
+                      </Storyboard>
+                    </BeginStoryboard>
+                  </Trigger.EnterActions>
+                  <Trigger.ExitActions>
+                    <BeginStoryboard>
+                      <Storyboard>
+                        <DoubleAnimation Storyboard.TargetName="ButtonContent" To="1"  Duration="0:0:0.09"
+                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"/>
+                        <DoubleAnimation Storyboard.TargetName="ButtonContent" To="1" Duration="0:0:0.09"
+                                         Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
+                      </Storyboard>
+                    </BeginStoryboard>
+                  </Trigger.ExitActions>
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+    </Grid.Resources>
+
+    <ItemsControl ItemsSource="{Binding Path=Items}">
+      <ItemsControl.ItemsPanel>
+        <ItemsPanelTemplate>
+          <WrapPanel />
+        </ItemsPanelTemplate>
+      </ItemsControl.ItemsPanel>
+      <ItemsControl.ItemTemplate>
+        <DataTemplate>
+          <CheckBox Style="{StaticResource InstallerButton}" IsChecked="{Binding Path=Selected, Mode=TwoWay}"/>
+        </DataTemplate>
+      </ItemsControl.ItemTemplate>
+    </ItemsControl>
+
+  </Grid>
 </UserControl>

@@ -22,30 +22,35 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ActionPlans;
+using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class ModifyStep : AbstractInstallStep, IStep
+  public class ModifyStep : AbstractPackageSelectionStep
   {
     public ModifyStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
       : base(bootstrapperApplicationModel)
     {
+      // Initially select the currently installed features
+      SelectedFeatures = AvailableFeatures.Where(f => f.CurrentFeatureState == FeatureState.Local).ToList();
     }
 
-    public IStep Next()
+    public override IStep Next()
     {
-      throw new System.NotImplementedException();
-    }
+      IEnumerable<FeatureId> features = SelectedFeatures.Select(f => f.Id);
+      IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.GetId());
 
-    public bool CanGoNext()
-    {
-      return false;
-    }
+      ModifyPlan plan = new ModifyPlan(features, packages, new PlanContext());
+      plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);
 
-    public bool CanGoBack()
-    {
-      return true;
+      _bootstrapperApplicationModel.PlanAction(LaunchAction.Modify);
+      _bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "Starting modify");
+      return new InstallationInProgressStep(_bootstrapperApplicationModel);
     }
   }
 }

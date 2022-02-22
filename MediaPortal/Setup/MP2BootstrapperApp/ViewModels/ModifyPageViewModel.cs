@@ -26,12 +26,13 @@ using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class ModifyPageViewModel : InstallWizardPageViewModelBase
+  public class ModifyPageViewModel : AbstractPackageSelectionViewModel
   {
     public ModifyPageViewModel(ModifyStep step)
       : base(step)
     {
       Header = "Modify Installation";
+      SubHeader = "Select the packages to modify";
     }
   }
 }
