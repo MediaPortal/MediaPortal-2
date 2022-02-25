@@ -44,7 +44,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);      
+      IBundlePackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2);      
       foreach (IBundlePackageFeature feature in featurePackage.Features)
       {
         FeatureState expectedState = installedFeatures.Contains(feature.Id) ? FeatureState.Local : FeatureState.Absent;
@@ -63,7 +63,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      foreach (IBundlePackage package in packages.Where(p => installedPackages.Contains(p.GetId())))
+      foreach (IBundlePackage package in packages.Where(p => installedPackages.Contains(p.PackageId)))
         Assert.Equal(RequestState.Repair, package.RequestedInstallState);
     }
 
@@ -78,7 +78,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage missingDependencyPackage = packages.First(p => p.GetId() == PackageId.VC2019_x64);
+      IBundlePackage missingDependencyPackage = packages.First(p => p.PackageId == PackageId.VC2019_x64);
       Assert.Equal(RequestState.Present, missingDependencyPackage.RequestedInstallState);
     }
 
@@ -93,7 +93,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage missingNonDependencyPackage = packages.First(p => p.GetId() == PackageId.VC2013_x86);
+      IBundlePackage missingNonDependencyPackage = packages.First(p => p.PackageId == PackageId.VC2013_x86);
       Assert.Equal(RequestState.None, missingNonDependencyPackage.RequestedInstallState);
     }
   }

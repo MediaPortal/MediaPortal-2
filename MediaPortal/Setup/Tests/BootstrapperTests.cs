@@ -48,10 +48,10 @@ namespace Tests
       BundlePackage bundlePackage = new BundlePackage(packageElement, new PackageContext());
 
       Assert.Equal("LAVFilters", bundlePackage.Id);
-      Assert.Equal(PackageId.LAVFilters, bundlePackage.GetId());
+      Assert.Equal(PackageId.LAVFilters, bundlePackage.PackageId);
       Assert.Equal("LAV Filters", bundlePackage.DisplayName);
       Assert.Equal("LAV Filters Setup", bundlePackage.Description);
-      Assert.Equal(new Version("0.74.1.0"), bundlePackage.GetVersion());
+      Assert.Equal(new Version("0.74.1.0"), bundlePackage.Version);
       Assert.Equal(true, bundlePackage.Optional);
       Assert.Equal(false, bundlePackage.Is64Bit);
     }

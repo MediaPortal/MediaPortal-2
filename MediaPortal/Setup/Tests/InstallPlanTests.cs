@@ -43,7 +43,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);
+      IBundlePackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2);
       IBundlePackageFeature nonOptionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.MediaPortal_2);
       Assert.Equal(false, nonOptionalFeature.Optional);
       Assert.Equal(FeatureState.Local, nonOptionalFeature.RequestedFeatureState);
@@ -57,7 +57,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);
+      IBundlePackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2);
       IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.Server);
       Assert.Equal(true, optionalFeature.Optional);
       Assert.Equal(FeatureState.Local, optionalFeature.RequestedFeatureState);
@@ -71,7 +71,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage featurePackage = packages.First(p => p.GetId() == PackageId.MediaPortal2);
+      IBundlePackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2);
       IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.Client);
       Assert.Equal(true, optionalFeature.Optional);
       Assert.Equal(FeatureState.Absent, optionalFeature.RequestedFeatureState);
@@ -85,7 +85,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage package = packages.First(p => p.GetId() == PackageId.VC2019_x86);
+      IBundlePackage package = packages.First(p => p.PackageId == PackageId.VC2019_x86);
       Assert.Equal(RequestState.Present, package.RequestedInstallState);
     }
 
@@ -97,7 +97,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage package = packages.First(p => p.GetId() == PackageId.VC2013_x86);
+      IBundlePackage package = packages.First(p => p.PackageId == PackageId.VC2013_x86);
       Assert.Equal(RequestState.None, package.RequestedInstallState);
     }
 
@@ -109,7 +109,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage lavPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      IBundlePackage lavPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
       Assert.Equal(RequestState.Present, lavPackage.RequestedInstallState);
     }
 
@@ -121,7 +121,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage lavPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      IBundlePackage lavPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
       Assert.Equal(RequestState.None, lavPackage.RequestedInstallState);
     }
 
@@ -133,7 +133,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage lavPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      IBundlePackage lavPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
       Assert.Equal(RequestState.Present, lavPackage.RequestedInstallState);
     }
 
@@ -145,7 +145,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage lavPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      IBundlePackage lavPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
       Assert.Equal(RequestState.None, lavPackage.RequestedInstallState);
     }
   }

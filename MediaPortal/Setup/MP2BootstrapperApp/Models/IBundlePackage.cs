@@ -32,16 +32,14 @@ namespace MP2BootstrapperApp.Models
   public interface IBundlePackage
   {
     /// <summary>
-    /// Parse the id of the package as <see cref="PackageId"/>.
+    /// Gets the id of the package as <see cref="PackageId"/>.
     /// </summary>
-    /// <returns></returns>
-    PackageId GetId();
+    PackageId PackageId { get; }
 
     /// <summary>
     /// Gets the bundled version of the package.
     /// </summary>
-    /// <returns></returns>
-    Version GetVersion();
+    Version Version { get; }
 
     /// <summary>
     /// Gets the id of the package as <see cref="string"/>.

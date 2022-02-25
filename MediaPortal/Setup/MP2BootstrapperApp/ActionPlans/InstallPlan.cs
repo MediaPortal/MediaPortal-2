@@ -62,10 +62,9 @@ namespace MP2BootstrapperApp.ActionPlans
 
       foreach (IBundlePackage package in packages)
       {
-        PackageId packageId = package.GetId();
         package.RequestedInstallState = ShouldInstallPackage(package, excludedPackages) ? RequestState.Present : RequestState.None;
 
-        if (packageId == _planContext.FeaturePackageId)
+        if (package.PackageId == _planContext.FeaturePackageId)
         {
           foreach (IBundlePackageFeature feature in package.Features)
             feature.RequestedFeatureState = ShouldInstallFeature(feature) ? FeatureState.Local : FeatureState.Absent;
@@ -81,18 +80,16 @@ namespace MP2BootstrapperApp.ActionPlans
     /// <returns><c>true</c> if the package should be installed.</returns>
     protected bool ShouldInstallPackage(IBundlePackage package, ISet<PackageId> excludedPackages)
     {
-      PackageId packageId = package.GetId();
-
       // If package is already present, then no need to install.
       if (package.CurrentInstallState == PackageState.Present)
         return false;
 
       // If optional packages are being explicitly planned, only install this optional package if explicitly planned.
       if (package.Optional && _plannedOptionalPackages != null)
-        return _plannedOptionalPackages.Contains(packageId);
+        return _plannedOptionalPackages.Contains(package.PackageId);
 
       // Else install unless explcitly excluded.
-      return !excludedPackages.Contains(packageId);
+      return !excludedPackages.Contains(package.PackageId);
     }
 
     /// <summary>

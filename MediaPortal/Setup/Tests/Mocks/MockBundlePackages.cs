@@ -105,7 +105,7 @@ namespace Tests.Mocks
     public static IBundlePackage CreatePackage(PackageId packageId, bool installed, bool optional, Version installedVersion)
     {
       IBundlePackage package = Substitute.For<IBundlePackage>();
-      package.GetId().Returns(packageId);
+      package.PackageId.Returns(packageId);
       package.Optional.Returns(optional);
       package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
       package.InstalledVersion.Returns(installedVersion ?? new Version());

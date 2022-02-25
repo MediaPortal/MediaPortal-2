@@ -59,7 +59,7 @@ namespace MP2BootstrapperApp.ActionPlans
     public void SetRequestedInstallStates(IEnumerable<IBundlePackage> packages)
     {
       IEnumerable<FeatureId> currentlyInstalledFeatures =
-        packages.FirstOrDefault(p => p.GetId() == _planContext.FeaturePackageId)?.Features
+        packages.FirstOrDefault(p => p.PackageId == _planContext.FeaturePackageId)?.Features
         .Where(f => f.CurrentFeatureState == FeatureState.Local).Select(f => f.Id);
 
       // Get the packages that are not dependencies of the features currently installed.
@@ -69,10 +69,9 @@ namespace MP2BootstrapperApp.ActionPlans
 
       foreach (IBundlePackage package in packages)
       {
-        PackageId packageId = package.GetId();
         package.RequestedInstallState = ShouldInstallPackage(package, existingExcludedPackages, modifiedExcludedPackages) ? RequestState.Present : RequestState.None;
 
-        if (packageId == _planContext.FeaturePackageId)
+        if (package.PackageId == _planContext.FeaturePackageId)
         {
           foreach (IBundlePackageFeature feature in package.Features)
             feature.RequestedFeatureState = ShouldInstallFeature(feature) ? FeatureState.Local : FeatureState.Absent;
@@ -89,18 +88,16 @@ namespace MP2BootstrapperApp.ActionPlans
     /// <returns><c>true</c> if the package should be installed.</returns>
     protected bool ShouldInstallPackage(IBundlePackage package, ISet<PackageId> existingExcludedPackages, ISet<PackageId> modifiedExcludedPackages)
     {
-      PackageId packageId = package.GetId();
-
       // If package is already present, then no need to install.
       if (package.CurrentInstallState == PackageState.Present)
         return false;
 
       // If optional packages are being explicitly planned, only install this optional package if explicitly planned.
       if (package.Optional && _plannedOptionalPackages != null)
-        return _plannedOptionalPackages.Contains(packageId);
+        return _plannedOptionalPackages.Contains(package.PackageId);
 
       // Else install if previously excluded and not currently excluded.
-      return existingExcludedPackages.Contains(packageId) && !modifiedExcludedPackages.Contains(packageId);
+      return existingExcludedPackages.Contains(package.PackageId) && !modifiedExcludedPackages.Contains(package.PackageId);
     }
 
     /// <summary>

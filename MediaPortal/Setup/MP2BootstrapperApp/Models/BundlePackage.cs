@@ -80,9 +80,9 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public PackageId GetId()
+    public PackageId PackageId
     {
-      return _packageId;
+      get { return _packageId; }
     }
 
     /// <summary>
@@ -96,9 +96,9 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public Version GetVersion()
+    public Version Version
     {
-      return _version;
+      get { return _version; }
     }
 
     /// <summary>

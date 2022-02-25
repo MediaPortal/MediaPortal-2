@@ -110,7 +110,7 @@ namespace MP2BootstrapperApp.Models
     {
       if (Enum.TryParse(detectPackageCompleteEventArgs.PackageId, out PackageId detectedPackageId))
       {
-        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.PackageId == detectedPackageId);
         if (bundlePackage != null)
           bundlePackage.CurrentInstallState = detectPackageCompleteEventArgs.State;
       }
@@ -120,7 +120,7 @@ namespace MP2BootstrapperApp.Models
     {
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
-        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.PackageId == detectedPackageId);
         IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.FeatureName == e.FeatureId);
         if (bundleFeature != null)
           bundleFeature.CurrentFeatureState = e.State;
@@ -155,7 +155,7 @@ namespace MP2BootstrapperApp.Models
     {
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
-        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.GetId() == detectedPackageId);
+        IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.PackageId == detectedPackageId);
         IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.FeatureName == e.FeatureId);
         if (bundleFeature != null)
           e.State = bundleFeature.RequestedFeatureState;
@@ -269,7 +269,7 @@ namespace MP2BootstrapperApp.Models
         const string wixPackageProperties = "WixPackageProperties";
         packages = bundleManifestData?.Descendants(manifestNamespace + wixPackageProperties)
           .Select(x => (IBundlePackage)new BundlePackage(x, packageContext))
-          .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.GetId())).ToList();
+          .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.PackageId)).ToList();
 
         const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
         IEnumerable<IBundlePackageFeature> features = bundleManifestData?.Descendants(manifestNamespace + wixPackageFeatureInfo)

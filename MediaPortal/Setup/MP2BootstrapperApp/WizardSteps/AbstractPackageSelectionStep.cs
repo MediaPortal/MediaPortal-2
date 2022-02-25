@@ -81,7 +81,7 @@ namespace MP2BootstrapperApp.WizardSteps
       ICollection<IBundlePackageFeature> selectableFeatures = new List<IBundlePackageFeature>();
 
       // Only features in the main MP2 package should be selectable
-      IBundlePackage mainPackage = bundlePackages.FirstOrDefault(p => p.GetId() == PackageId.MediaPortal2);
+      IBundlePackage mainPackage = bundlePackages.FirstOrDefault(p => p.PackageId == PackageId.MediaPortal2);
       if (mainPackage == null)
       {
         return selectableFeatures;

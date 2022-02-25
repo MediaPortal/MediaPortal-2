@@ -59,7 +59,7 @@ namespace MP2BootstrapperApp.WizardSteps
     public override IStep Next()
     {
       IEnumerable<FeatureId> features = SelectedFeatures.Select(f => f.Id);
-      IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.GetId());
+      IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.PackageId);
 
       InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
       plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);

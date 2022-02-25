@@ -94,9 +94,9 @@ namespace MP2BootstrapperApp.ViewModels
     {
       return new Package
       {
-        BundleVersion = bundlePackage.GetVersion(),
+        BundleVersion = bundlePackage.Version,
         InstalledVersion = bundlePackage.InstalledVersion,
-        ImagePath = @"..\resources\" + bundlePackage.GetId() + ".png",
+        ImagePath = @"..\resources\" + bundlePackage.PackageId + ".png",
         Id = bundlePackage.Id,
         DisplayName = bundlePackage.DisplayName,
         Description = bundlePackage.Description,
@@ -109,7 +109,7 @@ namespace MP2BootstrapperApp.ViewModels
     {
       return new Package
       {
-        BundleVersion = bundlePackage.GetVersion(),
+        BundleVersion = bundlePackage.Version,
         InstalledVersion = feature.PreviousVersionInstalled ? bundlePackage.InstalledVersion : new Version(),
         ImagePath = @"..\resources\" + feature.FeatureName + ".png",
         Id = feature.FeatureName,

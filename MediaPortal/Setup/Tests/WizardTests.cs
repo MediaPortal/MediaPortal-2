@@ -46,7 +46,7 @@ namespace Tests
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
-      IBundlePackage availablePackage = customStep.AvailablePackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
+      IBundlePackage availablePackage = customStep.AvailablePackages.FirstOrDefault(p => p.PackageId == PackageId.LAVFilters);
 
       Assert.NotNull(availablePackage);
     }
@@ -60,7 +60,7 @@ namespace Tests
       
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
-      IBundlePackage availablePackage = customStep.AvailablePackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
+      IBundlePackage availablePackage = customStep.AvailablePackages.FirstOrDefault(p => p.PackageId == PackageId.LAVFilters);
 
       Assert.Null(availablePackage);
     }
@@ -104,7 +104,7 @@ namespace Tests
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
       IEnumerable<PackageId> expectedPackages = new[] { PackageId.LAVFilters };
-      IEnumerable<PackageId> actualPackages = customStep.SelectedPackages.Select(p => p.GetId());
+      IEnumerable<PackageId> actualPackages = customStep.SelectedPackages.Select(p => p.PackageId);
 
       Assert.Equal(expectedPackages, actualPackages);
     }
@@ -118,7 +118,7 @@ namespace Tests
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
-      IBundlePackage selectedPackage = customStep.SelectedPackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
+      IBundlePackage selectedPackage = customStep.SelectedPackages.FirstOrDefault(p => p.PackageId == PackageId.LAVFilters);
 
       Assert.NotNull(selectedPackage);
     }
@@ -127,7 +127,7 @@ namespace Tests
     void Should_Not_SelectOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
     {
       IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
-      IBundlePackage notInstalledPackage = packages.First(p => p.GetId() == PackageId.LAVFilters);
+      IBundlePackage notInstalledPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
       notInstalledPackage.InstalledVersion = new Version();
 
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
@@ -135,7 +135,7 @@ namespace Tests
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
-      IBundlePackage selectedPackage = customStep.SelectedPackages.FirstOrDefault(p => p.GetId() == PackageId.LAVFilters);
+      IBundlePackage selectedPackage = customStep.SelectedPackages.FirstOrDefault(p => p.PackageId == PackageId.LAVFilters);
 
       Assert.Null(selectedPackage);
     }
