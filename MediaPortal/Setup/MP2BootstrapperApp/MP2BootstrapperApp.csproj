@@ -71,7 +71,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActionPlans\ModifyPlan.cs" />
     <Compile Include="ActionType.cs" />
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
     <Compile Include="ChainPackages\AbstractPackage.cs" />
