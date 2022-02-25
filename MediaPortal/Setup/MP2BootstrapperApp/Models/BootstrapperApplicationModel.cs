@@ -260,16 +260,16 @@ namespace MP2BootstrapperApp.Models
         }
 
         const string wixMbaPrereqInfo = "WixMbaPrereqInformation";
-        IList<BootstrapperAppPrereqPackage> mbaPrereqPackages = bundleManifestData?.Descendants(manifestNamespace + wixMbaPrereqInfo)
-          .Select(x => new BootstrapperAppPrereqPackage(x))
+        IList<string> mbaPrereqPackages = bundleManifestData?.Descendants(manifestNamespace + wixMbaPrereqInfo)
+          .Select(x => x.Attribute("PackageId")?.Value)
           .ToList();
 
         PackageContext packageContext = new PackageContext();
 
         const string wixPackageProperties = "WixPackageProperties";
         packages = bundleManifestData?.Descendants(manifestNamespace + wixPackageProperties)
-          .Select(x => (IBundlePackage)new BundlePackage(x, packageContext))
-          .Where(pkg => mbaPrereqPackages.All(preReq => preReq.PackageId != pkg.PackageId)).ToList();
+          .Where(x => mbaPrereqPackages.All(preReq => preReq != x.Attribute("Package")?.Value))
+          .Select(x => (IBundlePackage)new BundlePackage(x, packageContext)).ToList();
 
         const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
         IEnumerable<IBundlePackageFeature> features = bundleManifestData?.Descendants(manifestNamespace + wixPackageFeatureInfo)

@@ -166,7 +166,6 @@
     <Compile Include="WizardSteps\InstallOverviewStep.cs" />
     <Compile Include="WizardSteps\InstallNewTypeStep.cs" />
     <Compile Include="Models\BundlePackage.cs" />
-    <Compile Include="Models\BootstrapperAppPrereqPackage.cs" />
     <Compile Include="MP2BootstrapperApplication.cs" />
     <Compile Include="Models\BootstrapperApplicationModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
