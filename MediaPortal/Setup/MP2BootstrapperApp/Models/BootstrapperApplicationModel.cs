@@ -204,11 +204,7 @@ namespace MP2BootstrapperApp.Models
       if (PlannedAction == LaunchAction.Uninstall)
         return;
 
-      // planPackageBeginEventArgs.State should initially have the correct state for a complete installation (determined based on InstallCondition).
-      // If the initial state is Absent then it shouldn't be changed as it indicates that the package should never be installed on this machine,
-      // (e.g. a 64bit package on a 32bit machine).
-      if (planPackageBeginEventArgs.State != RequestState.Absent)
-        planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
+      planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
     }
 
     private void ResolveSource(object sender, ResolveSourceEventArgs e)

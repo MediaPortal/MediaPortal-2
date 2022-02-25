@@ -25,6 +25,7 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
+using System;
 using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.ActionPlans
@@ -62,12 +63,15 @@ namespace MP2BootstrapperApp.ActionPlans
 
       foreach (IBundlePackage package in packages)
       {
-        package.RequestedInstallState = ShouldInstallPackage(package, excludedPackages) ? RequestState.Present : RequestState.None;
-
         if (package.PackageId == _planContext.FeaturePackageId)
         {
+          package.RequestedInstallState = RequestState.Present;
           foreach (IBundlePackageFeature feature in package.Features)
             feature.RequestedFeatureState = ShouldInstallFeature(feature) ? FeatureState.Local : FeatureState.Absent;
+        }
+        else
+        {
+          package.RequestedInstallState = ShouldInstallPackage(package, excludedPackages) ? RequestState.Present : RequestState.None;
         }
       }
     }
@@ -82,6 +86,10 @@ namespace MP2BootstrapperApp.ActionPlans
     {
       // If package is already present, then no need to install.
       if (package.CurrentInstallState == PackageState.Present)
+        return false;
+
+      // Don't install 64 bit packages on 32 bit OS
+      if (package.Is64Bit && !Environment.Is64BitOperatingSystem)
         return false;
 
       // If optional packages are being explicitly planned, only install this optional package if explicitly planned.
