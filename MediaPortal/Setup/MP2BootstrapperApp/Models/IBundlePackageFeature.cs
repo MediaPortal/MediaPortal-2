@@ -57,7 +57,7 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// Whether this feature is optional.
     /// </summary>
-    bool Optional { get; set; }
+    bool Optional { get; }
 
     /// <summary>
     /// Whether a previous version of this feature is installed in a previous version of the parent package.

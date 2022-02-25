@@ -22,7 +22,6 @@
 
 #endregion
 
-using System;
 using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.ChainPackages
@@ -44,19 +43,9 @@ namespace MP2BootstrapperApp.ChainPackages
       _packages.Add(PackageId.MediaPortal2, new MediaPortal2(_packageChecker));
     }
 
-    public Version GetInstalledVersion(PackageId id)
+    public bool TryGetPackage(PackageId id, out IPackage package)
     {
-      return _packages.TryGetValue(id, out IPackage package) ? package.GetInstalledVersion() : new Version();
-    }
-
-    public bool IsOptional(PackageId id)
-    {
-      return _packages.TryGetValue(id, out IPackage package) ? package.IsOptional : false;
-    }
-
-    public bool IsFeatureOptional(PackageId id, string feature)
-    {
-      return _packages.TryGetValue(id, out IPackage package) ? package.IsFeatureOptional(feature) : false;
+      return _packages.TryGetValue(id, out package);
     }
   }
 }

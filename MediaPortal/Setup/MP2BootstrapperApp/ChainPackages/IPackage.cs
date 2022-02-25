@@ -28,8 +28,9 @@ namespace MP2BootstrapperApp.ChainPackages
 {
   public interface IPackage
   {
-    Version GetInstalledVersion();
     bool IsOptional { get; }
-    bool IsFeatureOptional(string feature);
+    bool Is64Bit { get; }
+    Version GetInstalledVersion();
+    bool IsFeatureOptional(FeatureId feature);
   }
 }

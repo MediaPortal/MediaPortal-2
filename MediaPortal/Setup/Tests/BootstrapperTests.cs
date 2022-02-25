@@ -24,6 +24,7 @@
 
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
+using System;
 using System.Linq;
 using System.Xml.Linq;
 using Xunit;
@@ -44,11 +45,15 @@ namespace Tests
       const string wixPackageProperties = "WixPackageProperties";
       XElement packageElement = doc?.Descendants(wixPackageProperties).FirstOrDefault();
 
-      BundlePackage bundlePackage = new BundlePackage(packageElement);
+      BundlePackage bundlePackage = new BundlePackage(packageElement, new PackageContext());
 
       Assert.Equal("LAVFilters", bundlePackage.Id);
+      Assert.Equal(PackageId.LAVFilters, bundlePackage.GetId());
       Assert.Equal("LAV Filters", bundlePackage.DisplayName);
       Assert.Equal("LAV Filters Setup", bundlePackage.Description);
+      Assert.Equal(new Version("0.74.1.0"), bundlePackage.GetVersion());
+      Assert.Equal(true, bundlePackage.Optional);
+      Assert.Equal(false, bundlePackage.Is64Bit);
     }
 
     [Fact]
@@ -63,13 +68,14 @@ namespace Tests
       const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
       XElement featureElement = doc?.Descendants(wixPackageFeatureInfo).FirstOrDefault();
 
-      BundlePackageFeature bundlePackageFeature = new BundlePackageFeature(featureElement);
+      BundlePackageFeature bundlePackageFeature = new BundlePackageFeature(featureElement, new PackageContext());
 
       Assert.Equal("MediaPortal2", bundlePackageFeature.Package);
       Assert.Equal(FeatureId.Client, bundlePackageFeature.Id);
       Assert.Equal("Client", bundlePackageFeature.FeatureName);
       Assert.Equal("Client Title", bundlePackageFeature.Title);
       Assert.Equal("The user interface. Plays media files.", bundlePackageFeature.Description);
+      Assert.Equal(true, bundlePackageFeature.Optional);
     }
   }
 }

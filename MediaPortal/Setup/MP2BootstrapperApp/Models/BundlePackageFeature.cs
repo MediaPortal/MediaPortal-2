@@ -31,11 +31,36 @@ namespace MP2BootstrapperApp.Models
 {
   public class BundlePackageFeature : IBundlePackageFeature
   {
-    private readonly XElement _featureElement;
+    protected string _featureIdString;
+    protected FeatureId _featureId;
+    protected string _package;
+    protected string _title;
+    protected string _description;
+    protected bool _optional;
 
-    public BundlePackageFeature(XElement featureElement)
+    public BundlePackageFeature(XElement featureElement, PackageContext packageContext)
     {
-      _featureElement = featureElement;
+      SetXmlProperties(featureElement);
+
+      if(!Enum.TryParse(_package, out PackageId packageId) || !packageContext.TryGetPackage(packageId, out IPackage package))
+        throw new InvalidOperationException($"{nameof(packageContext)} does not contain package info for feature package with id {_package}");
+
+      SetFeatureProperties(package);
+    }
+
+    protected void SetXmlProperties(XElement featureElement)
+    {
+      _package = featureElement.Attribute("Package")?.Value;
+      _featureIdString = featureElement.Attribute("Feature")?.Value;
+      _title = featureElement.Attribute("Title")?.Value;
+      _description = featureElement.Attribute("Description")?.Value;
+
+      _featureId = Enum.TryParse(_featureIdString, out FeatureId id) ? id : FeatureId.Unknown;
+    }
+
+    protected void SetFeatureProperties(IPackage package)
+    {
+      _optional = package.IsFeatureOptional(_featureId);
     }
 
     /// <summary>
@@ -43,7 +68,7 @@ namespace MP2BootstrapperApp.Models
     /// </summary>
     public FeatureId Id
     {
-      get { return Enum.TryParse(FeatureName, out FeatureId id) ? id : FeatureId.Unknown; }
+      get { return _featureId; }
     }
 
     /// <summary>
@@ -51,7 +76,7 @@ namespace MP2BootstrapperApp.Models
     /// </summary>
     public string Package
     {
-      get { return _featureElement.Attribute("Package")?.Value; }
+      get { return _package; }
     }
 
     /// <summary>
@@ -59,7 +84,7 @@ namespace MP2BootstrapperApp.Models
     /// </summary>
     public string FeatureName
     {
-      get { return _featureElement.Attribute("Feature")?.Value; }
+      get { return _featureIdString; }
     }
 
     /// <summary>
@@ -67,7 +92,7 @@ namespace MP2BootstrapperApp.Models
     /// </summary>
     public string Title
     {
-      get { return _featureElement.Attribute("Title")?.Value; }
+      get { return _title; }
     }
 
     /// <summary>
@@ -75,13 +100,16 @@ namespace MP2BootstrapperApp.Models
     /// </summary>
     public string Description
     {
-      get { return _featureElement.Attribute("Description")?.Value; }
+      get { return _description; }
     }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public bool Optional { get; set; }
+    public bool Optional
+    {
+      get { return _optional; }
+    }
 
     /// <summary>
     /// <inheritdoc/>

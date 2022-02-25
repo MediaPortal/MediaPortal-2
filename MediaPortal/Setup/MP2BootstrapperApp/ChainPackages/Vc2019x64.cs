@@ -36,6 +36,11 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
+    public override bool Is64Bit
+    {
+      get { return true; }
+    }
+
     public override Version GetInstalledVersion()
     {
       // ToDO: We should probably block this x64 package entirely earlier
