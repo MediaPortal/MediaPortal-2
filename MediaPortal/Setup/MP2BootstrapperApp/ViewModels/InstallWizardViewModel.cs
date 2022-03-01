@@ -138,6 +138,22 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
+    private void GoToFinishStep()
+    {
+      LaunchAction action = _bootstrapperApplicationModel.PlannedAction;
+      IStep finishStep;
+      if (action == LaunchAction.Uninstall)
+        finishStep = new UninstallFinishStep();
+      else if (action == LaunchAction.Modify)
+        finishStep = new ModifyFinishStep();
+      else if (action == LaunchAction.Repair)
+        finishStep = new RepairFinishStep();
+      else // if (action == LaunchAction.Install)
+        finishStep = new InstallFinishStep();
+
+      GoToStep(finishStep);
+    }
+
     private void CancelInstall()
     {
       _bootstrapperApplicationModel.Cancelled = true;
@@ -265,7 +281,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         // Set progress to complete on success
         Progress = 100;
-        GoToStep(new InstallFinishStep());
+        GoToFinishStep();
       }
       else
       {

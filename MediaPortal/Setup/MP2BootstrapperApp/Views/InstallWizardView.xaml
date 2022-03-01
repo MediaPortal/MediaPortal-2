@@ -21,62 +21,11 @@
     <SolidColorBrush Color="#FF0E0E0E"/>
   </Window.Background>
   <Window.Resources>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallInitializingPageViewModel}">
-      <view:InstallInitializingPageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallWelcomePageViewModel}">
-      <view:InstallWelcomePageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallExistTypePageViewModel}">
-      <view:InstallExistTypePageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallNewTypePageViewModel}">
-      <view:InstallNewTypePageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallCustomPageViewModel}">
-      <view:InstallCustomPageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallOverviewPageViewModel}">
-      <view:InstallOverviewPageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallFinishPageViewModel}">
-      <view:InstallFinishPageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:ModifyPageViewModel}">
-      <view:ModifyPageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:RepairPageViewModel}">
-      <view:RepairPageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:UninstallPageViewModel}">
-      <view:UninstallView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallationInProgressPageViewModel}">
-      <view:InstallationInProgressPageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallErrorPageViewModel}">
-      <view:InstallErrorPageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:InstallCancelledPageViewModel}">
-      <view:InstallCancelledPageView />
-    </DataTemplate>
-
-    <DataTemplate DataType="{x:Type viewModels:DowngradePageViewModel}">
-      <view:DowngradePageView />
-    </DataTemplate>
+    <ResourceDictionary>
+      
+      <ResourceDictionary.MergedDictionaries>        
+        <ResourceDictionary Source="../Styles/DataTemplates.xaml" />
+      </ResourceDictionary.MergedDictionaries>
 
     <!-- Our style for the ToggleButton -->
     <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
@@ -187,6 +136,7 @@
       </VisualBrush.Visual>
     </VisualBrush>
 
+    </ResourceDictionary>
   </Window.Resources>
   <Grid Background="{StaticResource Background}">
     <Grid.ColumnDefinitions>

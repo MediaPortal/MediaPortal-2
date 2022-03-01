@@ -5,6 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{690C4618-718B-4D07-916D-456B5C211A7A}</ProjectGuid>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MP2BootstrapperApp</RootNamespace>
@@ -113,6 +114,9 @@
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
     <Compile Include="ViewModels\DowngradePageViewModel.cs" />
     <Compile Include="ViewModels\InstallCustomPageViewModel.cs" />
+    <Compile Include="ViewModels\ModifyFinishPageViewModel.cs" />
+    <Compile Include="ViewModels\UninstallFinishPageViewModel.cs" />
+    <Compile Include="ViewModels\RepairFinishPageViewModel.cs" />
     <Compile Include="ViewModels\InstallInitializingPageViewModel.cs" />
     <Compile Include="ViewModels\ModifyPageViewModel.cs" />
     <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />
@@ -139,11 +143,20 @@
     <Compile Include="Views\InstallInitializingPageView.xaml.cs">
       <DependentUpon>InstallInitializingPageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\ModifyFinishPageView.xaml.cs">
+      <DependentUpon>ModifyFinishPageView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\ModifyPageView.xaml.cs">
       <DependentUpon>ModifyPageView.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Views\RepairFinishPageView.xaml.cs">
+      <DependentUpon>RepairFinishPageView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\RepairPageView.xaml.cs">
       <DependentUpon>RepairPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UninstallFinishPageView.xaml.cs">
+      <DependentUpon>UninstallFinishPageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UninstallView.xaml.cs">
       <DependentUpon>UninstallView.xaml</DependentUpon>
@@ -155,6 +168,9 @@
     <Compile Include="WizardSteps\InstallErrorStep.cs" />
     <Compile Include="WizardSteps\InstallCancelledStep.cs" />
     <Compile Include="WizardSteps\DowngradeStep.cs" />
+    <Compile Include="WizardSteps\RepairFinishStep.cs" />
+    <Compile Include="WizardSteps\ModifyFinishStep.cs" />
+    <Compile Include="WizardSteps\UninstallFinishStep.cs" />
     <Compile Include="WizardSteps\InstallFinishStep.cs" />
     <Compile Include="WizardSteps\InstallInitializingStep.cs" />
     <Compile Include="WizardSteps\InstallCustomStep.cs" />
@@ -204,6 +220,10 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Styles\DataTemplates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\InstallCustomPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -252,11 +272,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\ModifyFinishPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\ModifyPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\RepairFinishPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\RepairPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UninstallFinishPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
