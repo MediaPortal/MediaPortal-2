@@ -1,14 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="WMC.Configuration.EnableFanart">Включить фан-арт</string>
+  <string name="WMC.Configuration.EnableFanart.Help">Активировать фоновый фан-арт</string>
+  <string name="WMC.Configuration.FanartOverlayOpacity">Видимость фан-арта </string>
+  <string name="WMC.Configuration.FanartOverlayOpacity.Help">Изменение непрозрачности фонового наложения фан-арта. Меньшее значение увеличивает видимость фан-арта (по умолчанию 1,0). </string>
+  <string name="WMC.Configuration.EnableWatchedFlags">Включить флаги просмотра</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.Help">Отображение просматриваемых значков в выбранных представлениях. </string>
   <string name="WMC.Configuration.EnableWatchedFlags.ListView">В виде списка</string>
   <string name="WMC.Configuration.EnableWatchedFlags.GridView">В виде сетки</string>
+  <string name="WMC.Configuration.EnableWatchedFlags.CoverView">В виде обложки</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos">Показывать логотип ограничения по возрасту</string>
+  <string name="WMC.Configuration.EnableAgeCertificationLogos.Help">Отображать логотипы возрастной сертификации на экранах мультимедиа. </string>  
+  <string name="WMC.Configuration.MovieGridViewType">Фильмы в виде сетки</string>
+  <string name="WMC.Configuration.MovieGridViewType.Help">Выбор макета, используемый для отображения фильмов в виде сетки. </string>
+  <string name="WMC.Configuration.SeriesGridViewType">Макет для отображения сериалов</string>
+  <string name="WMC.Configuration.SeriesGridViewType.Help">Выбор макета, используемый для отображения сериалов в виде сетки. </string>
+  <string name="WMC.Configuration.SeasonGridViewType">Макет для отображения сезонов</string>
+  <string name="WMC.Configuration.SeasonGridViewType.Help">Выбор макета, используемый для отображения сезонов в виде сетки. </string>
   <string name="WMC.Configuration.GridViewType.Poster">Постеры</string>
   <string name="WMC.Configuration.GridViewType.Banner">Баннеры</string>
   <string name="WMC.Configuration.GridViewType.Thumbnail">Миниатюры</string>  
+  <string name="WMC.Configuration.EnableMediaItemDetailsView">Включить просмотр сведений об элементе мультимедиа</string>
+  <string name="WMC.Configuration.EnableMediaItemDetailsView.Help">Отображать сведения об элементе вместо воспроизведения элемента мультимедиа. </string>
+
   <string name="WMC.Home.LatestAdded">Последнее добавленное</string>
   <string name="WMC.Home.LatestPlayed">Последнее воспроизведенное</string>
   <string name="WMC.Home.ContinuePlayed">Продолжить воспроизведение</string>
   <string name="WMC.Home.CurrentPrograms">Текущие программы</string>
   <string name="WMC.Home.CurrentSchedules">Текущие расписания</string>
   <string name="WMC.Home.Favorites">Избранное</string>
-  </resources>
+  <string name="WMC.Home.Unplayed">Не играл</string>
+
+</resources>

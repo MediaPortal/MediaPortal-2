@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UiComponents.Nereus</RootNamespace>
     <AssemblyName>Nereus</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -211,9 +211,11 @@
     <Content Include="Skin\Nereus\images\HomeContentIcons\person.png" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\place.png" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\rating.png" />
+    <Content Include="Skin\Nereus\images\HomeContentIcons\recording.png" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\resolution.png" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\series.png" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\settings.png" />
+    <Content Include="Skin\Nereus\images\HomeContentIcons\singleschedule.png" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\star.PNG" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\track.png" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\watch.png" />

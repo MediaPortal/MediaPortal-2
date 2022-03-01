@@ -8,4 +8,5 @@
   <string name="News.EnterFeedUrl">Введите Url ленты</string>
   <string name="Settings.Plugins.News">Новости</string>
   <string name="Settings.Plugins.News.FeedsSetup">Управлять лентами</string>
+  <string name="Settings.Plugins.News.RefreshInterval">Интервал обновления</string>
 </resources>

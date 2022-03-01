@@ -462,7 +462,7 @@
         <ProgressBar.Margin>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="0,0,0,5"/>
+            <Binding Source="4,0,0,5"/>
             <Binding Source="0,0,0,0"/>
           </MultiBinding>
         </ProgressBar.Margin>
@@ -476,7 +476,7 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="150"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -494,22 +494,48 @@
         </Border.Background>
       </Border>
 
-      <Image x:Name="ItemTypeImage" Grid.RowSpan="2" Grid.Column="2" Stretch="Uniform" Margin="10" >
+      <Image x:Name="ItemTypeImage" Grid.RowSpan="2" Grid.Column="2" Stretch="Uniform" Margin="10" Width="150">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="{StaticResource TvLogoChacheWidth}" fanart:MaxHeight="{StaticResource TvLogoChacheHeight}"/>
         </Image.Source>
+        <Image.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}!={1}">
+            <Binding Path="[ScheduleTypeEnum]"/>
+            <Binding Source="EveryTimeOnEveryChannel"/>
+          </MultiBinding>
+        </Image.IsVisible>
       </Image>
 
       <Label x:Name="ItemLabel" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" 
-             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding Program.ChannelName}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Width="150"
+             Content="{Binding Program.ChannelName}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5">
+        <Label.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}!={1} &amp;&amp; {2}">
+            <Binding Path="[ScheduleTypeEnum]"/>
+            <Binding Source="EveryTimeOnEveryChannel"/>
+            <Binding ElementName="ItemTypeImage" Path="!HasImage"/>
+          </MultiBinding>
+        </Label.IsVisible>
+      </Label>
 
+      <Label x:Name="ScheduleLabel" Grid.ColumnSpan="2" TextTrimming="CharacterEllipsis" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+             Content="{Binding Path=ScheduleName}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="ProgramLabel" VerticalAlignment="Top" HorizontalAlignment="Stretch" Grid.ColumnSpan="2" Margin="10,10,0,0" Content="{Binding Program.Title}"
-             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
-      
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+             IsVisible="{Binding Path=ScheduleName, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+
       <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.ColumnSpan="2" Grid.Row="1" Margin="10,0,0,0" Content="{Binding Program.StartTime}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6"/>
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6">
+        <Label.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} != {1} &amp;&amp; {0} != {2} &amp;&amp; {0} != {3})">
+            <Binding Path="[ScheduleTypeEnum]"/>
+            <Binding Source="WeeklyEveryTimeOnThisChannel"/>
+            <Binding Source="EveryTimeOnThisChannel"/>
+            <Binding Source="EveryTimeOnEveryChannel"/>
+          </MultiBinding>
+        </Label.IsVisible>
+      </Label>
 
       <Image Grid.Row="2" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="{Binding Program.IsSeriesScheduled}"
              VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,5,0,5"/>
