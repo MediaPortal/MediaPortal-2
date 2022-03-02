@@ -12,6 +12,7 @@
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
     <TextBlock TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="White" FontStretch="SemiCondensed" FontSize="22" Margin="10,0,0,0">
       <Run Text="Are you sure you want to uninstall MediaPortal 2?"/>
     </TextBlock>
