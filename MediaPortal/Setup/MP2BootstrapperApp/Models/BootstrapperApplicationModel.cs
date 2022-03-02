@@ -101,7 +101,7 @@ namespace MP2BootstrapperApp.Models
       DetectionState = e.Operation == RelatedOperation.Downgrade ? DetectionState.Older : DetectionState.Newer;
     }
 
-    protected void DetectedPackageComplete(object sender, DetectPackageCompleteEventArgs detectPackageCompleteEventArgs)
+    protected void DetectPackageComplete(object sender, DetectPackageCompleteEventArgs detectPackageCompleteEventArgs)
     {
       UpdatePackageCurrentState(detectPackageCompleteEventArgs);
     }
@@ -223,7 +223,7 @@ namespace MP2BootstrapperApp.Models
     {
       BootstrapperApplication.DetectBegin += DetectBegin;
       BootstrapperApplication.DetectRelatedBundle += DetectRelatedBundle;
-      BootstrapperApplication.DetectPackageComplete += DetectedPackageComplete;
+      BootstrapperApplication.DetectPackageComplete += DetectPackageComplete;
       BootstrapperApplication.DetectMsiFeature += DetectMsiFeature;
       BootstrapperApplication.DetectRelatedMsiPackage += DetectRelatedMsiPackage;
       BootstrapperApplication.DetectComplete += DetectComplete;
