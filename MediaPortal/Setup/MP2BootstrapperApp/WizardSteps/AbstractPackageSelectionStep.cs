@@ -81,7 +81,7 @@ namespace MP2BootstrapperApp.WizardSteps
       ICollection<IBundlePackageFeature> selectableFeatures = new List<IBundlePackageFeature>();
 
       // Only features in the main MP2 package should be selectable
-      IBundlePackage mainPackage = bundlePackages.FirstOrDefault(p => p.PackageId == PackageId.MediaPortal2);
+      IBundleMsiPackage mainPackage = bundlePackages.FirstOrDefault(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
       if (mainPackage == null)
       {
         return selectableFeatures;
@@ -101,7 +101,7 @@ namespace MP2BootstrapperApp.WizardSteps
       ICollection<IBundlePackage> selectablePackages = new List<IBundlePackage>();
 
       // Optional packages, currently this is only the LAV Filters package
-      foreach (IBundlePackage bundlePackage in _bootstrapperApplicationModel.BundlePackages)
+      foreach (IBundlePackage bundlePackage in bundlePackages)
       {
         if (bundlePackage.Optional && bundlePackage.CurrentInstallState != PackageState.Present)
           selectablePackages.Add(bundlePackage);

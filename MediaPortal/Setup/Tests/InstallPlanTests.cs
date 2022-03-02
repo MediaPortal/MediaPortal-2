@@ -43,7 +43,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2);
+      IBundleMsiPackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
       IBundlePackageFeature nonOptionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.MediaPortal_2);
       Assert.Equal(false, nonOptionalFeature.Optional);
       Assert.Equal(FeatureState.Local, nonOptionalFeature.RequestedFeatureState);
@@ -57,7 +57,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2);
+      IBundleMsiPackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
       IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.Server);
       Assert.Equal(true, optionalFeature.Optional);
       Assert.Equal(FeatureState.Local, optionalFeature.RequestedFeatureState);
@@ -71,7 +71,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2);
+      IBundleMsiPackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
       IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.Client);
       Assert.Equal(true, optionalFeature.Optional);
       Assert.Equal(FeatureState.Absent, optionalFeature.RequestedFeatureState);

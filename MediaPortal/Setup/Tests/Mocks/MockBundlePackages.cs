@@ -49,10 +49,9 @@ namespace Tests.Mocks
         if (packageId == PackageId.Unknown)
           continue;
 
-        IBundlePackage package = CreatePackage(packageId, installedPackages.Contains(packageId), packageId == PackageId.LAVFilters, null);
-
         if (packageId == PackageId.MediaPortal2)
         {
+          IBundleMsiPackage msiPackage = CreateMsiPackage(packageId, installedPackages.Contains(packageId), false, null);
           List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
           foreach (FeatureId featureId in Enum.GetValues(typeof(FeatureId)))
           {
@@ -61,9 +60,14 @@ namespace Tests.Mocks
             IBundlePackageFeature feature = CreateFeature(featureId, installedFeatures.Contains(featureId), featureId != FeatureId.MediaPortal_2, false);
             features.Add(feature);
           }
-          package.Features.Returns(features);
+          msiPackage.Features.Returns(features);
+          packages.Add(msiPackage);
         }
-        packages.Add(package);
+        else
+        {
+          IBundlePackage package = CreatePackage(packageId, installedPackages.Contains(packageId), packageId == PackageId.LAVFilters, null);
+          packages.Add(package);
+        }
       }
       return packages;
     }
@@ -83,10 +87,9 @@ namespace Tests.Mocks
         if (packageId == PackageId.Unknown)
           continue;
 
-        IBundlePackage package = CreatePackage(packageId, false, packageId == PackageId.LAVFilters, installedPackages.Contains(packageId) ? previousInstalledVersion : null);
-
         if (packageId == PackageId.MediaPortal2)
         {
+          IBundleMsiPackage msiPackage = CreateMsiPackage(packageId, false, false, installedPackages.Contains(packageId) ? previousInstalledVersion : null);
           List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
           foreach (FeatureId featureId in Enum.GetValues(typeof(FeatureId)))
           {
@@ -95,9 +98,14 @@ namespace Tests.Mocks
             IBundlePackageFeature feature = CreateFeature(featureId, false, featureId != FeatureId.MediaPortal_2, installedFeatures.Contains(featureId));
             features.Add(feature);
           }
-          package.Features.Returns(features);
+          msiPackage.Features.Returns(features);
+          packages.Add(msiPackage);
         }
-        packages.Add(package);
+        else
+        {
+          IBundlePackage package = CreatePackage(packageId, false, packageId == PackageId.LAVFilters, installedPackages.Contains(packageId) ? previousInstalledVersion : null);
+          packages.Add(package);
+        }
       }
       return packages;
     }
@@ -105,6 +113,16 @@ namespace Tests.Mocks
     public static IBundlePackage CreatePackage(PackageId packageId, bool installed, bool optional, Version installedVersion)
     {
       IBundlePackage package = Substitute.For<IBundlePackage>();
+      package.PackageId.Returns(packageId);
+      package.Optional.Returns(optional);
+      package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
+      package.InstalledVersion.Returns(installedVersion ?? new Version());
+      return package;
+    }
+
+    public static IBundleMsiPackage CreateMsiPackage(PackageId packageId, bool installed, bool optional, Version installedVersion)
+    {
+      IBundleMsiPackage package = Substitute.For<IBundleMsiPackage>();
       package.PackageId.Returns(packageId);
       package.Optional.Returns(optional);
       package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);

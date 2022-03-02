@@ -22,11 +22,10 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Xml.Linq;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
+using System;
+using System.Xml.Linq;
 
 namespace MP2BootstrapperApp.Models
 {
@@ -35,8 +34,6 @@ namespace MP2BootstrapperApp.Models
   /// </summary>
   public class BundlePackage : IBundlePackage
   {
-    private readonly ICollection<IBundlePackageFeature> _features;
-
     protected string _packageIdString;
     protected PackageId _packageId;
     protected Version _version;
@@ -47,30 +44,27 @@ namespace MP2BootstrapperApp.Models
     protected bool _is64Bit;
     protected Version _installedVersion;
 
-    public BundlePackage(XElement packageElement, PackageContext packageContext)
+    public BundlePackage(PackageId packageId, XElement packageElement, IPackage package)
     {
-      _features = new List<IBundlePackageFeature>();
+      _packageId = packageId;
 
       SetXmlProperties(packageElement);
 
-      if (!packageContext.TryGetPackage(_packageId, out IPackage package))
-        throw new InvalidOperationException($"{nameof(packageContext)} does not contain package info for bundle package with id {_packageIdString}");
-
-      SetPackageProperties(package);
+      if (package != null)
+        SetPackageProperties(package);
     }
 
-    protected void SetXmlProperties(XElement packageElement)
+    protected virtual void SetXmlProperties(XElement packageElement)
     {
       _packageIdString = packageElement.Attribute("Package")?.Value;
       _displayName = packageElement.Attribute("DisplayName")?.Value;
       _description = packageElement.Attribute("Description")?.Value;
 
-      _packageId = Enum.TryParse(_packageIdString, out PackageId packageId) ? packageId : PackageId.Unknown;
       _version = Version.TryParse(packageElement.Attribute("Version")?.Value, out Version result) ? result : new Version();
 
     }
 
-    protected void SetPackageProperties(IPackage package)
+    protected virtual void SetPackageProperties(IPackage package)
     {
       _optional = package.IsOptional;
       _is64Bit = package.Is64Bit;
@@ -151,13 +145,5 @@ namespace MP2BootstrapperApp.Models
     /// <inheritdoc/>
     /// </summary>
     public RequestState RequestedInstallState { get; set; }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public ICollection<IBundlePackageFeature> Features
-    {
-      get { return _features; }
-    }
   }
 }

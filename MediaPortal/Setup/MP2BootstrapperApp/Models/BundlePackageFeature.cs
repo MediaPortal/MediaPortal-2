@@ -24,7 +24,6 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
-using System;
 using System.Xml.Linq;
 
 namespace MP2BootstrapperApp.Models
@@ -38,14 +37,14 @@ namespace MP2BootstrapperApp.Models
     protected string _description;
     protected bool _optional;
 
-    public BundlePackageFeature(XElement featureElement, PackageContext packageContext)
+    public BundlePackageFeature(FeatureId featureId, XElement featureElement, IPackage package)
     {
+      _featureId = featureId;
+
       SetXmlProperties(featureElement);
 
-      if(!Enum.TryParse(_package, out PackageId packageId) || !packageContext.TryGetPackage(packageId, out IPackage package))
-        throw new InvalidOperationException($"{nameof(packageContext)} does not contain package info for feature package with id {_package}");
-
-      SetFeatureProperties(package);
+      if (package != null)
+        SetFeatureProperties(package);
     }
 
     protected void SetXmlProperties(XElement featureElement)
@@ -54,8 +53,6 @@ namespace MP2BootstrapperApp.Models
       _featureIdString = featureElement.Attribute("Feature")?.Value;
       _title = featureElement.Attribute("Title")?.Value;
       _description = featureElement.Attribute("Description")?.Value;
-
-      _featureId = Enum.TryParse(_featureIdString, out FeatureId id) ? id : FeatureId.Unknown;
     }
 
     protected void SetFeatureProperties(IPackage package)

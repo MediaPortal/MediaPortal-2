@@ -44,7 +44,7 @@ namespace Tests
 
       plan.SetRequestedInstallStates(packages);
 
-      IBundlePackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2);      
+      IBundleMsiPackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
       foreach (IBundlePackageFeature feature in featurePackage.Features)
       {
         FeatureState expectedState = installedFeatures.Contains(feature.Id) ? FeatureState.Local : FeatureState.Absent;

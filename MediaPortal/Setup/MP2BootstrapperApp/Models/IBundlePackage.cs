@@ -25,8 +25,10 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using System;
-using System.Collections.Generic;
 
+/// <summary>
+/// Interface for a package included in the installation bundle.
+/// </summary>
 namespace MP2BootstrapperApp.Models
 {
   public interface IBundlePackage
@@ -80,10 +82,5 @@ namespace MP2BootstrapperApp.Models
     /// Gets or sets the requested install state of the package.
     /// </summary>
     RequestState RequestedInstallState { get; set; }
-
-    /// <summary>
-    /// Gets the available features of the package.
-    /// </summary>
-    ICollection<IBundlePackageFeature> Features { get; }
   }
 }

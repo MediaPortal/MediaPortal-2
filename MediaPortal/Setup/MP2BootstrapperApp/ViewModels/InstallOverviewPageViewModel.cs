@@ -52,9 +52,9 @@ namespace MP2BootstrapperApp.ViewModels
       {
         if (bundlePackage.RequestedInstallState == RequestState.Present)
         {
-          if (bundlePackage.PackageId == PackageId.MediaPortal2)
+          if (bundlePackage.PackageId == PackageId.MediaPortal2 && bundlePackage is IBundleMsiPackage msiPackage)
           {
-            foreach (IBundlePackageFeature feature in bundlePackage.Features)
+            foreach (IBundlePackageFeature feature in msiPackage.Features)
             {
               if (feature.Optional && feature.RequestedFeatureState == FeatureState.Local)
                 Packages.Add(CreatePackageFeature(bundlePackage, feature));

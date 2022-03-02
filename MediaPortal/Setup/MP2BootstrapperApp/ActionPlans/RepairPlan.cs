@@ -50,7 +50,7 @@ namespace MP2BootstrapperApp.ActionPlans
     public void SetRequestedInstallStates(IEnumerable<IBundlePackage> packages)
     {
       // Get the currently installed features.
-      IBundlePackage featurePackage = packages.FirstOrDefault(p => p.PackageId == _planContext.FeaturePackageId);
+      IBundleMsiPackage featurePackage = packages.FirstOrDefault(p => p.PackageId == _planContext.FeaturePackageId) as IBundleMsiPackage;
       IEnumerable<FeatureId> installedFeatures = featurePackage?.Features.Where(f => f.Optional && f.CurrentFeatureState == FeatureState.Local).Select(f => f.Id);
 
       // Get the packages that are not required to be installed.
@@ -75,9 +75,9 @@ namespace MP2BootstrapperApp.ActionPlans
         }
 
         // Ensure that features keep their current installation state.
-        if (package.PackageId == _planContext.FeaturePackageId)
+        if (package.PackageId == _planContext.FeaturePackageId && package is IBundleMsiPackage msiPackage)
         {
-          foreach (IBundlePackageFeature feature in package.Features)
+          foreach (IBundlePackageFeature feature in msiPackage.Features)
             feature.RequestedFeatureState = feature.CurrentFeatureState;
         }
       }

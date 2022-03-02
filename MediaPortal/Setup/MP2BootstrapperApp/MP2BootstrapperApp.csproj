@@ -75,6 +75,7 @@
     <Compile Include="ActionType.cs" />
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
     <Compile Include="ChainPackages\AbstractPackage.cs" />
+    <Compile Include="ChainPackages\IPackageContext.cs" />
     <Compile Include="ChainPackages\MediaPortal2.cs" />
     <Compile Include="ChainPackages\FeatureId.cs" />
     <Compile Include="ChainPackages\Vc2019x64.cs" />
@@ -86,7 +87,10 @@
     <Compile Include="ActionPlans\PlanContext.cs" />
     <Compile Include="ActionPlans\RepairPlan.cs" />
     <Compile Include="InstallState.cs" />
+    <Compile Include="Models\BundleMsiPackage.cs" />
+    <Compile Include="Models\BundlePackageFactory.cs" />
     <Compile Include="Models\BundlePackageFeature.cs" />
+    <Compile Include="Models\IBundleMsiPackage.cs" />
     <Compile Include="Models\IBundlePackage.cs" />
     <Compile Include="Models\IBundlePackageFeature.cs" />
     <Compile Include="PackageStateToVisibilityConverter.cs" />

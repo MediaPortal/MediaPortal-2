@@ -45,7 +45,8 @@ namespace Tests
       const string wixPackageProperties = "WixPackageProperties";
       XElement packageElement = doc?.Descendants(wixPackageProperties).FirstOrDefault();
 
-      BundlePackage bundlePackage = new BundlePackage(packageElement, new PackageContext());
+      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new PackageContext());
+      IBundlePackage bundlePackage = bundlePackageFactory.CreatePackage(packageElement);
 
       Assert.Equal("LAVFilters", bundlePackage.Id);
       Assert.Equal(PackageId.LAVFilters, bundlePackage.PackageId);
@@ -54,6 +55,33 @@ namespace Tests
       Assert.Equal(new Version("0.74.1.0"), bundlePackage.Version);
       Assert.Equal(true, bundlePackage.Optional);
       Assert.Equal(false, bundlePackage.Is64Bit);
+    }
+
+    [Fact]
+    public void Should_ParseBundleMsiPackage()
+    {
+      const string packageXml = @"
+      <root>
+        <WixPackageProperties Package=""MediaPortal2"" Vital=""yes"" DisplayName=""MediaPortal 2"" Description=""MediaPortal 2"" DownloadSize=""195811738"" PackageSize=""195811738"" InstalledSize=""791408691"" PackageType=""Msi"" Permanent=""no"" LogPathVariable=""WixBundleLog_MediaPortal2"" RollbackLogPathVariable=""WixBundleRollbackLog_MediaPortal2"" Compressed=""yes"" DisplayInternalUI=""no"" ProductCode=""{0E70343E-934F-4328-8891-B7BE16F57D78}"" UpgradeCode=""{9743129C-FED3-404A-A66E-3C1557BE0178}"" Version=""2.4.2202.13838"" Cache=""yes"" />
+      </root>";
+
+      XDocument doc = XDocument.Parse(packageXml);
+      const string wixPackageProperties = "WixPackageProperties";
+      XElement packageElement = doc?.Descendants(wixPackageProperties).FirstOrDefault();
+
+      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new PackageContext());
+      IBundleMsiPackage bundlePackage = bundlePackageFactory.CreatePackage(packageElement) as IBundleMsiPackage;
+
+      Assert.NotNull(bundlePackage);
+      Assert.Equal("MediaPortal2", bundlePackage.Id);
+      Assert.Equal(PackageId.MediaPortal2, bundlePackage.PackageId);
+      Assert.Equal("MediaPortal 2", bundlePackage.DisplayName);
+      Assert.Equal("MediaPortal 2", bundlePackage.Description);
+      Assert.Equal(new Version("2.4.2202.13838"), bundlePackage.Version);
+      Assert.Equal(false, bundlePackage.Optional);
+      Assert.Equal(false, bundlePackage.Is64Bit);
+      Assert.Equal(new Guid("0E70343E-934F-4328-8891-B7BE16F57D78"), bundlePackage.ProductCode);
+      Assert.Equal(new Guid("9743129C-FED3-404A-A66E-3C1557BE0178"), bundlePackage.UpgradeCode);
     }
 
     [Fact]
@@ -68,7 +96,8 @@ namespace Tests
       const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
       XElement featureElement = doc?.Descendants(wixPackageFeatureInfo).FirstOrDefault();
 
-      BundlePackageFeature bundlePackageFeature = new BundlePackageFeature(featureElement, new PackageContext());
+      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new PackageContext());
+      IBundlePackageFeature bundlePackageFeature = bundlePackageFactory.CreatePackageFeature(featureElement);
 
       Assert.Equal("MediaPortal2", bundlePackageFeature.Package);
       Assert.Equal(FeatureId.Client, bundlePackageFeature.Id);

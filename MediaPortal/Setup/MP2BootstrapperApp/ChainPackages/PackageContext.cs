@@ -26,7 +26,7 @@ using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.ChainPackages
 {
-  public class PackageContext
+  public class PackageContext : IPackageContext
   {
     private readonly Dictionary<PackageId, IPackage> _packages = new Dictionary<PackageId, IPackage>();
     private readonly IPackageChecker _packageChecker = new PackageChecker();

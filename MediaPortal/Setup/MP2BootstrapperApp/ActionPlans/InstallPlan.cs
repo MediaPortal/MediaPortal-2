@@ -63,10 +63,10 @@ namespace MP2BootstrapperApp.ActionPlans
 
       foreach (IBundlePackage package in packages)
       {
-        if (package.PackageId == _planContext.FeaturePackageId)
+        if (package.PackageId == _planContext.FeaturePackageId && package is IBundleMsiPackage msiPackage)
         {
           package.RequestedInstallState = RequestState.Present;
-          foreach (IBundlePackageFeature feature in package.Features)
+          foreach (IBundlePackageFeature feature in msiPackage.Features)
             feature.RequestedFeatureState = ShouldInstallFeature(feature) ? FeatureState.Local : FeatureState.Absent;
         }
         else
