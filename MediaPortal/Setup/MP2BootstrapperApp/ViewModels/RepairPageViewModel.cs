@@ -32,6 +32,7 @@ namespace MP2BootstrapperApp.ViewModels
       : base(step)
     {
       Header = "Repair installation";
+      SubHeader = "Performs a repair installation";
     }
   }
 }

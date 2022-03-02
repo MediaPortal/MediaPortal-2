@@ -36,6 +36,7 @@ namespace MP2BootstrapperApp.ViewModels
       _actionType = step.ActionType;
 
       Header = "Installation already exists";
+      SubHeader = "Select the action for the existing installation";
     }
 
     public ActionType ActionType
