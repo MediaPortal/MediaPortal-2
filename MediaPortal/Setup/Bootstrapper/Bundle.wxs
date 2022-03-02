@@ -17,7 +17,7 @@
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\BootstrapperCore.config"/>
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Prism.dll"/>
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Prism.Wpf.dll"/>
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\System.Windows.Interactivity.dll"/>
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.Xaml.Behaviors.dll"/>
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.Deployment.WindowsInstaller.dll"/>
 
 
