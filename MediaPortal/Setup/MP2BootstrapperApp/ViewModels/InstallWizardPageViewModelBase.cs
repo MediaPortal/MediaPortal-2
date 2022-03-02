@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
 using Prism.Mvvm;
@@ -110,7 +111,7 @@ namespace MP2BootstrapperApp.ViewModels
       return new Package
       {
         BundleVersion = bundlePackage.Version,
-        InstalledVersion = feature.PreviousVersionInstalled ? bundlePackage.InstalledVersion : new Version(),
+        InstalledVersion = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? bundlePackage.InstalledVersion : new Version(),
         ImagePath = @"..\resources\" + feature.FeatureName + ".png",
         Id = feature.FeatureName,
         DisplayName = feature.Title,
