@@ -34,7 +34,7 @@
       <PackageGroupRef Id="LAVFilters"/>
 
       <RollbackBoundary />
-      <MsiPackage Id="MediaPortal2" SourceFile="..\MP2-Setup\Bin\$(var.Configuration)\en-us\MP2-Setup.msi" EnableFeatureSelection="yes" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="yes" />
+      <PackageGroupRef Id="MediaPortal2"/>
     </Chain>
   </Bundle>
 </Wix>

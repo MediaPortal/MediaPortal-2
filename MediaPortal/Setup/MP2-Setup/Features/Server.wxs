@@ -5,13 +5,13 @@
 
   <Fragment>
 
-    <?include ..\Includes.wxi ?>
+    <?include $(var.SolutionDir)\Includes.wxi?>
 
     <!-- Icon -->
     <Icon Id="SetupTV" SourceFile="$(var.MediaPortal.Server.TargetDir)\Plugins\SlimTV.Service3\SetupTV.ico" />
 
     <!-- Directory definition -->
-    <DirectoryRef Id="TeamMediaPortal.Folder">
+    <DirectoryRef Id="INSTALLDIR">
       <Directory Id="INSTALLDIR_SERVER" Name="MP2-Server" />
     </DirectoryRef>
 

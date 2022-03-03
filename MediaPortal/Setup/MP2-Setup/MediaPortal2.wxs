@@ -4,6 +4,8 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
   <?include $(var.SolutionDir)\VersionInfo.wxi?>
+  <?include $(var.SolutionDir)\Includes.wxi?>
+  
   <!-- This should NEVER be changed ! -->
   <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
 
@@ -24,8 +26,6 @@
 
     <PropertyRef Id="UpgradesFile" />
 
-    <?Include .\Includes.wxi?>
-
     <PropertyRef Id="PropertiesFile" />
     <PropertyRef Id="AddRemovePropertiesFile" />
     <PropertyRef Id="LaunchConditionsFile" />
@@ -45,9 +45,13 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
 
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="TeamMediaPortal.Folder" Name="Team MediaPortal">
-          <!-- An empty Component needed to avoid a bug in Windows Installer -->
-          <Component Id="EmptyComponent_WindowsInstallerBugWorkaround" KeyPath="yes" Guid="4D1E4904-0FB1-44B3-82E1-CFE5F01E6AC3"/>
+        <Directory Id="INSTALLDIR" Name="$(var.Manufacturer)">
+          <Component Id="Product.Registry.InstallDir" Guid="463A7F64-BFB8-4BE1-85F4-D98724884FAF">
+            <RegistryKey Root="HKLM"
+                         Key="Software\[Manufacturer]\[ProductName]">
+              <RegistryValue Type="string" Name="INSTALLDIR" Value="[INSTALLDIR]"/>
+            </RegistryKey>
+          </Component>
         </Directory>
 
       </Directory>
@@ -119,7 +123,7 @@
       <FeatureRef Id="ServiceMonitor" />
       <FeatureRef Id="LogCollector" />
 
-      <ComponentRef Id="EmptyComponent_WindowsInstallerBugWorkaround" />
+      <ComponentRef Id="Product.Registry.InstallDir" />
       <ComponentRef Id="TeamMediaPortal.Data.Folder" />
       <ComponentRef Id="TeamMediaPortal.StartMenu" />
       <ComponentRef Id="MP2.StartMenu" />

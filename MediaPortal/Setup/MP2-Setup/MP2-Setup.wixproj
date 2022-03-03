@@ -27,6 +27,9 @@
     </LinkerAdditionalOptions>
   </PropertyGroup>
   <ItemGroup>
+    <Content Include="..\Includes.wxi">
+      <Link>Includes.wxi</Link>
+    </Content>
     <Content Include="..\VersionInfo.wxi">
       <Link>VersionInfo.wxi</Link>
     </Content>
@@ -46,7 +49,6 @@
     <Compile Include="MediaPortal2.wxs" />
     <Compile Include="UI\MP2_Setup_UI_FeatureTree.wxs" />
     <Compile Include="UI\MP2_Setup_UI_SelectInstallType.wxs" />
-    <Content Include="Includes.wxi" />
     <None Include="MP2-Setup-Logging.bat" />
     <None Include="Resources\MP2_Icon_General.ico" />
     <None Include="Resources\MPBanner.jpg" />

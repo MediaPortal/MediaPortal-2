@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
+     xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
+     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+  <Fragment>
+
+    <?include $(var.SolutionDir)\VersionInfo.wxi?>
+    <?include $(var.SolutionDir)\Includes.wxi?>
+    
+    <Variable Name="INSTALLDIR" bal:Overridable="yes" Value="[ProgramFilesFolder]$(var.Manufacturer)" />
+    
+    <util:RegistrySearch Id="MP2_Install_Path_Exists"
+                         Win64="no"
+                         Root="HKLM"
+                         Key="$(var.RegKeyRoot)"
+                         Value="INSTALLDIR"
+                         Variable="MP2_Install_Path_Exists"
+                         Result="exists"/>
+
+    <util:RegistrySearch Id="MP2_Install_Path"
+                         After="MP2_Install_Path_Exists"
+                         Condition="MP2_Install_Path_Exists"
+                         Win64="no"
+                         Root="HKLM"
+                         Key="$(var.RegKeyRoot)"
+                         Value="INSTALLDIR"
+                         Variable="INSTALLDIR"/>
+    
+    <PackageGroup Id="MediaPortal2">
+      <MsiPackage Id="MediaPortal2"
+                  SourceFile="..\MP2-Setup\Bin\$(var.Configuration)\en-us\MP2-Setup.msi"
+                  EnableFeatureSelection="yes"
+                  DisplayInternalUI="no"
+                  Compressed="yes"
+                  Vital="yes"
+                  Visible="yes">
+        <MsiProperty Name="INSTALLDIR" Value="[INSTALLDIR]"/>
+      </MsiPackage>
+    </PackageGroup>
+  </Fragment>
+</Wix>
