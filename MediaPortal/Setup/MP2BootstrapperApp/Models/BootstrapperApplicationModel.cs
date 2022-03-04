@@ -54,7 +54,12 @@ namespace MP2BootstrapperApp.Models
     }
 
     public IBootstrapperApp BootstrapperApplication { get; }
-   
+
+    public IntPtr WindowHandle
+    {
+      get { return _hwnd; }
+    }
+
     public int FinalResult { get; set; }
 
     public ReadOnlyCollection<IBundlePackage> BundlePackages { get; private set; }
@@ -69,7 +74,7 @@ namespace MP2BootstrapperApp.Models
 
     public void SetWindowHandle(Window view)
     {
-      _hwnd = new WindowInteropHelper(view).Handle;
+      _hwnd = new WindowInteropHelper(view).EnsureHandle();
     }
 
     public void PlanAction(LaunchAction action)
