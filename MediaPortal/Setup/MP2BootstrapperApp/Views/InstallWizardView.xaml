@@ -22,119 +22,119 @@
   </Window.Background>
   <Window.Resources>
     <ResourceDictionary>
-      
-      <ResourceDictionary.MergedDictionaries>        
+
+      <ResourceDictionary.MergedDictionaries>
         <ResourceDictionary Source="../Styles/DataTemplates.xaml" />
       </ResourceDictionary.MergedDictionaries>
 
-    <!-- Our style for the ToggleButton -->
-    <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
-      <!-- Here you can set the initial properties for the control -->
-      <Setter Property="Background" Value="Transparent" />
-      <Setter Property="SnapsToDevicePixels" Value="True" />
+      <!-- Our style for the ToggleButton -->
+      <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
+        <!-- Here you can set the initial properties for the control -->
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
 
-      <!-- Template needs to completely re-writing the standard control -->
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="{x:Type ToggleButton}">
-            <Grid>
-              <!-- Then responsible for the content. In our case it did not really need, because it is set Path -->
-              <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
-              <!-- Our Path. Shows a cross -->
-              <Path x:Name="CloseWindow" SnapsToDevicePixels="True" ToolTip="Close window" Width="12" Height="12" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Fill="#FF919191" Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z " />
-            </Grid>
-            <!-- Trigger fires on the property -->
-            <ControlTemplate.Triggers>
-              <!-- Here change the color when the mouse cursor -->
-              <Trigger Property="IsMouseOver" Value="True">
-                <Setter TargetName="CloseWindow" Property="Fill" Value="#C10000" />
-              </Trigger>
-
-              <!-- Use ToggleButton, because it has a property IsChecked, accessible through the style -->
-              <Trigger Property="IsChecked" Value="True">
-
-              </Trigger>
-            </ControlTemplate.Triggers>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-    </Style>
-
-    <Style TargetType="{x:Type Button}">
-      <Setter Property="Foreground" Value="#D8000000"/>
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="{x:Type Button}">
-            <Label FontSize="22" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{TemplateBinding Foreground}" FontWeight="Bold"
-                   Content="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"/>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-      <Style.Triggers>
-        <Trigger Property="IsMouseOver" Value="True">
-          <Setter Property="Foreground" Value="#FFFFFFFF"/>
-        </Trigger>
-        <Trigger Property="IsEnabled" Value="False">
-          <Setter Property="Visibility" Value="Collapsed" />
-        </Trigger>
-      </Style.Triggers>
-    </Style>
-
-    <Style TargetType="HeaderedContentControl">
-      <Setter Property="Template">
-        <Setter.Value>
-          <ControlTemplate TargetType="{x:Type HeaderedContentControl}">
-            <StackPanel>
-              <Grid Margin="0,-120,-30,60" HorizontalAlignment="Right" Width="500">
-                <Rectangle Stroke="{TemplateBinding Background}"/>
-                <ContentPresenter ContentSource="Header" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-              </Grid>
+        <!-- Template needs to completely re-writing the standard control -->
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type ToggleButton}">
               <Grid>
-                <Rectangle Fill="{TemplateBinding Background}"/>
-                <ContentPresenter ContentSource="Content"/>
+                <!-- Then responsible for the content. In our case it did not really need, because it is set Path -->
+                <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <!-- Our Path. Shows a cross -->
+                <Path x:Name="CloseWindow" SnapsToDevicePixels="True" ToolTip="Close window" Width="12" Height="12" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Fill="#FF919191" Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z " />
               </Grid>
-            </StackPanel>
-          </ControlTemplate>
-        </Setter.Value>
-      </Setter>
-    </Style>
+              <!-- Trigger fires on the property -->
+              <ControlTemplate.Triggers>
+                <!-- Here change the color when the mouse cursor -->
+                <Trigger Property="IsMouseOver" Value="True">
+                  <Setter TargetName="CloseWindow" Property="Fill" Value="#C10000" />
+                </Trigger>
 
-    <ControlTemplate x:Key="HeaderTemplate">
-      <Grid Margin="-500,0,20,15">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="37"/>
-          <RowDefinition Height="25"/>
-        </Grid.RowDefinitions>
-        <TextBlock Grid.Row="0" Text="{Binding Path=CurrentPage.Header}"
+                <!-- Use ToggleButton, because it has a property IsChecked, accessible through the style -->
+                <Trigger Property="IsChecked" Value="True">
+
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+
+      <Style TargetType="{x:Type Button}">
+        <Setter Property="Foreground" Value="#D8000000"/>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type Button}">
+              <Label FontSize="22" VerticalAlignment="Center" HorizontalAlignment="Center" Foreground="{TemplateBinding Foreground}" FontWeight="Bold"
+                   Content="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"/>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+        <Style.Triggers>
+          <Trigger Property="IsMouseOver" Value="True">
+            <Setter Property="Foreground" Value="#FFFFFFFF"/>
+          </Trigger>
+          <Trigger Property="IsEnabled" Value="False">
+            <Setter Property="Visibility" Value="Collapsed" />
+          </Trigger>
+        </Style.Triggers>
+      </Style>
+
+      <Style TargetType="HeaderedContentControl">
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type HeaderedContentControl}">
+              <StackPanel>
+                <Grid Margin="0,-120,-30,60" HorizontalAlignment="Right" Width="500">
+                  <Rectangle Stroke="{TemplateBinding Background}"/>
+                  <ContentPresenter ContentSource="Header" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+                </Grid>
+                <Grid>
+                  <Rectangle Fill="{TemplateBinding Background}"/>
+                  <ContentPresenter ContentSource="Content"/>
+                </Grid>
+              </StackPanel>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+
+      <ControlTemplate x:Key="HeaderTemplate">
+        <Grid Margin="-500,0,20,15">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="37"/>
+            <RowDefinition Height="25"/>
+          </Grid.RowDefinitions>
+          <TextBlock Grid.Row="0" Text="{Binding Path=CurrentPage.Header}"
                    Foreground="White" FontSize="28" TextAlignment="Right"/>
-        <TextBlock Grid.Row="1" Text="{Binding Path=CurrentPage.SubHeader}" Opacity="0.7"
+          <TextBlock Grid.Row="1" Text="{Binding Path=CurrentPage.SubHeader}" Opacity="0.7"
                    Foreground="White" FontSize="16" TextAlignment="Right"/>
-      </Grid>
-    </ControlTemplate>
+        </Grid>
+      </ControlTemplate>
 
-    <VisualBrush x:Key="Background">
-      <VisualBrush.Visual>
-        <Grid>
-          <Image Source="..\resources\background.jpg" Stretch="Fill">
-            <Image.Effect>
-              <BlurEffect Radius="5"/>
-            </Image.Effect>
-            <!--Image.OpacityMask>
+      <VisualBrush x:Key="Background">
+        <VisualBrush.Visual>
+          <Grid>
+            <Image Source="..\resources\background.jpg" Stretch="Fill">
+              <Image.Effect>
+                <BlurEffect Radius="5"/>
+              </Image.Effect>
+              <!--Image.OpacityMask>
                <SolidColorBrush Color="Black" Opacity="0.155"/>
             </Image.OpacityMask-->
-          </Image>
-        </Grid>
-      </VisualBrush.Visual>
-    </VisualBrush>
+            </Image>
+          </Grid>
+        </VisualBrush.Visual>
+      </VisualBrush>
 
-    <VisualBrush x:Key="Banner">
-      <VisualBrush.Visual>
-        <Grid>
-          <Image Source="..\resources\banner.png" Stretch="Fill">
-          </Image>
-        </Grid>
-      </VisualBrush.Visual>
-    </VisualBrush>
+      <VisualBrush x:Key="Banner">
+        <VisualBrush.Visual>
+          <Grid>
+            <Image Source="..\resources\banner.png" Stretch="Fill">
+            </Image>
+          </Grid>
+        </VisualBrush.Visual>
+      </VisualBrush>
 
     </ResourceDictionary>
   </Window.Resources>
@@ -164,7 +164,7 @@
     </Grid>
 
     <Control Template="{StaticResource HeaderTemplate}" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
-    
+
     <HeaderedContentControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" HorizontalContentAlignment="Stretch"
                             Margin="10,40" Width="900" FontSize="26" Foreground="White" Height="200"
                             Content="{Binding Path=CurrentPage}"/>
