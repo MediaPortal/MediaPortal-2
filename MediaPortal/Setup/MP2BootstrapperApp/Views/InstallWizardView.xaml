@@ -63,16 +63,18 @@
       <Style TargetType="{x:Type Button}">
         <Setter Property="Foreground" Value="#D8000000"/>
         <Setter Property="Background" Value="#00000000"/>
+        <Setter Property="FontSize" Value="22"/>
+        <Setter Property="FontWeight" Value="Bold"/>
         <Setter Property="Template">
           <Setter.Value>
             <ControlTemplate TargetType="{x:Type Button}">
               <Label VerticalAlignment="Center" HorizontalAlignment="Center"
                      HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                     Padding="{Binding Path=Padding, RelativeSource={RelativeSource TemplatedParent}}"
-                     Height="{Binding Path=Height, RelativeSource={RelativeSource TemplatedParent}}"
+                     Padding="{TemplateBinding Padding}"
+                     Height="{TemplateBinding Height}"
                      Foreground="{TemplateBinding Foreground}" Background="{TemplateBinding Background}"
-                     FontWeight="Bold" FontSize="22"
-                     Content="{Binding Path=Content, RelativeSource={RelativeSource TemplatedParent}}"/>
+                     FontWeight="{TemplateBinding FontWeight}" FontSize="{TemplateBinding FontSize}"
+                     Content="{TemplateBinding Content}"/>
             </ControlTemplate>
           </Setter.Value>
         </Setter>
