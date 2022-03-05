@@ -31,6 +31,8 @@ namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallCustomPageViewModel : AbstractPackageSelectionViewModel
   {
+    protected bool _isInstallDirectoryValid;
+
     public InstallCustomPageViewModel(InstallCustomStep step)
       : base(step)
     {
@@ -38,16 +40,28 @@ namespace MP2BootstrapperApp.ViewModels
       SubHeader = "Un-/select the packages to install";
 
       BrowseCommand = new DelegateCommand(BrowsePath);
+      IsInstallDirectoryInvalid = !step.IsValidInstallDirectory(step.InstallDirectory);
     }
 
     public string InstallDirectory
     {
       get { return ((InstallCustomStep)_step).InstallDirectory; }
-      set 
-      { 
-        ((InstallCustomStep)_step).InstallDirectory = value;
+      set
+      {
+        InstallCustomStep step = (InstallCustomStep)_step;
+        if (value == step.InstallDirectory)
+          return;
+
+        IsInstallDirectoryInvalid = !step.IsValidInstallDirectory(value);
+        step.InstallDirectory = value;
         RaisePropertyChanged();
       }
+    }
+
+    public bool IsInstallDirectoryInvalid
+    {
+      get { return _isInstallDirectoryValid; }
+      protected set { SetProperty(ref _isInstallDirectoryValid, value); }
     }
 
     public ICommand BrowseCommand { get; }
