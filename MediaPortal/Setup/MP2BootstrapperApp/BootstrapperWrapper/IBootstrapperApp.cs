@@ -80,6 +80,7 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     event EventHandler<ExecutePackageCompleteEventArgs> ExecutePackageComplete;
     event EventHandler<PlanPackageBeginEventArgs> PlanPackageBegin;
     event EventHandler<PlanMsiFeatureEventArgs> PlanMsiFeature;
+    event EventHandler<PlanRelatedBundleEventArgs> PlanRelatedBundle;
     event EventHandler<ResolveSourceEventArgs> ResolveSource;
     event EventHandler<ApplyPhaseCountArgs> ApplyPhaseCount;
     event EventHandler<CacheAcquireProgressEventArgs> CacheAcquireProgress;

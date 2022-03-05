@@ -163,36 +163,6 @@ namespace MP2BootstrapperApp.Models
       InstallState = Hresult.Succeeded(e.Status) ? InstallState.Waiting : InstallState.Failed;
     }
 
-    private void PlanMsiFeature(object sender, PlanMsiFeatureEventArgs e)
-    {
-      if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
-      {
-        IBundleMsiPackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.PackageId == detectedPackageId) as IBundleMsiPackage;
-        IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.FeatureName == e.FeatureId);
-        if (bundleFeature != null)
-          e.State = bundleFeature.RequestedFeatureState;
-      }
-    }
-
-    private void PlanComplete(object sender, PlanCompleteEventArgs e)
-    {
-      if (!Cancelled && Hresult.Succeeded(e.Status))
-      {
-        InstallState = InstallState.Applying;
-        ApplyAction();
-      }
-      else
-      {
-        InstallState = InstallState.Failed;
-      }
-    }
-
-    protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
-    {
-      FinalResult = e.Status;
-      InstallState = Hresult.Succeeded(e.Status) ? InstallState.Applied : InstallState.Failed;
-    }
-
     protected void PlanPackageBegin(object sender, PlanPackageBeginEventArgs planPackageBeginEventArgs)
     {
       UpdatePackageRequestState(planPackageBeginEventArgs);
@@ -219,6 +189,44 @@ namespace MP2BootstrapperApp.Models
       planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
     }
 
+    private void PlanMsiFeature(object sender, PlanMsiFeatureEventArgs e)
+    {
+      if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
+      {
+        IBundleMsiPackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.PackageId == detectedPackageId) as IBundleMsiPackage;
+        IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.FeatureName == e.FeatureId);
+        if (bundleFeature != null)
+          e.State = bundleFeature.RequestedFeatureState;
+      }
+    }
+
+    private void PlanRelatedBundle(object sender, PlanRelatedBundleEventArgs e)
+    {
+      // When installing always remove related bundles, this works around an issue with the Burn engine
+      // not removing installed bundles when installing a different bundle with an identical version number.
+      if (PlannedAction == LaunchAction.Install)
+        e.State = RequestState.Absent;
+    }
+
+    private void PlanComplete(object sender, PlanCompleteEventArgs e)
+    {
+      if (!Cancelled && Hresult.Succeeded(e.Status))
+      {
+        InstallState = InstallState.Applying;
+        ApplyAction();
+      }
+      else
+      {
+        InstallState = InstallState.Failed;
+      }
+    }
+
+    protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
+    {
+      FinalResult = e.Status;
+      InstallState = Hresult.Succeeded(e.Status) ? InstallState.Applied : InstallState.Failed;
+    }
+
     private void ResolveSource(object sender, ResolveSourceEventArgs e)
     {
       if (!string.IsNullOrEmpty(e.DownloadSource))
@@ -242,6 +250,7 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication.ApplyComplete += ApplyComplete;
       BootstrapperApplication.PlanPackageBegin += PlanPackageBegin;
       BootstrapperApplication.PlanMsiFeature += PlanMsiFeature;
+      BootstrapperApplication.PlanRelatedBundle += PlanRelatedBundle;
       BootstrapperApplication.PlanComplete += PlanComplete;
       BootstrapperApplication.ResolveSource += ResolveSource;
     }
