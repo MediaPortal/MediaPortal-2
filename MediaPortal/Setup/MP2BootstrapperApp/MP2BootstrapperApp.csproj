@@ -69,6 +69,8 @@
   <ItemGroup>
     <Compile Include="ActionType.cs" />
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
+    <Compile Include="BootstrapperWrapper\IVariables.cs" />
+    <Compile Include="BootstrapperWrapper\Variables.cs" />
     <Compile Include="ChainPackages\AbstractPackage.cs" />
     <Compile Include="ChainPackages\IPackageContext.cs" />
     <Compile Include="ChainPackages\MediaPortal2.cs" />
