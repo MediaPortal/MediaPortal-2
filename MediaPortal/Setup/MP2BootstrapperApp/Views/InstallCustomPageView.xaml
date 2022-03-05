@@ -4,6 +4,8 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
+             xmlns:viewmodels="clr-namespace:MP2BootstrapperApp.ViewModels"
+             d:DataContext="{d:DesignInstance Type=viewmodels:InstallCustomPageViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
   <Grid>
@@ -118,7 +120,13 @@
       </Style>
     </Grid.Resources>
 
-    <ItemsControl ItemsSource="{Binding Path=Items}">
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="50"/>
+      <RowDefinition Height="auto"/>
+    </Grid.RowDefinitions>
+
+    <ItemsControl Grid.Row="0" ItemsSource="{Binding Path=Items}">
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel />
@@ -129,7 +137,35 @@
           <CheckBox Style="{StaticResource InstallerButton}" IsChecked="{Binding Path=Selected, Mode=TwoWay}"/>
         </DataTemplate>
       </ItemsControl.ItemTemplate>
-    </ItemsControl>    
+    </ItemsControl>
+
+    <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="auto"/>
+        <ColumnDefinition Width="*"/>
+        <ColumnDefinition Width="auto"/>
+      </Grid.ColumnDefinitions>
+
+      <Label Margin="0,0,10,0" Padding="0"
+             Height="{Binding ElementName=InstallDirectoryTextBox, Path=ActualHeight}"
+             Foreground="#66FFFFFF"
+             FontSize="22"
+             Content="Location:" VerticalContentAlignment="Center" />
+
+      <!--Install directory TextBox-->
+      <TextBox x:Name="InstallDirectoryTextBox" Grid.Column="1" HorizontalAlignment="Stretch" Margin="0,0,10,0"
+               Background="#66FFFFFF" Foreground="#D8000000"
+               FontSize="22"
+               Text="{Binding Path=InstallDirectory, Mode=TwoWay}"/>
+
+      <!--Install directory browse button-->
+      <Button Grid.Column="2" Padding="10,0"
+              Height="{Binding ElementName=InstallDirectoryTextBox, Path=ActualHeight}"
+              Background="#66FFFFFF"
+              Content="Browse"
+              Command="{Binding BrowseCommand}"/>
+
+    </Grid>
 
   </Grid>
 </UserControl>

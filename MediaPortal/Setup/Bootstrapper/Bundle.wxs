@@ -19,8 +19,9 @@
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Prism.Wpf.dll"/>
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.Xaml.Behaviors.dll"/>
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.Deployment.WindowsInstaller.dll"/>
-
-
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.WindowsAPICodePack.dll"/>
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.WindowsAPICodePack.Shell.dll"/>
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.WindowsAPICodePack.ShellExtensions.dll"/>
     </BootstrapperApplicationRef>
 
     <!-- Needed for the ManagedBootstrapperApplicationHost-->

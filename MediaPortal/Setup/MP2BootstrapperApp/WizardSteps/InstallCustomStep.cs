@@ -23,6 +23,7 @@
 #endregion
 
 using MP2BootstrapperApp.ActionPlans;
+using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using System;
@@ -32,14 +33,39 @@ using System.Linq;
 namespace MP2BootstrapperApp.WizardSteps
 {
   /// <summary>
-  /// Custom install step that provides optional packages and features that can be indiviually selected for installation.
+  /// Custom install step that provides optional packages and features that can be individually selected for installation.
   /// </summary>
   public class InstallCustomStep : AbstractPackageSelectionStep
   {
+    const string INSTALLDIR = "INSTALLDIR";
     private static readonly Version ZERO_VERSION = new Version();
+    protected string _installDirectory;
 
     public InstallCustomStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
       : base(bootstrapperApplicationModel)
+    {
+      SetSelectedPackages();
+      _installDirectory = GetInstallDirectory();
+    }
+
+    public string InstallDirectory
+    {
+      get { return _installDirectory; }
+      set { _installDirectory = value; }
+    }
+
+    public override IStep Next()
+    {
+      IEnumerable<FeatureId> features = SelectedFeatures.Select(f => f.Id);
+      IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.PackageId);
+
+      InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
+      plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);
+
+      return new InstallOverviewStep(_bootstrapperApplicationModel);
+    }
+
+    protected void SetSelectedPackages()
     {
       bool isPreviousVersionInstalled = AvailableFeatures.Any(f => f.PreviousVersionInstalled);
       if (isPreviousVersionInstalled)
@@ -56,15 +82,13 @@ namespace MP2BootstrapperApp.WizardSteps
       }
     }
 
-    public override IStep Next()
+    protected string GetInstallDirectory()
     {
-      IEnumerable<FeatureId> features = SelectedFeatures.Select(f => f.Id);
-      IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.PackageId);
-
-      InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
-      plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);
-
-      return new InstallOverviewStep(_bootstrapperApplicationModel);
+      IBootstrapperApp bootstrapperApplication = _bootstrapperApplicationModel.BootstrapperApplication;
+      if (!bootstrapperApplication.StringVariables.Contains(INSTALLDIR))
+        return null;
+      string installDirectory = bootstrapperApplication.StringVariables[INSTALLDIR];
+      return bootstrapperApplication.FormatString(installDirectory);
     }
   }
 }

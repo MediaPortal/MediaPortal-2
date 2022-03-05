@@ -22,7 +22,10 @@
 
 #endregion
 
+using Microsoft.WindowsAPICodePack.Dialogs;
 using MP2BootstrapperApp.WizardSteps;
+using Prism.Commands;
+using System.Windows.Input;
 
 namespace MP2BootstrapperApp.ViewModels
 {
@@ -33,6 +36,31 @@ namespace MP2BootstrapperApp.ViewModels
     {
       Header = "Custom installation";
       SubHeader = "Un-/select the packages to install";
+
+      BrowseCommand = new DelegateCommand(BrowsePath);
+    }
+
+    public string InstallDirectory
+    {
+      get { return ((InstallCustomStep)_step).InstallDirectory; }
+      set 
+      { 
+        ((InstallCustomStep)_step).InstallDirectory = value;
+        RaisePropertyChanged();
+      }
+    }
+
+    public ICommand BrowseCommand { get; }
+
+    protected void BrowsePath()
+    {
+      using (CommonOpenFileDialog fileDialog = new CommonOpenFileDialog())
+      {
+        fileDialog.IsFolderPicker = true;
+        fileDialog.InitialDirectory = InstallDirectory;
+        if (fileDialog.ShowDialog(((InstallCustomStep)_step).BootstrapperApplicationModel.WindowHandle) == CommonFileDialogResult.Ok)
+          InstallDirectory = fileDialog.FileName;
+      }
     }
   }
 }

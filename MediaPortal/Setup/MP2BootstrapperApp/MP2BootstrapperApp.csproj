@@ -356,6 +356,9 @@
     <Resource Include="Resources\VC2019_x64.png" />
   </ItemGroup>
   <ItemGroup>
+    <PackageReference Include="Microsoft-WindowsAPICodePack-ShellExtensions">
+      <Version>1.1.4</Version>
+    </PackageReference>
     <PackageReference Include="Prism.Wpf">
       <Version>8.1.97</Version>
     </PackageReference>
