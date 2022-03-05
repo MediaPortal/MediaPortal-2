@@ -88,27 +88,21 @@
         </Style.Triggers>
       </Style>
 
-      <Style TargetType="HeaderedContentControl">
+      <Style x:Key="PageContentStyle" TargetType="ContentControl">
         <Setter Property="Template">
           <Setter.Value>
-            <ControlTemplate TargetType="{x:Type HeaderedContentControl}">
-              <StackPanel>
-                <Grid Margin="0,-120,-30,60" HorizontalAlignment="Right" Width="500">
-                  <Rectangle Stroke="{TemplateBinding Background}"/>
-                  <ContentPresenter ContentSource="Header" VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
-                </Grid>
-                <Grid>
-                  <Rectangle Fill="{TemplateBinding Background}"/>
-                  <ContentPresenter ContentSource="Content"/>
-                </Grid>
-              </StackPanel>
+            <ControlTemplate TargetType="{x:Type ContentControl}">
+              <Grid>
+                <Rectangle Fill="{TemplateBinding Background}"/>
+                <ContentPresenter ContentSource="Content"/>
+              </Grid>
             </ControlTemplate>
           </Setter.Value>
         </Setter>
       </Style>
 
       <ControlTemplate x:Key="HeaderTemplate">
-        <Grid Margin="-500,0,20,15">
+        <Grid Margin="0,0,20,15">
           <Grid.RowDefinitions>
             <RowDefinition Height="37"/>
             <RowDefinition Height="25"/>
@@ -173,9 +167,9 @@
 
     <Control Template="{StaticResource HeaderTemplate}" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
 
-    <HeaderedContentControl Grid.Column="0" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Center" HorizontalContentAlignment="Stretch"
-                            Margin="10,40" Width="900" FontSize="26" Foreground="White" Height="200"
-                            Content="{Binding Path=CurrentPage}"/>
+    <ContentControl Grid.Column="0" Grid.Row="1" Style="{StaticResource PageContentStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Margin="50,40" FontSize="26" Foreground="White"
+                    Content="{Binding Path=CurrentPage}"/>
 
     <Grid Grid.Column="0" Grid.Row="2" Height="45" Background="#66FFFFFF">
       <Grid.ColumnDefinitions>

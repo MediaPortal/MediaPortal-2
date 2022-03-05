@@ -13,7 +13,6 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
-      <RowDefinition Height="110"/>
     </Grid.RowDefinitions>
 
     <TextBox Opacity="0.6" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" SelectionBrush="{x:Null}" BorderBrush="{x:Null}" HorizontalContentAlignment="Stretch" BorderThickness="0" Focusable="False"  VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Margin="0,0,0,30"
