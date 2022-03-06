@@ -69,6 +69,9 @@ namespace MP2BootstrapperApp.WizardSteps
       IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.PackageId);
 
       InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
+      if (IsValidInstallDirectory(_installDirectory))
+        plan.SetVariable(INSTALLDIR, _installDirectory);
+
       return new InstallOverviewStep(_bootstrapperApplicationModel, plan);
     }
 
