@@ -67,6 +67,8 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActionPlans\SimplePlan.cs" />
+    <Compile Include="ActionPlans\ModifyPlan.cs" />
     <Compile Include="ActionType.cs" />
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
     <Compile Include="BootstrapperWrapper\IVariables.cs" />
@@ -110,6 +112,7 @@
     <Compile Include="InstallType.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
     <Compile Include="Models\Package.cs" />
+    <Compile Include="Utils\PathUtils.cs" />
     <Compile Include="ViewModels\AbstractPackageSelectionViewModel.cs" />
     <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
@@ -220,6 +223,10 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Styles\ControlStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Styles\DataTemplates.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

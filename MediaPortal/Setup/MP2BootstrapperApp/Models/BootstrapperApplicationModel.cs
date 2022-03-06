@@ -24,6 +24,7 @@
 
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.ChainPackages;
 using System;
@@ -66,7 +67,7 @@ namespace MP2BootstrapperApp.Models
 
     public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 
-    public LaunchAction PlannedAction { get; set; } = LaunchAction.Unknown;
+    public IPlan ActionPlan { get; set; }
 
     public InstallState InstallState { get; set; } = InstallState.Initializing;
 
@@ -77,11 +78,14 @@ namespace MP2BootstrapperApp.Models
       _hwnd = new WindowInteropHelper(view).EnsureHandle();
     }
 
-    public void PlanAction(LaunchAction action)
+    public void PlanAction(IPlan actionPlan)
     {
+      if (actionPlan == null)
+        throw new ArgumentNullException(nameof(actionPlan), $"{nameof(PlanAction)} cannot be called with a null IPlan");
+
       InstallState = InstallState.Planning;
-      PlannedAction = action;
-      BootstrapperApplication.Plan(action);
+      ActionPlan = actionPlan;
+      BootstrapperApplication.Plan(actionPlan.PlannedAction);
     }
 
     public void ApplyAction()
@@ -181,12 +185,9 @@ namespace MP2BootstrapperApp.Models
         return;
       }
 
-      // Don't override the BA's default state when uninstalling, let it use
-      // the appropriate state based on the packages' current install state.
-      if (PlannedAction == LaunchAction.Uninstall)
-        return;
-
-      planPackageBeginEventArgs.State = bundlePackage.RequestedInstallState;
+      RequestState? requestState = ActionPlan.GetRequestedInstallState(bundlePackage);
+      if (requestState.HasValue)
+        planPackageBeginEventArgs.State = requestState.Value;
     }
 
     private void PlanMsiFeature(object sender, PlanMsiFeatureEventArgs e)
@@ -196,7 +197,11 @@ namespace MP2BootstrapperApp.Models
         IBundleMsiPackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.PackageId == detectedPackageId) as IBundleMsiPackage;
         IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.FeatureName == e.FeatureId);
         if (bundleFeature != null)
-          e.State = bundleFeature.RequestedFeatureState;
+        {
+          FeatureState? featureState = ActionPlan.GetRequestedInstallState(bundleFeature);
+          if (featureState.HasValue)
+            e.State = featureState.Value;
+        }
       }
     }
 
@@ -204,7 +209,7 @@ namespace MP2BootstrapperApp.Models
     {
       // When installing always remove related bundles, this works around an issue with the Burn engine
       // not removing installed bundles when installing a different bundle with an identical version number.
-      if (PlannedAction == LaunchAction.Install)
+      if (ActionPlan.PlannedAction == LaunchAction.Install)
         e.State = RequestState.Absent;
     }
 

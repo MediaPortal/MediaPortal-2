@@ -26,6 +26,7 @@ using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
+using MP2BootstrapperApp.Utils;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,15 +55,21 @@ namespace MP2BootstrapperApp.WizardSteps
       set { _installDirectory = value; }
     }
 
+    public bool IsValidInstallDirectory(string path)
+    {
+      return PathUtils.IsValidAbsoluteDirectoryPath(path);
+    }
+
     public override IStep Next()
     {
+      if (!IsValidInstallDirectory(_installDirectory))
+        return null;
+
       IEnumerable<FeatureId> features = SelectedFeatures.Select(f => f.Id);
       IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.PackageId);
 
       InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
-      plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);
-
-      return new InstallOverviewStep(_bootstrapperApplicationModel);
+      return new InstallOverviewStep(_bootstrapperApplicationModel, plan);
     }
 
     protected void SetSelectedPackages()

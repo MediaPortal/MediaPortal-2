@@ -24,7 +24,10 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
+using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
@@ -37,10 +40,14 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      RepairPlan plan = new RepairPlan(new PlanContext());
-      plan.SetRequestedInstallStates(BootstrapperApplicationModel.BundlePackages);
+      PlanContext planContext = new PlanContext();
+      // Get the currently installed features.
+      IBundleMsiPackage featurePackage = _bootstrapperApplicationModel.BundlePackages.FirstOrDefault(p => p.PackageId == planContext.FeaturePackageId) as IBundleMsiPackage;
+      IEnumerable<FeatureId> installedFeatures = featurePackage?.Features.Where(f => f.Optional && f.CurrentFeatureState == FeatureState.Local).Select(f => f.Id);
 
-      _bootstrapperApplicationModel.PlanAction(LaunchAction.Repair);
+      RepairPlan plan = new RepairPlan(installedFeatures, planContext);
+
+      _bootstrapperApplicationModel.PlanAction(plan);
       _bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "Starting repair");
       return new InstallationInProgressStep(_bootstrapperApplicationModel);
     }

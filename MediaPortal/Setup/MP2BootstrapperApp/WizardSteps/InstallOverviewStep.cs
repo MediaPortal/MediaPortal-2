@@ -23,20 +23,29 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.Models;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
   public class InstallOverviewStep : AbstractInstallStep, IStep
   {
-    public InstallOverviewStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
+    protected IPlan _actionPlan;
+
+    public InstallOverviewStep(IBootstrapperApplicationModel bootstrapperApplicationModel, IPlan actionPlan)
       : base(bootstrapperApplicationModel)
     {
+      _actionPlan = actionPlan;
+    }
+
+    public IPlan ActionPlan
+    {
+      get { return _actionPlan; }
     }
 
     public IStep Next()
     {
-      _bootstrapperApplicationModel.PlanAction(LaunchAction.Install);
+      _bootstrapperApplicationModel.PlanAction(_actionPlan);
       _bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "starting installation");
       return new InstallationInProgressStep(_bootstrapperApplicationModel);
     }

@@ -23,6 +23,7 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
@@ -140,7 +141,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     private void GoToFinishStep()
     {
-      LaunchAction action = _bootstrapperApplicationModel.PlannedAction;
+      LaunchAction action = _bootstrapperApplicationModel.ActionPlan.PlannedAction;
       IStep finishStep;
       if (action == LaunchAction.Uninstall)
         finishStep = new UninstallFinishStep();
@@ -189,7 +190,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         if (display != Display.Full)
         {
-          _bootstrapperApplicationModel.PlanAction(launchAction);
+          _bootstrapperApplicationModel.PlanAction(new SimplePlan(launchAction));
           GoToStep(new InstallationInProgressStep(_bootstrapperApplicationModel));
         }
         else
@@ -228,7 +229,7 @@ namespace MP2BootstrapperApp.ViewModels
       // Notably this will be the case when being uninstalled by a later bundle that's currently upgrading.
       if (display != Display.Full)
       {
-        _bootstrapperApplicationModel.PlanAction(launchAction);
+        _bootstrapperApplicationModel.PlanAction(new SimplePlan(launchAction));
         GoToStep(new InstallationInProgressStep(_bootstrapperApplicationModel));
         return;
       }

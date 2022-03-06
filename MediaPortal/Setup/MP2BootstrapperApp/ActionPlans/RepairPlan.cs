@@ -27,7 +27,6 @@ using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MP2BootstrapperApp.ActionPlans
 {
@@ -36,51 +35,50 @@ namespace MP2BootstrapperApp.ActionPlans
   /// </summary>
   public class RepairPlan : IPlan
   {
+    protected ISet<PackageId> _excludedPackages;
     protected IPlanContext _planContext;
 
     /// <summary>
     /// Creates a new instance of <see cref="RepairPlan"/>.
     /// </summary>
+    /// <param name="installedFeatures">The currently installed features.</param>
     /// <param name="planContext">The context to use when determining the appropriate dependencies to repair or reinstall.</param>
-    public RepairPlan(IPlanContext planContext)
+    public RepairPlan(IEnumerable<FeatureId> installedFeatures, IPlanContext planContext)
     {
       _planContext = planContext;
-    }
-
-    public void SetRequestedInstallStates(IEnumerable<IBundlePackage> packages)
-    {
-      // Get the currently installed features.
-      IBundleMsiPackage featurePackage = packages.FirstOrDefault(p => p.PackageId == _planContext.FeaturePackageId) as IBundleMsiPackage;
-      IEnumerable<FeatureId> installedFeatures = featurePackage?.Features.Where(f => f.Optional && f.CurrentFeatureState == FeatureState.Local).Select(f => f.Id);
 
       // Get the packages that are not required to be installed.
-      HashSet<PackageId> excludedPackages = new HashSet<PackageId>(_planContext.GetExcludedPackagesForFeatures(installedFeatures));
+      _excludedPackages = new HashSet<PackageId>(planContext.GetExcludedPackagesForFeatures(installedFeatures));
+    }
 
-      foreach (IBundlePackage package in packages)
+    public LaunchAction PlannedAction
+    {
+      get { return LaunchAction.Repair; }
+    }
+
+    public RequestState? GetRequestedInstallState(IBundlePackage package)
+    {
+      // If a package is installed, then request a repair.
+      if (package.CurrentInstallState == PackageState.Present)
       {
-        // If a package is installed, then request a repair.
-        if (package.CurrentInstallState == PackageState.Present)
-        {
-          package.RequestedInstallState = RequestState.Repair;
-        }
-        // If not installed and not required, then do nothing
-        else if (excludedPackages.Contains(package.PackageId) || package.Optional || (package.Is64Bit && !Environment.Is64BitOperatingSystem))
-        {
-          package.RequestedInstallState = RequestState.None;
-        }
-        // Else, required package is not installed, so [re]install
-        else
-        {
-          package.RequestedInstallState = RequestState.Present;
-        }
-
-        // Ensure that features keep their current installation state.
-        if (package.PackageId == _planContext.FeaturePackageId && package is IBundleMsiPackage msiPackage)
-        {
-          foreach (IBundlePackageFeature feature in msiPackage.Features)
-            feature.RequestedFeatureState = feature.CurrentFeatureState;
-        }
+        return RequestState.Repair;
       }
+      // If not installed and not required, then do nothing
+      else if (_excludedPackages.Contains(package.PackageId) || package.Optional || (package.Is64Bit && !Environment.Is64BitOperatingSystem))
+      {
+        return RequestState.None;
+      }
+      // Else, required package is not installed, so [re]install
+      else
+      {
+        return RequestState.Present;
+      }
+    }
+
+    public FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
+    {
+      // Ensure that features keep their current installation state.
+      return feature.CurrentFeatureState;
     }
   }
 }

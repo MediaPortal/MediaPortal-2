@@ -28,27 +28,34 @@ using MP2BootstrapperApp.Models;
 namespace MP2BootstrapperApp.ActionPlans
 {
   /// <summary>
-  /// Interface for a class that can set package install states for a particular planned action.
+  /// Implementation of <see cref="IPlan"/> that plans a specified action and does not override the default requested state for packages.
   /// </summary>
-  public interface IPlan
+  public class SimplePlan : IPlan
   {
-    /// <summary>
-    /// Gets the action that should be planned.
-    /// </summary>
-    LaunchAction PlannedAction { get; }
+    protected LaunchAction _plannedAction;
 
     /// <summary>
-    /// Gets the requested install state of a package.
+    /// Creates a new instance of <see cref="SimplePlan"/>.
     /// </summary>
-    /// <param name="package">The package to get the requested install state of.</param>
-    /// <returns>The requested <see cref="RequestState"/> of the package or <c>null</c> if the default <see cref="RequestState"/> should be used.</returns>
-    RequestState? GetRequestedInstallState(IBundlePackage package);
+    /// <param name="plannedAction">The action to plan.</param>
+    public SimplePlan(LaunchAction plannedAction)
+    {
+      _plannedAction = plannedAction;
+    }
 
-    /// <summary>
-    /// Gets the requested install state of a feature.
-    /// </summary>
-    /// <param name="feature">The feature to get the requested install state of. </param>
-    /// <returns>The requested <see cref="FeatureState"/> of the feature or <c>null</c> if the default <see cref="FeatureState"/> should be used.</returns>
-    FeatureState? GetRequestedInstallState(IBundlePackageFeature feature);
+    public LaunchAction PlannedAction
+    {
+      get { return _plannedAction; }
+    }
+
+    public RequestState? GetRequestedInstallState(IBundlePackage package)
+    {
+      return null;
+    }
+
+    public FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
+    {
+      return null;
+    }
   }
 }

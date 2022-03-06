@@ -48,7 +48,7 @@ namespace MP2BootstrapperApp.ViewModels
       _bootstrapperModel = step.BootstrapperApplicationModel;
       _currentAction = DEFAULT_ACTION;
 
-      Header = GetHeaderForAction(_bootstrapperModel.PlannedAction);
+      Header = GetHeaderForAction(_bootstrapperModel.ActionPlan.PlannedAction);
     }
 
     public int Progress

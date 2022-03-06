@@ -23,6 +23,7 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using System;
 using System.Collections.ObjectModel;
@@ -59,7 +60,7 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// The action that has been planned.
     /// </summary>
-    LaunchAction PlannedAction { get; }
+    IPlan ActionPlan { get; }
 
     /// <summary>
     /// The current state of the bootstrapper application.
@@ -85,8 +86,8 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// Plans the specified action and applies it if the plan was successful.
     /// </summary>
-    /// <param name="action"></param>
-    void PlanAction(LaunchAction action);
+    /// <param name="actionPlan"></param>
+    void PlanAction(IPlan actionPlan);
 
     /// <summary>
     /// Logs the specified message to the setup's log file.

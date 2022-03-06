@@ -58,9 +58,7 @@ namespace MP2BootstrapperApp.WizardSteps
       }
 
       InstallPlan plan = new InstallPlan(features, null, new PlanContext());
-      plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);
-
-      return new InstallOverviewStep(_bootstrapperApplicationModel);
+      return new InstallOverviewStep(_bootstrapperApplicationModel, plan);
     }
 
     public bool CanGoNext()

@@ -23,6 +23,7 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.Models;
 
 namespace MP2BootstrapperApp.WizardSteps
@@ -45,7 +46,7 @@ namespace MP2BootstrapperApp.WizardSteps
     
     public IStep Next()
     {
-      _bootstrapperApplicationModel.PlanAction(LaunchAction.Uninstall);
+      _bootstrapperApplicationModel.PlanAction(new SimplePlan(LaunchAction.Uninstall));
       _bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "starting uninstallation");
       return new InstallationInProgressStep(_bootstrapperApplicationModel);
     }

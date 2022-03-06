@@ -37,6 +37,7 @@ namespace MP2BootstrapperApp.ActionPlans
   {
     protected ISet<FeatureId> _plannedFeatures;
     protected ISet<PackageId> _plannedOptionalPackages;
+    protected ISet<PackageId> _excludedPackages;
     protected IPlanContext _planContext;
 
     /// <summary>
@@ -50,30 +51,23 @@ namespace MP2BootstrapperApp.ActionPlans
       _plannedFeatures = plannedFeatures != null ? new HashSet<FeatureId>(plannedFeatures) : new HashSet<FeatureId>();
       _plannedOptionalPackages = plannedOptionalPackages != null ? new HashSet<PackageId>(plannedOptionalPackages) : null;
       _planContext = planContext;
+      // Get the packages that are not dependencies of the features to install.
+      _excludedPackages = new HashSet<PackageId>(planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
     }
 
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    /// <param name="packages"><inheritdoc/></param>
-    public void SetRequestedInstallStates(IEnumerable<IBundlePackage> packages)
+    public virtual LaunchAction PlannedAction
     {
-      // Get the packages that are not dependencies of the features to install.
-      ISet<PackageId> excludedPackages = new HashSet<PackageId>(_planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
+      get { return LaunchAction.Install; }
+    }
 
-      foreach (IBundlePackage package in packages)
-      {
-        if (package.PackageId == _planContext.FeaturePackageId && package is IBundleMsiPackage msiPackage)
-        {
-          package.RequestedInstallState = RequestState.Present;
-          foreach (IBundlePackageFeature feature in msiPackage.Features)
-            feature.RequestedFeatureState = ShouldInstallFeature(feature) ? FeatureState.Local : FeatureState.Absent;
-        }
-        else
-        {
-          package.RequestedInstallState = ShouldInstallPackage(package, excludedPackages) ? RequestState.Present : RequestState.None;
-        }
-      }
+    public virtual RequestState? GetRequestedInstallState(IBundlePackage package)
+    {
+      return ShouldInstallPackage(package, _excludedPackages) ? RequestState.Present : RequestState.None;
+    }
+
+    public virtual FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
+    {
+      return ShouldInstallFeature(feature) ? FeatureState.Local : FeatureState.Absent;
     }
 
     /// <summary>

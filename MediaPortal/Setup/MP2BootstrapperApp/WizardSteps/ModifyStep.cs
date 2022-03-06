@@ -45,10 +45,9 @@ namespace MP2BootstrapperApp.WizardSteps
       IEnumerable<FeatureId> features = SelectedFeatures.Select(f => f.Id);
       IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.PackageId);
 
-      InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
-      plan.SetRequestedInstallStates(_bootstrapperApplicationModel.BundlePackages);
+      ModifyPlan plan = new ModifyPlan(features, packages, new PlanContext());
 
-      _bootstrapperApplicationModel.PlanAction(LaunchAction.Modify);
+      _bootstrapperApplicationModel.PlanAction(plan);
       _bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "Starting modify");
       return new InstallationInProgressStep(_bootstrapperApplicationModel);
     }

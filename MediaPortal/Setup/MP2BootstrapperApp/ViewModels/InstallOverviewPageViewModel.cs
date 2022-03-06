@@ -23,6 +23,7 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
@@ -41,22 +42,22 @@ namespace MP2BootstrapperApp.ViewModels
       SubHeader = "Below packages will be installed";
 
       Packages = new ObservableCollection<Package>();
-      AddPackages(step.BootstrapperApplicationModel.BundlePackages);
+      AddPackages(step.BootstrapperApplicationModel.BundlePackages, step.ActionPlan);
     }
 
     public ObservableCollection<Package> Packages { get; }
 
-    protected void AddPackages(IEnumerable<IBundlePackage> bundlePackages)
+    protected void AddPackages(IEnumerable<IBundlePackage> bundlePackages, IPlan plan)
     {
       foreach (IBundlePackage bundlePackage in bundlePackages)
       {
-        if (bundlePackage.RequestedInstallState == RequestState.Present)
+        if (plan.GetRequestedInstallState(bundlePackage) == RequestState.Present)
         {
           if (bundlePackage.PackageId == PackageId.MediaPortal2 && bundlePackage is IBundleMsiPackage msiPackage)
           {
             foreach (IBundlePackageFeature feature in msiPackage.Features)
             {
-              if (feature.Optional && feature.RequestedFeatureState == FeatureState.Local)
+              if (feature.Optional && plan.GetRequestedInstallState(feature) == FeatureState.Local)
                 Packages.Add(CreatePackageFeature(bundlePackage, feature));
             }
           }
