@@ -33,7 +33,7 @@ namespace MP2BootstrapperApp.ActionPlans
   /// <summary>
   /// Implementation of <see cref="IPlan"/> that can request the repair of specified features, and either repair their dependencies or reinstall missing dependencies.
   /// </summary>
-  public class RepairPlan : IPlan
+  public class RepairPlan : SimplePlan
   {
     protected ISet<PackageId> _excludedPackages;
     protected IPlanContext _planContext;
@@ -44,6 +44,7 @@ namespace MP2BootstrapperApp.ActionPlans
     /// <param name="installedFeatures">The currently installed features.</param>
     /// <param name="planContext">The context to use when determining the appropriate dependencies to repair or reinstall.</param>
     public RepairPlan(IEnumerable<FeatureId> installedFeatures, IPlanContext planContext)
+      : base(LaunchAction.Repair)
     {
       _planContext = planContext;
 
@@ -51,12 +52,7 @@ namespace MP2BootstrapperApp.ActionPlans
       _excludedPackages = new HashSet<PackageId>(planContext.GetExcludedPackagesForFeatures(installedFeatures));
     }
 
-    public LaunchAction PlannedAction
-    {
-      get { return LaunchAction.Repair; }
-    }
-
-    public RequestState? GetRequestedInstallState(IBundlePackage package)
+    public override RequestState? GetRequestedInstallState(IBundlePackage package)
     {
       // If a package is installed, then request a repair.
       if (package.CurrentInstallState == PackageState.Present)
@@ -75,7 +71,7 @@ namespace MP2BootstrapperApp.ActionPlans
       }
     }
 
-    public FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
+    public override FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
     {
       // Ensure that features keep their current installation state.
       return feature.CurrentFeatureState;

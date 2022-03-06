@@ -24,6 +24,8 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.Models;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MP2BootstrapperApp.ActionPlans
 {
@@ -33,6 +35,7 @@ namespace MP2BootstrapperApp.ActionPlans
   public class SimplePlan : IPlan
   {
     protected LaunchAction _plannedAction;
+    protected IDictionary<string, object> _variables;
 
     /// <summary>
     /// Creates a new instance of <see cref="SimplePlan"/>.
@@ -41,21 +44,32 @@ namespace MP2BootstrapperApp.ActionPlans
     public SimplePlan(LaunchAction plannedAction)
     {
       _plannedAction = plannedAction;
+      _variables = new Dictionary<string, object>();
     }
 
-    public LaunchAction PlannedAction
+    public virtual LaunchAction PlannedAction
     {
       get { return _plannedAction; }
     }
 
-    public RequestState? GetRequestedInstallState(IBundlePackage package)
+    public virtual RequestState? GetRequestedInstallState(IBundlePackage package)
     {
       return null;
     }
 
-    public FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
+    public virtual FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
     {
       return null;
+    }
+
+    public virtual void SetVariable(string name, object value)
+    {
+      _variables[name] = value;
+    }
+
+    public virtual IEnumerable<KeyValuePair<string, object>> GetVariables()
+    {
+      return _variables.ToArray();
     }
   }
 }

@@ -33,7 +33,7 @@ namespace MP2BootstrapperApp.ActionPlans
   /// <summary>
   /// Implementation of <see cref="IPlan"/> that can request the install of specified features, specified optional packages, and their dependencies.
   /// </summary>
-  public class InstallPlan : IPlan
+  public class InstallPlan : SimplePlan
   {
     protected ISet<FeatureId> _plannedFeatures;
     protected ISet<PackageId> _plannedOptionalPackages;
@@ -47,6 +47,7 @@ namespace MP2BootstrapperApp.ActionPlans
     /// <param name="plannedOptionalPackages">The optional packages to install, or <c>null</c> if not explicitly selecting optional packages.</param>
     /// <param name="planContext">The context to use when determining the appropriate dependencies to install.</param>
     public InstallPlan(IEnumerable<FeatureId> plannedFeatures, IEnumerable<PackageId> plannedOptionalPackages, IPlanContext planContext)
+      : base(LaunchAction.Install)
     {
       _plannedFeatures = plannedFeatures != null ? new HashSet<FeatureId>(plannedFeatures) : new HashSet<FeatureId>();
       _plannedOptionalPackages = plannedOptionalPackages != null ? new HashSet<PackageId>(plannedOptionalPackages) : null;
@@ -55,17 +56,12 @@ namespace MP2BootstrapperApp.ActionPlans
       _excludedPackages = new HashSet<PackageId>(planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
     }
 
-    public virtual LaunchAction PlannedAction
-    {
-      get { return LaunchAction.Install; }
-    }
-
-    public virtual RequestState? GetRequestedInstallState(IBundlePackage package)
+    public override RequestState? GetRequestedInstallState(IBundlePackage package)
     {
       return ShouldInstallPackage(package, _excludedPackages) ? RequestState.Present : RequestState.None;
     }
 
-    public virtual FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
+    public override FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
     {
       return ShouldInstallFeature(feature) ? FeatureState.Local : FeatureState.Absent;
     }

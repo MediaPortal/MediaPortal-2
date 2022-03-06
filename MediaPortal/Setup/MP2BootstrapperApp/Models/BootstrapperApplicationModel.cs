@@ -33,6 +33,7 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
+using System.Security;
 using System.Windows;
 using System.Windows.Interop;
 using System.Xml.Linq;
@@ -85,6 +86,7 @@ namespace MP2BootstrapperApp.Models
 
       InstallState = InstallState.Planning;
       ActionPlan = actionPlan;
+      SetVariables(actionPlan.GetVariables());
       BootstrapperApplication.Plan(actionPlan.PlannedAction);
     }
 
@@ -97,6 +99,23 @@ namespace MP2BootstrapperApp.Models
     public void LogMessage(LogLevel logLevel, string message)
     {
       BootstrapperApplication.Log(logLevel, message);
+    }
+
+    protected void SetVariables(IEnumerable<KeyValuePair<string, object>> variables)
+    {
+      foreach (KeyValuePair<string, object> variable in variables)
+      {
+        if (variable.Value is SecureString secureStringValue)
+          BootstrapperApplication.SecureStringVariables[variable.Key] = secureStringValue;
+        else if (variable.Value is string stringValue)
+          BootstrapperApplication.StringVariables[variable.Key] = stringValue;
+        else if (variable.Value is Version versionValue)
+          BootstrapperApplication.VersionVariables[variable.Key] = versionValue;
+        else if (variable.Value is long numericValue)
+          BootstrapperApplication.NumericVariables[variable.Key] = numericValue;
+        else
+          LogMessage(LogLevel.Error, $"Unable to set variable {variable.Key}, variables of type {variable.Value?.GetType().Name ?? "null"} are not supported");
+      }
     }
 
     private void DetectBegin(object sender, DetectBeginEventArgs e)

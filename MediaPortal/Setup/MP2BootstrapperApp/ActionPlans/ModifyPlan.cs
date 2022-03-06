@@ -43,11 +43,7 @@ namespace MP2BootstrapperApp.ActionPlans
     public ModifyPlan(IEnumerable<FeatureId> plannedFeatures, IEnumerable<PackageId> plannedOptionalPackages, IPlanContext planContext)
       : base(plannedFeatures, plannedOptionalPackages, planContext)
     {
-    }
-
-    public override LaunchAction PlannedAction
-    {
-      get { return LaunchAction.Modify; }
+      _plannedAction = LaunchAction.Modify;
     }
 
     public override RequestState? GetRequestedInstallState(IBundlePackage package)

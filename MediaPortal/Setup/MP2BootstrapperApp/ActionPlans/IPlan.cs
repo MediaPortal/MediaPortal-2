@@ -24,11 +24,12 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.Models;
+using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.ActionPlans
 {
   /// <summary>
-  /// Interface for a class that can set package install states for a particular planned action.
+  /// Interface for a class that can get package install states and install variables for a particular planned action.
   /// </summary>
   public interface IPlan
   {
@@ -50,5 +51,18 @@ namespace MP2BootstrapperApp.ActionPlans
     /// <param name="feature">The feature to get the requested install state of. </param>
     /// <returns>The requested <see cref="FeatureState"/> of the feature or <c>null</c> if the default <see cref="FeatureState"/> should be used.</returns>
     FeatureState? GetRequestedInstallState(IBundlePackageFeature feature);
+
+    /// <summary>
+    /// Sets a variable that will be passed to the installation engine when this plan is actioned.
+    /// </summary>
+    /// <param name="name">The name of the variable.</param>
+    /// <param name="value">The value of the variable.</param>
+    void SetVariable(string name, object value);
+
+    /// <summary>
+    /// Gets all variables that have been set by a call to <see cref="SetVariable(string, object)"/>.
+    /// </summary>
+    /// <returns>Enumeration of variables.</returns>
+    IEnumerable<KeyValuePair<string, object>> GetVariables();
   }
 }

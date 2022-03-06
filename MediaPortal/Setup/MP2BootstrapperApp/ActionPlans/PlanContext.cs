@@ -68,7 +68,7 @@ namespace MP2BootstrapperApp.ActionPlans
     /// <returns><inheritdoc/></returns>
     public IEnumerable<PackageId> GetExcludedPackagesForFeatures(IEnumerable<FeatureId> features)
     {
-      if (features == null)
+      if (features == null || features.Count() == 0)
         return new List<PackageId>();
       return features.Select(f => GetExcludedPackagesForFeature(f)).Aggregate((p1, p2) => p1.Intersect(p2));
     }

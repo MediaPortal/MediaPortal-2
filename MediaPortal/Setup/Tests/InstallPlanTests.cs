@@ -36,6 +36,22 @@ namespace Tests
   public class InstallPlanTests
   {
     [Fact]
+    void Should_InstallPlanPlannedAction_Return_Install()
+    {
+      InstallPlan plan = new InstallPlan(null, null, new PlanContext());
+
+      Assert.Equal(LaunchAction.Install, plan.PlannedAction);
+    }
+
+    [Fact]
+    void Should_ModifyPlanPlannedAction_Return_Modify()
+    {
+      ModifyPlan plan = new ModifyPlan(null, null, new PlanContext());
+
+      Assert.Equal(LaunchAction.Modify, plan.PlannedAction);
+    }
+
+    [Fact]
     void Should_IncludeNonOptionalFeatures()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());

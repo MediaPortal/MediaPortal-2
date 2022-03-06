@@ -36,6 +36,14 @@ namespace Tests
   public class RepairPlanTests
   {
     [Fact]
+    void Should_RepairPlanPlannedAction_Return_Repair()
+    {
+      RepairPlan plan = new RepairPlan(null, new PlanContext());
+
+      Assert.Equal(LaunchAction.Repair, plan.PlannedAction);
+    }
+
+    [Fact]
     void Should_PreserveFeatureStates()
     {
       FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
