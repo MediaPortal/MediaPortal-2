@@ -51,19 +51,20 @@ namespace MP2BootstrapperApp.ViewModels
     {
       foreach (IBundlePackage bundlePackage in bundlePackages)
       {
-        if (plan.GetRequestedInstallState(bundlePackage) == RequestState.Present)
+        RequestState? requestState = plan.GetRequestedInstallState(bundlePackage);
+        if (requestState == RequestState.Present)
         {
           if (bundlePackage.PackageId == PackageId.MediaPortal2 && bundlePackage is IBundleMsiPackage msiPackage)
           {
             foreach (IBundlePackageFeature feature in msiPackage.Features)
             {
               if (feature.Optional && plan.GetRequestedInstallState(feature) == FeatureState.Local)
-                Packages.Add(CreatePackageFeature(bundlePackage, feature));
+                Packages.Add(CreatePackageFeature(bundlePackage, feature, requestState));
             }
           }
           else
           {
-            Packages.Add(CreatePackage(bundlePackage));
+            Packages.Add(CreatePackage(bundlePackage, requestState));
           }
         }
       }

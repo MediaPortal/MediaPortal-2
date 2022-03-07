@@ -91,7 +91,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     }
 
-    protected Package CreatePackage(IBundlePackage bundlePackage)
+    protected Package CreatePackage(IBundlePackage bundlePackage, RequestState? requestState = null)
     {
       return new Package
       {
@@ -102,11 +102,11 @@ namespace MP2BootstrapperApp.ViewModels
         DisplayName = bundlePackage.DisplayName,
         Description = bundlePackage.Description,
         PackageState = bundlePackage.CurrentInstallState,
-        RequestState = bundlePackage.RequestedInstallState
+        RequestState = requestState ?? RequestState.None
       };
     }
 
-    protected Package CreatePackageFeature(IBundlePackage bundlePackage, IBundlePackageFeature feature)
+    protected Package CreatePackageFeature(IBundlePackage bundlePackage, IBundlePackageFeature feature, RequestState? requestState = null)
     {
       return new Package
       {
@@ -117,7 +117,7 @@ namespace MP2BootstrapperApp.ViewModels
         DisplayName = feature.Title,
         Description = feature.Description,
         PackageState = bundlePackage.CurrentInstallState,
-        RequestState = bundlePackage.RequestedInstallState
+        RequestState = requestState ?? RequestState.None
       };
     }
   }

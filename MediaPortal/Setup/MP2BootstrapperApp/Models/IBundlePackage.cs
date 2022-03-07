@@ -77,10 +77,5 @@ namespace MP2BootstrapperApp.Models
     /// Gets or sets the current install state of the package.
     /// </summary>
     PackageState CurrentInstallState { get; set; }
-
-    /// <summary>
-    /// Gets or sets the requested install state of the package.
-    /// </summary>
-    RequestState RequestedInstallState { get; set; }
   }
 }

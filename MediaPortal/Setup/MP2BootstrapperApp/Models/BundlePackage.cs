@@ -140,10 +140,5 @@ namespace MP2BootstrapperApp.Models
     /// <inheritdoc/>
     /// </summary>
     public PackageState CurrentInstallState { get; set; }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public RequestState RequestedInstallState { get; set; }
   }
 }
