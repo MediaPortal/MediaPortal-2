@@ -223,7 +223,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <Page Include="Styles\ControlStyles.xaml">
+    <Page Include="Styles\ButtonStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\TextStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

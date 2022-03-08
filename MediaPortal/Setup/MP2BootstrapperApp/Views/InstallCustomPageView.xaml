@@ -13,7 +13,8 @@
       <ResourceDictionary>
 
         <ResourceDictionary.MergedDictionaries>
-          <ResourceDictionary Source="../Styles/ControlStyles.xaml" />
+          <ResourceDictionary Source="../Styles/TextStyles.xaml" />
+          <ResourceDictionary Source="../Styles/ButtonStyles.xaml" />
         </ResourceDictionary.MergedDictionaries>
 
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -193,10 +194,9 @@
              Visibility="{Binding Path=IsInstallDirectoryInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
       <!--Install directory browse button-->
-      <Button Grid.Column="3" Padding="10,0"
+      <Button Grid.Column="3" Padding="10,0" Style="{StaticResource ContentButtonStyle}"
               Height="{Binding ElementName=InstallDirectoryTextBox, Path=ActualHeight}"
               FontSize="18" FontWeight="Normal"
-              Background="#20FFFFFF" Foreground="#80FFFFFF"
               Content="Browse"
               Command="{Binding BrowseCommand}"/>
 
