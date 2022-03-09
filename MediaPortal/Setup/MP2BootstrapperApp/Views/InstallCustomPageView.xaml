@@ -57,32 +57,19 @@
              FontSize="18"
              Content="Location:" VerticalContentAlignment="Center" Grid.ColumnSpan="2" />
 
-      <!--Install directory TextBox-->
-      <TextBox x:Name="InstallDirectoryTextBox" Grid.Column="2" HorizontalAlignment="Stretch" Margin="0,0,10,0"
-               Background="#20FFFFFF"
-               FontSize="18" CaretBrush="White" BorderThickness="2"
-               Text="{Binding Path=InstallDirectory, Mode=TwoWay}">
-        <TextBox.Style>
-          <Style TargetType="{x:Type TextBox}" BasedOn="{StaticResource {x:Type TextBox}}">
-            <Setter Property="BorderBrush" Value="#00000000"/>
-            <Setter Property="Foreground" Value="#80FFFFFF"/>
-            <Style.Triggers>
-              <DataTrigger Binding="{Binding IsInstallDirectoryInvalid}" Value="True">
-                <Setter Property="BorderBrush" Value="Red"/>
-              </DataTrigger>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter Property="Foreground" Value="#FFFFFFFF"/>
-              </Trigger>
-            </Style.Triggers>
-          </Style>
-        </TextBox.Style>
-      </TextBox>
+      <!--Shows the ValidationTextBoxTemplate which is a textbox that shows a border if the value is invalid-->
+      <ContentControl x:Name="InstallDirectoryTextBox" Grid.Column="2"
+                      HorizontalAlignment="Stretch"
+                      Margin="0,0,10,0"
+                      FontSize="18"
+                      ContentTemplate="{StaticResource ValidationTextBoxTemplate}"
+                      Content="{Binding InstallDirectory}"/>
 
       <Label Grid.Row="1" Grid.Column="2"
              Foreground="#80FFFFFF"
              FontSize="16"
              Content="The specified install location is invalid"
-             Visibility="{Binding Path=IsInstallDirectoryInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+             Visibility="{Binding Path=InstallDirectory.IsInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
       <!--Install directory browse button-->
       <Button Grid.Column="3" Padding="10,0" Style="{StaticResource ContentButtonStyle}"

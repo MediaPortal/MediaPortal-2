@@ -31,37 +31,29 @@ namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallCustomPageViewModel : AbstractPackageSelectionViewModel
   {
-    protected bool _isInstallDirectoryValid;
+    protected PropertyValidationViewModel<string> _installDirectory;
 
     public InstallCustomPageViewModel(InstallCustomStep step)
       : base(step)
     {
+      _installDirectory = new PropertyValidationViewModel<string>(step.IsValidInstallDirectory);
+      _installDirectory.Value = step.InstallDirectory;
+      _installDirectory.PropertyChanged += InstallDirectoryChanged;
+
       Header = "Custom installation";
       SubHeader = "Un-/select the packages to install";
-
       BrowseCommand = new DelegateCommand(BrowsePath);
-      IsInstallDirectoryInvalid = !step.IsValidInstallDirectory(step.InstallDirectory);
     }
 
-    public string InstallDirectory
+    private void InstallDirectoryChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
-      get { return ((InstallCustomStep)_step).InstallDirectory; }
-      set
-      {
-        InstallCustomStep step = (InstallCustomStep)_step;
-        if (value == step.InstallDirectory)
-          return;
-
-        IsInstallDirectoryInvalid = !step.IsValidInstallDirectory(value);
-        step.InstallDirectory = value;
-        RaisePropertyChanged();
-      }
+      if (e.PropertyName == nameof(_installDirectory.Value))
+        ((InstallCustomStep)_step).InstallDirectory = _installDirectory.Value;
     }
 
-    public bool IsInstallDirectoryInvalid
+    public PropertyValidationViewModel<string> InstallDirectory
     {
-      get { return _isInstallDirectoryValid; }
-      protected set { SetProperty(ref _isInstallDirectoryValid, value); }
+      get { return _installDirectory; }
     }
 
     public ICommand BrowseCommand { get; }
@@ -71,9 +63,9 @@ namespace MP2BootstrapperApp.ViewModels
       using (CommonOpenFileDialog fileDialog = new CommonOpenFileDialog())
       {
         fileDialog.IsFolderPicker = true;
-        fileDialog.InitialDirectory = InstallDirectory;
+        fileDialog.InitialDirectory = InstallDirectory.Value;
         if (fileDialog.ShowDialog(((InstallCustomStep)_step).BootstrapperApplicationModel.WindowHandle) == CommonFileDialogResult.Ok)
-          InstallDirectory = fileDialog.FileName;
+          InstallDirectory.Value = fileDialog.FileName;
       }
     }
   }
