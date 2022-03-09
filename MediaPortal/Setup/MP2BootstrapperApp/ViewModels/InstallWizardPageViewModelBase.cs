@@ -116,7 +116,7 @@ namespace MP2BootstrapperApp.ViewModels
         Id = feature.FeatureName,
         DisplayName = feature.Title,
         Description = feature.Description,
-        PackageState = bundlePackage.CurrentInstallState,
+        PackageState = feature.CurrentFeatureState == FeatureState.Local ? PackageState.Present : PackageState.Absent,
         RequestState = requestState ?? RequestState.None
       };
     }

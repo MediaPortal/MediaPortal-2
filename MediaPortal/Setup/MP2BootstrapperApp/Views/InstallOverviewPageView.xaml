@@ -7,7 +7,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
   <UserControl.Resources>
-    <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../Styles/PackageStyles.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+    </ResourceDictionary>
   </UserControl.Resources>
 
   <Grid>
@@ -18,73 +22,12 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-    <ItemsControl ItemsSource="{Binding Path=Packages}">
+    <ItemsControl ItemsSource="{Binding Path=Packages}" ItemTemplate="{StaticResource PackageDataTemplate}">
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel />
         </ItemsPanelTemplate>
       </ItemsControl.ItemsPanel>
-      <ItemsControl.ItemTemplate>
-        <DataTemplate>
-          <Grid Height="90" Width="140" Margin="5" Background="#20FFFFFF">
-
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-
-            <!--Package marker bar-->
-            <Border Grid.Row="0" VerticalAlignment="Top" HorizontalAlignment="Stretch" Height="5" BorderThickness="0">
-              <Border.Effect>
-                <DropShadowEffect Opacity="0.25" Direction="270" ShadowDepth="2"/>
-              </Border.Effect>
-              <Border.Style>
-                <Style TargetType="{x:Type Border}">
-                  <Style.Triggers>
-                    <DataTrigger Binding="{Binding Id}" Value="Client">
-                      <Setter Property="Border.Background" Value="#E8641B" />
-                    </DataTrigger>
-                    <DataTrigger Binding="{Binding Id}" Value="Server">
-                      <Setter Property="Border.Background" Value="#FFFFFF" />
-                    </DataTrigger>
-                    <DataTrigger Binding="{Binding Id}" Value="ServiceMonitor">
-                      <Setter Property="Border.Background" Value="#A2B8A4" />
-                    </DataTrigger>
-                    <DataTrigger Binding="{Binding Id}" Value="LogCollector">
-                      <Setter Property="Border.Background" Value="#7C7C7C" />
-                    </DataTrigger>
-                  </Style.Triggers>
-                </Style>
-              </Border.Style>
-            </Border>
-
-            <!--Icon-->
-            <Image Grid.Row="0" Source="{Binding ImagePath}" />
-
-            <!--Installed version-->
-            <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="0,-10,0,-5">
-              <Label FontSize="9" Foreground="White" Content="Installed: " Opacity="0.4"/>
-              <Label FontSize="9" Foreground="White" Content="{Binding InstalledVersion}" Opacity="0.4"/>
-            </StackPanel>
-
-            <!--Bundled version-->
-            <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,-5,0,0">
-              <Label FontSize="9" Foreground="White" Content="Bundled: " Opacity="0.4"/>
-              <Label FontSize="9" Foreground="White" Content="{Binding BundleVersion}" Opacity="0.4"/>
-            </StackPanel>
-
-            <!--Install/upgrade indicators-->
-            <Image x:Name="InstallingIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                   Width="20" Height="20" Margin="0,0,3,3" Source="..\resources\present.png" 
-                   Visibility="{Binding Path=Installing, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-            <Image x:Name="UpgradingIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-                   Width="20" Height="20" Margin="0,0,3,3" Source="..\resources\update.png"
-                   Visibility="{Binding Path=Upgrading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-
-          </Grid>
-        </DataTemplate>
-      </ItemsControl.ItemTemplate>
     </ItemsControl>
   </Grid>
 </UserControl>
