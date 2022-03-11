@@ -15,8 +15,8 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <TextBox Opacity="0.6" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" SelectionBrush="{x:Null}" BorderBrush="{x:Null}" HorizontalContentAlignment="Stretch" BorderThickness="0" Focusable="False"  VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Margin="0,0,0,30"
-             Text="MediaPortal 2 is a full-blown media center software that addresses most common user requirements out of the box. Aside from its support for Live TV and Radio, it offers a complete media server for music, movies, and series. Info is automatically downloaded from various sources to provide posters, fanart, album art, and various additional metadata, such as cast, staff, and more. MediaPortal 2 also provides access to online video sources. Integrated news, weather information and management for your digital images complete this software package."/>
+    <TextBlock Opacity="0.6" HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" Foreground="White" Margin="0,0,0,30"
+               Text="MediaPortal 2 is a full-blown media center software that addresses most common user requirements out of the box. Aside from its support for Live TV and Radio, it offers a complete media server for music, movies, and series. Info is automatically downloaded from various sources to provide posters, fanart, album art, and various additional metadata, such as cast, staff, and more. MediaPortal 2 also provides access to online video sources. Integrated news, weather information and management for your digital images complete this software package."/>
 
     <CheckBox x:Name="LicenceAgreed" HorizontalAlignment="Center" FontSize="16" Foreground="White" Margin="10" Opacity="1"
               VerticalAlignment="Center" Grid.Row="1" IsChecked="{Binding Path=LicenceAgreed, Mode=TwoWay}">
