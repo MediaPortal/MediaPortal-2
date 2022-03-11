@@ -40,7 +40,6 @@
 		############################################################################################################################################################
 	-->
 
-
   <ControlTemplate x:Key="GenericVideoOSDProgressControl">
     <DockPanel LastChildFill="true" Margin="3">
       <Grid DockPanel.Dock="Center" HorizontalAlignment="Stretch">
@@ -175,19 +174,24 @@
 
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipBack}"
-                          Command="{Command Previous}"/>
+                            Command="{Command Previous}"/>
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
-                          Command="{Command SeekBackward}"/>
-                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                          Command="{Command Play}"/>
-                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                          Command="{Command Pause}"/>
+                            Command="{Command SeekBackward}"/>
+                    <Button x:Name="PlayPauseButton" Margin="{ThemeResource PlayerControlButtonMargins}" Style="{ThemeResource PlayPauseButtonStyle}" 
+                            Command="{Command TogglePause}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                          <Binding Path="CanPlay"/>
+                          <Binding Path="CanPause"/>
+                        </MultiBinding>
+                      </Button.IsVisible>
+                    </Button>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
-                          Command="{Command Stop}"/>
+                            Command="{Command Stop}"/>
                     <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
-                          Command="{Command SeekForward}"/>
+                            Command="{Command SeekForward}"/>
                     <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
-                          Command="{Command Next}"/>
+                            Command="{Command Next}"/>
                   </StackPanel>
 
                   <StackPanel x:Name="PlayControlsPanel_Back" DockPanel.Dock="Right" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
@@ -295,10 +299,15 @@
                             Command="{Command Previous}"/>
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="0" IsVisible="{Binding CanSeekBackward}"
                             Command="{Command SeekBackward}"/>
-                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="0" IsVisible="{Binding CanPlay}"
-                            Command="{Command Play}"/>
-                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="0" IsVisible="{Binding CanPause}"
-                            Command="{Command Pause}"/>
+                    <Button x:Name="PlayPauseButton" Margin="{ThemeResource PlayerControlButtonMargins}" Style="{ThemeResource PlayPauseButtonStyle}" 
+                            Command="{Command TogglePause}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                          <Binding Path="CanPlay"/>
+                          <Binding Path="CanPause"/>
+                        </MultiBinding>
+                      </Button.IsVisible>
+                    </Button>
                     <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSeekForward}"
                             Command="{Command SeekForward}"/>
                     <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}"
@@ -403,10 +412,15 @@
                             Command="{Command Previous}"/>
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                             Command="{Command SeekBackward}"/>
-                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                            Command="{Command Play}"/>
-                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                            Command="{Command Pause}"/>
+                    <Button x:Name="PlayPauseButton" Margin="{ThemeResource PlayerControlButtonMargins}" Style="{ThemeResource PlayPauseButtonStyle}" 
+                            Command="{Command TogglePause}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                          <Binding Path="CanPlay"/>
+                          <Binding Path="CanPause"/>
+                        </MultiBinding>
+                      </Button.IsVisible>
+                    </Button>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
                             Command="{Command Stop}"/>
                     <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
@@ -491,8 +505,15 @@
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" DockPanel.Dock="Left"  VerticalAlignment="Center" HorizontalAlignment="Left">
                 <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="0" IsVisible="{Binding CanStop}" Command="{Command Stop}"/>
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="0" IsVisible="{Binding CanSkipBack}" Command="{Command Previous}"/>
-                <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}" Command="{Command Play}"/>
-                <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}" Command="{Command Pause}"/>
+                <Button x:Name="PlayPauseButton" Margin="{ThemeResource PlayerControlButtonMargins}" Style="{ThemeResource PlayPauseButtonStyle}" 
+                            Command="{Command TogglePause}">
+                  <Button.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                      <Binding Path="CanPlay"/>
+                      <Binding Path="CanPause"/>
+                    </MultiBinding>
+                  </Button.IsVisible>
+                </Button>
                 <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}" Command="{Command Next}"/>
               </StackPanel>
 
@@ -616,10 +637,15 @@
                         IsVisible="{Binding CanSkipBack}" Command="{Command Previous}"/>
                 <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                         IsVisible="{Binding CanSeekBackward}" Command="{Command SeekBackward}"/>
-                <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                        IsVisible="{Binding CanPlay}" Command="{Command Play}"/>
-                <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
-                        IsVisible="{Binding CanPause}" Command="{Command Pause}"/>
+                <Button x:Name="PlayPauseButton" Margin="{ThemeResource PlayerControlButtonMargins}" Style="{ThemeResource PlayPauseButtonStyle}" 
+                            Command="{Command TogglePause}">
+                  <Button.IsVisible>
+                    <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                      <Binding Path="CanPlay"/>
+                      <Binding Path="CanPause"/>
+                    </MultiBinding>
+                  </Button.IsVisible>
+                </Button>
                 <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
                         IsVisible="{Binding CanStop}" Command="{Command Stop}"/>
                 <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
@@ -1473,7 +1499,7 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                        IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
                        IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"
@@ -1493,7 +1519,7 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                        IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
                 <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
                        FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
@@ -1514,7 +1540,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <Image Source="HomeContentIcons\genre.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,0,1" 
+          <Image Source="HomeContentIcons\genre.png" Height="25" Width="25" Stretch="Uniform"  
                  VerticalAlignment="Center" IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
           <Label Grid.Column="1" x:Name="Genre" FontSize="{ThemeResource SmallerFontSize}" TextTrimming="WordEllipsis" Margin="5,0,30,0"
                  Opacity="0.6" Color="{ThemeResource TextColor}" VerticalAlignment="Center">
@@ -1527,7 +1553,7 @@
           </Label>
         </Grid>
         <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Margin="0,7,0,-7">
-          <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,0,1"
+          <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" 
                  VerticalAlignment="Center" HorizontalAlignment="Left"/>
           <StackPanel Orientation="Horizontal" Margin="30,0,0,0" VerticalAlignment="Center">
             <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Seasons}" VerticalAlignment="Center"
@@ -1870,7 +1896,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,5,1"
+                <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" Margin="0,0,5,0"
                        IsVisible="{Binding Path=Episodes,Converter={StaticResource ReferenceToBoolConverter}}"
                        VerticalAlignment="Center" HorizontalAlignment="Left"/>
 
@@ -2197,7 +2223,7 @@
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
 
-          <Image x:Name="SeriesIcon" Source="HomeContentIcons\series.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+          <Image x:Name="SeriesIcon" Source="HomeContentIcons\series.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                  IsVisible="{Binding Path=EpisodeNumber,Converter={StaticResource ReferenceToBoolConverter}}"/>
           <StackPanel Orientation="Horizontal" Grid.Column="1" VerticalAlignment="Center">
             <Label FontSize="{ThemeResource SmallerFontSize}" Content="S" VerticalAlignment="Center"
@@ -2227,7 +2253,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                        IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
                 <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
                        IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
@@ -2249,7 +2275,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                        IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
                 <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
                        FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
@@ -2278,7 +2304,7 @@
                 </Grid.ColumnDefinitions>
 
                 <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
-                       IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,-1,0,1"/>
+                       IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" />
                 <Label x:Name="Duration" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
                        IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0"
                        Grid.Column="1" VerticalAlignment="Center">
@@ -2746,7 +2772,7 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                        IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
                        IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"
@@ -2769,7 +2795,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                    IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 <Label x:Name="Duration" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
                    IsVisible="{Binding Path=Runtime,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0"
@@ -2793,7 +2819,7 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                        IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
                 <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
                        FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
@@ -2815,7 +2841,7 @@
             <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
-          <Image Source="HomeContentIcons\genre.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,0,1" 
+          <Image Source="HomeContentIcons\genre.png" Height="25" Width="25" Stretch="Uniform"  
                  VerticalAlignment="Center" IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
           <Label Grid.Column="1" x:Name="Genre" FontSize="{ThemeResource SmallerFontSize}" TextTrimming="WordEllipsis" Margin="5,0,0,0"
                  Opacity="0.6" Color="{ThemeResource TextColor}" VerticalAlignment="Center">
@@ -3375,7 +3401,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                      IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
                      Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" 
@@ -3397,7 +3423,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                      IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
                      FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
@@ -3423,7 +3449,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="DurationIcon" Source="HomeContentIcons\duration.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 <Label x:Name="Duration" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
                      IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,30,0"
@@ -3648,7 +3674,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                    IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
                    Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"
@@ -3670,7 +3696,7 @@
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
 
-                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                    IsVisible="{Binding Path=TotalRating,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
                    FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
@@ -3695,7 +3721,7 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Image x:Name="TrackIcon" Source="HomeContentIcons\track.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="TrackIcon" Source="HomeContentIcons\track.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                        IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}"/>
                 <StackPanel Grid.Column="1" Orientation="Horizontal" DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}"
                             IsVisible="{Binding Path=Tracks,Converter={StaticResource ReferenceToBoolConverter}}" Margin="5,0,0,0" VerticalAlignment="Center">
@@ -3711,7 +3737,7 @@
         </media:AudioAlbumAspectWrapper>
         
         <Grid IsVisible="{Binding ElementName=Genre, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}" Margin="0,8,0,-8">
-          <Image Source="HomeContentIcons\audiogenre.png" Height="25" Width="25" Stretch="Uniform" Margin="0,-1,5,1" 
+          <Image Source="HomeContentIcons\audiogenre.png" Height="25" Width="25" Stretch="Uniform" Margin="0,0,5,0" 
                  VerticalAlignment="Center" HorizontalAlignment="Left"/>
           <Label x:Name="Genre" FontSize="{ThemeResource SmallerFontSize}" TextTrimming="WordEllipsis" 
                  Color="{ThemeResource TextColor}" Opacity="0.6" Margin="30,0,0,0" VerticalAlignment="Center">
@@ -3990,7 +4016,7 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+                <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
                        IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
                 <Label x:Name="Year" FontSize="{ThemeResource SmallerFontSize}" Grid.Column="1" Margin="5,0,30,0" Opacity="0.6" VerticalAlignment="Center"
                        IsVisible="{Binding ElementName=Year, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
@@ -4009,7 +4035,7 @@
                   <ColumnDefinition Width="Auto"/>
                   <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Image x:Name="ResolutionIcon" Source="HomeContentIcons\resolution.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,5,1"
+                <Image x:Name="ResolutionIcon" Source="HomeContentIcons\resolution.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,0,5,0"
                        IsVisible="{Binding ElementName=Height, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
                 <Label Content="{Binding AspectWidth}" Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Opacity="0.6"/>
                 <Label Content=" x " Grid.Column="2" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
