@@ -37,7 +37,7 @@
 
     <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}"
           IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}">
-      <Image Source="HomeContentIcons\category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+      <Image Source="HomeContentIcons\category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0"
              IsVisible="{Binding Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"
              VerticalAlignment="Center" HorizontalAlignment="Left"/>
       <StackPanel Orientation="Horizontal">
@@ -55,7 +55,7 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                 IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}">
-            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0"
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"
                    Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center" Margin="40,0,0,0"

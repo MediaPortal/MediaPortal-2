@@ -29,7 +29,7 @@
 
     <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel}}"
           IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}">
-      <Image Source="HomeContentIcons\category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+      <Image Source="HomeContentIcons\category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0"
              IsVisible="{Binding Path=NumItems,Converter={StaticResource ReferenceToBoolConverter}}"
              VerticalAlignment="Center" HorizontalAlignment="Left"/>
       <StackPanel Orientation="Horizontal">
@@ -53,7 +53,7 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0"
                    VerticalAlignment="Center" HorizontalAlignment="Left" IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"/>
             <Label x:Name="Year" Grid.Column="1" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"
                    Color="{ThemeResource TextColorForeground}" VerticalAlignment="Center" Margin="5,0,0,0" IsVisible="{Binding Path=RecordingTime,Converter={StaticResource ReferenceToBoolConverter}}"

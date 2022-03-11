@@ -86,7 +86,7 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                 IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0"
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Label x:Name="ProgramStart" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"
                    Content="{Binding Path=StartTime, Converter={StaticResource SlimTvDateFormatConverter}}" />
@@ -106,7 +106,7 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="1,-1,4,1"
+            <Image Source="HomeContentIcons\duration.png" Height="26" Width="26" Stretch="Uniform" Margin="0,0,5,0"
                    VerticalAlignment="Center" HorizontalAlignment="Left" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}"/>
             <StackPanel Orientation="Horizontal" Grid.Column="1" IsVisible="{Binding Path=Duration,Converter={StaticResource ReferenceToBoolConverter}}" >
               <Label x:Name="Duration" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="5,0,0,0" VerticalAlignment="Center">
@@ -137,7 +137,7 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                 IsVisible="{Binding ElementName=Channel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-            <Image Source="HomeContentIcons\channel.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+            <Image Source="HomeContentIcons\channel.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0"
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Label x:Name="Channel" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0"
                    Content="{Binding Channel}" />

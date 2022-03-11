@@ -34,7 +34,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+      <Image x:Name="YearIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
              IsVisible="{Binding Path=Year,Converter={StaticResource ReferenceToBoolConverter}}"/>
       <Label x:Name="Year" Grid.Column="1" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
              IsVisible="{Binding Path=Year,Converter={StaticResource ReferenceToBoolConverter}}"
@@ -49,7 +49,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+      <Image x:Name="RatingIcon" Source="HomeContentIcons\Star.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
              IsVisible="{Binding ElementName=RatingCountLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
       <Label x:Name="RatingCountLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1"
              FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"
@@ -84,7 +84,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
-      <Image x:Name="DeveloperIcon" Source="HomeContentIcons\Brand.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" Margin="0,-1,0,1"
+      <Image x:Name="DeveloperIcon" Source="HomeContentIcons\Brand.png" Stretch="Uniform" Height="25" VerticalAlignment="Center" 
              IsVisible="{Binding ElementName=DeveloperLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"/>
       <Label x:Name="DeveloperLabel" Margin="5,0,30,0" VerticalAlignment="Center" Grid.Column="1" Content="{Binding Developer}"
              FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Opacity="0.6"

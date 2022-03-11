@@ -1062,20 +1062,6 @@
     <Content Include="Skin\Nereus\themes\default\styles\Buttons.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Nereus\fonts\eurof55.ttf" />
-    <Content Include="Skin\Nereus\fonts\EuroFurence.desc" />
-    <Content Include="Skin\Nereus\fonts\mayatypeui.desc" />
-    <Content Include="Skin\Nereus\fonts\mayatypelight.ttf" />
-    <Content Include="Skin\Nereus\fonts\mayatypeui.ttf" />
-    <Content Include="Skin\Nereus\fonts\mayatypeuitvg.ttf" />
-    <Content Include="Skin\Nereus\fonts\RitzyNormal.desc" />
-    <Content Include="Skin\Nereus\fonts\RitzyNormal.ttf" />
-    <Content Include="Skin\Nereus\fonts\SansBetween.desc" />
-    <Content Include="Skin\Nereus\fonts\SansBetween.ttf" />
-    <Content Include="Skin\Nereus\fonts\SketchyTimes.desc" />
-    <Content Include="Skin\Nereus\fonts\SketchyTimes.ttf" />
-    <None Include="Skin\Nereus\fonts\seguisb.ttf" />
-    <Content Include="Skin\Nereus\fonts\seguisb.desc" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingMovieDetails.inc" />
     <Content Include="Skin\Nereus\screens\MediaItemListPersonDetails.inc">
       <SubType>Designer</SubType>
@@ -1323,6 +1309,10 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
+    <None Include="Skin\Nereus\fonts\NotoSansDisplay-Regular.desc" />
+    <None Include="Skin\Nereus\fonts\NotoSansDisplay-Regular.ttf" />
+    <None Include="Skin\Nereus\fonts\NotoSansDisplay-SemiBold.desc" />
+    <None Include="Skin\Nereus\fonts\NotoSansDisplay-SemiBold.ttf" />
     <None Include="Skin\Nereus\themes\default\styles\VirtualKeyboardStyle_fr.xaml">
       <SubType>Designer</SubType>
     </None>

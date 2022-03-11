@@ -172,7 +172,7 @@
                   <Binding ElementName="ScheduleList" Path="ItemsCount" />
                 </MultiBinding>
               </Grid.IsVisible>
-              <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+              <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="TypeLabel" Content="{Binding ScheduleSeriesMode}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0">
                 <Label.Content>
@@ -188,7 +188,7 @@
             </Grid>
 
             <Grid Grid.Row="3" IsVisible="{Binding ElementName=ScheduleTypeLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-              <Image Source="HomeContentIcons\recording.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+              <Image Source="HomeContentIcons\recording.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="ScheduleTypeLabel" Content="{Binding ScheduleType}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
             </Grid>
@@ -201,14 +201,14 @@
                   <Binding Source="EveryTimeOnEveryChannel"/>
                 </MultiBinding>
               </Grid.IsVisible>
-              <Image Source="HomeContentIcons\channel.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+              <Image Source="HomeContentIcons\channel.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
                      IsVisible="{Binding Path=ChannelName, Converter={StaticResource EmptyStringToFalseConverter}}"
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="ChannelLabel" Content="{Binding ChannelName}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
             </Grid>
 
             <Grid Grid.Row="5" IsVisible="{Binding ElementName=GenreLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-              <Image Source="HomeContentIcons\genre.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+              <Image Source="HomeContentIcons\genre.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label x:Name="GenreLabel" Content="{Binding  Path=CurrentProgram.Genre}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
             </Grid>
@@ -223,7 +223,7 @@
                   <Binding Source="EveryTimeOnEveryChannel"/>
                 </MultiBinding>
               </Grid.IsVisible>
-              <Image Source="HomeContentIcons\duration.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1"
+              <Image Source="HomeContentIcons\duration.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0"
                    IsVisible="{Binding ElementName=ProgramStart, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" Margin="40,0,0,0"
@@ -237,7 +237,7 @@
             </Grid>
 
             <Grid Grid.Row="7" Grid.ColumnSpan="2" IsVisible="{Binding Path=CurrentProgram.Series,Converter={StaticResource EmptyStringToFalseConverter}}">
-              <Image Source="HomeContentIcons\series.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+              <Image Source="HomeContentIcons\series.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label HorizontalAlignment="Stretch" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" x:Name="SeriesLabel" >
                 <Label.Content>
