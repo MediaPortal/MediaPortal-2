@@ -141,7 +141,7 @@
     <Control Template="{StaticResource HeaderTemplate}" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
 
     <ContentControl Grid.Column="0" Grid.Row="1" Style="{StaticResource PageContentStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    Margin="50,40" FontSize="26" Foreground="White"
+                    Margin="40,30" FontSize="26" Foreground="White"
                     Content="{Binding Path=CurrentPage}"/>
 
     <Grid Grid.Column="0" Grid.Row="2" Height="45" Background="#66FFFFFF">

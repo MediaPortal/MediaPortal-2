@@ -27,7 +27,7 @@
     <Setter Property="Background" Value="#20FFFFFF"/>
     <Setter Property="Foreground" Value="#80FFFFFF"/>
     <Setter Property="CaretBrush" Value="#FFFFFFFF"/>
-    <Setter Property="BorderBrush" Value="#00000000"/>
+    <Setter Property="BorderBrush" Value="#20FFFFFF"/>
     <Style.Triggers>
       <Trigger Property="IsKeyboardFocusWithin" Value="True">
         <Setter Property="Foreground" Value="#FFFFFFFF"/>
@@ -37,7 +37,7 @@
 
   <!-- DataTemplate for a PropertyValidationModel<string> that shows the string value in a TextBox and a red border if the value is invalid -->
   <DataTemplate x:Key="ValidationTextBoxTemplate">
-    <TextBox x:Name="TextBox"
+    <TextBox x:Name="TextBox" Padding="5"
              Style="{StaticResource ContentTextBoxStyle}"
              HorizontalAlignment="Stretch"
              BorderThickness="2"
