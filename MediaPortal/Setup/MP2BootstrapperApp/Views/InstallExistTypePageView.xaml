@@ -7,15 +7,15 @@
              xmlns:conv="clr-namespace:MP2BootstrapperApp" Margin="10,20,10,0"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-  <Grid HorizontalAlignment="Center">
+  <Grid HorizontalAlignment="Stretch">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*" />
       <ColumnDefinition Width="*" />
       <ColumnDefinition Width="*" />
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
-      <RowDefinition Height="*" />
       <RowDefinition Height="Auto" />
+      <RowDefinition Height="*" />
     </Grid.RowDefinitions>
     <Grid.Resources>
       <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
@@ -92,15 +92,15 @@
     </StackPanel>
 
     <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Modify the existing installation by removing or adding packages" 
-             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" SelectionBrush="{x:Null}" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="10" SelectionBrush="{x:Null}" 
              BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="3"
              Visibility="{Binding ElementName=Radio1, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
     <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Repairs errors in the existing installation by fixing missing and corrupt files, shortcuts and registry entries" 
-             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" SelectionBrush="{x:Null}" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="10" SelectionBrush="{x:Null}" 
              BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="3"
              Visibility="{Binding ElementName=Radio2, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
     <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Uninstall the existing installation" 
-             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" SelectionBrush="{x:Null}" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="10" SelectionBrush="{x:Null}" 
              BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="3"
              Visibility="{Binding ElementName=Radio3, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
     
