@@ -19,6 +19,7 @@
     </Grid.RowDefinitions>
     <Grid.Resources>
       <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
+      <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
       <Style x:Key="ActionButton" TargetType="RadioButton">
         <Style.Triggers>
           <Trigger Property="IsChecked" Value="False">
