@@ -353,7 +353,6 @@
     <Resource Include="Resources\InstallTypes\update.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\absent.png" />
     <Resource Include="Resources\present.png" />
   </ItemGroup>
   <ItemGroup>
@@ -378,6 +377,10 @@
     <PackageReference Include="Prism.Wpf">
       <Version>8.1.97</Version>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\install.png" />
+    <Resource Include="Resources\uninstall.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

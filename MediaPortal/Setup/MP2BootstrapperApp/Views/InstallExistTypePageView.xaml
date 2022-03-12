@@ -7,8 +7,17 @@
              xmlns:conv="clr-namespace:MP2BootstrapperApp" Margin="10,20,10,0"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
-  <UniformGrid HorizontalAlignment="Center" Columns="3" Rows="1">
-    <UniformGrid.Resources>
+  <Grid HorizontalAlignment="Center">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="*" />
+      <ColumnDefinition Width="*" />
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*" />
+      <RowDefinition Height="Auto" />
+    </Grid.RowDefinitions>
+    <Grid.Resources>
       <conv:EnumToBooleanConverter x:Key="EnumToBooleanConverter" />
       <Style x:Key="ActionButton" TargetType="RadioButton">
         <Style.Triggers>
@@ -55,10 +64,10 @@
           </Setter.Value>
         </Setter>
       </Style>
-    </UniformGrid.Resources>
+    </Grid.Resources>
 
     <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
-      <RadioButton Name="Radio2" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\modify.png"
+      <RadioButton Name="Radio1" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\modify.png"
                    IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}"
                    HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
       <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Modify"
@@ -66,23 +75,33 @@
     </StackPanel>
 
     <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
-      <RadioButton Name="Radio3" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\repair.png"
+      <RadioButton Name="Radio2" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\repair.png"
                    IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Repair}}"
                    HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
       <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Repair"
-             Opacity="{Binding Opacity, ElementName=Radio3, Mode=Default}"/>
+             Opacity="{Binding Opacity, ElementName=Radio2, Mode=Default}"/>
     </StackPanel>
 
     <StackPanel Orientation="Vertical" Grid.Column="2" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
-      <RadioButton Name="Radio4" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\uninstall.png"
+      <RadioButton Name="Radio3" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\uninstall.png"
                    IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}"
                    HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
       <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Uninstall"
-             Opacity="{Binding Opacity, ElementName=Radio4, Mode=Default}"/>
+             Opacity="{Binding Opacity, ElementName=Radio3, Mode=Default}"/>
     </StackPanel>
 
-    <!--<RadioButton Grid.Column="1" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}" Content="Modify" Foreground="White" FontSize="26"/>
-    <RadioButton Grid.Column="2" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Repair}}" Content="Repair" Foreground="White" FontSize="26"/>
-    <RadioButton Grid.Column="3" Grid.Row="0" IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}" Content="Uninstall" Foreground="White" FontSize="26"/-->
-    </UniformGrid>
+    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Modify the existing installation by removing or adding packages" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" SelectionBrush="{x:Null}" 
+             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="3"
+             Visibility="{Binding ElementName=Radio1, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Repairs errors in the existing installation by fixing missing and corrupt files, shortcuts and registry entries" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" SelectionBrush="{x:Null}" 
+             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="3"
+             Visibility="{Binding ElementName=Radio2, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Uninstall the existing installation" 
+             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" SelectionBrush="{x:Null}" 
+             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="3"
+             Visibility="{Binding ElementName=Radio3, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    
+    </Grid>
 </UserControl>
