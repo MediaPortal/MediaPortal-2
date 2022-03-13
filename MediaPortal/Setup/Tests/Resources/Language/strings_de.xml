@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="LocalizationTests.Test">German</string>
+  <string name="LocalizationTests.TestFallback">German fallback</string>
+</resources>

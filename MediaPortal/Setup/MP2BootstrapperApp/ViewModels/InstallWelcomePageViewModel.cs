@@ -31,7 +31,7 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallWelcomePageViewModel(InstallWelcomeStep step)
       : base(step)
     {
-      Header = "Welcome to MediaPortal 2";
+      Header = "[InstallWelcomePageView.Header]";
     }
 
     public bool LicenceAgreed

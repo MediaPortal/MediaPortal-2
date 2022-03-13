@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="LocalizationTests.Test">English</string>
+  <string name="LocalizationTests.TestFallback">English fallback</string>
+  <string name="LocalizationTests.TestEnglishFallback">Default english fallback</string>
+</resources>

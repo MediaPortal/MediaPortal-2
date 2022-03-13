@@ -22,13 +22,18 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BootstrapperWrapper;
+using MP2BootstrapperApp.Localization;
+using MP2BootstrapperApp.Logging;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 using MP2BootstrapperApp.Views;
 using System;
 using System.Windows;
+using LogLevel = Microsoft.Tools.WindowsInstallerXml.Bootstrapper.LogLevel;
 
 namespace MP2BootstrapperApp
 {
@@ -50,6 +55,17 @@ namespace MP2BootstrapperApp
 #endif
 
       IBootstrapperApplicationModel model = new BootstrapperApplicationModel(this);
+
+      // Setup the translations and current language
+      StringManager stringManager = new StringManager(new Logger(model));
+      stringManager.Startup();
+      var ci = stringManager.GetBestAvailableLanguage();
+      if (ci != null)
+        stringManager.ChangeLanguage(ci);
+      ServiceRegistration.Set<ILanguageChanged>(stringManager);
+      // This interface is not used directly, but some localization related classes in MediaPortal.Common may expect it to be present
+      ServiceRegistration.Set<ILocalization>(stringManager);
+
       InstallWizardViewModel viewModel = new InstallWizardViewModel(model, _dispatcher);
       InstallWizardView view = new InstallWizardView(viewModel);
 

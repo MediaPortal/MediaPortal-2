@@ -22,6 +22,8 @@
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.WindowsAPICodePack.dll"/>
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.WindowsAPICodePack.Shell.dll"/>
       <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.WindowsAPICodePack.ShellExtensions.dll"/>
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\MediaPortal.Common.dll"/>
+      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\MediaPortal.Utilities.dll"/>
     </BootstrapperApplicationRef>
 
     <!-- Needed for the ManagedBootstrapperApplicationHost-->
