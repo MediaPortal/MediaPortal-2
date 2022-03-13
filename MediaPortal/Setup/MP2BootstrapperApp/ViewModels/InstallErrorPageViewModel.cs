@@ -32,7 +32,7 @@ namespace MP2BootstrapperApp.ViewModels
       : base(step)
     {
       Header = "[InstallErrorPageView.Message]";
-      ButtonNextContent = "Finish";
+      ButtonNextContent = "[General.FinishButton]";
     }
   }
 }
