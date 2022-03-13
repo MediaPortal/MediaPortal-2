@@ -30,7 +30,7 @@ using System.Windows.Data;
 namespace MP2BootstrapperApp.MarkupExtensions
 {
   /// <summary>
-  /// Provides that translated value of a string with a given string id and propagates changes to the bound target.
+  /// Provides the translated value of a string with a given string id and propagates changes to the bound target.
   /// </summary>
   public class LocalizeValueProvider : DisposableValueProvider
   {
@@ -45,7 +45,7 @@ namespace MP2BootstrapperApp.MarkupExtensions
 
     /// <summary>
     /// Attached property to bind the StringId binding to, needed as the binding needs to be bound
-    /// to a DependencyObject in the logical tree so that appropriate DataContext is available.
+    /// to a DependencyObject in the logical tree so that the appropriate DataContext is available.
     /// </summary>
     public static readonly DependencyProperty LocalizeIdProperty = DependencyProperty.RegisterAttached(
       "LocalizeId", typeof(string), typeof(LocalizeValueProvider), new PropertyMetadata(OnPropertyChanged)
@@ -126,14 +126,14 @@ namespace MP2BootstrapperApp.MarkupExtensions
 
     private void AttachLanguageChanged()
     {
-      if (_localization is ILanguageChanged languageChanged)
-        WeakEventManager<ILanguageChanged, EventArgs>.AddHandler(languageChanged, nameof(ILanguageChanged.LanguageChanged), OnLanguageChanged);
+      if (_localization != null)
+        WeakEventManager<ILanguageChanged, EventArgs>.AddHandler(_localization, nameof(ILanguageChanged.LanguageChanged), OnLanguageChanged);
     }
 
     private void DetachLanguageChanged()
     {
-      if (_localization is ILanguageChanged languageChanged)
-        WeakEventManager<ILanguageChanged, EventArgs>.RemoveHandler(languageChanged, nameof(ILanguageChanged.LanguageChanged), OnLanguageChanged);
+      if (_localization != null)
+        WeakEventManager<ILanguageChanged, EventArgs>.RemoveHandler(_localization, nameof(ILanguageChanged.LanguageChanged), OnLanguageChanged);
     }
 
     private void OnLanguageChanged(object sender, EventArgs e)
