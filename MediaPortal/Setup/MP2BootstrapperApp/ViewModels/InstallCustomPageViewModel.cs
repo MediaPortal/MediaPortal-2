@@ -40,8 +40,8 @@ namespace MP2BootstrapperApp.ViewModels
       _installDirectory.Value = step.InstallDirectory;
       _installDirectory.PropertyChanged += InstallDirectoryChanged;
 
-      Header = "Custom installation";
-      SubHeader = "Un-/select the packages to install";
+      Header = "[InstallCustomPageView.Header]";
+      SubHeader = "[InstallCustomPageView.SubHeader]";
       BrowseCommand = new DelegateCommand(BrowsePath);
     }
 

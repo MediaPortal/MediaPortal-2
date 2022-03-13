@@ -31,7 +31,7 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallErrorPageViewModel(InstallErrorStep step)
       : base(step)
     {
-      Header = "Installation Error";
+      Header = "[InstallErrorPageView.Message]";
       ButtonNextContent = "Finish";
     }
   }

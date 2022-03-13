@@ -31,9 +31,9 @@ namespace MP2BootstrapperApp.ViewModels
     public ModifyFinishPageViewModel(ModifyFinishStep step)
       : base(step)
     {
-      Header = "Modify Completed";
-      SubHeader = "Enjoy your MediaPortal 2 experience";
-      ButtonNextContent = "Finish";
+      Header = "[ModifyFinishPageView.Header]";
+      SubHeader = "[General.FinishSubHeader]";
+      ButtonNextContent = "[General.FinishButton]";
     }
   }
 }

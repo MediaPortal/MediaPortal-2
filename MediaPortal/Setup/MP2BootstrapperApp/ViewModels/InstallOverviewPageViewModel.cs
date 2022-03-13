@@ -37,9 +37,9 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallOverviewPageViewModel(InstallOverviewStep step)
       : base(step)
     {
-      Header = "Overview";
-      ButtonNextContent = "Install";
-      SubHeader = "Below packages will be installed";
+      Header = "[InstallOverviewPageView.Header]";
+      ButtonNextContent = "[InstallOverviewPageView.InstallButton]";
+      SubHeader = "[InstallOverviewPageView.SubHeader]";
 
       Packages = new ObservableCollection<Package>();
       AddPackages(step.BootstrapperApplicationModel.BundlePackages, step.ActionPlan);

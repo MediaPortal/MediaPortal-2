@@ -31,7 +31,7 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallInitializingPageViewModel(InstallInitializingStep step)
       : base(step)
     {
-      Header = "Welcome to MediaPortal 2";
+      Header = "[InstallInitializingPageView.Header]";
     }
   }
 }

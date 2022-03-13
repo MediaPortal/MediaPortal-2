@@ -4,6 +4,7 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
+             xmlns:me="clr-namespace:MP2BootstrapperApp.MarkupExtensions"
              xmlns:conv="clr-namespace:MP2BootstrapperApp" Margin="10,20,10,0"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -71,7 +72,7 @@
       <RadioButton Name="Radio1" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\modify.png"
                    IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Modify}}"
                    HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
-      <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Modify"
+      <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="{me:Localize [InstallExistTypePageView.Modify]}"
              Opacity="{Binding Opacity, ElementName=Radio2, Mode=Default}"/>
     </StackPanel>
 
@@ -79,7 +80,7 @@
       <RadioButton Name="Radio2" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\repair.png"
                    IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Repair}}"
                    HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
-      <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Repair"
+      <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="{me:Localize [InstallExistTypePageView.Repair]}"
              Opacity="{Binding Opacity, ElementName=Radio2, Mode=Default}"/>
     </StackPanel>
 
@@ -87,22 +88,19 @@
       <RadioButton Name="Radio3" GroupName="ActionTypes" Style="{StaticResource ActionButton}" Content="..\resources\InstallTypes\uninstall.png"
                    IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static conv:ActionType.Uninstall}}"
                    HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
-      <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="Uninstall"
+      <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="{me:Localize [InstallExistTypePageView.Uninstall]}"
              Opacity="{Binding Opacity, ElementName=Radio3, Mode=Default}"/>
     </StackPanel>
 
-    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Modify the existing installation by removing or adding packages" 
-             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="10" SelectionBrush="{x:Null}" 
-             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="3"
-             Visibility="{Binding ElementName=Radio1, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Repairs errors in the existing installation by fixing missing and corrupt files, shortcuts and registry entries" 
-             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="10" SelectionBrush="{x:Null}" 
-             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="3"
-             Visibility="{Binding ElementName=Radio2, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-    <TextBox HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="Uninstall the existing installation" 
-             VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="10" SelectionBrush="{x:Null}" 
-             BorderBrush="{x:Null}" HorizontalContentAlignment="Center" BorderThickness="0" Focusable="False" Grid.Row="1" Grid.ColumnSpan="3"
-             Visibility="{Binding ElementName=Radio3, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallExistTypePageView.ModifyDescription]}"
+               VerticalAlignment="Center" Foreground="White" Opacity="0.5" Margin="10" Grid.Row="1" Grid.ColumnSpan="3"
+               Visibility="{Binding ElementName=Radio1, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallExistTypePageView.RepairDescription]}" 
+               VerticalAlignment="Center" Foreground="White" Opacity="0.5" Margin="10" Grid.Row="1" Grid.ColumnSpan="3"
+               Visibility="{Binding ElementName=Radio2, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallExistTypePageView.UninstallDescription]}" 
+               VerticalAlignment="Center" Foreground="White" Opacity="0.5" Margin="10" Grid.Row="1" Grid.ColumnSpan="3"
+               Visibility="{Binding ElementName=Radio3, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
     
     </Grid>
 </UserControl>

@@ -31,9 +31,9 @@ namespace MP2BootstrapperApp.ViewModels
     public RepairFinishPageViewModel(RepairFinishStep step)
       : base(step)
     {
-      Header = "Repair Completed";
-      SubHeader = "Enjoy your MediaPortal 2 experience";
-      ButtonNextContent = "Finish";
+      Header = "[RepairFinishPageView.Header]";
+      SubHeader = "[General.FinishSubHeader]";
+      ButtonNextContent = "[General.FinishButton]";
     }
   }
 }

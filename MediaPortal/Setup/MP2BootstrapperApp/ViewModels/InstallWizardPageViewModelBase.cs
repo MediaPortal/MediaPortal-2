@@ -36,9 +36,9 @@ namespace MP2BootstrapperApp.ViewModels
 
     private string _header;
     private string _subHeader;
-    private string _buttonNextContent = "Next";
-    private string _buttonBackContent = "Back";
-    private string _buttonCancelContent = "Abort";
+    private string _buttonNextContent = "[General.NextButton]";
+    private string _buttonBackContent = "[General.BackButton]";
+    private string _buttonCancelContent = "[General.AbortButton]";
 
     public InstallWizardPageViewModelBase(IStep step)
     {

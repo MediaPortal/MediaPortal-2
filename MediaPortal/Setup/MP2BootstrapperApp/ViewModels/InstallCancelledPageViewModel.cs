@@ -31,8 +31,8 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallCancelledPageViewModel(InstallCancelledStep step)
       : base(step)
     {
-      Header = "Installation Cancelled";
-      ButtonNextContent = "Finish";
+      Header = "[InstallCancelledPageView.Header]";
+      ButtonNextContent = "[General.FinishButton]";
     }
   }
 }

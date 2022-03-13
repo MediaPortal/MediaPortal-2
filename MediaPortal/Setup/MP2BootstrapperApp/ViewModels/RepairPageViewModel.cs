@@ -31,8 +31,8 @@ namespace MP2BootstrapperApp.ViewModels
     public RepairPageViewModel(RepairStep step)
       : base(step)
     {
-      Header = "Repair installation";
-      SubHeader = "Performs a repair installation";
+      Header = "[RepairPagePageView.Header]";
+      SubHeader = "[RepairPagePageView.SubHeader]";
     }
   }
 }

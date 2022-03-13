@@ -1,5 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+  <!-- General -->
+  <string name="General.FinishButton">Finish</string>
+  <string name="General.NextButton">Next</string>
+  <string name="General.BackButton">Back</string>
+  <string name="General.AbortButton">Abort</string>
+  <string name="General.FinishSubHeader">Enjoy your MediaPortal 2 experience</string>
+  
+  <!-- InstallWelcomePageView -->
   <string name="InstallWelcomePageView.Header">Welcome to MediaPortal 2</string>
+  <string name="InstallWelcomePageView.Description">MediaPortal 2 is a full-blown media center software that addresses most common user requirements out of the box. Aside from its support for Live TV and Radio, it offers a complete media server for music, movies, and series. Info is automatically downloaded from various sources to provide posters, fanart, album art, and various additional metadata, such as cast, staff, and more. MediaPortal 2 also provides access to online video sources. Integrated news, weather information and management for your digital images complete this software package.</string>
   <string name="InstallWelcomePageView.AcceptLicenceTerms">I accept the terms in the Licence Agreement below</string>
+
+  <!-- InstallNewTypePageView -->
+  <string name="InstallNewTypePageView.Header">New Installation</string>
+  <string name="InstallNewTypePageView.SubHeader">Select the installation type</string>
+  <string name="InstallNewTypePageView.ServerClient">Client and Server</string>
+  <string name="InstallNewTypePageView.Client">Client</string>
+  <string name="InstallNewTypePageView.Server">Server</string>
+  <string name="InstallNewTypePageView.Custom">Custom</string>
+  <string name="InstallNewTypePageView.ServerClientDescription">Complete single seat or server installation with user interface</string>
+  <string name="InstallNewTypePageView.ClientDescription">Install the user interface only, the server is available in the network</string>
+  <string name="InstallNewTypePageView.ServerDescription">Install a dedicated server without user interface</string>
+  <string name="InstallNewTypePageView.CustomDescription">Configure the installation paths and packages</string>
+
+  <!-- InstallExistTypePageView -->
+  <string name="InstallExistTypePageView.Header">Installation already exists</string>
+  <string name="InstallExistTypePageView.SubHeader">Select the action for the existing installation</string>
+  <string name="InstallExistTypePageView.Modify">Modify</string>
+  <string name="InstallExistTypePageView.Repair">Repair</string>
+  <string name="InstallExistTypePageView.Uninstall">Uninstall</string>
+  <string name="InstallExistTypePageView.ModifyDescription">Modifies the existing installation by removing or adding packages</string>
+  <string name="InstallExistTypePageView.RepairDescription">Repairs errors in the existing installation by fixing missing and corrupt files, shortcuts and registry entries</string>
+  <string name="InstallExistTypePageView.UninstallDescription">Uninstalls the existing installation completely</string>
+
+  <!-- InstallCustomPageView -->
+  <string name="InstallCustomPageView.Header">Custom installation</string>
+  <string name="InstallCustomPageView.SubHeader">Un-/select the packages to install</string>
+  <string name="InstallCustomPageView.Location">Location:</string>
+  <string name="InstallCustomPageView.BrowseButton">Browse</string>
+  <string name="InstallCustomPageView.InvalidPath">The specified install location is invalid</string>
+
+  <!-- InstallOverviewPageView -->
+  <string name="InstallOverviewPageView.Header">Overview</string>
+  <string name="InstallOverviewPageView.SubHeader">Packages to be kept, installed or removed</string>
+  <string name="InstallOverviewPageView.InstallButton">Install</string>
+
+  <!-- RepairPagePageView -->
+  <string name="RepairPagePageView.Header">Repair installation</string>
+  <string name="RepairPagePageView.SubHeader">Performs a repair installation</string>
+
+  <!-- UninstallPagePageView -->
+  <string name="UninstallPagePageView.Header">Uninstall MediaPortal</string>
+  <string name="UninstallPagePageView.UninstallButton">Uninstall</string>
+
+  <!-- InstallCancelledPageView -->
+  <string name="InstallCancelledPageView.Header">Install Cancelled</string>  
+  <string name="InstallCancelledPageView.Message">Installation was cancelled</string>
+
+  <!-- InstallErrorPageView -->
+  <string name="InstallErrorPageView.Message">Installation Error</string>
+
+  <!-- InstallFinishPageView -->
+  <string name="InstallFinishPageView.Header">Installation Completed</string>
+
+  <!-- InstallInitializingPageView -->
+  <string name="InstallInitializingPageView.Header">Welcome to MediaPortal 2</string>
+
+  <!-- ModifyFinishPageView -->
+  <string name="ModifyFinishPageView.Header">Modify Completed</string>
+
+  <!-- RepairFinishPageView -->
+  <string name="RepairFinishPageView.Header">Repair Completed</string>
+
+  <!-- UninstallFinishPageView -->
+  <string name="UninstallFinishPageView.Header">Uninstall Completed</string>
+  <string name="UninstallFinishPageView.SubHeader">Thank you for using MediaPortal 2</string>
+
+
+
 </resources>

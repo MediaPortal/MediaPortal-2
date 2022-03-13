@@ -31,9 +31,9 @@ namespace MP2BootstrapperApp.ViewModels
     public UninstallFinishPageViewModel(UninstallFinishStep step)
       : base(step)
     {
-      Header = "Uninstall Completed";
-      SubHeader = "Thank you for using MediaPortal 2";
-      ButtonNextContent = "Finish";
+      Header = "[UninstallFinishPageView.Header]";
+      SubHeader = "[UninstallFinishPageView.SubHeader]";
+      ButtonNextContent = "[General.FinishButton]";
     }
   }
 }

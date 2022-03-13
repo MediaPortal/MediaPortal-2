@@ -83,7 +83,7 @@
           </Grid.RowDefinitions>
           <TextBlock Grid.Row="0" Text="{me:Localize StringIdBinding={Binding Path=CurrentPage.Header}}"
                    Foreground="White" FontSize="28" TextAlignment="Right"/>
-          <TextBlock Grid.Row="1" Text="{Binding Path=CurrentPage.SubHeader}" Opacity="0.7"
+          <TextBlock Grid.Row="1" Text="{me:Localize StringIdBinding={Binding Path=CurrentPage.SubHeader}}" Opacity="0.7"
                    Foreground="White" FontSize="16" TextAlignment="Right"/>
         </Grid>
       </ControlTemplate>
@@ -152,11 +152,11 @@
         <ColumnDefinition Width="*" />
       </Grid.ColumnDefinitions>
 
-      <Button Grid.Row="0" Grid.Column="0" x:Name="Abort" IsEnabled="True" Command="{Binding Path=CancelCommand}" Content="{Binding Path=CurrentPage.ButtonCancelContent}"
+      <Button Grid.Row="0" Grid.Column="0" x:Name="Abort" IsEnabled="True" Command="{Binding Path=CancelCommand}" Content="{me:Localize StringIdBinding={Binding Path=CurrentPage.ButtonCancelContent}}"
               HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="50,0,0,0"/>
-      <Button Grid.Row="0" Grid.Column="1" x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}" Content="{Binding Path=CurrentPage.ButtonBackContent}"
+      <Button Grid.Row="0" Grid.Column="1" x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}" Content="{me:Localize StringIdBinding={Binding Path=CurrentPage.ButtonBackContent}}"
               HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="0,0,0,0"/>
-      <Button Grid.Row="0" Grid.Column="2" x:Name="Next" IsEnabled="True" Command="{Binding Path=NextCommand}" Content="{Binding Path=CurrentPage.ButtonNextContent}"
+      <Button Grid.Row="0" Grid.Column="2" x:Name="Next" IsEnabled="True" Command="{Binding Path=NextCommand}" Content="{me:Localize StringIdBinding={Binding Path=CurrentPage.ButtonNextContent}}"
               HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="0,0,50,0"/>
     </Grid>
 
