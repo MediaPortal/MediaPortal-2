@@ -81,7 +81,7 @@ namespace MP2BootstrapperApp.MarkupExtensions
     /// If set, this will be preferred over <see cref="StringId"/>.
     /// </summary>
     /// <remarks>
-    /// WPF does not allow binding to non dependency objects, and MarkupExtensions cannot
+    /// WPF only allows binding to DependencyObjects, and MarkupExtensions cannot
     /// inherit from DependencyObject, so this separate property with the specific binding
     /// type is needed so WPF allows a binding to passed in.
     /// </remarks>
@@ -96,7 +96,7 @@ namespace MP2BootstrapperApp.MarkupExtensions
       // If we have a binding then use that directly, else create a binding to the StringId property so it's changes are propagated to the target
       BindingBase keyBinding = _stringIdBinding != null ? _stringIdBinding : new Binding(nameof(StringId)) { Source = this };
 
-      // :ocalized value source handles listening to bound value and language changes
+      // Localized value source handles listening to bound value and language changes
       LocalizeValueProvider source = new LocalizeValueProvider(target, keyBinding, _localization);
       return new Binding(nameof(LocalizeValueProvider.Value))
       {
