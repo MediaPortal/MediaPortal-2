@@ -114,13 +114,13 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Language\strings_en.xml" />
+    <EmbeddedResource Include="Resources\LanguageTests\strings_en.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Language\strings_de-DE.xml" />
+    <EmbeddedResource Include="Resources\LanguageTests\strings_de-DE.xml" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Resources\Language\strings_de.xml" />
+    <EmbeddedResource Include="Resources\LanguageTests\strings_de.xml" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
