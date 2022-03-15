@@ -25,6 +25,7 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using System;
+using System.Globalization;
 using System.Xml.Linq;
 
 namespace MP2BootstrapperApp.Models
@@ -39,6 +40,7 @@ namespace MP2BootstrapperApp.Models
     protected Version _version;
     protected string _displayName;
     protected string _description;
+    protected long _installedSize;
 
     protected bool _optional;
     protected bool _is64Bit;
@@ -59,9 +61,8 @@ namespace MP2BootstrapperApp.Models
       _packageIdString = packageElement.Attribute("Package")?.Value;
       _displayName = packageElement.Attribute("DisplayName")?.Value;
       _description = packageElement.Attribute("Description")?.Value;
-
+      _installedSize = long.TryParse(packageElement.Attribute("InstalledSize")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;
       _version = Version.TryParse(packageElement.Attribute("Version")?.Value, out Version result) ? result : new Version();
-
     }
 
     protected virtual void SetPackageProperties(IPackage package)
@@ -109,6 +110,14 @@ namespace MP2BootstrapperApp.Models
     public string Description
     {
       get { return _description; }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public long InstalledSize
+    {
+      get { return _installedSize; }
     }
 
     /// <summary>

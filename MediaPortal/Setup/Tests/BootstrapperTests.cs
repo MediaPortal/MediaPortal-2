@@ -52,6 +52,7 @@ namespace Tests
       Assert.Equal(PackageId.LAVFilters, bundlePackage.PackageId);
       Assert.Equal("LAV Filters", bundlePackage.DisplayName);
       Assert.Equal("LAV Filters Setup", bundlePackage.Description);
+      Assert.Equal(10746592, bundlePackage.InstalledSize);
       Assert.Equal(new Version("0.74.1.0"), bundlePackage.Version);
       Assert.True(bundlePackage.Optional);
       Assert.False(bundlePackage.Is64Bit);
@@ -77,6 +78,7 @@ namespace Tests
       Assert.Equal(PackageId.MediaPortal2, bundlePackage.PackageId);
       Assert.Equal("MediaPortal 2", bundlePackage.DisplayName);
       Assert.Equal("MediaPortal 2", bundlePackage.Description);
+      Assert.Equal(791408691, bundlePackage.InstalledSize);
       Assert.Equal(new Version("2.4.2202.13838"), bundlePackage.Version);
       Assert.False(bundlePackage.Optional);
       Assert.False(bundlePackage.Is64Bit);
@@ -104,6 +106,7 @@ namespace Tests
       Assert.Equal("Client", bundlePackageFeature.FeatureName);
       Assert.Equal("Client Title", bundlePackageFeature.Title);
       Assert.Equal("The user interface. Plays media files.", bundlePackageFeature.Description);
+      Assert.Equal(450586600, bundlePackageFeature.InstalledSize);
       Assert.True(bundlePackageFeature.Optional);
     }
   }

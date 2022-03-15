@@ -59,6 +59,11 @@ namespace MP2BootstrapperApp.Models
     string Description { get; }
 
     /// <summary>
+    /// The installled size of the package in bytes.
+    /// </summary>
+    long InstalledSize { get; }
+
+    /// <summary>
     /// Whether this package is optional.
     /// </summary>
     bool Optional { get; }

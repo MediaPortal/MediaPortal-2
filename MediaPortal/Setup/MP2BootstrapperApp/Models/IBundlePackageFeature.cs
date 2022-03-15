@@ -55,6 +55,11 @@ namespace MP2BootstrapperApp.Models
     string Description { get; }
 
     /// <summary>
+    /// The installled size of the feature in bytes.
+    /// </summary>
+    long InstalledSize { get; }
+
+    /// <summary>
     /// Whether this feature is optional.
     /// </summary>
     bool Optional { get; }
