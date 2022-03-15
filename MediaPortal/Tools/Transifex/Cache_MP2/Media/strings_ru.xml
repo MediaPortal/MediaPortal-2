@@ -5,6 +5,7 @@
   <string name="Media.LatestAdded">Последнее добавленное</string>
   <string name="Media.ContinueWatching">Продолжить просмотр</string>
   <string name="Media.Favorites">Избранное</string>
+  <string name="Media.Unplayed">Не играл</string>
   <string name="Media.CurrentPrograms">Текущие программы</string>
   <string name="Media.CurrentSchedules">Текущие расписания</string>
   <!--Menu items for the five Media navigation parts-->
@@ -16,12 +17,14 @@
   <string name="Media.SeriesMenuItem">Сериалы</string>
   <string name="Media.MoviesMenuItem">Фильмы</string>
   <string name="Media.ImagesMenuItem">Изображения</string>
+  <string name="Media.LatestMediaMenuItem">Последние СМИ</string>
   <!--General strings used in filter/sort/group menus-->
   <string name="Media.NameMenuItem">Имя</string>
   <string name="Media.TitleMenuItem">Заголовок</string>
+  <string name="Media.SortTitleMenuItem">Сортировать название</string>
   <string name="Media.AlbumMenuItem">Альбом и заголовок</string>
   <string name="Media.AlbumTrackMenuItem">Альбом и трек</string>
-  <string name="Media.AlbumArtistMenuItem">Album artist</string>
+  <string name="Media.AlbumArtistMenuItem"> исполнитель альбома</string>
   <string name="Media.AlbumLabelMenuItem">Музыкальный лейбл</string>
   <string name="Media.TrackMenuItem">Трек</string>
   <string name="Media.ArtistMenuItem">Исполнитель</string>
@@ -29,6 +32,7 @@
   <string name="Media.GenreMenuItem">Жанр</string>
   <string name="Media.YearMenuItem">Год</string>
   <string name="Media.DecadeMenuItem">Десятилетие</string>
+  <string name="Media.DiscNumberMenuItem">Диск</string>
   <string name="Media.SizeMenuItem">Размер</string>
   <string name="Media.SystemMenuItem">Система</string>
   <string name="Media.ActorMenuItem">Актер</string>
@@ -64,9 +68,12 @@
   <string name="Media.ImageFilterSmall">Маленькие</string>
   <string name="Media.ImageFilterMedium">Средние</string>
   <string name="Media.ImageFilterBig">Большие</string>
+  <string name="Media.DiscNumberFilter">диск {0}</string>
   <string name="Media.CompilationFilterCompiled">Компиляции</string>
   <string name="Media.ContentGroupFilter">{0}</string>
   <string name="Media.SwitchToBrowseMLView">К просмотру сервера</string>
+  <string name="Media.SwitchToLocalMediaView">на местный вид</string>
+  <string name="Media.SwitchToBrowseShareView">к просмотру папки</string>
   <string name="Media.SwitchToMediaLibraryView">To library view</string>
   <!--Navbar display labels for sub view navigation-->
   <string name="Media.BrowseMediaNavigationNavbarDisplayLabel">{0}</string>
@@ -80,9 +87,11 @@
   <string name="Media.FilterAlbumLabelNavbarDisplayLabel">Music Label: {0}</string>
   <string name="Media.FilterAlbumNavbarDisplayLabel">Альбом: {0}</string>
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">Жанр: {0}</string>
+  <string name="Media.FilterAudioDiscNumberNavbarDisplayLabel">Диск: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">Десятилетие: {0}</string>
   <string name="Media.FilterActorNavbarDisplayLabel">Актер: {0}</string>
-  <string name="Media.FilterDirectorNavbarDisplayLabel">Director: {0}</string>
+  <string name="Media.FilterCharacterNavbarDisplayLabel">Характер: {0}</string>
+  <string name="Media.FilterDirectorNavbarDisplayLabel">Директор: {0}</string>
   <string name="Media.FilterWriterNavbarDisplayLabel">Сценарист: {0}</string>
   <string name="Media.FilterCompanyNavbarDisplayLabel">Production Studio: {0}</string>
   <string name="Media.FilterTvNetworkNavbarDisplayLabel">TV Network: {0}</string>
@@ -114,6 +123,7 @@
   <string name="Media.SeriesNavigationRootWorkflowNavigationContextDisplayLabel">Библиотека сериалов</string>
   <string name="Media.MoviesNavigationRootWorkflowNavigationContextDisplayLabel">Библиотека фильмов</string>
   <string name="Media.ImageNavigationRootWorkflowNavigationContextDisplayLabel">Библиотека изображений</string>
+  <string name="Media.LatestMediaWorkflowNavigationContextDisplayLabel">Последние СМИ</string>
   <string name="Media.VideoCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Текущее видео</string>
   <string name="Media.VideoFullscreenContentWorkflowStateNavigationContextDisplayLabel">Во весь экран</string>
   <string name="Media.AudioCurrentlyPlayingWorkflowStateNavigationContextDisplayLabel">Текущее аудио</string>
@@ -140,6 +150,7 @@
   <string name="Media.SeasonItemsHeader">Сезон(ы)</string>
   <string name="Media.MoviesItemsHeader">Фильм(ы)</string>
   <string name="Media.ImageItemsHeader">Изображение(я)</string>
+  <string name="Media.DiscItemsHeader">диск(и)</string>
   <string name="Media.TrackItemsHeader">Трек(и)</string>
   <string name="Media.SimpleSearchHeader">Простой поиск</string>
   <string name="Media.ChooseCollectionHeader">Коллекции</string>
@@ -153,17 +164,18 @@
   <string name="Media.ChooseSeriesHeader">Сериалы</string>
   <string name="Media.ChooseSeasonHeader">Сезоны</string>
   <string name="Media.ChooseEpisodeHeader">Серии</string>
-  <string name="Media.ChooseCharacterHeader">Characters</string>
-  <string name="Media.ChooseCompanyHeader">Production studios</string>
+  <string name="Media.ChooseCharacterHeader">Характери</string>
+  <string name="Media.ChooseCompanyHeader">Производственные студии</string>
   <string name="Media.ChooseTvNetworkHeader">TV networks</string>
   <string name="Media.ChooseAudioDecadeHeader">Десятилетия</string>
   <string name="Media.ChooseAlbumHeader">Альбомы</string>
   <string name="Media.ChooseAudioHeader">Аудио</string>
   <string name="Media.ChooseArtistHeader">Артисты</string>
-  <string name="Media.ChooseComposerHeader">Composers</string>
-  <string name="Media.ChooseAlbumArtistHeader">Album artists</string>
+  <string name="Media.ChooseComposerHeader"> Композиторы</string>
+  <string name="Media.ChooseAlbumArtistHeader">Исполнители альбома</string>
   <string name="Media.ChooseAlbumLabelHeader">Музыкальные лейблы</string>
   <string name="Media.ChooseAudioGenreHeader">Жанры</string>
+  <string name="Media.ChooseDiscNumberHeader">Диски</string>
   <string name="Media.ChooseImageYearHeader">Года</string>
   <string name="Media.ChooseImageSizeHeader">Размеры</string>
   <string name="Media.ChooseImageCountryHeader">Страны</string>
@@ -249,6 +261,7 @@
   <string name="Media.OpenPlayerStrategy.MediaPortal.UI.Services.Players.PCMOpenPlayerStrategy.Default">Стандарт</string>
   <!--MediaItemAction dialog-->
   <string name="Media.Refresh">Обновить</string>
+  <string name="Media.Reimport">Реимпорт</string>
   <string name="Media.SubtitleSearch">Поиск по субтитрам</string>
   <string name="Media.DeleteFromStorage">Удалить из хранилища</string>
   <string name="Media.DeleteFromStorage.Confirmation">Вы уверены, что хотите удалить этот элемент? Действие необратимо.</string>
@@ -307,6 +320,7 @@
   <!--Person currently playing-->
   <string name="Media.DateBorn">Дата рождения:</string>
   <string name="Media.DateDied">Дата смерти:</string>
+  <string name="Media.Origin">Источник:</string>
   <!--Series currently playing-->
   <string name="Media.SeriesTitleLabel">Сериал:</string>
   <string name="Media.SeriesSeasonLabel">Сезон:</string>
@@ -388,6 +402,8 @@
   <string name="Media.CoverLayout">Обложка</string>
   <string name="Media.ListSmall">Маленькие</string>
   <string name="Media.ListMedium">Средние</string>
+  <string name="Media.ListLarge">Большой</string>
+  <string name="Media.PosterLayout">Плакат</string>
   <string name="Media.Watched">Просмотрено</string>
   <string name="Media.Unwatched">Непросмотрено</string>
   <string name="Media.SwitchSortingMenuItem">Сортировка</string>
@@ -398,11 +414,14 @@
   <string name="Media.SwitchGroupingMenuItem">Группировка</string>
   <string name="Media.SwitchGroupingDialogTitle">Группировать по</string>
   <!--Stubs-->
+  <string name="Media.Stub.Title">Вставьте диск</string>
+  <string name="Media.Stub.Message">Пожалуйста, вставьте диск</string>
   <!--Virtual-->
   <string name="Media.Virtual.Title">Невоспроизводимые файлы</string>
   <!--Settings-->
   <string name="Settings.Players">Проигрыватели</string>
   <string name="Settings.Players.ClosePlayersWhenFinished">Закрывать проигрыватель</string>
+  <string name="Settings.Players.ClosePlayersWhenFinished.Help">Включите этот параметр, чтобы MediaPortal автоматически закрывал проигрыватели, закончившие воспроизведение. </string>
   <string name="Settings.Players.InstantSkipPercent">Процент немедленного пропуска</string>
   <string name="Settings.Players.InstantSkipPercent.Help">Выберите, сколько процентов длительности видео вы хотите пропускать сразу</string>
   <string name="Settings.Players.SkipStepTimeout">Задержка (секунды) пропуска</string>
@@ -417,5 +436,9 @@
   <string name="Settings.Media.ShowVirtual.Series">Показать все известные сезоны и серии</string>
   <string name="Settings.Media.Certification.None">Original (as imported)</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
+  <string name="Filter.Filtered">Отфильтровано</string>
   <string name="Filter.StartsWith">Начинается с: {0}</string>
+  <string name="RestrictionGroup.Media.DeleteMediaItem">Медиа: Удалить элементы из хранилища</string>
 </resources>

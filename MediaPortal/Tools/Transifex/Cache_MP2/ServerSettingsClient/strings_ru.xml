@@ -1,9 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <string name="Settings.ServerSettings">Настройки сервера</string>
+  <string name="Settings.ServerSettings.NetworkCredentials">Сетевые учетные данные </string>
+  <string name="Settings.ServerSettings.UseCredentials">Используйте имя пользователя и пароль для доступа к сети </string>
   <string name="Settings.ServerSettings.UsernamePasswordGroup">Логин и пароль</string>
   <string name="Settings.ServerSettings.Username">Логин:</string>
   <string name="Settings.ServerSettings.Password">Пароль:</string>
+  <string name="Settings.ServerSettings.ImporterWorker">Автоматическое обновление общего доступа</string>
+  <string name="Settings.ServerSettings.ImporterWorker.Help">Настройка автоматического обновления общих ресурсов </string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Включить автоматическое обновление сервера</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableClientAutoRefresh">Включить автоматическое обновление клиента </string>
   <string name="Settings.ServerSettings.AudioMDESettings">Настройки импорта аудио</string>
   <string name="Settings.ServerSettings.MovieMDESettings">Настройки импорта фильмов</string>
   <string name="Settings.ServerSettings.SeriesMDESettings">Настройки импорта сериалов</string>
@@ -13,9 +19,24 @@
   <string name="Settings.ServerSettings.FanArtSettings">Настройки фанарта</string>
   <string name="Settings.ServerSettings.MDESettings.MDEOnlineData">Данные к загрузке из онлайн-источников</string>
   <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.Help">Выбрать, какие данные загрузить из онлайн-источников.</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.MediaFanArt">Детали загрузки и фан-арт </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.Media">Скачать только детали </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.FanArt">Скачать только фанарт </string>
   <string name="Settings.ServerSettings.MDESettings.MDEOnlineData.None">Ничего не загружать</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEBrowseOffline">Кэшировать FanArt для просмотра в автономном режиме </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Artists">Заполнить фильтр исполнителей </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Composers">Заполнить фильтр композитора </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Conductors">Заполнить фильтр проводников </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.MusicLabels">Заполнить фильтр музыкальных ярлыков </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Actors">Заполнить фильтр актеров </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Characters">Заполнить фильтр символов </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Directors">Заполнить фильтр директора </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Writers">Заполнить фильтр писателя </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.ProductionStudios">Заполнить фильтр продакшн-студии </string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.TvNetwork">Заполнить фильтр телевизионной сети </string>
   <string name="Settings.ServerSettings.MDESettings.MovieMDEDownloadAllCollectionMovies">Загрузить метаданные всех фильмов в коллекции</string>
   <string name="Settings.ServerSettings.FanArtSettings.ServerFanArtMaxThumbs">Максимальное кол-во миниатюр</string>
   <string name="Settings.ServerSettings.LanguageSettings">Настройки языка</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerLanguage">Предпочитаемый язык по умолчанию</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerAudioLanguage">Предпочтительный язык онлайн-аудио </string>
 </resources>

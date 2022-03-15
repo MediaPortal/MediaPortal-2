@@ -15,6 +15,7 @@
   <string name="Match.Audio.Folk">Фолк</string>
   <string name="Match.Audio.EasyListening">Лёгкая музыка|Лаунж|Фоновая музыка|Свинг|Бибоп|Эмбиент</string>
   <string name="Match.Audio.Holiday">Праздничная|Ханука|Рождественская|Пасхальная|Хэллоуин|На день благодарения</string>
+  <string name="Match.Audio.World">Мир|Африка|Афро|Азия|Австралия|Каджун|Латиноамериканский|Калипсо|Карибский бассейн|Кельтский|Европа|Франция|Америка|Полька|Японский|Индийский|Корейский|Немецкий|Датский|Баллада|Этнический|Инди </string>
   <string name="Match.Audio.Alternative">Альтернатива|Новая Волна|Прогрессив</string>
   <string name="Match.Audio.Compilation">Сборники|Хиты</string>
   <string name="Match.Audio.Audiobook">Аудиокнига|Книга</string>

@@ -41,8 +41,15 @@
   <string name="ServerConnection.NoHomeServerAttached">Этот клиент MediaPortal 2 не подключен к основному серверу</string>
   <string name="ServerConnection.HomeServerIsConnected">Основной сервер подключен</string>
   <string name="ServerConnection.HomeServerIsNotConnected">Основной сервер не подключен</string>
+  <string name="ServerConnection.DetachMenu">Отсоединить</string>
+  <string name="ServerConnection.DetachConfirmDialogHeader">Отключиться от домашнего сервера </string>
+  <string name="ServerConnection.DetachConfirmDialogText">Если вы отсоединитесь от домашнего сервера, то все данные о клиентских медиа-источниках и их медиа-элементах будут удалены из медиатеки домашнего сервера. Вы можете прикрепить снова позже. Вы действительно хотите отсоединиться от домашнего сервера \"{0}\" на узле \"{1}\"? </string>
   <string name="ServerConnection.SearchForServers">Поиск серверов</string>
+  <string name="ServerConnection.DetachFromServer">Отключиться от домашнего сервера </string>
+  <string name="ServerConnection.AttachToServerHeader">Присоединиться к серверу MediaPortal 2</string>
   <string name="ServerConnection.AttachToSingleText.Before">Сервер MP2</string>
+  <string name="ServerConnection.AttachToSingleText.After">есть в сети. Вы хотите подключиться к нему? </string>
+  <string name="ServerConnection.AttachToServerNoServerText">В настоящее время в сети нет доступных серверов MediaPortal 2.</string>
   <string name="ServerConnection.AttachButton">Присоединить</string>
   <string name="ServerConnection.AttachInfoDialogHeader">Сервер присоединен</string>
   <!--{0} = server name, {1} = host name-->
@@ -53,10 +60,13 @@
   <string name="ImporterMessages.ImportCompletedTitle">Импорт завершен</string>
   <string name="ImporterMessages.ImportCompletedText">Импорт \'{0}\' завершен.</string>
   <string name="LocalFsResourceProvider.Name">Локальная файловая система</string>
+  <string name="LocalFsResourceProvider.Description">Доступ к локальной файловой системе</string>
   <string name="RemoteResourceProvider.Name">Удаленные ресурсы</string>
+  <string name="RemoteResourceProvider.Description">Доступ к ресурсам, расположенным в другой системе MediaPortal 2</string>
   <string name="VirtualResourceProvider.Name">Виртуальные ресурсы</string>
   <string name="ScreenSaver.MediaPortal2">MediaPortal 2</string>
   <!--For MP UI player subsystem-->
+  <string name="Players.NoPlayerAvailableNotificationTitle">Нет плеера</string>
   <string name="Players.ErrorPlayingMediaItemTitle">Ошибка воспроизведения медиа</string>
   <string name="Players.UnableToPlayMediaItemText">Невозможно воспроизвести медиаэлемент \'{0}\'</string>
   <string name="Players.ResourceNotFoundText">Ресурс \'{0}\' не найден</string>
@@ -70,18 +80,22 @@
   <string name="Players.ClosePlayerContext">Закрыть {0}</string>
   <!--for example "Close video player"-->
   <string name="Players.ChoosePlayerSubtitle">Субтитры</string>
-  <string name="Settings.Appearance.Skin">Скин</string>
+  <string name="Settings.Appearance.Skin">Оболочка</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Формат даты</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Формат времени</string>
   <string name="Settings.General">Общее</string>
   <string name="Settings.General.System">Система</string>
   <string name="Settings.General.System.Autostart">Автозапуск</string>
+  <string name="Settings.General.System.Autostart.Help">Автоматически запускать MediaPortal при запуске Windows</string>
+  <string name="Settings.General.Connectivity">Подключения</string>
   <string name="Settings.General.Connectivity.HomeServer">Основной сервер</string>
   <string name="Settings.General.Connectivity.ClientName">Имя клиента</string>
   <string name="Settings.General.Connectivity.UseIPv4">Использовать IPv4</string>
   <string name="Settings.General.Connectivity.UseIPv6">Использовать IPv6</string>
+  <string name="Settings.Regional">Регион</string>
   <string name="Settings.Regional.Language">Язык</string>
   <string name="Settings.Regional.Language.Main">Язык</string>
+  <string name="Settings.Regional.Language.Main.Help">Установите основной язык, используемый в приложении</string>
   <string name="Settings.Shares">Источники медиа</string>
   <!--Section name-->
   <string name="Settings.Shares.Configure">Настройка источников медиа</string>
@@ -93,6 +107,7 @@
   <!--Group name-->
   <string name="Settings.Shares.Overview.SharesOverview">Обзор источников медиа</string>
   <!--Setting-->
+  <string name="Settings.Shares.Overview.SharesOverview.Help">Общий обзор медиа-источников</string>
   <string name="Settings.Plugins">Плагины</string>
   <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Обзор источников медиа</string>
   <string name="SharesOverview.Title">Обзор источников медиа</string>
@@ -105,6 +120,7 @@
   <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Настройка источников медиа</string>
   <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">Удалить источники медиа</string>
   <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">Информация об источниках медиа</string>
+  <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">Выберите поставщика ресурсов</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">Изменить путь</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">Выбрать путь</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">Изменить имя</string>

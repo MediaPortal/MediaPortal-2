@@ -18,6 +18,7 @@
   <string name="Settings.Players.Subtitles">Субтитры</string>
   <string name="Settings.Players.EnableTeletextSubtitles">Телетекст</string>
   <string name="Settings.Players.EnableDvdSubtitles">DVD-субтитры</string>
+  <string name="Playback.NotSpecified">Не указано</string>
   <!--For example: "Chapter 1"-->
   <!--For example: "Title 1"-->
   <string name="Playback.Players.No.Subtitles">Нет субтитров</string>

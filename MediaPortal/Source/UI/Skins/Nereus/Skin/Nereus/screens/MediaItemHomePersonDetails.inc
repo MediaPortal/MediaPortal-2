@@ -43,10 +43,10 @@
                 <ColumnDefinition Width="Auto"/>
               </Grid.ColumnDefinitions>
               <Image x:Name="BornIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" Width="25" 
-                     HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,-1,0,1"
+                     HorizontalAlignment="Left" VerticalAlignment="Center" 
                      IsVisible="{Binding Path=BornDate,Converter={StaticResource ReferenceToBoolConverter}}"/>
               <Image x:Name="DeathIcon" Source="HomeContentIcons\year.png" Stretch="Uniform" Height="25" Width="25"
-                     HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,-1,0,1"
+                     HorizontalAlignment="Left" VerticalAlignment="Center" 
                      IsVisible="{Binding Path=DeathDate,Converter={StaticResource ReferenceToBoolConverter}}"/>
               <Label Grid.Column="1" Opacity="0.6" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,30,0"
                      IsVisible="{Binding Path=BornDate,Converter={StaticResource ReferenceToBoolConverter}}"

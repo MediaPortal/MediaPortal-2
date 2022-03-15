@@ -10,6 +10,7 @@
   <string name="MediaServer.AlbumContainter">Альбомы</string>
   <string name="MediaServer.RecentContainter">Недавно добавлено</string>
   <string name="MediaServer.ArtistContainter">Артисты</string>
+  <string name="MediaServer.AlbumArtistContainter">Артисты альбомов</string>
   <string name="MediaServer.GenreContainter">Жанры</string>
   <string name="MediaServer.YearContainter">Год</string>
   <string name="MediaServer.ImageContainter">Изображения</string>

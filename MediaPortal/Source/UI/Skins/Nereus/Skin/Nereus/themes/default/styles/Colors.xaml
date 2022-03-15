@@ -194,7 +194,7 @@
   <ResourceWrapper x:Key="InfoScreenGradientColor3" Resource="#F2000000"/>
 
   <ResourceWrapper x:Key="OSDProgressBarBackgroundColor" Resource="#636363"/>
-  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="#009999"/>
+  <ResourceWrapper x:Key="ProgressBarFillColor" Resource="{ThemeResource NereusColorLight}"/>
 
   <!-- ************************** Black theme colors ****************************** -->
 
@@ -208,8 +208,8 @@
 
   <ResourceWrapper x:Key="WindowHeaderColor" Resource="#FF4b76a0"/>
 
-  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F2447da7"/>
-  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F2124273"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient1Color" Resource="#F2666666"/>
+  <ResourceWrapper x:Key="DialogBackgroundGradient2Color" Resource="#F2444444"/>
 
   <ResourceWrapper x:Key="DialogBackgroundFadeColor" Resource="{ThemeResource NereusColorMedium}"/>
 
