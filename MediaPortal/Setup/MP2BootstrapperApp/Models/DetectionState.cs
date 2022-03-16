@@ -22,16 +22,16 @@
 
 #endregion
 
-namespace MP2BootstrapperApp
+namespace MP2BootstrapperApp.Models
 {
-  public enum InstallState
+  /// <summary>
+  /// The states of detection.
+  /// </summary>
+  public enum DetectionState
   {
-    Initializing,
-    Detecting,
-    Waiting,
-    Planning,
-    Applying,
-    Applied,
-    Failed
+    Absent,
+    Present,
+    Newer,
+    Older
   }
 }

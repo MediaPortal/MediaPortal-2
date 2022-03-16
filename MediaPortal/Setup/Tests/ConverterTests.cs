@@ -22,10 +22,10 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.Converters;
 using System.Globalization;
 using System.Windows;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp;
 using Xunit;
 
 namespace Tests
@@ -82,6 +82,45 @@ namespace Tests
 
       // Assert
       Assert.Equal(Visibility.Visible, result);
+    }
+
+    [Fact]
+    public void ReturnNearestKilobyte_When_ConverterParameterIsKb()
+    {
+      // Arrange
+      FileSizeUnitConverter converter = new FileSizeUnitConverter();
+
+      // Act
+      object result = converter.Convert(560315, null, "Kb", CultureInfo.InvariantCulture);
+
+      // Assert
+      Assert.Equal(547L, result);
+    }
+
+    [Fact]
+    public void ReturnNearestMegabyte_When_ConverterParameterIsMb()
+    {
+      // Arrange
+      FileSizeUnitConverter converter = new FileSizeUnitConverter();
+
+      // Act
+      object result = converter.Convert(8892141, null, "Mb", CultureInfo.InvariantCulture);
+
+      // Assert
+      Assert.Equal(8L, result);
+    }
+
+    [Fact]
+    public void ReturnNearestGigabyte_When_ConverterParameterIsGb()
+    {
+      // Arrange
+      FileSizeUnitConverter converter = new FileSizeUnitConverter();
+
+      // Act
+      object result = converter.Convert(8892141, null, "Gb", CultureInfo.InvariantCulture);
+
+      // Assert
+      Assert.Equal(8L, result);
     }
   }
 }

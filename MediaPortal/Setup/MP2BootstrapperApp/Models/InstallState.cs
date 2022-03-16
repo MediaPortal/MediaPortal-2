@@ -22,13 +22,16 @@
 
 #endregion
 
-namespace MP2BootstrapperApp
+namespace MP2BootstrapperApp.Models
 {
-  public enum InstallType
+  public enum InstallState
   {
-    ClientServer,
-    Client,
-    Server,
-    Custom
+    Initializing,
+    Detecting,
+    Waiting,
+    Planning,
+    Applying,
+    Applied,
+    Failed
   }
 }

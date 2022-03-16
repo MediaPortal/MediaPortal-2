@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -26,18 +26,31 @@ using System;
 using System.Globalization;
 using System.Windows.Data;
 
-namespace MP2BootstrapperApp
+namespace MP2BootstrapperApp.Converters
 {
-    public class EnumToBooleanConverter : IValueConverter
+  public class FileSizeUnitConverter : IValueConverter
+  {
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
-      public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-      {
-        return value?.Equals(parameter);
-      }
+      double size = System.Convert.ToDouble(value);
 
-      public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-      {
-        return value.Equals(true) ? parameter : Binding.DoNothing;
-      }
+      string units = (parameter as string)?.ToLowerInvariant();
+      if (units == null)
+        return size;
+
+      if (units == "kb")
+        size /= 1024;
+      else if (units == "mb")
+        size /= 1024 * 1024;
+      else if (units == "gb")
+        size /= 1024 * 1024 * 1024;
+
+      return (long)Math.Round(size);
     }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
+  }
 }

@@ -22,12 +22,22 @@
 
 #endregion
 
-namespace MP2BootstrapperApp
+using System;
+using System.Globalization;
+using System.Windows.Data;
+
+namespace MP2BootstrapperApp.Converters
 {
-  public enum ActionType
-  {
-    Modify,
-    Repair,
-    Uninstall
-  }
+    public class EnumToBooleanConverter : IValueConverter
+    {
+      public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+      {
+        return value?.Equals(parameter);
+      }
+
+      public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+      {
+        return value.Equals(true) ? parameter : Binding.DoNothing;
+      }
+    }
 }

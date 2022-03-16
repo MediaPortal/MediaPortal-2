@@ -1,4 +1,4 @@
-﻿#region Copyright (C) 2007-2017 Team MediaPortal
+#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -22,16 +22,28 @@
 
 #endregion
 
-namespace MP2BootstrapperApp
+using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+
+namespace MP2BootstrapperApp.Converters
 {
-  /// <summary>
-  /// The states of detection.
-  /// </summary>
-  public enum DetectionState
+  public class PackageStateToVisibilityConverter : IValueConverter
   {
-    Absent,
-    Present,
-    Newer,
-    Older
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      if (value is PackageState installedState && parameter is PackageState convertParameter)
+      {
+        return installedState == convertParameter ? Visibility.Visible : Visibility.Hidden;
+      }
+      return Visibility.Hidden;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
   }
 }
