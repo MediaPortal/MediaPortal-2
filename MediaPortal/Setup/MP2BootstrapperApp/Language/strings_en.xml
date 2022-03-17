@@ -38,6 +38,7 @@
   <!-- InstallCustomPageView -->
   <string name="InstallCustomPageView.Header">Custom installation</string>
   <string name="InstallCustomPageView.SubHeader">Un-/select the packages to install</string>
+  <string name="InstallCustomPageView.RequiredHardDriveSpace">Requires {0} on your hard drive.</string>
   <string name="InstallCustomPageView.Location">Location:</string>
   <string name="InstallCustomPageView.BrowseButton">Browse</string>
   <string name="InstallCustomPageView.InvalidPath">The specified install location is invalid</string>

@@ -6,6 +6,7 @@
              xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
              xmlns:viewmodels="clr-namespace:MP2BootstrapperApp.ViewModels"
              xmlns:me="clr-namespace:MP2BootstrapperApp.MarkupExtensions"
+             xmlns:conv="clr-namespace:MP2BootstrapperApp.Converters"
              d:DataContext="{d:DesignInstance Type=viewmodels:InstallCustomPageViewModel}"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
@@ -17,9 +18,12 @@
           <ResourceDictionary Source="../Styles/TextStyles.xaml" />
           <ResourceDictionary Source="../Styles/ButtonStyles.xaml" />
           <ResourceDictionary Source="../Styles/PackageStyles.xaml" />
+          <ResourceDictionary Source="../Styles/ListViewStyles.xaml" />
         </ResourceDictionary.MergedDictionaries>
 
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <conv:ReferenceToVisibilityConverter x:Key="ReferenceToVisibilityConverter"/>
+        <conv:FileSizeUnitConverter x:Key="FileSizeUnitConverter"/>
 
       </ResourceDictionary>
     </Grid.Resources>
@@ -30,15 +34,24 @@
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
-    <ItemsControl Grid.Row="0"
-                  ItemsSource="{Binding Path=Items}"
-                  ItemTemplate="{StaticResource PackageButtonDataTemplate}">
-      <ItemsControl.ItemsPanel>
+    <ListView x:Name="PackageList" Grid.Row="0"
+              Style="{StaticResource ListViewSelectsOnMouseOverStyle}"
+              ItemsSource="{Binding Path=Items}"
+              ItemTemplate="{StaticResource PackageButtonDataTemplate}">
+      <ListView.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel />
         </ItemsPanelTemplate>
-      </ItemsControl.ItemsPanel>
-    </ItemsControl>
+      </ListView.ItemsPanel>
+    </ListView>
+
+    <TextBlock Grid.Row="1" Style="{StaticResource ContentTextBlockStyle}"
+               Visibility="{Binding ElementName=PackageList, Path=SelectedItem, Converter={StaticResource ReferenceToVisibilityConverter}}">
+      <TextBlock.Text>
+        <me:Localize StringId="[InstallCustomPageView.RequiredHardDriveSpace]"
+                     ParametersBinding="{Binding ElementName=PackageList, Path=SelectedItem.Package.InstalledSize, Converter={StaticResource FileSizeUnitConverter}}"/>
+      </TextBlock.Text>
+    </TextBlock>
 
     <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
       <Grid.RowDefinitions>

@@ -77,6 +77,7 @@
     <Compile Include="ChainPackages\MediaPortal2.cs" />
     <Compile Include="ChainPackages\FeatureId.cs" />
     <Compile Include="ChainPackages\Vc2019x64.cs" />
+    <Compile Include="Converters\ReferenceToVisibilityConverter.cs" />
     <Compile Include="Converters\FileSizeUnitConverter .cs" />
     <Compile Include="Models\DetectionState.cs" />
     <Compile Include="Localization\ILanguageChanged.cs" />
@@ -232,6 +233,10 @@
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Styles\ListViewStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Styles\PackageStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
