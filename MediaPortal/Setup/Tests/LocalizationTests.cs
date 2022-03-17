@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.Logging;
 using MP2BootstrapperApp.Localization;
+using MP2BootstrapperApp.MarkupExtensions;
 using System.Collections.Generic;
 using System.Globalization;
 using Xunit;
@@ -59,6 +60,42 @@ namespace Tests
       string localized = stringManager.ToString(label);
 
       Assert.Equal(expected, localized);
+    }
+
+    [Fact]
+    void Should_LocalizeExtensionFormatStringWithSingleValue()
+    {
+      StringManager stringManager = new StringManager(new NoLogger());
+      stringManager.AddLanguageAssembly(typeof(LocalizationTests).Assembly);
+      LocalizeValueProvider localizeValueProvider = new LocalizeValueProvider(stringManager);
+
+      localizeValueProvider.Update("[LocalizationTests.TestFormatSingle]", "value");
+
+      Assert.Equal("Format value", localizeValueProvider.Value);
+    }
+
+    [Fact]
+    void Should_LocalizeExtensionFormatStringWithArrayOfValues()
+    {
+      StringManager stringManager = new StringManager(new NoLogger());
+      stringManager.AddLanguageAssembly(typeof(LocalizationTests).Assembly);
+      LocalizeValueProvider localizeValueProvider = new LocalizeValueProvider(stringManager);
+
+      localizeValueProvider.Update("[LocalizationTests.TestFormatArray]", new object[] { "value1", "value2" });
+
+      Assert.Equal("Format value1 value2", localizeValueProvider.Value);
+    }
+
+    [Fact]
+    void Should_LocalizeExtension_Not_FormatStringWithNullValue()
+    {
+      StringManager stringManager = new StringManager(new NoLogger());
+      stringManager.AddLanguageAssembly(typeof(LocalizationTests).Assembly);
+      LocalizeValueProvider localizeValueProvider = new LocalizeValueProvider(stringManager);
+
+      localizeValueProvider.Update("[LocalizationTests.TestFormatSingle]", null);
+
+      Assert.Equal("Format {0}", localizeValueProvider.Value);
     }
   }
 }

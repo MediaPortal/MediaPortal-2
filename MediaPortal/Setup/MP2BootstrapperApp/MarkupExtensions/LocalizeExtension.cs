@@ -37,7 +37,9 @@ namespace MP2BootstrapperApp.MarkupExtensions
   public class LocalizeExtension : UpdatableMarkupExtension
   {
     protected string _stringId;
+    protected string _parameters;
     protected BindingBase _stringIdBinding;
+    protected BindingBase _parametersBinding;
     private ILanguageChanged _localization;
 
     /// <summary>
@@ -77,6 +79,22 @@ namespace MP2BootstrapperApp.MarkupExtensions
     }
 
     /// <summary>
+    /// Parameters to pass when formatting the translated string. Updating this will automatically update the translation.<br/>
+    /// If <see cref="ParametersBinding"/> is set then this value will be ignored.
+    /// </summary>
+    public string Parameters
+    {
+      get { return _parameters; }
+      set
+      {
+        if (_parameters == value)
+          return;
+        _parameters = value;
+        RaisePropertyChanged();
+      }
+    }
+
+    /// <summary>
     /// The binding to use to get the id of the string to translate.<br/>
     /// If set, this will be preferred over <see cref="StringId"/>.
     /// </summary>
@@ -91,13 +109,29 @@ namespace MP2BootstrapperApp.MarkupExtensions
       set { _stringIdBinding = value; }
     }
 
+    /// <summary>
+    /// The binding to use to get the paramters to use when formatting the translated string.<br/>
+    /// If set, this will be preferred over <see cref="Parameters"/>.
+    /// </summary>
+    /// <remarks>
+    /// WPF only allows binding to DependencyObjects, and MarkupExtensions cannot
+    /// inherit from DependencyObject, so this separate property with the specific binding
+    /// type is needed so WPF allows a binding to passed in.
+    /// </remarks>
+    public BindingBase ParametersBinding
+    {
+      get { return _parametersBinding; }
+      set { _parametersBinding = value; }
+    }
+
     protected override BindingBase ProvideValueOverride(DependencyObject target)
     {
       // If we have a binding then use that directly, else create a binding to the StringId property so it's changes are propagated to the target
-      BindingBase keyBinding = _stringIdBinding != null ? _stringIdBinding : new Binding(nameof(StringId)) { Source = this };
+      BindingBase idBinding = _stringIdBinding != null ? _stringIdBinding : new Binding(nameof(StringId)) { Source = this };
+      BindingBase parametersBinding = _parametersBinding != null ? _parametersBinding : new Binding(nameof(Parameters)) { Source = this };
 
       // Localized value source handles listening to bound value and language changes
-      LocalizeValueProvider source = new LocalizeValueProvider(target, keyBinding, _localization);
+      LocalizeValueProvider source = new LocalizeValueProvider(target, idBinding, parametersBinding, _localization);
       return new Binding(nameof(LocalizeValueProvider.Value))
       {
         Source = source
