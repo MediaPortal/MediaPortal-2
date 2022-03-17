@@ -84,43 +84,21 @@ namespace Tests
       Assert.Equal(Visibility.Visible, result);
     }
 
-    [Fact]
-    public void ReturnNearestKilobyte_When_ConverterParameterIsKb()
+    [Theory]
+    [InlineData(528, "528 B")]
+    [InlineData(2200, "2 KB")]
+    [InlineData(2252800, "2 MB")]
+    [InlineData(2306867200, "2.1 GB")]
+    public void ReturnAppropriateFileSizeUnit(object size, string expected)
     {
       // Arrange
       FileSizeUnitConverter converter = new FileSizeUnitConverter();
 
       // Act
-      object result = converter.Convert(560315, null, "Kb", CultureInfo.InvariantCulture);
+      object result = converter.Convert(size, null, null, CultureInfo.InvariantCulture);
 
       // Assert
-      Assert.Equal(547L, result);
-    }
-
-    [Fact]
-    public void ReturnNearestMegabyte_When_ConverterParameterIsMb()
-    {
-      // Arrange
-      FileSizeUnitConverter converter = new FileSizeUnitConverter();
-
-      // Act
-      object result = converter.Convert(8892141, null, "Mb", CultureInfo.InvariantCulture);
-
-      // Assert
-      Assert.Equal(8L, result);
-    }
-
-    [Fact]
-    public void ReturnNearestGigabyte_When_ConverterParameterIsGb()
-    {
-      // Arrange
-      FileSizeUnitConverter converter = new FileSizeUnitConverter();
-
-      // Act
-      object result = converter.Convert(8892141, null, "Gb", CultureInfo.InvariantCulture);
-
-      // Assert
-      Assert.Equal(8L, result);
+      Assert.Equal(expected, result);
     }
   }
 }

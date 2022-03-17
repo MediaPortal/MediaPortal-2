@@ -30,22 +30,24 @@ namespace MP2BootstrapperApp.Converters
 {
   public class FileSizeUnitConverter : IValueConverter
   {
+    const int KILOBYTE = 1024;
+    const int MEGABYTE = KILOBYTE * KILOBYTE;
+    const int GIGABYTE = KILOBYTE * KILOBYTE * KILOBYTE;
+
     public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
     {
       double size = System.Convert.ToDouble(value);
 
-      string units = (parameter as string)?.ToLowerInvariant();
-      if (units == null)
-        return size;
+      if (size < KILOBYTE)
+        return size + " B";
 
-      if (units == "kb")
-        size /= 1024;
-      else if (units == "mb")
-        size /= 1024 * 1024;
-      else if (units == "gb")
-        size /= 1024 * 1024 * 1024;
+      if (size < MEGABYTE)
+        return Math.Round(size / KILOBYTE) + " KB";
 
-      return (long)Math.Round(size);
+      if (size < GIGABYTE)
+        return Math.Round(size / MEGABYTE) + " MB";
+
+      return Math.Round(size / GIGABYTE, 1) + " GB";
     }
 
     public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
