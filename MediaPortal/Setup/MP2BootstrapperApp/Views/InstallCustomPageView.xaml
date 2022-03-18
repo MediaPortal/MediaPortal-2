@@ -56,7 +56,7 @@
              Height="{Binding ElementName=InstallDirectoryTextBox, Path=ActualHeight}"
              Foreground="#80FFFFFF"
              FontSize="18"
-             Content="{me:Localize [InstallCustomPageView.BrowseButton]}" VerticalContentAlignment="Center" Grid.ColumnSpan="2" />
+             Content="{me:Localize [InstallCustomPageView.Location]}" VerticalContentAlignment="Center" Grid.ColumnSpan="2" />
 
       <!--Shows the ValidationTextBoxTemplate which is a textbox that shows a border if the value is invalid-->
       <ContentControl x:Name="InstallDirectoryTextBox" Grid.Column="2"
