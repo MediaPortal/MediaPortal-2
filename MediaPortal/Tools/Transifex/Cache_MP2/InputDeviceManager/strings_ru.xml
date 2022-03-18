@@ -1,8 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="Settings.InputDeviceManager.Section">Устройства ввода</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfig">Назначить функцию</string>
+  <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Это позволяет вам сопоставлять функции MediaPortal с клавишами/кнопками на ваших устройствах ввода. Например, вы можете назначить Громкость Больше/Меньше на «+» и «-» на клавиатуре, если у вас нет специальных клавиш регулировки громкости на клавиатуре. </string>
+  <string name="Settings.InputDeviceManager.EnterActionConfig">Назначить действие</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfigHelp">Это позволяет вам сопоставлять глобальные действия MediaPortal с клавишами/кнопками вашего устройства ввода для быстрого доступа.</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfig">Назначить конфигурацию</string>
+  <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Это позволяет сопоставлять экраны конфигурации и настройки MediaPortal с клавишами/кнопками вашего устройства ввода для быстрого доступа. </string>
+  <string name="Settings.InputDeviceManager.EnterScreenHome">Назначить экран</string>
+  <string name="Settings.InputDeviceManager.EnterScreenHomeHelp">Это позволяет вам сопоставлять экраны меню MediaPortal с клавишами/кнопками на вашем устройстве ввода для быстрого доступа. Например, вы можете определить «F2» на клавиатуре, чтобы открыть экран «Новости». </string>
+
+  <string name="InputDeviceManager.SelectDevice.Header">Нажмите нужную клавишу/кнопку на устройстве ввода, чтобы запомнить</string>
+  <string name="InputDeviceManager.FocusItem">Просмотрите текущие сопоставления и выберите элемент, чтобы изменить сопоставление.</string>
+
+  <string name="InputDeviceManager.AddKey.Header">Нажмите нужную комбинацию клавиш/кнопок на устройстве ввода! </string>
+  <string name="InputDeviceManager.Screen">Экран</string>
   <string name="InputDeviceManager.Key">Ключ/Кнопка</string>
   <string name="InputDeviceManager.Action">Боевик</string>
 
   <string name="InputDeviceManager.KeyMapping.Button.ClearMapping">Ясно</string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.RemoveMapping">Удалить сопоставление? </string>
+  <string name="InputDeviceManager.KeyMapping.Dialog.AddMapping">Добавить сопоставление?</string>
+
+  <string name="InputDeviceManager.DefaultConfig.Title">Выбрать сопоставление по умолчанию</string>
   <string name="InputDeviceManager.DefaultConfig.Keyboard">Клавиатура по умолчанию</string>
   </resources>

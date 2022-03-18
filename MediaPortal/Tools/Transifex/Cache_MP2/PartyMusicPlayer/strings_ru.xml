@@ -2,6 +2,7 @@
 <resources>
   <string name="PartyMusicPlayer.Playlist">Плейлист</string>
   <string name="PartyMusicPlayer.ChoosePlaylist">Выбрать плейлист</string>
+  <string name="PartyMusicPlayer.DisableScreenSaver">Отключить скрин-сейвер</string>
   <string name="PartyMusicPlayer.ChoosePlaylistDialogHeader">Выбрать плейлист</string>
   <string name="PartyMusicPlayer.ServerNotConnectedDialogHeader">Сервер не подключен</string>
   <string name="PartyMusicPlayer.AudioArtistLabel">Исполнитель</string>

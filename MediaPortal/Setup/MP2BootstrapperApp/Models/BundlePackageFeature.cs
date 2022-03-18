@@ -24,6 +24,7 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
+using System.Globalization;
 using System.Xml.Linq;
 
 namespace MP2BootstrapperApp.Models
@@ -35,6 +36,7 @@ namespace MP2BootstrapperApp.Models
     protected string _package;
     protected string _title;
     protected string _description;
+    protected long _installedSize;
     protected bool _optional;
 
     public BundlePackageFeature(FeatureId featureId, XElement featureElement, IPackage package)
@@ -53,6 +55,7 @@ namespace MP2BootstrapperApp.Models
       _featureIdString = featureElement.Attribute("Feature")?.Value;
       _title = featureElement.Attribute("Title")?.Value;
       _description = featureElement.Attribute("Description")?.Value;
+      _installedSize = long.TryParse(featureElement.Attribute("Size")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;
     }
 
     protected void SetFeatureProperties(IPackage package)
@@ -98,6 +101,14 @@ namespace MP2BootstrapperApp.Models
     public string Description
     {
       get { return _description; }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public long InstalledSize
+    {
+      get { return _installedSize; }
     }
 
     /// <summary>

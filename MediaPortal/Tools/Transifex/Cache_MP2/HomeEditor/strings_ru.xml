@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="HomeEditor.OthersMenuItem">Дополнения </string>
+  <string name="HomeEditor.Configuration">Изменить главное меню </string>
+  <string name="HomeEditor.Configuration.Header">Группы главного меню </string>
+  <string name="HomeEditor.Configuration.Help">Изменить главное меню </string>
+  <string name="HomeEditor.Configuration.Label">Группы главного меню </string>
   <string name="HomeEditor.Configuration.AddGroup">Добавить группу</string>
   <string name="HomeEditor.Configuration.GroupEdit.Header">Изменить группу</string>
   <string name="HomeEditor.Configuration.GroupRemove.Header">Удалить группу</string>
@@ -7,6 +12,7 @@
   <string name="HomeEditor.Configuration.DisplayName">Отображаемое имя</string>
   <string name="HomeEditor.Configuration.RestoreDefaults">Восстановить к настройкам по умолчанию</string>
   
+  <string name="HomeEditor.Configuration.GroupEdit.Label">Групповые действия меню </string>
   <string name="HomeEditor.Configuration.ActionEdit.Header">Изменить действие</string>
   <string name="HomeEditor.Configuration.ActionRemove.Header">Удалить действие</string>
   <string name="HomeEditor.Configuration.ActionRemove.Label">Выберите действия к удалению</string>

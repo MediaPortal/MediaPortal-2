@@ -69,7 +69,6 @@
   <ItemGroup>
     <Compile Include="ActionPlans\SimplePlan.cs" />
     <Compile Include="ActionPlans\ModifyPlan.cs" />
-    <Compile Include="ActionType.cs" />
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
     <Compile Include="BootstrapperWrapper\IVariables.cs" />
     <Compile Include="BootstrapperWrapper\Variables.cs" />
@@ -78,7 +77,9 @@
     <Compile Include="ChainPackages\MediaPortal2.cs" />
     <Compile Include="ChainPackages\FeatureId.cs" />
     <Compile Include="ChainPackages\Vc2019x64.cs" />
-    <Compile Include="DetectionState.cs" />
+    <Compile Include="Converters\ReferenceToVisibilityConverter.cs" />
+    <Compile Include="Converters\FileSizeUnitConverter .cs" />
+    <Compile Include="Models\DetectionState.cs" />
     <Compile Include="Localization\ILanguageChanged.cs" />
     <Compile Include="MarkupExtensions\DisposableValueProvider.cs" />
     <Compile Include="MarkupExtensions\LocalizeExtension.cs" />
@@ -88,7 +89,7 @@
     <Compile Include="ActionPlans\InstallPlan.cs" />
     <Compile Include="ActionPlans\PlanContext.cs" />
     <Compile Include="ActionPlans\RepairPlan.cs" />
-    <Compile Include="InstallState.cs" />
+    <Compile Include="Models\InstallState.cs" />
     <Compile Include="Localization\StringManager.cs" />
     <Compile Include="Localization\LocalizationStrings.cs" />
     <Compile Include="Logging\Logger.cs" />
@@ -100,7 +101,7 @@
     <Compile Include="Models\IBundleMsiPackage.cs" />
     <Compile Include="Models\IBundlePackage.cs" />
     <Compile Include="Models\IBundlePackageFeature.cs" />
-    <Compile Include="PackageStateToVisibilityConverter.cs" />
+    <Compile Include="Converters\PackageStateToVisibilityConverter.cs" />
     <Compile Include="BootstrapperWrapper\BootstrapperApplicationWrapper.cs" />
     <Compile Include="ChainPackages\Dokan.cs" />
     <Compile Include="ChainPackages\IPackageChecker.cs" />
@@ -113,11 +114,10 @@
     <Compile Include="ChainPackages\Vc2013.cs" />
     <Compile Include="ChainPackages\Vc2008Sp1.cs" />
     <Compile Include="ChainPackages\Vc2019.cs" />
-    <Compile Include="EnumToBooleanConverter.cs" />
+    <Compile Include="Converters\EnumToBooleanConverter.cs" />
     <Compile Include="BootstrapperWrapper\IBootstrapperApp.cs" />
     <Compile Include="BootstrapperWrapper\IDispatcher.cs" />
     <Compile Include="BootstrapperWrapper\DispatcherWrapper.cs" />
-    <Compile Include="InstallType.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
     <Compile Include="Models\Package.cs" />
     <Compile Include="Utils\PathUtils.cs" />
@@ -233,6 +233,10 @@
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Styles\ListViewStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Styles\PackageStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>

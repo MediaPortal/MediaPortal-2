@@ -1,9 +1,22 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="Settings.General.System.SystemStateDialog">Меню выключения</string>
+  <string name="Settings.General.System.SystemStateDialog.Help">Настройка видимости и положения пунктов меню выключения </string>
+  <string name="SystemState.Configuration.Dialog.Title">Настройка элементов выключения </string>
+  <string name="SystemState.Title">Меню выключения</string>
   <string name="SystemState.Hibernate">Гибернация</string>
+  <string name="SystemState.Shutdown">Выключить</string>
+  <string name="SystemState.Suspend">Приостановить </string>
   <string name="SystemState.Restart">Перезапустить Windows</string>
   <string name="SystemState.RestartMP">Перезапустить MediaPortal</string>
+  <string name="SystemState.Logoff">Выход</string>
+  <string name="SystemState.SleepTimerConfig">Настройка таймера сна </string>
+  <string name="SystemState.SleepTimerStop">Остановить таймер сна</string>
+  <string name="SystemState.MinimizeMP">Свернуть MediaPortal</string>
   <string name="SystemState.ShutdownMP">Закрыть MediaPortal</string>
+  <string name="SystemState.ShutdownDialogStateDisplayLabel">Меню выключения</string>
+  <string name="SystemState.ShutdownConfigurationDialogStateDisplayLabel">Настройка меню выключения</string>
+  <string name="SleepTimer.Title">Таймер сна</string>
   <string name="SleepTimer.Start">Начало</string>
   <string name="SleepTimer.Stop">Стоп</string>
   <string name="SleepTimer.Action">Действие:</string>
@@ -11,4 +24,7 @@
   <string name="SleepTimer.Minutes">мин</string>
   <string name="SleepTimer.MediaItem">После текущего медиаэлемента</string>
   <string name="SleepTimer.Playlist">После текущего плейлиста</string>
+  <string name="SleepTimer.ShutdownTextSingle">{0} менее чем за одну минуту </string>
+  <string name="SleepTimer.ShutdownTextMulti">{0} через {1} мин. </string>
+  <string name="SleepTimer.MaxMinutes">Максимальное количество минут таймера сна:</string>
 </resources>

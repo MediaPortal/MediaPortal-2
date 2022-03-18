@@ -22,12 +22,26 @@
 
 #endregion
 
-namespace MP2BootstrapperApp
+using System;
+using System.Globalization;
+using System.Windows;
+using System.Windows.Data;
+
+namespace MP2BootstrapperApp.Converters
 {
-  public enum ActionType
+  /// <summary>
+  /// Converter that returns <see cref="Visibility.Visible"/> if the value to convert is not <c>null</c>; else <see cref="Visibility.Collapsed"/>.
+  /// </summary>
+  public class ReferenceToVisibilityConverter : IValueConverter
   {
-    Modify,
-    Repair,
-    Uninstall
+    public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      return value != null ? Visibility.Visible : Visibility.Collapsed;
+    }
+
+    public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

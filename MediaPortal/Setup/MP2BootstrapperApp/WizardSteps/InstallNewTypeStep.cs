@@ -29,6 +29,14 @@ using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
+  public enum InstallType
+  {
+    ClientServer,
+    Client,
+    Server,
+    Custom
+  }
+
   public class InstallNewTypeStep : AbstractInstallStep, IStep
   {
     public InstallNewTypeStep(IBootstrapperApplicationModel bootstrapperApplicationModel)

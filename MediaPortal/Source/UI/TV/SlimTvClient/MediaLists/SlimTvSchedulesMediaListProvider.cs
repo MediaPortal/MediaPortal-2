@@ -69,6 +69,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       item.SetLabel("StartTime", start.FormatProgramStartTime());
       item.SetLabel("EndTime", end.FormatProgramEndTime());
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
+      item.SetLabel("ScheduleTypeEnum", schedule.RecordingType.ToString());
       item.AdditionalProperties["SCHEDULE"] = schedule;
       return item;
     }

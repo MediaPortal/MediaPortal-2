@@ -51,18 +51,26 @@ namespace MP2BootstrapperApp.MarkupExtensions
       "LocalizeId", typeof(string), typeof(LocalizeValueProvider), new PropertyMetadata(OnPropertyChanged)
     );
 
+    public static readonly DependencyProperty LocalizeParametersProperty = DependencyProperty.RegisterAttached(
+      "LocalizeParameters", typeof(object), typeof(LocalizeValueProvider), new PropertyMetadata(OnPropertyChanged)
+    );
+
     private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
       // One of the dependency properties has changed, update the StringId value of the provider.
       LocalizeValueProvider source = d.GetValue(LocalizeValueProviderProperty) as LocalizeValueProvider;
       if (source != null)
-        source.StringId = d.GetValue(LocalizeIdProperty) as string;
+        source.Update(d.GetValue(LocalizeIdProperty) as string, d.GetValue(LocalizeParametersProperty));
     }
 
     #endregion
 
     private string _stringId;
+    private object[] _parameters;
     private ILanguageChanged _localization;
+
+    protected bool _isUpdating = false;
+    protected bool _hasChanged = false;
 
     /// <summary>
     /// Creates a new instance of <see cref="LocalizeValueProvider"/> that listens for changes to the <paramref name="stringIdBinding"/>
@@ -70,17 +78,53 @@ namespace MP2BootstrapperApp.MarkupExtensions
     /// </summary>
     /// <param name="target"></param>
     /// <param name="stringIdBinding"></param>
+    /// <param name="parametersBinding"></param>
     /// <param name="localization"></param>
-    public LocalizeValueProvider(DependencyObject target, BindingBase stringIdBinding, ILanguageChanged localization)
+    public LocalizeValueProvider(DependencyObject target, BindingBase stringIdBinding, BindingBase parametersBinding, ILanguageChanged localization)
     : this(localization)
     {
-      AttachTarget(target, stringIdBinding);
+      AttachTarget(target, stringIdBinding, parametersBinding);
     }
 
-    protected LocalizeValueProvider(ILanguageChanged localization)
+    public LocalizeValueProvider(ILanguageChanged localization)
     {
       _localization = localization;
       AttachLanguageChanged();
+    }
+
+    /// <summary>
+    /// Updates the string id and parameters, deferring any change notifications until the update is complete.
+    /// </summary>
+    /// <param name="stringId">The updated string id.</param>
+    /// <param name="parameters">The updated paramters.</param>
+    public void Update(string stringId, object parameters)
+    {
+      _isUpdating = true;
+      bool hasChanged;
+      try
+      {
+        StringId = stringId;
+        Parameters = GetParameters(parameters);
+      }
+      finally
+      {
+        hasChanged = _hasChanged;
+        _hasChanged = false;
+        _isUpdating = false;
+      }
+
+      if (hasChanged)
+        RaisePropertyChanged(nameof(Value));
+    }
+
+    protected object[] GetParameters(object parameters)
+    {
+      if (parameters == null)
+        return null;
+      else if (parameters is object[] array)
+        return array;
+      else
+        return new object[] { parameters };
     }
 
     /// <summary>
@@ -95,7 +139,29 @@ namespace MP2BootstrapperApp.MarkupExtensions
           return;
         _stringId = value;
         // String id has changed, trigger an update of the translated value.
-        RaisePropertyChanged(nameof(Value));
+        if (_isUpdating)
+          _hasChanged = true;
+        else
+          RaisePropertyChanged(nameof(Value));
+      }
+    }
+
+    /// <summary>
+    /// Parameters to pass when formatting the translated string.
+    /// </summary>
+    public object[] Parameters
+    {
+      get { return _parameters; }
+      set
+      {
+        if (_parameters == value)
+          return;
+        _parameters = value;
+        // Paramters have changed, trigger an update of the translated value.
+        if (_isUpdating)
+          _hasChanged = true;
+        else
+          RaisePropertyChanged(nameof(Value));
       }
     }
 
@@ -106,7 +172,7 @@ namespace MP2BootstrapperApp.MarkupExtensions
     {
       get
       {
-        return _localization?.ToString(_stringId) ?? _stringId;
+        return _localization?.ToString(_stringId, _parameters) ?? _stringId;
       }
     }
 
@@ -115,12 +181,15 @@ namespace MP2BootstrapperApp.MarkupExtensions
     /// </summary>
     /// <param name="target">The target DependencyObject that recieves the translated string.</param>
     /// <param name="stringIdBinding">The binding that is bound to the string id value.</param>
-    private void AttachTarget(DependencyObject target, BindingBase stringIdBinding)
+    /// <param name="parametersBinding">The binding that is bound to the parameters value.</param>
+    private void AttachTarget(DependencyObject target, BindingBase stringIdBinding, BindingBase parametersBinding)
     {
-      // Bind the string id binding and this instance to the target, when the binding changes the
-      // Attached property's change handler will update this instance with the new id.
+      // Bind the string id binding, paramter binding and this instance to the target, when the bindings change the
+      // Attached property's change handler will update this instance with the new values.
       BindingOperations.ClearBinding(target, LocalizeIdProperty);
       BindingOperations.SetBinding(target, LocalizeIdProperty, stringIdBinding);
+      BindingOperations.ClearBinding(target, LocalizeParametersProperty);
+      BindingOperations.SetBinding(target, LocalizeParametersProperty, parametersBinding);
       target.SetValue(LocalizeValueProviderProperty, this);
     }
 

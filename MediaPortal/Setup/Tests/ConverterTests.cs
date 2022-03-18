@@ -22,10 +22,10 @@
 
 #endregion
 
+using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.Converters;
 using System.Globalization;
 using System.Windows;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp;
 using Xunit;
 
 namespace Tests
@@ -82,6 +82,23 @@ namespace Tests
 
       // Assert
       Assert.Equal(Visibility.Visible, result);
+    }
+
+    [Theory]
+    [InlineData(528, "528 B")]
+    [InlineData(2200, "2 KB")]
+    [InlineData(2252800, "2 MB")]
+    [InlineData(2306867200, "2.1 GB")]
+    public void ReturnAppropriateFileSizeUnit(object size, string expected)
+    {
+      // Arrange
+      FileSizeUnitConverter converter = new FileSizeUnitConverter();
+
+      // Act
+      object result = converter.Convert(size, null, null, CultureInfo.InvariantCulture);
+
+      // Assert
+      Assert.Equal(expected, result);
     }
   }
 }

@@ -26,6 +26,13 @@ using MP2BootstrapperApp.Models;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
+  public enum ActionType
+  {
+    Modify,
+    Repair,
+    Uninstall
+  }
+
   public class InstallExistInstallStep : AbstractInstallStep, IStep
   {
     public InstallExistInstallStep(IBootstrapperApplicationModel bootstrapperApplicationModel)

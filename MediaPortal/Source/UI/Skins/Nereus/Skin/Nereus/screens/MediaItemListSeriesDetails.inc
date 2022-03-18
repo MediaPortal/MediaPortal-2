@@ -113,7 +113,7 @@
     </StackPanel>
 
     <Grid DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}">
-      <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" Margin="2,-1,5,1"
+      <Image Source="HomeContentIcons\series.png" Height="25" Width="25" Stretch="Uniform" Margin="2,0,5,0"
              VerticalAlignment="Center" HorizontalAlignment="Left"/>
       <StackPanel Orientation="Horizontal" Margin="40,0,0,0">
         <Label FontSize="{ThemeResource SmallFontSize}" Content="{Binding Seasons}"
@@ -150,7 +150,7 @@
       <media:MediaAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,-1,5,1" 
+            <Image Source="HomeContentIcons\year.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
                    VerticalAlignment="Center" HorizontalAlignment="Left"/>
             <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColorForeground}"
                    Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Margin="40,0,0,0"/>
