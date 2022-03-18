@@ -31,28 +31,36 @@
 
   <!-- Style for a text box displayed in page content, modifies the DefaultTextBoxStyle with a light background and text -->
   <Style x:Key="ContentTextBoxStyle" BasedOn="{StaticResource DefaultTextBoxStyle}" TargetType="{x:Type TextBox}">
-    <Setter Property="Background" Value="#20FFFFFF"/>
+    <Setter Property="Background" Value="#00FFFFFF"/>
     <Setter Property="Foreground" Value="#80FFFFFF"/>
     <Setter Property="CaretBrush" Value="#FFFFFFFF"/>
-    <Setter Property="BorderBrush" Value="#20FFFFFF"/>
-    <Style.Triggers>
-      <Trigger Property="IsKeyboardFocusWithin" Value="True">
-        <Setter Property="Foreground" Value="#FFFFFFFF"/>
-      </Trigger>
-    </Style.Triggers>
+    <Setter Property="BorderBrush" Value="#00FFFFFF"/>
   </Style>
 
   <!-- DataTemplate for a PropertyValidationModel<string> that shows the string value in a TextBox and a red border if the value is invalid -->
   <DataTemplate x:Key="ValidationTextBoxTemplate">
-    <TextBox x:Name="TextBox" Padding="5"
-             Style="{StaticResource ContentTextBoxStyle}"
-             HorizontalAlignment="Stretch"
-             BorderThickness="2"
-             Text="{Binding Value}"/>
+    <Grid Background="#20FFFFFF">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="34"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="Auto"/>
+        <ColumnDefinition Width="Auto"/>
+      </Grid.ColumnDefinitions>
+
+      <Image x:Name="InstallLocation" VerticalAlignment="Center" Margin="6" Source="..\resources\path.png" Opacity="0.5"/>
+      <TextBox x:Name="TextBox" Padding="5,0,2,0" Grid.Column="1"
+               Style="{StaticResource ContentTextBoxStyle}"
+               HorizontalAlignment="Stretch"
+               VerticalAlignment="Stretch" VerticalContentAlignment="Center"
+               BorderThickness="0"
+               Text="{Binding Value}"/>
+    </Grid>
     <DataTemplate.Triggers>
-      <DataTrigger Binding="{Binding IsInvalid}" Value="True">
-        <Setter TargetName="TextBox" Property="BorderBrush" Value="Red"/>
-      </DataTrigger>
+      <Trigger Property="IsKeyboardFocusWithin" Value="True">
+        <Setter TargetName="TextBox" Property="Foreground" Value="#FFFFFFFF"/>
+        <Setter TargetName="InstallLocation" Property="Opacity"  Value="1"/>
+      </Trigger>
     </DataTemplate.Triggers>
   </DataTemplate>
 

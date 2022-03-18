@@ -38,9 +38,9 @@
                   <Trigger.EnterActions>
                     <BeginStoryboard>
                       <Storyboard>
-                        <DoubleAnimation Storyboard.TargetName="Icon" To="1.2"  Duration="0:0:0.09"
+                        <DoubleAnimation Storyboard.TargetName="Icon" To="1.2"  Duration="0:0:0.15"
                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"/>
-                        <DoubleAnimation Storyboard.TargetName="Icon" To="1.2" Duration="0:0:0.09" 
+                        <DoubleAnimation Storyboard.TargetName="Icon" To="1.2" Duration="0:0:0.15" 
                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
                       </Storyboard>
                     </BeginStoryboard>
@@ -48,9 +48,9 @@
                   <Trigger.ExitActions>
                     <BeginStoryboard>
                       <Storyboard>
-                        <DoubleAnimation Storyboard.TargetName="Icon" To="1"  Duration="0:0:0.09"
+                        <DoubleAnimation Storyboard.TargetName="Icon" To="1"  Duration="0:0:0.15"
                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleX)"/>
-                        <DoubleAnimation Storyboard.TargetName="Icon" To="1" Duration="0:0:0.09"
+                        <DoubleAnimation Storyboard.TargetName="Icon" To="1" Duration="0:0:0.15"
                                          Storyboard.TargetProperty="(UIElement.RenderTransform).(TransformGroup.Children)[0].(ScaleTransform.ScaleY)"/>
                       </Storyboard>
                     </BeginStoryboard>
