@@ -80,8 +80,7 @@
                       ContentTemplate="{StaticResource ValidationTextBoxTemplate}"
                       Content="{Binding InstallDirectory}"/>
 
-      <Label Grid.Row="1" Grid.Column="2"
-             Foreground="#80FFFFFF"
+      <Label Grid.Row="1" Grid.Column="2" Style="{StaticResource ContentLabelStyle}"
              FontSize="16"
              Content="{me:Localize [InstallCustomPageView.InvalidPath]}"
              Visibility="{Binding Path=InstallDirectory.IsInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>

@@ -7,7 +7,14 @@
     <Setter Property="FontStretch" Value="SemiCondensed"/>
     <Setter Property="FontSize" Value="18"/>
   </Style>
-  
+
+  <!-- Style for a label displayed in page content, small font size with light coloured text -->
+  <Style x:Key="ContentLabelStyle" TargetType="{x:Type Label}">
+    <Setter Property="Foreground" Value="#80FFFFFF"/>
+    <Setter Property="FontStretch" Value="SemiCondensed"/>
+    <Setter Property="FontSize" Value="18"/>
+  </Style>
+
   <!-- TextBox style that does not show the default blue focus box -->
   <Style x:Key="DefaultTextBoxStyle" TargetType="{x:Type TextBox}">
     <Setter Property="Template">
