@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+  <!-- Package descriptions -->
+  <string name="PackageDescription.LAVFilters">Recommended directshow filters for best audio and video playback experience.</string>
+
+  <!-- Feature descriptions -->
+  <string name="FeatureDescription.Client">The user interface. Plays media files.</string>
+  <string name="FeatureDescription.Server">The server part of MediaPortal 2. Provides the MediaLibrary and other services.</string>
+  <string name="FeatureDescription.ServiceMonitor">The GUI for the server part of MediaPortal 2. Provides monitoring and configuration for MP2-Server.</string>
+  <string name="FeatureDescription.LogCollector">LogCollector allows you to easily collect all MediaPortal 2 logfiles for creating bug reports.</string>
+  
   <!-- General -->
   <string name="General.FinishButton">Finish</string>
   <string name="General.NextButton">Next</string>

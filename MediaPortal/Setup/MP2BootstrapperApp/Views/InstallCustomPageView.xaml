@@ -45,13 +45,20 @@
       </ListView.ItemsPanel>
     </ListView>
 
-    <TextBlock Grid.Row="1" Style="{StaticResource ContentTextBlockStyle}" Margin="0,10,0,0"
-               Visibility="{Binding ElementName=PackageList, Path=SelectedItem, Converter={StaticResource ReferenceToVisibilityConverter}}">
-      <TextBlock.Text>
-        <me:Localize StringId="[InstallCustomPageView.RequiredHardDriveSpace]"
-                     ParametersBinding="{Binding ElementName=PackageList, Path=SelectedItem.Package.InstalledSize, Converter={StaticResource FileSizeUnitConverter}}"/>
-      </TextBlock.Text>
-    </TextBlock>
+    <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10,0,0"
+                Visibility="{Binding ElementName=PackageList, Path=SelectedItem, Converter={StaticResource ReferenceToVisibilityConverter}}">
+
+      <TextBlock Style="{StaticResource ContentTextBlockStyle}"
+                 Text="{me:Localize StringIdBinding={Binding ElementName=PackageList, Path=SelectedItem.Package.LocalizedDescription}}"/>
+
+      <TextBlock Style="{StaticResource ContentTextBlockStyle}">
+        <TextBlock.Text>
+          <me:Localize StringId="[InstallCustomPageView.RequiredHardDriveSpace]"
+                       ParametersBinding="{Binding ElementName=PackageList, Path=SelectedItem.Package.InstalledSize, Converter={StaticResource FileSizeUnitConverter}}"/>
+        </TextBlock.Text>
+      </TextBlock>
+
+    </StackPanel>
 
     <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
       <Grid.RowDefinitions>

@@ -37,6 +37,8 @@ namespace MP2BootstrapperApp.Models
 
     public string Description { get; set; }
 
+    public string LocalizedDescription { get; set; }
+
     public long InstalledSize { get; set; }
     
     public string ImagePath { get; set; }

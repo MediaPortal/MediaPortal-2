@@ -101,6 +101,7 @@ namespace MP2BootstrapperApp.ViewModels
         Id = bundlePackage.Id,
         DisplayName = bundlePackage.DisplayName,
         Description = bundlePackage.Description,
+        LocalizedDescription = $"[PackageDescription.{bundlePackage.Id}]",
         InstalledSize = bundlePackage.InstalledSize,
         PackageState = bundlePackage.CurrentInstallState,
         RequestState = requestState ?? RequestState.None
@@ -117,6 +118,7 @@ namespace MP2BootstrapperApp.ViewModels
         Id = feature.FeatureName,
         DisplayName = feature.Title,
         Description = feature.Description,
+        LocalizedDescription = $"[FeatureDescription.{feature.FeatureName}]",
         InstalledSize = feature.InstalledSize,
         PackageState = feature.CurrentFeatureState == FeatureState.Local ? PackageState.Present : PackageState.Absent,
         RequestState = requestState ?? RequestState.None
