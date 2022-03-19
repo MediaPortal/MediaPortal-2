@@ -108,8 +108,16 @@ namespace MP2BootstrapperApp.ViewModels
       };
     }
 
-    protected Package CreatePackageFeature(IBundlePackage bundlePackage, IBundlePackageFeature feature, RequestState? requestState = null)
+    protected Package CreatePackageFeature(IBundlePackage bundlePackage, IBundlePackageFeature feature, FeatureState? featureState = null)
     {
+      RequestState requestState;
+      if (!featureState.HasValue)
+        requestState = RequestState.None;
+      else if (featureState != FeatureState.Absent)
+        requestState = RequestState.Present;
+      else
+        requestState = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? RequestState.Absent : RequestState.None;
+
       return new Package
       {
         BundleVersion = bundlePackage.Version,
@@ -121,7 +129,7 @@ namespace MP2BootstrapperApp.ViewModels
         LocalizedDescription = $"[FeatureDescription.{feature.FeatureName}]",
         InstalledSize = feature.InstalledSize,
         PackageState = feature.CurrentFeatureState == FeatureState.Local ? PackageState.Present : PackageState.Absent,
-        RequestState = requestState ?? RequestState.None
+        RequestState = requestState
       };
     }
   }

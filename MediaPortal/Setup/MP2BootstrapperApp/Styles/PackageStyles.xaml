@@ -1,11 +1,10 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:models="clr-namespace:MP2BootstrapperApp.Models">
+                    xmlns:models="clr-namespace:MP2BootstrapperApp.Models"
+                    xmlns:bootstrapper="clr-namespace:Microsoft.Tools.WindowsInstallerXml.Bootstrapper;assembly=BootstrapperCore">
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="../Styles/ButtonStyles.xaml" />
   </ResourceDictionary.MergedDictionaries>
-  
-  <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
 
   <Style x:Key="PackageBorderStyle" TargetType="{x:Type Border}">
     <Setter Property="VerticalAlignment" Value="Top"/>
@@ -31,6 +30,24 @@
         <Setter Property="Border.Background" Value="#7C7C7C" />
       </DataTrigger>
     </Style.Triggers>
+  </Style>
+
+  <Style x:Key="PackageIndicatorStyle" TargetType="{x:Type Image}">
+    <Setter Property="Source" Value="{x:Null}"/>
+    <Style.Triggers>
+      <DataTrigger Binding="{Binding Installing}" Value="True">
+        <Setter Property="Source" Value="..\resources\install.png" />
+      </DataTrigger>
+      <DataTrigger Binding="{Binding Upgrading}" Value="True">
+        <Setter Property="Source" Value="..\resources\update.png" />
+      </DataTrigger>
+      <DataTrigger Binding="{Binding Uninstalling}" Value="True">
+        <Setter Property="Source" Value="..\resources\uninstall.png" />
+      </DataTrigger>
+      <DataTrigger Binding="{Binding Present}" Value="True">
+        <Setter Property="Source" Value="..\resources\present.png" />
+      </DataTrigger>
+    </Style.Triggers> 
   </Style>
   
   
@@ -62,15 +79,23 @@
         <Label FontSize="9" Foreground="White" Content="{Binding BundleVersion}" Opacity="0.4"/>
       </StackPanel>
 
-      <!--Upgrade indicator-->
-      <Image x:Name="UpgradingIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-             Width="20" Height="20" Margin="0,0,3,3" Source="..\resources\update.png"
-             Visibility="{Binding Path=Upgrading, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-      <Image x:Name="PresentIndicator" Grid.Row="1" Grid.RowSpan="2" HorizontalAlignment="Right" VerticalAlignment="Bottom" 
-             Width="20" Height="20" Margin="0,0,3,3" Source="..\resources\present.png"
-             Visibility="{Binding Path=Present, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+      <!--State indicators-->
+      <Image x:Name="StateIndicator" Grid.Row="1" Grid.RowSpan="2"
+             Style="{StaticResource PackageIndicatorStyle}"
+             HorizontalAlignment="Right" VerticalAlignment="Bottom" 
+             Width="20" Height="20" Margin="0,0,3,3"/>
 
     </Grid>
+  </DataTemplate>
+
+  <!-- Template for displaying a bundle package in the overview screen, additionally adds opacity if the package is not being installed/modified -->
+  <DataTemplate x:Key="OverviewPackageDataTemplate">
+    <ContentPresenter x:Name="ContentControl" ContentTemplate="{StaticResource PackageDataTemplate}" Content="{Binding}"/>
+    <DataTemplate.Triggers>
+      <DataTrigger Binding="{Binding RequestState}" Value="{x:Static bootstrapper:RequestState.None}">
+        <Setter TargetName="ContentControl" Property="Opacity" Value="0.5"/>
+      </DataTrigger>
+    </DataTemplate.Triggers>
   </DataTemplate>
 
   <DataTemplate x:Key="PackageButtonDataTemplate">

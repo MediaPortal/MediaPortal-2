@@ -20,9 +20,8 @@
     </Grid.ColumnDefinitions>
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
-      <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-    <ItemsControl ItemsSource="{Binding Path=Packages}" ItemTemplate="{StaticResource PackageDataTemplate}">
+    <ItemsControl ItemsSource="{Binding Path=Packages}" ItemTemplate="{StaticResource OverviewPackageDataTemplate}">
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel />

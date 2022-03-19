@@ -47,23 +47,28 @@ namespace MP2BootstrapperApp.Models
     
     public Version BundleVersion { get; set; }
 
+    public RequestState RequestState { get; set; } 
+    
+    public PackageState PackageState { get; set; }
+
+    public bool Uninstalling
+    {
+      get { return PackageState == PackageState.Present && RequestState == RequestState.Absent; }
+    }
+
     public bool Present
     {
-      get { return PackageState == PackageState.Present; }
+      get { return PackageState == PackageState.Present && !Uninstalling; }
     }
 
     public bool Upgrading
     {
-      get { return !Present && InstalledVersion != ZERO_VERSION; }
+      get { return RequestState == RequestState.Present && InstalledVersion != ZERO_VERSION; }
     }
 
-    public bool Installing 
+    public bool Installing
     {
-      get { return !Present && !Upgrading; }
+      get { return RequestState == RequestState.Present && !Upgrading; }
     }
-
-    public RequestState RequestState { get; set; } 
-    
-    public PackageState PackageState { get; set; }
   }
 }
