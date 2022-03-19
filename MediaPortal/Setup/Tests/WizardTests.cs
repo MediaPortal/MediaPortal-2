@@ -139,5 +139,21 @@ namespace Tests
 
       Assert.Null(selectedPackage);
     }
+
+    [Theory]
+    // All labeled parameters should be removed
+    [InlineData("Removing applications Application: [1], Command line: [2]", "Removing applications")]
+    // Unlabelled parameters should be removed, keeping preceeding word
+    [InlineData("Generating script operations for action: [1]", "Generating script operations for action")]
+    // Strings with no parameter should be left unchanged
+    [InlineData("Uninstalling Windows Firewall configuration", "Uninstalling Windows Firewall configuration")]
+    void Should_ProgressMessageParametersBeRemoved(string message, string expected)
+    {
+      InstallationInProgressStep step = new InstallationInProgressStep(null);
+
+      string actual = step.ParseActionMessage(message);
+
+      Assert.Equal(expected, actual);
+    }
   }
 }
