@@ -81,32 +81,32 @@
       </TextBlock>
     </StackPanel>
 
-    <Image x:Name="img1" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\1.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+    <Image x:Name="img1" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\1.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
       <Image.Effect>
         <DropShadowEffect Opacity="0.7"/>
       </Image.Effect>
     </Image>
-    <Image x:Name="img2" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\2.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+    <Image x:Name="img2" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\2.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
       <Image.Effect>
         <DropShadowEffect Opacity="0.7"/>
       </Image.Effect>
     </Image>
-    <Image x:Name="img3" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\3.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+    <Image x:Name="img3" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\3.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
       <Image.Effect>
         <DropShadowEffect Opacity="0.7"/>
       </Image.Effect>
     </Image>
-    <Image x:Name="img4" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\4.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+    <Image x:Name="img4" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\4.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
       <Image.Effect>
         <DropShadowEffect Opacity="0.7"/>
       </Image.Effect>
     </Image>
-    <Image x:Name="img5" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\5.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+    <Image x:Name="img5" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\5.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
       <Image.Effect>
         <DropShadowEffect Opacity="0.7"/>
       </Image.Effect>
     </Image>
-    <Image x:Name="img6" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\6.jpg" Margin="0,-20,-20,80" Opacity="0" VerticalAlignment="Center">
+    <Image x:Name="img6" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\6.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
       <Image.Effect>
         <DropShadowEffect Opacity="0.7"/>
       </Image.Effect>
