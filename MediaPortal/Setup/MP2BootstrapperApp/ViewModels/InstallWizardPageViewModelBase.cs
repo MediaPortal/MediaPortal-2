@@ -110,13 +110,21 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected Package CreatePackageFeature(IBundlePackage bundlePackage, IBundlePackageFeature feature, FeatureState? featureState = null)
     {
+      // Convert the FeatureState into a corresponding RequestState for display purposes.
+      // There isn't a one-to-one mapping because feature states always have to be explicitly set, in our case either to Present or Absent,
+      // so there's no equivalent of RequestState.None which is used to indicate that the state of a package won't change. Instead we have
+      // to determine this depending on whether a current/previous version of the feature is currently installed.
       RequestState requestState;
       if (!featureState.HasValue)
         requestState = RequestState.None;
-      else if (featureState != FeatureState.Absent)
-        requestState = RequestState.Present;
-      else
+      // For features requested absent, if no current/previous version is installed then nothing will change, so use RequestState.None,
+      // else if the feature is installed then it will be removed, so use RequestState.Absent.
+      else if (featureState == FeatureState.Absent)
         requestState = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? RequestState.Absent : RequestState.None;
+      // For features requested present, if the current version is already installed then nothing will change, so use RequestState.None,
+      // else the feature will be installed/updated, so use RequestState.Present
+      else
+        requestState = feature.CurrentFeatureState == FeatureState.Local ? RequestState.None : RequestState.Present;
 
       return new Package
       {
