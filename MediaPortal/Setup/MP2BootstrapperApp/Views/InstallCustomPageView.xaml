@@ -45,13 +45,13 @@
       </ListView.ItemsPanel>
     </ListView>
 
-    <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10,0,0"
+    <StackPanel Grid.Row="1" Grid.RowSpan="2" Orientation="Vertical" Margin="0,10,0,0" HorizontalAlignment="Right"
                 Visibility="{Binding ElementName=PackageList, Path=SelectedItem, Converter={StaticResource ReferenceToVisibilityConverter}}">
 
-      <TextBlock Style="{StaticResource ContentTextBlockStyle}"
+      <TextBlock Style="{StaticResource ContentTextBlockStyle}" FontSize="12" HorizontalAlignment="Right"
                  Text="{me:Localize StringIdBinding={Binding ElementName=PackageList, Path=SelectedItem.Package.LocalizedDescription}}"/>
 
-      <TextBlock Style="{StaticResource ContentTextBlockStyle}">
+      <TextBlock Style="{StaticResource ContentTextBlockStyle}" FontSize="12" HorizontalAlignment="Right">
         <TextBlock.Text>
           <me:Localize StringId="[InstallCustomPageView.RequiredHardDriveSpace]"
                        ParametersBinding="{Binding ElementName=PackageList, Path=SelectedItem.Package.InstalledSize, Converter={StaticResource FileSizeUnitConverter}}"/>
@@ -63,7 +63,7 @@
     <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
       <Grid.RowDefinitions>
         <RowDefinition Height="Auto"/>
-        <RowDefinition Height="30"/>
+        <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
@@ -80,8 +80,7 @@
                       ContentTemplate="{StaticResource ValidationTextBoxTemplate}"
                       Content="{Binding InstallDirectory}"/>
 
-      <Label Grid.Row="1" Grid.Column="2" Style="{StaticResource ContentLabelStyle}"
-             FontSize="16"
+      <Label Grid.Row="1" Grid.Column="2" Style="{StaticResource ContentLabelStyle}" FontSize="12"
              Content="{me:Localize [InstallCustomPageView.InvalidPath]}"
              Visibility="{Binding Path=InstallDirectory.IsInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
