@@ -47,9 +47,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
       ModifyPlan plan = new ModifyPlan(features, packages, new PlanContext());
 
-      _bootstrapperApplicationModel.PlanAction(plan);
-      _bootstrapperApplicationModel.LogMessage(LogLevel.Standard, "Starting modify");
-      return new InstallationInProgressStep(_bootstrapperApplicationModel);
+      return new InstallOverviewStep(_bootstrapperApplicationModel, plan);
     }
   }
 }
