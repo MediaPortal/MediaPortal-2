@@ -65,6 +65,14 @@ namespace AssemblyInfoHelper
             break;
           }
         }
+
+        // AppVeyor does a checkout by hash and branch name is empty. But it exposes an environmental variable which we try to read here.
+        if (name == "(no branch)")
+        {
+          var envName = Environment.ExpandEnvironmentVariables("%APPVEYOR_REPO_BRANCH%");
+          if (!string.IsNullOrWhiteSpace(envName))
+            name = envName;
+        }
         string versionInfo = string.Format("{0}-{1}", name, branch.Tip.Sha.Substring(0, 6));
         WriteToFile(path, versionInfo, commits);
       }
