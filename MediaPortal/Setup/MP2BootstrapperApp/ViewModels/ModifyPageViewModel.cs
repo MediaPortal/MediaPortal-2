@@ -26,7 +26,7 @@ using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class ModifyPageViewModel : AbstractPackageSelectionViewModel
+  public class ModifyPageViewModel : AbstractPackageSelectionViewModel<ModifyStep>
   {
     public ModifyPageViewModel(ModifyStep step)
       : base(step)

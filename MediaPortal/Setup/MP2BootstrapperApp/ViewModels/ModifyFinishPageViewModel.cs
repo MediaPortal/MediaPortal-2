@@ -26,7 +26,7 @@ using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class ModifyFinishPageViewModel : InstallWizardPageViewModelBase
+  public class ModifyFinishPageViewModel : InstallWizardPageViewModelBase<ModifyFinishStep>
   {
     public ModifyFinishPageViewModel(ModifyFinishStep step)
       : base(step)

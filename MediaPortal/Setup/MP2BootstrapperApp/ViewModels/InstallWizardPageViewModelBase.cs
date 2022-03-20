@@ -30,9 +30,9 @@ using System;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public abstract class InstallWizardPageViewModelBase : BindableBase
+  public abstract class InstallWizardPageViewModelBase<T> : BindableBase, IWizardPageViewModel where T : IStep
   {
-    protected IStep _step;
+    protected T _step;
 
     private string _header;
     private string _subHeader;
@@ -40,7 +40,7 @@ namespace MP2BootstrapperApp.ViewModels
     private string _buttonBackContent = "[General.BackButton]";
     private string _buttonCancelContent = "[General.AbortButton]";
 
-    public InstallWizardPageViewModelBase(IStep step)
+    public InstallWizardPageViewModelBase(T step)
     {
       _step = step;
     }

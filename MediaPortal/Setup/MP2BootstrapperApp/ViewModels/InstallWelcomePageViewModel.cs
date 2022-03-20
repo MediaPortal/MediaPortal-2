@@ -26,7 +26,7 @@ using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallWelcomePageViewModel : InstallWizardPageViewModelBase
+  public class InstallWelcomePageViewModel : InstallWizardPageViewModelBase<InstallWelcomeStep>
   {
     public InstallWelcomePageViewModel(InstallWelcomeStep step)
       : base(step)
@@ -36,14 +36,14 @@ namespace MP2BootstrapperApp.ViewModels
 
     public bool LicenceAgreed
     {
-      get { return ((InstallWelcomeStep)_step).LicenceAgreed; }
+      get { return _step.LicenceAgreed; }
       set
       {
         if (value == LicenceAgreed)
         {
           return;
         }
-        ((InstallWelcomeStep)_step).LicenceAgreed = value;
+        _step.LicenceAgreed = value;
         RaisePropertyChanged();
         RaiseButtonStateChanged();
       }

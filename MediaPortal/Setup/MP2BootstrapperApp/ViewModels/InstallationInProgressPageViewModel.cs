@@ -29,11 +29,10 @@ using System.Linq;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallationInProgressPageViewModel : InstallWizardPageViewModelBase
+  public class InstallationInProgressPageViewModel : InstallWizardPageViewModelBase<InstallationInProgressStep>
   {
     const string DEFAULT_ACTION = "Processing...";
 
-    protected InstallationInProgressStep _progressStep;
     protected IBootstrapperApplicationModel _bootstrapperModel;
 
     protected readonly object _syncObj = new object();
@@ -46,7 +45,6 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallationInProgressPageViewModel(InstallationInProgressStep step)
       : base(step)
     {
-      _progressStep = step;
       _bootstrapperModel = step.BootstrapperApplicationModel;
       _currentAction = DEFAULT_ACTION;
 
@@ -153,7 +151,7 @@ namespace MP2BootstrapperApp.ViewModels
         {
           lock (_syncObj)
           {
-            CurrentAction = _progressStep.ParseActionMessage(e.Data[1]);
+            CurrentAction = _step.ParseActionMessage(e.Data[1]);
             UpdateCurrentPackage(bundlePackage);
           }
         }

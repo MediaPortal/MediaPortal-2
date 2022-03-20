@@ -26,7 +26,7 @@ using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class DowngradePageViewModel : InstallWizardPageViewModelBase
+  public class DowngradePageViewModel : InstallWizardPageViewModelBase<DowngradeStep>
   {
     public DowngradePageViewModel(DowngradeStep step)
       : base(step)

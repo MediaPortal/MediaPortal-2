@@ -26,7 +26,7 @@ using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallCancelledPageViewModel : InstallWizardPageViewModelBase
+  public class InstallCancelledPageViewModel : InstallWizardPageViewModelBase<InstallCancelledStep>
   {
     public InstallCancelledPageViewModel(InstallCancelledStep step)
       : base(step)

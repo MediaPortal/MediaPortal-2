@@ -46,7 +46,7 @@ namespace MP2BootstrapperApp.ViewModels
     {
       _wizardStepToViewModelMap = Assembly.GetExecutingAssembly().GetTypes()
         // All view models that inherit from InstallWizardPageViewModelBase
-        .Where(t => typeof(InstallWizardPageViewModelBase).IsAssignableFrom(t) && !t.IsAbstract)
+        .Where(t => typeof(IWizardPageViewModel).IsAssignableFrom(t) && !t.IsAbstract)
         // With a constructor that accepts a single parameter that implements IStep
         .Select(t => t.GetConstructors().FirstOrDefault(c => c.GetParameters().Length == 1 && typeof(IStep).IsAssignableFrom(c.GetParameters().Single().ParameterType)))
         .Where(c=>c != null)
@@ -61,7 +61,7 @@ namespace MP2BootstrapperApp.ViewModels
     /// <returns>Implementation of <see cref="InstallWizardPageViewModelBase"/> that handles the specified step or <c>null</c> if no view model was found.</returns>
     /// <exception cref="ArgumentNullException">Thrown if the <paramref name="step"/> is <c>null</c>.</exception>
     /// <exception cref="InvalidOperationException">Thrown if no view model was found for the specified step.</exception>
-    public InstallWizardPageViewModelBase GetViewModel(IStep step)
+    public IWizardPageViewModel GetViewModel(IStep step)
     {
       if (step == null)
         throw new ArgumentNullException(nameof(step));
@@ -69,7 +69,7 @@ namespace MP2BootstrapperApp.ViewModels
       if (!_wizardStepToViewModelMap.TryGetValue(step.GetType(), out Type viewModelType))
         throw new InvalidOperationException($"No view model found for step {step.GetType()}");
 
-      return Activator.CreateInstance(viewModelType, step) as InstallWizardPageViewModelBase;
+      return Activator.CreateInstance(viewModelType, step) as IWizardPageViewModel;
     }
   }
 }

@@ -31,15 +31,11 @@ using System.Linq;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public abstract class AbstractPackageSelectionViewModel : InstallWizardPageViewModelBase
+  public abstract class AbstractPackageSelectionViewModel<T> : InstallWizardPageViewModelBase<T> where T : AbstractPackageSelectionStep
   {
-    protected AbstractPackageSelectionStep _selectionStep;
-
-    public AbstractPackageSelectionViewModel(AbstractPackageSelectionStep step)
+    public AbstractPackageSelectionViewModel(T step)
       : base(step)
     {
-      _selectionStep = step;
-
       Items = new ObservableCollection<SelectablePackageViewModel>();
       AddItems(step);
     }
@@ -84,18 +80,18 @@ namespace MP2BootstrapperApp.ViewModels
       {
         if (sender is SelectableFeatureViewModel featureViewModel)
         {
-          IBundlePackageFeature feature = _selectionStep.AvailableFeatures.FirstOrDefault(f => f.FeatureName == featureViewModel.Package.Id);
+          IBundlePackageFeature feature = _step.AvailableFeatures.FirstOrDefault(f => f.FeatureName == featureViewModel.Package.Id);
           if (feature != null)
           {
-            UpdateSelectedItems(feature, _selectionStep.SelectedFeatures, featureViewModel.Selected);
+            UpdateSelectedItems(feature, _step.SelectedFeatures, featureViewModel.Selected);
           }
         }
         else if (sender is SelectablePackageViewModel packageViewModel)
         {
-          IBundlePackage package = _selectionStep.AvailablePackages.FirstOrDefault(p => p.Id == packageViewModel.Package.Id);
+          IBundlePackage package = _step.AvailablePackages.FirstOrDefault(p => p.Id == packageViewModel.Package.Id);
           if (package != null)
           {
-            UpdateSelectedItems(package, _selectionStep.SelectedPackages, packageViewModel.Selected);
+            UpdateSelectedItems(package, _step.SelectedPackages, packageViewModel.Selected);
           }
         }
 
@@ -106,11 +102,11 @@ namespace MP2BootstrapperApp.ViewModels
     /// <summary>
     /// Adds or removes an item from a collection of selected items depending on whether the item is selected. 
     /// </summary>
-    /// <typeparam name="T"></typeparam>
+    /// <typeparam name="T1"></typeparam>
     /// <param name="item">The item that's selected state has changed.</param>
     /// <param name="selectedItems">The collection of selected items to update.</param>
     /// <param name="selected">Whether the item is selected.</param>
-    protected void UpdateSelectedItems<T>(T item, ICollection<T> selectedItems, bool selected)
+    protected void UpdateSelectedItems<T1>(T1 item, ICollection<T1> selectedItems, bool selected)
     {
       if (selected)
       {

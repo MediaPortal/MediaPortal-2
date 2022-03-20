@@ -26,7 +26,7 @@ using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallExistTypePageViewModel : InstallWizardPageViewModelBase
+  public class InstallExistTypePageViewModel : InstallWizardPageViewModelBase<InstallExistInstallStep>
   {
     private ActionType _actionType;
 
@@ -44,7 +44,7 @@ namespace MP2BootstrapperApp.ViewModels
       get { return _actionType; }
       set 
       {
-        ((InstallExistInstallStep)_step).ActionType = value;
+        _step.ActionType = value;
         SetProperty(ref _actionType, value); 
       }
     }
