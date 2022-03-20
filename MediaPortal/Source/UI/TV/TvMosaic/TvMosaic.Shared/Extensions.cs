@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using TvMosaic.API;
 
 namespace TvMosaic.Shared
 {
@@ -65,6 +66,10 @@ namespace TvMosaic.Shared
       }
 
       return ut;
+    }
+    public static int ToUnixTime(this DateTime? val)
+    {
+      return val.HasValue ? (int)val.Value.ToUnixTime() : (int)EpgSearcher.EPG_INVALID_TIME; // Unbound in TvMosaic API
     }
   }
 }

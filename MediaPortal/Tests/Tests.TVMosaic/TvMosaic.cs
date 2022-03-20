@@ -25,7 +25,7 @@ namespace Test.TVMosaic
     public void Init()
     {
       ServiceRegistration.Set<ILogger>(new NoLogger());
-      FakeSettings<TvMosaicProviderSettings> settings = new FakeSettings<TvMosaicProviderSettings>(new TvMosaicProviderSettings { Host = "localhost" });
+      FakeSettings<TvMosaicProviderSettings> settings = new FakeSettings<TvMosaicProviderSettings>(new TvMosaicProviderSettings { Host = "localhost", Port = 9270 });
       ServiceRegistration.Set<ISettingsManager>(settings);
 
       _provider = new TvMosaicProvider();
@@ -114,8 +114,14 @@ namespace Test.TVMosaic
       var programResult = await programInfo.GetProgramsAsync(channelResult.Result.First(), DateTime.Now, DateTime.Now.AddHours(4));
       Assert.IsTrue(programResult.Success);
       Assert.IsNotNull(programResult.Result);
-    }  
-    
+      var nowNextResult = await programInfo.GetNowNextProgramAsync(channelResult.Result.First());
+      Assert.IsTrue(nowNextResult.Success);
+      Assert.IsNotNull(nowNextResult.Result);
+      var nowNextGroupResult = await programInfo.GetNowAndNextForChannelGroupAsync(channelGroupResult.Result.First());
+      Assert.IsTrue(nowNextGroupResult.Success);
+      Assert.IsNotNull(nowNextGroupResult.Result);
+    }
+
     [Test]
     public async Task TestProgramsDeserialize()
     {

@@ -14,22 +14,28 @@ namespace TvMosaic.API
     public const long EPG_INVALID_TIME = -1;
 
     [DataMember(Name = "channels_ids", EmitDefaultValue = false)]
-    public ChannelIDList ChannelsIDs { get; private set; }
+    public ChannelIDList ChannelsIDs { get; set; }
 
     [DataMember(Name = "program_id", EmitDefaultValue = false)]
-    public string ProgramID { get; private set; }
+    public string ProgramID { get; set; }
 
     [DataMember(Name = "keywords", EmitDefaultValue = false)]
-    public string Keyword { get; private set; }
+    public string Keyword { get; set; }
+
+    [DataMember(Name = "genre_mask", EmitDefaultValue = false)]
+    public uint GenreMask { get; set; }
+
+    [DataMember(Name = "requested_count", EmitDefaultValue = false)]
+    public int RequestedCount { get; set; } = -1;
 
     [DataMember(Name = "start_time", EmitDefaultValue = false)]
-    public long StartTime { get; private set; }
+    public long StartTime { get; set; }
 
     [DataMember(Name = "end_time", EmitDefaultValue = false)]
-    public long EndTime { get; private set; }
+    public long EndTime { get; set; }
 
     [DataMember(Name = "epg_short", EmitDefaultValue = false)]
-    public bool IsEpgShort { get; private set; }
+    public bool IsEpgShort { get; set; }
 
     public EpgSearcher(bool is_epg_short = false, long start_time = EPG_INVALID_TIME, long end_time = EPG_INVALID_TIME)
     {

@@ -225,7 +225,7 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
     {
-      var programs = await GetPrograms(new List<IChannel> { channel }, DateTime.Now, DateTime.Now.AddHours(3));
+      var programs = await GetPrograms(new List<IChannel> { channel }, DateTime.Now, null, null, 2);
       var result = ToNowNext(programs)?.Values.FirstOrDefault();
       return new AsyncResult<IProgram[]>(result != null, result);
     }
@@ -233,7 +233,7 @@ namespace SlimTv.TvMosaicProvider
     public async Task<AsyncResult<IDictionary<int, IProgram[]>>> GetNowAndNextForChannelGroupAsync(IChannelGroup channelGroup)
     {
       var channels = await GetChannelsAsync(channelGroup);
-      var programs = await GetPrograms(channels.Result, DateTime.Now, DateTime.Now.AddHours(3));
+      var programs = await GetPrograms(channels.Result, DateTime.Now, null, null, 2);
       var result = ToNowNext(programs);
       return new AsyncResult<IDictionary<int, IProgram[]>>(result != null, result);
     }
@@ -268,11 +268,17 @@ namespace SlimTv.TvMosaicProvider
       return await GetPrograms(new List<IChannel> { channel }, from, to);
     }
 
-    protected async Task<AsyncResult<IList<IProgram>>> GetPrograms(IEnumerable<IChannel> channels, DateTime @from, DateTime to, string keyWord = null)
+    protected async Task<AsyncResult<IList<IProgram>>> GetPrograms(IEnumerable<IChannel> channels, DateTime? @from, DateTime? to, string keyWord = null, int maxPrograms = -1)
     {
-      EpgSearcher epgSearcher = channels != null ?
-        new EpgSearcher(new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList()), false, from.ToUnixTime(), to.ToUnixTime()) :
-        new EpgSearcher(keyWord, false, from.ToUnixTime(), to.ToUnixTime());
+      EpgSearcher epgSearcher = new EpgSearcher
+      {
+        StartTime = @from.ToUnixTime(),
+        EndTime = to.ToUnixTime(),
+        Keyword = keyWord,
+        RequestedCount = maxPrograms
+      };
+      if (channels != null)
+        epgSearcher.ChannelsIDs = new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList());
 
       var programs = await _dvbLink.SearchEpg(epgSearcher);
       if (programs.Status == StatusCode.STATUS_OK && programs.Result.Any())
