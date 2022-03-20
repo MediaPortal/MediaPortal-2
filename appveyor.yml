@@ -1,4 +1,3 @@
-version: 2.4.1.TvMosaic.{build}
 image: Visual Studio 2022
 clone_folder: c:\project\mediaportal-2
 
