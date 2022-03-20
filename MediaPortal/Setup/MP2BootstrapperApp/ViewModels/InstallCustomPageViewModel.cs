@@ -29,7 +29,7 @@ using System.Windows.Input;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallCustomPageViewModel : AbstractPackageSelectionViewModel
+  public class InstallCustomPageViewModel : AbstractPackageSelectionViewModel<InstallCustomStep>
   {
     protected PropertyValidationViewModel<string> _installDirectory;
 
@@ -48,7 +48,7 @@ namespace MP2BootstrapperApp.ViewModels
     private void InstallDirectoryChanged(object sender, System.ComponentModel.PropertyChangedEventArgs e)
     {
       if (e.PropertyName == nameof(_installDirectory.Value))
-        ((InstallCustomStep)_step).InstallDirectory = _installDirectory.Value;
+        _step.InstallDirectory = _installDirectory.Value;
     }
 
     public PropertyValidationViewModel<string> InstallDirectory
@@ -64,7 +64,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         fileDialog.IsFolderPicker = true;
         fileDialog.InitialDirectory = InstallDirectory.Value;
-        if (fileDialog.ShowDialog(((InstallCustomStep)_step).BootstrapperApplicationModel.WindowHandle) == CommonFileDialogResult.Ok)
+        if (fileDialog.ShowDialog(_step.BootstrapperApplicationModel.WindowHandle) == CommonFileDialogResult.Ok)
           InstallDirectory.Value = fileDialog.FileName;
       }
     }

@@ -32,7 +32,7 @@ using System.Collections.ObjectModel;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallOverviewPageViewModel : InstallWizardPageViewModelBase
+  public class InstallOverviewPageViewModel : InstallWizardPageViewModelBase<InstallOverviewStep>
   {
     public InstallOverviewPageViewModel(InstallOverviewStep step)
       : base(step)

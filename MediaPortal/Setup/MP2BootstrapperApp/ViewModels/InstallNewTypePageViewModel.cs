@@ -26,7 +26,7 @@ using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallNewTypePageViewModel : InstallWizardPageViewModelBase
+  public class InstallNewTypePageViewModel : InstallWizardPageViewModelBase<InstallNewTypeStep>
   {
     private InstallType _installType;
 
@@ -44,7 +44,7 @@ namespace MP2BootstrapperApp.ViewModels
       get { return _installType; }
       set 
       {
-        ((InstallNewTypeStep)_step).InstallType = value;
+        _step.InstallType = value;
         SetProperty(ref _installType, value); 
       }
     }

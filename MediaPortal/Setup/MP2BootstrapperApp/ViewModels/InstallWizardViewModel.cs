@@ -37,7 +37,7 @@ namespace MP2BootstrapperApp.ViewModels
   public class InstallWizardViewModel : BindableBase
   {
     private readonly IBootstrapperApplicationModel _bootstrapperApplicationModel;
-    private InstallWizardPageViewModelBase _currentPage;
+    private IWizardPageViewModel _currentPage;
     private int _applyPhaseCount = 1;
     private int _progress;
     private int _cacheProgress;
@@ -67,7 +67,7 @@ namespace MP2BootstrapperApp.ViewModels
     public ICommand NextCommand { get; }
     public ICommand BackCommand { get; }
 
-    public InstallWizardPageViewModelBase CurrentPage
+    public IWizardPageViewModel CurrentPage
     {
       get { return _currentPage; }
       set

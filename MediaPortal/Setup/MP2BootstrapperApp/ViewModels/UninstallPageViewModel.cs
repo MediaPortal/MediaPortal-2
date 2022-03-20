@@ -26,7 +26,7 @@ using MP2BootstrapperApp.WizardSteps;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class UninstallPageViewModel : InstallWizardPageViewModelBase
+  public class UninstallPageViewModel : InstallWizardPageViewModelBase<UninstallStep>
   {
     public UninstallPageViewModel(UninstallStep step)
       : base(step)

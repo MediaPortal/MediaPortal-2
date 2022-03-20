@@ -1,5 +1,4 @@
-﻿
-#region Copyright (C) 2007-2017 Team MediaPortal
+﻿#region Copyright (C) 2007-2017 Team MediaPortal
 
 /*
     Copyright (C) 2007-2017 Team MediaPortal
@@ -30,9 +29,10 @@ using System.Linq;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallationInProgressPageViewModel : InstallWizardPageViewModelBase
+  public class InstallationInProgressPageViewModel : InstallWizardPageViewModelBase<InstallationInProgressStep>
   {
     const string DEFAULT_ACTION = "Processing...";
+
     protected IBootstrapperApplicationModel _bootstrapperModel;
 
     protected readonly object _syncObj = new object();
@@ -151,7 +151,7 @@ namespace MP2BootstrapperApp.ViewModels
         {
           lock (_syncObj)
           {
-            CurrentAction = e.Data[1].Trim();
+            CurrentAction = _step.ParseActionMessage(e.Data[1]);
             UpdateCurrentPackage(bundlePackage);
           }
         }

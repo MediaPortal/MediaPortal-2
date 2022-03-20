@@ -126,6 +126,7 @@
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
     <Compile Include="ViewModels\DowngradePageViewModel.cs" />
     <Compile Include="ViewModels\InstallCustomPageViewModel.cs" />
+    <Compile Include="ViewModels\IWizardPageViewModel.cs" />
     <Compile Include="ViewModels\ModifyFinishPageViewModel.cs" />
     <Compile Include="ViewModels\PropertyValidationViewModel.cs" />
     <Compile Include="ViewModels\UninstallFinishPageViewModel.cs" />
