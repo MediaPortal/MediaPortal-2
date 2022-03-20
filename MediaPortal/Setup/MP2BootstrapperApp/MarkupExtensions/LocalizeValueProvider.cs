@@ -100,7 +100,7 @@ namespace MP2BootstrapperApp.MarkupExtensions
       SetBindings(stringIdBinding, parametersBinding);
     }
 
-    protected LocalizeValueProvider(ILanguageChanged localization)
+    public LocalizeValueProvider(ILanguageChanged localization)
     {
       _localization = localization;
       AttachLanguageChanged();
