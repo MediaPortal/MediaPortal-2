@@ -27,17 +27,17 @@ using System;
 namespace MP2BootstrapperApp.ViewModels
 {
   /// <summary>
-  /// Interface for a view model that displays an install wizard step.
+  /// Interface for a view model that displays a page in the main window.
   /// </summary>
-  public interface IWizardPageViewModel
+  public interface IPageViewModel
   {
     /// <summary>
-    /// The header to display for the step.
+    /// The header to display for this page.
     /// </summary>
     string Header { get; set; }
 
     /// <summary>
-    /// The subheader to display for the step.
+    /// The subheader to display for this page.
     /// </summary>
     string SubHeader { get; set; }
 

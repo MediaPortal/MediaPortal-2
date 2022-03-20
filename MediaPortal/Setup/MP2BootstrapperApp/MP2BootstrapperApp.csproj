@@ -126,7 +126,8 @@
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
     <Compile Include="ViewModels\DowngradePageViewModel.cs" />
     <Compile Include="ViewModels\InstallCustomPageViewModel.cs" />
-    <Compile Include="ViewModels\IWizardPageViewModel.cs" />
+    <Compile Include="ViewModels\PageViewModelBase.cs" />
+    <Compile Include="ViewModels\IPageViewModel.cs" />
     <Compile Include="ViewModels\ModifyFinishPageViewModel.cs" />
     <Compile Include="ViewModels\PropertyValidationViewModel.cs" />
     <Compile Include="ViewModels\UninstallFinishPageViewModel.cs" />
@@ -234,6 +235,10 @@
     <None Include="build.targets" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Styles\HeaderDataTemplates.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Styles\ListViewStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -250,7 +255,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
-    <Page Include="Styles\DataTemplates.xaml">
+    <Page Include="Styles\PageDataTemplates.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

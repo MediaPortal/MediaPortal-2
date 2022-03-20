@@ -25,7 +25,6 @@
     <ResourceDictionary>
 
       <ResourceDictionary.MergedDictionaries>
-        <ResourceDictionary Source="../Styles/DataTemplates.xaml" />
         <ResourceDictionary Source="../Styles/ButtonStyles.xaml" />
       </ResourceDictionary.MergedDictionaries>
 
@@ -62,31 +61,42 @@
         </Setter>
       </Style>
 
-      <Style x:Key="PageContentStyle" TargetType="ContentControl">
+      <Style x:Key="HeaderContentStyle" TargetType="ContentControl">
+        <Style.Resources>
+          <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+              <ResourceDictionary Source="../Styles/HeaderDataTemplates.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+          </ResourceDictionary>
+        </Style.Resources>
         <Setter Property="Template">
           <Setter.Value>
             <ControlTemplate TargetType="{x:Type ContentControl}">
-              <Grid>
-                <Rectangle Fill="{TemplateBinding Background}"/>
-                <ContentPresenter ContentSource="Content"/>
-              </Grid>
+              <ContentPresenter/>
             </ControlTemplate>
           </Setter.Value>
         </Setter>
       </Style>
 
-      <ControlTemplate x:Key="HeaderTemplate">
-        <Grid Margin="0,0,20,15">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="37"/>
-            <RowDefinition Height="25"/>
-          </Grid.RowDefinitions>
-          <TextBlock Grid.Row="0" Text="{me:Localize StringIdBinding={Binding Path=CurrentPage.Header}}"
-                   Foreground="White" FontSize="28" TextAlignment="Right"/>
-          <TextBlock Grid.Row="1" Text="{me:Localize StringIdBinding={Binding Path=CurrentPage.SubHeader}}" Opacity="0.7"
-                   Foreground="White" FontSize="16" TextAlignment="Right"/>
-        </Grid>
-      </ControlTemplate>
+      <Style x:Key="PageContentStyle" TargetType="ContentControl">
+        <Style.Resources>
+          <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+              <ResourceDictionary Source="../Styles/PageDataTemplates.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+          </ResourceDictionary>
+        </Style.Resources>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type ContentControl}">
+              <Grid>
+                <Rectangle Fill="{TemplateBinding Background}"/>
+                <ContentPresenter/>
+              </Grid>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
 
       <VisualBrush x:Key="Background">
         <VisualBrush.Visual>
@@ -139,11 +149,12 @@
       <Rectangle Fill="{StaticResource Banner}" HorizontalAlignment="Left" Height="120" VerticalAlignment="Top" Width="753" Margin="22,18,0,0"/>
     </Grid>
 
-    <Control Template="{StaticResource HeaderTemplate}" Grid.Row="0" HorizontalAlignment="Right" VerticalAlignment="Bottom"/>
+    <ContentControl Grid.Row="0" Style="{StaticResource HeaderContentStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,15"
+                    Content="{Binding CurrentPage}"/>
 
     <ContentControl Grid.Column="0" Grid.Row="1" Style="{StaticResource PageContentStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     Margin="40,30" FontSize="26" Foreground="White"
-                    Content="{Binding Path=CurrentPage}"/>
+                    Content="{Binding CurrentPage}"/>
 
     <Grid Grid.Column="0" Grid.Row="2" Height="45" Background="#66FFFFFF">
       <Grid.ColumnDefinitions>

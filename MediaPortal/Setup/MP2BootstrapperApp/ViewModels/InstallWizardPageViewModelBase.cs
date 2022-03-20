@@ -25,70 +25,17 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
-using Prism.Mvvm;
 using System;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public abstract class InstallWizardPageViewModelBase<T> : BindableBase, IWizardPageViewModel where T : IStep
+  public abstract class InstallWizardPageViewModelBase<T> : PageViewModelBase where T : IStep
   {
     protected T _step;
-
-    private string _header;
-    private string _subHeader;
-    private string _buttonNextContent = "[General.NextButton]";
-    private string _buttonBackContent = "[General.BackButton]";
-    private string _buttonCancelContent = "[General.AbortButton]";
 
     public InstallWizardPageViewModelBase(T step)
     {
       _step = step;
-    }
-
-    public string Header
-    {
-      get { return _header; }
-      set { SetProperty(ref _header, value); }
-    }
-
-    public string SubHeader
-    {
-      get { return _subHeader; }
-      set { SetProperty(ref _subHeader, value); }
-    }
-
-    public string ButtonNextContent
-    {
-      get { return _buttonNextContent; }
-      set { SetProperty(ref _buttonNextContent, value); }
-    }
-
-    public string ButtonBackContent
-    {
-      get { return _buttonBackContent; }
-      set { SetProperty(ref _buttonBackContent, value); }
-    }
-
-    public string ButtonCancelContent
-    {
-      get { return _buttonCancelContent; }
-      set { SetProperty(ref _buttonCancelContent, value); }
-    }
-
-    public event EventHandler ButtonStateChanged;
-
-    protected virtual void RaiseButtonStateChanged()
-    {
-      ButtonStateChanged?.Invoke(this, EventArgs.Empty);
-    }
-
-    public virtual void Attach()
-    {
-    }
-
-    public virtual void Detach()
-    {
-
     }
 
     protected Package CreatePackage(IBundlePackage bundlePackage, RequestState? requestState = null)
