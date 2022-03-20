@@ -389,7 +389,7 @@ namespace SlimTv.TvMosaicProvider
         {
           // Currently always a new stream is started, so make sure to properly end the former
           await StopTimeshiftAsync(slotIndex);
-          var streamType = _supportsTimeshift ? "raw_http_timeshift" : "raw_http";
+          var streamType = _supportsTimeshift ? RequestStream.RAW_HTTP_TS_TYPE : RequestStream.RAW_HTTP_TYPE;
           var reqStream = new RequestStream(serverAddress, tvMosaicChannel.TvMosaicId, GetTimeshiftUserName(slotIndex), streamType, transcoder);
           DVBLinkResponse<Streamer> strm = await _dvbLink.PlayChannel(reqStream);
           if (strm.Status == StatusCode.STATUS_OK)
@@ -411,6 +411,18 @@ namespace SlimTv.TvMosaicProvider
       }
 
       return new AsyncResult<MediaItem>(false, null);
+    }
+
+    public async Task<TimeshiftStatus> GetTimeshiftStatus(int slotContext)
+    {
+      var timeshiftGetStats = new TimeshiftGetStats
+      {
+        ChannelHandle = _tunedChannelHandles[slotContext]
+      };
+      var status = await _dvbLink.GetTimeshiftStatus(timeshiftGetStats);
+      if (status.Status == StatusCode.STATUS_OK)
+        return status.Result;
+      return null;
     }
 
     public async Task<bool> StopTimeshiftAsync(int slotIndex)

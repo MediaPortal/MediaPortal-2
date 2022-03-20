@@ -14,6 +14,7 @@ namespace TvMosaic.API
     public static readonly string IPHONE_TYPE = "hls";
     public static readonly string WINPHONE_TYPE = "asf";
     public static readonly string RAW_HTTP_TYPE = "raw_http";
+    public static readonly string RAW_HTTP_TS_TYPE = "raw_http_timeshift";
     public static readonly string RAW_UDP_TYPE = "raw_udp";
 
     [DataMember(Name = "channel_dvblink_id", EmitDefaultValue = false)]

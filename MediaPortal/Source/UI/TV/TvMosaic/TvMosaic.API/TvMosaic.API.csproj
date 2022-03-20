@@ -76,6 +76,7 @@
     <Compile Include="Response.cs" />
     <Compile Include="Schedules.cs" />
     <Compile Include="StatusCode.cs" />
+    <Compile Include="Timeshift.cs" />
     <Compile Include="Streamer.cs" />
     <Compile Include="Transcoder.cs" />
   </ItemGroup>
