@@ -44,7 +44,7 @@ namespace MP2BootstrapperApp.MarkupExtensions
       if (provdeValueTarget == null || !(provdeValueTarget.TargetObject is DependencyObject target) || !(provdeValueTarget.TargetProperty is DependencyProperty targetProperty))
         return this;
       // Binding handles updating the target property
-      BindingBase binding = ProvideValueOverride(target);
+      BindingBase binding = ProvideValueOverride(target, targetProperty);
       return binding.ProvideValue(serviceProvider);
     }
 
@@ -52,8 +52,9 @@ namespace MP2BootstrapperApp.MarkupExtensions
     /// Should be overriden in derived classes to return a Binding that will be applied to the target object and property.
     /// </summary>
     /// <param name="target">The target DependencyObject that will be bound to</param>
+    /// <param name="targetProperty">The target DependencyProperty that will be bound to</param>
     /// <returns>A binding to be applied to the target property.</returns>
-    protected abstract BindingBase ProvideValueOverride(DependencyObject target);
+    protected abstract BindingBase ProvideValueOverride(DependencyObject target, DependencyProperty targetProperty);
 
     public event PropertyChangedEventHandler PropertyChanged;
 

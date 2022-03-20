@@ -69,7 +69,8 @@ namespace Tests
       stringManager.AddLanguageAssembly(typeof(LocalizationTests).Assembly);
       LocalizeValueProvider localizeValueProvider = new LocalizeValueProvider(stringManager);
 
-      localizeValueProvider.Update("[LocalizationTests.TestFormatSingle]", "value");
+      localizeValueProvider.StringId = "[LocalizationTests.TestFormatSingle]";
+      localizeValueProvider.Parameters = "value";
 
       Assert.Equal("Format value", localizeValueProvider.Value);
     }
@@ -81,7 +82,8 @@ namespace Tests
       stringManager.AddLanguageAssembly(typeof(LocalizationTests).Assembly);
       LocalizeValueProvider localizeValueProvider = new LocalizeValueProvider(stringManager);
 
-      localizeValueProvider.Update("[LocalizationTests.TestFormatArray]", new object[] { "value1", "value2" });
+      localizeValueProvider.StringId = "[LocalizationTests.TestFormatArray]";
+      localizeValueProvider.Parameters = new object[] { "value1", "value2" };
 
       Assert.Equal("Format value1 value2", localizeValueProvider.Value);
     }
@@ -93,7 +95,7 @@ namespace Tests
       stringManager.AddLanguageAssembly(typeof(LocalizationTests).Assembly);
       LocalizeValueProvider localizeValueProvider = new LocalizeValueProvider(stringManager);
 
-      localizeValueProvider.Update("[LocalizationTests.TestFormatSingle]", null);
+      localizeValueProvider.StringId = "[LocalizationTests.TestFormatSingle]";
 
       Assert.Equal("Format {0}", localizeValueProvider.Value);
     }

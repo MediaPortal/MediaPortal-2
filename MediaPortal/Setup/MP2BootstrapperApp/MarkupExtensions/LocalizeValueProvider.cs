@@ -30,91 +30,123 @@ using System.Windows.Data;
 namespace MP2BootstrapperApp.MarkupExtensions
 {
   /// <summary>
+  /// Implementation of <see cref="FreezableCollection{T}"/> for storing a collection of <see cref="LocalizeValueProvider"/> on a <see cref="DependencyObject"/>.
+  /// </summary>
+  public class LocalizeValueProviderCollection : FreezableCollection<LocalizeValueProvider>
+  {
+    /// <summary>
+    /// Removes and disposes any <see cref="LocalizeValueProvider"/> that is bound to the specified <paramref name="targetProperty"/>.
+    /// </summary>
+    /// <param name="targetProperty"></param>
+    public void RemoveExistingValueProvider(DependencyProperty targetProperty)
+    {
+      for (int i = 0; i < Count; i++)
+      {
+        LocalizeValueProvider valueProvider = this[i];
+        if (valueProvider.Targetproperty != targetProperty)
+          continue;
+        Remove(valueProvider);
+        valueProvider.Dispose();
+        break;
+      }
+    }
+  }
+
+  /// <summary>
   /// Provides the translated value of a string with a given string id and propagates changes to the bound target.
   /// </summary>
   public class LocalizeValueProvider : DisposableValueProvider
   {
-    #region Attached properties
+    #region Dependency properties
 
     /// <summary>
-    /// Attached property to store this instance on the target.
+    /// Dependency property for the StringId property.
     /// </summary>
-    public static readonly DependencyProperty LocalizeValueProviderProperty = DependencyProperty.RegisterAttached(
-      "LocalizeValueProvider", typeof(LocalizeValueProvider), typeof(LocalizeValueProvider), new PropertyMetadata(OnPropertyChanged)
+    public static readonly DependencyProperty StringIdProperty = DependencyProperty.Register(
+      "StringId", typeof(string), typeof(LocalizeValueProvider), new PropertyMetadata(OnPropertyChanged)
     );
 
     /// <summary>
-    /// Attached property to bind the StringId binding to, needed as the binding needs to be bound
-    /// to a DependencyObject in the logical tree so that the appropriate DataContext is available.
+    /// Dependency property for the Parameters property.
     /// </summary>
-    public static readonly DependencyProperty LocalizeIdProperty = DependencyProperty.RegisterAttached(
-      "LocalizeId", typeof(string), typeof(LocalizeValueProvider), new PropertyMetadata(OnPropertyChanged)
-    );
-
-    public static readonly DependencyProperty LocalizeParametersProperty = DependencyProperty.RegisterAttached(
-      "LocalizeParameters", typeof(object), typeof(LocalizeValueProvider), new PropertyMetadata(OnPropertyChanged)
+    public static readonly DependencyProperty ParametersProperty = DependencyProperty.Register(
+      "Parameters", typeof(object), typeof(LocalizeValueProvider), new PropertyMetadata(OnPropertyChanged)
     );
 
     private static void OnPropertyChanged(DependencyObject d, DependencyPropertyChangedEventArgs e)
     {
-      // One of the dependency properties has changed, update the StringId value of the provider.
-      LocalizeValueProvider source = d.GetValue(LocalizeValueProviderProperty) as LocalizeValueProvider;
-      if (source != null)
-        source.Update(d.GetValue(LocalizeIdProperty) as string, d.GetValue(LocalizeParametersProperty));
+      // One of the dependency properties has changed, update the provider.
+      LocalizeValueProvider lvp = d as LocalizeValueProvider;
+      if (lvp != null)
+        lvp.FireChanged();
     }
 
     #endregion
 
-    private string _stringId;
-    private object[] _parameters;
     private ILanguageChanged _localization;
 
-    protected bool _isUpdating = false;
-    protected bool _hasChanged = false;
-
     /// <summary>
-    /// Creates a new instance of <see cref="LocalizeValueProvider"/> that listens for changes to the <paramref name="stringIdBinding"/>
-    /// and language and updates the the <paramref name="target"/> with the translated value.
+    /// Creates a new instance of <see cref="LocalizeValueProvider"/> that listens for changes to the <paramref name="stringIdBinding"/>,
+    /// <paramref name="parametersBinding"/> and language and updates the translated value.
     /// </summary>
-    /// <param name="target"></param>
+    /// <param name="targetProperty"></param>
     /// <param name="stringIdBinding"></param>
     /// <param name="parametersBinding"></param>
     /// <param name="localization"></param>
-    public LocalizeValueProvider(DependencyObject target, BindingBase stringIdBinding, BindingBase parametersBinding, ILanguageChanged localization)
+    public LocalizeValueProvider(DependencyProperty targetProperty, BindingBase stringIdBinding, BindingBase parametersBinding, ILanguageChanged localization)
     : this(localization)
     {
-      AttachTarget(target, stringIdBinding, parametersBinding);
+      Targetproperty = targetProperty;
+      SetBindings(stringIdBinding, parametersBinding);
     }
 
-    public LocalizeValueProvider(ILanguageChanged localization)
+    protected LocalizeValueProvider(ILanguageChanged localization)
     {
       _localization = localization;
       AttachLanguageChanged();
     }
 
     /// <summary>
-    /// Updates the string id and parameters, deferring any change notifications until the update is complete.
+    /// Notifies any listeners that the translated value might have changed.
     /// </summary>
-    /// <param name="stringId">The updated string id.</param>
-    /// <param name="parameters">The updated paramters.</param>
-    public void Update(string stringId, object parameters)
+    public void FireChanged()
     {
-      _isUpdating = true;
-      bool hasChanged;
-      try
-      {
-        StringId = stringId;
-        Parameters = GetParameters(parameters);
-      }
-      finally
-      {
-        hasChanged = _hasChanged;
-        _hasChanged = false;
-        _isUpdating = false;
-      }
+      RaisePropertyChanged(nameof(Value));
+    }
 
-      if (hasChanged)
-        RaisePropertyChanged(nameof(Value));
+    /// <summary>
+    /// The depndency property that the <see cref="Value"/> property is bound to.
+    /// </summary>
+    public DependencyProperty Targetproperty { get; }
+
+    /// <summary>
+    /// Id of the string to translate.
+    /// </summary>
+    public string StringId
+    {
+      get { return (string)GetValue(StringIdProperty); }
+      set { SetValue(StringIdProperty, value); }
+    }
+
+    /// <summary>
+    /// Parameters to pass when formatting the translated string.
+    /// </summary>
+    public object Parameters
+    {
+      get { return GetValue(ParametersProperty); }
+      set { SetValue(ParametersProperty, value); }
+    }
+
+    /// <summary>
+    /// Translated value.
+    /// </summary>
+    public object Value
+    {
+      get
+      {
+        string stringId = StringId;
+        return _localization?.ToString(StringId, GetParameters(Parameters)) ?? stringId;
+      }
     }
 
     protected object[] GetParameters(object parameters)
@@ -128,69 +160,27 @@ namespace MP2BootstrapperApp.MarkupExtensions
     }
 
     /// <summary>
-    /// Id of the string to translate.
+    /// Binds the specified bindings to the dependency properties.
     /// </summary>
-    public string StringId
-    {
-      get { return _stringId; }
-      set
-      {
-        if (_stringId == value)
-          return;
-        _stringId = value;
-        // String id has changed, trigger an update of the translated value.
-        if (_isUpdating)
-          _hasChanged = true;
-        else
-          RaisePropertyChanged(nameof(Value));
-      }
-    }
-
-    /// <summary>
-    /// Parameters to pass when formatting the translated string.
-    /// </summary>
-    public object[] Parameters
-    {
-      get { return _parameters; }
-      set
-      {
-        if (_parameters == value)
-          return;
-        _parameters = value;
-        // Paramters have changed, trigger an update of the translated value.
-        if (_isUpdating)
-          _hasChanged = true;
-        else
-          RaisePropertyChanged(nameof(Value));
-      }
-    }
-
-    /// <summary>
-    /// Translated value.
-    /// </summary>
-    public object Value
-    {
-      get
-      {
-        return _localization?.ToString(_stringId, _parameters) ?? _stringId;
-      }
-    }
-
-    /// <summary>
-    /// Attaches this instance and the specified binding to the target.
-    /// </summary>
-    /// <param name="target">The target DependencyObject that recieves the translated string.</param>
     /// <param name="stringIdBinding">The binding that is bound to the string id value.</param>
     /// <param name="parametersBinding">The binding that is bound to the parameters value.</param>
-    private void AttachTarget(DependencyObject target, BindingBase stringIdBinding, BindingBase parametersBinding)
+    protected void SetBindings(BindingBase stringIdBinding, BindingBase parametersBinding)
     {
       // Bind the string id binding, paramter binding and this instance to the target, when the bindings change the
       // Attached property's change handler will update this instance with the new values.
-      BindingOperations.ClearBinding(target, LocalizeIdProperty);
-      BindingOperations.SetBinding(target, LocalizeIdProperty, stringIdBinding);
-      BindingOperations.ClearBinding(target, LocalizeParametersProperty);
-      BindingOperations.SetBinding(target, LocalizeParametersProperty, parametersBinding);
-      target.SetValue(LocalizeValueProviderProperty, this);
+      BindingOperations.ClearBinding(this, StringIdProperty);
+      BindingOperations.SetBinding(this, StringIdProperty, stringIdBinding);
+      BindingOperations.ClearBinding(this, ParametersProperty);
+      BindingOperations.SetBinding(this, ParametersProperty, parametersBinding);
+    }
+
+    /// <summary>
+    /// Clears all bindings from the dependency properties.
+    /// </summary>
+    protected void ClearBindings()
+    {
+      BindingOperations.ClearBinding(this, StringIdProperty);
+      BindingOperations.ClearBinding(this, ParametersProperty);
     }
 
     private void AttachLanguageChanged()
@@ -207,14 +197,22 @@ namespace MP2BootstrapperApp.MarkupExtensions
 
     private void OnLanguageChanged(object sender, EventArgs e)
     {
-      RaisePropertyChanged(nameof(Value));
+      FireChanged();
     }
 
     protected override void Dispose(bool disposing)
     {
       if (disposing)
+      {
         DetachLanguageChanged();
+        ClearBindings();
+      }
       base.Dispose(disposing);
+    }
+
+    protected override Freezable CreateInstanceCore()
+    {
+      return new LocalizeValueProvider(_localization);
     }
   }
 }

@@ -25,6 +25,7 @@
 using System;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows;
 
 namespace MP2BootstrapperApp.MarkupExtensions
 {
@@ -32,7 +33,7 @@ namespace MP2BootstrapperApp.MarkupExtensions
   /// Base class for a value provider that has disposable resources. Typically an implementation of this
   /// will be returned by an <see cref="UpdatableMarkupExtension"/> to provide the actual value.
   /// </summary>
-  public abstract class DisposableValueProvider : INotifyPropertyChanged, IDisposable
+  public abstract class DisposableValueProvider : Freezable, INotifyPropertyChanged, IDisposable
   {
     ~DisposableValueProvider()
     {

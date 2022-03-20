@@ -36,6 +36,17 @@ namespace MP2BootstrapperApp.MarkupExtensions
   /// </summary>
   public class LocalizeExtension : UpdatableMarkupExtension
   {
+    #region Attached properties
+
+    /// <summary>
+    /// Attached property to contain all <see cref="LocalizeValueProvider"/>s bound to a <see cref="DependencyObject"/>.
+    /// </summary>
+    public static readonly DependencyProperty LocalizeValueProvidersProperty = DependencyProperty.RegisterAttached(
+      "LocalizeValueProviders", typeof(LocalizeValueProviderCollection), typeof(LocalizeExtension)
+    );
+
+    #endregion
+
     protected string _stringId;
     protected string _parameters;
     protected BindingBase _stringIdBinding;
@@ -124,18 +135,38 @@ namespace MP2BootstrapperApp.MarkupExtensions
       set { _parametersBinding = value; }
     }
 
-    protected override BindingBase ProvideValueOverride(DependencyObject target)
+    protected override BindingBase ProvideValueOverride(DependencyObject target, DependencyProperty targetProperty)
     {
       // If we have a binding then use that directly, else create a binding to the StringId property so it's changes are propagated to the target
       BindingBase idBinding = _stringIdBinding != null ? _stringIdBinding : new Binding(nameof(StringId)) { Source = this };
       BindingBase parametersBinding = _parametersBinding != null ? _parametersBinding : new Binding(nameof(Parameters)) { Source = this };
 
-      // Localized value source handles listening to bound value and language changes
-      LocalizeValueProvider source = new LocalizeValueProvider(target, idBinding, parametersBinding, _localization);
+      // Create a new LocalizeValueProvider and add it to the target object
+      LocalizeValueProvider lvp = new LocalizeValueProvider(targetProperty, idBinding, parametersBinding, _localization);
+      AddValueProviderToTarget(lvp, target, targetProperty);
+
+      // Return a binding to the Value property on the the LocalizeValueProvider which will get updated when the properties/language changes
       return new Binding(nameof(LocalizeValueProvider.Value))
       {
-        Source = source
+        Source = lvp
       };
+    }
+
+    protected void AddValueProviderToTarget(LocalizeValueProvider valueProvider, DependencyObject target, DependencyProperty targetProperty)
+    {
+      // Get the value providers currently attached to the target
+      LocalizeValueProviderCollection localizeValueProviders = target.GetValue(LocalizeValueProvidersProperty) as LocalizeValueProviderCollection;
+      if (localizeValueProviders == null)
+      {
+        localizeValueProviders = new LocalizeValueProviderCollection();
+        target.SetValue(LocalizeValueProvidersProperty, localizeValueProviders);
+      }
+      else
+      {
+        // Remove and dispose any existing value providers bound to the same target property
+        localizeValueProviders.RemoveExistingValueProvider(targetProperty);
+      }
+      localizeValueProviders.Add(valueProvider);
     }
   }
 }
