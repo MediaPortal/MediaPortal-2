@@ -75,7 +75,7 @@
                    IsChecked="{Binding Path=ActionType, Converter={StaticResource EnumToBooleanConverter}, ConverterParameter={x:Static wiz:ActionType.Modify}}"
                    HorizontalAlignment="Center" HorizontalContentAlignment="Center" VerticalAlignment="Top" />
       <Label FontSize="22" Foreground="White" HorizontalContentAlignment="Center" Content="{me:Localize [InstallExistTypePageView.Modify]}"
-             Opacity="{Binding Opacity, ElementName=Radio2, Mode=Default}"/>
+             Opacity="{Binding Opacity, ElementName=Radio1, Mode=Default}"/>
     </StackPanel>
 
     <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
