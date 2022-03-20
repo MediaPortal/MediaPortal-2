@@ -23,7 +23,7 @@
   </DataTemplate>
 
   <!-- Header template for the InstallCustomPageViewModel -->
-  <DataTemplate DataType="{x:Type viewModels:InstallCustomPageViewModel}">
+  <DataTemplate DataType="{x:Type viewModels:InstallOverviewPageViewModel}">
     <Grid>
       <Grid.RowDefinitions>
         <RowDefinition Height="37"/>
@@ -31,8 +31,34 @@
       </Grid.RowDefinitions>
       <TextBlock Grid.Row="0" Text="{me:Localize StringIdBinding={Binding Header}}"
                  Foreground="White" FontSize="28" TextAlignment="Right"/>
-      <TextBlock Grid.Row="1" Text="{me:Localize StringIdBinding={Binding SubHeader}}" Opacity="0.7"
-                 Foreground="White" FontSize="16" TextAlignment="Right" Background="Red"/>
+      <Grid Grid.Row="1" HorizontalAlignment="Right">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <Image Grid.Column="0" VerticalAlignment="Center" Source="..\resources\present.png" Width="20" Height="20" Margin="10,0,3,0"/>
+        <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="Keep" Opacity="0.7" Foreground="White" FontSize="16"/>
+
+        <Image Grid.Column="2" VerticalAlignment="Center" Source="..\resources\update.png" Width="20" Height="20" Margin="10,0,3,0"/>
+        <TextBlock Grid.Column="3" VerticalAlignment="Center" Text="Update" Opacity="0.7" Foreground="White" FontSize="16"/>
+
+        <Image Grid.Column="4" VerticalAlignment="Center" Source="..\resources\install.png" Width="20" Height="20" Margin="10,0,3,0"/>
+        <TextBlock Grid.Column="5" VerticalAlignment="Center" Text="Add" Opacity="0.7" Foreground="White" FontSize="16"/>
+
+        <Image Grid.Column="6" VerticalAlignment="Center" Source="..\resources\uninstall.png" Width="20" Height="20" Margin="10,0,3,0"/>
+        <TextBlock Grid.Column="7" VerticalAlignment="Center" Text="Remove" Opacity="0.7" Foreground="White" FontSize="16"/>
+
+      </Grid>
     </Grid>
   </DataTemplate>
 
