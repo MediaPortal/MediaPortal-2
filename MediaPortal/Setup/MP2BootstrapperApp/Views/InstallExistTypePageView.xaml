@@ -94,13 +94,13 @@
              Opacity="{Binding Opacity, ElementName=Radio3, Mode=Default}"/>
     </StackPanel>
 
-    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallExistTypePageView.ModifyDescription]}"
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" Text="{me:Localize [InstallExistTypePageView.ModifyDescription]}"
                VerticalAlignment="Center" Foreground="White" Opacity="0.5" Margin="10" Grid.Row="1" Grid.ColumnSpan="3"
                Visibility="{Binding ElementName=Radio1, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallExistTypePageView.RepairDescription]}" 
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" Text="{me:Localize [InstallExistTypePageView.RepairDescription]}" 
                VerticalAlignment="Center" Foreground="White" Opacity="0.5" Margin="10" Grid.Row="1" Grid.ColumnSpan="3"
                Visibility="{Binding ElementName=Radio2, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallExistTypePageView.UninstallDescription]}" 
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" Text="{me:Localize [InstallExistTypePageView.UninstallDescription]}" 
                VerticalAlignment="Center" Foreground="White" Opacity="0.5" Margin="10" Grid.Row="1" Grid.ColumnSpan="3"
                Visibility="{Binding ElementName=Radio3, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
     

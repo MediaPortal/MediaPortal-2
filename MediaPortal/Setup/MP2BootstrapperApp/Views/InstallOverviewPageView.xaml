@@ -21,7 +21,7 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-    <ItemsControl ItemsSource="{Binding Path=Packages}" ItemTemplate="{StaticResource OverviewPackageDataTemplate}">
+    <ItemsControl ItemsSource="{Binding Path=Packages}" ItemTemplate="{StaticResource OverviewPackageDataTemplate}" HorizontalAlignment="Center">
       <ItemsControl.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel />

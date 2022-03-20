@@ -106,16 +106,16 @@
              Opacity="{Binding Opacity, ElementName=Radio4, Mode=Default}"/>
     </StackPanel>
 
-    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallNewTypePageView.ServerClientDescription]}" 
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" Text="{me:Localize [InstallNewTypePageView.ServerClientDescription]}" 
                VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" Grid.Row="1" Grid.ColumnSpan="4"
                Visibility="{Binding ElementName=Radio1, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallNewTypePageView.ClientDescription]}" 
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" Text="{me:Localize [InstallNewTypePageView.ClientDescription]}" 
                VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" Grid.Row="1" Grid.ColumnSpan="4"
                Visibility="{Binding ElementName=Radio2, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallNewTypePageView.ServerDescription]}" 
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" Text="{me:Localize [InstallNewTypePageView.ServerDescription]}" 
                VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" Grid.Row="1" Grid.ColumnSpan="4"
                Visibility="{Binding ElementName=Radio3, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="20" Text="{me:Localize [InstallNewTypePageView.CustomDescription]}" 
+    <TextBlock HorizontalAlignment="Center" TextWrapping="Wrap" FontSize="18" Text="{me:Localize [InstallNewTypePageView.CustomDescription]}" 
                VerticalAlignment="Center" Background="{x:Null}" Foreground="White" Opacity="0.5" Margin="40,45,40,20" Grid.Row="1" Grid.ColumnSpan="4"
                Visibility="{Binding ElementName=Radio4, Path=IsChecked, Converter={StaticResource BooleanToVisibilityConverter}}"/>
 
