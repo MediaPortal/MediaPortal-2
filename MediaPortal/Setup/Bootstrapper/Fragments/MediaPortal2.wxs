@@ -4,7 +4,6 @@
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
   <Fragment>
 
-    <?include $(var.SolutionDir)\VersionInfo.wxi?>
     <?include $(var.SolutionDir)\Includes.wxi?>
     
     <Variable Name="INSTALLDIR" bal:Overridable="yes" Value="[ProgramFilesFolder]$(var.Manufacturer)" />

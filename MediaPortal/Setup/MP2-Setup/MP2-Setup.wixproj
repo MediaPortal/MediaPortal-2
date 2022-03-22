@@ -30,9 +30,6 @@
     <Content Include="..\Includes.wxi">
       <Link>Includes.wxi</Link>
     </Content>
-    <Content Include="..\VersionInfo.wxi">
-      <Link>VersionInfo.wxi</Link>
-    </Content>
     <Compile Include="Features\Client.Heat.wxs" />
     <Compile Include="Features\Client.wxs" />
     <Compile Include="Features\LogCollector.Heat.wxs" />

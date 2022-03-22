@@ -20,7 +20,7 @@
 
       <Component Id="LogCollector.Registry.InstallDir" Guid="6C95EC1B-D25C-4CB7-8649-282415B34F4F">
         <RegistryKey Root="HKLM"
-                     Key="Software\[Manufacturer]\[ProductName]">
+                     Key="$(var.RegKeyRoot)">
           <RegistryValue Type="string" Name="INSTALLDIR_LOG_COLLECTOR" Value="[INSTALLDIR_LOG_COLLECTOR]"/>
         </RegistryKey>
         <CreateFolder />
