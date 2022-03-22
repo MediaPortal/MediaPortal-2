@@ -32,7 +32,7 @@
   <string name="InstallNewTypePageView.ServerClientDescription">Complete single seat or server installation with user interface</string>
   <string name="InstallNewTypePageView.ClientDescription">Install the user interface only, the server is available in the network</string>
   <string name="InstallNewTypePageView.ServerDescription">Install a dedicated server without user interface</string>
-  <string name="InstallNewTypePageView.CustomDescription">Configure the installation paths and packages</string>
+  <string name="InstallNewTypePageView.CustomDescription">Configure the installation paths and features</string>
 
   <!-- InstallExistTypePageView -->
   <string name="InstallExistTypePageView.Header">Installation already exists</string>
@@ -40,13 +40,13 @@
   <string name="InstallExistTypePageView.Modify">Modify</string>
   <string name="InstallExistTypePageView.Repair">Repair</string>
   <string name="InstallExistTypePageView.Uninstall">Uninstall</string>
-  <string name="InstallExistTypePageView.ModifyDescription">Modifies the existing installation by removing or adding packages</string>
+  <string name="InstallExistTypePageView.ModifyDescription">Modifies the existing installation by removing or adding features</string>
   <string name="InstallExistTypePageView.RepairDescription">Repairs errors in the existing installation by fixing missing and corrupt files, shortcuts and registry entries</string>
   <string name="InstallExistTypePageView.UninstallDescription">Uninstalls the existing installation completely</string>
 
   <!-- InstallCustomPageView -->
   <string name="InstallCustomPageView.Header">Custom installation</string>
-  <string name="InstallCustomPageView.SubHeader">Un-/select the packages to install</string>
+  <string name="InstallCustomPageView.SubHeader">Select the features to install</string>
   <string name="InstallCustomPageView.RequiredHardDriveSpace">Requires {0} on your hard drive.</string>
   <string name="InstallCustomPageView.BrowseButton">Browse</string>
   <string name="InstallCustomPageView.InvalidPath">The specified install location is invalid</string>
@@ -85,7 +85,5 @@
   <!-- UninstallFinishPageView -->
   <string name="UninstallFinishPageView.Header">Uninstall Completed</string>
   <string name="UninstallFinishPageView.SubHeader">Thank you for using MediaPortal 2</string>
-
-
 
 </resources>
