@@ -138,8 +138,8 @@
     <WixVariable Id="WixUIDialogBmp"
                  Value="Resources\MPDialog.jpg" />
 
-    <UIRef Id="MP2_Setup_UI_FeatureTree" /> -->
-    <UIRef Id="WixUI_ErrorProgressText" />
+    <UIRef Id="MP2_Setup_UI_FeatureTree" />
+    <UIRef Id="WixUI_ErrorProgressText" /> -->
     
     <InstallUISequence>
 
