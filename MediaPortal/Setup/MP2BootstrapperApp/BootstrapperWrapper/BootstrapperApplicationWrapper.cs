@@ -83,5 +83,10 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     {
       return Engine.FormatString(format);
     }
+
+    public bool EvaluateCondition(string condition)
+    {
+      return Engine.EvaluateCondition(condition);
+    }
   }
 }

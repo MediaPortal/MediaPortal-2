@@ -36,11 +36,6 @@ namespace MP2BootstrapperApp.ChainPackages
       get { return false; }
     }
 
-    public virtual bool Is64Bit 
-    {
-      get { return false; }
-    }
-
     public abstract Version GetInstalledVersion();
 
     public virtual bool IsFeatureOptional(FeatureId feature)

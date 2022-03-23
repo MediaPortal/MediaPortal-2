@@ -25,7 +25,6 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
-using System;
 using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.ActionPlans
@@ -78,8 +77,8 @@ namespace MP2BootstrapperApp.ActionPlans
       if (package.CurrentInstallState == PackageState.Present)
         return false;
 
-      // Don't install 64 bit packages on 32 bit OS
-      if (package.Is64Bit && !Environment.Is64BitOperatingSystem)
+      // Don't install packages when the install condition evaluated to false
+      if (!package.EvaluatedInstallCondition)
         return false;
 
       // If optional packages are being explicitly planned, only install this optional package if explicitly planned.

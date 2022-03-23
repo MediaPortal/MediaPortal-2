@@ -164,5 +164,18 @@ namespace Tests
 
       Assert.Equal(RequestState.None, requestState);
     }
+
+    [Fact]
+    void Should_ExcludePackage_When_InstallConditionIsFalse()
+    {
+      InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
+      IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(null, null, new[] { PackageId.VC2019_x64 });
+      IBundlePackage vcX64 = packages.First(p => p.PackageId == PackageId.VC2019_x64);
+
+      RequestState? requestState = plan.GetRequestedInstallState(vcX64);
+
+      Assert.Equal(RequestState.None, requestState);
+
+    }
   }
 }

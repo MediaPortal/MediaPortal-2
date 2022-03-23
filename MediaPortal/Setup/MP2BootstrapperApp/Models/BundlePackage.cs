@@ -41,9 +41,11 @@ namespace MP2BootstrapperApp.Models
     protected string _displayName;
     protected string _description;
     protected long _installedSize;
+    protected string _installCondition;
+    // Default to true unless explicitly set
+    protected bool _evaluatedInstallCondition = true;
 
     protected bool _optional;
-    protected bool _is64Bit;
     protected Version _installedVersion;
 
     public BundlePackage(PackageId packageId, XElement packageElement, IPackage package)
@@ -61,6 +63,7 @@ namespace MP2BootstrapperApp.Models
       _packageIdString = packageElement.Attribute("Package")?.Value;
       _displayName = packageElement.Attribute("DisplayName")?.Value;
       _description = packageElement.Attribute("Description")?.Value;
+      _installCondition = packageElement.Attribute("InstallCondition")?.Value;
       _installedSize = long.TryParse(packageElement.Attribute("InstalledSize")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;
       _version = Version.TryParse(packageElement.Attribute("Version")?.Value, out Version result) ? result : new Version();
     }
@@ -68,7 +71,6 @@ namespace MP2BootstrapperApp.Models
     protected virtual void SetPackageProperties(IPackage package)
     {
       _optional = package.IsOptional;
-      _is64Bit = package.Is64Bit;
       _installedVersion = package.GetInstalledVersion();
     }
 
@@ -123,17 +125,17 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public bool Optional
+    public string InstallCondition
     {
-      get { return _optional; }
+      get { return _installCondition; }
     }
 
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public bool Is64Bit
+    public bool Optional
     {
-      get { return _is64Bit; }
+      get { return _optional; }
     }
 
     /// <summary>
@@ -143,6 +145,15 @@ namespace MP2BootstrapperApp.Models
     {
       get { return _installedVersion; }
       set { _installedVersion = value; }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public bool EvaluatedInstallCondition
+    {
+      get { return _evaluatedInstallCondition; }
+      set { _evaluatedInstallCondition = value; }
     }
 
     /// <summary>

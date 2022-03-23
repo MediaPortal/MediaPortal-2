@@ -142,6 +142,10 @@ namespace MP2BootstrapperApp.Models
         if (bundlePackage != null)
         {
           bundlePackage.CurrentInstallState = detectPackageCompleteEventArgs.State;
+
+          // Evaluate any install condition, defaulting to true if no condition has been specified
+          bundlePackage.EvaluatedInstallCondition = !string.IsNullOrEmpty(bundlePackage.InstallCondition) ? BootstrapperApplication.EvaluateCondition(bundlePackage.InstallCondition) : true;
+
           // For msi packages that are present the installed version must be the same as the bundled version. This
           // is not necessarily the case for exe packages which use manual version checks and may be detected as present
           // if a higher or lower compatible version is detected on the system.

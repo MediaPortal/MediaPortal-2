@@ -38,6 +38,7 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     void Plan(LaunchAction action);
     void Apply(IntPtr hwndParent);
     void Log(LogLevel level, string message);
+    bool EvaluateCondition(string condition);
 
     /// <summary>
     /// Gets or sets string variables using <see cref="SecureString"/>.

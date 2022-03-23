@@ -25,7 +25,6 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
-using System;
 using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.ActionPlans
@@ -60,7 +59,7 @@ namespace MP2BootstrapperApp.ActionPlans
         return RequestState.Repair;
       }
       // If not installed and not required, then do nothing
-      else if (_excludedPackages.Contains(package.PackageId) || package.Optional || (package.Is64Bit && !Environment.Is64BitOperatingSystem))
+      else if (_excludedPackages.Contains(package.PackageId) || package.Optional || !package.EvaluatedInstallCondition)
       {
         return RequestState.None;
       }

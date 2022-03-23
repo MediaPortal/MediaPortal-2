@@ -34,12 +34,14 @@ namespace Tests.Mocks
 {
   public static class MockBundlePackages
   {
-    public static IList<IBundlePackage> CreateCurrentInstall(IEnumerable<PackageId> installedPackages = null, IEnumerable<FeatureId> installedFeatures = null)
+    public static IList<IBundlePackage> CreateCurrentInstall(IEnumerable<PackageId> installedPackages = null, IEnumerable<FeatureId> installedFeatures = null, IEnumerable<PackageId> falseInstallConditionPackages = null)
     {
       if (installedPackages == null)
         installedPackages = new PackageId[0];
       if (installedFeatures == null)
         installedFeatures = new FeatureId[0];
+      if (falseInstallConditionPackages == null)
+        falseInstallConditionPackages = new PackageId[0];
 
       installedFeatures = installedFeatures.Union(new[] { FeatureId.MediaPortal_2 });
 
@@ -65,7 +67,7 @@ namespace Tests.Mocks
         }
         else
         {
-          IBundlePackage package = CreatePackage(packageId, installedPackages.Contains(packageId), packageId == PackageId.LAVFilters, null);
+          IBundlePackage package = CreatePackage(packageId, installedPackages.Contains(packageId), packageId == PackageId.LAVFilters, null, !falseInstallConditionPackages.Contains(packageId));
           packages.Add(package);
         }
       }
@@ -103,17 +105,18 @@ namespace Tests.Mocks
         }
         else
         {
-          IBundlePackage package = CreatePackage(packageId, false, packageId == PackageId.LAVFilters, installedPackages.Contains(packageId) ? previousInstalledVersion : null);
+          IBundlePackage package = CreatePackage(packageId, false, packageId == PackageId.LAVFilters, installedPackages.Contains(packageId) ? previousInstalledVersion : null, true);
           packages.Add(package);
         }
       }
       return packages;
     }
 
-    public static IBundlePackage CreatePackage(PackageId packageId, bool installed, bool optional, Version installedVersion)
+    public static IBundlePackage CreatePackage(PackageId packageId, bool installed, bool optional, Version installedVersion, bool installCondition)
     {
       IBundlePackage package = Substitute.For<IBundlePackage>();
       package.PackageId.Returns(packageId);
+      package.EvaluatedInstallCondition.Returns(installCondition);
       package.Optional.Returns(optional);
       package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
       package.InstalledVersion.Returns(installedVersion ?? new Version());
@@ -124,6 +127,7 @@ namespace Tests.Mocks
     {
       IBundleMsiPackage package = Substitute.For<IBundleMsiPackage>();
       package.PackageId.Returns(packageId);
+      package.EvaluatedInstallCondition.Returns(true);
       package.Optional.Returns(optional);
       package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
       package.InstalledVersion.Returns(installedVersion ?? new Version());

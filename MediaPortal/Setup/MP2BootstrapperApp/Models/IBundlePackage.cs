@@ -64,19 +64,24 @@ namespace MP2BootstrapperApp.Models
     long InstalledSize { get; }
 
     /// <summary>
+    /// The install condition specified for the package.
+    /// </summary>
+    string InstallCondition { get; }
+
+    /// <summary>
     /// Whether this package is optional.
     /// </summary>
     bool Optional { get; }
 
     /// <summary>
-    /// Whether this package is 64 bit only.
-    /// </summary>
-    bool Is64Bit { get; }
-
-    /// <summary>
     /// Gets the currently installed version of the package.
     /// </summary>
     Version InstalledVersion { get; set; }
+
+    /// <summary>
+    /// The evaluated value of the install condition specified for the package, if no install condition was specified this should default to <c>true</c>.
+    /// </summary>
+    bool EvaluatedInstallCondition { get; set; }
 
     /// <summary>
     /// Gets or sets the current install state of the package.

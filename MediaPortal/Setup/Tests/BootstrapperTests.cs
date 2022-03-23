@@ -54,8 +54,8 @@ namespace Tests
       Assert.Equal("LAV Filters Setup", bundlePackage.Description);
       Assert.Equal(10746592, bundlePackage.InstalledSize);
       Assert.Equal(new Version("0.74.1.0"), bundlePackage.Version);
+      Assert.Equal("(NOT LAVFilters_Version >= v0.74.1.0) OR (NOT LAVFilters_Version)", bundlePackage.InstallCondition);
       Assert.True(bundlePackage.Optional);
-      Assert.False(bundlePackage.Is64Bit);
     }
 
     [Fact]
@@ -80,8 +80,8 @@ namespace Tests
       Assert.Equal("MediaPortal 2", bundlePackage.Description);
       Assert.Equal(791408691, bundlePackage.InstalledSize);
       Assert.Equal(new Version("2.4.2202.13838"), bundlePackage.Version);
+      Assert.Null(bundlePackage.InstallCondition);
       Assert.False(bundlePackage.Optional);
-      Assert.False(bundlePackage.Is64Bit);
       Assert.Equal(new Guid("0E70343E-934F-4328-8891-B7BE16F57D78"), bundlePackage.ProductCode);
       Assert.Equal(new Guid("9743129C-FED3-404A-A66E-3C1557BE0178"), bundlePackage.UpgradeCode);
     }
