@@ -36,11 +36,6 @@ namespace MP2BootstrapperApp.ChainPackages
       _packageChecker = packageChecker;
     }
 
-    public override bool IsOptional
-    {
-      get { return true; }
-    }
-
     public override Version GetInstalledVersion()
     {
       // TODO: add registry check to find the installed path

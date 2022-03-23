@@ -117,7 +117,7 @@ namespace Tests.Mocks
       IBundlePackage package = Substitute.For<IBundlePackage>();
       package.PackageId.Returns(packageId);
       package.EvaluatedInstallCondition.Returns(installCondition);
-      package.Optional.Returns(optional);
+      package.Vital.Returns(!optional);
       package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
       package.InstalledVersion.Returns(installedVersion ?? new Version());
       return package;
@@ -128,7 +128,7 @@ namespace Tests.Mocks
       IBundleMsiPackage package = Substitute.For<IBundleMsiPackage>();
       package.PackageId.Returns(packageId);
       package.EvaluatedInstallCondition.Returns(true);
-      package.Optional.Returns(optional);
+      package.Vital.Returns(!optional);
       package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
       package.InstalledVersion.Returns(installedVersion ?? new Version());
       return package;

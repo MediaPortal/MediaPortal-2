@@ -82,7 +82,7 @@ namespace MP2BootstrapperApp.ActionPlans
         return false;
 
       // If optional packages are being explicitly planned, only install this optional package if explicitly planned.
-      if (package.Optional && _plannedOptionalPackages != null)
+      if (!package.Vital && _plannedOptionalPackages != null)
         return _plannedOptionalPackages.Contains(package.PackageId);
 
       // Else install unless explcitly excluded.

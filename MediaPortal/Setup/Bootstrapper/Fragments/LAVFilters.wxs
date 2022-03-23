@@ -15,7 +15,7 @@
                      Result="version"/>
     
     <PackageGroup Id="LAVFilters">
-      <ExePackage Id="LAVFilters" Cache="yes" Permanent="yes" Vital="yes" Compressed="no"
+      <ExePackage Id="LAVFilters" Cache="yes" Permanent="yes" Vital="no" Compressed="no"
                   Name="LAVFilters.exe"
                   DownloadUrl="http://install.team-mediaportal.com/MP2/install/LAVFilters.exe"
                   InstallCommand="/VERYSILENT /SP-"

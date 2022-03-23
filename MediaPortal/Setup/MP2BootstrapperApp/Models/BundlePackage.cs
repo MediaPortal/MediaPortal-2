@@ -42,10 +42,11 @@ namespace MP2BootstrapperApp.Models
     protected string _description;
     protected long _installedSize;
     protected string _installCondition;
+    protected bool _vital;
+
     // Default to true unless explicitly set
     protected bool _evaluatedInstallCondition = true;
 
-    protected bool _optional;
     protected Version _installedVersion;
 
     public BundlePackage(PackageId packageId, XElement packageElement, IPackage package)
@@ -66,11 +67,11 @@ namespace MP2BootstrapperApp.Models
       _installCondition = packageElement.Attribute("InstallCondition")?.Value;
       _installedSize = long.TryParse(packageElement.Attribute("InstalledSize")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;
       _version = Version.TryParse(packageElement.Attribute("Version")?.Value, out Version result) ? result : new Version();
+      _vital = !string.Equals(packageElement.Attribute("Vital")?.Value, "no", StringComparison.InvariantCultureIgnoreCase);
     }
 
     protected virtual void SetPackageProperties(IPackage package)
     {
-      _optional = package.IsOptional;
       _installedVersion = package.GetInstalledVersion();
     }
 
@@ -133,9 +134,9 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public bool Optional
+    public bool Vital
     {
-      get { return _optional; }
+      get { return _vital; }
     }
 
     /// <summary>

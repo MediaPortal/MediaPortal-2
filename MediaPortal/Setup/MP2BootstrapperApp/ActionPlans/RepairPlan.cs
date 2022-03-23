@@ -59,7 +59,7 @@ namespace MP2BootstrapperApp.ActionPlans
         return RequestState.Repair;
       }
       // If not installed and not required, then do nothing
-      else if (_excludedPackages.Contains(package.PackageId) || package.Optional || !package.EvaluatedInstallCondition)
+      else if (_excludedPackages.Contains(package.PackageId) || !package.Vital || !package.EvaluatedInstallCondition)
       {
         return RequestState.None;
       }

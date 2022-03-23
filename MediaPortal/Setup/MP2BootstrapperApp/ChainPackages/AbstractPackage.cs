@@ -31,11 +31,6 @@ namespace MP2BootstrapperApp.ChainPackages
   /// </summary>
   public abstract class AbstractPackage : IPackage
   {
-    public virtual bool IsOptional
-    {
-      get { return false; }
-    }
-
     public abstract Version GetInstalledVersion();
 
     public virtual bool IsFeatureOptional(FeatureId feature)

@@ -103,7 +103,7 @@ namespace MP2BootstrapperApp.WizardSteps
       // Optional packages, currently this is only the LAV Filters package
       foreach (IBundlePackage bundlePackage in bundlePackages)
       {
-        if (bundlePackage.Optional && bundlePackage.CurrentInstallState != PackageState.Present)
+        if (!bundlePackage.Vital && bundlePackage.CurrentInstallState != PackageState.Present)
           selectablePackages.Add(bundlePackage);
       }
       return selectablePackages;

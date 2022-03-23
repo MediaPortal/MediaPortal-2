@@ -38,7 +38,7 @@ namespace Tests
     {
       const string packageXml = @"
       <root>
-        <WixPackageProperties Package=""LAVFilters"" Vital=""yes"" DisplayName=""LAV Filters"" Description=""LAV Filters Setup"" DownloadSize=""10746592"" PackageSize=""10746592"" InstalledSize=""10746592"" PackageType=""Exe"" Permanent=""yes"" LogPathVariable=""WixBundleLog_LAVFilters"" RollbackLogPathVariable=""WixBundleRollbackLog_LAVFilters"" Compressed=""no"" DisplayInternalUI=""no"" Version=""0.74.1.0"" InstallCondition=""(NOT LAVFilters_Version &gt;= v0.74.1.0) OR (NOT LAVFilters_Version)"" Cache=""yes"" />
+        <WixPackageProperties Package=""LAVFilters"" Vital=""no"" DisplayName=""LAV Filters"" Description=""LAV Filters Setup"" DownloadSize=""10746592"" PackageSize=""10746592"" InstalledSize=""10746592"" PackageType=""Exe"" Permanent=""yes"" LogPathVariable=""WixBundleLog_LAVFilters"" RollbackLogPathVariable=""WixBundleRollbackLog_LAVFilters"" Compressed=""no"" DisplayInternalUI=""no"" Version=""0.74.1.0"" InstallCondition=""(NOT LAVFilters_Version &gt;= v0.74.1.0) OR (NOT LAVFilters_Version)"" Cache=""yes"" />
       </root>";
 
       XDocument doc = XDocument.Parse(packageXml);
@@ -55,7 +55,7 @@ namespace Tests
       Assert.Equal(10746592, bundlePackage.InstalledSize);
       Assert.Equal(new Version("0.74.1.0"), bundlePackage.Version);
       Assert.Equal("(NOT LAVFilters_Version >= v0.74.1.0) OR (NOT LAVFilters_Version)", bundlePackage.InstallCondition);
-      Assert.True(bundlePackage.Optional);
+      Assert.False(bundlePackage.Vital);
     }
 
     [Fact]
@@ -81,7 +81,7 @@ namespace Tests
       Assert.Equal(791408691, bundlePackage.InstalledSize);
       Assert.Equal(new Version("2.4.2202.13838"), bundlePackage.Version);
       Assert.Null(bundlePackage.InstallCondition);
-      Assert.False(bundlePackage.Optional);
+      Assert.True(bundlePackage.Vital);
       Assert.Equal(new Guid("0E70343E-934F-4328-8891-B7BE16F57D78"), bundlePackage.ProductCode);
       Assert.Equal(new Guid("9743129C-FED3-404A-A66E-3C1557BE0178"), bundlePackage.UpgradeCode);
     }

@@ -69,9 +69,9 @@ namespace MP2BootstrapperApp.Models
     string InstallCondition { get; }
 
     /// <summary>
-    /// Whether this package is optional.
+    /// Whether this package is vital or can be optionally not installed.
     /// </summary>
-    bool Optional { get; }
+    bool Vital { get; }
 
     /// <summary>
     /// Gets the currently installed version of the package.
