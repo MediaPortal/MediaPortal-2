@@ -52,16 +52,10 @@ namespace MP2BootstrapperApp.Models
 
     public IBundlePackageFeature CreatePackageFeature(XElement featureElement)
     {
-      string packageIdString = featureElement.Attribute("Package")?.Value;
-      PackageId packageId = Enum.TryParse(packageIdString, out PackageId id) ? id : PackageId.Unknown;
-
-      if (!_packageContext.TryGetPackage(packageId, out IPackage package))
-        throw new InvalidOperationException($"{nameof(BundlePackageFactory)}: {nameof(_packageContext)} does not contain package info for bundle package with id {packageIdString}");
-
       string featureIdString = featureElement.Attribute("Feature")?.Value;
       FeatureId featureId = Enum.TryParse(featureIdString, out FeatureId fid) ? fid : FeatureId.Unknown;
 
-      return new BundlePackageFeature(featureId, featureElement, package);
+      return new BundlePackageFeature(featureId, featureElement);
     }
   }
 }

@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.ChainPackages;
@@ -61,7 +62,7 @@ namespace Tests
 
       FeatureState? featureState = plan.GetRequestedInstallState(nonOptionalFeature);
 
-      Assert.False(nonOptionalFeature.Optional);
+      Assert.True(nonOptionalFeature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent));
       Assert.Equal(FeatureState.Local, featureState);
     }
 
@@ -75,7 +76,7 @@ namespace Tests
 
       FeatureState? featureState = plan.GetRequestedInstallState(optionalFeature);
 
-      Assert.True(optionalFeature.Optional);
+      Assert.False(optionalFeature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent));
       Assert.Equal(FeatureState.Local, featureState);
     }
 
@@ -89,7 +90,7 @@ namespace Tests
 
       FeatureState? featureState = plan.GetRequestedInstallState(optionalFeature);
 
-      Assert.True(optionalFeature.Optional);
+      Assert.False(optionalFeature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent));
       Assert.Equal(FeatureState.Absent, featureState);
     }
 

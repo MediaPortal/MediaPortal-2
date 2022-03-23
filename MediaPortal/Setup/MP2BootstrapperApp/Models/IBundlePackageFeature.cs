@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 
@@ -60,9 +61,9 @@ namespace MP2BootstrapperApp.Models
     long InstalledSize { get; }
 
     /// <summary>
-    /// Whether this feature is optional.
+    /// The attributes specified for the feature.
     /// </summary>
-    bool Optional { get; }
+    FeatureAttributes Attributes { get; }
 
     /// <summary>
     /// Whether a previous version of this feature is installed in a previous version of the parent package.

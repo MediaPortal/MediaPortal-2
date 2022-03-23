@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
@@ -138,7 +139,7 @@ namespace Tests.Mocks
     {
       IBundlePackageFeature feature = Substitute.For<IBundlePackageFeature>();
       feature.Id.Returns(featureId);
-      feature.Optional.Returns(optional);
+      feature.Attributes.Returns(optional ? FeatureAttributes.DisallowAdvertise : (FeatureAttributes.DisallowAdvertise | FeatureAttributes.UIDisallowAbsent));
       feature.CurrentFeatureState.Returns(installed ? FeatureState.Local : FeatureState.Absent);
       feature.PreviousVersionInstalled.Returns(previousVersionInstalled);
       return feature;

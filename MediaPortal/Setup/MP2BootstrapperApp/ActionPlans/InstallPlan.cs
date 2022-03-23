@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
@@ -98,7 +99,7 @@ namespace MP2BootstrapperApp.ActionPlans
     {
       // Non-optional features should always be installed. For optional features, either install all
       // if no features are explicitly planned, else just install the planned features.
-      return !feature.Optional || _plannedFeatures.Count == 0 || _plannedFeatures.Contains(feature.Id);
+      return feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) || _plannedFeatures.Count == 0 || _plannedFeatures.Contains(feature.Id);
     }
   }
 }

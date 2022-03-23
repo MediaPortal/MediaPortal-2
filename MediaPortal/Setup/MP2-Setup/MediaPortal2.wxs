@@ -112,7 +112,8 @@
              AllowAdvertise="no"
              Display="expand"
              Title="!(loc.F_MediaPortal)"
-             Description="!(loc.F_MediaPortal_Desc)">
+             Description="!(loc.F_MediaPortal_Desc)"
+             Absent="disallow">
       <FeatureRef Id="Client" />
       <FeatureRef Id="Server" />
       <FeatureRef Id="ServiceMonitor" />

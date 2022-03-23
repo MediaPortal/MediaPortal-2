@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
@@ -90,7 +91,7 @@ namespace MP2BootstrapperApp.WizardSteps
       // Get the optional features, namely Client, Server, ServiceMonitor and Log Collector
       foreach (IBundlePackageFeature feature in mainPackage.Features)
       {
-        if (feature.Optional)
+        if (!feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent))
           selectableFeatures.Add(feature);
       }
       return selectableFeatures;

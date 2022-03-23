@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using System;
@@ -107,7 +108,7 @@ namespace Tests
       Assert.Equal("Client Title", bundlePackageFeature.Title);
       Assert.Equal("The user interface. Plays media files.", bundlePackageFeature.Description);
       Assert.Equal(450586600, bundlePackageFeature.InstalledSize);
-      Assert.True(bundlePackageFeature.Optional);
+      Assert.False(bundlePackageFeature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent));
     }
   }
 }

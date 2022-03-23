@@ -22,6 +22,7 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.ChainPackages;
@@ -55,7 +56,7 @@ namespace MP2BootstrapperApp.ViewModels
         {
           foreach (IBundlePackageFeature feature in msiPackage.Features)
           {
-            if (feature.Optional)
+            if (!feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent))
               Packages.Add(CreatePackageFeature(bundlePackage, feature, plan.GetRequestedInstallState(feature)));
           }
         }

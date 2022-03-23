@@ -22,8 +22,10 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ChainPackages;
+using System;
 using System.Globalization;
 using System.Xml.Linq;
 
@@ -37,16 +39,13 @@ namespace MP2BootstrapperApp.Models
     protected string _title;
     protected string _description;
     protected long _installedSize;
-    protected bool _optional;
+    protected FeatureAttributes _attributes;
 
-    public BundlePackageFeature(FeatureId featureId, XElement featureElement, IPackage package)
+    public BundlePackageFeature(FeatureId featureId, XElement featureElement)
     {
       _featureId = featureId;
 
       SetXmlProperties(featureElement);
-
-      if (package != null)
-        SetFeatureProperties(package);
     }
 
     protected void SetXmlProperties(XElement featureElement)
@@ -56,11 +55,7 @@ namespace MP2BootstrapperApp.Models
       _title = featureElement.Attribute("Title")?.Value;
       _description = featureElement.Attribute("Description")?.Value;
       _installedSize = long.TryParse(featureElement.Attribute("Size")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;
-    }
-
-    protected void SetFeatureProperties(IPackage package)
-    {
-      _optional = package.IsFeatureOptional(_featureId);
+      _attributes = Enum.TryParse(featureElement.Attribute("Attributes")?.Value, out FeatureAttributes attributes) ? attributes : FeatureAttributes.None;
     }
 
     /// <summary>
@@ -114,9 +109,9 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public bool Optional
+    public FeatureAttributes Attributes
     {
-      get { return _optional; }
+      get { return _attributes; }
     }
 
     /// <summary>
