@@ -22,70 +22,62 @@
 
 #endregion
 
+using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.ChainPackages;
-using System;
+using MP2BootstrapperApp.BundlePackages;
 
-/// <summary>
-/// Interface for a package included in the installation bundle.
-/// </summary>
-namespace MP2BootstrapperApp.Models
+namespace MP2BootstrapperApp.BundlePackages
 {
-  public interface IBundlePackage
+  public interface IBundlePackageFeature
   {
     /// <summary>
-    /// Gets the id of the package as <see cref="PackageId"/>.
+    /// The <see cref="FeatureId"/> of a package, or <see cref="FeatureId.Unknown"/> for an unknown feature.
     /// </summary>
-    PackageId PackageId { get; }
+    FeatureId Id { get; }
 
     /// <summary>
-    /// Gets the bundled version of the package.
+    /// The name of the feature within a package.
     /// </summary>
-    Version Version { get; }
+    string FeatureName { get; }
 
     /// <summary>
-    /// Gets the id of the package as <see cref="string"/>.
+    /// The parent package id.
     /// </summary>
-    string Id { get; }
+    string Package { get; }
 
     /// <summary>
-    /// The display name of the package.
+    /// The title of the feature.
     /// </summary>
-    string DisplayName { get; }
+    string Title { get; }
 
     /// <summary>
-    /// The description of the package.
+    /// The description of the feature.
     /// </summary>
     string Description { get; }
 
     /// <summary>
-    /// The installled size of the package in bytes.
+    /// The installled size of the feature in bytes.
     /// </summary>
     long InstalledSize { get; }
 
     /// <summary>
-    /// The install condition specified for the package.
+    /// The attributes specified for the feature.
     /// </summary>
-    string InstallCondition { get; }
+    FeatureAttributes Attributes { get; }
 
     /// <summary>
-    /// Whether this package is vital or can be optionally not installed.
+    /// Whether a previous version of this feature is installed in a previous version of the parent package.
     /// </summary>
-    bool Vital { get; }
+    bool PreviousVersionInstalled { get; set; }
 
     /// <summary>
-    /// Gets the currently installed version of the package.
+    /// The current state of the feature if the current version of the parent package is installed. 
     /// </summary>
-    Version InstalledVersion { get; set; }
+    FeatureState CurrentFeatureState { get; set; }
 
     /// <summary>
-    /// The evaluated value of the install condition specified for the package, if no install condition was specified this should default to <c>true</c>.
+    /// The requested state of the feature.
     /// </summary>
-    bool EvaluatedInstallCondition { get; set; }
-
-    /// <summary>
-    /// Gets or sets the current install state of the package.
-    /// </summary>
-    PackageState CurrentInstallState { get; set; }
+    FeatureState RequestedFeatureState { get; set; }
   }
 }

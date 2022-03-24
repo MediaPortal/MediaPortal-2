@@ -23,12 +23,12 @@
 #endregion
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.BundlePackages;
 using System;
 using System.Globalization;
 using System.Xml.Linq;
 
-namespace MP2BootstrapperApp.Models
+namespace MP2BootstrapperApp.BundlePackages
 {
   /// <summary>
   /// 

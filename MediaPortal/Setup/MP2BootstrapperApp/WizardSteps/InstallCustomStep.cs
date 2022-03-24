@@ -24,7 +24,7 @@
 
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
-using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.Utils;
 using System.Collections.Generic;

@@ -22,41 +22,22 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.ChainPackages
+using System;
+using System.Xml.Linq;
+
+namespace MP2BootstrapperApp.BundlePackages
 {
-  /// <summary>
-  /// Ids of the features in the MediaPortal 2 package.
-  /// </summary>
-  public enum FeatureId
+  public class BundlePackageFactory
   {
-    /// <summary>
-    /// Id of the parent feature for all optional features.
-    /// </summary>
-    MediaPortal_2,
+    public IBundlePackage CreatePackage(XElement packageElement)
+    {
+      bool isMsiPackage = string.Equals(packageElement.Attribute("PackageType")?.Value, "Msi", StringComparison.InvariantCultureIgnoreCase);
+      return isMsiPackage ? new BundleMsiPackage(packageElement) : new BundlePackage(packageElement);
+    }
 
-    /// <summary>
-    /// Id of the client feature.
-    /// </summary>
-    Client,
-
-    /// <summary>
-    /// Id of the server feature.
-    /// </summary>
-    Server,
-
-    /// <summary>
-    /// Id of the ServiceMonitor feature.
-    /// </summary>
-    ServiceMonitor,
-
-    /// <summary>
-    /// Id of the log collector feature.
-    /// </summary>
-    LogCollector,
-
-    /// <summary>
-    /// Placeholder for unknown features.
-    /// </summary>
-    Unknown
+    public IBundlePackageFeature CreatePackageFeature(XElement featureElement)
+    {
+      return new BundlePackageFeature(featureElement);
+    }
   }
 }

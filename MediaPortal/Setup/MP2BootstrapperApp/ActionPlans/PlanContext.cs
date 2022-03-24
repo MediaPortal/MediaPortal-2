@@ -22,7 +22,7 @@
 
 #endregion
 
-using MP2BootstrapperApp.ChainPackages;
+using MP2BootstrapperApp.BundlePackages;
 using System.Collections.Generic;
 using System.Linq;
 

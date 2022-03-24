@@ -26,7 +26,7 @@ using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
 
-namespace MP2BootstrapperApp.Models
+namespace MP2BootstrapperApp.BundlePackages
 {
   /// <summary>
   /// 

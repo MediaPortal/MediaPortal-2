@@ -22,22 +22,19 @@
 
 #endregion
 
-using System;
-using System.Xml.Linq;
-
-namespace MP2BootstrapperApp.Models
+namespace MP2BootstrapperApp.BundlePackages
 {
-  public class BundlePackageFactory
+  public enum PackageId
   {
-    public IBundlePackage CreatePackage(XElement packageElement)
-    {
-      bool isMsiPackage = string.Equals(packageElement.Attribute("PackageType")?.Value, "Msi", StringComparison.InvariantCultureIgnoreCase);
-      return isMsiPackage ? new BundleMsiPackage(packageElement) : new BundlePackage(packageElement);
-    }
-
-    public IBundlePackageFeature CreatePackageFeature(XElement featureElement)
-    {
-      return new BundlePackageFeature(featureElement);
-    }
+    MediaPortal2,
+    dokan,
+    LAVFilters,
+    VC2008SP1_x86,
+    VC2010_x86,
+    VC2013_x86,
+    VC2019_x86,
+    VC2019_x64,
+    NetFx471Web,
+    Unknown
   }
 }

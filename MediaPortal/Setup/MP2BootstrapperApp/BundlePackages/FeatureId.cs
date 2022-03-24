@@ -22,29 +22,41 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-
-namespace MP2BootstrapperApp.Models
+namespace MP2BootstrapperApp.BundlePackages
 {
   /// <summary>
-  /// Interface for a Msi package included in the installation bundle.
+  /// Ids of the features in the MediaPortal 2 package.
   /// </summary>
-  public interface IBundleMsiPackage : IBundlePackage
+  public enum FeatureId
   {
     /// <summary>
-    /// The product code of the Msi package.
+    /// Id of the parent feature for all optional features.
     /// </summary>
-    Guid ProductCode { get; }
+    MediaPortal_2,
 
     /// <summary>
-    /// The upgrade code of the Msi package.
+    /// Id of the client feature.
     /// </summary>
-    Guid UpgradeCode { get; }
+    Client,
 
     /// <summary>
-    /// Gets the available features of the Msi package.
+    /// Id of the server feature.
     /// </summary>
-    ICollection<IBundlePackageFeature> Features { get; }
+    Server,
+
+    /// <summary>
+    /// Id of the ServiceMonitor feature.
+    /// </summary>
+    ServiceMonitor,
+
+    /// <summary>
+    /// Id of the log collector feature.
+    /// </summary>
+    LogCollector,
+
+    /// <summary>
+    /// Placeholder for unknown features.
+    /// </summary>
+    Unknown
   }
 }

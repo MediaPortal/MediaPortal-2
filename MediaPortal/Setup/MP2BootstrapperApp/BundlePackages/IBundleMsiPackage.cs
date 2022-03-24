@@ -22,19 +22,29 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.ChainPackages
+using System;
+using System.Collections.Generic;
+
+namespace MP2BootstrapperApp.BundlePackages
 {
-  public enum PackageId
+  /// <summary>
+  /// Interface for a Msi package included in the installation bundle.
+  /// </summary>
+  public interface IBundleMsiPackage : IBundlePackage
   {
-    MediaPortal2,
-    dokan,
-    LAVFilters,
-    VC2008SP1_x86,
-    VC2010_x86,
-    VC2013_x86,
-    VC2019_x86,
-    VC2019_x64,
-    NetFx471Web,
-    Unknown
+    /// <summary>
+    /// The product code of the Msi package.
+    /// </summary>
+    Guid ProductCode { get; }
+
+    /// <summary>
+    /// The upgrade code of the Msi package.
+    /// </summary>
+    Guid UpgradeCode { get; }
+
+    /// <summary>
+    /// Gets the available features of the Msi package.
+    /// </summary>
+    ICollection<IBundlePackageFeature> Features { get; }
   }
 }

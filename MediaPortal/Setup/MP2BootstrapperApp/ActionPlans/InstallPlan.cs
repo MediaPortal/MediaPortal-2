@@ -24,8 +24,7 @@
 
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.ChainPackages;
-using MP2BootstrapperApp.Models;
+using MP2BootstrapperApp.BundlePackages;
 using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.ActionPlans
