@@ -120,7 +120,7 @@ namespace Tests.Mocks
       package.EvaluatedInstallCondition.Returns(installCondition);
       package.Vital.Returns(!optional);
       package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
-      package.InstalledVersion.Returns(installedVersion ?? new Version());
+      package.InstalledVersion.Returns(installedVersion);
       return package;
     }
 
@@ -131,7 +131,7 @@ namespace Tests.Mocks
       package.EvaluatedInstallCondition.Returns(true);
       package.Vital.Returns(!optional);
       package.CurrentInstallState.Returns(installed ? PackageState.Present : PackageState.Absent);
-      package.InstalledVersion.Returns(installedVersion ?? new Version());
+      package.InstalledVersion.Returns(installedVersion);
       return package;
     }
 

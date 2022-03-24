@@ -127,8 +127,6 @@ namespace Tests
     void Should_Not_SelectOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
     {
       IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
-      IBundlePackage notInstalledPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
-      notInstalledPackage.InstalledVersion = new Version();
 
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));

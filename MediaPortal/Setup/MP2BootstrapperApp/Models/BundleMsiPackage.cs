@@ -38,8 +38,8 @@ namespace MP2BootstrapperApp.Models
     protected Guid _productCode;
     protected Guid _upgradeCode;
 
-    public BundleMsiPackage(PackageId packageId, XElement packageElement, IPackage package)
-      : base(packageId, packageElement, package)
+    public BundleMsiPackage(PackageId packageId, XElement packageElement)
+      : base(packageId, packageElement)
     {
       _features = new List<IBundlePackageFeature>();
     }

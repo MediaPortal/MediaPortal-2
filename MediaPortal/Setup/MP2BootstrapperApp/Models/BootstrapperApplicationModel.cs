@@ -146,11 +146,19 @@ namespace MP2BootstrapperApp.Models
           // Evaluate any install condition, defaulting to true if no condition has been specified
           bundlePackage.EvaluatedInstallCondition = !string.IsNullOrEmpty(bundlePackage.InstallCondition) ? BootstrapperApplication.EvaluateCondition(bundlePackage.InstallCondition) : true;
 
-          // For msi packages that are present the installed version must be the same as the bundled version. This
-          // is not necessarily the case for exe packages which use manual version checks and may be detected as present
-          // if a higher or lower compatible version is detected on the system.
-          if (bundlePackage is IBundleMsiPackage && detectPackageCompleteEventArgs.State == PackageState.Present)
-            bundlePackage.InstalledVersion = bundlePackage.Version;
+          // Set the InstalledVersion of the package, this may get set elsewhere, e.g. in DetectRelatedMsiPackage, so don't overwrite if present
+          if (bundlePackage.InstalledVersion == null)
+          {
+            // For msi packages that are present the installed version must be the same as the bundled version. This
+            // is not necessarily the case for exe packages which use manual version checks and may be detected as present
+            // if a higher or lower compatible version is detected on the system.
+            if (bundlePackage is IBundleMsiPackage && detectPackageCompleteEventArgs.State == PackageState.Present)
+              bundlePackage.InstalledVersion = bundlePackage.Version;
+            // Else for exe packages the bundle should have defined a version variable in the form [PackageId]_Version as part
+            // of detecting previous installations of the exe package, try and use this as the version.
+            else
+              bundlePackage.InstalledVersion = GetCurrentPackageVersionFromVariables(detectPackageCompleteEventArgs.PackageId);
+          }
         }
       }
     }
@@ -267,6 +275,16 @@ namespace MP2BootstrapperApp.Models
       }
     }
 
+    private Version GetCurrentPackageVersionFromVariables(string packageId)
+    {
+      string versionVariableName = packageId + "_Version";
+      if (BootstrapperApplication.VersionVariables.Contains(versionVariableName))
+        return BootstrapperApplication.VersionVariables[versionVariableName];
+      else if (BootstrapperApplication.StringVariables.Contains(versionVariableName))
+        return Version.TryParse(BootstrapperApplication.StringVariables[versionVariableName], out Version version) ? version : new Version();
+      return null;
+    }
+
     private void WireUpEventHandlers()
     {
       BootstrapperApplication.DetectBegin += DetectBegin;
@@ -309,7 +327,7 @@ namespace MP2BootstrapperApp.Models
           .Select(x => x.Attribute("PackageId")?.Value)
           .ToList();
 
-        BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new PackageContext());
+        BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
 
         const string wixPackageProperties = "WixPackageProperties";
         packages = bundleManifestData?.Descendants(manifestNamespace + wixPackageProperties)

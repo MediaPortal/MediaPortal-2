@@ -43,7 +43,7 @@ namespace MP2BootstrapperApp.ViewModels
       return new Package
       {
         BundleVersion = bundlePackage.Version,
-        InstalledVersion = bundlePackage.InstalledVersion,
+        InstalledVersion = bundlePackage.InstalledVersion ?? new Version(),
         ImagePath = @"..\resources\" + bundlePackage.PackageId + ".png",
         Id = bundlePackage.Id,
         DisplayName = bundlePackage.DisplayName,

@@ -47,16 +47,11 @@ namespace MP2BootstrapperApp.Models
     // Default to true unless explicitly set
     protected bool _evaluatedInstallCondition = true;
 
-    protected Version _installedVersion;
-
-    public BundlePackage(PackageId packageId, XElement packageElement, IPackage package)
+    public BundlePackage(PackageId packageId, XElement packageElement)
     {
       _packageId = packageId;
 
       SetXmlProperties(packageElement);
-
-      if (package != null)
-        SetPackageProperties(package);
     }
 
     protected virtual void SetXmlProperties(XElement packageElement)
@@ -68,11 +63,6 @@ namespace MP2BootstrapperApp.Models
       _installedSize = long.TryParse(packageElement.Attribute("InstalledSize")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;
       _version = Version.TryParse(packageElement.Attribute("Version")?.Value, out Version result) ? result : new Version();
       _vital = !string.Equals(packageElement.Attribute("Vital")?.Value, "no", StringComparison.InvariantCultureIgnoreCase);
-    }
-
-    protected virtual void SetPackageProperties(IPackage package)
-    {
-      _installedVersion = package.GetInstalledVersion();
     }
 
     /// <summary>
@@ -142,20 +132,16 @@ namespace MP2BootstrapperApp.Models
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public Version InstalledVersion
-    {
-      get { return _installedVersion; }
-      set { _installedVersion = value; }
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
     public bool EvaluatedInstallCondition
     {
       get { return _evaluatedInstallCondition; }
       set { _evaluatedInstallCondition = value; }
     }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public Version InstalledVersion { get; set; }
 
     /// <summary>
     /// <inheritdoc/>

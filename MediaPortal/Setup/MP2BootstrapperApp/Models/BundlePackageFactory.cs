@@ -30,24 +30,14 @@ namespace MP2BootstrapperApp.Models
 {
   public class BundlePackageFactory
   {
-    protected IPackageContext _packageContext;
-
-    public BundlePackageFactory(IPackageContext packageContext)
-    {
-      _packageContext = packageContext;
-    }
-
     public IBundlePackage CreatePackage(XElement packageElement)
     {
       string packageIdString = packageElement.Attribute("Package")?.Value;
       PackageId packageId = Enum.TryParse(packageIdString, out PackageId id) ? id : PackageId.Unknown;
 
-      if (!_packageContext.TryGetPackage(packageId, out IPackage package))
-        throw new InvalidOperationException($"{nameof(BundlePackageFactory)}: {nameof(_packageContext)} does not contain package info for bundle package with id {packageIdString}");
-
       bool isMsiPackage = string.Equals(packageElement.Attribute("PackageType")?.Value, "Msi", StringComparison.InvariantCultureIgnoreCase);
 
-      return isMsiPackage ? new BundleMsiPackage(packageId, packageElement, package) : new BundlePackage(packageId, packageElement, package);
+      return isMsiPackage ? new BundleMsiPackage(packageId, packageElement) : new BundlePackage(packageId, packageElement);
     }
 
     public IBundlePackageFeature CreatePackageFeature(XElement featureElement)

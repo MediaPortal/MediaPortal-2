@@ -46,7 +46,7 @@ namespace Tests
       const string wixPackageProperties = "WixPackageProperties";
       XElement packageElement = doc?.Descendants(wixPackageProperties).FirstOrDefault();
 
-      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new PackageContext());
+      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
       IBundlePackage bundlePackage = bundlePackageFactory.CreatePackage(packageElement);
 
       Assert.Equal("LAVFilters", bundlePackage.Id);
@@ -71,7 +71,7 @@ namespace Tests
       const string wixPackageProperties = "WixPackageProperties";
       XElement packageElement = doc?.Descendants(wixPackageProperties).FirstOrDefault();
 
-      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new PackageContext());
+      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
       IBundleMsiPackage bundlePackage = bundlePackageFactory.CreatePackage(packageElement) as IBundleMsiPackage;
 
       Assert.NotNull(bundlePackage);
@@ -99,7 +99,7 @@ namespace Tests
       const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
       XElement featureElement = doc?.Descendants(wixPackageFeatureInfo).FirstOrDefault();
 
-      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new PackageContext());
+      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
       IBundlePackageFeature bundlePackageFeature = bundlePackageFactory.CreatePackageFeature(featureElement);
 
       Assert.Equal("MediaPortal2", bundlePackageFeature.Package);

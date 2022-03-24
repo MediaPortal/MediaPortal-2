@@ -27,7 +27,6 @@ using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.ChainPackages;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.Utils;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -39,7 +38,6 @@ namespace MP2BootstrapperApp.WizardSteps
   public class InstallCustomStep : AbstractPackageSelectionStep
   {
     const string INSTALLDIR = "INSTALLDIR";
-    private static readonly Version ZERO_VERSION = new Version();
     protected string _installDirectory;
 
     public InstallCustomStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
@@ -82,7 +80,7 @@ namespace MP2BootstrapperApp.WizardSteps
       {
         // If a previous installation exists, initially select the previously installed features and packages
         SelectedFeatures = AvailableFeatures.Where(f => f.PreviousVersionInstalled).ToList();
-        SelectedPackages = AvailablePackages.Where(p => p.InstalledVersion != ZERO_VERSION).ToList();
+        SelectedPackages = AvailablePackages.Where(p => p.InstalledVersion != null).ToList();
       }
       else
       {
