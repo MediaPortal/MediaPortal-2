@@ -22,7 +22,6 @@
 
 #endregion
 
-using MP2BootstrapperApp.ChainPackages;
 using System;
 using System.Xml.Linq;
 
@@ -32,20 +31,13 @@ namespace MP2BootstrapperApp.Models
   {
     public IBundlePackage CreatePackage(XElement packageElement)
     {
-      string packageIdString = packageElement.Attribute("Package")?.Value;
-      PackageId packageId = Enum.TryParse(packageIdString, out PackageId id) ? id : PackageId.Unknown;
-
       bool isMsiPackage = string.Equals(packageElement.Attribute("PackageType")?.Value, "Msi", StringComparison.InvariantCultureIgnoreCase);
-
-      return isMsiPackage ? new BundleMsiPackage(packageId, packageElement) : new BundlePackage(packageId, packageElement);
+      return isMsiPackage ? new BundleMsiPackage(packageElement) : new BundlePackage(packageElement);
     }
 
     public IBundlePackageFeature CreatePackageFeature(XElement featureElement)
     {
-      string featureIdString = featureElement.Attribute("Feature")?.Value;
-      FeatureId featureId = Enum.TryParse(featureIdString, out FeatureId fid) ? fid : FeatureId.Unknown;
-
-      return new BundlePackageFeature(featureId, featureElement);
+      return new BundlePackageFeature(featureElement);
     }
   }
 }

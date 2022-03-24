@@ -41,17 +41,16 @@ namespace MP2BootstrapperApp.Models
     protected long _installedSize;
     protected FeatureAttributes _attributes;
 
-    public BundlePackageFeature(FeatureId featureId, XElement featureElement)
+    public BundlePackageFeature(XElement featureElement)
     {
-      _featureId = featureId;
-
       SetXmlProperties(featureElement);
     }
 
     protected void SetXmlProperties(XElement featureElement)
     {
-      _package = featureElement.Attribute("Package")?.Value;
       _featureIdString = featureElement.Attribute("Feature")?.Value;
+      _featureId = Enum.TryParse(_featureIdString, out FeatureId fid) ? fid : FeatureId.Unknown;
+      _package = featureElement.Attribute("Package")?.Value;
       _title = featureElement.Attribute("Title")?.Value;
       _description = featureElement.Attribute("Description")?.Value;
       _installedSize = long.TryParse(featureElement.Attribute("Size")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;

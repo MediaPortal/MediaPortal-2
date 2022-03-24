@@ -47,16 +47,15 @@ namespace MP2BootstrapperApp.Models
     // Default to true unless explicitly set
     protected bool _evaluatedInstallCondition = true;
 
-    public BundlePackage(PackageId packageId, XElement packageElement)
+    public BundlePackage(XElement packageElement)
     {
-      _packageId = packageId;
-
       SetXmlProperties(packageElement);
     }
 
-    protected virtual void SetXmlProperties(XElement packageElement)
+    private void SetXmlProperties(XElement packageElement)
     {
       _packageIdString = packageElement.Attribute("Package")?.Value;
+      _packageId = Enum.TryParse(_packageIdString, out PackageId id) ? id : PackageId.Unknown;
       _displayName = packageElement.Attribute("DisplayName")?.Value;
       _description = packageElement.Attribute("Description")?.Value;
       _installCondition = packageElement.Attribute("InstallCondition")?.Value;

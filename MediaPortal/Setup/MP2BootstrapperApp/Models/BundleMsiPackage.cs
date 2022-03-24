@@ -22,7 +22,6 @@
 
 #endregion
 
-using MP2BootstrapperApp.ChainPackages;
 using System;
 using System.Collections.Generic;
 using System.Xml.Linq;
@@ -38,15 +37,15 @@ namespace MP2BootstrapperApp.Models
     protected Guid _productCode;
     protected Guid _upgradeCode;
 
-    public BundleMsiPackage(PackageId packageId, XElement packageElement)
-      : base(packageId, packageElement)
+    public BundleMsiPackage(XElement packageElement)
+      : base(packageElement)
     {
       _features = new List<IBundlePackageFeature>();
+      SetXmlProperties(packageElement);
     }
 
-    protected override void SetXmlProperties(XElement packageElement)
+    private void SetXmlProperties(XElement packageElement)
     {
-      base.SetXmlProperties(packageElement);
       _productCode = Guid.TryParse(packageElement.Attribute("ProductCode")?.Value, out Guid productCode) ? productCode : Guid.Empty;
       _upgradeCode = Guid.TryParse(packageElement.Attribute("UpgradeCode")?.Value, out Guid upgradeCode) ? upgradeCode : Guid.Empty;
     }
