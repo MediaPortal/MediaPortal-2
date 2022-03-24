@@ -53,7 +53,7 @@ namespace MP2BootstrapperApp.Models
 
     public bool Uninstalling
     {
-      get { return PackageState == PackageState.Present && RequestState == RequestState.Absent; }
+      get { return RequestState == RequestState.Absent; }
     }
 
     public bool Present
