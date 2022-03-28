@@ -195,7 +195,7 @@ namespace MP2BootstrapperApp.ViewModels
         }
         else
         {
-          GoToStep(new UninstallStep(_bootstrapperApplicationModel, false));
+          GoToStep(new UninstallStep(_bootstrapperApplicationModel));
         }
         return;
       }

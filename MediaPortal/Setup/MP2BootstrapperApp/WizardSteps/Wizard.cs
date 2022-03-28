@@ -37,39 +37,44 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Step
     {
-      get { return stepsStack.Peek(); }
-    }
-
-    public bool GoNext()
-    {
-      IStep next = Step.Next();
-      return Push(next);
+      get { return stepsStack.Count > 0 ? stepsStack.Peek() : null; }
     }
 
     public bool Push(IStep step)
     {
       if (step == null)
         return false;
+      // if the current step is transient, remove it
+      if (Step is ITransientStep)
+        stepsStack.Pop();
       stepsStack.Push(step);
-      return true;
-    }
-
-    public bool GoBack()
-    {
-      if (stepsStack.Count == 1)
-        return false;
-      stepsStack.Pop();
       return true;
     }
 
     public bool CanGoNext()
     {
-      return Step.CanGoNext();
+      return Step?.CanGoNext() ?? false;
+    }
+
+    public bool GoNext()
+    {
+      if (!CanGoNext())
+        return false;
+      IStep next = Step?.Next();
+      return Push(next);
     }
 
     public bool CanGoBack()
     {
-      return Step.CanGoBack();
+      return stepsStack.Count > 1 && Step.CanGoBack();
+    }
+
+    public bool GoBack()
+    {
+      if (!CanGoBack())
+        return false;
+      stepsStack.Pop();
+      return true;
     }
   }
 }

@@ -24,19 +24,41 @@
 
 namespace MP2BootstrapperApp.WizardSteps
 {
+  /// <summary>
+  /// Interface for a class that represents a single step in a wizard.
+  /// </summary>
   public interface IStep
   {
+    /// <summary>
+    /// Gets the step that should be shown after this step.
+    /// </summary>
+    /// <returns>The next step to be shown.</returns>
     IStep Next();
 
+    /// <summary>
+    /// Gets whether this step can proceed to the next step.
+    /// </summary>
+    /// <returns><c>true</c> if the next step can be proceeded to; else <c>false</c>.</returns>
     bool CanGoNext();
 
+    /// <summary>
+    /// Gets whether this step can go back to the previous step.
+    /// </summary>
+    /// <returns><c>true</c> if the previous step can be reverted to; else <c>false</c>.</returns>
     bool CanGoBack();
   }
 
   /// <summary>
-  /// Marker interface for steps that should close the wizard when completed.
+  /// Interface for a class that represents the final step in a wizard.
   /// </summary>
   public interface IFinalStep : IStep
+  {
+  }
+
+  /// <summary>
+  /// Interface for a transient step in a wizard, this step will not remain in the navigation stack when the next step is shown.
+  /// </summary>
+  public interface ITransientStep : IStep
   {
   }
 }

@@ -26,7 +26,7 @@ using MP2BootstrapperApp.Models;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
-  public class InstallInitializingStep : AbstractInstallStep, IStep
+  public class InstallInitializingStep : AbstractInstallStep, ITransientStep
   {
     public InstallInitializingStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
       : base(bootstrapperApplicationModel)
