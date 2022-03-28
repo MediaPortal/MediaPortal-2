@@ -5,26 +5,24 @@
   <Fragment>
 
     <?include $(var.SolutionDir)\Includes.wxi?>
-    
-    <Variable Name="INSTALLDIR" bal:Overridable="yes" Value="[ProgramFilesFolder]$(var.Manufacturer)" />
-    
-    <util:RegistrySearch Id="MP2_Install_Path_Exists"
-                         Win64="no"
-                         Root="HKLM"
-                         Key="$(var.RegKeyRoot)"
-                         Value="INSTALLDIR"
-                         Variable="MP2_Install_Path_Exists"
-                         Result="exists"/>
 
-    <util:RegistrySearch Id="MP2_Install_Path"
-                         After="MP2_Install_Path_Exists"
-                         Condition="MP2_Install_Path_Exists"
+    <Variable Name="INSTALLDIR" bal:Overridable="yes" Value="[ProgramFilesFolder]$(var.Manufacturer)" />
+
+    <!-- Search for a previous install directory -->
+    <util:RegistrySearch Id="PreviousInstallDirectorySearch"
                          Win64="no"
                          Root="HKLM"
                          Key="$(var.RegKeyRoot)"
                          Value="INSTALLDIR"
-                         Variable="INSTALLDIR"/>
-    
+                         Variable="PreviousInstallDirectory"/>
+
+    <!-- If a previous install directory exists in the registry, check that the directory still exists,
+         if so use it as the current install directory, if not keep the default install directory-->
+    <util:DirectorySearch Path="[PreviousInstallDirectory]"
+                          Variable="INSTALLDIR"
+                          After="PreviousInstallDirectorySearch"
+                          Condition="PreviousInstallDirectory" />
+
     <PackageGroup Id="MediaPortal2">
       <MsiPackage Id="MediaPortal2"
                   SourceFile="..\MP2-Setup\Bin\$(var.Configuration)\en-us\MP2-Setup.msi"
