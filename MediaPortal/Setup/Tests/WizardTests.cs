@@ -143,6 +143,8 @@ namespace Tests
     [InlineData("Removing applications Application: [1], Command line: [2]", "Removing applications")]
     // Unlabelled parameters should be removed, keeping preceeding word
     [InlineData("Generating script operations for action: [1]", "Generating script operations for action")]
+    // Trailing colons without a parameter should be removed, keeping preceeding word
+    [InlineData("Generating script operations for action:", "Generating script operations for action")]
     // Strings with no parameter should be left unchanged
     [InlineData("Uninstalling Windows Firewall configuration", "Uninstalling Windows Firewall configuration")]
     void Should_ProgressMessageParametersBeRemoved(string message, string expected)

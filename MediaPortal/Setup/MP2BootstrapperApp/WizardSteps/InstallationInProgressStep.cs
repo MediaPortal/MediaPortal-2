@@ -54,9 +54,12 @@ namespace MP2BootstrapperApp.WizardSteps
     public string ParseActionMessage(string message)
     {
       Match m = MSI_MESSAGE_REGEX.Match(message);
-      if (!m.Success)
-        return message;
-      return message.Remove(m.Index).Trim();
+      if (m.Success)
+        message = message.Remove(m.Index);
+      // Some messages just end with a colon without a parameter template,
+      // so remove any trailing colons too.
+      message = message.TrimEnd().TrimEnd(':');
+      return message;
     }
 
     public IStep Next()
