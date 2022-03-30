@@ -2,8 +2,8 @@ image: Visual Studio 2022
 clone_folder: c:\project\mediaportal-2
 
 cache:
-- '%USERPROFILE%\.nuget\packages' # global‑packages
-- '%LocalAppData%\NuGet\v3-cache' # http‑cache
+- '%USERPROFILE%\.nuget\packages -> appveyor.yml' # global‑packages
+- '%LocalAppData%\NuGet\v3-cache -> appveyor.yml' # http‑cache
 
 install:
 - cmd: >-
