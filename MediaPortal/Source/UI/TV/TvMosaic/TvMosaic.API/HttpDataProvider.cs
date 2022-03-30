@@ -67,6 +67,7 @@ namespace TvMosaic.API
     public const string GET_PLAYLIST_M3U = "get_playlist_m3u";
     public const string GET_STREAMING_CAPABILITIES = "get_streaming_capabilities";
     public const string GET_TIMESHIFT_STATS = "timeshift_get_stats";
+    public const string TIMESHIFT_SEEK = "timeshift_seek";
     public const string GET_OBJECT_CMD = "get_object";
     public const string REMOVE_OBJECT_CMD = "remove_object";
 
@@ -241,6 +242,11 @@ namespace TvMosaic.API
     {
       DVBLinkResponse<TimeshiftStatus> resp = await GetData<TimeshiftGetStats, TimeshiftStatus>(GET_TIMESHIFT_STATS, request);
       return resp;
+    }
+    public async Task<bool> TimeshiftSeek(TimeshiftSeek request)
+    {
+      DVBLinkResponse<XmlResponse> resp = await GetData<TimeshiftSeek, XmlResponse>(TIMESHIFT_SEEK, request);
+      return resp.Status == StatusCode.STATUS_OK;
     }
     public async Task<DVBLinkResponse<Channels>> GetChannels(ChannelsRequest request)
     {

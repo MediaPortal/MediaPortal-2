@@ -17,6 +17,7 @@
     <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/>    <!-- SkinEngine -->
     <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/>    <!-- ConfigurationManager -->
     <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/>    <!-- Configuration plugin -->
+    <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}" CompatibleAPI="1"/>    <!-- VideoPlayers -->
   </DependsOn>
 
   <ConflictsWith>
@@ -35,6 +36,11 @@
   <Register Location="/Services">
     <Service Id="TvMosaicProviderService" RegistrationClassName="MediaPortal.Plugins.SlimTv.Interfaces.ITvProvider" ServiceClassName="SlimTv.TvMosaicProvider.TvMosaicProvider"/>
   </Register>
+
+  <Register Location="/VideoPlayers/MimeTypeRegistrations">
+    <VideoPlayerMimeTypeMapping Id="{9F6AFDAB-B74A-445E-A6F5-DA8813731925}" ClassName="SlimTv.TvMosaicProvider.Player.TvMosaicPlayer" MimeType="SlimTV/TvMosaicPlayer"/>
+  </Register>
+
 
   <!-- Root Sections -->
   <Register Location="/Configuration/Settings">

@@ -38,6 +38,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
+using System.Runtime.Caching;
 using System.Threading.Tasks;
 using TvMosaic.API;
 using TvMosaic.Shared;
@@ -54,6 +55,9 @@ namespace SlimTv.TvMosaicProvider
 
   public class TvMosaicProvider : ITvProvider, IChannelAndGroupInfoAsync, ITimeshiftControlAsync, IProgramInfoAsync, IScheduleControlAsync
   {
+
+    public const string MIME_TYPE_TVMOSAIC_STREAM = "SlimTV/TvMosaicPlayer";
+
     private static readonly string LOCAL_SYSTEM = SystemName.LocalHostName;
     private HttpDataProvider _dvbLink;
     private readonly object _syncObj = new object();
@@ -65,6 +69,8 @@ namespace SlimTv.TvMosaicProvider
     private readonly Dictionary<int, long> _tunedChannelHandles = new Dictionary<int, long>();
     private bool _supportsTimeshift;
     private string _host;
+    private DateTime _apiCacheTime  = DateTime.MinValue;
+    private TimeshiftStatus _timeshiftStatus = null;
 
     public bool Init()
     {
@@ -413,6 +419,17 @@ namespace SlimTv.TvMosaicProvider
       return new AsyncResult<MediaItem>(false, null);
     }
 
+    public TimeshiftStatus GetTimeshiftStatusCached(int slotContext)
+    {
+      if (_timeshiftStatus == null || DateTime.Now - _apiCacheTime > TimeSpan.FromSeconds(2))
+      {
+        _timeshiftStatus = GetTimeshiftStatus(slotContext).Result;
+        _apiCacheTime = DateTime.Now;
+      }
+
+      return _timeshiftStatus;
+    }
+
     public async Task<TimeshiftStatus> GetTimeshiftStatus(int slotContext)
     {
       var timeshiftGetStats = new TimeshiftGetStats
@@ -437,6 +454,32 @@ namespace SlimTv.TvMosaicProvider
       return true;
     }
 
+    public async Task<bool> SeekAbsolute(int slotContext, ulong positionSeconds)
+    {
+      var timeshiftGetStats = new TimeshiftSeek
+      {
+        ChannelHandle = _tunedChannelHandles[slotContext],
+        Type = 1, // By seconds
+        Offset = (long)positionSeconds,
+        SeekOrigin = 0 // offset is calculated from the beginning of the timeshift buffer
+      };
+      var status = await _dvbLink.TimeshiftSeek(timeshiftGetStats);
+      return status;
+    }
+
+    public async Task<bool> SeekRelative(int slotContext, int offsetSeconds)
+    {
+      var timeshiftGetStats = new TimeshiftSeek
+      {
+        ChannelHandle = _tunedChannelHandles[slotContext],
+        Type = 1, // By seconds
+        Offset = offsetSeconds,
+        SeekOrigin = 1 // offset is calculated from the current playback position
+      };
+      var status = await _dvbLink.TimeshiftSeek(timeshiftGetStats);
+      return status;
+    }
+
     public IChannel GetChannel(int slotIndex)
     {
       return _tunedChannels.TryGetValue(slotIndex, out IChannel channel) ? channel : null;
@@ -445,7 +488,7 @@ namespace SlimTv.TvMosaicProvider
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
     {
       bool isTv = true;
-      LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel, isTv, LiveTvMediaItem.MIME_TYPE_TV_STREAM);
+      LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel, isTv, MIME_TYPE_TVMOSAIC_STREAM);
       return tvStream;
     }
 

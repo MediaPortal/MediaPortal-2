@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.InteropServices;
-using System.Text;
 using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.General;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using NUnit.Framework;
 using SlimTv.TvMosaicProvider;
-using SlimTv.TvMosaicProvider.Settings;
 using TvMosaic.API;
 using TvMosaic.Shared;
 
@@ -21,12 +19,31 @@ namespace Test.TVMosaic
   {
     private ITvProvider _provider;
 
+
+    class MockResolver : ISystemResolver
+    {
+      public SystemName GetSystemNameForSystemId(string systemId)
+      {
+        return SystemName.GetLocalSystemName();
+      }
+
+      public string LocalSystemId { get; } = Guid.Empty.ToString();
+
+      public SystemType SystemType
+      {
+        get { return SystemType.Client; }
+      }
+    }
+
     [SetUp]
     public void Init()
     {
       ServiceRegistration.Set<ILogger>(new NoLogger());
       FakeSettings<TvMosaicProviderSettings> settings = new FakeSettings<TvMosaicProviderSettings>(new TvMosaicProviderSettings { Host = "localhost", Port = 9270 });
       ServiceRegistration.Set<ISettingsManager>(settings);
+
+      var systemResolver = new MockResolver();
+      ServiceRegistration.Set<ISystemResolver>(systemResolver);
 
       _provider = new TvMosaicProvider();
       _provider.Init();
@@ -120,6 +137,35 @@ namespace Test.TVMosaic
       var nowNextGroupResult = await programInfo.GetNowAndNextForChannelGroupAsync(channelGroupResult.Result.First());
       Assert.IsTrue(nowNextGroupResult.Success);
       Assert.IsNotNull(nowNextGroupResult.Result);
+    }
+
+    [Test]
+    public async Task TestTimeshift()
+    {
+      var channelInfo = _provider as IChannelAndGroupInfoAsync;
+      Assert.IsNotNull(channelInfo);
+      var timeshiftControl = _provider as ITimeshiftControlAsync;
+      Assert.IsNotNull(timeshiftControl);
+      var channelGroupResult = await channelInfo.GetChannelGroupsAsync();
+      Assert.IsTrue(channelGroupResult.Success);
+      var channelResult = await channelInfo.GetChannelsAsync(channelGroupResult.Result.First());
+      Assert.IsTrue(channelResult.Success);
+      var channel = channelResult.Result.First();
+
+      var slotContext = 0;
+      var mediaItem = await timeshiftControl.StartTimeshiftAsync(slotContext, channel);
+      Assert.NotNull(mediaItem);
+
+      TvMosaicProvider tv = (TvMosaicProvider)_provider;
+      var status = await tv.GetTimeshiftStatus(slotContext);
+      await Task.Delay(10000);
+      var statusAfter = await tv.GetTimeshiftStatus(slotContext);
+
+      Assert.Greater(statusAfter.BufferLength, status.BufferLength);
+      Assert.Greater(statusAfter.BufferDuration, status.BufferDuration);
+
+      var success = await timeshiftControl.StopTimeshiftAsync(slotContext);
+      Assert.IsTrue(success);
     }
 
     [Test]

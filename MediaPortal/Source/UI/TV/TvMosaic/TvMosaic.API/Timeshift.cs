@@ -56,16 +56,16 @@ namespace TvMosaic.API
   [DataContract(Name = "timeshift_seek", Namespace = "")]
   public class TimeshiftSeek
   {
-    [DataMember(Name = "channel_handle", EmitDefaultValue = false, Order = 1)]
+    [DataMember(Name = "channel_handle", Order = 1)]
     public long ChannelHandle { get; set; }
 
-    [DataMember(Name = "type", EmitDefaultValue = false, Order = 2)]
+    [DataMember(Name = "type", Order = 2)]
     public long Type { get; set; }
 
-    [DataMember(Name = "offset", EmitDefaultValue = false, Order = 3)]
+    [DataMember(Name = "offset", Order = 3)]
     public Int64 Offset { get; set; }
 
-    [DataMember(Name = "whence", EmitDefaultValue = false, Order = 4)]
+    [DataMember(Name = "whence", Order = 4)]
     public long SeekOrigin { get; set; }
 
   }
