@@ -35,6 +35,7 @@
     <!-- Shortcuts -->
     <DirectoryRef Id="MP2.StartMenu">
       <Component Id="LogCollector.StartMenu.Shortcut" Guid="C68C3BCF-C432-4FBF-8EFD-32BC8966073B">
+        <Condition>STARTMENUSHORTCUTS = 1</Condition>
         <Shortcut Id="LogCollector.StartMenu.Shortcut"
                   Name="!(loc.SC_LogCollector)"
                   Description="!(loc.SC_LogCollector_Desc)"
@@ -55,6 +56,7 @@
     </DirectoryRef>
     <DirectoryRef Id="DesktopFolder">
       <Component Id="LogCollector.Desktop.Shortcut" Guid="15D952D0-15EB-48BC-A86F-A02CAF1A8AE2">
+        <Condition>DESKTOPSHORTCUTS = 1</Condition>
         <Shortcut Id="LogCollector.Desktop.Shortcut"
                   Name="!(loc.SC_LogCollector)"
                   Description="!(loc.SC_LogCollector_Desc)"

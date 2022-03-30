@@ -120,6 +120,7 @@
       <FeatureRef Id="LogCollector" />
 
       <ComponentRef Id="Product.Registry.InstallDir" />
+      <ComponentRef Id="Product.Registry.PersistedShortcutProperties" />
       <ComponentRef Id="TeamMediaPortal.Data.Folder" />
       <ComponentRef Id="TeamMediaPortal.StartMenu" />
       <ComponentRef Id="MP2.StartMenu" />

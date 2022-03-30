@@ -49,6 +49,7 @@
     <!-- Shortcuts -->
     <DirectoryRef Id="MP2.StartMenu">
       <Component Id="ServiceMonitor.StartMenu.Shortcut" Guid="859CAD90-107F-4526-9607-CB340B4D59E8">
+        <Condition>STARTMENUSHORTCUTS = 1</Condition>
         <Shortcut Id="ServiceMonitor.StartMenu.Shortcut"
                   Name="!(loc.SC_ServiceMonitor)"
                   Description="!(loc.SC_ServiceMonitor_Desc)"
@@ -69,6 +70,7 @@
     </DirectoryRef>
     <DirectoryRef Id="DesktopFolder">
       <Component Id="ServiceMonitor.Desktop.Shortcut" Guid="44C19D8A-48F8-4B0A-98B4-5E02C0F2BE2D">
+        <Condition>DESKTOPSHORTCUTS = 1</Condition>
         <Shortcut Id="ServiceMonitor.Desktop.Shortcut"
                   Name="!(loc.SC_ServiceMonitor)"
                   Description="!(loc.SC_ServiceMonitor_Desc)"

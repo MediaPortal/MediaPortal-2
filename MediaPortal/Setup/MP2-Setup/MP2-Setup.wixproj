@@ -39,6 +39,7 @@
     <Compile Include="Features\ServiceMonitor.Heat.wxs" />
     <Compile Include="Features\ServiceMonitor.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
+    <Compile Include="Fragments\ShortcutProperties.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />
     <Compile Include="Fragments\LaunchConditions.wxs" />
     <Compile Include="Fragments\Properties.wxs" />
