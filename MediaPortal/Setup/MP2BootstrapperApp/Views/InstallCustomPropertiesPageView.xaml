@@ -1,0 +1,74 @@
+﻿<UserControl x:Class="MP2BootstrapperApp.Views.InstallCustomPropertiesPageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
+             xmlns:viewmodels="clr-namespace:MP2BootstrapperApp.ViewModels"
+             xmlns:me="clr-namespace:MP2BootstrapperApp.MarkupExtensions"
+             d:DataContext="{d:DesignInstance Type=viewmodels:InstallCustomPropertiesPageViewModel}"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+  <Grid>
+    <Grid.Resources>
+      <ResourceDictionary>
+
+        <ResourceDictionary.MergedDictionaries>
+          <ResourceDictionary Source="../Styles/TextStyles.xaml" />
+          <ResourceDictionary Source="../Styles/ButtonStyles.xaml" />
+        </ResourceDictionary.MergedDictionaries>
+
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+
+      </ResourceDictionary>
+    </Grid.Resources>
+
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+
+      <CheckBox FontSize="16" Foreground="White" Margin="10"
+                IsChecked="{Binding Path=CreateDesktopShortcuts, Mode=TwoWay}">
+        <TextBlock VerticalAlignment="Center" Text="{me:Localize [InstallCustomPropertiesPageView.CreateDesktopShortcuts]}" Margin="0,-3,0,0"/>
+      </CheckBox>
+
+      <CheckBox FontSize="16" Foreground="White" Margin="10"
+                IsChecked="{Binding Path=CreateStartMenuShortcuts, Mode=TwoWay}">
+        <TextBlock VerticalAlignment="Center" Text="{me:Localize [InstallCustomPropertiesPageView.CreateStartMenuShortcuts]}" Margin="0,-3,0,0"/>
+      </CheckBox>
+
+      <Grid HorizontalAlignment="Stretch" Margin="0,10,0,0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <!-- Reserve space for the invalid path label so the
+               layout doesn't change when it becomes visible -->
+          <RowDefinition Height="30"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+
+        <!--Shows the ValidationTextBoxTemplate which is a textbox that shows a border if the value is invalid-->
+        <ContentControl x:Name="InstallDirectoryTextBox" Grid.Column="0"
+                      HorizontalAlignment="Stretch"
+                      Margin="0,0,10,0"
+                      FontSize="18"
+                      ContentTemplate="{StaticResource ValidationTextBoxTemplate}"
+                      Content="{Binding InstallDirectory}"/>
+
+        <Label Grid.Row="1" Grid.Column="0" Style="{StaticResource ContentLabelStyle}" FontSize="12"
+               Content="{me:Localize [InstallCustomPropertiesPageView.InvalidPath]}"
+               Visibility="{Binding Path=InstallDirectory.IsInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
+
+        <!--Install directory browse button-->
+        <Button Grid.Column="1" Padding="10,0" Style="{StaticResource ContentButtonStyle}"
+                Height="{Binding ElementName=InstallDirectoryTextBox, Path=ActualHeight}"
+                FontSize="18" FontWeight="Normal"
+                Content="{me:Localize [InstallCustomPropertiesPageView.BrowseButton]}"
+                Command="{Binding BrowseCommand}"/>
+
+      </Grid>
+
+    </StackPanel>
+    
+  </Grid>
+</UserControl>

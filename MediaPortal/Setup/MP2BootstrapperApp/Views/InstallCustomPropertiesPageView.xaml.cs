@@ -22,19 +22,18 @@
 
 #endregion
 
-using MP2BootstrapperApp.WizardSteps;
+using System.Windows.Controls;
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp.Views
 {
-  public class InstallCustomPageViewModel : AbstractPackageSelectionViewModel<InstallCustomStep>
+  /// <summary>
+  /// Interaction logic for InstallCustomPropertiesPageView.xaml
+  /// </summary>
+  public partial class InstallCustomPropertiesPageView : UserControl
   {
-    protected PropertyValidationViewModel<string> _installDirectory;
-
-    public InstallCustomPageViewModel(InstallCustomStep step)
-      : base(step)
+    public InstallCustomPropertiesPageView()
     {
-      Header = "[InstallCustomPageView.Header]";
-      SubHeader = "[InstallCustomPageView.SubHeader]";
+      InitializeComponent();
     }
   }
 }

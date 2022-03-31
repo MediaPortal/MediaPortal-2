@@ -23,10 +23,8 @@
 #endregion
 
 using MP2BootstrapperApp.ActionPlans;
-using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.Models;
-using MP2BootstrapperApp.Utils;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -37,40 +35,19 @@ namespace MP2BootstrapperApp.WizardSteps
   /// </summary>
   public class InstallCustomStep : AbstractPackageSelectionStep
   {
-    const string INSTALLDIR = "INSTALLDIR";
-    protected string _installDirectory;
-
     public InstallCustomStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
       : base(bootstrapperApplicationModel)
     {
       SetSelectedPackages();
-      _installDirectory = GetInstallDirectory();
-    }
-
-    public string InstallDirectory
-    {
-      get { return _installDirectory; }
-      set { _installDirectory = value; }
-    }
-
-    public bool IsValidInstallDirectory(string path)
-    {
-      return PathUtils.IsValidAbsoluteDirectoryPath(path);
     }
 
     public override IStep Next()
     {
-      if (!IsValidInstallDirectory(_installDirectory))
-        return null;
-
       IEnumerable<FeatureId> features = SelectedFeatures.Select(f => f.Id);
       IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.PackageId);
 
       InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
-      if (IsValidInstallDirectory(_installDirectory))
-        plan.SetVariable(INSTALLDIR, _installDirectory);
-
-      return new InstallOverviewStep(_bootstrapperApplicationModel, plan);
+      return new InstallCustomPropertiesStep(_bootstrapperApplicationModel, plan);
     }
 
     protected void SetSelectedPackages()
@@ -88,15 +65,6 @@ namespace MP2BootstrapperApp.WizardSteps
         SelectedFeatures = new List<IBundlePackageFeature>(AvailableFeatures);
         SelectedPackages = new List<IBundlePackage>(AvailablePackages);
       }
-    }
-
-    protected string GetInstallDirectory()
-    {
-      IBootstrapperApp bootstrapperApplication = _bootstrapperApplicationModel.BootstrapperApplication;
-      if (!bootstrapperApplication.StringVariables.Contains(INSTALLDIR))
-        return null;
-      string installDirectory = bootstrapperApplication.StringVariables[INSTALLDIR];
-      return bootstrapperApplication.FormatString(installDirectory);
     }
   }
 }

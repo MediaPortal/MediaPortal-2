@@ -16,7 +16,6 @@
 
         <ResourceDictionary.MergedDictionaries>
           <ResourceDictionary Source="../Styles/TextStyles.xaml" />
-          <ResourceDictionary Source="../Styles/ButtonStyles.xaml" />
           <ResourceDictionary Source="../Styles/PackageStyles.xaml" />
           <ResourceDictionary Source="../Styles/ListViewStyles.xaml" />
         </ResourceDictionary.MergedDictionaries>
@@ -31,7 +30,6 @@
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
-      <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
 
     <ListView x:Name="PackageList" Grid.Row="0" HorizontalAlignment="Center"
@@ -59,39 +57,6 @@
       </TextBlock>
 
     </StackPanel>
-
-    <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
-      <Grid.RowDefinitions>
-        <RowDefinition Height="Auto"/>
-        <RowDefinition Height="Auto"/>
-      </Grid.RowDefinitions>
-      <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="Auto"/>
-        <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="Auto"/>
-      </Grid.ColumnDefinitions>
-
-      <!--Shows the ValidationTextBoxTemplate which is a textbox that shows a border if the value is invalid-->
-      <ContentControl x:Name="InstallDirectoryTextBox" Grid.Column="2"
-                      HorizontalAlignment="Stretch"
-                      Margin="0,0,10,0"
-                      FontSize="18"
-                      ContentTemplate="{StaticResource ValidationTextBoxTemplate}"
-                      Content="{Binding InstallDirectory}"/>
-
-      <Label Grid.Row="1" Grid.Column="2" Style="{StaticResource ContentLabelStyle}" FontSize="12"
-             Content="{me:Localize [InstallCustomPageView.InvalidPath]}"
-             Visibility="{Binding Path=InstallDirectory.IsInvalid, Converter={StaticResource BooleanToVisibilityConverter}}"/>
-
-      <!--Install directory browse button-->
-      <Button Grid.Column="3" Padding="10,0" Style="{StaticResource ContentButtonStyle}"
-              Height="{Binding ElementName=InstallDirectoryTextBox, Path=ActualHeight}"
-              FontSize="18" FontWeight="Normal"
-              Content="{me:Localize [InstallCustomPageView.BrowseButton]}"
-              Command="{Binding BrowseCommand}"/>
-
-    </Grid>
 
   </Grid>
 </UserControl>

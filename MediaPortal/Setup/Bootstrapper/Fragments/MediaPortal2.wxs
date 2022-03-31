@@ -6,7 +6,12 @@
 
     <?include $(var.SolutionDir)\Includes.wxi?>
 
+    <!-- Installation directory to pass to the package, defaults to 'Program Files (x86)\Team MediaPortal' --> 
     <Variable Name="INSTALLDIR" bal:Overridable="yes" Value="[ProgramFilesFolder]$(var.Manufacturer)" />
+    
+    <!-- Shortcut installation options to pass to the package, defaults to empty which allows the package to determine the appropriate value --> 
+    <Variable Name="CREATESTARTMENUSHORTCUTS" Type="string" Value="" bal:Overridable="yes" />
+    <Variable Name="CREATEDESKTOPSHORTCUTS" Type="string" Value="" bal:Overridable="yes" />
 
     <!-- Search for a previous install directory -->
     <util:RegistrySearch Id="PreviousInstallDirectorySearch"
@@ -22,6 +27,40 @@
                           Variable="INSTALLDIR"
                           After="PreviousInstallDirectorySearch"
                           Condition="PreviousInstallDirectory" />
+    
+    <!-- Search for the previous value of create start menu shortcuts, update the CREATESTARTMENUSHORTCUTS variable only if it exists -->
+    <util:RegistrySearch Id="CreateStartMenuShortcutsRegistryExists"
+                         Win64="no"
+                         Root="HKLM"
+                         Key="$(var.RegKeyRoot)"
+                         Value="STARTMENUSHORTCUTS"
+                         Variable="CreateStartMenuShortcutsRegistryExists"
+                         Result="exists"/>
+    <util:RegistrySearch Id="CreateStartMenuShortcutsRegistry"
+                         After="CreateStartMenuShortcutsRegistryExists"
+                         Condition="CreateStartMenuShortcutsRegistryExists"
+                         Win64="no"
+                         Root="HKLM"
+                         Key="$(var.RegKeyRoot)"
+                         Value="STARTMENUSHORTCUTS"
+                         Variable="CREATESTARTMENUSHORTCUTS"/>
+    
+    <!-- Search for the previous value of create desktop shortcuts, update the CREATEDESKTOPSHORTCUTS variable only if it exists -->
+    <util:RegistrySearch Id="CreateDesktopShortcutsRegistryExists"
+                         Win64="no"
+                         Root="HKLM"
+                         Key="$(var.RegKeyRoot)"
+                         Value="DESKTOPSHORTCUTS"
+                         Variable="CreateDesktopShortcutsRegistryExists"
+                         Result="exists"/>
+    <util:RegistrySearch Id="CreateDesktopShortcutsRegistry"
+                         After="CreateDesktopShortcutsRegistryExists"
+                         Condition="CreateDesktopShortcutsRegistryExists"
+                         Win64="no"
+                         Root="HKLM"
+                         Key="$(var.RegKeyRoot)"
+                         Value="DESKTOPSHORTCUTS"
+                         Variable="CREATEDESKTOPSHORTCUTS"/>
 
     <PackageGroup Id="MediaPortal2">
       <MsiPackage Id="MediaPortal2"
@@ -32,6 +71,8 @@
                   Vital="yes"
                   Visible="yes">
         <MsiProperty Name="INSTALLDIR" Value="[INSTALLDIR]"/>
+        <MsiProperty Name="CREATESTARTMENUSHORTCUTS" Value="[CREATESTARTMENUSHORTCUTS]"/>
+        <MsiProperty Name="CREATEDESKTOPSHORTCUTS" Value="[CREATEDESKTOPSHORTCUTS]"/>
       </MsiPackage>
     </PackageGroup>
   </Fragment>
