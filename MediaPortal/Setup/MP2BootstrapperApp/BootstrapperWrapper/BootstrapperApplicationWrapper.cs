@@ -81,7 +81,7 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
 
     public string FormatString(string format)
     {
-      return Engine.FormatString(format);
+      return !string.IsNullOrWhiteSpace(format) ? Engine.FormatString(format) : format;
     }
 
     public bool EvaluateCondition(string condition)
