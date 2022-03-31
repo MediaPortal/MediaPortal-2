@@ -84,27 +84,6 @@
                       On="uninstall"/>
       </Component>
     </DirectoryRef>
-    <DirectoryRef Id="MP2.StartMenu">
-      <Component Id="MP2.StartMenu" Guid="DB88BD5D-BD35-402E-ABD5-A8EBB1F0FA42">
-        <Shortcut Id="MP2Uninstall.StartMenu.Shortcut"
-                  Name="!(loc.SC_Uninstall)"
-                  Description="!(loc.SC_Uninstall_Desc)"
-                  Target="[System64Folder]msiexec.exe"
-                  Arguments="/x [ProductCode]" />
-        <!--
-        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
-        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
-        -->
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="MP2.StartMenu"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
-        <RemoveFolder Id="Remove.MP2.StartMenu"
-                      On="uninstall" />
-      </Component>
-    </DirectoryRef>
 
     <!-- Features -->
     <Feature Id="MediaPortal_2"
@@ -123,7 +102,6 @@
       <ComponentRef Id="Product.Registry.PersistedShortcutProperties" />
       <ComponentRef Id="TeamMediaPortal.Data.Folder" />
       <ComponentRef Id="TeamMediaPortal.StartMenu" />
-      <ComponentRef Id="MP2.StartMenu" />
     </Feature>
     
     <!-- User Interface -->
