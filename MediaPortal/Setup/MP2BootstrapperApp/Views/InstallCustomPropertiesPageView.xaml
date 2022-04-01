@@ -23,19 +23,18 @@
       </ResourceDictionary>
     </Grid.Resources>
 
-    <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
-
-      <CheckBox FontSize="16" Foreground="White" Margin="10"
+    <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Center">
+      <CheckBox FontSize="16" Foreground="White" Margin="0,10,10,10"
                 IsChecked="{Binding Path=CreateDesktopShortcuts, Mode=TwoWay}">
-        <TextBlock VerticalAlignment="Center" Text="{me:Localize [InstallCustomPropertiesPageView.CreateDesktopShortcuts]}" Margin="0,-3,0,0"/>
-      </CheckBox>
+          <TextBlock VerticalAlignment="Center" Text="{me:Localize [InstallCustomPropertiesPageView.CreateDesktopShortcuts]}" Margin="0,-3,0,0"/>
+        </CheckBox>
 
-      <CheckBox FontSize="16" Foreground="White" Margin="10"
+      <CheckBox FontSize="16" Foreground="White" Margin="0,0,10,10"
                 IsChecked="{Binding Path=CreateStartMenuShortcuts, Mode=TwoWay}">
         <TextBlock VerticalAlignment="Center" Text="{me:Localize [InstallCustomPropertiesPageView.CreateStartMenuShortcuts]}" Margin="0,-3,0,0"/>
       </CheckBox>
 
-      <Grid HorizontalAlignment="Stretch" Margin="0,10,0,0">
+      <Grid HorizontalAlignment="Stretch" Margin="0,30,0,0">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <!-- Reserve space for the invalid path label so the
