@@ -92,4 +92,7 @@
   <string name="UninstallFinishPageView.Header">Uninstall Completed</string>
   <string name="UninstallFinishPageView.SubHeader">Thank you for using MediaPortal 2</string>
 
+  <!-- RepairFinishPageView -->
+  <string name="DowngradePageView.Message">A newer version of MediaPortal 2 is already installed. If you want to downgrade you must uninstall the existing version before running this setup.</string>
+
 </resources>
