@@ -450,6 +450,7 @@ namespace SlimTv.TvMosaicProvider
       var request = new StopStream(tunedChannelHandle);
       var result = await _dvbLink.StopStream(request);
       _tunedChannelHandles[slotIndex] = 0;
+      _tunedChannels[slotIndex] = null;
 
       return true;
     }

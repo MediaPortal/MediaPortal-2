@@ -286,7 +286,7 @@ namespace SlimTv.TvMosaicProvider.Player
           if (_provider == null)
             return false;
           var status = _provider.GetTimeshiftStatusCached(CurrentSlotIndex);
-          return status.CurrentPositionSeconds > 0;
+          return status?.CurrentPositionSeconds > 0;
         }
       }
     }
@@ -300,7 +300,7 @@ namespace SlimTv.TvMosaicProvider.Player
           if (_provider == null)
             return false;
           var status = _provider.GetTimeshiftStatusCached(CurrentSlotIndex);
-          return status.CurrentPositionSeconds < status.BufferDuration;
+          return status?.CurrentPositionSeconds < status?.BufferDuration;
         }
       }
     }
@@ -375,7 +375,7 @@ namespace SlimTv.TvMosaicProvider.Player
     {
       string mimeType;
       string title;
-      if (!mediaItem.GetPlayData(out mimeType, out title) || mimeType != LiveTvMediaItem.MIME_TYPE_TV_STREAM)
+      if (!mediaItem.GetPlayData(out mimeType, out title) || mimeType != TvMosaicProvider.MIME_TYPE_TVMOSAIC_STREAM)
       {
         ServiceRegistration.Get<ILogger>().Debug("SlimTvHandler: Cannot reuse current player for new mimetype {0}", mimeType);
         return false;
