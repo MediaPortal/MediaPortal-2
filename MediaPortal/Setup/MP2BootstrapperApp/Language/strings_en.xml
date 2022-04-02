@@ -78,17 +78,16 @@
   <!-- InstallErrorPageView -->
   <string name="InstallErrorPageView.Header">Installation Error</string>
   <string name="InstallErrorPageView.Message">Installation failed due to an unexpected error</string>
-  
-  <!-- InstallFinishPageView -->
-  <string name="InstallFinishPageView.Header">Installation Completed</string>
 
   <!-- InstallInitializingPageView -->
   <string name="InstallInitializingPageView.Header">Welcome to MediaPortal 2</string>
+  <string name="InstallInitializingPageView.Message">Initializing</string>
 
   <!-- ModifyFinishPageView -->
   <string name="ModifyFinishPageView.Header">Modify Completed</string>
 
   <!-- InstallFinishPageView -->
+  <string name="InstallFinishPageView.Header">Installation Completed</string>
   <string name="InstallFinishPageView.Message">Installation is now complete</string>
   <string name="InstallFinishPageView.WikiPre">In our </string>
   <string name="InstallFinishPageView.WikiPost"> you can find help to setup everything</string>
