@@ -31,8 +31,8 @@ namespace MP2BootstrapperApp.ViewModels
     public ModifyPageViewModel(ModifyStep step)
       : base(step)
     {
-      Header = "Modify Installation";
-      SubHeader = "Select the packages to modify";
+      Header = "[ModifyPageView.Header]";
+      SubHeader = "[ModifyPageView.SubHeader]";
     }
   }
 }

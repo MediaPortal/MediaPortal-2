@@ -87,15 +87,15 @@ namespace MP2BootstrapperApp.ViewModels
       switch (action)
       {
         case LaunchAction.Install:
-          return "Installing";
+          return "[InstallationInProgressPageView.InstallingHeader]";
         case LaunchAction.Modify:
-          return "Modifying";
+          return "[InstallationInProgressPageView.ModifyingHeader]";
         case LaunchAction.Repair:
-          return "Repairing";
+          return "[InstallationInProgressPageView.RepairingHeader]";
         case LaunchAction.Uninstall:
-          return "Uninstalling";
+          return "[InstallationInProgressPageView.UninstallingHeader]";
         default:
-          return "Processing";
+          return "[InstallationInProgressPageView.DefaultHeader]";
       }
     }
 

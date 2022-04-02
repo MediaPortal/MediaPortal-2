@@ -61,6 +61,13 @@
   <string name="InstallOverviewPageView.Header">Overview</string>
   <string name="InstallOverviewPageView.InstallButton">Install</string>
 
+  <!-- InstallationInProgressPageView -->
+  <string name="InstallationInProgressPageView.InstallingHeader">Installing</string>
+  <string name="InstallationInProgressPageView.ModifyingHeader">Modifying</string>
+  <string name="InstallationInProgressPageView.RepairingHeader">Repairing</string>
+  <string name="InstallationInProgressPageView.UninstallingHeader">Uninstalling</string>
+  <string name="InstallationInProgressPageView.DefaultHeader">Processing</string>
+
   <!-- RepairPagePageView -->
   <string name="RepairPagePageView.Header">Repair installation</string>
   <string name="RepairPagePageView.SubHeader">Performs a repair installation</string>
@@ -83,6 +90,10 @@
   <string name="InstallInitializingPageView.Header">Welcome to MediaPortal 2</string>
   <string name="InstallInitializingPageView.Message">Initializing</string>
 
+  <!-- ModifyPageView -->
+  <string name="ModifyPageView.Header">Modify Installation</string>
+  <string name="ModifyPageView.SubHeader">Select the features to modify</string>
+
   <!-- ModifyFinishPageView -->
   <string name="ModifyFinishPageView.Header">Modify Completed</string>
 
@@ -100,7 +111,8 @@
   <string name="UninstallFinishPageView.SubHeader">Thank you for using MediaPortal 2</string>
   <string name="UninstallFinishPageView.Message">Uninstallation is now complete</string>
 
-  <!-- RepairFinishPageView -->
+  <!-- DowngradePageView -->
+  <string name="DowngradePageView.Header">Newer Version Installed</string>
   <string name="DowngradePageView.Message">A newer version of MediaPortal 2 is already installed. If you want to downgrade you must uninstall the existing version before running this setup.</string>
 
 </resources>

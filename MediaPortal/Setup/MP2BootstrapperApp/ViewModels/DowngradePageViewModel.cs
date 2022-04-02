@@ -31,8 +31,7 @@ namespace MP2BootstrapperApp.ViewModels
     public DowngradePageViewModel(DowngradeStep step)
       : base(step)
     {
-      Header = "Newer Version Installed";
-      ButtonNextContent = "Finish";
+      Header = "[DowngradePageView.Header]";
     }
   }
 }
