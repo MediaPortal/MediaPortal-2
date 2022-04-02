@@ -69,8 +69,8 @@ namespace SlimTv.TvMosaicProvider
     private readonly Dictionary<int, long> _tunedChannelHandles = new Dictionary<int, long>();
     private bool _supportsTimeshift;
     private string _host;
-    private DateTime _apiCacheTime  = DateTime.MinValue;
-    private TimeshiftStatus _timeshiftStatus = null;
+    private TimeshiftStatusCache _timeshiftStatusCache = null;
+    private NowNextProgramsCache _nowNextProgramsCache = null;
 
     public bool Init()
     {
@@ -99,6 +99,9 @@ namespace SlimTv.TvMosaicProvider
               streamingCapabilities.DeviceManagement,
               streamingCapabilities.SupTranscoders,
               streamingCapabilities.SupPbTranscoders);
+
+          _timeshiftStatusCache = new TimeshiftStatusCache(TimeSpan.FromSeconds(2), _dvbLink, _tunedChannelHandles);
+          _nowNextProgramsCache = new NowNextProgramsCache(TimeSpan.FromMinutes(1), this);
           return true;
         }
 
@@ -241,6 +244,17 @@ namespace SlimTv.TvMosaicProvider
     #region IProgramInfoAsync
 
     public async Task<AsyncResult<IProgram[]>> GetNowNextProgramAsync(IChannel channel)
+    {
+      var result = _nowNextProgramsCache.Get(channel);
+      return new AsyncResult<IProgram[]>(result != null, result);
+    }
+
+    /// <summary>
+    /// Called by cache
+    /// </summary>
+    /// <param name="channel"></param>
+    /// <returns></returns>
+    public async Task<AsyncResult<IProgram[]>> GetNowNextProgramInternalAsync(IChannel channel)
     {
       var programs = await GetPrograms(new List<IChannel> { channel }, DateTime.Now, null, null, 2);
       var result = ToNowNext(programs)?.Values.FirstOrDefault();
@@ -432,13 +446,7 @@ namespace SlimTv.TvMosaicProvider
 
     public TimeshiftStatus GetTimeshiftStatusCached(int slotContext)
     {
-      if (_timeshiftStatus == null || DateTime.Now - _apiCacheTime > TimeSpan.FromSeconds(2))
-      {
-        _timeshiftStatus = GetTimeshiftStatus(slotContext).Result;
-        _apiCacheTime = DateTime.Now;
-      }
-
-      return _timeshiftStatus;
+      return _timeshiftStatusCache?.Get(slotContext);
     }
 
     public async Task<TimeshiftStatus> GetTimeshiftStatus(int slotContext)
