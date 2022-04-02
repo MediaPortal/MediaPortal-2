@@ -33,7 +33,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public bool CanGoNext()
     {
-      return true;
+      return false;
     }
 
     public bool CanGoBack()
