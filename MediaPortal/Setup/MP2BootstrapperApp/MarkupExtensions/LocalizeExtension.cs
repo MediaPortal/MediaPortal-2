@@ -148,7 +148,8 @@ namespace MP2BootstrapperApp.MarkupExtensions
       // Return a binding to the Value property on the the LocalizeValueProvider which will get updated when the properties/language changes
       return new Binding(nameof(LocalizeValueProvider.Value))
       {
-        Source = lvp
+        Source = lvp,
+        Mode = BindingMode.OneWay
       };
     }
 
