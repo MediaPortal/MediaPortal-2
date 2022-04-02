@@ -186,11 +186,12 @@ namespace SlimTv.TvMosaicProvider.Player
       ServiceRegistration.Get<ILogger>().Debug("{0}: Begin zapping", PlayerTitle);
       // Set indicator for zapping to blank the video surface with black.
       _zapping = true;
+      Stop();
     }
 
     public void EndZap()
     {
-      SeekToEnd();
+      //SeekToEnd();
       Resume();
 
       // Clear any subtitle that might be currently displayed

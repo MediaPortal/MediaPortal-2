@@ -74,36 +74,47 @@ namespace SlimTv.TvMosaicProvider
 
     public bool Init()
     {
-      IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
-      ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
-
-      var settings = serverSettings != null ?
-        serverSettings.Load<TvMosaicProviderSettings>() :
-        settingsManager.Load<TvMosaicProviderSettings>();
-
-      _host = settings.Host;
-      _dvbLink = new HttpDataProvider(_host, settings.Port, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
-      var caps = _dvbLink.GetStreamingCapabilities(new CapabilitiesRequest()).Result;
-      if (caps.Status == StatusCode.STATUS_OK)
+      lock (_syncObj)
       {
-        var streamingCapabilities = caps.Result;
-        _supportsTimeshift = streamingCapabilities.SupportsTimeshift;
-        ServiceRegistration.Get<ILogger>().Info("TvMosaic: Initialized connection. Caps: Record {0}; Timeshift {1}; DeviceManagement {2}; SupTranscoders {3}; SupPbTranscoders: {4}",
-          streamingCapabilities.CanRecord,
-          streamingCapabilities.SupportsTimeshift,
-          streamingCapabilities.DeviceManagement,
-          streamingCapabilities.SupTranscoders,
-          streamingCapabilities.SupPbTranscoders);
-        return true;
-      }
+        // Init only once
+        if (_dvbLink != null)
+          return true;
 
-      ServiceRegistration.Get<ILogger>().Error("TvMosaic: Could not initialize connection. Status: {0}; ", caps.Status);
-      return false;
+        IServerSettingsClient serverSettings = ServiceRegistration.Get<IServerSettingsClient>(false);
+        ISettingsManager settingsManager = ServiceRegistration.Get<ISettingsManager>();
+
+        var settings = serverSettings != null ? serverSettings.Load<TvMosaicProviderSettings>() : settingsManager.Load<TvMosaicProviderSettings>();
+
+        _host = settings.Host;
+        _dvbLink = new HttpDataProvider(_host, settings.Port, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
+        var caps = _dvbLink.GetStreamingCapabilities(new CapabilitiesRequest()).Result;
+        if (caps.Status == StatusCode.STATUS_OK)
+        {
+          var streamingCapabilities = caps.Result;
+          _supportsTimeshift = streamingCapabilities.SupportsTimeshift;
+          ServiceRegistration.Get<ILogger>()
+            .Info("TvMosaic: Initialized connection. Caps: Record {0}; Timeshift {1}; DeviceManagement {2}; SupTranscoders {3}; SupPbTranscoders: {4}",
+              streamingCapabilities.CanRecord,
+              streamingCapabilities.SupportsTimeshift,
+              streamingCapabilities.DeviceManagement,
+              streamingCapabilities.SupTranscoders,
+              streamingCapabilities.SupPbTranscoders);
+          return true;
+        }
+
+        ServiceRegistration.Get<ILogger>().Error("TvMosaic: Could not initialize connection. Status: {0}; ", caps.Status);
+        return false;
+      }
     }
 
     public bool DeInit()
     {
-      // TODO
+      foreach (int slotIndex in _tunedChannels.Keys)
+      {
+        // Stop streaming by Client ID stops all simultaneous streams
+        if (_tunedChannels.TryGetValue(slotIndex, out var channel) && channel != null)
+          _dvbLink.StopStream(new StopStream(GetTimeshiftUserName(slotIndex))).Wait();
+      }
       return true;
     }
 
@@ -132,7 +143,7 @@ namespace SlimTv.TvMosaicProvider
           return true;
       }
 
-      DVBLinkResponse<Channels> channels = await _dvbLink.GetChannels(new ChannelsRequest());
+      DVBLinkResponse<Channels> channels = await _dvbLink.GetChannels(new ChannelsRequest()).ConfigureAwait(false);
       lock (_syncObj)
       {
         if (channels.Status != StatusCode.STATUS_OK)
@@ -153,7 +164,7 @@ namespace SlimTv.TvMosaicProvider
         }
       }
 
-      var favorites = await _dvbLink.GetFavorites(new FavoritesRequest());
+      var favorites = await _dvbLink.GetFavorites(new FavoritesRequest()).ConfigureAwait(false);
       lock (_syncObj)
       {
         _channelGroups.Clear();
@@ -286,7 +297,7 @@ namespace SlimTv.TvMosaicProvider
       if (channels != null)
         epgSearcher.ChannelsIDs = new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList());
 
-      var programs = await _dvbLink.SearchEpg(epgSearcher);
+      var programs = await _dvbLink.SearchEpg(epgSearcher).ConfigureAwait(false);
       if (programs.Status == StatusCode.STATUS_OK && programs.Result.Any())
       {
         return new AsyncResult<IList<IProgram>>(true, ToProgram(programs.Result));
@@ -397,7 +408,7 @@ namespace SlimTv.TvMosaicProvider
           await StopTimeshiftAsync(slotIndex);
           var streamType = _supportsTimeshift ? RequestStream.RAW_HTTP_TS_TYPE : RequestStream.RAW_HTTP_TYPE;
           var reqStream = new RequestStream(serverAddress, tvMosaicChannel.TvMosaicId, GetTimeshiftUserName(slotIndex), streamType, transcoder);
-          DVBLinkResponse<Streamer> strm = await _dvbLink.PlayChannel(reqStream);
+          DVBLinkResponse<Streamer> strm = await _dvbLink.PlayChannel(reqStream).ConfigureAwait(false);
           if (strm.Status == StatusCode.STATUS_OK)
           {
             var streamUrl = strm.Result.Url;
@@ -436,7 +447,7 @@ namespace SlimTv.TvMosaicProvider
       {
         ChannelHandle = _tunedChannelHandles[slotContext]
       };
-      var status = await _dvbLink.GetTimeshiftStatus(timeshiftGetStats);
+      var status = await _dvbLink.GetTimeshiftStatus(timeshiftGetStats).ConfigureAwait(false);
       if (status.Status == StatusCode.STATUS_OK)
         return status.Result;
       return null;
@@ -448,7 +459,7 @@ namespace SlimTv.TvMosaicProvider
         return false;
 
       var request = new StopStream(tunedChannelHandle);
-      var result = await _dvbLink.StopStream(request);
+      var result = await _dvbLink.StopStream(request).ConfigureAwait(false);
       _tunedChannelHandles[slotIndex] = 0;
       _tunedChannels[slotIndex] = null;
 
@@ -464,7 +475,7 @@ namespace SlimTv.TvMosaicProvider
         Offset = (long)positionSeconds,
         SeekOrigin = 0 // offset is calculated from the beginning of the timeshift buffer
       };
-      var status = await _dvbLink.TimeshiftSeek(timeshiftGetStats);
+      var status = await _dvbLink.TimeshiftSeek(timeshiftGetStats).ConfigureAwait(false);
       return status;
     }
 
@@ -477,7 +488,7 @@ namespace SlimTv.TvMosaicProvider
         Offset = offsetSeconds,
         SeekOrigin = 1 // offset is calculated from the current playback position
       };
-      var status = await _dvbLink.TimeshiftSeek(timeshiftGetStats);
+      var status = await _dvbLink.TimeshiftSeek(timeshiftGetStats).ConfigureAwait(false);
       return status;
     }
 
@@ -500,10 +511,10 @@ namespace SlimTv.TvMosaicProvider
       var byEpg = new ByEpgSchedule(channelId, programId);
       byEpg.IsRepeat = recordingType != ScheduleRecordingType.Once;
       var scheduleRequest = new TvMosaic.API.Schedule(byEpg);
-      var result = await _dvbLink.AddSchedule(scheduleRequest);
+      var result = await _dvbLink.AddSchedule(scheduleRequest).ConfigureAwait(false);
       if (result.Status == StatusCode.STATUS_OK)
       {
-        var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
+        var sResult = await _dvbLink.GetSchedules(new SchedulesRequest()).ConfigureAwait(false);
         if (sResult.Status == StatusCode.STATUS_OK)
         {
           var createdSchedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && ToUniqueProgramId(s.ByEpg.ChannelId, s.ByEpg.ProgramId) == ToUniqueProgramId(channelId, programId));
@@ -560,10 +571,10 @@ namespace SlimTv.TvMosaicProvider
       var startTime = @from.ToUnixTime();
       var manualSchedule = new ManualSchedule(channelId, "Manual schedule", startTime, (int)(to - from).TotalSeconds, dayMask);
       var scheduleRequest = new TvMosaic.API.Schedule(manualSchedule);
-      var result = await _dvbLink.AddSchedule(scheduleRequest);
+      var result = await _dvbLink.AddSchedule(scheduleRequest).ConfigureAwait(false);
       if (result.Status == StatusCode.STATUS_OK)
       {
-        var sResult = await _dvbLink.GetSchedules(new SchedulesRequest());
+        var sResult = await _dvbLink.GetSchedules(new SchedulesRequest()).ConfigureAwait(false);
         if (sResult.Status == StatusCode.STATUS_OK)
         {
           var createdSchedule = sResult.Result.FirstOrDefault(s => s.Manual != null && s.Manual.ChannelId == channelId && s.Manual.StartTime == startTime);
@@ -593,7 +604,7 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<bool> RemoveScheduleForProgramAsync(IProgram program, ScheduleRecordingType recordingType)
     {
-      var scheduledPrograms = await _dvbLink.GetRecordings(new RecordingsRequest());
+      var scheduledPrograms = await _dvbLink.GetRecordings(new RecordingsRequest()).ConfigureAwait(false);
       bool success = scheduledPrograms.Status == StatusCode.STATUS_OK;
       if (success)
       {
@@ -604,13 +615,13 @@ namespace SlimTv.TvMosaicProvider
             // Only remove single program from schedule
             if (recordingType == ScheduleRecordingType.Once)
             {
-              var response = await _dvbLink.RemoveRecording(new RecordingRemover(scheduledProgram.RecordingId));
+              var response = await _dvbLink.RemoveRecording(new RecordingRemover(scheduledProgram.RecordingId)).ConfigureAwait(false);
               success = response.Status == StatusCode.STATUS_OK;
             }
             else
             {
               // Remove full schedule
-              var response = await _dvbLink.RemoveSchedule(new ScheduleRemover(scheduledProgram.ScheduleId));
+              var response = await _dvbLink.RemoveSchedule(new ScheduleRemover(scheduledProgram.ScheduleId)).ConfigureAwait(false);
               success = response.Status == StatusCode.STATUS_OK;
             }
           }
@@ -622,7 +633,7 @@ namespace SlimTv.TvMosaicProvider
     public async Task<bool> RemoveScheduleAsync(ISchedule schedule)
     {
       // Schedule means here the single / series definition what to record. The actual "timer" for a single program is named "recording" inside TvMosaic API.
-      var result = await _dvbLink.RemoveSchedule(new ScheduleRemover(schedule.ScheduleId.ToString()));
+      var result = await _dvbLink.RemoveSchedule(new ScheduleRemover(schedule.ScheduleId.ToString())).ConfigureAwait(false);
       return result.Status == StatusCode.STATUS_OK;
     }
 
@@ -633,7 +644,7 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<RecordingStatus>> GetRecordingStatusAsync(IProgram program)
     {
-      var scheduledPrograms = await _dvbLink.GetRecordings(new RecordingsRequest());
+      var scheduledPrograms = await _dvbLink.GetRecordings(new RecordingsRequest()).ConfigureAwait(false);
       IList<IProgram> programs = new List<IProgram>();
       RecordingStatus status = RecordingStatus.None;
       bool success = scheduledPrograms.Status == StatusCode.STATUS_OK;
@@ -657,7 +668,7 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsForScheduleAsync(ISchedule schedule)
     {
-      var scheduledPrograms = await _dvbLink.GetRecordings(new RecordingsRequest());
+      var scheduledPrograms = await _dvbLink.GetRecordings(new RecordingsRequest()).ConfigureAwait(false);
       IList<IProgram> programs = new List<IProgram>();
       bool success = scheduledPrograms.Status == StatusCode.STATUS_OK;
       if (success)
@@ -673,7 +684,7 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync()
     {
-      var schedules = await _dvbLink.GetSchedules(new SchedulesRequest());
+      var schedules = await _dvbLink.GetSchedules(new SchedulesRequest()).ConfigureAwait(false);
       if (schedules.Status == StatusCode.STATUS_OK)
       {
         var mpSchedules = schedules.Result.Select(ToSchedule).ToList();
