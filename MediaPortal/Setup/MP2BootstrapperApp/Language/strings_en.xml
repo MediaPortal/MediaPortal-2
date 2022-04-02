@@ -64,6 +64,7 @@
   <!-- RepairPagePageView -->
   <string name="RepairPagePageView.Header">Repair installation</string>
   <string name="RepairPagePageView.SubHeader">Performs a repair installation</string>
+  <string name="RepairPagePageView.Message">Are you sure you want to repair the existing version of MediaPortal 2?</string>
 
   <!-- UninstallPagePageView -->
   <string name="UninstallPagePageView.Header">Uninstall MediaPortal</string>
@@ -74,8 +75,9 @@
   <string name="InstallCancelledPageView.Message">Installation was cancelled</string>
 
   <!-- InstallErrorPageView -->
-  <string name="InstallErrorPageView.Message">Installation Error</string>
-
+  <string name="InstallErrorPageView.Header">Installation Error</string>
+  <string name="InstallErrorPageView.Message">Installation failed due to an unexpected error</string>
+  
   <!-- InstallFinishPageView -->
   <string name="InstallFinishPageView.Header">Installation Completed</string>
 
@@ -85,12 +87,18 @@
   <!-- ModifyFinishPageView -->
   <string name="ModifyFinishPageView.Header">Modify Completed</string>
 
+  <!-- InstallFinishPageView -->
+  <string name="InstallFinishPageView.Message">Installation is now complete</string>
+  <string name="InstallFinishPageView.WikiPre">In our </string>
+  <string name="InstallFinishPageView.WikiPost"> you can find help to setup everything</string>
+
   <!-- RepairFinishPageView -->
   <string name="RepairFinishPageView.Header">Repair Completed</string>
 
   <!-- UninstallFinishPageView -->
   <string name="UninstallFinishPageView.Header">Uninstall Completed</string>
   <string name="UninstallFinishPageView.SubHeader">Thank you for using MediaPortal 2</string>
+  <string name="UninstallFinishPageView.Message">Uninstallation is now complete</string>
 
   <!-- RepairFinishPageView -->
   <string name="DowngradePageView.Message">A newer version of MediaPortal 2 is already installed. If you want to downgrade you must uninstall the existing version before running this setup.</string>
