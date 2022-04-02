@@ -14,7 +14,7 @@
   <string name="General.FinishButton">Finish</string>
   <string name="General.NextButton">Next</string>
   <string name="General.BackButton">Back</string>
-  <string name="General.AbortButton">Abort</string>
+  <string name="General.AbortButton">Cancel</string>
   <string name="General.FinishSubHeader">Enjoy your MediaPortal 2 experience</string>
   
   <!-- InstallWelcomePageView -->
@@ -69,6 +69,7 @@
   <!-- UninstallPagePageView -->
   <string name="UninstallPagePageView.Header">Uninstall MediaPortal</string>
   <string name="UninstallPagePageView.UninstallButton">Uninstall</string>
+  <string name="UninstallPagePageView.Message">Are you sure you want to uninstall MediaPortal 2?</string>
 
   <!-- InstallCancelledPageView -->
   <string name="InstallCancelledPageView.Header">Install Cancelled</string>  
