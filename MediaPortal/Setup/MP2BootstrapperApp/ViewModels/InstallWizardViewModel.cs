@@ -181,7 +181,6 @@ namespace MP2BootstrapperApp.ViewModels
     {
       LaunchAction launchAction = _bootstrapperApplicationModel.BootstrapperApplication.LaunchAction;
       Display display = _bootstrapperApplicationModel.BootstrapperApplication.Display;
-      DetectionState detectionState = _bootstrapperApplicationModel.DetectionState;
 
       // If the setup was launched with the uninstall action, e.g. from ARP, a later bundle being installed
       // or with a command line argument, automatically start the uninstallation if not waiting for user interaction
@@ -211,7 +210,7 @@ namespace MP2BootstrapperApp.ViewModels
       // or show the downgrade page informing the user. The exception to this is the case where this
       // setup is being uninstalled by a newer version, in which case we will detect the newer version
       // but need to allow the uninstall to continue.
-      if (detectionState == DetectionState.Older && launchAction != LaunchAction.Uninstall)
+      if (_bootstrapperApplicationModel.IsDowngrade && launchAction != LaunchAction.Uninstall)
       {
         if (display != Display.Full)
         {
@@ -235,7 +234,7 @@ namespace MP2BootstrapperApp.ViewModels
       }
 
       // Current version installed, show the repair/modify/uninstall step
-      if (detectionState == DetectionState.Present)
+      if (_bootstrapperApplicationModel.DetectionState == DetectionState.Present)
       {
         GoToStep(new InstallExistInstallStep(_bootstrapperApplicationModel));
       }

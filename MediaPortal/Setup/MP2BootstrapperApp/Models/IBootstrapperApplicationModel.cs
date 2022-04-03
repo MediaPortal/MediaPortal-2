@@ -59,6 +59,12 @@ namespace MP2BootstrapperApp.Models
     DetectionState DetectionState { get; }
 
     /// <summary>
+    /// Gets whether installing this bundle would be a downgrade of an existing installation.<br/>
+    /// This is the case if this bundle or main package has a lower version than the installed version. 
+    /// </summary>
+    bool IsDowngrade { get; }
+
+    /// <summary>
     /// The action that has been planned.
     /// </summary>
     IPlan ActionPlan { get; }
