@@ -69,7 +69,7 @@
                   DisplayInternalUI="no"
                   Compressed="yes"
                   Vital="yes"
-                  Visible="yes">
+                  Visible="no">
         <MsiProperty Name="INSTALLDIR" Value="[INSTALLDIR]"/>
         <MsiProperty Name="CREATESTARTMENUSHORTCUTS" Value="[CREATESTARTMENUSHORTCUTS]"/>
         <MsiProperty Name="CREATEDESKTOPSHORTCUTS" Value="[CREATEDESKTOPSHORTCUTS]"/>
