@@ -68,6 +68,8 @@ namespace MP2BootstrapperApp.Models
 
     public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 
+    public PackageState MainPackageState { get; set; } = PackageState.Unknown;
+
     public bool IsDowngrade { get; set; }
 
     public IPlan ActionPlan { get; set; }
@@ -145,9 +147,13 @@ namespace MP2BootstrapperApp.Models
         if (bundlePackage != null)
         {
           bundlePackage.CurrentInstallState = detectPackageCompleteEventArgs.State;
-          // Installation will fail if trying to install an obsolete version, catch this early and mark this bundle as a downgrade
-          if (bundlePackage.PackageId == PackageId.MediaPortal2 && bundlePackage.CurrentInstallState == PackageState.Obsolete)
-            IsDowngrade = true;
+          if (bundlePackage.PackageId == PackageId.MediaPortal2)
+          {
+            MainPackageState = bundlePackage.CurrentInstallState;
+            // Installation will fail if trying to install an obsolete version, catch this early and mark this bundle as a downgrade
+            if (bundlePackage.CurrentInstallState == PackageState.Obsolete)
+              IsDowngrade = true;
+          }
 
           // Evaluate any install condition, defaulting to true if no condition has been specified
           bundlePackage.EvaluatedInstallCondition = !string.IsNullOrEmpty(bundlePackage.InstallCondition) ? BootstrapperApplication.EvaluateCondition(bundlePackage.InstallCondition) : true;

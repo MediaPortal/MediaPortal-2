@@ -234,7 +234,7 @@ namespace MP2BootstrapperApp.ViewModels
       }
 
       // Current version installed, show the repair/modify/uninstall step
-      if (_bootstrapperApplicationModel.DetectionState == DetectionState.Present)
+      if (_bootstrapperApplicationModel.DetectionState == DetectionState.Present && _bootstrapperApplicationModel.MainPackageState == PackageState.Present)
       {
         GoToStep(new InstallExistInstallStep(_bootstrapperApplicationModel));
       }
