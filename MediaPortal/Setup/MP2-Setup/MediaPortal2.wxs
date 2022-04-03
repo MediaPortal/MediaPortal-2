@@ -84,6 +84,18 @@
                       On="uninstall"/>
       </Component>
     </DirectoryRef>
+    <DirectoryRef Id="MP2.StartMenu">
+      <Component Id="MP2.StartMenu" Guid="DB88BD5D-BD35-402E-ABD5-A8EBB1F0FA42">
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="MP2.StartMenu"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+        <RemoveFolder Id="Remove.MP2.StartMenu"
+                      On="uninstall" />
+      </Component>
+    </DirectoryRef>
 
     <!-- Features -->
     <Feature Id="MediaPortal_2"
@@ -102,6 +114,7 @@
       <ComponentRef Id="Product.Registry.PersistedShortcutProperties" />
       <ComponentRef Id="TeamMediaPortal.Data.Folder" />
       <ComponentRef Id="TeamMediaPortal.StartMenu" />
+      <ComponentRef Id="MP2.StartMenu" />
     </Feature>
     
     <!-- User Interface -->
