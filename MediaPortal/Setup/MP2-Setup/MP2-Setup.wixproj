@@ -38,6 +38,8 @@
     <Compile Include="Features\Server.wxs" />
     <Compile Include="Features\ServiceMonitor.Heat.wxs" />
     <Compile Include="Features\ServiceMonitor.wxs" />
+    <Compile Include="Features\SlimTv.Service3.Heat.wxs" />
+    <Compile Include="Features\SlimTv.Service3.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
     <Compile Include="Fragments\ShortcutProperties.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />

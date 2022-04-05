@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
-
+  
+  <PropertyGroup>
+    <DefineConstants>SlimTv.Service3.TargetDir=$(SolutionDir)..\Bin\MP2-Server\bin\$(Configuration)\Plugins\SlimTv.Service3</DefineConstants>
+  </PropertyGroup>
 
   <UsingTask TaskName="HeatDirectory"
     AssemblyFile="$(WixToolPath)WixUtilExtension.dll" />
@@ -24,6 +27,14 @@
       Transforms="$(ProjectDir)xslt\Server.Heat.xslt"
       OutputFile="$(ProjectDir)Features\Server.Heat.wxs"
       GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
+
+    <HeatDirectory
+      Directory="$(SolutionDir)..\Bin\MP2-Server\bin\$(Configuration)\Plugins\SlimTv.Service3"
+      PreprocessorVariable="var.SlimTv.Service3.TargetDir"
+      ComponentGroupName="SlimTv.Service3.Heat"
+      DirectoryRefId="SERVER_PLUGINS_FOLDER"
+      OutputFile="$(ProjectDir)Features\SlimTv.Service3.Heat.wxs"
+      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="false" ToolPath="$(WixToolPath)" />
 
     <HeatDirectory
       Directory="$(SolutionDir)..\Bin\MP2-ServiceMonitor\bin\$(Configuration)"

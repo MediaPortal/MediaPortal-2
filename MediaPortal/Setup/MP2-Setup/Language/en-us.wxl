@@ -53,6 +53,10 @@
   <String Id="SC_LogCollector">MediaPortal 2 LogCollector</String>
   <String Id="SC_LogCollector_Desc">Start MediaPortal 2 LogCollector</String>
 
+  <!-- SlimTv.Service3 related strings -->
+  <String Id="F_SlimTvService3">Tv Service 3</String>
+  <String Id="F_SlimTvService3_Desc">MediaPortal Tv Service to allow playback and recording of live Tv.</String>
+
   <!-- Launch Conditions -->
   <String Id="LC_OS">[ProductName] requires minimum Windows 7 / 2008 R2 as operating system.</String>
   <String Id="LC_NET">[ProductName] requires .NET Framework 4.5.1 to be installed.</String>
