@@ -53,7 +53,11 @@
   <String Id="SC_LogCollector">MediaPortal 2 LogCollector</String>
   <String Id="SC_LogCollector_Desc">Start MediaPortal 2 LogCollector</String>
 
-  <!-- SlimTv.Service3 related strings -->
+  <!-- TV features related strings -->
+  <String Id="F_SlimTvClient">TV Client</String>
+  <String Id="F_SlimTvClient_Desc">Plugin for the MediaPortal 2 Client that provides the GUI for watching and recording live TV.</String>
+  <String Id="F_SlimTvNativeProvider">Native TV Provider</String>
+  <String Id="F_SlimTvNativeProvider_Desc">Plugin for the MediaPortal 2 Client that provides access to the TV Server running on the MediaPortal 2 Server.</String>
   <String Id="F_SlimTvService3">Tv Service 3</String>
   <String Id="F_SlimTvService3_Desc">MediaPortal Tv Service to allow playback and recording of live Tv.</String>
 

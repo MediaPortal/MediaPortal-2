@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Fragment>
+
+    <!-- Feature for the client plugin that provides the GUI for watching TV -->
+    <Feature Id="SlimTv.Client"
+             Level="1"
+             AllowAdvertise="no"
+             InstallDefault="followParent"
+             Title="!(loc.F_SlimTvClient)"
+             Description="!(loc.F_SlimTvClient_Desc)">
+
+      <FeatureRef Id="SlimTv.NativeProvider" />
+
+      <ComponentGroupRef Id="SlimTv.Client.Heat" />
+    </Feature>
+    
+	</Fragment>
+</Wix>

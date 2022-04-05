@@ -32,6 +32,10 @@
     </Content>
     <Compile Include="Features\Client.Heat.wxs" />
     <Compile Include="Features\Client.wxs" />
+    <Compile Include="Features\SlimTv.Client.Heat.wxs" />
+    <Compile Include="Features\SlimTv.Client.wxs" />
+    <Compile Include="Features\SlimTv.NativeProvider.Heat.wxs" />
+    <Compile Include="Features\SlimTv.NativeProvider.wxs" />
     <Compile Include="Features\LogCollector.Heat.wxs" />
     <Compile Include="Features\LogCollector.wxs" />
     <Compile Include="Features\Server.Heat.wxs" />

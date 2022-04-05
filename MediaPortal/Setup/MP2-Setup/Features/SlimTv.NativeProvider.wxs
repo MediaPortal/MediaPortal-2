@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Fragment>
+
+    <!-- Feature for the client plugin that provides access to the TV Server -->
+    <Feature Id="SlimTv.NativeProvider"
+             Level="1"
+             AllowAdvertise="no"
+             InstallDefault="followParent"
+             Title="!(loc.F_SlimTvNativeProvider)"
+             Description="!(loc.F_SlimTvNativeProvider_Desc)">
+
+      <ComponentGroupRef Id="SlimTv.NativeProvider.Heat"/>
+    </Feature>
+    
+	</Fragment>
+</Wix>
