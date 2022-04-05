@@ -32,18 +32,18 @@
     </Content>
     <Compile Include="Features\Client.Heat.wxs" />
     <Compile Include="Features\Client.wxs" />
-    <Compile Include="Features\SlimTv.Client.Heat.wxs" />
-    <Compile Include="Features\SlimTv.Client.wxs" />
-    <Compile Include="Features\SlimTv.NativeProvider.Heat.wxs" />
-    <Compile Include="Features\SlimTv.NativeProvider.wxs" />
     <Compile Include="Features\LogCollector.Heat.wxs" />
     <Compile Include="Features\LogCollector.wxs" />
     <Compile Include="Features\Server.Heat.wxs" />
     <Compile Include="Features\Server.wxs" />
     <Compile Include="Features\ServiceMonitor.Heat.wxs" />
     <Compile Include="Features\ServiceMonitor.wxs" />
-    <Compile Include="Features\SlimTv.Service3.Heat.wxs" />
-    <Compile Include="Features\SlimTv.Service3.wxs" />
+    <Compile Include="Features\TV\SlimTv.Client.Heat.wxs" />
+    <Compile Include="Features\TV\SlimTv.Client.wxs" />
+    <Compile Include="Features\TV\SlimTv.NativeProvider.Heat.wxs" />
+    <Compile Include="Features\TV\SlimTv.NativeProvider.wxs" />
+    <Compile Include="Features\TV\SlimTv.Service3.Heat.wxs" />
+    <Compile Include="Features\TV\SlimTv.Service3.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
     <Compile Include="Fragments\ShortcutProperties.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />
@@ -63,6 +63,7 @@
     <Content Include="xslt\ServiceMonitor.Heat.xslt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Features\TV" />
     <Folder Include="Fragments" />
     <Folder Include="Language" />
     <Folder Include="Features" />
