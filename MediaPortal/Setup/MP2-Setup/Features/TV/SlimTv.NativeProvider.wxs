@@ -6,7 +6,6 @@
     <Feature Id="SlimTv.NativeProvider"
              Level="1"
              AllowAdvertise="no"
-             InstallDefault="followParent"
              Title="!(loc.F_SlimTvNativeProvider)"
              Description="!(loc.F_SlimTvNativeProvider_Desc)">
 

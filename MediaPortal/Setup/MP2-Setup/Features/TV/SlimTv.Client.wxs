@@ -6,7 +6,6 @@
     <Feature Id="SlimTv.Client"
              Level="1"
              AllowAdvertise="no"
-             InstallDefault="followParent"
              Title="!(loc.F_SlimTvClient)"
              Description="!(loc.F_SlimTvClient_Desc)">
 
