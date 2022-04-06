@@ -12,7 +12,7 @@ namespace SlimTv.TvMosaicProvider
 {
   public abstract class AutoRefreshCache<TKey, TValue>
   {
-    private readonly ConcurrentDictionary<TKey, TValue> _entries = new ConcurrentDictionary<TKey, TValue>();
+    protected readonly ConcurrentDictionary<TKey, TValue> _entries = new ConcurrentDictionary<TKey, TValue>();
 
     protected AutoRefreshCache(TimeSpan interval)
     {
@@ -33,7 +33,12 @@ namespace SlimTv.TvMosaicProvider
       return _entries.GetOrAdd(key, Load);
     }
 
-    public void RefreshAll()
+    public virtual async Task<TValue> GetAsync(TKey key)
+    {
+      return _entries.GetOrAdd(key, Load);
+    }
+
+    public virtual void RefreshAll()
     {
       var keys = _entries.Keys;
       foreach (var key in keys)
@@ -90,6 +95,59 @@ namespace SlimTv.TvMosaicProvider
     protected override IProgram[] Load(IChannel key)
     {
       var asyncResult = _provider.GetNowNextProgramInternalAsync(key).Result;
+      return asyncResult.Success ? asyncResult.Result : null;
+    }
+  }
+
+  public class FullDayProgramsCache : AutoRefreshCache<IChannel, IList<IProgram>>
+  {
+    private readonly TvMosaicProvider _provider;
+    private DateTime _cacheStart;
+    private DateTime _cacheEnd;
+    private Task _initTask;
+
+    public DateTime CacheStart => _cacheStart;
+    public DateTime CacheEnd => _cacheEnd;
+
+    public FullDayProgramsCache(TimeSpan interval, TvMosaicProvider provider)
+      : base(interval)
+    {
+      _provider = provider;
+      _initTask = FullRefreshAsync();
+    }
+
+    public override void RefreshAll()
+    {
+      Task.Run(FullRefreshAsync).Wait();
+    }
+
+    public async Task FullRefreshAsync()
+    {
+      _entries.Clear();
+      _cacheStart = DateTime.Now.AddHours(-4);
+      _cacheEnd = DateTime.Now.AddHours(+24);
+      var programs = await _provider.GetAllPrograms(_cacheStart, _cacheEnd).ConfigureAwait(false);
+      foreach (IGrouping<int, IProgram> grouping in programs.Result.GroupBy(p => p.ChannelId))
+      {
+        var channel = await _provider.GetChannelAsync(grouping.Key).ConfigureAwait(false);
+        _entries[channel.Result] = grouping.ToList();
+      }
+    }
+
+    public override async Task<IList<IProgram>> GetAsync(IChannel key)
+    {
+      await _initTask.ConfigureAwait(false);
+      return await base.GetAsync(key);
+    }
+
+    public FullDayProgramsCache(TimeSpan interval) :
+      base(interval)
+    {
+    }
+
+    protected override IList<IProgram> Load(IChannel key)
+    {
+      var asyncResult = _provider.GetProgramsInternal(new List<IChannel> { key }, _cacheStart, _cacheEnd).Result;
       return asyncResult.Success ? asyncResult.Result : null;
     }
   }

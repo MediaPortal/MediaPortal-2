@@ -35,6 +35,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
 using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -71,6 +72,7 @@ namespace SlimTv.TvMosaicProvider
     private string _host;
     private TimeshiftStatusCache _timeshiftStatusCache = null;
     private NowNextProgramsCache _nowNextProgramsCache = null;
+    private FullDayProgramsCache _fullDayProgramsCache = null;
 
     public bool Init()
     {
@@ -102,6 +104,7 @@ namespace SlimTv.TvMosaicProvider
 
           _timeshiftStatusCache = new TimeshiftStatusCache(TimeSpan.FromSeconds(2), _dvbLink, _tunedChannelHandles);
           _nowNextProgramsCache = new NowNextProgramsCache(TimeSpan.FromMinutes(1), this);
+          _fullDayProgramsCache = new FullDayProgramsCache(TimeSpan.FromHours(1), this);
           return true;
         }
 
@@ -299,6 +302,28 @@ namespace SlimTv.TvMosaicProvider
       return await GetPrograms(new List<IChannel> { channel }, from, to);
     }
 
+    public async Task<AsyncResult<IList<IProgram>>> GetAllPrograms(DateTime? @from, DateTime? to)
+    {
+      return await GetProgramsInternal(_mpChannels, from, to);
+    }
+
+    public async Task<AsyncResult<IList<IProgram>>> GetProgramsInternal(IEnumerable<IChannel> channels, DateTime? @from, DateTime? to)
+    {
+      EpgSearcher epgSearcher = new EpgSearcher
+      {
+        StartTime = @from.ToUnixTime(),
+        EndTime = to.ToUnixTime(),
+        ChannelsIDs = new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList())
+      };
+
+      var programs = await _dvbLink.SearchEpg(epgSearcher).ConfigureAwait(false);
+      if (programs.Status == StatusCode.STATUS_OK && programs.Result.Any())
+      {
+        return new AsyncResult<IList<IProgram>>(true, ToProgram(programs.Result));
+      }
+      return new AsyncResult<IList<IProgram>>(false, null);
+    }
+
     protected async Task<AsyncResult<IList<IProgram>>> GetPrograms(IEnumerable<IChannel> channels, DateTime? @from, DateTime? to, string keyWord = null, int maxPrograms = -1)
     {
       EpgSearcher epgSearcher = new EpgSearcher
@@ -310,6 +335,29 @@ namespace SlimTv.TvMosaicProvider
       };
       if (channels != null)
         epgSearcher.ChannelsIDs = new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList());
+
+      // Regular loading without keyword or limits can be fetched from cache
+      if (keyWord == null && maxPrograms == -1 && 
+          (!from.HasValue || from.Value >= _fullDayProgramsCache.CacheStart) && 
+          (!to.HasValue || to.Value <= _fullDayProgramsCache.CacheEnd))
+      {
+        List<IProgram> cachedPrograms = new List<IProgram>();
+        foreach (IChannel channel in channels)
+        {
+          var dayPrograms = await _fullDayProgramsCache.GetAsync(channel);
+          if (dayPrograms == null)
+            continue;
+          IEnumerable<IProgram> filtered = dayPrograms;
+          if (from.HasValue)
+            filtered = filtered.Where(p => p.EndTime >= from.Value || p.StartTime >= from.Value);
+          if (to.HasValue)
+            filtered = filtered.Where(p => p.StartTime <= to.Value);
+
+          cachedPrograms.AddRange(filtered);
+        }
+        var result = new AsyncResult<IList<IProgram>>(cachedPrograms.Count > 0, cachedPrograms);
+        return result;
+      }
 
       var programs = await _dvbLink.SearchEpg(epgSearcher).ConfigureAwait(false);
       if (programs.Status == StatusCode.STATUS_OK && programs.Result.Any())
