@@ -317,44 +317,19 @@ namespace MP2BootstrapperApp.Models
     {
       IList<IBundlePackage> packages = new List<IBundlePackage>();
 
-      XNamespace manifestNamespace = "http://schemas.microsoft.com/wix/2010/BootstrapperApplicationData";
-
       string manifestPath = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location);
       if (manifestPath != null)
       {
         const string bootstrapperApplicationData = "BootstrapperApplicationData";
         const string xmlExtension = ".xml";
         string bootstrapperDataFilePath = Path.Combine(manifestPath, bootstrapperApplicationData + xmlExtension);
-        XElement bundleManifestData;
 
+        string xml;
         using (StreamReader reader = new StreamReader(bootstrapperDataFilePath))
-        {
-          string xml = reader.ReadToEnd();
-          XDocument xDoc = XDocument.Parse(xml);
-          bundleManifestData = xDoc.Element(manifestNamespace + bootstrapperApplicationData);
-        }
-
-        const string wixMbaPrereqInfo = "WixMbaPrereqInformation";
-        IList<string> mbaPrereqPackages = bundleManifestData?.Descendants(manifestNamespace + wixMbaPrereqInfo)
-          .Select(x => x.Attribute("PackageId")?.Value)
-          .ToList();
+          xml = reader.ReadToEnd();
 
         BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
-
-        const string wixPackageProperties = "WixPackageProperties";
-        packages = bundleManifestData?.Descendants(manifestNamespace + wixPackageProperties)
-          .Where(x => mbaPrereqPackages.All(preReq => preReq != x.Attribute("Package")?.Value))
-          .Select(x => bundlePackageFactory.CreatePackage(x)).ToList();
-
-        const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
-        IEnumerable<IBundlePackageFeature> features = bundleManifestData?.Descendants(manifestNamespace + wixPackageFeatureInfo)
-          .Select(x => bundlePackageFactory.CreatePackageFeature(x));
-        foreach (IBundlePackageFeature feature in features)
-        {
-          IBundleMsiPackage parent = packages.FirstOrDefault(p => p.Id == feature.Package) as IBundleMsiPackage;
-          if (parent != null)
-            parent.Features.Add(feature);
-        }
+        packages = bundlePackageFactory.CreatePackagesFromXmlString(xml);
       }
 
       BundlePackages = packages != null

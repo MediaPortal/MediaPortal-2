@@ -23,19 +23,52 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 
 namespace MP2BootstrapperApp.BundlePackages
 {
   public class BundlePackageFactory
   {
-    public IBundlePackage CreatePackage(XElement packageElement)
+    public IList<IBundlePackage> CreatePackagesFromXmlString(string xml)
+    {
+      XNamespace manifestNamespace = "http://schemas.microsoft.com/wix/2010/BootstrapperApplicationData";
+      const string bootstrapperApplicationData = "BootstrapperApplicationData";
+
+      XDocument xDoc = XDocument.Parse(xml);
+      XElement bundleManifestData = xDoc.Element(manifestNamespace + bootstrapperApplicationData);
+
+      const string wixMbaPrereqInfo = "WixMbaPrereqInformation";
+      IList<string> mbaPrereqPackages = bundleManifestData?.Descendants(manifestNamespace + wixMbaPrereqInfo)
+        .Select(x => x.Attribute("PackageId")?.Value)
+        .ToList();
+
+      const string wixPackageProperties = "WixPackageProperties";
+      IList<IBundlePackage> packages = bundleManifestData?.Descendants(manifestNamespace + wixPackageProperties)
+        .Where(x => mbaPrereqPackages.All(preReq => preReq != x.Attribute("Package")?.Value))
+        .Select(x => CreatePackage(x)).ToList();
+
+      const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
+      IEnumerable<IBundlePackageFeature> features = bundleManifestData?.Descendants(manifestNamespace + wixPackageFeatureInfo)
+        .Select(x => CreatePackageFeature(x));
+      foreach (IBundlePackageFeature feature in features)
+      {
+        IBundleMsiPackage parent = packages.FirstOrDefault(p => p.Id == feature.Package) as IBundleMsiPackage;
+        if (parent != null)
+          parent.Features.Add(feature);
+      }
+
+      return packages;
+    }
+
+    public virtual IBundlePackage CreatePackage(XElement packageElement)
     {
       bool isMsiPackage = string.Equals(packageElement.Attribute("PackageType")?.Value, "Msi", StringComparison.InvariantCultureIgnoreCase);
       return isMsiPackage ? new BundleMsiPackage(packageElement) : new BundlePackage(packageElement);
     }
 
-    public IBundlePackageFeature CreatePackageFeature(XElement featureElement)
+    public virtual IBundlePackageFeature CreatePackageFeature(XElement featureElement)
     {
       return new BundlePackageFeature(featureElement);
     }
