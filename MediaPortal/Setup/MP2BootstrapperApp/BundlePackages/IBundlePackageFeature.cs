@@ -40,6 +40,11 @@ namespace MP2BootstrapperApp.BundlePackages
     string Package { get; }
 
     /// <summary>
+    /// The parent feature id; or <see cref="string.Empty"/> if this feature does not have a parent.
+    /// </summary>
+    string Parent { get; }
+
+    /// <summary>
     /// The title of the feature.
     /// </summary>
     string Title { get; }

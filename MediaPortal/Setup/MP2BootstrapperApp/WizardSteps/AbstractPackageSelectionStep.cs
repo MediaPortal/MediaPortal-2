@@ -88,10 +88,10 @@ namespace MP2BootstrapperApp.WizardSteps
         return selectableFeatures;
       }
 
-      // Get the optional features, namely Client, Server, ServiceMonitor and Log Collector
+      // Get the top-level optional features, namely Client, Server, ServiceMonitor and Log Collector
       foreach (IBundlePackageFeature feature in mainPackage.Features)
       {
-        if (!feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent))
+        if (!feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) && feature.Parent == FeatureId.MediaPortal_2)
           selectableFeatures.Add(feature);
       }
       return selectableFeatures;
