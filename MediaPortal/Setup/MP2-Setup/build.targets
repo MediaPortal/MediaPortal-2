@@ -5,7 +5,8 @@
     <DefineConstants>
       SlimTv.Client.TargetDir=$(SolutionDir)..\Bin\MP2-Client\bin\$(Configuration)\Plugins\SlimTv.Client;
       SlimTv.NativeProvider.TargetDir=$(SolutionDir)..\Bin\MP2-Client\bin\$(Configuration)\Plugins\SlimTv.NativeProvider;
-      SlimTv.Service3.TargetDir=$(SolutionDir)..\Bin\MP2-Server\bin\$(Configuration)\Plugins\SlimTv.Service3
+      SlimTv.Service3.TargetDir=$(SolutionDir)..\Bin\MP2-Server\bin\$(Configuration)\Plugins\SlimTv.Service3;
+      SlimTv.Service35.TargetDir=$(SolutionDir)..\Bin\MP2-Server\bin\$(Configuration)\Plugins\SlimTv.Service35
     </DefineConstants>
   </PropertyGroup>
 
@@ -74,6 +75,14 @@
       ComponentGroupName="SlimTv.Service3.Heat"
       DirectoryRefId="SERVER_PLUGINS_FOLDER"
       OutputFile="$(ProjectDir)Features\TV\SlimTv.Service3.Heat.wxs"
+      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="false" ToolPath="$(WixToolPath)" />
+
+    <HeatDirectory
+      Directory="$(SolutionDir)..\Bin\MP2-Server\bin\$(Configuration)\Plugins\SlimTv.Service35"
+      PreprocessorVariable="var.SlimTv.Service35.TargetDir"
+      ComponentGroupName="SlimTv.Service35.Heat"
+      DirectoryRefId="SERVER_PLUGINS_FOLDER"
+      OutputFile="$(ProjectDir)Features\TV\SlimTv.Service35.Heat.wxs"
       GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="false" ToolPath="$(WixToolPath)" />
   </Target>
 

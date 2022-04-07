@@ -82,6 +82,7 @@
              Description="!(loc.F_Server_Desc)">
       
       <FeatureRef Id="SlimTv.Service3" />
+      <FeatureRef Id="SlimTv.Service35" />
 
       <ComponentRef Id="SERVER_DATA_FOLDER" />
       <ComponentRef Id="SERVER_CONFIG_FOLDER" />

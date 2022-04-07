@@ -38,6 +38,8 @@
     <Compile Include="Features\Server.wxs" />
     <Compile Include="Features\ServiceMonitor.Heat.wxs" />
     <Compile Include="Features\ServiceMonitor.wxs" />
+    <Compile Include="Features\TV\SlimTv.Service35.Heat.wxs" />
+    <Compile Include="Features\TV\SlimTv.Service35.wxs" />
     <Compile Include="Features\TV\SlimTv.Client.Heat.wxs" />
     <Compile Include="Features\TV\SlimTv.Client.wxs" />
     <Compile Include="Features\TV\SlimTv.NativeProvider.Heat.wxs" />

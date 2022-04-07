@@ -12,6 +12,9 @@
   <xsl:key name="SlimTv.Service3"
            match="//wix:Directory[@Name = 'SlimTv.Service3']//wix:Component"
            use="@Id"/>
+  <xsl:key name="SlimTv.Service35"
+           match="//wix:Directory[@Name = 'SlimTv.Service35']//wix:Component"
+           use="@Id"/>
 
   <!-- Copy all nodes from source to target and apply templates. -->
   <xsl:template match="node()|@*">
@@ -38,6 +41,8 @@
   <!-- Exclude Tv server plugin directories and components, they are included in their own features. -->
   <xsl:template match="wix:Directory[@Name = 'SlimTv.Service3']"/>
   <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.Service3', @Id)/@Id]"/>
+  <xsl:template match="wix:Directory[@Name = 'SlimTv.Service35']"/>
+  <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.Service35', @Id)/@Id]"/>
 
   <!-- Explicitly set DirectoryID to allow referencing to it. -->
   <xsl:template match="wix:DirectoryRef[@Id = 'INSTALLDIR_SERVER']/wix:Directory[@Name = 'Plugins']">

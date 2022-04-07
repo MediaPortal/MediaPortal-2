@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Fragment>
+
+    <?include $(var.SolutionDir)\Includes.wxi?>
+
+    <!-- ToDo: What icon to use for TV Service 3.5 shortcuts? --> 
+    <!-- Icon -->
+    <!--<Icon Id="SetupTV35" SourceFile="$(var.SlimTv.Service35.TargetDir)\SetupTV.ico" />-->
+
+    <!-- Shortcuts -->
+    <DirectoryRef Id="MP2.StartMenu">
+      <Component Id="SetupTV35.StartMenu.Shortcut" Guid="AE904E73-A984-49CB-98C8-1DFF5F9E76DE">
+        <Condition>STARTMENUSHORTCUTS = 1</Condition>
+        <Shortcut Id="SetupTV35.StartMenu.Shortcut"
+                  Name="MediaPortal 2 TV Configuration"
+                  Target="[SERVER_PLUGINS_FOLDER]\SlimTv.Service35\SetupTv\SetupTV.exe"
+                  WorkingDirectory="INSTALLDIR_SERVER" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="SetupTV35.StartMenu.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+    <DirectoryRef Id="DesktopFolder">
+      <Component Id="SetupTV35.Desktop.Shortcut" Guid="D63564A4-7C9F-411F-979E-ED7E3B4E484F">
+        <Condition>DESKTOPSHORTCUTS = 1</Condition>
+        <Shortcut Id="SetupTV35.Desktop.Shortcut"
+                  Name="MediaPortal 2 TV Configuration"
+                  Target="[SERVER_PLUGINS_FOLDER]\SlimTv.Service35\SetupTv\SetupTV.exe"
+                  WorkingDirectory="INSTALLDIR_SERVER" />
+        <!--
+        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
+        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
+        -->
+        <RegistryValue Root="HKCU"
+                       Key="$(var.RegKeyInstall)"
+                       Name="SetupTV35.Desktop.Shortcut"
+                       Type="string"
+                       Value="1"
+                       KeyPath="yes" />
+      </Component>
+    </DirectoryRef>
+
+    <!-- Feature -->
+    <!-- Set install level to 2 to prevent installation by default -->
+    <Feature Id="SlimTv.Service35"
+             Level="2"
+             AllowAdvertise="no"
+             Title="!(loc.F_SlimTvService35)"
+             Description="!(loc.F_SlimTvService35_Desc)">
+
+      <ComponentRef Id="SetupTV35.StartMenu.Shortcut" />
+      <ComponentRef Id="SetupTV35.Desktop.Shortcut" />
+
+      <ComponentGroupRef Id="SlimTv.Service35.Heat"/>
+    </Feature>
+    
+	</Fragment>
+</Wix>
