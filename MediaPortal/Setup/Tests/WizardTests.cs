@@ -40,7 +40,7 @@ namespace Tests
     [Fact]
     void Should_IncludeOptionalPackagesInCustomStep_If_Not_Installed()
     {
-      IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall();
+      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
 
@@ -54,7 +54,7 @@ namespace Tests
     [Fact]
     void Should_Not_IncludeOptionalPackagesInCustomStep_If_Installed()
     {
-      IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(new[] { PackageId.LAVFilters });
+      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall(new[] { PackageId.LAVFilters });
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
       
@@ -68,7 +68,7 @@ namespace Tests
     [Fact]
     void Should_SelectInstalledFeaturesInCustomStep_If_PreviousVersionInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
+      IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
 
@@ -82,7 +82,7 @@ namespace Tests
     [Fact]
     void Should_SelectAllFeaturesInCustomStep_If_PreviousVersionNotInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), null, null);
+      IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), null, null);
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
 
@@ -97,7 +97,7 @@ namespace Tests
     [Fact]
     void Should_SelectAllOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), null, null);
+      IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), null, null);
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
 
@@ -112,7 +112,7 @@ namespace Tests
     [Fact]
     void Should_SelectOptionalPackagesInCustomStep_If_PreviousVersionInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2, PackageId.LAVFilters }, new[] { FeatureId.Server });
+      IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2, PackageId.LAVFilters }, new[] { FeatureId.Server });
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
 
@@ -126,7 +126,7 @@ namespace Tests
     [Fact]
     void Should_Not_SelectOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackages.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
+      IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
 
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));

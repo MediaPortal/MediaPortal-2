@@ -56,7 +56,7 @@
   <ItemGroup>
     <Compile Include="BootstrapperTests.cs" />
     <Compile Include="ConverterTests.cs" />
-    <Compile Include="Mocks\MockBundlePackages.cs" />
+    <Compile Include="Mocks\TestBundlePackageFactory.cs" />
     <Compile Include="RepairPlanTests.cs" />
     <Compile Include="InstallPlanTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -121,6 +121,9 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Resources\LanguageTests\strings_de.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Resources\Packages\BootstrapperApplicationData.xml" />
   </ItemGroup>
   <Import Project="$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets" Condition="Exists('$(VSToolsPath)\TeamTest\Microsoft.TestTools.targets')" />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
