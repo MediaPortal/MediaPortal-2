@@ -24,7 +24,6 @@
 
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.BundlePackages;
 using System;
 using System.Globalization;
 using System.Xml.Linq;
@@ -33,8 +32,7 @@ namespace MP2BootstrapperApp.BundlePackages
 {
   public class BundlePackageFeature : IBundlePackageFeature
   {
-    protected string _featureIdString;
-    protected FeatureId _featureId;
+    protected string _featureId;
     protected string _package;
     protected string _title;
     protected string _description;
@@ -48,8 +46,7 @@ namespace MP2BootstrapperApp.BundlePackages
 
     protected void SetXmlProperties(XElement featureElement)
     {
-      _featureIdString = featureElement.Attribute("Feature")?.Value;
-      _featureId = Enum.TryParse(_featureIdString, out FeatureId fid) ? fid : FeatureId.Unknown;
+      _featureId = featureElement.Attribute("Feature")?.Value;
       _package = featureElement.Attribute("Package")?.Value;
       _title = featureElement.Attribute("Title")?.Value;
       _description = featureElement.Attribute("Description")?.Value;
@@ -60,7 +57,7 @@ namespace MP2BootstrapperApp.BundlePackages
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public FeatureId Id
+    public string Id
     {
       get { return _featureId; }
     }
@@ -71,14 +68,6 @@ namespace MP2BootstrapperApp.BundlePackages
     public string Package
     {
       get { return _package; }
-    }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public string FeatureName
-    {
-      get { return _featureIdString; }
     }
 
     /// <summary>

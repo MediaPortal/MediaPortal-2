@@ -39,7 +39,7 @@ namespace MP2BootstrapperApp.ActionPlans
     /// <param name="plannedFeatures">The features to install.</param>
     /// <param name="plannedOptionalPackages">The optional packages to install, or <c>null</c> if not explicitly selecting optional packages.</param>
     /// <param name="planContext">The context to use when determining the appropriate dependencies to install.</param>
-    public ModifyPlan(IEnumerable<FeatureId> plannedFeatures, IEnumerable<PackageId> plannedOptionalPackages, IPlanContext planContext)
+    public ModifyPlan(IEnumerable<string> plannedFeatures, IEnumerable<PackageId> plannedOptionalPackages, IPlanContext planContext)
       : base(plannedFeatures, plannedOptionalPackages, planContext)
     {
       _plannedAction = LaunchAction.Modify;

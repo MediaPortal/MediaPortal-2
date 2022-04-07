@@ -80,7 +80,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         if (sender is SelectableFeatureViewModel featureViewModel)
         {
-          IBundlePackageFeature feature = _step.AvailableFeatures.FirstOrDefault(f => f.FeatureName == featureViewModel.Package.Id);
+          IBundlePackageFeature feature = _step.AvailableFeatures.FirstOrDefault(f => f.Id == featureViewModel.Package.Id);
           if (feature != null)
           {
             UpdateSelectedItems(feature, _step.SelectedFeatures, featureViewModel.Selected);

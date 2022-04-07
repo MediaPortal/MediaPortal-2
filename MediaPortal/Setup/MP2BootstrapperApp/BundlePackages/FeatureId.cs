@@ -27,36 +27,31 @@ namespace MP2BootstrapperApp.BundlePackages
   /// <summary>
   /// Ids of the features in the MediaPortal 2 package.
   /// </summary>
-  public enum FeatureId
+  public static class FeatureId
   {
     /// <summary>
     /// Id of the parent feature for all optional features.
     /// </summary>
-    MediaPortal_2,
+    public const string MediaPortal_2 = "MediaPortal_2";
 
     /// <summary>
     /// Id of the client feature.
     /// </summary>
-    Client,
+    public const string Client = "Client";
 
     /// <summary>
     /// Id of the server feature.
     /// </summary>
-    Server,
+    public const string Server = "Server";
 
     /// <summary>
     /// Id of the ServiceMonitor feature.
     /// </summary>
-    ServiceMonitor,
+    public const string ServiceMonitor = "ServiceMonitor";
 
     /// <summary>
     /// Id of the log collector feature.
     /// </summary>
-    LogCollector,
-
-    /// <summary>
-    /// Placeholder for unknown features.
-    /// </summary>
-    Unknown
+    public const string LogCollector = "LogCollector";
   }
 }

@@ -78,11 +78,11 @@ namespace MP2BootstrapperApp.ViewModels
       {
         BundleVersion = bundlePackage.Version,
         InstalledVersion = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? bundlePackage.InstalledVersion : new Version(),
-        ImagePath = @"..\resources\" + feature.FeatureName + ".png",
-        Id = feature.FeatureName,
+        ImagePath = @"..\resources\" + feature.Id + ".png",
+        Id = feature.Id,
         DisplayName = feature.Title,
         Description = feature.Description,
-        LocalizedDescription = $"[FeatureDescription.{feature.FeatureName}]",
+        LocalizedDescription = $"[FeatureDescription.{feature.Id}]",
         InstalledSize = feature.InstalledSize,
         PackageState = feature.CurrentFeatureState == FeatureState.Local ? PackageState.Present : PackageState.Absent,
         RequestState = requestState

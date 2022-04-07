@@ -41,7 +41,7 @@ namespace MP2BootstrapperApp.ActionPlans
     /// </summary>
     /// <param name="installedFeatures">The currently installed features.</param>
     /// <param name="planContext">The context to use when determining the appropriate dependencies to repair or reinstall.</param>
-    public RepairPlan(IEnumerable<FeatureId> installedFeatures, IPlanContext planContext)
+    public RepairPlan(IEnumerable<string> installedFeatures, IPlanContext planContext)
       : base(LaunchAction.Repair)
     {
       _planContext = planContext;

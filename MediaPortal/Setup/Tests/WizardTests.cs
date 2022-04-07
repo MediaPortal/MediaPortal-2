@@ -88,8 +88,8 @@ namespace Tests
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
-      IEnumerable<FeatureId> expectedFeatures = new[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
-      IEnumerable<FeatureId> actualFeatures = customStep.SelectedFeatures.Select(f => f.Id).OrderBy(f => f);
+      IEnumerable<string> expectedFeatures = new[] { FeatureId.Client, FeatureId.LogCollector, FeatureId.Server, FeatureId.ServiceMonitor };
+      IEnumerable<string> actualFeatures = customStep.SelectedFeatures.Select(f => f.Id).OrderBy(f => f);
 
       Assert.Equal(expectedFeatures, actualFeatures);
     }

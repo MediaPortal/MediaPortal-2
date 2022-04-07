@@ -24,21 +24,15 @@
 
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.BundlePackages;
 
 namespace MP2BootstrapperApp.BundlePackages
 {
   public interface IBundlePackageFeature
   {
     /// <summary>
-    /// The <see cref="FeatureId"/> of a package, or <see cref="FeatureId.Unknown"/> for an unknown feature.
+    /// The unique identifier for a feature.
     /// </summary>
-    FeatureId Id { get; }
-
-    /// <summary>
-    /// The name of the feature within a package.
-    /// </summary>
-    string FeatureName { get; }
+    string Id { get; }
 
     /// <summary>
     /// The parent package id.

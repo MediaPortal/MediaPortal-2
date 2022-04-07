@@ -25,7 +25,6 @@
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.Models;
 using NSubstitute;
 using System;
 using System.Collections.Generic;
@@ -35,12 +34,14 @@ namespace Tests.Mocks
 {
   public static class MockBundlePackages
   {
-    public static IList<IBundlePackage> CreateCurrentInstall(IEnumerable<PackageId> installedPackages = null, IEnumerable<FeatureId> installedFeatures = null, IEnumerable<PackageId> falseInstallConditionPackages = null)
+    static readonly string[] TEST_FEATURES = new[] { FeatureId.MediaPortal_2, FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
+
+    public static IList<IBundlePackage> CreateCurrentInstall(IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null, IEnumerable<PackageId> falseInstallConditionPackages = null)
     {
       if (installedPackages == null)
         installedPackages = new PackageId[0];
       if (installedFeatures == null)
-        installedFeatures = new FeatureId[0];
+        installedFeatures = new string[0];
       if (falseInstallConditionPackages == null)
         falseInstallConditionPackages = new PackageId[0];
 
@@ -56,10 +57,8 @@ namespace Tests.Mocks
         {
           IBundleMsiPackage msiPackage = CreateMsiPackage(packageId, installedPackages.Contains(packageId), false, null);
           List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
-          foreach (FeatureId featureId in Enum.GetValues(typeof(FeatureId)))
+          foreach (string featureId in TEST_FEATURES)
           {
-            if (featureId == FeatureId.Unknown)
-              continue;
             IBundlePackageFeature feature = CreateFeature(featureId, installedFeatures.Contains(featureId), featureId != FeatureId.MediaPortal_2, false);
             features.Add(feature);
           }
@@ -75,12 +74,12 @@ namespace Tests.Mocks
       return packages;
     }
 
-    public static IList<IBundlePackage> CreatePreviousInstall(Version previousInstalledVersion, IEnumerable<PackageId> installedPackages = null, IEnumerable<FeatureId> installedFeatures = null)
+    public static IList<IBundlePackage> CreatePreviousInstall(Version previousInstalledVersion, IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null)
     {
       if (installedPackages == null)
         installedPackages = new PackageId[0];
       if (installedFeatures == null)
-        installedFeatures = new FeatureId[0];
+        installedFeatures = new string[0];
 
       installedFeatures = installedFeatures.Union(new[] { FeatureId.MediaPortal_2 });
 
@@ -94,10 +93,8 @@ namespace Tests.Mocks
         {
           IBundleMsiPackage msiPackage = CreateMsiPackage(packageId, false, false, installedPackages.Contains(packageId) ? previousInstalledVersion : null);
           List<IBundlePackageFeature> features = new List<IBundlePackageFeature>();
-          foreach (FeatureId featureId in Enum.GetValues(typeof(FeatureId)))
+          foreach (string featureId in TEST_FEATURES)
           {
-            if (featureId == FeatureId.Unknown)
-              continue;
             IBundlePackageFeature feature = CreateFeature(featureId, false, featureId != FeatureId.MediaPortal_2, installedFeatures.Contains(featureId));
             features.Add(feature);
           }
@@ -135,7 +132,7 @@ namespace Tests.Mocks
       return package;
     }
 
-    public static IBundlePackageFeature CreateFeature(FeatureId featureId, bool installed, bool optional, bool previousVersionInstalled)
+    public static IBundlePackageFeature CreateFeature(string featureId, bool installed, bool optional, bool previousVersionInstalled)
     {
       IBundlePackageFeature feature = Substitute.For<IBundlePackageFeature>();
       feature.Id.Returns(featureId);

@@ -104,7 +104,6 @@ namespace Tests
 
       Assert.Equal("MediaPortal2", bundlePackageFeature.Package);
       Assert.Equal(FeatureId.Client, bundlePackageFeature.Id);
-      Assert.Equal("Client", bundlePackageFeature.FeatureName);
       Assert.Equal("Client Title", bundlePackageFeature.Title);
       Assert.Equal("The user interface. Plays media files.", bundlePackageFeature.Description);
       Assert.Equal(450586600, bundlePackageFeature.InstalledSize);

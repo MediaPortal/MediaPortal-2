@@ -34,7 +34,7 @@ namespace MP2BootstrapperApp.ActionPlans
   /// </summary>
   public class InstallPlan : SimplePlan
   {
-    protected ISet<FeatureId> _plannedFeatures;
+    protected ISet<string> _plannedFeatures;
     protected ISet<PackageId> _plannedOptionalPackages;
     protected ISet<PackageId> _excludedPackages;
     protected IPlanContext _planContext;
@@ -45,10 +45,10 @@ namespace MP2BootstrapperApp.ActionPlans
     /// <param name="plannedFeatures">The features to install.</param>
     /// <param name="plannedOptionalPackages">The optional packages to install, or <c>null</c> if not explicitly selecting optional packages.</param>
     /// <param name="planContext">The context to use when determining the appropriate dependencies to install.</param>
-    public InstallPlan(IEnumerable<FeatureId> plannedFeatures, IEnumerable<PackageId> plannedOptionalPackages, IPlanContext planContext)
+    public InstallPlan(IEnumerable<string> plannedFeatures, IEnumerable<PackageId> plannedOptionalPackages, IPlanContext planContext)
       : base(LaunchAction.Install)
     {
-      _plannedFeatures = plannedFeatures != null ? new HashSet<FeatureId>(plannedFeatures) : new HashSet<FeatureId>();
+      _plannedFeatures = plannedFeatures != null ? new HashSet<string>(plannedFeatures) : new HashSet<string>();
       _plannedOptionalPackages = plannedOptionalPackages != null ? new HashSet<PackageId>(plannedOptionalPackages) : null;
       _planContext = planContext;
       // Get the packages that are not dependencies of the features to install.

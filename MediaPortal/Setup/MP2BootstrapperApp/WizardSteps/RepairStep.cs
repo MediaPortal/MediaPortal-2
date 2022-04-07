@@ -44,7 +44,7 @@ namespace MP2BootstrapperApp.WizardSteps
       PlanContext planContext = new PlanContext();
       // Get the currently installed features.
       IBundleMsiPackage featurePackage = _bootstrapperApplicationModel.BundlePackages.FirstOrDefault(p => p.PackageId == planContext.FeaturePackageId) as IBundleMsiPackage;
-      IEnumerable<FeatureId> installedFeatures = featurePackage?.Features.Where(f => !f.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) && f.CurrentFeatureState == FeatureState.Local).Select(f => f.Id);
+      IEnumerable<string> installedFeatures = featurePackage?.Features.Where(f => !f.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) && f.CurrentFeatureState == FeatureState.Local).Select(f => f.Id);
 
       RepairPlan plan = new RepairPlan(installedFeatures, planContext);
 

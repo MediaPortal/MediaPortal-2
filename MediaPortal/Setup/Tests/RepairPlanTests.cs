@@ -46,7 +46,7 @@ namespace Tests
     [Fact]
     void Should_PreserveFeatureStates()
     {
-      FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
+      string[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
       IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(new[] { PackageId.MediaPortal2 }, installedFeatures);
       RepairPlan plan = new RepairPlan(installedFeatures.Where(f => f != FeatureId.MediaPortal_2), new PlanContext());
 
@@ -63,7 +63,7 @@ namespace Tests
     void Should_RepairPresentPackages()
     {
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
-      FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
+      string[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
       IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(installedPackages, installedFeatures);
       RepairPlan plan = new RepairPlan(installedFeatures.Where(f => f != FeatureId.MediaPortal_2), new PlanContext());
 
@@ -78,7 +78,7 @@ namespace Tests
     void Should_InstallMissingDependencyPackages()
     {
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
-      FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
+      string[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
       IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(installedPackages, installedFeatures);
       RepairPlan plan = new RepairPlan(installedFeatures.Where(f => f != FeatureId.MediaPortal_2), new PlanContext());
 
@@ -92,7 +92,7 @@ namespace Tests
     void Should_Not_InstallMissingNonDependencyPackages()
     {
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
-      FeatureId[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
+      string[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
       IList<IBundlePackage> packages = MockBundlePackages.CreateCurrentInstall(installedPackages, installedFeatures);
       RepairPlan plan = new RepairPlan(installedFeatures.Where(f => f != FeatureId.MediaPortal_2), new PlanContext());
 

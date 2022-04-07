@@ -180,7 +180,7 @@ namespace MP2BootstrapperApp.Models
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
         IBundleMsiPackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.PackageId == detectedPackageId) as IBundleMsiPackage;
-        IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.FeatureName == e.FeatureId);
+        IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.Id == e.FeatureId);
         if (bundleFeature != null)
           bundleFeature.CurrentFeatureState = e.State;
       }
@@ -197,7 +197,7 @@ namespace MP2BootstrapperApp.Models
           bundledPackage.InstalledVersion = e.Version;
           foreach (FeatureInstallation feature in installedPackage.Features)
           {
-            IBundlePackageFeature bundleFeature = bundledPackage.Features.FirstOrDefault(f => f.FeatureName == feature.FeatureName);
+            IBundlePackageFeature bundleFeature = bundledPackage.Features.FirstOrDefault(f => f.Id == feature.FeatureName);
             if (bundleFeature != null)
               bundleFeature.PreviousVersionInstalled = feature.State == Microsoft.Deployment.WindowsInstaller.InstallState.Local;
           }
@@ -238,7 +238,7 @@ namespace MP2BootstrapperApp.Models
       if (Enum.TryParse(e.PackageId, out PackageId detectedPackageId))
       {
         IBundleMsiPackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.PackageId == detectedPackageId) as IBundleMsiPackage;
-        IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.FeatureName == e.FeatureId);
+        IBundlePackageFeature bundleFeature = bundlePackage?.Features.FirstOrDefault(f => f.Id == e.FeatureId);
         if (bundleFeature != null)
         {
           FeatureState? featureState = ActionPlan.GetRequestedInstallState(bundleFeature);

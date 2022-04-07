@@ -48,17 +48,17 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      IEnumerable<FeatureId> features;
+      IEnumerable<string> features;
       switch (InstallType)
       {
         case InstallType.ClientServer:
-          features = new FeatureId[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
+          features = new [] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
           break;
         case InstallType.Server:
-          features = new FeatureId[] { FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
+          features = new [] { FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
           break;
         case InstallType.Client:
-          features = new FeatureId[] { FeatureId.Client, FeatureId.ServiceMonitor, FeatureId.LogCollector };
+          features = new [] { FeatureId.Client, FeatureId.ServiceMonitor, FeatureId.LogCollector };
           break;
         //case InstallType.Custom:
         default:
