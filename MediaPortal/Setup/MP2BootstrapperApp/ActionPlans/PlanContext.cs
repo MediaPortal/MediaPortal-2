@@ -70,7 +70,7 @@ namespace MP2BootstrapperApp.ActionPlans
     {
       if (features == null || features.Count() == 0)
         return new List<PackageId>();
-      return features.Select(f => GetExcludedPackagesForFeature(f)).Aggregate((p1, p2) => p1.Intersect(p2));
+      return features.Where(f => _excludedPackages.ContainsKey(f)).Select(f => GetExcludedPackagesForFeature(f)).Aggregate((p1, p2) => p1.Intersect(p2));
     }
   }
 }
