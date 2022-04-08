@@ -52,7 +52,6 @@ Adapted by Team-MediaPortal from a WIX dialog
 
         <Control Id="Custom" Type="PushButton" X="30" Y="190" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Custom)">
           <Publish Property="INSTALLTYPE_CUSTOM" Value="1">1</Publish>
-          <Publish Event="AddLocal" Value="ALL">1</Publish>
         </Control>
         <Control Id="Custom_Desc" Type="Text" X="115" Y="188" Width="220" Height="35" Text="!(loc.SelectInstallTypeDlg_Custom_Desc)" />
 
