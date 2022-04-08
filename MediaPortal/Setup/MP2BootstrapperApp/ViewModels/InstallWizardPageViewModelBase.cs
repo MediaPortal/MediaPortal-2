@@ -45,7 +45,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         BundleVersion = bundlePackage.Version,
         InstalledVersion = bundlePackage.InstalledVersion ?? new Version(),
-        ImagePath = @"..\resources\" + bundlePackage.PackageId + ".png",
+        ImagePath = @"..\resources\Packages\" + bundlePackage.PackageId + ".png",
         Id = bundlePackage.Id,
         DisplayName = bundlePackage.DisplayName,
         Description = bundlePackage.Description,
@@ -78,7 +78,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         BundleVersion = bundlePackage.Version,
         InstalledVersion = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? bundlePackage.InstalledVersion : new Version(),
-        ImagePath = @"..\resources\" + feature.Id + ".png",
+        ImagePath = @"..\resources\Features\" + feature.Id + ".png",
         Id = feature.Id,
         DisplayName = feature.Title,
         Description = feature.Description,
