@@ -32,17 +32,11 @@ namespace TvMosaic.Shared
   {
     public static DateTime FromUnixTime(this long ut)
     {
-      DateTime dt = FromUnixTimeUtc(ut);
-      return dt.ToLocalTime();
-    }
-
-    public static DateTime FromUnixTimeUtc(this long ut)
-    {
       if (ut == 0) return DateTime.MinValue;
       long l = ut;
       l += (long)(369 * 365 + 89) * 86400;
       l *= 10000000;
-      return DateTime.FromFileTimeUtc(l);
+      return DateTime.FromFileTime(l);
     }
 
     public static uint ToUnixTime(this DateTime val)
@@ -54,7 +48,7 @@ namespace TvMosaic.Shared
           ut = 0;
         else
         {
-          long l = val.ToFileTimeUtc();
+          long l = val.ToFileTime();
           l /= 10000000;
           l -= (long)(369 * 365 + 89) * 86400;
           ut = (uint)l;
