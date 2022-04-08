@@ -41,8 +41,11 @@ namespace Tests
     void Should_IncludeOptionalPackagesInCustomStep_If_Not_Installed()
     {
       IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
+
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+      applicationModel.MainPackage.Returns(mainPackage);
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
@@ -55,9 +58,12 @@ namespace Tests
     void Should_Not_IncludeOptionalPackagesInCustomStep_If_Installed()
     {
       IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall(new[] { PackageId.LAVFilters });
+      IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
+
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
-      
+      applicationModel.MainPackage.Returns(mainPackage);
+
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
       IBundlePackage availablePackage = customStep.AvailablePackages.FirstOrDefault(p => p.PackageId == PackageId.LAVFilters);
@@ -69,8 +75,11 @@ namespace Tests
     void Should_SelectInstalledFeaturesInCustomStep_If_PreviousVersionInstalled()
     {
       IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
+      IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
+
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+      applicationModel.MainPackage.Returns(mainPackage);
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
@@ -83,8 +92,11 @@ namespace Tests
     void Should_SelectAllFeaturesInCustomStep_If_PreviousVersionNotInstalled()
     {
       IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), null, null);
+      IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
+
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+      applicationModel.MainPackage.Returns(mainPackage);
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
@@ -98,8 +110,11 @@ namespace Tests
     void Should_SelectAllOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
     {
       IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), null, null);
+      IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
+
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+      applicationModel.MainPackage.Returns(mainPackage);
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
@@ -113,8 +128,11 @@ namespace Tests
     void Should_SelectOptionalPackagesInCustomStep_If_PreviousVersionInstalled()
     {
       IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2, PackageId.LAVFilters }, new[] { FeatureId.Server });
+      IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
+
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+      applicationModel.MainPackage.Returns(mainPackage);
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
@@ -127,9 +145,11 @@ namespace Tests
     void Should_Not_SelectOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
     {
       IList<IBundlePackage> packages = TestBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
+      IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
 
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
       applicationModel.BundlePackages.Returns(new ReadOnlyCollection<IBundlePackage>(packages));
+      applicationModel.MainPackage.Returns(mainPackage);
 
       InstallCustomStep customStep = new InstallCustomStep(applicationModel);
 
