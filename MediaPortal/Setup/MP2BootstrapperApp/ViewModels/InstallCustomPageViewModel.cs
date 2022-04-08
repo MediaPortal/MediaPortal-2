@@ -28,8 +28,6 @@ namespace MP2BootstrapperApp.ViewModels
 {
   public class InstallCustomPageViewModel : AbstractPackageSelectionViewModel<InstallCustomStep>
   {
-    protected PropertyValidationViewModel<string> _installDirectory;
-
     public InstallCustomPageViewModel(InstallCustomStep step)
       : base(step)
     {
