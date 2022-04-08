@@ -55,6 +55,20 @@ namespace MP2BootstrapperApp.ActionPlans
       _excludedPackages = new HashSet<PackageId>(planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
     }
 
+    public virtual void PlanPackage(PackageId packageId)
+    {
+      if (_plannedOptionalPackages == null)
+        _plannedOptionalPackages = new HashSet<PackageId>();
+      _plannedOptionalPackages.Add(packageId);
+    }
+
+    public virtual void PlanFeature(string featureId)
+    {
+      _plannedFeatures.Add(featureId);
+      // Update the packages that are not dependencies of the features to install.
+      _excludedPackages = new HashSet<PackageId>(_planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
+    }
+
     public override RequestState? GetRequestedInstallState(IBundlePackage package)
     {
       return ShouldInstallPackage(package, _excludedPackages) ? RequestState.Present : RequestState.None;
