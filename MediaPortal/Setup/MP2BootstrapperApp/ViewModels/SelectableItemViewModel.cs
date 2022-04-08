@@ -22,14 +22,23 @@
 
 #endregion
 
-using MP2BootstrapperApp.Models;
+using Prism.Mvvm;
 
 namespace MP2BootstrapperApp.ViewModels
 {
   /// <summary>
-  /// Bindable wrapper for a package that can be selected.
+  /// Bindable wrapper for an item that can be selected.
   /// </summary>
-  public class SelectablePackageViewModel : SelectableItemViewModel<Package>
+  public class SelectableItemViewModel<T> : BindableBase
   {
+    protected bool _selected;
+
+    public bool Selected
+    {
+      get { return _selected; }
+      set { SetProperty(ref _selected, value); }
+    }
+
+    public T Item { get; set; }
   }
 }

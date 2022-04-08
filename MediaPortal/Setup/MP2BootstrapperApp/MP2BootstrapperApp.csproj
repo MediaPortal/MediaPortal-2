@@ -117,6 +117,7 @@
     <Compile Include="ViewModels\IPageViewModel.cs" />
     <Compile Include="ViewModels\ModifyFinishPageViewModel.cs" />
     <Compile Include="ViewModels\PropertyValidationViewModel.cs" />
+    <Compile Include="ViewModels\SelectableItemViewModel.cs" />
     <Compile Include="ViewModels\UninstallFinishPageViewModel.cs" />
     <Compile Include="ViewModels\RepairFinishPageViewModel.cs" />
     <Compile Include="ViewModels\InstallInitializingPageViewModel.cs" />

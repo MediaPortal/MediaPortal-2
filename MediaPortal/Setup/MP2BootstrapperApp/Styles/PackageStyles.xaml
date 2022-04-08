@@ -1,6 +1,5 @@
 ﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
                     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-                    xmlns:models="clr-namespace:MP2BootstrapperApp.Models"
                     xmlns:bootstrapper="clr-namespace:Microsoft.Tools.WindowsInstallerXml.Bootstrapper;assembly=BootstrapperCore">
   <ResourceDictionary.MergedDictionaries>
     <ResourceDictionary Source="../Styles/ButtonStyles.xaml" />
@@ -101,7 +100,7 @@
   <DataTemplate x:Key="PackageButtonDataTemplate">
     <CheckBox Style="{StaticResource CheckBoxButtonStyle}"
               ContentTemplate="{StaticResource PackageDataTemplate}"
-              Content="{Binding Package}"
+              Content="{Binding Item}"
               IsChecked="{Binding Path=Selected, Mode=TwoWay}"/>
   </DataTemplate>
 

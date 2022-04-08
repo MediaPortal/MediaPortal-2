@@ -47,12 +47,12 @@
                 Visibility="{Binding ElementName=PackageList, Path=SelectedItem, Converter={StaticResource ReferenceToVisibilityConverter}}">
 
       <TextBlock Style="{StaticResource ContentTextBlockStyle}" FontSize="18" HorizontalAlignment="Center"
-                 Text="{me:Localize StringIdBinding={Binding ElementName=PackageList, Path=SelectedItem.Package.LocalizedDescription}}"/>
+                 Text="{me:Localize StringIdBinding={Binding ElementName=PackageList, Path=SelectedItem.Item.LocalizedDescription}}"/>
 
       <TextBlock Style="{StaticResource ContentTextBlockStyle}" FontSize="14" HorizontalAlignment="Center">
         <TextBlock.Text>
           <me:Localize StringId="[InstallCustomPageView.RequiredHardDriveSpace]"
-                       ParametersBinding="{Binding ElementName=PackageList, Path=SelectedItem.Package.InstalledSize, Converter={StaticResource FileSizeUnitConverter}}"/>
+                       ParametersBinding="{Binding ElementName=PackageList, Path=SelectedItem.Item.InstalledSize, Converter={StaticResource FileSizeUnitConverter}}"/>
         </TextBlock.Text>
       </TextBlock>
 

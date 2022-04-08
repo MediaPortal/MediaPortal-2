@@ -53,7 +53,7 @@ namespace MP2BootstrapperApp.ViewModels
 
           SelectableFeatureViewModel featureItem = new SelectableFeatureViewModel
           {
-            Package = CreatePackageFeature(parentPackage, feature),
+            Item = CreatePackageFeature(parentPackage, feature),
             Selected = step.SelectedFeatures.Contains(feature)
           };
           featureItem.PropertyChanged += ItemPropertyChanged;
@@ -66,7 +66,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         SelectablePackageViewModel packageItem = new SelectablePackageViewModel
         {
-          Package = CreatePackage(package),
+          Item = CreatePackage(package),
           Selected = step.SelectedPackages.Contains(package)
         };
         packageItem.PropertyChanged += ItemPropertyChanged;
@@ -80,7 +80,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         if (sender is SelectableFeatureViewModel featureViewModel)
         {
-          IBundlePackageFeature feature = _step.AvailableFeatures.FirstOrDefault(f => f.Id == featureViewModel.Package.Id);
+          IBundlePackageFeature feature = _step.AvailableFeatures.FirstOrDefault(f => f.Id == featureViewModel.Item.Id);
           if (feature != null)
           {
             UpdateSelectedItems(feature, _step.SelectedFeatures, featureViewModel.Selected);
@@ -88,7 +88,7 @@ namespace MP2BootstrapperApp.ViewModels
         }
         else if (sender is SelectablePackageViewModel packageViewModel)
         {
-          IBundlePackage package = _step.AvailablePackages.FirstOrDefault(p => p.Id == packageViewModel.Package.Id);
+          IBundlePackage package = _step.AvailablePackages.FirstOrDefault(p => p.Id == packageViewModel.Item.Id);
           if (package != null)
           {
             UpdateSelectedItems(package, _step.SelectedPackages, packageViewModel.Selected);
