@@ -108,11 +108,13 @@
     <Compile Include="Models\Package.cs" />
     <Compile Include="Utils\PathUtils.cs" />
     <Compile Include="ViewModels\AbstractPackageSelectionViewModel.cs" />
+    <Compile Include="ViewModels\AbstractSelectionViewModel.cs" />
     <Compile Include="ViewModels\InstallCustomPropertiesPageViewModel.cs" />
     <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
     <Compile Include="ViewModels\DowngradePageViewModel.cs" />
     <Compile Include="ViewModels\InstallCustomPageViewModel.cs" />
+    <Compile Include="ViewModels\ISelectable.cs" />
     <Compile Include="ViewModels\PageViewModelBase.cs" />
     <Compile Include="ViewModels\IPageViewModel.cs" />
     <Compile Include="ViewModels\ModifyFinishPageViewModel.cs" />

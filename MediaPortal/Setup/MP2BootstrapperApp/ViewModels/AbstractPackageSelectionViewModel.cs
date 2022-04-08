@@ -25,100 +25,67 @@
 using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.WizardSteps;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
-using System.ComponentModel;
 using System.Linq;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public abstract class AbstractPackageSelectionViewModel<T> : InstallWizardPageViewModelBase<T> where T : AbstractPackageSelectionStep
+  public abstract class AbstractPackageSelectionViewModel<T> : AbstractSelectionViewModel<T, SelectablePackageViewModel> where T : AbstractPackageSelectionStep
   {
     public AbstractPackageSelectionViewModel(T step)
       : base(step)
     {
-      Items = new ObservableCollection<SelectablePackageViewModel>();
-      AddItems(step);
     }
 
-    public ObservableCollection<SelectablePackageViewModel> Items { get; }
-
-    protected void AddItems(AbstractPackageSelectionStep step)
+    protected override IEnumerable<SelectablePackageViewModel> GetItems()
     {
+      List<SelectablePackageViewModel> items = new List<SelectablePackageViewModel>();
       // Create list items for each feature
-      foreach (IBundlePackageFeature feature in step.AvailableFeatures)
+      foreach (IBundlePackageFeature feature in _step.AvailableFeatures)
       {
-        IBundlePackage parentPackage = step.BootstrapperApplicationModel.BundlePackages.FirstOrDefault(p => p.Id == feature.Package);
+        IBundlePackage parentPackage = _step.BootstrapperApplicationModel.BundlePackages.FirstOrDefault(p => p.Id == feature.Package);
         if (parentPackage != null)
         {
 
           SelectableFeatureViewModel featureItem = new SelectableFeatureViewModel
           {
             Item = CreatePackageFeature(parentPackage, feature),
-            Selected = step.SelectedFeatures.Contains(feature)
+            Selected = _step.SelectedFeatures.Contains(feature)
           };
-          featureItem.PropertyChanged += ItemPropertyChanged;
-          Items.Add(featureItem);
+          items.Add(featureItem);
         }
       }
 
       // Create list items for each package
-      foreach (IBundlePackage package in step.AvailablePackages)
+      foreach (IBundlePackage package in _step.AvailablePackages)
       {
         SelectablePackageViewModel packageItem = new SelectablePackageViewModel
         {
           Item = CreatePackage(package),
-          Selected = step.SelectedPackages.Contains(package)
+          Selected = _step.SelectedPackages.Contains(package)
         };
-        packageItem.PropertyChanged += ItemPropertyChanged;
-        Items.Add(packageItem);
+        items.Add(packageItem);
       }
+
+      return items;
     }
 
-    private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+    protected override void OnItemSelectedChanged(SelectablePackageViewModel item, bool selected)
     {
-      if (e.PropertyName == nameof(SelectablePackageViewModel.Selected))
+      if (item is SelectableFeatureViewModel featureViewModel)
       {
-        if (sender is SelectableFeatureViewModel featureViewModel)
-        {
-          IBundlePackageFeature feature = _step.AvailableFeatures.FirstOrDefault(f => f.Id == featureViewModel.Item.Id);
-          if (feature != null)
-          {
-            UpdateSelectedItems(feature, _step.SelectedFeatures, featureViewModel.Selected);
-          }
-        }
-        else if (sender is SelectablePackageViewModel packageViewModel)
-        {
-          IBundlePackage package = _step.AvailablePackages.FirstOrDefault(p => p.Id == packageViewModel.Item.Id);
-          if (package != null)
-          {
-            UpdateSelectedItems(package, _step.SelectedPackages, packageViewModel.Selected);
-          }
-        }
-
-        RaiseButtonStateChanged();
-      }
-    }
-
-    /// <summary>
-    /// Adds or removes an item from a collection of selected items depending on whether the item is selected. 
-    /// </summary>
-    /// <typeparam name="T1"></typeparam>
-    /// <param name="item">The item that's selected state has changed.</param>
-    /// <param name="selectedItems">The collection of selected items to update.</param>
-    /// <param name="selected">Whether the item is selected.</param>
-    protected void UpdateSelectedItems<T1>(T1 item, ICollection<T1> selectedItems, bool selected)
-    {
-      if (selected)
-      {
-        if (!selectedItems.Contains(item))
-        {
-          selectedItems.Add(item);
-        }
+        IBundlePackageFeature feature = _step.AvailableFeatures.FirstOrDefault(f => f.Id == featureViewModel.Item.Id);
+        if (feature != null)
+          UpdateSelectedItems(feature, _step.SelectedFeatures, selected);
       }
       else
       {
-        selectedItems.Remove(item);
+        IBundlePackage package = _step.AvailablePackages.FirstOrDefault(p => p.Id == item.Item.Id);
+        if (package != null)
+          UpdateSelectedItems(package, _step.SelectedPackages, selected);
       }
+
+      // Updates the Next button state
+      base.OnItemSelectedChanged(item, selected);
     }
   }
 }
