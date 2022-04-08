@@ -59,9 +59,9 @@ namespace MP2BootstrapperApp.Models
     DetectionState DetectionState { get; }
 
     /// <summary>
-    /// The detected install state of the main MP2 package.
+    /// The main MP2 package.
     /// </summary>
-    PackageState MainPackageState { get; }
+    IBundleMsiPackage MainPackage { get; }
 
     /// <summary>
     /// Gets whether installing this bundle would be a downgrade of an existing installation.<br/>

@@ -27,7 +27,6 @@ using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.Models;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
@@ -39,7 +38,7 @@ namespace MP2BootstrapperApp.WizardSteps
     public AbstractPackageSelectionStep(IBootstrapperApplicationModel bootstrapperApplicationModel)
       : base(bootstrapperApplicationModel)
     {
-      AvailableFeatures = GetSelectableFeatures(bootstrapperApplicationModel.BundlePackages);
+      AvailableFeatures = GetSelectableFeatures();
       AvailablePackages = GetSelectablePackages(bootstrapperApplicationModel.BundlePackages);
       SelectedFeatures = new List<IBundlePackageFeature>();
       SelectedPackages = new List<IBundlePackage>();
@@ -77,19 +76,12 @@ namespace MP2BootstrapperApp.WizardSteps
       return true;
     }
 
-    protected ICollection<IBundlePackageFeature> GetSelectableFeatures(IEnumerable<IBundlePackage> bundlePackages)
+    protected ICollection<IBundlePackageFeature> GetSelectableFeatures()
     {
       ICollection<IBundlePackageFeature> selectableFeatures = new List<IBundlePackageFeature>();
 
-      // Only features in the main MP2 package should be selectable
-      IBundleMsiPackage mainPackage = bundlePackages.FirstOrDefault(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
-      if (mainPackage == null)
-      {
-        return selectableFeatures;
-      }
-
       // Get the top-level optional features, namely Client, Server, ServiceMonitor and Log Collector
-      foreach (IBundlePackageFeature feature in mainPackage.Features)
+      foreach (IBundlePackageFeature feature in _bootstrapperApplicationModel.MainPackage.Features)
       {
         if (!feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) && feature.Parent == FeatureId.MediaPortal_2)
           selectableFeatures.Add(feature);

@@ -25,7 +25,6 @@
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
-using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -43,8 +42,7 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       PlanContext planContext = new PlanContext();
       // Get the currently installed features.
-      IBundleMsiPackage featurePackage = _bootstrapperApplicationModel.BundlePackages.FirstOrDefault(p => p.PackageId == planContext.FeaturePackageId) as IBundleMsiPackage;
-      IEnumerable<string> installedFeatures = featurePackage?.Features.Where(f => !f.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) && f.CurrentFeatureState == FeatureState.Local).Select(f => f.Id);
+      IEnumerable<string> installedFeatures = _bootstrapperApplicationModel.MainPackage.Features.Where(f => !f.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) && f.CurrentFeatureState == FeatureState.Local).Select(f => f.Id);
 
       RepairPlan plan = new RepairPlan(installedFeatures, planContext);
 

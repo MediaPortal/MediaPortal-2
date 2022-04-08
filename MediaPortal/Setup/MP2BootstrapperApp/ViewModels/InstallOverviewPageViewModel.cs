@@ -51,19 +51,19 @@ namespace MP2BootstrapperApp.ViewModels
     {
       foreach (IBundlePackage bundlePackage in bundlePackages)
       {
-        RequestState? requestState = plan.GetRequestedInstallState(bundlePackage);
-        if (bundlePackage.PackageId == PackageId.MediaPortal2 && bundlePackage is IBundleMsiPackage msiPackage)
+        // The main package is added as individual features below, so don't add it here
+        if (bundlePackage.PackageId != _step.BootstrapperApplicationModel.MainPackage.PackageId)
         {
-          foreach (IBundlePackageFeature feature in msiPackage.Features)
-          {
-            if (!feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent))
-              Packages.Add(CreatePackageFeature(bundlePackage, feature, plan.GetRequestedInstallState(feature)));
-          }
-        }
-        else
-        {
+          RequestState? requestState = plan.GetRequestedInstallState(bundlePackage);
           Packages.Add(CreatePackage(bundlePackage, requestState));
         }
+      }
+
+      foreach (IBundlePackageFeature feature in _step.BootstrapperApplicationModel.MainPackage.Features)
+      {
+        // Only add features that are direct children of the main feature
+        if (!feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) && feature.Parent == FeatureId.MediaPortal_2)
+          Packages.Add(CreatePackageFeature(_step.BootstrapperApplicationModel.MainPackage, feature, plan.GetRequestedInstallState(feature)));
       }
     }
   }

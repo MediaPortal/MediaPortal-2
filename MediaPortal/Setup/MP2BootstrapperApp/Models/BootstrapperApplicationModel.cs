@@ -68,7 +68,7 @@ namespace MP2BootstrapperApp.Models
 
     public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 
-    public PackageState MainPackageState { get; set; } = PackageState.Unknown;
+    public IBundleMsiPackage MainPackage { get; protected set; }
 
     public bool IsDowngrade { get; set; }
 
@@ -147,13 +147,9 @@ namespace MP2BootstrapperApp.Models
         if (bundlePackage != null)
         {
           bundlePackage.CurrentInstallState = detectPackageCompleteEventArgs.State;
-          if (bundlePackage.PackageId == PackageId.MediaPortal2)
-          {
-            MainPackageState = bundlePackage.CurrentInstallState;
-            // Installation will fail if trying to install an obsolete version, catch this early and mark this bundle as a downgrade
-            if (bundlePackage.CurrentInstallState == PackageState.Obsolete)
-              IsDowngrade = true;
-          }
+          // Installation will fail if trying to install an obsolete version, catch this early and mark this bundle as a downgrade
+          if (bundlePackage.PackageId == MainPackage.PackageId && bundlePackage.CurrentInstallState == PackageState.Obsolete)
+            IsDowngrade = true;
 
           // Evaluate any install condition, defaulting to true if no condition has been specified
           bundlePackage.EvaluatedInstallCondition = !string.IsNullOrEmpty(bundlePackage.InstallCondition) ? BootstrapperApplication.EvaluateCondition(bundlePackage.InstallCondition) : true;
@@ -331,6 +327,12 @@ namespace MP2BootstrapperApp.Models
         BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
         packages = bundlePackageFactory.CreatePackagesFromXmlString(xml);
       }
+
+      IBundleMsiPackage mainPackage = packages.FirstOrDefault(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
+      if (mainPackage == null)
+        throw new InvalidOperationException($"BootstrapperApplicationData.xml does not contain the main installation package with id {PackageId.MediaPortal2}");
+
+      MainPackage = mainPackage;
 
       BundlePackages = packages != null
         ? new ReadOnlyCollection<IBundlePackage>(packages)
