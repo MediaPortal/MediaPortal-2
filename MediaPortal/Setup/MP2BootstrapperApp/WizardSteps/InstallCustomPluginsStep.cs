@@ -94,8 +94,13 @@ namespace MP2BootstrapperApp.WizardSteps
           _installPlan.PlanFeature(featureId);
 
         pluginsPlanned.Add(plugin.Id);
-      }      
-      return new InstallCustomPropertiesStep(_bootstrapperApplicationModel, _installPlan);
+      }
+
+      // Changing custom properties is not supported during a modify installation as already installed features won't respect any property changes
+      if (_installPlan.PlannedAction == LaunchAction.Modify)
+        return new InstallOverviewStep(_bootstrapperApplicationModel, _installPlan);
+      else
+        return new InstallCustomPropertiesStep(_bootstrapperApplicationModel, _installPlan);
     }
   }
 }
