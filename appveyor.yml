@@ -25,7 +25,8 @@ build_script:
     
     @echo | call MSBUILD_Create_Release_Full_Installer.bat
     
-    7z a ..\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip ..\Setup\MP2-Setup\Bin\Release\en-us\MP2-Setup.msi
+    cd ..\Bin
+    7z a MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip .\MP2-Setup\Release\en-us\MP2-Setup.exe .\MP2-Setup\Release\en-us\MP2-Setup-Logging.bat
     
 artifacts:
 - path: MediaPortal\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip
