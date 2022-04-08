@@ -22,6 +22,7 @@
 
 #endregion
 
+using MP2BootstrapperApp.ViewModels.ListItems;
 using MP2BootstrapperApp.WizardSteps;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;

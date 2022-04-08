@@ -23,22 +23,23 @@
 #endregion
 
 using MP2BootstrapperApp.BundlePackages;
+using MP2BootstrapperApp.ViewModels.ListItems;
 using MP2BootstrapperApp.WizardSteps;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public abstract class AbstractPackageSelectionViewModel<T> : AbstractSelectionViewModel<T, SelectablePackageViewModel> where T : AbstractPackageSelectionStep
+  public abstract class AbstractPackageSelectionViewModel<T> : AbstractSelectionViewModel<T, PackageListItem> where T : AbstractPackageSelectionStep
   {
     public AbstractPackageSelectionViewModel(T step)
       : base(step)
     {
     }
 
-    protected override IEnumerable<SelectablePackageViewModel> GetItems()
+    protected override IEnumerable<PackageListItem> GetItems()
     {
-      List<SelectablePackageViewModel> items = new List<SelectablePackageViewModel>();
+      List<PackageListItem> items = new List<PackageListItem>();
       // Create list items for each feature
       foreach (IBundlePackageFeature feature in _step.AvailableFeatures)
       {
@@ -46,7 +47,7 @@ namespace MP2BootstrapperApp.ViewModels
         if (parentPackage != null)
         {
 
-          SelectableFeatureViewModel featureItem = new SelectableFeatureViewModel
+          FeatureListItem featureItem = new FeatureListItem
           {
             Item = CreatePackageFeature(parentPackage, feature),
             Selected = _step.SelectedFeatures.Contains(feature)
@@ -58,7 +59,7 @@ namespace MP2BootstrapperApp.ViewModels
       // Create list items for each package
       foreach (IBundlePackage package in _step.AvailablePackages)
       {
-        SelectablePackageViewModel packageItem = new SelectablePackageViewModel
+        PackageListItem packageItem = new PackageListItem
         {
           Item = CreatePackage(package),
           Selected = _step.SelectedPackages.Contains(package)
@@ -69,9 +70,9 @@ namespace MP2BootstrapperApp.ViewModels
       return items;
     }
 
-    protected override void OnItemSelectedChanged(SelectablePackageViewModel item, bool selected)
+    protected override void OnItemSelectedChanged(PackageListItem item, bool selected)
     {
-      if (item is SelectableFeatureViewModel featureViewModel)
+      if (item is FeatureListItem featureViewModel)
       {
         IBundlePackageFeature feature = _step.AvailableFeatures.FirstOrDefault(f => f.Id == featureViewModel.Item.Id);
         if (feature != null)

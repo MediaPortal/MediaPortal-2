@@ -22,24 +22,14 @@
 
 #endregion
 
-using System;
+using MP2BootstrapperApp.Models;
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp.ViewModels.ListItems
 {
-  public class SelectedChangedEventArgs : EventArgs
+  /// <summary>
+  /// Bindable wrapper for a package that can be selected.
+  /// </summary>
+  public class PackageListItem : SelectableListItem<Package>
   {
-    public SelectedChangedEventArgs(bool selected)
-    {
-      Selected = selected;
-    }
-
-    public bool Selected { get; }
-  }
-
-  public interface ISelectable
-  {
-    bool Selected { get; set; }
-
-    event EventHandler<SelectedChangedEventArgs> SelectedChanged;
   }
 }

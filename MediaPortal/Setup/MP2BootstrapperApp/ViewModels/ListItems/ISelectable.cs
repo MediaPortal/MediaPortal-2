@@ -22,43 +22,27 @@
 
 #endregion
 
-using Prism.Mvvm;
 using System;
-using System.ComponentModel;
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp.ViewModels.ListItems
 {
-  /// <summary>
-  /// Bindable wrapper for an item that can be selected.
-  /// </summary>
-  public class SelectableItemViewModel<T> : BindableBase, ISelectable
+  public class SelectedChangedEventArgs : EventArgs
   {
-    protected bool _selected;
-
-    public SelectableItemViewModel()
+    public SelectedChangedEventArgs(bool selected)
     {
-      PropertyChanged += ItemPropertyChanged;
+      Selected = selected;
     }
 
-    private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
-    {
-      if (e.PropertyName == nameof(Selected))
-        OnSelectedChanged();
-    }
+    public bool Selected { get; }
+  }
 
-    public bool Selected
-    {
-      get { return _selected; }
-      set { SetProperty(ref _selected, value); }
-    }
+  /// <summary>
+  /// Interface for a class that can be selected and notifies when its selection changes.
+  /// </summary>
+  public interface ISelectable
+  {
+    bool Selected { get; set; }
 
-    public T Item { get; set; }
-
-    public event EventHandler<SelectedChangedEventArgs> SelectedChanged;
-
-    protected virtual void OnSelectedChanged()
-    {
-      SelectedChanged?.Invoke(this, new SelectedChangedEventArgs(Selected));
-    }
+    event EventHandler<SelectedChangedEventArgs> SelectedChanged;
   }
 }

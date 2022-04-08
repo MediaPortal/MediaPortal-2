@@ -22,14 +22,12 @@
 
 #endregion
 
-using MP2BootstrapperApp.Models;
-
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp.ViewModels.ListItems
 {
   /// <summary>
-  /// Bindable wrapper for a package that can be selected.
+  /// Bindable wrapper for a package feature that can be selected.
   /// </summary>
-  public class SelectablePackageViewModel : SelectableItemViewModel<Package>
+  public class FeatureListItem : PackageListItem
   {
   }
 }

@@ -24,13 +24,14 @@
 
 using MP2BootstrapperApp.BundlePackages.Plugins;
 using MP2BootstrapperApp.Models;
+using MP2BootstrapperApp.ViewModels.ListItems;
 using MP2BootstrapperApp.WizardSteps;
 using System.Collections.Generic;
 using System.Linq;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallCustomPluginsPageViewModel : AbstractSelectionViewModel<InstallCustomPluginsStep, SelectablePluginViewModel>
+  public class InstallCustomPluginsPageViewModel : AbstractSelectionViewModel<InstallCustomPluginsStep, PluginListItem>
   {
     public InstallCustomPluginsPageViewModel(InstallCustomPluginsStep step)
       : base(step)
@@ -39,10 +40,10 @@ namespace MP2BootstrapperApp.ViewModels
       SubHeader = "[InstallCustomPluginsPageView.SubHeader]";
     }
 
-    protected override IEnumerable<SelectablePluginViewModel> GetItems()
+    protected override IEnumerable<PluginListItem> GetItems()
     {
       return _step.AvailablePlugins.Select(p =>
-      new SelectablePluginViewModel
+      new PluginListItem
       {
         Item = new PluginModel
         {
@@ -55,14 +56,14 @@ namespace MP2BootstrapperApp.ViewModels
       });
     }
 
-    protected override void OnItemSelectedChanged(SelectablePluginViewModel item, bool selected)
+    protected override void OnItemSelectedChanged(PluginListItem item, bool selected)
     {
       PluginBase plugin = _step.AvailablePlugins.FirstOrDefault(p => p.Id == item.Item.Id);
       if (plugin != null)
       {
         // If a new plugin has been selected, unselect any incompatible plugins
         if (selected)
-          foreach (SelectablePluginViewModel incompatiblePlugin in Items.Where(p => p.Selected && plugin.ConflictsWith(p.Item.Id)))
+          foreach (PluginListItem incompatiblePlugin in Items.Where(p => p.Selected && plugin.ConflictsWith(p.Item.Id)))
             incompatiblePlugin.Selected = false;
 
         UpdateSelectedItems(plugin, _step.SelectedPlugins, selected);

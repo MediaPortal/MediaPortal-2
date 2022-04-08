@@ -22,12 +22,43 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.ViewModels
+using Prism.Mvvm;
+using System;
+using System.ComponentModel;
+
+namespace MP2BootstrapperApp.ViewModels.ListItems
 {
   /// <summary>
-  /// Bindable wrapper for a package feature that can be selected.
+  /// Bindable wrapper for an item that can be selected.
   /// </summary>
-  public class SelectableFeatureViewModel : SelectablePackageViewModel
+  public class SelectableListItem<T> : BindableBase, ISelectable
   {
+    protected bool _selected;
+
+    public SelectableListItem()
+    {
+      PropertyChanged += ItemPropertyChanged;
+    }
+
+    private void ItemPropertyChanged(object sender, PropertyChangedEventArgs e)
+    {
+      if (e.PropertyName == nameof(Selected))
+        OnSelectedChanged();
+    }
+
+    public bool Selected
+    {
+      get { return _selected; }
+      set { SetProperty(ref _selected, value); }
+    }
+
+    public T Item { get; set; }
+
+    public event EventHandler<SelectedChangedEventArgs> SelectedChanged;
+
+    protected virtual void OnSelectedChanged()
+    {
+      SelectedChanged?.Invoke(this, new SelectedChangedEventArgs(Selected));
+    }
   }
 }
