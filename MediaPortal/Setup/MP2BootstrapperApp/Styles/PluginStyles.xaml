@@ -1,0 +1,29 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <ResourceDictionary.MergedDictionaries>
+    <ResourceDictionary Source="../Styles/ButtonStyles.xaml" />
+  </ResourceDictionary.MergedDictionaries>
+
+
+  <!-- Template for displaying a plugin -->
+  <DataTemplate x:Key="PluginDataTemplate">
+    <Grid Height="90" Width="140" Margin="5" Background="#20FFFFFF">
+
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <!--Icon-->
+      <Image Grid.Row="0" Source="{Binding ImagePath}" />
+
+    </Grid>
+  </DataTemplate>
+
+  <DataTemplate x:Key="PluginButtonDataTemplate">
+    <CheckBox Style="{StaticResource CheckBoxButtonStyle}"
+              ContentTemplate="{StaticResource PluginDataTemplate}"
+              Content="{Binding Item}"
+              IsChecked="{Binding Path=Selected, Mode=TwoWay}"/>
+  </DataTemplate>
+
+</ResourceDictionary>

@@ -9,6 +9,10 @@
   <string name="FeatureDescription.Server">The server part of MediaPortal 2. Provides the MediaLibrary and other services.</string>
   <string name="FeatureDescription.ServiceMonitor">The GUI for the server part of MediaPortal 2. Provides monitoring and configuration for MP2-Server.</string>
   <string name="FeatureDescription.LogCollector">LogCollector allows you to easily collect all MediaPortal 2 logfiles for creating bug reports.</string>
+
+  <!-- Plugin descriptions -->
+  <string name="PluginDescription.TvService3">Watch and record live TV using TV Service 3.</string>
+  <string name="PluginDescription.TvService35">Watch and record live TV using TV Service 3.5.</string>
   
   <!-- General -->
   <string name="General.FinishButton">Finish</string>
@@ -48,6 +52,10 @@
   <string name="InstallCustomPageView.Header">Custom installation</string>
   <string name="InstallCustomPageView.SubHeader">Select the features to install</string>
   <string name="InstallCustomPageView.RequiredHardDriveSpace">Requires {0} on your hard drive.</string>
+  
+  <!-- InstallCustomPluginsPageView -->
+  <string name="InstallCustomPluginsPageView.Header">Custom installation</string>
+  <string name="InstallCustomPluginsPageView.SubHeader">Select the additional plugins to install</string>
 
   <!-- InstallCustomPropertiesPageView -->
   <string name="InstallCustomPropertiesPageView.Header">Custom installation</string>

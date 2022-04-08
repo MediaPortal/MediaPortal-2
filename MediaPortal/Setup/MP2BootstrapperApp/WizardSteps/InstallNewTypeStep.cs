@@ -52,13 +52,13 @@ namespace MP2BootstrapperApp.WizardSteps
       switch (InstallType)
       {
         case InstallType.ClientServer:
-          features = new [] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
+          features = new [] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector, FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider, FeatureId.SlimTvService3 };
           break;
         case InstallType.Server:
-          features = new [] { FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
+          features = new [] { FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector, FeatureId.SlimTvService3 };
           break;
         case InstallType.Client:
-          features = new [] { FeatureId.Client, FeatureId.ServiceMonitor, FeatureId.LogCollector };
+          features = new [] { FeatureId.Client, FeatureId.ServiceMonitor, FeatureId.LogCollector, FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider };
           break;
         //case InstallType.Custom:
         default:

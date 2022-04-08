@@ -47,7 +47,11 @@ namespace MP2BootstrapperApp.WizardSteps
       IEnumerable<PackageId> packages = SelectedPackages.Select(p => p.PackageId);
 
       InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
-      return new InstallCustomPropertiesStep(_bootstrapperApplicationModel, plan);
+
+      if (InstallCustomPluginsStep.GetAvailablePlugins(plan, _bootstrapperApplicationModel.MainPackage.Features).Any())
+        return new InstallCustomPluginsStep(_bootstrapperApplicationModel, plan);
+      else
+        return new InstallCustomPropertiesStep(_bootstrapperApplicationModel, plan);
     }
 
     protected void SetSelectedPackages()

@@ -72,6 +72,7 @@
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
     <Compile Include="BootstrapperWrapper\IVariables.cs" />
     <Compile Include="BootstrapperWrapper\Variables.cs" />
+    <Compile Include="BundlePackages\Plugins\PluginBase.cs" />
     <Compile Include="BundlePackages\FeatureId.cs" />
     <Compile Include="Converters\ReferenceToVisibilityConverter.cs" />
     <Compile Include="Converters\FileSizeUnitConverter .cs" />
@@ -85,6 +86,9 @@
     <Compile Include="ActionPlans\InstallPlan.cs" />
     <Compile Include="ActionPlans\PlanContext.cs" />
     <Compile Include="ActionPlans\RepairPlan.cs" />
+    <Compile Include="BundlePackages\Plugins\PluginId.cs" />
+    <Compile Include="BundlePackages\Plugins\TvService35.cs" />
+    <Compile Include="BundlePackages\Plugins\TvService3.cs" />
     <Compile Include="Models\InstallState.cs" />
     <Compile Include="Localization\StringManager.cs" />
     <Compile Include="Localization\LocalizationStrings.cs" />
@@ -105,10 +109,12 @@
     <Compile Include="BootstrapperWrapper\IDispatcher.cs" />
     <Compile Include="BootstrapperWrapper\DispatcherWrapper.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
+    <Compile Include="Models\PluginModel.cs" />
     <Compile Include="Models\Package.cs" />
     <Compile Include="Utils\PathUtils.cs" />
     <Compile Include="ViewModels\AbstractPackageSelectionViewModel.cs" />
     <Compile Include="ViewModels\AbstractSelectionViewModel.cs" />
+    <Compile Include="ViewModels\InstallCustomPluginsPageViewModel.cs" />
     <Compile Include="ViewModels\InstallCustomPropertiesPageViewModel.cs" />
     <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
@@ -120,6 +126,7 @@
     <Compile Include="ViewModels\ModifyFinishPageViewModel.cs" />
     <Compile Include="ViewModels\PropertyValidationViewModel.cs" />
     <Compile Include="ViewModels\SelectableItemViewModel.cs" />
+    <Compile Include="ViewModels\SelectablePluginViewModel.cs" />
     <Compile Include="ViewModels\UninstallFinishPageViewModel.cs" />
     <Compile Include="ViewModels\RepairFinishPageViewModel.cs" />
     <Compile Include="ViewModels\InstallInitializingPageViewModel.cs" />
@@ -141,6 +148,9 @@
     </Compile>
     <Compile Include="Views\InstallCancelledPageView.xaml.cs">
       <DependentUpon>InstallCancelledPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallCustomPluginsPageView.xaml.cs">
+      <DependentUpon>InstallCustomPluginsPageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\InstallCustomPropertiesPageView.xaml.cs">
       <DependentUpon>InstallCustomPropertiesPageView.xaml</DependentUpon>
@@ -173,6 +183,7 @@
     <Compile Include="WizardSteps\InstallationInProgressStep.cs" />
     <Compile Include="WizardSteps\AbstractPackageSelectionStep.cs" />
     <Compile Include="WizardSteps\InstallCustomPropertiesStep.cs" />
+    <Compile Include="WizardSteps\InstallCustomPluginsStep.cs" />
     <Compile Include="WizardSteps\InstallExistInstallStep.cs" />
     <Compile Include="WizardSteps\InstallErrorStep.cs" />
     <Compile Include="WizardSteps\InstallCancelledStep.cs" />
@@ -237,6 +248,10 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>
+    <Page Include="Styles\PluginStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
     <Page Include="Styles\PackageStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -266,6 +281,10 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\InstallCancelledPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallCustomPluginsPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -415,6 +434,7 @@
   <ItemGroup>
     <Resource Include="Resources\path.png" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
