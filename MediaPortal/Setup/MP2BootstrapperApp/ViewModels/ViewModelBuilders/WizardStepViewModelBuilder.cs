@@ -28,7 +28,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 
-namespace MP2BootstrapperApp.ViewModels
+namespace MP2BootstrapperApp.ViewModels.ViewModelBuilders
 {
   /// <summary>
   /// Uses reflection to determine the appropriate view model to use for a given <see cref="IStep"/>.

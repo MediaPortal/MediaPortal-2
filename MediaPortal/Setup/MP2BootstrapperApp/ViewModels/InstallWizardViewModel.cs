@@ -26,6 +26,7 @@ using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.Models;
+using MP2BootstrapperApp.ViewModels.ViewModelBuilders;
 using MP2BootstrapperApp.WizardSteps;
 using Prism.Commands;
 using Prism.Mvvm;

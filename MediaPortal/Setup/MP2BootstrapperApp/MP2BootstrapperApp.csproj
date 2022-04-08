@@ -136,7 +136,7 @@
     <Compile Include="ViewModels\ListItems\FeatureListItem.cs" />
     <Compile Include="ViewModels\ListItems\PackageListItem.cs" />
     <Compile Include="ViewModels\UninstallPageViewModel.cs" />
-    <Compile Include="ViewModels\WizardStepViewModelBuilder.cs" />
+    <Compile Include="ViewModels\ViewModelBuilders\WizardStepViewModelBuilder.cs" />
     <Compile Include="Views\InstallCustomPageView.xaml.cs">
       <DependentUpon>InstallCustomPageView.xaml</DependentUpon>
     </Compile>
