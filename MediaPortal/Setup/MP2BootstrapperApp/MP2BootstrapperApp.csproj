@@ -109,6 +109,7 @@
     <Compile Include="BootstrapperWrapper\IDispatcher.cs" />
     <Compile Include="BootstrapperWrapper\DispatcherWrapper.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
+    <Compile Include="Models\PackageExtensions.cs" />
     <Compile Include="Models\PluginModel.cs" />
     <Compile Include="Models\Package.cs" />
     <Compile Include="Utils\PathUtils.cs" />

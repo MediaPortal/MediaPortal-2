@@ -22,11 +22,7 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.WizardSteps;
-using System;
 
 namespace MP2BootstrapperApp.ViewModels
 {
@@ -37,56 +33,6 @@ namespace MP2BootstrapperApp.ViewModels
     public InstallWizardPageViewModelBase(T step)
     {
       _step = step;
-    }
-
-    protected Package CreatePackage(IBundlePackage bundlePackage, RequestState? requestState = null)
-    {
-      return new Package
-      {
-        BundleVersion = bundlePackage.Version,
-        InstalledVersion = bundlePackage.InstalledVersion ?? new Version(),
-        ImagePath = @"..\resources\Packages\" + bundlePackage.PackageId + ".png",
-        Id = bundlePackage.Id,
-        DisplayName = bundlePackage.DisplayName,
-        Description = bundlePackage.Description,
-        LocalizedDescription = $"[PackageDescription.{bundlePackage.Id}]",
-        InstalledSize = bundlePackage.InstalledSize,
-        PackageState = bundlePackage.CurrentInstallState,
-        RequestState = requestState ?? RequestState.None
-      };
-    }
-
-    protected Package CreatePackageFeature(IBundlePackage bundlePackage, IBundlePackageFeature feature, FeatureState? featureState = null)
-    {
-      // Convert the FeatureState into a corresponding RequestState for display purposes.
-      // There isn't a one-to-one mapping because feature states always have to be explicitly set, in our case either to Present or Absent,
-      // so there's no equivalent of RequestState.None which is used to indicate that the state of a package won't change. Instead we have
-      // to determine this depending on whether a current/previous version of the feature is currently installed.
-      RequestState requestState;
-      if (!featureState.HasValue)
-        requestState = RequestState.None;
-      // For features requested absent, if no current/previous version is installed then nothing will change, so use RequestState.None,
-      // else if the feature is installed then it will be removed, so use RequestState.Absent.
-      else if (featureState == FeatureState.Absent)
-        requestState = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? RequestState.Absent : RequestState.None;
-      // For features requested present, if the current version is already installed then nothing will change, so use RequestState.None,
-      // else the feature will be installed/updated, so use RequestState.Present
-      else
-        requestState = feature.CurrentFeatureState == FeatureState.Local ? RequestState.None : RequestState.Present;
-
-      return new Package
-      {
-        BundleVersion = bundlePackage.Version,
-        InstalledVersion = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? bundlePackage.InstalledVersion : new Version(),
-        ImagePath = @"..\resources\Features\" + feature.Id + ".png",
-        Id = feature.Id,
-        DisplayName = feature.Title,
-        Description = feature.Description,
-        LocalizedDescription = $"[FeatureDescription.{feature.Id}]",
-        InstalledSize = feature.InstalledSize,
-        PackageState = feature.CurrentFeatureState == FeatureState.Local ? PackageState.Present : PackageState.Absent,
-        RequestState = requestState
-      };
     }
   }
 }

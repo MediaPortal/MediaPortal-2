@@ -23,6 +23,7 @@
 #endregion
 
 using MP2BootstrapperApp.BundlePackages;
+using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels.ListItems;
 using MP2BootstrapperApp.WizardSteps;
 using System.Collections.Generic;
@@ -49,7 +50,7 @@ namespace MP2BootstrapperApp.ViewModels
 
           FeatureListItem featureItem = new FeatureListItem
           {
-            Item = CreatePackageFeature(parentPackage, feature),
+            Item = feature.CreateFeatureModel(parentPackage.Version, parentPackage.InstalledVersion),
             Selected = _step.SelectedFeatures.Contains(feature)
           };
           items.Add(featureItem);
@@ -61,7 +62,7 @@ namespace MP2BootstrapperApp.ViewModels
       {
         PackageListItem packageItem = new PackageListItem
         {
-          Item = CreatePackage(package),
+          Item = package.CreatePackageModel(),
           Selected = _step.SelectedPackages.Contains(package)
         };
         items.Add(packageItem);

@@ -168,7 +168,7 @@ namespace MP2BootstrapperApp.ViewModels
     {
       if (CurrentPackage?.Id != bundlePackage?.Id)
       {
-        CurrentPackage = bundlePackage != null ? CreatePackage(bundlePackage) : null;
+        CurrentPackage = bundlePackage?.CreatePackageModel();
         return true;
       }
       return false;
