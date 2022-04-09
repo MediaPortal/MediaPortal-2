@@ -22,6 +22,7 @@
 
 #endregion
 
+using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.BundlePackages.Plugins;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels.ListItems;
@@ -42,16 +43,12 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected override IEnumerable<PluginListItem> GetItems()
     {
+      IBundleMsiPackage mainPackage = _step.BootstrapperApplicationModel.MainPackage;
+
       return _step.AvailablePlugins.Select(p =>
       new PluginListItem
       {
-        Item = new PluginModel
-        {
-          Id = p.Id,
-          DisplayName = p.Name,
-          LocalizedDescription = $"[PluginDescription.{p.Id}]",
-          ImagePath = $@"..\resources\{p.Id}.png"
-        },
+        Item = p.CreatePluginModel(_step.GetAvailableFeaturesForPlugin(p), mainPackage.Version, mainPackage.InstalledVersion),
         Selected = _step.SelectedPlugins.Contains(p)
       });
     }

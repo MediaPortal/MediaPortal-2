@@ -1,4 +1,4 @@
-#region Copyright (C) 2007-2021 Team MediaPortal
+﻿#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
     Copyright (C) 2007-2021 Team MediaPortal
@@ -22,17 +22,19 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.Models
+namespace MP2BootstrapperApp.BundlePackages.Plugins
 {
-  public class PluginModel
+  public class TvServiceClientOnly : PluginBase
   {
+    protected static readonly string[] OPTIONAL_FEATURES = new[] { FeatureId.SlimTvClient };
+    protected static readonly string[] EXCLUDED_PARENTS = new string[] { FeatureId.Server };
+    protected static readonly string[] CONFLICTING_PLUGINS = new string[] { /*PluginId.TvMosaic*/ };
 
-    public string Id { get; set; }
-
-    public string DisplayName { get; set; }
-
-    public string LocalizedDescription { get; set; }
-    
-    public string ImagePath { get; set; }
+    /// <summary>
+    /// Plugin that installs the necessary client features for using TV Server
+    /// </summary>
+    public TvServiceClientOnly()
+      : base(PluginId.TvServiceClient, "TV Service Client", FeatureId.SlimTvNativeProvider, OPTIONAL_FEATURES, EXCLUDED_PARENTS, CONFLICTING_PLUGINS)
+    { }
   }
 }

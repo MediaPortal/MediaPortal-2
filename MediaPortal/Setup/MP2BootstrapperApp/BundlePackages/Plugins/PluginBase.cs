@@ -24,6 +24,7 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -34,13 +35,15 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
   /// </summary>
   /// <remarks>
   /// A plugin may be made up of both client and server features, on a client or server only install only the client or server features respectively
-  /// should be installed, these features can be determined by calling <see cref="GetFeaturesWhereParentIsBeingInstalled"/>.
+  /// should be installed, these features can be determined by calling <see cref="GetInstallableFeatures"/>.
   /// </remarks>
   public class PluginBase
   {
     protected string _id;
     protected string _name;
-    protected IReadOnlyCollection<string> _featureIds;
+    protected string _mainPluginFeature;
+    protected IReadOnlyCollection<string> _pluginFeatures;
+    protected IReadOnlyCollection<string> _excludedParentFeatures;
     protected ISet<string> _conflictingPluginIds;
 
     /// <summary>
@@ -48,14 +51,25 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     /// </summary>
     /// <param name="id">The unique indentifier of the plugin.</param>
     /// <param name="name">The human readable name of the plugin.</param>
-    /// <param name="featureIds">Ids of the features that are included in the plugin.</param>
+    /// <param name="mainPluginFeature">Id of the main feature for this plugin, this will be used to determine the current installation state of this plugin and whether the plugin can be installed.</param>
+    /// <param name="optionalPluginFeatures">Ids of optional features that will be installed if their parent features are also being installed.</param>
+    /// <param name="excludedParentFeatures">Ids of any parent features that should not be installed to allow this plugin to be installed.</param>
     /// <param name="conflictingPluginIds">Ids of the plugins that this plugin conflicts with.</param>
-    public PluginBase(string id, string name, IEnumerable<string> featureIds, IEnumerable<string> conflictingPluginIds)
+    /// 
+    public PluginBase(string id, string name, string mainPluginFeature, IEnumerable<string> optionalPluginFeatures, IEnumerable<string> excludedParentFeatures, IEnumerable<string> conflictingPluginIds)
     {
+      if (mainPluginFeature == null)
+        throw new ArgumentNullException($"{nameof(mainPluginFeature)} cannot be null");
+
       _id = id;
       _name = name;
-      _featureIds = featureIds != null ? new HashSet<string>(featureIds) : new HashSet<string>();
+      _mainPluginFeature = mainPluginFeature;
+      _excludedParentFeatures = excludedParentFeatures != null ? new HashSet<string>(excludedParentFeatures) : new HashSet<string>();
       _conflictingPluginIds = conflictingPluginIds != null ? new HashSet<string>(conflictingPluginIds) : new HashSet<string>();
+
+      HashSet<string> pluginFeatures = optionalPluginFeatures != null ? new HashSet<string>(optionalPluginFeatures) : new HashSet<string>();
+      pluginFeatures.Add(mainPluginFeature);
+      _pluginFeatures = pluginFeatures;
     }
 
     /// <summary>
@@ -75,11 +89,27 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     }
 
     /// <summary>
-    /// The ids of the features contained in this plugin. 
+    /// The id of the main feature that is required to be installed by this plugin. 
     /// </summary>
-    public IReadOnlyCollection<string> FeatureIds
+    public string MainPluginFeature
     {
-      get { return _featureIds; }
+      get { return _mainPluginFeature; }
+    }
+
+    /// <summary>
+    /// The ids of all features that can be installed by this plugin. 
+    /// </summary>
+    public IReadOnlyCollection<string> PluginFeatures
+    {
+      get { return _pluginFeatures; }
+    }
+
+    /// <summary>
+    /// The ids of any features that should prevent this plugin being installed. 
+    /// </summary>
+    public IReadOnlyCollection<string> ExcludedParentFeatures
+    {
+      get { return _excludedParentFeatures; }
     }
 
     /// <summary>
@@ -93,12 +123,23 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     }
 
     /// <summary>
+    /// Determines whether this plugin can be installed.
+    /// </summary>
+    /// <param name="plan">The current installation plan.</param>
+    /// <param name="bundleFeatures">Enumeration of all features in the installation bundle.</param>
+    /// <returns><c>true</c> if all necessary parent features can be installed and no excluded parent features are being installed; else <c>false</c>.</returns>
+    public bool CanPluginBeInstalled(IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures)
+    {
+      return _excludedParentFeatures.All(f => !IsFeatureBeingInstalled(GetFeature(f, bundleFeatures), plan, null)) && GetInstallableFeatures(plan, bundleFeatures).Contains(_mainPluginFeature);
+    }
+
+    /// <summary>
     /// Gets the ids of the features in this plugin that can be installed, based on whether their parent features are being installed.
     /// </summary>
     /// <param name="plan">The current installation plan.</param>
     /// <param name="bundleFeatures">Enumeration of all features in the installation bundle.</param>
     /// <returns>List of feature ids contained in this plugin where the parent feature is being installed.</returns>
-    public IList<string> GetFeaturesWhereParentIsBeingInstalled(IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures)
+    public IList<string> GetInstallableFeatures(IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures)
     {
       var features = GetPluginFeatures(bundleFeatures);
       // Features are hierarchical, we only want features where the parent feature is also being installed.
@@ -124,7 +165,7 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     /// <returns>Enumeration of <see cref="IBundlePackageFeature"/> that are included in this plugin.</returns>
     protected IEnumerable<IBundlePackageFeature> GetPluginFeatures(IEnumerable<IBundlePackageFeature> bundleFeatures)
     {
-      return _featureIds.Select(id => bundleFeatures.FirstOrDefault(f => f.Id == id)).Where(f => f != null);
+      return _pluginFeatures.Select(id => bundleFeatures.FirstOrDefault(f => f.Id == id)).Where(f => f != null);
     }
 
     /// <summary>
@@ -148,7 +189,7 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     /// <returns><c>true</c> if the specified feature is planned for installation; else <c>false</c>.</returns>
     protected bool IsFeatureBeingInstalled(IBundlePackageFeature feature, IPlan plan, IList<string> pluginFeaturesPlanned)
     {
-      return feature != null && (pluginFeaturesPlanned.Contains(feature.Id) || plan.GetRequestedInstallState(feature) == FeatureState.Local);
+      return feature != null && ((pluginFeaturesPlanned?.Contains(feature.Id) ?? false) || plan.GetRequestedInstallState(feature) == FeatureState.Local);
     }
   }
 }

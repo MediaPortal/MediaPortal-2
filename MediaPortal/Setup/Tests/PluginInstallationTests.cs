@@ -42,7 +42,7 @@ namespace Tests
 
       PluginBase tvService3 = new TvService3();
 
-      IEnumerable<string> plannedFeatures = tvService3.GetFeaturesWhereParentIsBeingInstalled(plan, featurePackage.Features);
+      IEnumerable<string> plannedFeatures = tvService3.GetInstallableFeatures(plan, featurePackage.Features);
       Assert.Equal(new[] { FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider }, plannedFeatures);      
     }
   }

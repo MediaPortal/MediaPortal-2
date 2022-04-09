@@ -30,6 +30,11 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
   public static class PluginId
   {
     /// <summary>
+    /// Id of the TV Service client only plugin.
+    /// </summary>
+    public const string TvServiceClient = "TvServiceClient";
+
+    /// <summary>
     /// Id of the TV Service 3 plugin.
     /// </summary>
     public const string TvService3 = "TvService3";

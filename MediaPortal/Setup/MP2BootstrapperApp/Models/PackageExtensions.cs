@@ -33,6 +33,12 @@ namespace MP2BootstrapperApp.Models
 {
   public static class PackageExtensions
   {
+    /// <summary>
+    /// Creates a model for displaying a package in a view.
+    /// </summary>
+    /// <param name="bundlePackage">The package to create a model for.</param>
+    /// <param name="requestState">Optional requested install state of the package.</param>
+    /// <returns>A <see cref="Package"/> model containing details of the package.</returns>
     public static Package CreatePackageModel(this IBundlePackage bundlePackage, RequestState? requestState = null)
     {
       return new Package
@@ -50,6 +56,14 @@ namespace MP2BootstrapperApp.Models
       };
     }
 
+    /// <summary>
+    /// Creates a model for displaying a feature in a view.
+    /// </summary>
+    /// <param name="feature">The feature to create a model for.</param>
+    /// <param name="bundleVersion">The bundled version of the feature.</param>
+    /// <param name="installedVersion">The currently installed verion of the feature.</param>
+    /// <param name="featureState">Optional requested install state of the feature.</param>
+    /// <returns>A <see cref="Package"/> model containing details of the feature.</returns>
     public static Package CreateFeatureModel(this IBundlePackageFeature feature, Version bundleVersion, Version installedVersion, FeatureState? featureState = null)
     {
       RequestState requestState = GetFeatureRequestState(feature, featureState);
@@ -69,14 +83,22 @@ namespace MP2BootstrapperApp.Models
       };
     }
 
-    public static Package CreatePluginModel(this PluginBase plugin, IEnumerable<IBundlePackageFeature> features, Version bundleVersion, Version installedVersion, FeatureState? featureState = null)
+    /// <summary>
+    /// Creates a model for displaying a plugin in a view.
+    /// </summary>
+    /// <param name="plugin">The plugin to create a model for.</param>
+    /// <param name="pluginFeatures">The features contained in the plugin that are being installed.</param>
+    /// <param name="bundleVersion">The bundled version of the plugin.</param>
+    /// <param name="installedVersion">The currently installed verion of the plugin.</param>
+    /// <param name="featureState">Optional requested install state of the plugin.</param>
+    /// <returns>A <see cref="Package"/> model containing details of the plugin.</returns>
+    public static Package CreatePluginModel(this PluginBase plugin, IEnumerable<IBundlePackageFeature> pluginFeatures, Version bundleVersion, Version installedVersion, FeatureState? featureState = null)
     {
-      IBundlePackageFeature feature = features.FirstOrDefault(f => f.PreviousVersionInstalled || f.CurrentFeatureState == FeatureState.Local);
-      if (feature == null)
-        feature = features.FirstOrDefault();
+      IBundlePackageFeature feature = pluginFeatures.FirstOrDefault(f => f.Id == plugin.MainPluginFeature);
 
+      // Shouldn't happen unless bundle has been changed without updating the plugin definition
       if (feature == null)
-        throw new InvalidOperationException($"Cannot create PluginModel for plugin {plugin.Id}, the bundle package does not contain any of the plugin features.");
+        throw new InvalidOperationException($"Cannot create PluginModel for plugin {plugin.Id}, the bundle package does not contain the required plugin features.");
 
       RequestState requestState = GetFeatureRequestState(feature, featureState);
 
@@ -88,12 +110,18 @@ namespace MP2BootstrapperApp.Models
         Id = plugin.Id,
         DisplayName = plugin.Name,
         LocalizedDescription = $"[PluginDescription.{plugin.Id}]",
-        InstalledSize = features.Sum(f => f.InstalledSize),
+        InstalledSize = pluginFeatures.Sum(f => f.InstalledSize),
         PackageState = feature.CurrentFeatureState == FeatureState.Local ? PackageState.Present : PackageState.Absent,
         RequestState = requestState
       };
     }
 
+    /// <summary>
+    /// Converts a <see cref="FeatureState"/> to a corresponding <see cref="RequestState"/>.
+    /// </summary>
+    /// <param name="feature">The feature to get the request state of.</param>
+    /// <param name="featureState">The features requested feature state.</param>
+    /// <returns><see cref="RequestState"/> that corresponds to the feature's request state.</returns>
     public static RequestState GetFeatureRequestState(IBundlePackageFeature feature, FeatureState? featureState = null)
     {
       // Convert the FeatureState into a corresponding RequestState for display purposes.

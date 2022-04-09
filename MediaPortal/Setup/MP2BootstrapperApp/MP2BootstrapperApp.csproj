@@ -74,6 +74,7 @@
     <Compile Include="BootstrapperWrapper\Variables.cs" />
     <Compile Include="BundlePackages\Plugins\PluginBase.cs" />
     <Compile Include="BundlePackages\FeatureId.cs" />
+    <Compile Include="BundlePackages\Plugins\TvServiceClientOnly.cs" />
     <Compile Include="Converters\ReferenceToVisibilityConverter.cs" />
     <Compile Include="Converters\FileSizeUnitConverter .cs" />
     <Compile Include="Models\DetectionState.cs" />
@@ -110,7 +111,6 @@
     <Compile Include="BootstrapperWrapper\DispatcherWrapper.cs" />
     <Compile Include="Models\IBootstrapperApplicationModel.cs" />
     <Compile Include="Models\PackageExtensions.cs" />
-    <Compile Include="Models\PluginModel.cs" />
     <Compile Include="Models\Package.cs" />
     <Compile Include="Utils\PathUtils.cs" />
     <Compile Include="ViewModels\AbstractPackageSelectionViewModel.cs" />
@@ -246,10 +246,6 @@
       <SubType>Designer</SubType>
     </Page>
     <Page Include="Styles\ListViewStyles.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
-    <Page Include="Styles\PluginStyles.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </Page>

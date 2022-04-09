@@ -26,14 +26,14 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
 {
   public class TvService35 : PluginBase
   {
-    protected static readonly string[] PLUGIN_FEATURES = new[] { FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider, FeatureId.SlimTvService35 };
+    protected static readonly string[] OPTIONAL_FEATURES = new[] { FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider };
     protected static readonly string[] CONFLICTING_PLUGINS = new[] { PluginId.TvService3 };
 
     /// <summary>
     /// Plugin that installs the necessary client and server features for using TV Server 3.5
     /// </summary>
     public TvService35()
-      : base(PluginId.TvService35, "TV Server 3.5", PLUGIN_FEATURES, CONFLICTING_PLUGINS)
+      : base(PluginId.TvService35, "TV Server 3.5", FeatureId.SlimTvService35, OPTIONAL_FEATURES, null, CONFLICTING_PLUGINS)
     { }
   }
 }

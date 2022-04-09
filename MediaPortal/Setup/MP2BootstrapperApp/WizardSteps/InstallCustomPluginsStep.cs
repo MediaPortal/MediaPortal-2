@@ -37,11 +37,11 @@ namespace MP2BootstrapperApp.WizardSteps
   /// </summary>
   public class InstallCustomPluginsStep : AbstractInstallStep, IStep
   {
-    protected static readonly PluginBase[] PLUGINS = new PluginBase[] { new TvService3(), new TvService35() };
+    protected static readonly PluginBase[] PLUGINS = new PluginBase[] { new TvService3(), new TvService35(), new TvServiceClientOnly() };
 
     public static IEnumerable<PluginBase> GetAvailablePlugins(IPlan plan, IEnumerable<IBundlePackageFeature> allFeatures)
     {
-      return PLUGINS.Where(g => g.GetFeaturesWhereParentIsBeingInstalled(plan, allFeatures).Count > 0).ToList();
+      return PLUGINS.Where(g => g.CanPluginBeInstalled(plan, allFeatures)).ToList();
     }
 
     protected InstallPlan _installPlan;
@@ -66,6 +66,17 @@ namespace MP2BootstrapperApp.WizardSteps
     /// </summary>
     public ICollection<PluginBase> SelectedPlugins { get; protected set; }
 
+    /// <summary>
+    /// Gets all features that can be installed for the specified plugin.
+    /// </summary>
+    /// <param name="plugin">The plugin to get the features of.</param>
+    /// <returns>Enumeration of <see cref="IBundlePackageFeature"/> that can be installed.</returns>
+    public IEnumerable<IBundlePackageFeature> GetAvailableFeaturesForPlugin(PluginBase plugin)
+    {
+      return plugin.GetInstallableFeatures(_installPlan, _allFeatures)
+        .Select(pluginFeature => _allFeatures.First(f => f.Id == pluginFeature));
+    }
+
     public bool CanGoBack()
     {
       return true;
@@ -78,19 +89,18 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      ICollection<IBundlePackageFeature> allFeatures = _bootstrapperApplicationModel.MainPackage.Features;
-
       List<string> pluginsPlanned = new List<string>();
       foreach (PluginBase plugin in SelectedPlugins)
       {
         IEnumerable<string> conflictingPlugins = pluginsPlanned.Where(p => plugin.ConflictsWith(p));
         if (conflictingPlugins.Any())
         {
+          // The view model should prevent multiple conflicting plugins being selected, but just in case log the conflict and skip installation
           _bootstrapperApplicationModel.LogMessage(LogLevel.Error, $"Skipping conflicting plugin, '{plugin.Id}' conflicts with '{string.Join(",", conflictingPlugins.ToArray())}'");
           continue;
         }
 
-        foreach (string featureId in plugin.GetFeaturesWhereParentIsBeingInstalled(_installPlan, allFeatures))
+        foreach (string featureId in plugin.GetInstallableFeatures(_installPlan, _allFeatures))
           _installPlan.PlanFeature(featureId);
 
         pluginsPlanned.Add(plugin.Id);

@@ -13,7 +13,7 @@
 
         <ResourceDictionary.MergedDictionaries>
           <ResourceDictionary Source="../Styles/TextStyles.xaml" />
-          <ResourceDictionary Source="../Styles/PluginStyles.xaml" />
+          <ResourceDictionary Source="../Styles/PackageStyles.xaml" />
           <ResourceDictionary Source="../Styles/ListViewStyles.xaml" />
         </ResourceDictionary.MergedDictionaries>
 
@@ -31,7 +31,7 @@
     <ListView x:Name="PackageList" Grid.Row="0" HorizontalAlignment="Center"
               Style="{StaticResource ListViewSelectsOnMouseOverStyle}"
               ItemsSource="{Binding Path=Items}"
-              ItemTemplate="{StaticResource PluginButtonDataTemplate}">
+              ItemTemplate="{StaticResource PackageButtonDataTemplate}">
       <ListView.ItemsPanel>
         <ItemsPanelTemplate>
           <WrapPanel />

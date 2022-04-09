@@ -29,7 +29,7 @@ namespace MP2BootstrapperApp.ViewModels.ListItems
   /// <summary>
   /// Bindable wrapper for a plugin that can be selected.
   /// </summary>
-  public class PluginListItem : SelectableListItem<PluginModel>
+  public class PluginListItem : SelectableListItem<Package>
   {
   }
 }
