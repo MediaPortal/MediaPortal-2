@@ -55,7 +55,7 @@ namespace MP2BootstrapperApp.ViewModels
 
     protected override void OnItemSelectedChanged(PluginListItem item, bool selected)
     {
-      PluginBase plugin = _step.AvailablePlugins.FirstOrDefault(p => p.Id == item.Item.Id);
+      IPluginDescriptor plugin = _step.AvailablePlugins.FirstOrDefault(p => p.Id == item.Item.Id);
       if (plugin != null)
       {
         // If a new plugin has been selected, unselect any incompatible plugins

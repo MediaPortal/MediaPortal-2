@@ -92,7 +92,7 @@ namespace MP2BootstrapperApp.Models
     /// <param name="installedVersion">The currently installed verion of the plugin.</param>
     /// <param name="featureState">Optional requested install state of the plugin.</param>
     /// <returns>A <see cref="Package"/> model containing details of the plugin.</returns>
-    public static Package CreatePluginModel(this PluginBase plugin, IEnumerable<IBundlePackageFeature> pluginFeatures, Version bundleVersion, Version installedVersion, FeatureState? featureState = null)
+    public static Package CreatePluginModel(this IPluginDescriptor plugin, IEnumerable<IBundlePackageFeature> pluginFeatures, Version bundleVersion, Version installedVersion, FeatureState? featureState = null)
     {
       IBundlePackageFeature feature = pluginFeatures.FirstOrDefault(f => f.Id == plugin.MainPluginFeature);
 

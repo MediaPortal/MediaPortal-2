@@ -24,7 +24,7 @@
 
 namespace MP2BootstrapperApp.BundlePackages.Plugins
 {
-  public class TvService35 : PluginBase
+  public class TvService35 : PluginDescriptor
   {
     protected static readonly string[] OPTIONAL_FEATURES = new[] { FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider };
     protected static readonly string[] CONFLICTING_PLUGINS = new[] { PluginId.TvService3 };

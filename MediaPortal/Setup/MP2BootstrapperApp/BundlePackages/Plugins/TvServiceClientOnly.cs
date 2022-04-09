@@ -24,7 +24,7 @@
 
 namespace MP2BootstrapperApp.BundlePackages.Plugins
 {
-  public class TvServiceClientOnly : PluginBase
+  public class TvServiceClientOnly : PluginDescriptor
   {
     protected static readonly string[] OPTIONAL_FEATURES = new[] { FeatureId.SlimTvClient };
     protected static readonly string[] EXCLUDED_PARENTS = new string[] { FeatureId.Server };

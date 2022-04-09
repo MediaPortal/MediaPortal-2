@@ -37,9 +37,9 @@ namespace MP2BootstrapperApp.WizardSteps
   /// </summary>
   public class InstallCustomPluginsStep : AbstractInstallStep, IStep
   {
-    protected static readonly PluginBase[] PLUGINS = new PluginBase[] { new TvService3(), new TvService35(), new TvServiceClientOnly() };
+    protected static readonly IPluginDescriptor[] PLUGINS = new IPluginDescriptor[] { new TvService3(), new TvService35(), new TvServiceClientOnly() };
 
-    public static IEnumerable<PluginBase> GetAvailablePlugins(IPlan plan, IEnumerable<IBundlePackageFeature> allFeatures)
+    public static IEnumerable<IPluginDescriptor> GetAvailablePlugins(IPlan plan, IEnumerable<IBundlePackageFeature> allFeatures)
     {
       return PLUGINS.Where(g => g.CanPluginBeInstalled(plan, allFeatures)).ToList();
     }
@@ -53,25 +53,25 @@ namespace MP2BootstrapperApp.WizardSteps
       _installPlan = installPlan;
       _allFeatures = _bootstrapperApplicationModel.MainPackage.Features;
       AvailablePlugins = GetAvailablePlugins(_installPlan, _allFeatures).ToList();
-      SelectedPlugins = new List<PluginBase>();
+      SelectedPlugins = new List<IPluginDescriptor>();
     }
 
     /// <summary>
     /// All plugins available for installation.
     /// </summary>
-    public ICollection<PluginBase> AvailablePlugins { get; }
+    public ICollection<IPluginDescriptor> AvailablePlugins { get; }
 
     /// <summary>
     /// Plugins that have been selected for installation.
     /// </summary>
-    public ICollection<PluginBase> SelectedPlugins { get; protected set; }
+    public ICollection<IPluginDescriptor> SelectedPlugins { get; protected set; }
 
     /// <summary>
     /// Gets all features that can be installed for the specified plugin.
     /// </summary>
     /// <param name="plugin">The plugin to get the features of.</param>
     /// <returns>Enumeration of <see cref="IBundlePackageFeature"/> that can be installed.</returns>
-    public IEnumerable<IBundlePackageFeature> GetAvailableFeaturesForPlugin(PluginBase plugin)
+    public IEnumerable<IBundlePackageFeature> GetAvailableFeaturesForPlugin(IPluginDescriptor plugin)
     {
       return plugin.GetInstallableFeatures(_installPlan, _allFeatures);
     }
@@ -89,7 +89,7 @@ namespace MP2BootstrapperApp.WizardSteps
     public IStep Next()
     {
       List<string> pluginsPlanned = new List<string>();
-      foreach (PluginBase plugin in SelectedPlugins)
+      foreach (IPluginDescriptor plugin in SelectedPlugins)
       {
         IEnumerable<string> conflictingPlugins = pluginsPlanned.Where(p => plugin.ConflictsWith(p));
         if (conflictingPlugins.Any())

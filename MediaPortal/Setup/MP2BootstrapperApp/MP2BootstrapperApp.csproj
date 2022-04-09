@@ -72,7 +72,8 @@
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
     <Compile Include="BootstrapperWrapper\IVariables.cs" />
     <Compile Include="BootstrapperWrapper\Variables.cs" />
-    <Compile Include="BundlePackages\Plugins\PluginBase.cs" />
+    <Compile Include="BundlePackages\Plugins\IPluginDescriptor.cs" />
+    <Compile Include="BundlePackages\Plugins\PluginDescriptor.cs" />
     <Compile Include="BundlePackages\FeatureId.cs" />
     <Compile Include="BundlePackages\Plugins\TvServiceClientOnly.cs" />
     <Compile Include="Converters\ReferenceToVisibilityConverter.cs" />

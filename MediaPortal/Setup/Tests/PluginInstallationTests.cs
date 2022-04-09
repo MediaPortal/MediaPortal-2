@@ -40,7 +40,7 @@ namespace Tests
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
       IBundleMsiPackage featurePackage = TestBundlePackageFactory.CreateCurrentInstall().First(p=>p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
 
-      PluginBase tvService3 = new TvService3();
+      IPluginDescriptor tvService3 = new TvService3();
 
       IEnumerable<string> plannedFeatures = tvService3.GetInstallableFeatures(plan, featurePackage.Features).Select(f => f.Id);
       Assert.Equal(new[] { FeatureId.SlimTvService3 }, plannedFeatures);      
