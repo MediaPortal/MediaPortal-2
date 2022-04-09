@@ -118,7 +118,7 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
 
     public bool CanPluginBeInstalled(IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures)
     {
-      return _excludedParentFeatures.All(f => !IsFeatureBeingInstalled(GetFeature(f, bundleFeatures), plan, null)) && GetInstallableFeatures(plan, bundleFeatures).Any(f => f.Id == _mainPluginFeature);
+      return _excludedParentFeatures.All(f => !IsFeatureBeingInstalled(f, plan, bundleFeatures, null)) && GetInstallableFeatures(plan, bundleFeatures).Any(f => f.Id == _mainPluginFeature);
     }
 
     public IList<IBundlePackageFeature> GetInstallableFeatures(IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures)
@@ -132,7 +132,7 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
       List<IBundlePackageFeature> allPlannedFeatures = new List<IBundlePackageFeature>();
       while (true)
       {
-        List<IBundlePackageFeature> plannedFeatures = features.Where(f => !allPlannedFeatures.Contains(f) && IsFeatureBeingInstalled(GetFeature(f.Parent, bundleFeatures), plan, allPlannedFeatures)).ToList();
+        List<IBundlePackageFeature> plannedFeatures = features.Where(f => !allPlannedFeatures.Contains(f) && IsFeatureBeingInstalled(f.Parent, plan, bundleFeatures, allPlannedFeatures)).ToList();
         if (plannedFeatures.Count == 0)
           break;
         allPlannedFeatures.AddRange(plannedFeatures);
@@ -151,26 +151,17 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     }
 
     /// <summary>
-    /// Gets the <see cref="IBundlePackageFeature"/> with a specified id from an enumeration of features.
-    /// </summary>
-    /// <param name="id">The id of the feature to get.</param>
-    /// <param name="bundleFeatures">Enumeration of all features in the installation bundle.</param>
-    /// <returns>The feature with the specified id; else <c>null</c>.</returns>
-    protected IBundlePackageFeature GetFeature(string id, IEnumerable<IBundlePackageFeature> bundleFeatures)
-    {
-      return bundleFeatures.FirstOrDefault(f => f.Id == id);
-    }
-
-    /// <summary>
     /// Determines whether a feature is being planned for installation by checking the
     /// current installation plan and the list of plugin features that will be planned.
     /// </summary>
-    /// <param name="feature">The feature to check.</param>
+    /// <param name="featureId">The id of the feature to check.</param>
     /// <param name="plan">The current installation plan.</param>
+    /// <param name="bundleFeatures">Enumeration of all features in the installation bundle.</param>
     /// <param name="pluginFeaturesPlanned">List of features in this plugin that will be installed.</param>
     /// <returns><c>true</c> if the specified feature is planned for installation; else <c>false</c>.</returns>
-    protected bool IsFeatureBeingInstalled(IBundlePackageFeature feature, IPlan plan, IList<IBundlePackageFeature> pluginFeaturesPlanned)
+    protected bool IsFeatureBeingInstalled(string featureId, IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures, IList<IBundlePackageFeature> pluginFeaturesPlanned)
     {
+      IBundlePackageFeature feature = bundleFeatures.FirstOrDefault(f => f.Id == featureId);
       return feature != null && ((pluginFeaturesPlanned?.Contains(feature) ?? false) || plan.GetRequestedInstallState(feature) == FeatureState.Local);
     }
   }
