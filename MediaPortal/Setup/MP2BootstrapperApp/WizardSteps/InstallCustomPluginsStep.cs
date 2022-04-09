@@ -73,8 +73,7 @@ namespace MP2BootstrapperApp.WizardSteps
     /// <returns>Enumeration of <see cref="IBundlePackageFeature"/> that can be installed.</returns>
     public IEnumerable<IBundlePackageFeature> GetAvailableFeaturesForPlugin(PluginBase plugin)
     {
-      return plugin.GetInstallableFeatures(_installPlan, _allFeatures)
-        .Select(pluginFeature => _allFeatures.First(f => f.Id == pluginFeature));
+      return plugin.GetInstallableFeatures(_installPlan, _allFeatures);
     }
 
     public bool CanGoBack()
@@ -100,8 +99,8 @@ namespace MP2BootstrapperApp.WizardSteps
           continue;
         }
 
-        foreach (string featureId in plugin.GetInstallableFeatures(_installPlan, _allFeatures))
-          _installPlan.PlanFeature(featureId);
+        foreach (IBundlePackageFeature feature in plugin.GetInstallableFeatures(_installPlan, _allFeatures))
+          _installPlan.PlanFeature(feature.Id);
 
         pluginsPlanned.Add(plugin.Id);
       }

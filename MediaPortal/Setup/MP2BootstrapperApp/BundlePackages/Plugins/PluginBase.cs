@@ -130,16 +130,16 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     /// <returns><c>true</c> if all necessary parent features can be installed and no excluded parent features are being installed; else <c>false</c>.</returns>
     public bool CanPluginBeInstalled(IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures)
     {
-      return _excludedParentFeatures.All(f => !IsFeatureBeingInstalled(GetFeature(f, bundleFeatures), plan, null)) && GetInstallableFeatures(plan, bundleFeatures).Contains(_mainPluginFeature);
+      return _excludedParentFeatures.All(f => !IsFeatureBeingInstalled(GetFeature(f, bundleFeatures), plan, null)) && GetInstallableFeatures(plan, bundleFeatures).Any(f => f.Id == _mainPluginFeature);
     }
 
     /// <summary>
-    /// Gets the ids of the features in this plugin that can be installed, based on whether their parent features are being installed.
+    /// Gets the the features in this plugin that can be installed, based on whether their parent features are being installed.
     /// </summary>
     /// <param name="plan">The current installation plan.</param>
     /// <param name="bundleFeatures">Enumeration of all features in the installation bundle.</param>
-    /// <returns>List of feature ids contained in this plugin where the parent feature is being installed.</returns>
-    public IList<string> GetInstallableFeatures(IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures)
+    /// <returns>List of feature contained in this plugin where the parent feature is being installed.</returns>
+    public IList<IBundlePackageFeature> GetInstallableFeatures(IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures)
     {
       var features = GetPluginFeatures(bundleFeatures);
       // Features are hierarchical, we only want features where the parent feature is also being installed.
@@ -147,10 +147,10 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
       // initial pass those child features will fail the check because we haven't determined that their parent
       // feature can be installed yet, so keep track of any plugin features that can be installed and check
       // against this on subsequent iterations until no more installable features are found.
-      List<string> allPlannedFeatures = new List<string>();
+      List<IBundlePackageFeature> allPlannedFeatures = new List<IBundlePackageFeature>();
       while (true)
       {
-        List<string> plannedFeatures = features.Where(f => !allPlannedFeatures.Contains(f.Id) && IsFeatureBeingInstalled(GetFeature(f.Parent, bundleFeatures), plan, allPlannedFeatures)).Select(f => f.Id).ToList();
+        List<IBundlePackageFeature> plannedFeatures = features.Where(f => !allPlannedFeatures.Contains(f) && IsFeatureBeingInstalled(GetFeature(f.Parent, bundleFeatures), plan, allPlannedFeatures)).ToList();
         if (plannedFeatures.Count == 0)
           break;
         allPlannedFeatures.AddRange(plannedFeatures);
@@ -187,9 +187,9 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     /// <param name="plan">The current installation plan.</param>
     /// <param name="pluginFeaturesPlanned">List of features in this plugin that will be installed.</param>
     /// <returns><c>true</c> if the specified feature is planned for installation; else <c>false</c>.</returns>
-    protected bool IsFeatureBeingInstalled(IBundlePackageFeature feature, IPlan plan, IList<string> pluginFeaturesPlanned)
+    protected bool IsFeatureBeingInstalled(IBundlePackageFeature feature, IPlan plan, IList<IBundlePackageFeature> pluginFeaturesPlanned)
     {
-      return feature != null && ((pluginFeaturesPlanned?.Contains(feature.Id) ?? false) || plan.GetRequestedInstallState(feature) == FeatureState.Local);
+      return feature != null && ((pluginFeaturesPlanned?.Contains(feature) ?? false) || plan.GetRequestedInstallState(feature) == FeatureState.Local);
     }
   }
 }
