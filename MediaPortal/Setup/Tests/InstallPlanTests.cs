@@ -55,7 +55,7 @@ namespace Tests
     void Should_IncludeNonOptionalFeatures()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall();
       IBundleMsiPackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
       IBundlePackageFeature nonOptionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.MediaPortal_2);
 
@@ -69,7 +69,7 @@ namespace Tests
     void Should_IncludeOptionalFeatures_When_Selected()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall();
       IBundleMsiPackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
       IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.Server);
 
@@ -83,7 +83,7 @@ namespace Tests
     void Should_ExcludeOptionalFeatures_When_NotSelected()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall();
       IBundleMsiPackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
       IBundlePackageFeature optionalFeature = featurePackage.Features.First(f => f.Id == FeatureId.Client);
 
@@ -97,7 +97,7 @@ namespace Tests
     void Should_IncludeNonOptionalPackage_When_NotExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, null, new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall();
       IBundlePackage package = packages.First(p => p.PackageId == PackageId.VC2019_x86);
 
       RequestState? requestState = plan.GetRequestedInstallState(package);
@@ -109,7 +109,7 @@ namespace Tests
     void Should_ExcludeNonOptionalPackage_When_ExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, null, new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall();
       IBundlePackage package = packages.First(p => p.PackageId == PackageId.VC2013_x86);
 
       RequestState? requestState = plan.GetRequestedInstallState(package);
@@ -121,7 +121,7 @@ namespace Tests
     void Should_IncludeOptionalPackage_When_Selected_And_ExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, new[] { PackageId.LAVFilters }, new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall();
       IBundlePackage lavPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
 
       RequestState? requestState = plan.GetRequestedInstallState(lavPackage);
@@ -133,7 +133,7 @@ namespace Tests
     void Should_ExcludeOptionalPackage_When_NotSelected_And_NotExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, new PackageId[0], new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall();
       IBundlePackage lavPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
 
       RequestState? requestState = plan.GetRequestedInstallState(lavPackage);
@@ -145,7 +145,7 @@ namespace Tests
     void Should_IncludeOptionalPackage_When_SelectedOptionalPackagesIsNull_And_NotExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Client }, null, new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall();
       IBundlePackage lavPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
 
       RequestState? requestState = plan.GetRequestedInstallState(lavPackage);
@@ -157,7 +157,7 @@ namespace Tests
     void Should_ExcludeOptionalPackage_When_SelectedOptionalPackagesIsNull_And_ExcludedByFeature()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall();
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall();
       IBundlePackage lavPackage = packages.First(p => p.PackageId == PackageId.LAVFilters);
 
       RequestState? requestState = plan.GetRequestedInstallState(lavPackage);
@@ -169,7 +169,7 @@ namespace Tests
     void Should_ExcludePackage_When_InstallConditionIsFalse()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall(null, null, new[] { PackageId.VC2019_x64 });
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall(null, null, new[] { PackageId.VC2019_x64 });
       IBundlePackage vcX64 = packages.First(p => p.PackageId == PackageId.VC2019_x64);
 
       RequestState? requestState = plan.GetRequestedInstallState(vcX64);

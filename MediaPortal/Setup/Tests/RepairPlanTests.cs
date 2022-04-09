@@ -46,7 +46,7 @@ namespace Tests
     void Should_PreserveFeatureStates()
     {
       string[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall(new[] { PackageId.MediaPortal2 }, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall(new[] { PackageId.MediaPortal2 }, installedFeatures);
       RepairPlan plan = new RepairPlan(installedFeatures.Where(f => f != FeatureId.MediaPortal_2), new PlanContext());
 
       IBundleMsiPackage featurePackage = packages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
@@ -63,7 +63,7 @@ namespace Tests
     {
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
       string[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall(installedPackages, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall(installedPackages, installedFeatures);
       RepairPlan plan = new RepairPlan(installedFeatures.Where(f => f != FeatureId.MediaPortal_2), new PlanContext());
 
       foreach (IBundlePackage package in packages.Where(p => installedPackages.Contains(p.PackageId)))
@@ -78,7 +78,7 @@ namespace Tests
     {
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
       string[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall(installedPackages, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall(installedPackages, installedFeatures);
       RepairPlan plan = new RepairPlan(installedFeatures.Where(f => f != FeatureId.MediaPortal_2), new PlanContext());
 
       IBundlePackage missingDependencyPackage = packages.First(p => p.PackageId == PackageId.VC2019_x64);
@@ -92,7 +92,7 @@ namespace Tests
     {
       PackageId[] installedPackages = new[] { PackageId.MediaPortal2, PackageId.VC2019_x86 };
       string[] installedFeatures = new[] { FeatureId.MediaPortal_2, FeatureId.Client };
-      IList<IBundlePackage> packages = TestBundlePackageFactory.CreateCurrentInstall(installedPackages, installedFeatures);
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreateCurrentInstall(installedPackages, installedFeatures);
       RepairPlan plan = new RepairPlan(installedFeatures.Where(f => f != FeatureId.MediaPortal_2), new PlanContext());
 
       IBundlePackage missingNonDependencyPackage = packages.First(p => p.PackageId == PackageId.VC2013_x86);

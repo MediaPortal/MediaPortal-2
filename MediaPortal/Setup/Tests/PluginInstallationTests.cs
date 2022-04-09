@@ -38,7 +38,7 @@ namespace Tests
     void Should_OnlyIncludeFeaturesWhereParentFeatureIsBeingInstalled()
     {
       InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
-      IBundleMsiPackage featurePackage = TestBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
+      IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
 
       IPluginDescriptor tvService3 = new TvService3();
 
@@ -63,7 +63,7 @@ namespace Tests
     void Should_SelectBestAvailablePluginBasedonPreviousInstallation(string[] plannedFeatures, string[] previouslyInstalledFeatures, string[] expectedPlugin)
     {
       InstallPlan plan = new InstallPlan(plannedFeatures, null, new PlanContext());
-      IList<IBundlePackage> bundlePackages = TestBundlePackageFactory.CreatePreviousInstall(new System.Version(1, 0), new[] { PackageId.MediaPortal2 }, previouslyInstalledFeatures); ;
+      IList<IBundlePackage> bundlePackages = MockBundlePackageFactory.CreatePreviousInstall(new System.Version(1, 0), new[] { PackageId.MediaPortal2 }, previouslyInstalledFeatures); ;
       IBundleMsiPackage featurePackage = bundlePackages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
 
       PluginManager pluginManager = new PluginManager(new MockPluginLoader());
@@ -83,7 +83,7 @@ namespace Tests
     void Should_SelectBestAvailableDefaultPluginBasedonPreviousInstallation(string[] plannedFeatures, string[] previouslyInstalledFeatures, string[] expectedPlugin)
     {
       InstallPlan plan = new InstallPlan(plannedFeatures, null, new PlanContext());
-      IList<IBundlePackage> bundlePackages = TestBundlePackageFactory.CreatePreviousInstall(new System.Version(1, 0), new[] { PackageId.MediaPortal2 }, previouslyInstalledFeatures); ;
+      IList<IBundlePackage> bundlePackages = MockBundlePackageFactory.CreatePreviousInstall(new System.Version(1, 0), new[] { PackageId.MediaPortal2 }, previouslyInstalledFeatures); ;
       IBundleMsiPackage featurePackage = bundlePackages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
 
       PluginManager pluginManager = new PluginManager(new MockPluginLoader());

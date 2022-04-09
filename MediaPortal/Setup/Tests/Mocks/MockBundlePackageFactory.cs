@@ -34,7 +34,7 @@ using System.Xml.Linq;
 
 namespace Tests.Mocks
 {
-  public class TestBundlePackageFactory : BundlePackageFactory
+  public class MockBundlePackageFactory : BundlePackageFactory
   {
     public static string GetTestPackageXml()
     {
@@ -45,14 +45,14 @@ namespace Tests.Mocks
     public static IList<IBundlePackage> CreateCurrentInstall(IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null, IEnumerable<PackageId> falseInstallConditionPackages = null)
     {
       string xml = GetTestPackageXml();
-      TestBundlePackageFactory testBundlePackageFactory = new TestBundlePackageFactory(installedPackages, installedFeatures, null, falseInstallConditionPackages);
+      MockBundlePackageFactory testBundlePackageFactory = new MockBundlePackageFactory(installedPackages, installedFeatures, null, falseInstallConditionPackages);
       return testBundlePackageFactory.CreatePackagesFromXmlString(xml);
     }
 
     public static IList<IBundlePackage> CreatePreviousInstall(Version previousInstalledVersion, IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null)
     {
       string xml = GetTestPackageXml();
-      TestBundlePackageFactory testBundlePackageFactory = new TestBundlePackageFactory(installedPackages, installedFeatures, previousInstalledVersion);
+      MockBundlePackageFactory testBundlePackageFactory = new MockBundlePackageFactory(installedPackages, installedFeatures, previousInstalledVersion);
       return testBundlePackageFactory.CreatePackagesFromXmlString(xml);
     }
 
@@ -61,7 +61,7 @@ namespace Tests.Mocks
     protected IEnumerable<PackageId> _falseInstallConditionPackages;
     protected Version _previousInstalledVersion;
 
-    public TestBundlePackageFactory(IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null, Version previousInstalledVersion = null, IEnumerable<PackageId> falseInstallConditionPackages = null)
+    public MockBundlePackageFactory(IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null, Version previousInstalledVersion = null, IEnumerable<PackageId> falseInstallConditionPackages = null)
     {
       _installedPackages = installedPackages ?? new PackageId[0];
       _installedFeatures = installedFeatures ?? new string[0];
