@@ -431,7 +431,14 @@
   <ItemGroup>
     <Resource Include="Resources\path.png" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Resource Include="Resources\Plugins\TvMosaic.png" />
+    <Resource Include="Resources\Plugins\TvService3.png" />
+    <Resource Include="Resources\Plugins\TvService35.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Plugins\TvServiceClient.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
 </Project>
