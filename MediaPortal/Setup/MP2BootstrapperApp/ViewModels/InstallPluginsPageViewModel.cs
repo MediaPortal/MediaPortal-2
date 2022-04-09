@@ -32,13 +32,13 @@ using System.Linq;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallCustomPluginsPageViewModel : AbstractSelectionViewModel<InstallCustomPluginsStep, PluginListItem>
+  public class InstallPluginsPageViewModel : AbstractSelectionViewModel<InstallPluginsStep, PluginListItem>
   {
-    public InstallCustomPluginsPageViewModel(InstallCustomPluginsStep step)
+    public InstallPluginsPageViewModel(InstallPluginsStep step)
       : base(step)
     {
-      Header = "[InstallCustomPluginsPageView.Header]";
-      SubHeader = "[InstallCustomPluginsPageView.SubHeader]";
+      Header = "[InstallPluginsPageView.Header]";
+      SubHeader = "[InstallPluginsPageView.SubHeader]";
     }
 
     protected override IEnumerable<PluginListItem> GetItems()

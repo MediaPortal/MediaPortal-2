@@ -27,11 +27,11 @@ using System.Windows.Controls;
 namespace MP2BootstrapperApp.Views
 {
   /// <summary>
-  /// Interaction logic for InstallCustomPluginsPageView.xaml
+  /// Interaction logic for InstallPluginsPageView.xaml
   /// </summary>
-  public partial class InstallCustomPluginsPageView : UserControl
+  public partial class InstallPluginsPageView : UserControl
   {
-    public InstallCustomPluginsPageView()
+    public InstallPluginsPageView()
     {
       InitializeComponent();
     }

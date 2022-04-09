@@ -23,8 +23,8 @@
     <view:InstallCustomPageView />
   </DataTemplate>
 
-  <DataTemplate DataType="{x:Type viewModels:InstallCustomPluginsPageViewModel}">
-    <view:InstallCustomPluginsPageView />
+  <DataTemplate DataType="{x:Type viewModels:InstallPluginsPageViewModel}">
+    <view:InstallPluginsPageView />
   </DataTemplate>
 
   <DataTemplate DataType="{x:Type viewModels:InstallCustomPropertiesPageViewModel}">

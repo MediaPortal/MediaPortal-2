@@ -120,7 +120,7 @@
     <Compile Include="Utils\PathUtils.cs" />
     <Compile Include="ViewModels\AbstractPackageSelectionViewModel.cs" />
     <Compile Include="ViewModels\AbstractSelectionViewModel.cs" />
-    <Compile Include="ViewModels\InstallCustomPluginsPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallPluginsPageViewModel.cs" />
     <Compile Include="ViewModels\InstallCustomPropertiesPageViewModel.cs" />
     <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />
     <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
@@ -155,8 +155,8 @@
     <Compile Include="Views\InstallCancelledPageView.xaml.cs">
       <DependentUpon>InstallCancelledPageView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\InstallCustomPluginsPageView.xaml.cs">
-      <DependentUpon>InstallCustomPluginsPageView.xaml</DependentUpon>
+    <Compile Include="Views\InstallPluginsPageView.xaml.cs">
+      <DependentUpon>InstallPluginsPageView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\InstallCustomPropertiesPageView.xaml.cs">
       <DependentUpon>InstallCustomPropertiesPageView.xaml</DependentUpon>
@@ -189,7 +189,7 @@
     <Compile Include="WizardSteps\InstallationInProgressStep.cs" />
     <Compile Include="WizardSteps\AbstractPackageSelectionStep.cs" />
     <Compile Include="WizardSteps\InstallCustomPropertiesStep.cs" />
-    <Compile Include="WizardSteps\InstallCustomPluginsStep.cs" />
+    <Compile Include="WizardSteps\InstallPluginsStep.cs" />
     <Compile Include="WizardSteps\InstallExistInstallStep.cs" />
     <Compile Include="WizardSteps\InstallErrorStep.cs" />
     <Compile Include="WizardSteps\InstallCancelledStep.cs" />
@@ -286,7 +286,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\InstallCustomPluginsPageView.xaml">
+    <Page Include="Views\InstallPluginsPageView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

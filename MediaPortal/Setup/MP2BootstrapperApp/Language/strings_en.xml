@@ -53,10 +53,6 @@
   <string name="InstallCustomPageView.Header">Custom installation</string>
   <string name="InstallCustomPageView.SubHeader">Select the features to install</string>
   <string name="InstallCustomPageView.RequiredHardDriveSpace">Requires {0} on your hard drive.</string>
-  
-  <!-- InstallCustomPluginsPageView -->
-  <string name="InstallCustomPluginsPageView.Header">Custom installation</string>
-  <string name="InstallCustomPluginsPageView.SubHeader">Select the additional plugins to install</string>
 
   <!-- InstallCustomPropertiesPageView -->
   <string name="InstallCustomPropertiesPageView.Header">Custom installation</string>
@@ -65,6 +61,10 @@
   <string name="InstallCustomPropertiesPageView.CreateStartMenuShortcuts">Create start menu shortcuts</string>
   <string name="InstallCustomPropertiesPageView.BrowseButton">Browse</string>
   <string name="InstallCustomPropertiesPageView.InvalidPath">The specified install location is invalid</string>
+
+  <!-- InstallPluginsPageView -->
+  <string name="InstallPluginsPageView.Header">Additional plugins</string>
+  <string name="InstallPluginsPageView.SubHeader">Select the additional plugins to install</string>
 
   <!-- InstallOverviewPageView -->
   <string name="InstallOverviewPageView.Header">Overview</string>

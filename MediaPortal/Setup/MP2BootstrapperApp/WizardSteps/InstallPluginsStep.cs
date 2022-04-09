@@ -33,15 +33,15 @@ using System.Linq;
 namespace MP2BootstrapperApp.WizardSteps
 {
   /// <summary>
-  /// Custom install step that provides optional plugins that can be individually selected for installation.
+  /// Install step that provides optional plugins that can be individually selected for installation.
   /// </summary>
-  public class InstallCustomPluginsStep : AbstractInstallStep, IStep
+  public class InstallPluginsStep : AbstractInstallStep, IStep
   {
     protected InstallPlan _installPlan;
     protected ICollection<IBundlePackageFeature> _allFeatures;
     protected bool _showCustomPropertiesStepNext;
 
-    public InstallCustomPluginsStep(IBootstrapperApplicationModel bootstrapperApplicationModel, InstallPlan installPlan, bool showCustomPropertiesStepNext)
+    public InstallPluginsStep(IBootstrapperApplicationModel bootstrapperApplicationModel, InstallPlan installPlan, bool showCustomPropertiesStepNext)
       : base(bootstrapperApplicationModel)
     {
       _installPlan = installPlan;

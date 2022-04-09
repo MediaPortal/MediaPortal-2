@@ -48,7 +48,7 @@ namespace MP2BootstrapperApp.WizardSteps
       ModifyPlan plan = new ModifyPlan(features, packages, new PlanContext());
 
       if (_bootstrapperApplicationModel.PluginManager.GetAvailablePlugins(plan, _bootstrapperApplicationModel.MainPackage.Features).Any())
-        return new InstallCustomPluginsStep(_bootstrapperApplicationModel, plan, false);
+        return new InstallPluginsStep(_bootstrapperApplicationModel, plan, false);
       else
         return new InstallOverviewStep(_bootstrapperApplicationModel, plan);
     }
