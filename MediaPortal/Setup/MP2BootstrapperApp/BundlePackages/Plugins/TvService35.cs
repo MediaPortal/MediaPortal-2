@@ -33,7 +33,7 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     /// Plugin that installs the necessary client and server features for using TV Server 3.5
     /// </summary>
     public TvService35()
-      : base(PluginId.TvService35, "TV Server 3.5", FeatureId.SlimTvService35, OPTIONAL_FEATURES, null, CONFLICTING_PLUGINS)
+      : base(PluginId.TvService35, "TV Server 3.5", "a-2", false, FeatureId.SlimTvService35, OPTIONAL_FEATURES, null, CONFLICTING_PLUGINS)
     { }
   }
 }

@@ -22,18 +22,16 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.BundlePackages.Plugins
-{
-  public class TvService3 : PluginDescriptor
-  {
-    protected static readonly string[] OPTIONAL_FEATURES = new[] { FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider };
-    protected static readonly string[] CONFLICTING_PLUGINS = new[] { PluginId.TvService35 };
+using MP2BootstrapperApp.BundlePackages.Plugins;
+using System.Collections.Generic;
 
-    /// <summary>
-    /// Plugin that installs the necessary client and server features for using TV Server 3
-    /// </summary>
-    public TvService3()
-      : base(PluginId.TvService3, "TV Server 3", "a-1", true, FeatureId.SlimTvService3, OPTIONAL_FEATURES, null, CONFLICTING_PLUGINS)
-    { }
+namespace Tests.Mocks
+{
+  public class MockPluginLoader : IPluginLoader
+  {
+    public IEnumerable<IPluginDescriptor> GetPluginDescriptors()
+    {
+      return new IPluginDescriptor[] { new TvService3(), new TvService35(), new TvServiceClientOnly() };
+    }
   }
 }

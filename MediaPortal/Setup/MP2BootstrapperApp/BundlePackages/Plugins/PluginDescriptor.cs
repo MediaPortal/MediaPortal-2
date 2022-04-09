@@ -37,6 +37,8 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
   {
     protected string _id;
     protected string _name;
+    protected string _sortName;
+    protected bool _isDefault;
     protected string _mainPluginFeature;
     protected IReadOnlyCollection<string> _pluginFeatures;
     protected IReadOnlyCollection<string> _excludedParentFeatures;
@@ -47,18 +49,22 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     /// </summary>
     /// <param name="id">The unique indentifier of the plugin.</param>
     /// <param name="name">The human readable name of the plugin.</param>
+    /// <param name="sortName">A string to use to order this plugin in relation to others.</param>
+    /// <param name="isDefault">Whether this plugin should be installed by default and preferred over any conflicting plugins.</param>
     /// <param name="mainPluginFeature">Id of the main feature for this plugin, this will be used to determine the current installation state of this plugin and whether the plugin can be installed.</param>
     /// <param name="optionalPluginFeatures">Ids of optional features that will be installed if their parent features are also being installed.</param>
     /// <param name="excludedParentFeatures">Ids of any parent features that should not be installed to allow this plugin to be installed.</param>
     /// <param name="conflictingPluginIds">Ids of the plugins that this plugin conflicts with.</param>
     /// 
-    public PluginDescriptor(string id, string name, string mainPluginFeature, IEnumerable<string> optionalPluginFeatures, IEnumerable<string> excludedParentFeatures, IEnumerable<string> conflictingPluginIds)
+    public PluginDescriptor(string id, string name, string sortName, bool isDefault, string mainPluginFeature, IEnumerable<string> optionalPluginFeatures, IEnumerable<string> excludedParentFeatures, IEnumerable<string> conflictingPluginIds)
     {
       if (mainPluginFeature == null)
         throw new ArgumentNullException($"{nameof(mainPluginFeature)} cannot be null");
 
       _id = id;
       _name = name;
+      _sortName = sortName;
+      _isDefault = isDefault;
       _mainPluginFeature = mainPluginFeature;
       _excludedParentFeatures = excludedParentFeatures != null ? new HashSet<string>(excludedParentFeatures) : new HashSet<string>();
       _conflictingPluginIds = conflictingPluginIds != null ? new HashSet<string>(conflictingPluginIds) : new HashSet<string>();
@@ -76,6 +82,16 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     public string Name
     {
       get { return _name; }
+    }
+
+    public string SortName
+    {
+      get { return _sortName; }
+    }
+
+    public bool IsDefault
+    {
+      get { return _isDefault; }
     }
 
     public string MainPluginFeature

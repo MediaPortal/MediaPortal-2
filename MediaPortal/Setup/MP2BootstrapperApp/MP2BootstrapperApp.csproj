@@ -72,9 +72,13 @@
     <Compile Include="BootstrapperWrapper\Hresult.cs" />
     <Compile Include="BootstrapperWrapper\IVariables.cs" />
     <Compile Include="BootstrapperWrapper\Variables.cs" />
+    <Compile Include="BundlePackages\Plugins\AssemblyPluginLoader.cs" />
     <Compile Include="BundlePackages\Plugins\IPluginDescriptor.cs" />
+    <Compile Include="BundlePackages\Plugins\IPluginLoader.cs" />
+    <Compile Include="BundlePackages\Plugins\IPluginManager.cs" />
     <Compile Include="BundlePackages\Plugins\PluginDescriptor.cs" />
     <Compile Include="BundlePackages\FeatureId.cs" />
+    <Compile Include="BundlePackages\Plugins\PluginManager.cs" />
     <Compile Include="BundlePackages\Plugins\TvServiceClientOnly.cs" />
     <Compile Include="Converters\ReferenceToVisibilityConverter.cs" />
     <Compile Include="Converters\FileSizeUnitConverter .cs" />

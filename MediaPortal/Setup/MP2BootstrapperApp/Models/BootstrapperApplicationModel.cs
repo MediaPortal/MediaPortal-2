@@ -27,6 +27,7 @@ using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.BundlePackages;
+using MP2BootstrapperApp.BundlePackages.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -36,7 +37,6 @@ using System.Reflection;
 using System.Security;
 using System.Windows;
 using System.Windows.Interop;
-using System.Xml.Linq;
 
 namespace MP2BootstrapperApp.Models
 {
@@ -47,9 +47,10 @@ namespace MP2BootstrapperApp.Models
   {
     private IntPtr _hwnd;
 
-    public BootstrapperApplicationModel(IBootstrapperApp bootstreApplication)
+    public BootstrapperApplicationModel(IBootstrapperApp bootstreApplication, IPluginManager pluginManager)
     {
       BootstrapperApplication = bootstreApplication;
+      PluginManager = pluginManager;
       _hwnd = IntPtr.Zero;
       ComputeBundlePackages();
       WireUpEventHandlers();
@@ -65,6 +66,8 @@ namespace MP2BootstrapperApp.Models
     public int FinalResult { get; set; }
 
     public ReadOnlyCollection<IBundlePackage> BundlePackages { get; private set; }
+
+    public IPluginManager PluginManager { get; }
 
     public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 

@@ -34,7 +34,7 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     /// Plugin that installs the necessary client features for using TV Server
     /// </summary>
     public TvServiceClientOnly()
-      : base(PluginId.TvServiceClient, "TV Service Client", FeatureId.SlimTvNativeProvider, OPTIONAL_FEATURES, EXCLUDED_PARENTS, CONFLICTING_PLUGINS)
+      : base(PluginId.TvServiceClient, "TV Service Client", "b-1", true, FeatureId.SlimTvNativeProvider, OPTIONAL_FEATURES, EXCLUDED_PARENTS, CONFLICTING_PLUGINS)
     { }
   }
 }

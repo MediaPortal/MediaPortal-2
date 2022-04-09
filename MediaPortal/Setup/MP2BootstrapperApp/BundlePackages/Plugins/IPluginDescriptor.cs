@@ -49,6 +49,16 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     string Name { get; }
 
     /// <summary>
+    /// A string that can be used to sort this plugin in relation to others for display.
+    /// </summary>
+    string SortName { get; }
+
+    /// <summary>
+    /// Whether this plugin should be installed by default and preferred over any conflicting plugins.
+    /// </summary>
+    bool IsDefault { get; }
+
+    /// <summary>
     /// The id of the main feature that is required to be installed by this plugin. 
     /// </summary>
     string MainPluginFeature { get; }

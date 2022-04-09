@@ -26,6 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BootstrapperWrapper;
+using MP2BootstrapperApp.BundlePackages.Plugins;
 using MP2BootstrapperApp.Localization;
 using MP2BootstrapperApp.Logging;
 using MP2BootstrapperApp.Models;
@@ -54,7 +55,7 @@ namespace MP2BootstrapperApp
       MessageBox.Show("dd");
 #endif
 
-      IBootstrapperApplicationModel model = new BootstrapperApplicationModel(this);
+      IBootstrapperApplicationModel model = new BootstrapperApplicationModel(this, new PluginManager(new AssemblyPluginLoader()));
 
       // Setup the translations and current language
       StringManager stringManager = new StringManager(new Logger(model));

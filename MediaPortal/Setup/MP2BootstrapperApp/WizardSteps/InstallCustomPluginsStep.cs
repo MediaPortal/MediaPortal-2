@@ -37,13 +37,6 @@ namespace MP2BootstrapperApp.WizardSteps
   /// </summary>
   public class InstallCustomPluginsStep : AbstractInstallStep, IStep
   {
-    protected static readonly IPluginDescriptor[] PLUGINS = new IPluginDescriptor[] { new TvService3(), new TvService35(), new TvServiceClientOnly() };
-
-    public static IEnumerable<IPluginDescriptor> GetAvailablePlugins(IPlan plan, IEnumerable<IBundlePackageFeature> allFeatures)
-    {
-      return PLUGINS.Where(g => g.CanPluginBeInstalled(plan, allFeatures)).ToList();
-    }
-
     protected InstallPlan _installPlan;
     protected ICollection<IBundlePackageFeature> _allFeatures;
 
@@ -52,8 +45,8 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       _installPlan = installPlan;
       _allFeatures = _bootstrapperApplicationModel.MainPackage.Features;
-      AvailablePlugins = GetAvailablePlugins(_installPlan, _allFeatures).ToList();
-      SelectedPlugins = new List<IPluginDescriptor>();
+      AvailablePlugins = bootstrapperApplicationModel.PluginManager.GetAvailablePlugins(_installPlan, _allFeatures);
+      SelectedPlugins = bootstrapperApplicationModel.PluginManager.GetInstalledOrDefaultAvailablePlugins(_installPlan, _allFeatures);
     }
 
     /// <summary>

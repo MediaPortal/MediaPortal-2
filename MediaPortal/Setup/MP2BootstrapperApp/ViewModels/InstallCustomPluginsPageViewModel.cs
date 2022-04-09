@@ -45,12 +45,12 @@ namespace MP2BootstrapperApp.ViewModels
     {
       IBundleMsiPackage mainPackage = _step.BootstrapperApplicationModel.MainPackage;
 
-      return _step.AvailablePlugins.Select(p =>
-      new PluginListItem
-      {
-        Item = p.CreatePluginModel(_step.GetAvailableFeaturesForPlugin(p), mainPackage.Version, mainPackage.InstalledVersion),
-        Selected = _step.SelectedPlugins.Contains(p)
-      });
+      return _step.AvailablePlugins.OrderBy(p => p.SortName).Select(p =>
+        new PluginListItem
+        {
+          Item = p.CreatePluginModel(_step.GetAvailableFeaturesForPlugin(p), mainPackage.Version, mainPackage.InstalledVersion),
+          Selected = _step.SelectedPlugins.Contains(p)
+        });
     }
 
     protected override void OnItemSelectedChanged(PluginListItem item, bool selected)
