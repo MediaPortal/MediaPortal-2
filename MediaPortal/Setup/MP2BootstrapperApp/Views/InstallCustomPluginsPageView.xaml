@@ -19,6 +19,7 @@
 
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
         <conv:ReferenceToVisibilityConverter x:Key="ReferenceToVisibilityConverter"/>
+        <conv:FileSizeUnitConverter x:Key="FileSizeUnitConverter"/>
 
       </ResourceDictionary>
     </Grid.Resources>
@@ -44,6 +45,13 @@
 
       <TextBlock Style="{StaticResource ContentTextBlockStyle}" FontSize="18" HorizontalAlignment="Center"
                  Text="{me:Localize StringIdBinding={Binding ElementName=PackageList, Path=SelectedItem.Item.LocalizedDescription}}"/>
+
+      <TextBlock Style="{StaticResource ContentTextBlockStyle}" FontSize="14" HorizontalAlignment="Center">
+        <TextBlock.Text>
+          <me:Localize StringId="[InstallCustomPageView.RequiredHardDriveSpace]"
+                       ParametersBinding="{Binding ElementName=PackageList, Path=SelectedItem.Item.InstalledSize, Converter={StaticResource FileSizeUnitConverter}}"/>
+        </TextBlock.Text>
+      </TextBlock>
 
     </StackPanel>
 
