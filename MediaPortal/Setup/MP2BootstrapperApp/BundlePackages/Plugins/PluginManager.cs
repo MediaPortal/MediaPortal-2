@@ -69,12 +69,12 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
       previousOrDefaultPlugins.AddRange(
         availablePlugins.Where(p => !previousOrDefaultPlugins.Contains(p) && p.IsDefault)
       );
-      
+
       // Remove any conflicting plugins, plugins earlier in the list have priority over later plugins when resolving conflicts
       for (int i = 0; i < previousOrDefaultPlugins.Count; i++)
       {
         IPluginDescriptor current = previousOrDefaultPlugins[i];
-        foreach (IPluginDescriptor conflict in previousOrDefaultPlugins.Where(p => p.ConflictsWith(current.Id) || current.ConflictsWith(p.Id)).ToArray())
+        foreach (IPluginDescriptor conflict in previousOrDefaultPlugins.Where(p => current.ConflictsWith(p)).ToArray())
           previousOrDefaultPlugins.Remove(conflict);
       }
 

@@ -58,15 +58,22 @@ namespace MP2BootstrapperApp.ViewModels
       IPluginDescriptor plugin = _step.AvailablePlugins.FirstOrDefault(p => p.Id == item.Item.Id);
       if (plugin != null)
       {
-        // If a new plugin has been selected, unselect any incompatible plugins
+        // If a new plugin has been selected, unselect any conflicting plugins
         if (selected)
-          foreach (PluginListItem incompatiblePlugin in Items.Where(p => p.Selected && plugin.ConflictsWith(p.Item.Id)))
-            incompatiblePlugin.Selected = false;
+          foreach (PluginListItem conflictingPlugin in GetSelectedConflictingItems(plugin))
+            conflictingPlugin.Selected = false;
 
         UpdateSelectedItems(plugin, _step.SelectedPlugins, selected);
       }
 
       base.OnItemSelectedChanged(item, selected);
+    }
+
+    protected IEnumerable<PluginListItem> GetSelectedConflictingItems(IPluginDescriptor plugin)
+    {
+      return Items.Where(i =>
+        i.Selected && plugin.ConflictsWith(_step.AvailablePlugins.FirstOrDefault(p => p.Id == i.Item.Id))
+      );
     }
   }
 }

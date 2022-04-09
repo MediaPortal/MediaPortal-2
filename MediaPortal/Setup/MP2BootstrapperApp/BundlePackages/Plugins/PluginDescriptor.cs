@@ -109,9 +109,11 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
       get { return _excludedParentFeatures; }
     }
 
-    public bool ConflictsWith(string pluginId)
+    public bool ConflictsWith(IPluginDescriptor plugin, bool checkBothDirections = true)
     {
-      return _conflictingPluginIds.Contains(pluginId);
+      if (plugin == null)
+        return false;
+      return _conflictingPluginIds.Contains(plugin.Id) || (checkBothDirections && plugin.ConflictsWith(this, false));
     }
 
     public bool CanPluginBeInstalled(IPlan plan, IEnumerable<IBundlePackageFeature> bundleFeatures)

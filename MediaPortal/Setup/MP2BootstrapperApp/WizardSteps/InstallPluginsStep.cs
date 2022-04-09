@@ -83,21 +83,21 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      List<string> pluginsPlanned = new List<string>();
+      List<IPluginDescriptor> pluginsPlanned = new List<IPluginDescriptor>();
       foreach (IPluginDescriptor plugin in SelectedPlugins)
       {
-        IEnumerable<string> conflictingPlugins = pluginsPlanned.Where(p => plugin.ConflictsWith(p));
+        IEnumerable<IPluginDescriptor> conflictingPlugins = pluginsPlanned.Where(p => plugin.ConflictsWith(p));
         if (conflictingPlugins.Any())
         {
           // The view model should prevent multiple conflicting plugins being selected, but just in case log the conflict and skip installation
-          _bootstrapperApplicationModel.LogMessage(LogLevel.Error, $"Skipping conflicting plugin, '{plugin.Id}' conflicts with '{string.Join(",", conflictingPlugins.ToArray())}'");
+          _bootstrapperApplicationModel.LogMessage(LogLevel.Error, $"Skipping conflicting plugin, '{plugin.Id}' conflicts with '{string.Join(",", conflictingPlugins.Select(p => p.Id).ToArray())}'");
           continue;
         }
 
         foreach (IBundlePackageFeature feature in plugin.GetInstallableFeatures(_installPlan, _allFeatures))
           _installPlan.PlanFeature(feature.Id);
 
-        pluginsPlanned.Add(plugin.Id);
+        pluginsPlanned.Add(plugin);
       }
 
       if (_showCustomPropertiesStepNext)

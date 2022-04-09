@@ -74,11 +74,12 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     IReadOnlyCollection<string> ExcludedParentFeatures { get; }
 
     /// <summary>
-    /// Determines whether this plugin conflicts with the plugin with the given id.
+    /// Determines whether this plugin conflicts with the specified other plugin.
     /// </summary>
-    /// <param name="pluginId">Id of the plugin to determine whether this plugin conflicts with.</param>
+    /// <param name="plugin">Plugin to check for conflicts with.</param>
+    /// <param name="checkBothDirections">Whether to also inverse the check to see if the other plugin defines a conflict with this plugin.</param>
     /// <returns><c>true</c> if this plugin conflicts with the specified plugin; else <c>false</c>.</returns>
-    bool ConflictsWith(string pluginId);
+    bool ConflictsWith(IPluginDescriptor plugin, bool checkBothDirections = true);
 
     /// <summary>
     /// Determines whether this plugin can be installed.
