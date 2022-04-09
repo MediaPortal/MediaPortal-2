@@ -373,10 +373,15 @@
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                             Command="{Command SeekBackward}"/>
-                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                            Command="{Command Play}"/>
-                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                            Command="{Command Pause}"/>
+                    <Button x:Name="PlayPauseButton" Margin="5,0,5,0" Style="{ThemeResource PlayPauseButtonStyle}" 
+                              Command="{Command TogglePause}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                          <Binding Path="CanPlay"/>
+                          <Binding Path="CanPause"/>
+                        </MultiBinding>
+                      </Button.IsVisible>
+                    </Button>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
                             Command="{Command Stop}"/>
                     <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
@@ -471,10 +476,15 @@
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                             Command="{Command SeekBackward}"/>
-                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                            Command="{Command Play}"/>
-                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                            Command="{Command Pause}"/>
+                    <Button x:Name="PlayPauseButton" Margin="5,0,5,0" Style="{ThemeResource PlayPauseButtonStyle}" 
+                              Command="{Command TogglePause}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                          <Binding Path="CanPlay"/>
+                          <Binding Path="CanPause"/>
+                        </MultiBinding>
+                      </Button.IsVisible>
+                    </Button>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
                             Command="{Command Stop}"/>
                     <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
