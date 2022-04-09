@@ -26,6 +26,7 @@ using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.Models;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MP2BootstrapperApp.WizardSteps
 {
@@ -52,13 +53,13 @@ namespace MP2BootstrapperApp.WizardSteps
       switch (InstallType)
       {
         case InstallType.ClientServer:
-          features = new [] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector, FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider, FeatureId.SlimTvService3 };
+          features = new[] { FeatureId.Client, FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
           break;
         case InstallType.Server:
-          features = new [] { FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector, FeatureId.SlimTvService3 };
+          features = new[] { FeatureId.Server, FeatureId.ServiceMonitor, FeatureId.LogCollector };
           break;
         case InstallType.Client:
-          features = new [] { FeatureId.Client, FeatureId.ServiceMonitor, FeatureId.LogCollector, FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider };
+          features = new[] { FeatureId.Client, FeatureId.ServiceMonitor, FeatureId.LogCollector };
           break;
         //case InstallType.Custom:
         default:
@@ -66,7 +67,10 @@ namespace MP2BootstrapperApp.WizardSteps
       }
 
       InstallPlan plan = new InstallPlan(features, null, new PlanContext());
-      return new InstallOverviewStep(_bootstrapperApplicationModel, plan);
+      if (_bootstrapperApplicationModel.PluginManager.GetAvailablePlugins(plan, _bootstrapperApplicationModel.MainPackage.Features).Any())
+        return new InstallCustomPluginsStep(_bootstrapperApplicationModel, plan, false);
+      else
+        return new InstallOverviewStep(_bootstrapperApplicationModel, plan);
     }
 
     public bool CanGoNext()

@@ -39,11 +39,13 @@ namespace MP2BootstrapperApp.WizardSteps
   {
     protected InstallPlan _installPlan;
     protected ICollection<IBundlePackageFeature> _allFeatures;
+    protected bool _showCustomPropertiesStepNext;
 
-    public InstallCustomPluginsStep(IBootstrapperApplicationModel bootstrapperApplicationModel, InstallPlan installPlan)
+    public InstallCustomPluginsStep(IBootstrapperApplicationModel bootstrapperApplicationModel, InstallPlan installPlan, bool showCustomPropertiesStepNext)
       : base(bootstrapperApplicationModel)
     {
       _installPlan = installPlan;
+      _showCustomPropertiesStepNext = showCustomPropertiesStepNext;
       _allFeatures = _bootstrapperApplicationModel.MainPackage.Features;
       AvailablePlugins = bootstrapperApplicationModel.PluginManager.GetAvailablePlugins(_installPlan, _allFeatures);
       SelectedPlugins = bootstrapperApplicationModel.PluginManager.GetInstalledOrDefaultAvailablePlugins(_installPlan, _allFeatures);
@@ -98,11 +100,10 @@ namespace MP2BootstrapperApp.WizardSteps
         pluginsPlanned.Add(plugin.Id);
       }
 
-      // Changing custom properties is not supported during a modify installation as already installed features won't respect any property changes
-      if (_installPlan.PlannedAction == LaunchAction.Modify)
-        return new InstallOverviewStep(_bootstrapperApplicationModel, _installPlan);
-      else
+      if (_showCustomPropertiesStepNext)
         return new InstallCustomPropertiesStep(_bootstrapperApplicationModel, _installPlan);
+      else
+        return new InstallOverviewStep(_bootstrapperApplicationModel, _installPlan);
     }
   }
 }
