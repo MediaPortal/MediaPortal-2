@@ -129,15 +129,16 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
       // initial pass those child features will fail the check because we haven't determined that their parent
       // feature can be installed yet, so keep track of any plugin features that can be installed and check
       // against this on subsequent iterations until no more installable features are found.
-      List<IBundlePackageFeature> allPlannedFeatures = new List<IBundlePackageFeature>();
+      List<IBundlePackageFeature> allInstallableFeatures = new List<IBundlePackageFeature>();
       while (true)
       {
-        List<IBundlePackageFeature> plannedFeatures = features.Where(f => !allPlannedFeatures.Contains(f) && IsFeatureBeingInstalled(f.Parent, plan, bundleFeatures, allPlannedFeatures)).ToList();
-        if (plannedFeatures.Count == 0)
+        // Installable features are features where their parent is also being installed
+        List<IBundlePackageFeature> installableFeatures = features.Where(f => !allInstallableFeatures.Contains(f) && IsFeatureBeingInstalled(f.Parent, plan, bundleFeatures, allInstallableFeatures)).ToList();
+        if (installableFeatures.Count == 0)
           break;
-        allPlannedFeatures.AddRange(plannedFeatures);
+        allInstallableFeatures.AddRange(installableFeatures);
       }
-      return allPlannedFeatures;
+      return allInstallableFeatures;
     }
 
     /// <summary>
