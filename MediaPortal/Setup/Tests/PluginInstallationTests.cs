@@ -48,18 +48,18 @@ namespace Tests
 
     [Theory]
     // Should select TV Server 3 if installing server and previous install was client only with native TV provider
-    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider }, new[] { PluginId.TvService3 } })]
+    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.SlimTvServiceClient }, new[] { PluginId.TvService3 } })]
     // Should select TV Server 3 if installing server and previous install included server with Tv Service 3
     [InlineData(new object[] { new[] { FeatureId.Server }, new[] { FeatureId.Server, FeatureId.SlimTvService3 }, new[] { PluginId.TvService3 } })]
     [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Server, FeatureId.SlimTvService3 }, new[] { PluginId.TvService3 } })]
-    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider, FeatureId.Server, FeatureId.SlimTvService3 }, new[] { PluginId.TvService3 } })]
+    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.SlimTvServiceClient, FeatureId.Server, FeatureId.SlimTvService3 }, new[] { PluginId.TvService3 } })]
     // Should select TV Server 3.5 if installing server and previous install included server and TV Service 3.5
     [InlineData(new object[] { new[] { FeatureId.Server }, new[] { FeatureId.Server, FeatureId.SlimTvService35 }, new[] { PluginId.TvService35 } })]
     [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Server, FeatureId.SlimTvService35 }, new[] { PluginId.TvService35 } })]
-    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider, FeatureId.Server, FeatureId.SlimTvService35 }, new[] { PluginId.TvService35 } })]
+    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.SlimTvServiceClient, FeatureId.Server, FeatureId.SlimTvService35 }, new[] { PluginId.TvService35 } })]
     // Should select TV Server client if only installing client and previous install included native TV provider
-    [InlineData(new object[] { new[] { FeatureId.Client }, new[] { FeatureId.Client, FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider }, new[] { PluginId.TvServiceClient } })]
-    [InlineData(new object[] { new[] { FeatureId.Client }, new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvClient, FeatureId.SlimTvNativeProvider, FeatureId.SlimTvService3 }, new[] { PluginId.TvServiceClient } })]
+    [InlineData(new object[] { new[] { FeatureId.Client }, new[] { FeatureId.Client, FeatureId.SlimTvServiceClient }, new[] { PluginId.TvServiceClient } })]
+    [InlineData(new object[] { new[] { FeatureId.Client }, new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvServiceClient, FeatureId.SlimTvService3 }, new[] { PluginId.TvServiceClient } })]
     void Should_SelectBestAvailablePluginBasedonPreviousInstallation(string[] plannedFeatures, string[] previouslyInstalledFeatures, string[] expectedPlugin)
     {
       InstallPlan plan = new InstallPlan(plannedFeatures, null, new PlanContext());

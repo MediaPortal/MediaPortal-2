@@ -173,7 +173,7 @@
               Title="!(loc.F_Client)"
               Description="!(loc.F_Client_Desc)">
 
-      <FeatureRef Id="SlimTv.Client" />
+      <FeatureRef Id="SlimTv.ServiceClient" />
 
       <ComponentRef Id="CLIENT_DATA_FOLDER" />
       <ComponentRef Id="CLIENT_CONFIG_FOLDER" />

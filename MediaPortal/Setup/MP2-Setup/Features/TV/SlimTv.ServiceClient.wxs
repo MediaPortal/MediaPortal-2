@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+	<Fragment>
+
+    <!-- Feature for the client that provides access to the TV Server -->
+    <Feature Id="SlimTv.ServiceClient"
+             Level="1"
+             AllowAdvertise="no"
+             Title="!(loc.F_SlimTvServiceClient)"
+             Description="!(loc.F_SlimTvServiceClient_Desc)">
+
+      <!-- It doesn't make sense to include SlimTv.Client as a standalone feature as it needs
+           to have a TV provider to be useful so include it directly in any features that use it.
+           MSIs support multiple features referencing the same componenents, so it's fine for multiple
+           TV provider features to reference it. -->
+      <ComponentGroupRef Id="SlimTv.Client.Heat" />
+      <ComponentGroupRef Id="SlimTv.NativeProvider.Heat"/>
+    </Feature>
+    
+	</Fragment>
+</Wix>

@@ -55,14 +55,9 @@ namespace MP2BootstrapperApp.BundlePackages
     public const string LogCollector = "LogCollector";
 
     /// <summary>
-    /// Id of the TV Client feature.
+    /// Id of the TV Service client feature.
     /// </summary>
-    public const string SlimTvClient = "SlimTv.Client";
-
-    /// <summary>
-    /// Id of the TV Service provider feature.
-    /// </summary>
-    public const string SlimTvNativeProvider = "SlimTv.NativeProvider";
+    public const string SlimTvServiceClient = "SlimTv.ServiceClient";
 
     /// <summary>
     /// Id of the TV Service 3 feature

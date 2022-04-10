@@ -26,7 +26,7 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
 {
   public class TvServiceClientOnly : PluginDescriptor
   {
-    protected static readonly string[] OPTIONAL_FEATURES = new[] { FeatureId.SlimTvClient };
+    protected static readonly string[] OPTIONAL_FEATURES = new string[] { };
     protected static readonly string[] EXCLUDED_PARENTS = new string[] { FeatureId.Server };
     protected static readonly string[] CONFLICTING_PLUGINS = new string[] { /*PluginId.TvMosaic*/ };
 
@@ -34,7 +34,7 @@ namespace MP2BootstrapperApp.BundlePackages.Plugins
     /// Plugin that installs the necessary client features for using TV Server
     /// </summary>
     public TvServiceClientOnly()
-      : base(PluginId.TvServiceClient, "TV Service Client", "b-1", true, FeatureId.SlimTvNativeProvider, OPTIONAL_FEATURES, EXCLUDED_PARENTS, CONFLICTING_PLUGINS)
+      : base(PluginId.TvServiceClient, "TV Service Client", "b-1", true, FeatureId.SlimTvServiceClient, OPTIONAL_FEATURES, EXCLUDED_PARENTS, CONFLICTING_PLUGINS)
     { }
   }
 }
