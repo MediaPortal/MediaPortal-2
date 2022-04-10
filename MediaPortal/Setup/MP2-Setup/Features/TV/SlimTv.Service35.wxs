@@ -34,6 +34,7 @@
         <Shortcut Id="SetupTV35.Desktop.Shortcut"
                   Name="MediaPortal 2 TV Configuration"
                   Target="[SERVER_PLUGINS_FOLDER]\SlimTv.Service35\SetupTv\SetupTV.exe"
+                  Icon="SetupTV"
                   WorkingDirectory="INSTALLDIR_SERVER" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
