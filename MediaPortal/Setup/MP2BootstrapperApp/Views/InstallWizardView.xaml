@@ -105,9 +105,6 @@
               <Image.Effect>
                 <BlurEffect Radius="5"/>
               </Image.Effect>
-              <!--Image.OpacityMask>
-               <SolidColorBrush Color="Black" Opacity="0.155"/>
-            </Image.OpacityMask-->
             </Image>
           </Grid>
         </VisualBrush.Visual>
@@ -146,7 +143,7 @@
 
       <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Top" Height="30" Width="30" Margin="0,20,20,0" Name="CloseButton"
                     Style="{StaticResource ToggleButtonWindowClose}" BorderBrush="White" Foreground="White" Visibility="Hidden" />
-      <Rectangle Fill="{StaticResource Banner}" HorizontalAlignment="Left" Height="120" VerticalAlignment="Top" Width="753" Margin="22,18,0,0"/>
+      <Rectangle Fill="{StaticResource Banner}" HorizontalAlignment="Left" Height="130" VerticalAlignment="Top" Width="793" Margin="57,10,0,0"/>
     </Grid>
 
     <ContentControl Grid.Row="0" Style="{StaticResource HeaderContentStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,15"
