@@ -35,6 +35,7 @@ namespace MP2BootstrapperApp.BundlePackages
     protected string _featureId;
     protected string _package;
     protected string _parent;
+    protected int _installLevel;
     protected string _title;
     protected string _description;
     protected long _installedSize;
@@ -50,6 +51,7 @@ namespace MP2BootstrapperApp.BundlePackages
       _featureId = featureElement.Attribute("Feature")?.Value;
       _package = featureElement.Attribute("Package")?.Value;
       _parent = featureElement.Attribute("Parent")?.Value ?? string.Empty;
+      _installLevel = int.TryParse(featureElement.Attribute("Level")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out int level) ? level : 1;
       _title = featureElement.Attribute("Title")?.Value;
       _description = featureElement.Attribute("Description")?.Value;
       _installedSize = long.TryParse(featureElement.Attribute("Size")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;
@@ -78,6 +80,14 @@ namespace MP2BootstrapperApp.BundlePackages
     public string Parent
     {
       get { return _parent; }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public int InstallLevel
+    {
+      get { return _installLevel; }
     }
 
     /// <summary>
@@ -121,10 +131,5 @@ namespace MP2BootstrapperApp.BundlePackages
     /// <inheritdoc/>
     /// </summary>
     public FeatureState CurrentFeatureState { get; set; }
-
-    /// <summary>
-    /// <inheritdoc/>
-    /// </summary>
-    public FeatureState RequestedFeatureState { get; set; }
   }
 }

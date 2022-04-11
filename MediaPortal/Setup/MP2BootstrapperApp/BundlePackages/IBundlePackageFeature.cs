@@ -45,6 +45,11 @@ namespace MP2BootstrapperApp.BundlePackages
     string Parent { get; }
 
     /// <summary>
+    /// The install level of the feature.
+    /// </summary>
+    int InstallLevel { get; }
+
+    /// <summary>
     /// The title of the feature.
     /// </summary>
     string Title { get; }
@@ -73,10 +78,5 @@ namespace MP2BootstrapperApp.BundlePackages
     /// The current state of the feature if the current version of the parent package is installed. 
     /// </summary>
     FeatureState CurrentFeatureState { get; set; }
-
-    /// <summary>
-    /// The requested state of the feature.
-    /// </summary>
-    FeatureState RequestedFeatureState { get; set; }
   }
 }
