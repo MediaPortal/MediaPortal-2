@@ -38,6 +38,7 @@ namespace MP2BootstrapperApp.WizardSteps
   public class InstallPluginsStep : AbstractInstallStep, IStep
   {
     protected InstallPlan _installPlan;
+    protected ICollection<string> _initiallyPlannedFeatures;
     protected ICollection<IBundlePackageFeature> _allFeatures;
     protected bool _showCustomPropertiesStepNext;
 
@@ -45,6 +46,9 @@ namespace MP2BootstrapperApp.WizardSteps
       : base(bootstrapperApplicationModel)
     {
       _installPlan = installPlan;
+      // Remember the features that were initially planned, so that if the wizard navigates back to this
+      // step it can reset the install plan to the state if was before this step made any changes
+      _initiallyPlannedFeatures = new List<string>(installPlan.PlannedFeatures);
       _showCustomPropertiesStepNext = showCustomPropertiesStepNext;
       _allFeatures = _bootstrapperApplicationModel.MainPackage.Features;
 
@@ -97,6 +101,10 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
+      // If this step previously modified the plan, remove any features that were added
+      foreach (string featureToRemove in _installPlan.PlannedFeatures.Where(f => !_initiallyPlannedFeatures.Contains(f)).ToArray())
+        _installPlan.RemoveFeature(featureToRemove);
+
       foreach (IBundlePackageFeature feature in SelectedFeatures)
       {
         ICollection<IBundlePackageFeature> installableFeatures = FeatureUtils.GetInstallableFeatureAndRelations(feature, _installPlan.PlannedFeatures, _allFeatures);

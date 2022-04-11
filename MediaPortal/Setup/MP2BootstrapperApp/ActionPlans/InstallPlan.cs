@@ -51,8 +51,6 @@ namespace MP2BootstrapperApp.ActionPlans
       _plannedFeatures = plannedFeatures != null ? new HashSet<string>(plannedFeatures) : new HashSet<string>();
       _plannedOptionalPackages = plannedOptionalPackages != null ? new HashSet<PackageId>(plannedOptionalPackages) : null;
       _planContext = planContext;
-      // Get the packages that are not dependencies of the features to install.
-      _excludedPackages = new HashSet<PackageId>(planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
     }
 
     public IEnumerable<string> PlannedFeatures
@@ -67,16 +65,23 @@ namespace MP2BootstrapperApp.ActionPlans
       _plannedOptionalPackages.Add(packageId);
     }
 
-    public virtual void PlanFeature(string featureId)
+    public virtual void RemoveFeature(string feature)
     {
-      _plannedFeatures.Add(featureId);
-      // Update the packages that are not dependencies of the features to install.
-      _excludedPackages = new HashSet<PackageId>(_planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
+      _plannedFeatures.Remove(feature);
+      // Re-evaluate excluded packages the next time it's needed
+      _excludedPackages = null;
+    }
+
+    public virtual void PlanFeature(string feature)
+    {
+      _plannedFeatures.Add(feature);
+      // Re-evaluate excluded packages the next time it's needed
+      _excludedPackages = null;
     }
 
     public override RequestState? GetRequestedInstallState(IBundlePackage package)
     {
-      return ShouldInstallPackage(package, _excludedPackages) ? RequestState.Present : RequestState.None;
+      return ShouldInstallPackage(package) ? RequestState.Present : RequestState.None;
     }
 
     public override FeatureState? GetRequestedInstallState(IBundlePackageFeature feature)
@@ -88,10 +93,13 @@ namespace MP2BootstrapperApp.ActionPlans
     /// Determines whether a package should be installed.
     /// </summary>
     /// <param name="package">The package to check.</param>
-    /// <param name="excludedPackages">The ids of packages that should not be installed.</param>
     /// <returns><c>true</c> if the package should be installed.</returns>
-    protected bool ShouldInstallPackage(IBundlePackage package, ISet<PackageId> excludedPackages)
+    protected bool ShouldInstallPackage(IBundlePackage package)
     {
+      // Get the packages that are not dependencies of the features to install.
+      if (_excludedPackages == null)
+        _excludedPackages = new HashSet<PackageId>(_planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
+
       // If package is already present, then no need to install.
       if (package.CurrentInstallState == PackageState.Present)
         return false;
@@ -105,7 +113,7 @@ namespace MP2BootstrapperApp.ActionPlans
         return _plannedOptionalPackages.Contains(package.PackageId);
 
       // Else install unless explcitly excluded.
-      return !excludedPackages.Contains(package.PackageId);
+      return !_excludedPackages.Contains(package.PackageId);
     }
 
     /// <summary>
