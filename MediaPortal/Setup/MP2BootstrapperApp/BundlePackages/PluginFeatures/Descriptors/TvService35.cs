@@ -22,19 +22,17 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.BundlePackages.Plugins
+namespace MP2BootstrapperApp.BundlePackages.PluginFeatures.Descriptors
 {
-  public class TvServiceClientOnly : PluginDescriptor
+  /// <summary>
+  /// Descriptor for the TV Service 3.5 feature. Specifies that the TV Service Client feature should also be
+  /// installed if the client is being installed, and specifies a conflict with the TV Service 3 feature.
+  /// </summary>
+  public class TvService35 : AbstractFeatureDescriptor
   {
-    protected static readonly string[] OPTIONAL_FEATURES = new string[] { };
-    protected static readonly string[] EXCLUDED_PARENTS = new string[] { FeatureId.Server };
-    protected static readonly string[] CONFLICTING_PLUGINS = new string[] { /*PluginId.TvMosaic*/ };
-
-    /// <summary>
-    /// Plugin that installs the necessary client features for using TV Server
-    /// </summary>
-    public TvServiceClientOnly()
-      : base(PluginId.TvServiceClient, "TV Service Client", "b-1", true, FeatureId.SlimTvServiceClient, OPTIONAL_FEATURES, EXCLUDED_PARENTS, CONFLICTING_PLUGINS)
-    { }
+    public TvService35()
+    : base(FeatureId.SlimTvService35, new[] { FeatureId.SlimTvServiceClient }, new[] { FeatureId.SlimTvService3 })
+    {
+    }
   }
 }

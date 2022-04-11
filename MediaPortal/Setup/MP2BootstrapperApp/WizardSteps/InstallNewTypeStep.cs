@@ -67,7 +67,7 @@ namespace MP2BootstrapperApp.WizardSteps
       }
 
       InstallPlan plan = new InstallPlan(features, null, new PlanContext());
-      if (_bootstrapperApplicationModel.PluginManager.GetAvailablePlugins(plan, _bootstrapperApplicationModel.MainPackage.Features).Any())
+      if (_bootstrapperApplicationModel.PluginManager.GetInstallableFeatures(plan.PlannedFeatures, _bootstrapperApplicationModel.MainPackage.Features).Any())
         return new InstallPluginsStep(_bootstrapperApplicationModel, plan, false);
       else
         return new InstallOverviewStep(_bootstrapperApplicationModel, plan);

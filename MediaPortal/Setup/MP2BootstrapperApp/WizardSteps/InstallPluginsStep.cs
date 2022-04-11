@@ -25,7 +25,6 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.BundlePackages.Plugins;
 using MP2BootstrapperApp.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,28 +46,43 @@ namespace MP2BootstrapperApp.WizardSteps
       _installPlan = installPlan;
       _showCustomPropertiesStepNext = showCustomPropertiesStepNext;
       _allFeatures = _bootstrapperApplicationModel.MainPackage.Features;
-      AvailablePlugins = bootstrapperApplicationModel.PluginManager.GetAvailablePlugins(_installPlan, _allFeatures);
-      SelectedPlugins = bootstrapperApplicationModel.PluginManager.GetInstalledOrDefaultAvailablePlugins(_installPlan, _allFeatures);
+
+      AvailableFeatures = bootstrapperApplicationModel.PluginManager.GetInstallableFeatures(_installPlan.PlannedFeatures, _allFeatures);
+      SelectedFeatures = GetInitiallySelectedFeatures();
+    }
+
+    protected ICollection<IBundlePackageFeature> GetInitiallySelectedFeatures()
+    {
+      List<IBundlePackageFeature> installedFeatures = AvailableFeatures.Where(f => f.PreviousVersionInstalled || f.CurrentFeatureState == FeatureState.Local).ToList();
+      if (installedFeatures.Count > 0)
+        return installedFeatures;
+      return AvailableFeatures.Where(f => f.InstallLevel == 1).ToList();
     }
 
     /// <summary>
-    /// All plugins available for installation.
+    /// All features available for installation.
     /// </summary>
-    public ICollection<IPluginDescriptor> AvailablePlugins { get; }
+    public ICollection<IBundlePackageFeature> AvailableFeatures { get; }
 
     /// <summary>
-    /// Plugins that have been selected for installation.
+    /// Features that have been selected for installation.
     /// </summary>
-    public ICollection<IPluginDescriptor> SelectedPlugins { get; protected set; }
+    public ICollection<IBundlePackageFeature> SelectedFeatures { get; protected set; }
 
     /// <summary>
-    /// Gets all features that can be installed for the specified plugin.
+    /// Gets all features that will be installed with the specified feature.
     /// </summary>
-    /// <param name="plugin">The plugin to get the features of.</param>
-    /// <returns>Enumeration of <see cref="IBundlePackageFeature"/> that can be installed.</returns>
-    public IEnumerable<IBundlePackageFeature> GetAvailableFeaturesForPlugin(IPluginDescriptor plugin)
+    /// <param name="featureId">The id of the main feature.</param>
+    /// <returns>Enumeration of <see cref="IBundlePackageFeature"/> that will be installed.</returns>
+    public IEnumerable<IBundlePackageFeature> GetInstallableFeatureAndRelations(string featureId)
     {
-      return plugin.GetInstallableFeatures(_installPlan, _allFeatures);
+      return _bootstrapperApplicationModel.PluginManager.GetInstallableFeatureAndRelations(featureId, _installPlan.PlannedFeatures, _allFeatures)
+        .Select(id => _allFeatures.FirstOrDefault(f => f.Id == id)).Where(f => f != null);
+    }
+
+    public IEnumerable<string> GetConflicts(string featureId)
+    {
+      return _bootstrapperApplicationModel.PluginManager.GetConflicts(featureId, AvailableFeatures.Select(f => f.Id));
     }
 
     public bool CanGoBack()
@@ -83,21 +97,12 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      List<IPluginDescriptor> pluginsPlanned = new List<IPluginDescriptor>();
-      foreach (IPluginDescriptor plugin in SelectedPlugins)
+      foreach (IBundlePackageFeature feature in SelectedFeatures)
       {
-        IEnumerable<IPluginDescriptor> conflictingPlugins = pluginsPlanned.Where(p => plugin.ConflictsWith(p));
-        if (conflictingPlugins.Any())
-        {
-          // The view model should prevent multiple conflicting plugins being selected, but just in case log the conflict and skip installation
-          _bootstrapperApplicationModel.LogMessage(LogLevel.Error, $"Skipping conflicting plugin, '{plugin.Id}' conflicts with '{string.Join(",", conflictingPlugins.Select(p => p.Id).ToArray())}'");
-          continue;
-        }
-
-        foreach (IBundlePackageFeature feature in plugin.GetInstallableFeatures(_installPlan, _allFeatures))
-          _installPlan.PlanFeature(feature.Id);
-
-        pluginsPlanned.Add(plugin);
+        ICollection<string> installableFeatures = _bootstrapperApplicationModel.PluginManager.GetInstallableFeatureAndRelations(feature.Id, _installPlan.PlannedFeatures, _allFeatures);
+        foreach (string featureId in installableFeatures)
+          if (!_bootstrapperApplicationModel.PluginManager.GetConflicts(featureId, _installPlan.PlannedFeatures).Any())
+            _installPlan.PlanFeature(featureId);
       }
 
       if (_showCustomPropertiesStepNext)

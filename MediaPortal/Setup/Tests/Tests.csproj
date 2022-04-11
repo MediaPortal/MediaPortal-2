@@ -56,7 +56,7 @@
   <ItemGroup>
     <Compile Include="BootstrapperTests.cs" />
     <Compile Include="ConverterTests.cs" />
-    <Compile Include="Mocks\MockPluginLoader.cs" />
+    <Compile Include="Mocks\MockFeatureDescriptorProvider.cs" />
     <Compile Include="PluginInstallationTests.cs" />
     <Compile Include="Mocks\MockBundlePackageFactory.cs" />
     <Compile Include="RepairPlanTests.cs" />

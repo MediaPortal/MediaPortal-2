@@ -22,18 +22,17 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.BundlePackages.Plugins
+namespace MP2BootstrapperApp.BundlePackages.PluginFeatures.Descriptors
 {
-  public class TvService35 : PluginDescriptor
+  /// <summary>
+  /// Descriptor for the TV Service 3 feature. Specifies that the TV Service Client feature should also be
+  /// installed if the client is being installed, and specifies a conflict with the TV Service 3.5 feature.
+  /// </summary>
+  public class TvService3 : AbstractFeatureDescriptor
   {
-    protected static readonly string[] OPTIONAL_FEATURES = new[] { FeatureId.SlimTvServiceClient };
-    protected static readonly string[] CONFLICTING_PLUGINS = new[] { PluginId.TvService3 };
-
-    /// <summary>
-    /// Plugin that installs the necessary client and server features for using TV Server 3.5
-    /// </summary>
-    public TvService35()
-      : base(PluginId.TvService35, "TV Server 3.5", "a-2", false, FeatureId.SlimTvService35, OPTIONAL_FEATURES, null, CONFLICTING_PLUGINS)
-    { }
+    public TvService3()
+    : base(FeatureId.SlimTvService3, new[] { FeatureId.SlimTvServiceClient }, new[] { FeatureId.SlimTvService35 })
+    {
+    }
   }
 }

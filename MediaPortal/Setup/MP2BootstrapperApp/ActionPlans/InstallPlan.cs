@@ -55,6 +55,11 @@ namespace MP2BootstrapperApp.ActionPlans
       _excludedPackages = new HashSet<PackageId>(planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
     }
 
+    public IEnumerable<string> PlannedFeatures
+    {
+      get { return _plannedFeatures; }
+    }
+
     public virtual void PlanPackage(PackageId packageId)
     {
       if (_plannedOptionalPackages == null)

@@ -22,9 +22,8 @@
 
 #endregion
 
-using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.BundlePackages.Plugins;
+using MP2BootstrapperApp.BundlePackages.PluginFeatures;
 using System.Collections.Generic;
 using System.Linq;
 using Tests.Mocks;
@@ -34,62 +33,44 @@ namespace Tests
 {
   public class PluginInstallationTests
   {
-    [Fact]
-    void Should_OnlyIncludeFeaturesWhereParentFeatureIsBeingInstalled()
+    [Theory]
+    [InlineData(new[] { FeatureId.Client }, new[] { FeatureId.SlimTvServiceClient })]
+    [InlineData(new[] { FeatureId.Server }, new[] { FeatureId.SlimTvService3, FeatureId.SlimTvService35 })]
+    [InlineData(new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.SlimTvService3, FeatureId.SlimTvService35 })]
+    [InlineData(new[] { FeatureId.LogCollector }, new string[0])]
+    void Should_OnlyReturnPluginFeaturesWhereParentFeatureIsBeingInstalledAndNotIncludedWithRelatedFeature(string[] plannedParents, string[] expectedFeatures)
     {
-      InstallPlan plan = new InstallPlan(new[] { FeatureId.Server }, null, new PlanContext());
       IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
+      PluginFeatureManager featureManager = new PluginFeatureManager(new MockFeatureDescriptorProvider());
 
-      IPluginDescriptor tvService3 = new TvService3();
-
-      IEnumerable<string> plannedFeatures = tvService3.GetInstallableFeatures(plan, featurePackage.Features).Select(f => f.Id);
-      Assert.Equal(new[] { FeatureId.SlimTvService3 }, plannedFeatures);
+      IEnumerable<string> availableFeatures = featureManager.GetInstallableFeatures(plannedParents, featurePackage.Features).Select(f => f.Id);
+      
+      Assert.Equal(expectedFeatures.OrderBy(f => f), availableFeatures.OrderBy(f => f));
     }
 
     [Theory]
-    // Should select TV Server 3 if installing server and previous install was client only with native TV provider
-    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.SlimTvServiceClient }, new[] { PluginId.TvService3 } })]
-    // Should select TV Server 3 if installing server and previous install included server with Tv Service 3
-    [InlineData(new object[] { new[] { FeatureId.Server }, new[] { FeatureId.Server, FeatureId.SlimTvService3 }, new[] { PluginId.TvService3 } })]
-    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Server, FeatureId.SlimTvService3 }, new[] { PluginId.TvService3 } })]
-    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.SlimTvServiceClient, FeatureId.Server, FeatureId.SlimTvService3 }, new[] { PluginId.TvService3 } })]
-    // Should select TV Server 3.5 if installing server and previous install included server and TV Service 3.5
-    [InlineData(new object[] { new[] { FeatureId.Server }, new[] { FeatureId.Server, FeatureId.SlimTvService35 }, new[] { PluginId.TvService35 } })]
-    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Server, FeatureId.SlimTvService35 }, new[] { PluginId.TvService35 } })]
-    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.SlimTvServiceClient, FeatureId.Server, FeatureId.SlimTvService35 }, new[] { PluginId.TvService35 } })]
-    // Should select TV Server client if only installing client and previous install included native TV provider
-    [InlineData(new object[] { new[] { FeatureId.Client }, new[] { FeatureId.Client, FeatureId.SlimTvServiceClient }, new[] { PluginId.TvServiceClient } })]
-    [InlineData(new object[] { new[] { FeatureId.Client }, new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvServiceClient, FeatureId.SlimTvService3 }, new[] { PluginId.TvServiceClient } })]
-    void Should_SelectBestAvailablePluginBasedonPreviousInstallation(string[] plannedFeatures, string[] previouslyInstalledFeatures, string[] expectedPlugin)
+    [InlineData(new[] { FeatureId.Client, FeatureId.Server }, FeatureId.SlimTvService3, new[] { FeatureId.SlimTvService3, FeatureId.SlimTvServiceClient })]
+    [InlineData(new[] { FeatureId.Server }, FeatureId.SlimTvService3, new[] { FeatureId.SlimTvService3 })]
+    [InlineData(new[] { FeatureId.Client }, FeatureId.SlimTvService3, new string[0])]
+    void Should_OnlyInstallRelatedPluginFeaturesWhenParentFeatureIsBeingInstalled(string[] plannedParents, string installingFeature, string[] expectedInstallableFeatures)
     {
-      InstallPlan plan = new InstallPlan(plannedFeatures, null, new PlanContext());
-      IList<IBundlePackage> bundlePackages = MockBundlePackageFactory.CreatePreviousInstall(new System.Version(1, 0), new[] { PackageId.MediaPortal2 }, previouslyInstalledFeatures); ;
-      IBundleMsiPackage featurePackage = bundlePackages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
+      IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
+      PluginFeatureManager featureManager = new PluginFeatureManager(new MockFeatureDescriptorProvider());
 
-      PluginManager pluginManager = new PluginManager(new MockPluginLoader());
-      IEnumerable<string> plugins = pluginManager.GetInstalledOrDefaultAvailablePlugins(plan, featurePackage.Features).Select(p => p.Id);
+      ICollection<string> installableFeatures = featureManager.GetInstallableFeatureAndRelations(installingFeature, plannedParents, featurePackage.Features);
 
-      Assert.Equal(expectedPlugin, plugins);
+      Assert.Equal(expectedInstallableFeatures.OrderBy(f => f), installableFeatures.OrderBy(f => f));
     }
 
     [Theory]
-    // Should select TV Server 3 if installing server and previous install did not include any TV provider
-    [InlineData(new object[] { new[] { FeatureId.Server }, new string[] { }, new[] { PluginId.TvService3 } })]
-    [InlineData(new object[] { new[] { FeatureId.Client, FeatureId.Server }, new[] { FeatureId.Client, FeatureId.Server }, new[] { PluginId.TvService3 } })]
-    // Should select TV Server Client if installing client and previous install did not include any TV provider
-    [InlineData(new object[] { new[] { FeatureId.Client }, new string[] { }, new[] { PluginId.TvServiceClient } })]
-    [InlineData(new object[] { new[] { FeatureId.Client }, new[] { FeatureId.Client, FeatureId.Server }, new[] { PluginId.TvServiceClient } })]
-    [InlineData(new object[] { new[] { FeatureId.Client }, new[] { FeatureId.Server, FeatureId.SlimTvService3 }, new[] { PluginId.TvServiceClient } })]
-    void Should_SelectBestAvailableDefaultPluginBasedonPreviousInstallation(string[] plannedFeatures, string[] previouslyInstalledFeatures, string[] expectedPlugin)
+    [InlineData(new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvService35 }, FeatureId.SlimTvService3)]
+    void Should_NotInstallPluginFeatureWhenConflictingFeatureIsBeingInstalled(string[] plannedFeatures, string conflictingfeature)
     {
-      InstallPlan plan = new InstallPlan(plannedFeatures, null, new PlanContext());
-      IList<IBundlePackage> bundlePackages = MockBundlePackageFactory.CreatePreviousInstall(new System.Version(1, 0), new[] { PackageId.MediaPortal2 }, previouslyInstalledFeatures); ;
-      IBundleMsiPackage featurePackage = bundlePackages.First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
+      PluginFeatureManager featureManager = new PluginFeatureManager(new MockFeatureDescriptorProvider());
 
-      PluginManager pluginManager = new PluginManager(new MockPluginLoader());
-      IEnumerable<string> plugins = pluginManager.GetInstalledOrDefaultAvailablePlugins(plan, featurePackage.Features).Select(p => p.Id);
+      IEnumerable<string> conflicts = featureManager.GetConflicts(conflictingfeature, plannedFeatures);
 
-      Assert.Equal(expectedPlugin, plugins);
+      Assert.True(conflicts.Any());
     }
   }
 }

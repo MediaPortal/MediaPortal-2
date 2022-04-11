@@ -23,7 +23,6 @@
 #endregion
 
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.BundlePackages.Plugins;
 using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels.ListItems;
 using MP2BootstrapperApp.WizardSteps;
@@ -32,7 +31,7 @@ using System.Linq;
 
 namespace MP2BootstrapperApp.ViewModels
 {
-  public class InstallPluginsPageViewModel : AbstractSelectionViewModel<InstallPluginsStep, PluginListItem>
+  public class InstallPluginsPageViewModel : AbstractSelectionViewModel<InstallPluginsStep, FeatureListItem>
   {
     public InstallPluginsPageViewModel(InstallPluginsStep step)
       : base(step)
@@ -41,39 +40,38 @@ namespace MP2BootstrapperApp.ViewModels
       SubHeader = "[InstallPluginsPageView.SubHeader]";
     }
 
-    protected override IEnumerable<PluginListItem> GetItems()
+    protected override IEnumerable<FeatureListItem> GetItems()
     {
       IBundleMsiPackage mainPackage = _step.BootstrapperApplicationModel.MainPackage;
 
-      return _step.AvailablePlugins.OrderBy(p => p.SortName).Select(p =>
-        new PluginListItem
+      return _step.AvailableFeatures.Select(f =>
+        new FeatureListItem
         {
-          Item = p.CreatePluginModel(_step.GetAvailableFeaturesForPlugin(p), mainPackage.Version, mainPackage.InstalledVersion),
-          Selected = _step.SelectedPlugins.Contains(p)
+          Item = f.CreateFeatureModel(mainPackage.Version, mainPackage.InstalledVersion, null, _step.GetInstallableFeatureAndRelations(f.Id)),
+          Selected = _step.SelectedFeatures.Contains(f)
         });
     }
 
-    protected override void OnItemSelectedChanged(PluginListItem item, bool selected)
+    protected override void OnItemSelectedChanged(FeatureListItem item, bool selected)
     {
-      IPluginDescriptor plugin = _step.AvailablePlugins.FirstOrDefault(p => p.Id == item.Item.Id);
-      if (plugin != null)
+      IBundlePackageFeature feature = _step.AvailableFeatures.FirstOrDefault(p => p.Id == item.Item.Id);
+      if (feature != null)
       {
-        // If a new plugin has been selected, unselect any conflicting plugins
+        // If a new feature has been selected, unselect any conflicting features
         if (selected)
-          foreach (PluginListItem conflictingPlugin in GetSelectedConflictingItems(plugin))
-            conflictingPlugin.Selected = false;
+          foreach (FeatureListItem conflictingItem in GetSelectedConflictingItems(feature.Id))
+            conflictingItem.Selected = false;
 
-        UpdateSelectedItems(plugin, _step.SelectedPlugins, selected);
+        UpdateSelectedItems(feature, _step.SelectedFeatures, selected);
       }
 
       base.OnItemSelectedChanged(item, selected);
     }
 
-    protected IEnumerable<PluginListItem> GetSelectedConflictingItems(IPluginDescriptor plugin)
+    protected IEnumerable<FeatureListItem> GetSelectedConflictingItems(string featureId)
     {
-      return Items.Where(i =>
-        i.Selected && plugin.ConflictsWith(_step.AvailablePlugins.FirstOrDefault(p => p.Id == i.Item.Id))
-      );
+      IEnumerable<string> conflicts = _step.GetConflicts(featureId);
+      return Items.Where(i => i.Selected && conflicts.Contains(i.Item.Id));
     }
   }
 }

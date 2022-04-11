@@ -24,17 +24,17 @@
 
 using System.Collections.Generic;
 
-namespace MP2BootstrapperApp.BundlePackages.Plugins
+namespace MP2BootstrapperApp.BundlePackages.PluginFeatures
 {
   /// <summary>
-  /// Interface for a class that can provide an enumeration of available plugins.
+  /// Interface for a class that can get known implementations of <see cref="IPluginFeatureDescriptorProvider"/>.
   /// </summary>
-  public interface IPluginLoader
+  public interface IPluginFeatureDescriptorProvider
   {
     /// <summary>
-    /// Gets all plugin descriptors.
+    /// Gets an enumeration of all <see cref="IPluginFeatureDescriptor"/> known to this implementation.
     /// </summary>
-    /// <returns>Enumeration of <see cref="IPluginDescriptor>"/>.</returns>
-    IEnumerable<IPluginDescriptor> GetPluginDescriptors();
+    /// <returns>Enumeration of all <see cref="IPluginFeatureDescriptor"/> known to this implementation.</returns>
+    IEnumerable<IPluginFeatureDescriptor> GetDescriptors();
   }
 }

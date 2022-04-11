@@ -24,7 +24,6 @@
 
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.BundlePackages.Plugins;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,8 +62,9 @@ namespace MP2BootstrapperApp.Models
     /// <param name="bundleVersion">The bundled version of the feature.</param>
     /// <param name="installedVersion">The currently installed verion of the feature.</param>
     /// <param name="featureState">Optional requested install state of the feature.</param>
+    /// <param name="allFeaturesToBeInstalled">Enumeration of all features that will be installed if this feature is installed, inclusive of the feature itself, will be used to determine the installed size.</param>
     /// <returns>A <see cref="Package"/> model containing details of the feature.</returns>
-    public static Package CreateFeatureModel(this IBundlePackageFeature feature, Version bundleVersion, Version installedVersion, FeatureState? featureState = null)
+    public static Package CreateFeatureModel(this IBundlePackageFeature feature, Version bundleVersion, Version installedVersion, FeatureState? featureState = null, IEnumerable<IBundlePackageFeature> allFeaturesToBeInstalled = null)
     {
       RequestState requestState = GetFeatureRequestState(feature, featureState);
 
@@ -77,40 +77,7 @@ namespace MP2BootstrapperApp.Models
         DisplayName = feature.Title,
         Description = feature.Description,
         LocalizedDescription = $"[FeatureDescription.{feature.Id}]",
-        InstalledSize = feature.InstalledSize,
-        PackageState = feature.CurrentFeatureState == FeatureState.Local ? PackageState.Present : PackageState.Absent,
-        RequestState = requestState
-      };
-    }
-
-    /// <summary>
-    /// Creates a model for displaying a plugin in a view.
-    /// </summary>
-    /// <param name="plugin">The plugin to create a model for.</param>
-    /// <param name="pluginFeatures">The features contained in the plugin that are being installed.</param>
-    /// <param name="bundleVersion">The bundled version of the plugin.</param>
-    /// <param name="installedVersion">The currently installed verion of the plugin.</param>
-    /// <param name="featureState">Optional requested install state of the plugin.</param>
-    /// <returns>A <see cref="Package"/> model containing details of the plugin.</returns>
-    public static Package CreatePluginModel(this IPluginDescriptor plugin, IEnumerable<IBundlePackageFeature> pluginFeatures, Version bundleVersion, Version installedVersion, FeatureState? featureState = null)
-    {
-      IBundlePackageFeature feature = pluginFeatures.FirstOrDefault(f => f.Id == plugin.MainPluginFeature);
-
-      // Shouldn't happen unless bundle has been changed without updating the plugin definition
-      if (feature == null)
-        throw new InvalidOperationException($"Cannot create PluginModel for plugin {plugin.Id}, the bundle package does not contain the required plugin features.");
-
-      RequestState requestState = GetFeatureRequestState(feature, featureState);
-
-      return new Package
-      {
-        BundleVersion = bundleVersion,
-        InstalledVersion = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? installedVersion : new Version(),
-        ImagePath = @"..\resources\Plugins\" + plugin.Id + ".png",
-        Id = plugin.Id,
-        DisplayName = plugin.Name,
-        LocalizedDescription = $"[PluginDescription.{plugin.Id}]",
-        InstalledSize = pluginFeatures.Sum(f => f.InstalledSize),
+        InstalledSize = allFeaturesToBeInstalled == null ? feature.InstalledSize : allFeaturesToBeInstalled.Sum(f => f.InstalledSize),
         PackageState = feature.CurrentFeatureState == FeatureState.Local ? PackageState.Present : PackageState.Absent,
         RequestState = requestState
       };

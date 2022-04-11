@@ -27,7 +27,7 @@ using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.BundlePackages.Plugins;
+using MP2BootstrapperApp.BundlePackages.PluginFeatures;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -47,7 +47,7 @@ namespace MP2BootstrapperApp.Models
   {
     private IntPtr _hwnd;
 
-    public BootstrapperApplicationModel(IBootstrapperApp bootstreApplication, IPluginManager pluginManager)
+    public BootstrapperApplicationModel(IBootstrapperApp bootstreApplication, IPluginFeatureManager pluginManager)
     {
       BootstrapperApplication = bootstreApplication;
       PluginManager = pluginManager;
@@ -67,7 +67,7 @@ namespace MP2BootstrapperApp.Models
 
     public ReadOnlyCollection<IBundlePackage> BundlePackages { get; private set; }
 
-    public IPluginManager PluginManager { get; }
+    public IPluginFeatureManager PluginManager { get; }
 
     public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 
