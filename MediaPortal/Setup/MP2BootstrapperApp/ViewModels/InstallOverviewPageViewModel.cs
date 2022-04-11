@@ -63,7 +63,7 @@ namespace MP2BootstrapperApp.ViewModels
       foreach (IBundlePackageFeature feature in mainPackage.Features)
       {
         // Only add features that are direct children of the main feature
-        if (!feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) && feature.Parent == FeatureId.MediaPortal_2)
+        if (!feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent))
           Packages.Add(feature.CreateFeatureModel(mainPackage.Version, mainPackage.InstalledVersion, plan.GetRequestedInstallState(feature)));
       }
     }
