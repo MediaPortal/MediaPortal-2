@@ -2,8 +2,8 @@ image: Visual Studio 2022
 clone_folder: c:\project\mediaportal-2
 
 cache:
-- '%USERPROFILE%\.nuget\packages -> appveyor.yml' # global‑packages
-- '%LocalAppData%\NuGet\v3-cache -> appveyor.yml' # http‑cache
+- '%USERPROFILE%\.nuget\packages -> appveyor.yml' # global-packages
+- '%LocalAppData%\NuGet\v3-cache -> appveyor.yml' # http-cache
 
 install:
 - cmd: >-
@@ -25,11 +25,12 @@ build_script:
     
     @echo | call MSBUILD_Create_Release_Full_Installer.bat
     
-    cd ..\Bin
-    7z a MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip .\MP2-Setup\Release\en-us\MP2-Setup.exe .\MP2-Setup\Release\en-us\MP2-Setup-Logging.bat
+    7z a ..\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip ..\Bin\MP2-Setup\Release\en-us\MP2-Setup.exe ..\Bin\MP2-Setup\Release\en-us\MP2-Setup-Logging.bat
     
 artifacts:
 - path: MediaPortal\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip
   name: Installer
+- path: MediaPortal\Build\msbuild.binlog
+  name: Build log (binary)
   
 test: off
