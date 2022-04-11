@@ -27,7 +27,7 @@ using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.BundlePackages.PluginFeatures;
+using MP2BootstrapperApp.BundlePackages.Features;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -47,10 +47,9 @@ namespace MP2BootstrapperApp.Models
   {
     private IntPtr _hwnd;
 
-    public BootstrapperApplicationModel(IBootstrapperApp bootstreApplication, IPluginFeatureManager pluginManager)
+    public BootstrapperApplicationModel(IBootstrapperApp bootstreApplication)
     {
       BootstrapperApplication = bootstreApplication;
-      PluginManager = pluginManager;
       _hwnd = IntPtr.Zero;
       ComputeBundlePackages();
       WireUpEventHandlers();
@@ -66,8 +65,6 @@ namespace MP2BootstrapperApp.Models
     public int FinalResult { get; set; }
 
     public ReadOnlyCollection<IBundlePackage> BundlePackages { get; private set; }
-
-    public IPluginFeatureManager PluginManager { get; }
 
     public DetectionState DetectionState { get; set; } = DetectionState.Absent;
 
@@ -327,7 +324,7 @@ namespace MP2BootstrapperApp.Models
         using (StreamReader reader = new StreamReader(bootstrapperDataFilePath))
           xml = reader.ReadToEnd();
 
-        BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
+        BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new AssemblyFeatureMetadataProvider());
         packages = bundlePackageFactory.CreatePackagesFromXmlString(xml);
       }
 

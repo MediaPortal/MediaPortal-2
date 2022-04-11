@@ -24,7 +24,9 @@
 
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using MP2BootstrapperApp.BundlePackages.Features;
 using System;
+using System.Collections.Generic;
 using System.Globalization;
 using System.Xml.Linq;
 
@@ -41,9 +43,13 @@ namespace MP2BootstrapperApp.BundlePackages
     protected long _installedSize;
     protected FeatureAttributes _attributes;
 
-    public BundlePackageFeature(XElement featureElement)
+    protected ICollection<string> _relatedFeatures;
+    protected ICollection<string> _conflictingFeatures;
+
+    public BundlePackageFeature(XElement featureElement, IFeatureMetadata featureMetadata)
     {
       SetXmlProperties(featureElement);
+      SetMetadataProperties(featureMetadata);
     }
 
     protected void SetXmlProperties(XElement featureElement)
@@ -56,6 +62,20 @@ namespace MP2BootstrapperApp.BundlePackages
       _description = featureElement.Attribute("Description")?.Value;
       _installedSize = long.TryParse(featureElement.Attribute("Size")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;
       _attributes = Enum.TryParse(featureElement.Attribute("Attributes")?.Value, out FeatureAttributes attributes) ? attributes : FeatureAttributes.None;
+    }
+
+    protected void SetMetadataProperties(IFeatureMetadata metadata)
+    {
+      if (metadata != null)
+      {
+        _relatedFeatures = metadata.RelatedFeatures;
+        _conflictingFeatures = metadata.ConflictingFeatures;
+      }
+      else
+      {
+        _relatedFeatures = new List<string>();
+        _conflictingFeatures = new List<string>();
+      }
     }
 
     /// <summary>
@@ -131,5 +151,21 @@ namespace MP2BootstrapperApp.BundlePackages
     /// <inheritdoc/>
     /// </summary>
     public FeatureState CurrentFeatureState { get; set; }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public ICollection<string> RelatedFeatures
+    {
+      get { return _relatedFeatures; }
+    }
+
+    /// <summary>
+    /// <inheritdoc/>
+    /// </summary>
+    public ICollection<string> ConflictingFeatures
+    {
+      get { return _conflictingFeatures; }
+    }
   }
 }

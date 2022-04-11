@@ -24,6 +24,7 @@
 
 using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using System.Collections.Generic;
 
 namespace MP2BootstrapperApp.BundlePackages
 {
@@ -78,5 +79,18 @@ namespace MP2BootstrapperApp.BundlePackages
     /// The current state of the feature if the current version of the parent package is installed. 
     /// </summary>
     FeatureState CurrentFeatureState { get; set; }
+
+    /// <summary>
+    /// Ids of any related features that should optionally be installed alongside this feature. These features
+    /// should only be installed if their main parent feature is also being installed and they do not conflict with any
+    /// other features that are being installed, e.g. if this contains client features and the client is not being
+    /// installed, then those features will not be installed.
+    /// </summary>
+    ICollection<string> RelatedFeatures { get; }
+
+    /// <summary>
+    /// Any features that conflict with this feature, conflicting features should not be installed alongside each other.
+    /// </summary>
+    ICollection<string> ConflictingFeatures { get; }
   }
 }

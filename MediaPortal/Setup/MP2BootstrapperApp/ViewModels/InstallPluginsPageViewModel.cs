@@ -47,7 +47,7 @@ namespace MP2BootstrapperApp.ViewModels
       return _step.AvailableFeatures.Select(f =>
         new FeatureListItem
         {
-          Item = f.CreateFeatureModel(mainPackage.Version, mainPackage.InstalledVersion, null, _step.GetInstallableFeatureAndRelations(f.Id)),
+          Item = f.CreateFeatureModel(mainPackage.Version, mainPackage.InstalledVersion, null, _step.GetInstallableFeatureAndRelations(f)),
           Selected = _step.SelectedFeatures.Contains(f)
         });
     }

@@ -24,11 +24,10 @@
 
 using System.Collections.Generic;
 
-namespace MP2BootstrapperApp.BundlePackages.PluginFeatures
+namespace MP2BootstrapperApp.BundlePackages.Features
 {
   /// <summary>
-  /// Interface for a class that descibes a plugin feature, which is a feature that is a child of one of
-  /// the main features.
+  /// Interface for a class that provides additional metadata for a feature.
   /// </summary>  /// 
   /// <remarks>
   /// Windows installer packages do not have a concept of mutually exclusive features nor do they allow
@@ -36,14 +35,13 @@ namespace MP2BootstrapperApp.BundlePackages.PluginFeatures
   /// these requirements in the MediaPortal setup, e.g. when installing TV Server 3, TV Service 3.5 should
   /// not also be installed, and in a single-seat install both the client and server features should be
   /// installed together as a single selectable unit. This interface defines those additional requirements.<br/>
-  /// For simple plugin features which don't have any of the above requirements an <see cref="IPluginFeatureDescriptor"/>
+  /// For simple features which don't have any of the above requirements an <see cref="IFeatureMetadata"/>
   /// is not required.
   /// </remarks>
-  public interface IPluginFeatureDescriptor
+  public interface IFeatureMetadata
   {
     /// <summary>
-    /// Id of the plugin feature to be installed, if this feature's parent is not being installed then this feature will
-    /// not be available for selection in the setup.
+    /// Id of the feature that this metadata belongs to.
     /// </summary>
     string Feature { get; }
 

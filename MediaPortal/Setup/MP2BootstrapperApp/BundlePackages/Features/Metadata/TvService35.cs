@@ -22,16 +22,16 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.BundlePackages.PluginFeatures.Descriptors
+namespace MP2BootstrapperApp.BundlePackages.Features.Metadata
 {
   /// <summary>
-  /// Descriptor for the TV Service 3 feature. Specifies that the TV Service Client feature should also be
-  /// installed if the client is being installed, and specifies a conflict with the TV Service 3.5 feature.
+  /// Metadata for the TV Service 3.5 feature. Specifies that the TV Service Client feature should also be
+  /// installed if the client is being installed, and specifies a conflict with the TV Service 3 feature.
   /// </summary>
-  public class TvService3 : AbstractFeatureDescriptor
+  public class TvService35 : AbstractFeatureMetadata
   {
-    public TvService3()
-    : base(FeatureId.SlimTvService3, new[] { FeatureId.SlimTvServiceClient }, new[] { FeatureId.SlimTvService35 })
+    public TvService35()
+    : base(FeatureId.SlimTvService35, new[] { FeatureId.SlimTvServiceClient }, new[] { FeatureId.SlimTvService3 })
     {
     }
   }

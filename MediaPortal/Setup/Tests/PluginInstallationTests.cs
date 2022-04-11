@@ -23,7 +23,7 @@
 #endregion
 
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.BundlePackages.PluginFeatures;
+using MP2BootstrapperApp.BundlePackages.Features;
 using System.Collections.Generic;
 using System.Linq;
 using Tests.Mocks;
@@ -41,9 +41,8 @@ namespace Tests
     void Should_OnlyReturnPluginFeaturesWhereParentFeatureIsBeingInstalledAndNotIncludedWithRelatedFeature(string[] plannedParents, string[] expectedFeatures)
     {
       IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
-      PluginFeatureManager featureManager = new PluginFeatureManager(new MockFeatureDescriptorProvider());
 
-      IEnumerable<string> availableFeatures = featureManager.GetInstallableFeatures(plannedParents, featurePackage.Features).Select(f => f.Id);
+      IEnumerable<string> availableFeatures = FeatureUtils.GetSelectableChildFeatures(plannedParents, featurePackage.Features).Select(f => f.Id);
       
       Assert.Equal(expectedFeatures.OrderBy(f => f), availableFeatures.OrderBy(f => f));
     }
@@ -55,20 +54,20 @@ namespace Tests
     void Should_OnlyInstallRelatedPluginFeaturesWhenParentFeatureIsBeingInstalled(string[] plannedParents, string installingFeature, string[] expectedInstallableFeatures)
     {
       IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
-      PluginFeatureManager featureManager = new PluginFeatureManager(new MockFeatureDescriptorProvider());
+      IBundlePackageFeature feature = featurePackage.Features.First(f => f.Id == installingFeature);
 
-      ICollection<string> installableFeatures = featureManager.GetInstallableFeatureAndRelations(installingFeature, plannedParents, featurePackage.Features);
+      ICollection<IBundlePackageFeature> installableFeatures = FeatureUtils.GetInstallableFeatureAndRelations(feature, plannedParents, featurePackage.Features);
 
-      Assert.Equal(expectedInstallableFeatures.OrderBy(f => f), installableFeatures.OrderBy(f => f));
+      Assert.Equal(expectedInstallableFeatures.OrderBy(f => f), installableFeatures.Select(f => f.Id).OrderBy(f => f));
     }
 
     [Theory]
     [InlineData(new[] { FeatureId.Client, FeatureId.Server, FeatureId.SlimTvService35 }, FeatureId.SlimTvService3)]
     void Should_NotInstallPluginFeatureWhenConflictingFeatureIsBeingInstalled(string[] plannedFeatures, string conflictingfeature)
     {
-      PluginFeatureManager featureManager = new PluginFeatureManager(new MockFeatureDescriptorProvider());
+      IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
 
-      IEnumerable<string> conflicts = featureManager.GetConflicts(conflictingfeature, plannedFeatures);
+      IEnumerable<string> conflicts = FeatureUtils.GetConflicts(conflictingfeature, plannedFeatures, featurePackage.Features);
 
       Assert.True(conflicts.Any());
     }

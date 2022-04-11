@@ -26,7 +26,6 @@ using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.BundlePackages.PluginFeatures;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
@@ -49,11 +48,6 @@ namespace MP2BootstrapperApp.Models
     /// The packages included in the bundle.
     /// </summary>
     ReadOnlyCollection<IBundlePackage> BundlePackages { get; }
-
-    /// <summary>
-    /// The plugin manager used to get and manage installable plugin features.
-    /// </summary>
-    IPluginFeatureManager PluginManager { get; }
 
     /// <summary>
     /// The detected state of this bundle.

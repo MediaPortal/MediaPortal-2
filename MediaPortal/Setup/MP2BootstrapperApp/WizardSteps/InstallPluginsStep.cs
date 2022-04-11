@@ -25,6 +25,7 @@
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BundlePackages;
+using MP2BootstrapperApp.BundlePackages.Features;
 using MP2BootstrapperApp.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -47,7 +48,7 @@ namespace MP2BootstrapperApp.WizardSteps
       _showCustomPropertiesStepNext = showCustomPropertiesStepNext;
       _allFeatures = _bootstrapperApplicationModel.MainPackage.Features;
 
-      AvailableFeatures = bootstrapperApplicationModel.PluginManager.GetInstallableFeatures(_installPlan.PlannedFeatures, _allFeatures);
+      AvailableFeatures = FeatureUtils.GetSelectableChildFeatures(_installPlan.PlannedFeatures, _allFeatures);
       SelectedFeatures = GetInitiallySelectedFeatures();
     }
 
@@ -72,17 +73,16 @@ namespace MP2BootstrapperApp.WizardSteps
     /// <summary>
     /// Gets all features that will be installed with the specified feature.
     /// </summary>
-    /// <param name="featureId">The id of the main feature.</param>
+    /// <param name="feature">The main feature.</param>
     /// <returns>Enumeration of <see cref="IBundlePackageFeature"/> that will be installed.</returns>
-    public IEnumerable<IBundlePackageFeature> GetInstallableFeatureAndRelations(string featureId)
+    public IEnumerable<IBundlePackageFeature> GetInstallableFeatureAndRelations(IBundlePackageFeature feature)
     {
-      return _bootstrapperApplicationModel.PluginManager.GetInstallableFeatureAndRelations(featureId, _installPlan.PlannedFeatures, _allFeatures)
-        .Select(id => _allFeatures.FirstOrDefault(f => f.Id == id)).Where(f => f != null);
+      return FeatureUtils.GetInstallableFeatureAndRelations(feature, _initiallyPlannedFeatures, _allFeatures);
     }
 
     public IEnumerable<string> GetConflicts(string featureId)
     {
-      return _bootstrapperApplicationModel.PluginManager.GetConflicts(featureId, AvailableFeatures.Select(f => f.Id));
+      return FeatureUtils.GetConflicts(featureId, AvailableFeatures.Select(f => f.Id), _allFeatures);
     }
 
     public bool CanGoBack()
@@ -99,10 +99,10 @@ namespace MP2BootstrapperApp.WizardSteps
     {
       foreach (IBundlePackageFeature feature in SelectedFeatures)
       {
-        ICollection<string> installableFeatures = _bootstrapperApplicationModel.PluginManager.GetInstallableFeatureAndRelations(feature.Id, _installPlan.PlannedFeatures, _allFeatures);
-        foreach (string featureId in installableFeatures)
-          if (!_bootstrapperApplicationModel.PluginManager.GetConflicts(featureId, _installPlan.PlannedFeatures).Any())
-            _installPlan.PlanFeature(featureId);
+        ICollection<IBundlePackageFeature> installableFeatures = FeatureUtils.GetInstallableFeatureAndRelations(feature, _installPlan.PlannedFeatures, _allFeatures);
+        foreach (IBundlePackageFeature installableFeature in installableFeatures)
+          if (!FeatureUtils.GetConflicts(installableFeature.Id, _installPlan.PlannedFeatures, _allFeatures).Any())
+            _installPlan.PlanFeature(installableFeature.Id);
       }
 
       if (_showCustomPropertiesStepNext)

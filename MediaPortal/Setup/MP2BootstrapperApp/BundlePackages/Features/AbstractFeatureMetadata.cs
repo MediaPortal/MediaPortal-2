@@ -24,22 +24,21 @@
 
 using System.Collections.Generic;
 
-namespace MP2BootstrapperApp.BundlePackages.PluginFeatures
+namespace MP2BootstrapperApp.BundlePackages.Features
 {
   /// <summary>
-  /// Base implementaion of <see cref="IPluginFeatureDescriptor"/>. Features that require a <see cref="IPluginFeatureDescriptor"/>
+  /// Base implementaion of <see cref="IFeatureMetadata"/>. Features that require a <see cref="IFeatureMetadata"/>
   /// should derive from this class and provide a parameterless public constructor so they can be instantiated by reflection.
   /// </summary>
-  public abstract class AbstractFeatureDescriptor : IPluginFeatureDescriptor
+  public abstract class AbstractFeatureMetadata : IFeatureMetadata
   {
     /// <summary>
-    /// Creates an instance of a class that implements <see cref="IPluginFeatureDescriptor"/>.
+    /// Creates an instance of a class that implements <see cref="IFeatureMetadata"/>.
     /// </summary>
-    /// <param name="feature">Id of the plugin feature to be installed, if this feature's parent is not being installed then this feature will
-    /// not be available for selection in the setup.</param>
+    /// <param name="feature">Id of feature that this metadata belongs to.
     /// <param name="relatedFeatures">Ids of any related features that should optionally be installed alongside this feature.</param>
     /// <param name="conflictingFeatures">Any features that conflict with the feature with the id specified in <paramref name="feature"/>.</param>
-    public AbstractFeatureDescriptor(string feature, IEnumerable<string> relatedFeatures, IEnumerable<string> conflictingFeatures)
+    public AbstractFeatureMetadata(string feature, IEnumerable<string> relatedFeatures, IEnumerable<string> conflictingFeatures)
     {
       Feature = feature;
       RelatedFeatures = relatedFeatures != null ? new List<string>(relatedFeatures) : new List<string>();

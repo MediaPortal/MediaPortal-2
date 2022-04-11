@@ -62,6 +62,7 @@ namespace Tests.Mocks
     protected Version _previousInstalledVersion;
 
     public MockBundlePackageFactory(IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null, Version previousInstalledVersion = null, IEnumerable<PackageId> falseInstallConditionPackages = null)
+      : base(new MockFeatureMetadataProvider())
     {
       _installedPackages = installedPackages ?? new PackageId[0];
       _installedFeatures = installedFeatures ?? new string[0];
@@ -109,6 +110,8 @@ namespace Tests.Mocks
       feature.Package.Returns(bundleFeature.Package);
       feature.Parent.Returns(bundleFeature.Parent);
       feature.Attributes.Returns(bundleFeature.Attributes);
+      feature.RelatedFeatures.Returns(bundleFeature.RelatedFeatures);
+      feature.ConflictingFeatures.Returns(bundleFeature.ConflictingFeatures);
       if (_previousInstalledVersion == null)
       {
         feature.CurrentFeatureState.Returns(_installedFeatures.Contains(bundleFeature.Id) ? FeatureState.Local : FeatureState.Absent);

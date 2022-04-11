@@ -22,17 +22,19 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.BundlePackages.PluginFeatures.Descriptors
+using System.Collections.Generic;
+
+namespace MP2BootstrapperApp.BundlePackages.Features
 {
   /// <summary>
-  /// Descriptor for the TV Service 3.5 feature. Specifies that the TV Service Client feature should also be
-  /// installed if the client is being installed, and specifies a conflict with the TV Service 3 feature.
+  /// Interface for a class that can get known implementations of <see cref="IFeatureMetadata"/>.
   /// </summary>
-  public class TvService35 : AbstractFeatureDescriptor
+  public interface IFeatureMetadataProvider
   {
-    public TvService35()
-    : base(FeatureId.SlimTvService35, new[] { FeatureId.SlimTvServiceClient }, new[] { FeatureId.SlimTvService3 })
-    {
-    }
+    /// <summary>
+    /// Gets an enumeration of all <see cref="IFeatureMetadata"/> known to this implementation.
+    /// </summary>
+    /// <returns>Enumeration of all <see cref="IFeatureMetadata"/> known to this implementation.</returns>
+    IEnumerable<IFeatureMetadata> GetMetadata();
   }
 }

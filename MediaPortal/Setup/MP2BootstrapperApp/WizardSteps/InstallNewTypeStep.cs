@@ -24,6 +24,7 @@
 
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BundlePackages;
+using MP2BootstrapperApp.BundlePackages.Features;
 using MP2BootstrapperApp.Models;
 using System.Collections.Generic;
 using System.Linq;
@@ -67,7 +68,7 @@ namespace MP2BootstrapperApp.WizardSteps
       }
 
       InstallPlan plan = new InstallPlan(features, null, new PlanContext());
-      if (_bootstrapperApplicationModel.PluginManager.GetInstallableFeatures(plan.PlannedFeatures, _bootstrapperApplicationModel.MainPackage.Features).Any())
+      if (FeatureUtils.GetSelectableChildFeatures(plan.PlannedFeatures, _bootstrapperApplicationModel.MainPackage.Features).Any())
         return new InstallPluginsStep(_bootstrapperApplicationModel, plan, false);
       else
         return new InstallOverviewStep(_bootstrapperApplicationModel, plan);

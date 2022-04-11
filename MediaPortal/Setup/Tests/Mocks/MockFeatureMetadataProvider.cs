@@ -22,16 +22,17 @@
 
 #endregion
 
-namespace MP2BootstrapperApp.BundlePackages.PluginFeatures.Descriptors
+using MP2BootstrapperApp.BundlePackages.Features;
+using MP2BootstrapperApp.BundlePackages.Features.Metadata;
+using System.Collections.Generic;
+
+namespace Tests.Mocks
 {
-  /// <summary>
-  /// Descriptor for the TV Service Client feature.
-  /// </summary>
-  public class TvServiceClient : AbstractFeatureDescriptor
+  public class MockFeatureMetadataProvider : IFeatureMetadataProvider
   {
-    public TvServiceClient()
-    : base(FeatureId.SlimTvServiceClient, null, null)
+    public IEnumerable<IFeatureMetadata> GetMetadata()
     {
+      return new IFeatureMetadata[] { new TvService3(), new TvService35(), new TvServiceClient() };
     }
   }
 }

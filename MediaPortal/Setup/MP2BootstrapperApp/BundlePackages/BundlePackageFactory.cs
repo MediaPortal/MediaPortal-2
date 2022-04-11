@@ -22,6 +22,7 @@
 
 #endregion
 
+using MP2BootstrapperApp.BundlePackages.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -31,6 +32,13 @@ namespace MP2BootstrapperApp.BundlePackages
 {
   public class BundlePackageFactory
   {
+    ICollection<IFeatureMetadata> _featureMetadata;
+
+    public BundlePackageFactory(IFeatureMetadataProvider metadataProvider)
+    {
+      _featureMetadata = new List<IFeatureMetadata>(metadataProvider.GetMetadata());
+    }
+
     public IList<IBundlePackage> CreatePackagesFromXmlString(string xml)
     {
       XNamespace manifestNamespace = "http://schemas.microsoft.com/wix/2010/BootstrapperApplicationData";
@@ -70,7 +78,7 @@ namespace MP2BootstrapperApp.BundlePackages
 
     public virtual IBundlePackageFeature CreatePackageFeature(XElement featureElement)
     {
-      return new BundlePackageFeature(featureElement);
+      return new BundlePackageFeature(featureElement, _featureMetadata.FirstOrDefault(f => f.Feature == featureElement.Attribute("Feature")?.Value));
     }
   }
 }

@@ -24,10 +24,10 @@
 
 using Microsoft.Deployment.WindowsInstaller;
 using MP2BootstrapperApp.BundlePackages;
-using MP2BootstrapperApp.Models;
 using System;
 using System.Linq;
 using System.Xml.Linq;
+using Tests.Mocks;
 using Xunit;
 
 namespace Tests
@@ -46,7 +46,7 @@ namespace Tests
       const string wixPackageProperties = "WixPackageProperties";
       XElement packageElement = doc?.Descendants(wixPackageProperties).FirstOrDefault();
 
-      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
+      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new MockFeatureMetadataProvider());
       IBundlePackage bundlePackage = bundlePackageFactory.CreatePackage(packageElement);
 
       Assert.Equal("LAVFilters", bundlePackage.Id);
@@ -71,7 +71,7 @@ namespace Tests
       const string wixPackageProperties = "WixPackageProperties";
       XElement packageElement = doc?.Descendants(wixPackageProperties).FirstOrDefault();
 
-      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
+      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new MockFeatureMetadataProvider());
       IBundleMsiPackage bundlePackage = bundlePackageFactory.CreatePackage(packageElement) as IBundleMsiPackage;
 
       Assert.NotNull(bundlePackage);
@@ -99,7 +99,7 @@ namespace Tests
       const string wixPackageFeatureInfo = "WixPackageFeatureInfo";
       XElement featureElement = doc?.Descendants(wixPackageFeatureInfo).FirstOrDefault();
 
-      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory();
+      BundlePackageFactory bundlePackageFactory = new BundlePackageFactory(new MockFeatureMetadataProvider());
       IBundlePackageFeature bundlePackageFeature = bundlePackageFactory.CreatePackageFeature(featureElement);
 
       Assert.Equal("MediaPortal2", bundlePackageFeature.Package);
