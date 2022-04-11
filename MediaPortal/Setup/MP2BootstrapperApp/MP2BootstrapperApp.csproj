@@ -435,12 +435,12 @@
     <Resource Include="Resources\path.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Plugins\TvMosaic.png" />
-    <Resource Include="Resources\Plugins\TvService3.png" />
-    <Resource Include="Resources\Plugins\TvService35.png" />
+    <Resource Include="Resources\Features\SlimTv.TvMosaic.png" />
+    <Resource Include="Resources\Features\SlimTv.Service3.png" />
+    <Resource Include="Resources\Features\SlimTv.Service35.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Plugins\TvServiceClient.png" />
+    <Resource Include="Resources\Features\SlimTv.ServiceClient.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
