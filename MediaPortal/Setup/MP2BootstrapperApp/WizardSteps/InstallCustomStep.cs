@@ -49,7 +49,7 @@ namespace MP2BootstrapperApp.WizardSteps
 
       InstallPlan plan = new InstallPlan(features, packages, new PlanContext());
 
-      if (FeatureUtils.GetSelectableChildFeatures(plan.PlannedFeatures, _bootstrapperApplicationModel.MainPackage.Features).Any())
+      if (FeatureUtils.GetSelectableChildFeatures(SelectedFeatures, _bootstrapperApplicationModel.MainPackage.Features).Any())
         return new InstallPluginsStep(_bootstrapperApplicationModel, plan, true);
       else
         return new InstallCustomPropertiesStep(_bootstrapperApplicationModel, plan);

@@ -26,6 +26,7 @@ using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BundlePackages;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MP2BootstrapperApp.ActionPlans
 {
@@ -35,6 +36,7 @@ namespace MP2BootstrapperApp.ActionPlans
   public class InstallPlan : SimplePlan
   {
     protected ISet<string> _plannedFeatures;
+    protected ISet<string> _plannedChildFeatures;
     protected ISet<PackageId> _plannedOptionalPackages;
     protected ISet<PackageId> _excludedPackages;
     protected IPlanContext _planContext;
@@ -49,33 +51,20 @@ namespace MP2BootstrapperApp.ActionPlans
       : base(LaunchAction.Install)
     {
       _plannedFeatures = plannedFeatures != null ? new HashSet<string>(plannedFeatures) : new HashSet<string>();
+      _plannedChildFeatures = new HashSet<string>();
       _plannedOptionalPackages = plannedOptionalPackages != null ? new HashSet<PackageId>(plannedOptionalPackages) : null;
       _planContext = planContext;
     }
 
-    public IEnumerable<string> PlannedFeatures
+    public IEnumerable<IBundlePackageFeature> GetPlannedFeatures(IEnumerable<IBundlePackageFeature> features)
     {
-      get { return _plannedFeatures; }
+      return features.Where(f => ShouldInstallFeature(f));
     }
 
-    public virtual void PlanPackage(PackageId packageId)
+    public virtual void PlanChildFeatures(IEnumerable<string> childFeatureIds)
     {
-      if (_plannedOptionalPackages == null)
-        _plannedOptionalPackages = new HashSet<PackageId>();
-      _plannedOptionalPackages.Add(packageId);
-    }
-
-    public virtual void RemoveFeature(string feature)
-    {
-      _plannedFeatures.Remove(feature);
-      // Re-evaluate excluded packages the next time it's needed
-      _excludedPackages = null;
-    }
-
-    public virtual void PlanFeature(string feature)
-    {
-      _plannedFeatures.Add(feature);
-      // Re-evaluate excluded packages the next time it's needed
+      _plannedChildFeatures = childFeatureIds != null ? new HashSet<string>(childFeatureIds) : new HashSet<string>();
+      // Force excluded packages to be reevaluated
       _excludedPackages = null;
     }
 
@@ -98,7 +87,7 @@ namespace MP2BootstrapperApp.ActionPlans
     {
       // Get the packages that are not dependencies of the features to install.
       if (_excludedPackages == null)
-        _excludedPackages = new HashSet<PackageId>(_planContext.GetExcludedPackagesForFeatures(_plannedFeatures));
+        _excludedPackages = new HashSet<PackageId>(_planContext.GetExcludedPackagesForFeatures(_plannedFeatures.Union(_plannedChildFeatures)));
 
       // If package is already present, then no need to install.
       if (package.CurrentInstallState == PackageState.Present)
@@ -123,9 +112,11 @@ namespace MP2BootstrapperApp.ActionPlans
     /// <returns><c>true</c> if the feature should be planned for installation.</returns>
     protected bool ShouldInstallFeature(IBundlePackageFeature feature)
     {
-      // Non-optional features should always be installed. For optional features, either install all
-      // if no features are explicitly planned, else just install the planned features.
-      return feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) || _plannedFeatures.Count == 0 || _plannedFeatures.Contains(feature.Id);
+      // If no features are explcitly planned, install all
+      if (_plannedFeatures.Count == 0 && _plannedChildFeatures.Count == 0)
+        return true;
+      // Non-optional features should always be installed. For optional features just install the planned features.
+      return feature.Attributes.HasFlag(FeatureAttributes.UIDisallowAbsent) || _plannedFeatures.Contains(feature.Id) || _plannedChildFeatures.Contains(feature.Id);
     }
   }
 }

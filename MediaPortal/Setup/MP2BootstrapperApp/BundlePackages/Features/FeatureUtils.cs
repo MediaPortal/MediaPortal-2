@@ -39,7 +39,7 @@ namespace MP2BootstrapperApp.BundlePackages.Features
     /// <param name="currentlyInstallingFeatures">Enumeration of features that are currently planned to be installed.</param>
     /// <param name="allFeatures">All features available in the setup bundle.</param>
     /// <returns>Collection of features that can be installed.</returns>
-    public static ICollection<IBundlePackageFeature> GetSelectableChildFeatures(IEnumerable<string> currentlyInstallingFeatures, IEnumerable<IBundlePackageFeature> allFeatures)
+    public static ICollection<IBundlePackageFeature> GetSelectableChildFeatures(IEnumerable<IBundlePackageFeature> currentlyInstallingFeatures, IEnumerable<IBundlePackageFeature> allFeatures)
     {
       List<IBundlePackageFeature> installableFeatures = new List<IBundlePackageFeature>();
 
@@ -60,15 +60,15 @@ namespace MP2BootstrapperApp.BundlePackages.Features
     /// Gets a collection containing the specified feature and all related features that will be automatically installed alongside it.
     /// </summary>
     /// <param name="feature">The main feature to be installed.</param>
-    /// <param name="currentlyInstallingFeatures">Enumeration of feature ids that are currently planned to be installed.</param>
+    /// <param name="currentlyInstallingFeatures">Enumeration of features that are currently planned to be installed.</param>
     /// <param name="allFeatures">All features available in the setup bundle.</param>
     /// <returns>Collection containing the specified feature and all related features that will be automatically installed alongside it;
     /// or an empty collection if the main feature cannot be installed.</returns>
-    public static ICollection<IBundlePackageFeature> GetInstallableFeatureAndRelations(IBundlePackageFeature feature, IEnumerable<string> currentlyInstallingFeatures, IEnumerable<IBundlePackageFeature> allFeatures)
+    public static ICollection<IBundlePackageFeature> GetInstallableFeatureAndRelations(IBundlePackageFeature feature, IEnumerable<IBundlePackageFeature> currentlyInstallingFeatures, IEnumerable<IBundlePackageFeature> allFeatures)
     {
       List<IBundlePackageFeature> installableFeatures = new List<IBundlePackageFeature>();
       // If the main feature's parent is not being installed then don't bother checking related features either
-      if (!currentlyInstallingFeatures.Contains(feature.Parent))
+      if (!currentlyInstallingFeatures.Any(f => f.Id == feature.Parent))
         return installableFeatures;
 
       installableFeatures.Add(feature);
@@ -77,7 +77,7 @@ namespace MP2BootstrapperApp.BundlePackages.Features
       if (feature.RelatedFeatures != null)
       {
         IEnumerable<IBundlePackageFeature> relatedFeatures = feature.RelatedFeatures.Select(id => allFeatures.FirstOrDefault(f => f.Id == id)).Where(f => f != null);
-        foreach (IBundlePackageFeature relatedFeature in relatedFeatures.Where(f => currentlyInstallingFeatures.Contains(f.Parent)))
+        foreach (IBundlePackageFeature relatedFeature in relatedFeatures.Where(f => currentlyInstallingFeatures.Any(p => p.Id == f.Parent)))
           installableFeatures.Add(relatedFeature);
       }
 
@@ -85,26 +85,24 @@ namespace MP2BootstrapperApp.BundlePackages.Features
     }
 
     /// <summary>
-    /// Gets a collection of feature ids that conflict with the current feature.
+    /// Gets a collection of features that conflict with the current feature.
     /// </summary>
-    /// <param name="featureId">The feature to check for conflicts with.</param>
-    /// <param name="possibleConflictingFeatureIds">Enumeration of features to check for conflicting features.</param>
-    /// <param name="allFeatures">All features available in the setup bundle.</param>
+    /// <param name="feature">The feature to check for conflicts with.</param>
+    /// <param name="possibleConflictingFeatures">Enumeration of features to check for conflicting features.</param>
     /// <returns>Collection of features that conflict with the current feature.</returns>
-    public static ICollection<string> GetConflicts(string featureId, IEnumerable<string> possibleConflictingFeatureIds, IEnumerable<IBundlePackageFeature> allFeatures)
+    public static ICollection<IBundlePackageFeature> GetConflicts(IBundlePackageFeature feature, IEnumerable<IBundlePackageFeature> possibleConflictingFeatures)
     {
-      HashSet<string> conflictingFeatureIds = new HashSet<string>();
+      HashSet<IBundlePackageFeature> conflictingFeatures = new HashSet<IBundlePackageFeature>();
       // Get the conflicts defined for the feature and see if any are contained in possibleConflictingFeatureIds
-      ICollection<string> featureconflicts = allFeatures.FirstOrDefault(f => f.Id == featureId)?.ConflictingFeatures;
-      if (featureconflicts != null)
-        foreach (string conflictingFeature in featureconflicts.Where(c => possibleConflictingFeatureIds.Contains(c)))
-          conflictingFeatureIds.Add(conflictingFeature);
+      if (feature.ConflictingFeatures != null)
+        foreach (IBundlePackageFeature conflictingFeature in possibleConflictingFeatures.Where(f => feature.ConflictingFeatures.Contains(f.Id)))
+          conflictingFeatures.Add(conflictingFeature);
 
-      // Inverse check, see if the feature is defined as a conflict by any of the features contained in possibleConflictingFeatureIds
-      foreach (IBundlePackageFeature conflictingFeature in allFeatures.Where(f => f.ConflictingFeatures.Contains(featureId) && possibleConflictingFeatureIds.Contains(f.Id)))
-        conflictingFeatureIds.Add(conflictingFeature.Id);
+      // Inverse check, see if the feature is defined as a conflict by any of the features contained in possibleConflictingFeatures
+      foreach (IBundlePackageFeature conflictingFeature in possibleConflictingFeatures.Where(f => f.ConflictingFeatures?.Contains(feature.Id) ?? false))
+        conflictingFeatures.Add(conflictingFeature);
 
-      return conflictingFeatureIds;
+      return conflictingFeatures;
     }
 
     /// <summary>
@@ -113,9 +111,9 @@ namespace MP2BootstrapperApp.BundlePackages.Features
     /// <param name="currentlyInstallingFeatures">Enumeration of features that are currently planned to be installed.</param>
     /// <param name="allFeatures">All features available in the setup bundle.</param>
     /// <returns>Collection of features that are children of the features currently planned for installation.</returns>
-    static IList<IBundlePackageFeature> GetInstallableChildFeatures(IEnumerable<string> currentlyInstallingFeatures, IEnumerable<IBundlePackageFeature> allFeatures)
+    static IList<IBundlePackageFeature> GetInstallableChildFeatures(IEnumerable<IBundlePackageFeature> currentlyInstallingFeatures, IEnumerable<IBundlePackageFeature> allFeatures)
     {
-      return allFeatures.Where(f => !string.IsNullOrEmpty(f.Parent) && f.Parent != FeatureId.MediaPortal_2 && currentlyInstallingFeatures.Contains(f.Parent)).ToList();
+      return allFeatures.Where(f => !string.IsNullOrEmpty(f.Parent) && f.Parent != FeatureId.MediaPortal_2 && currentlyInstallingFeatures.Any(p => p.Id == f.Parent)).ToList();
     }
   }
 }
