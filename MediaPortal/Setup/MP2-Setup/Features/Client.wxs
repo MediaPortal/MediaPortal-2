@@ -191,7 +191,8 @@
     </Feature>
 
     <InstallExecuteSequence>
-      <Custom Action="LaunchClientLauncher" After="InstallFinalize"><![CDATA[&Client=3]]></Custom>
+      <!-- Launch ClientLauncher if installing or already installed and not uninstalling -->
+      <Custom Action="LaunchClientLauncher" After="InstallFinalize"><![CDATA[(&Client=3) OR ((!Client=3) AND (&Client<>2))]]></Custom>
     </InstallExecuteSequence>
 
     <CustomAction Id="LaunchClientLauncher"
