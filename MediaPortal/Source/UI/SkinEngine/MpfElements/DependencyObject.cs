@@ -40,7 +40,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements
   /// which is needed for
   /// <see cref="BindingExtension">bindings</see>.
   /// </summary>
-#if !NET5_0
+#if !NET6_0
   // 2021-01-13, morpheus_xx: in .NET Core this converter leads to a StackOverflowException
   [TypeConverter(typeof(MPFConverter<DependencyObject>))]
 #endif

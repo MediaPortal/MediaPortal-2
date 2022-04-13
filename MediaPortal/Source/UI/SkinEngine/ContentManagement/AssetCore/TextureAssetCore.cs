@@ -30,7 +30,7 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Cache;
-#if !NET5_0
+#if !NET6_0
 using FreeImageAPI;
 #endif
 using MediaPortal.Common;
@@ -134,7 +134,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       // FreeImage decoding is kept in place as fallback to support image formats which are not handled by GDI.
       Texture texture = 
         AllocateFromImageStream_GDI(dataStream, ref info)
-#if NET5_0
+#if NET6_0
        ;
 #else
         ?? AllocateFromImageStream_FreeImage(dataStream, ref info);
@@ -188,7 +188,7 @@ namespace MediaPortal.UI.SkinEngine.ContentManagement.AssetCore
       return texture;
     }
 
-#if !NET5_0
+#if !NET6_0
     protected Texture AllocateFromImageStream_FreeImage(Stream dataStream, ref ImageInformation info)
     {
       Texture texture = null;

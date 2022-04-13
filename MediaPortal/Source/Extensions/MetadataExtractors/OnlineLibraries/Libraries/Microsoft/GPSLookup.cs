@@ -32,7 +32,7 @@ using MediaPortal.Common.Services.ServerCommunication;
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
 {
-#if !NET5_0
+#if !NET6_0
   /// <summary>
   /// Uses Microsofts GeoCoordinateWatcher to resolve the location of the device and lookup the address of the specified coordinates.
   /// </summary>

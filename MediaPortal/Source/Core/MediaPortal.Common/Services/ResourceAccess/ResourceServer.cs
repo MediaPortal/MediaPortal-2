@@ -39,7 +39,7 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.Network;
 using Microsoft.Owin;
 using Microsoft.Owin.Hosting;
-#if !NET5_0
+#if !NET6_0
 using Microsoft.Owin.Security.OAuth;
 #endif
 using Owin;
@@ -79,7 +79,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
 
         _httpServer = WebApp.Start(startOptions, builder =>
         {
-#if !NET5_0
+#if !NET6_0
           // Configure OAuth Authorization Server
           builder.UseOAuthAuthorizationServer(new OAuthAuthorizationServerOptions
           {
@@ -129,7 +129,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-#if !NET5_0
+#if !NET6_0
     private Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
     {
       context.Validated();

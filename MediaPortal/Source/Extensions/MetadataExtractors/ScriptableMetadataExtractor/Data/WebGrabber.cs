@@ -309,7 +309,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.ScriptableMetadataExtractor.
     private bool SetAllowUnsafeHeaderParsing(bool setState)
     {
 
-#if NET5_0
+#if NET6_0
       // TODO: Find NET 5 alternative
       return false;
 #else

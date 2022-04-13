@@ -53,7 +53,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 
     #region Private fields
 
-#if NET5_0
+#if NET6_0
     private readonly object _ctx;
 #else
     private readonly WindowsImpersonationContext _ctx;
@@ -71,7 +71,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// <param name="ctx"><see cref="WindowsImpersonationContext"/> to wrap (can be <c>null</c>)</param>
     /// <param name="notifyDispose"><see cref="Action"/> to call when this object is disposed</param>
     internal WindowsImpersonationContextWrapper(
-#if NET5_0
+#if NET6_0
       object ctx,
 #else
       WindowsImpersonationContext ctx, 

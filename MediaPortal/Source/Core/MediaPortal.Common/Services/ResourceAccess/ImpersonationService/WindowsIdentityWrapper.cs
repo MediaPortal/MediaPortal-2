@@ -152,7 +152,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// </remarks>
     internal WindowsImpersonationContextWrapper Impersonate()
     {
-#if NET5_0
+#if NET6_0
       Interlocked.Increment(ref _usageCount);
       return new WindowsImpersonationContextWrapper(null, DecrementUsageCount);
 #else

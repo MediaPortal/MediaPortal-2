@@ -31,7 +31,7 @@ using Microsoft.Win32.SafeHandles;
 
 namespace MediaPortal.Utilities.Process
 {
-#if !NET5_0
+#if !NET6_0
   /// <summary>
   /// Helper class to logon as a new user. This is be required to access network resources when running the main program as LocalSystem.
   /// </summary>
