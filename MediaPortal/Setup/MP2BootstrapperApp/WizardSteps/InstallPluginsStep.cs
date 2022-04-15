@@ -27,6 +27,7 @@ using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.BundlePackages.Features;
 using MP2BootstrapperApp.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -38,7 +39,7 @@ namespace MP2BootstrapperApp.WizardSteps
   public class InstallPluginsStep : AbstractInstallStep, IStep
   {
     protected InstallPlan _installPlan;
-    protected ICollection<string> _initiallyPlannedFeatures;
+    protected ICollection<IBundlePackageFeature> _initiallyPlannedFeatures;
     protected ICollection<IBundlePackageFeature> _allFeatures;
     protected bool _showCustomPropertiesStepNext;
 
@@ -46,13 +47,11 @@ namespace MP2BootstrapperApp.WizardSteps
       : base(bootstrapperApplicationModel)
     {
       _installPlan = installPlan;
-      // Remember the features that were initially planned, so that if the wizard navigates back to this
-      // step it can reset the install plan to the state if was before this step made any changes
-      _initiallyPlannedFeatures = new List<string>(installPlan.PlannedFeatures);
-      _showCustomPropertiesStepNext = showCustomPropertiesStepNext;
       _allFeatures = _bootstrapperApplicationModel.MainPackage.Features;
+      _initiallyPlannedFeatures = _installPlan.GetPlannedFeatures(_allFeatures).ToList();
+      _showCustomPropertiesStepNext = showCustomPropertiesStepNext;
 
-      AvailableFeatures = FeatureUtils.GetSelectableChildFeatures(_installPlan.PlannedFeatures, _allFeatures);
+      AvailableFeatures = FeatureUtils.GetSelectableChildFeatures(_initiallyPlannedFeatures, _allFeatures);
       SelectedFeatures = GetInitiallySelectedFeatures();
     }
 
@@ -86,7 +85,8 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IEnumerable<string> GetConflicts(string featureId)
     {
-      return FeatureUtils.GetConflicts(featureId, AvailableFeatures.Select(f => f.Id), _allFeatures);
+      IBundlePackageFeature feature = AvailableFeatures.FirstOrDefault(f => f.Id == featureId) ?? throw new InvalidOperationException($"Feature with id {featureId} is not contained in {nameof(AvailableFeatures)}");
+      return FeatureUtils.GetConflicts(feature, AvailableFeatures).Select(f => f.Id);
     }
 
     public bool CanGoBack()
@@ -101,17 +101,16 @@ namespace MP2BootstrapperApp.WizardSteps
 
     public IStep Next()
     {
-      // If this step previously modified the plan, remove any features that were added
-      foreach (string featureToRemove in _installPlan.PlannedFeatures.Where(f => !_initiallyPlannedFeatures.Contains(f)).ToArray())
-        _installPlan.RemoveFeature(featureToRemove);
-
+      List<IBundlePackageFeature> plannedFeatures = new List<IBundlePackageFeature>(_initiallyPlannedFeatures);
       foreach (IBundlePackageFeature feature in SelectedFeatures)
       {
-        ICollection<IBundlePackageFeature> installableFeatures = FeatureUtils.GetInstallableFeatureAndRelations(feature, _installPlan.PlannedFeatures, _allFeatures);
+        ICollection<IBundlePackageFeature> installableFeatures = FeatureUtils.GetInstallableFeatureAndRelations(feature, plannedFeatures, _allFeatures);
         foreach (IBundlePackageFeature installableFeature in installableFeatures)
-          if (!FeatureUtils.GetConflicts(installableFeature.Id, _installPlan.PlannedFeatures, _allFeatures).Any())
-            _installPlan.PlanFeature(installableFeature.Id);
+          if (!FeatureUtils.GetConflicts(installableFeature, plannedFeatures).Any())
+            plannedFeatures.Add(installableFeature);
       }
+
+      _installPlan.PlanChildFeatures(plannedFeatures.Except(_initiallyPlannedFeatures).Select(f => f.Id));
 
       if (_showCustomPropertiesStepNext)
         return new InstallCustomPropertiesStep(_bootstrapperApplicationModel, _installPlan);

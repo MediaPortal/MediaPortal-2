@@ -106,9 +106,10 @@
 
       <ComponentGroupRef Id="ServiceMonitor.Heat" />
     </Feature>
-
+    
     <InstallExecuteSequence>
-      <Custom Action="LaunchServiceMonitor" After="InstallFinalize"><![CDATA[&ServiceMonitor=3]]></Custom>
+      <!-- Launch Service Monitor if installing or already installed and not removing -->
+      <Custom Action="LaunchServiceMonitor" After="InstallFinalize"><![CDATA[(&ServiceMonitor=3) OR ((!ServiceMonitor=3) AND (&ServiceMonitor<>2))]]></Custom>
     </InstallExecuteSequence>
 
     <CustomAction Id="LaunchServiceMonitor"

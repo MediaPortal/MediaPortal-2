@@ -54,9 +54,9 @@
                   Return="asyncWait" />
 
     <InstallExecuteSequence>
-      <Custom Action="ListenerServiceDeleteReservation" Before="InstallFinalize">Installed</Custom>
+      <Custom Action="ListenerServiceDeleteReservation" Before="InstallFinalize">REMOVE~="ALL"</Custom>
       <Custom Action="ListenerServiceAddReservation" Before="InstallFinalize">NOT Installed</Custom>
-      <Custom Action="FirewallPortRemove" Before="InstallFinalize">Installed</Custom>
+      <Custom Action="FirewallPortRemove" Before="InstallFinalize">REMOVE~="ALL"</Custom>
       <Custom Action="FirewallPortAdd" Before="InstallFinalize">NOT Installed</Custom>
     </InstallExecuteSequence>
   </Fragment>

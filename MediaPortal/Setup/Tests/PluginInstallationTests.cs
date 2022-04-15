@@ -41,9 +41,10 @@ namespace Tests
     void Should_OnlyReturnPluginFeaturesWhereParentFeatureIsBeingInstalledAndNotIncludedWithRelatedFeature(string[] plannedParents, string[] expectedFeatures)
     {
       IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
+      IEnumerable<IBundlePackageFeature> plannedFeatures = featurePackage.Features.Where(f => plannedParents.Contains(f.Id));
 
-      IEnumerable<string> availableFeatures = FeatureUtils.GetSelectableChildFeatures(plannedParents, featurePackage.Features).Select(f => f.Id);
-      
+      IEnumerable<string> availableFeatures = FeatureUtils.GetSelectableChildFeatures(plannedFeatures, featurePackage.Features).Select(f => f.Id);
+
       Assert.Equal(expectedFeatures.OrderBy(f => f), availableFeatures.OrderBy(f => f));
     }
 
@@ -54,9 +55,10 @@ namespace Tests
     void Should_OnlyInstallRelatedPluginFeaturesWhenParentFeatureIsBeingInstalled(string[] plannedParents, string installingFeature, string[] expectedInstallableFeatures)
     {
       IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
+      IEnumerable<IBundlePackageFeature> plannedFeatures = featurePackage.Features.Where(f => plannedParents.Contains(f.Id));
       IBundlePackageFeature feature = featurePackage.Features.First(f => f.Id == installingFeature);
 
-      ICollection<IBundlePackageFeature> installableFeatures = FeatureUtils.GetInstallableFeatureAndRelations(feature, plannedParents, featurePackage.Features);
+      ICollection<IBundlePackageFeature> installableFeatures = FeatureUtils.GetInstallableFeatureAndRelations(feature, plannedFeatures, featurePackage.Features);
 
       Assert.Equal(expectedInstallableFeatures.OrderBy(f => f), installableFeatures.Select(f => f.Id).OrderBy(f => f));
     }
@@ -66,8 +68,10 @@ namespace Tests
     void Should_NotInstallPluginFeatureWhenConflictingFeatureIsBeingInstalled(string[] plannedFeatures, string conflictingfeature)
     {
       IBundleMsiPackage featurePackage = MockBundlePackageFactory.CreateCurrentInstall().First(p => p.PackageId == PackageId.MediaPortal2) as IBundleMsiPackage;
+      IBundlePackageFeature conflict = featurePackage.Features.First(f => f.Id == conflictingfeature);
+      IEnumerable<IBundlePackageFeature> features = featurePackage.Features.Where(f => plannedFeatures.Contains(f.Id));
 
-      IEnumerable<string> conflicts = FeatureUtils.GetConflicts(conflictingfeature, plannedFeatures, featurePackage.Features);
+      IEnumerable<IBundlePackageFeature> conflicts = FeatureUtils.GetConflicts(conflict, features);
 
       Assert.True(conflicts.Any());
     }
