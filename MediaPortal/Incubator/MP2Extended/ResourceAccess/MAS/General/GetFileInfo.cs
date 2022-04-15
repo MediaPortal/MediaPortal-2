@@ -37,7 +37,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MP2Extended.Extensions;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetFileInfo : BaseSendData
   {
-    public static Task<WebFileInfo> ProcessAsync(IOwinContext context, WebMediaType mediatype, WebFileType filetype, string id, int offset)
+    public static Task<WebFileInfo> ProcessAsync(HttpContext context, WebMediaType mediatype, WebFileType filetype, string id, int offset)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

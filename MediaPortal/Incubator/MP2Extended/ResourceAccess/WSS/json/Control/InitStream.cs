@@ -36,7 +36,7 @@ using System.Web;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "idleTimeout", Type = typeof(int), Nullable = true)]
   internal class InitStream
   {
-    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
+    public static async Task<WebBoolResult> ProcessAsync(HttpContext context, string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
     {
       if (itemId == null)
         throw new BadRequestException("InitStream: itemId is null");
@@ -62,7 +62,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         ItemType = type,
         ClientDescription = clientDescription,
         IdleTimeout = idleTimeout ?? -1,
-        ClientIp = context.Request.RemoteIpAddress
+        ClientIp = context.Connection?.RemoteIpAddress?.ToString()
       };
 
       MediaItem mediaItem = new LiveTvMediaItem(Guid.Empty);

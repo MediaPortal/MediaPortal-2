@@ -22,36 +22,40 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using Microsoft.Owin;
-using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using System;
 using System.IO;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
-  public class WebResourceAccessModule : OwinMiddleware, IDisposable
+  public class WebResourceAccessModule : IDisposable
   {
     public const string DEFAULT_PAGE = "Default.html";
     public const string LOGIN_PAGE = "Login.html";
     public const string RESOURCE_ACCESS_PATH = "/MPExtended";
 
-    public WebResourceAccessModule(OwinMiddleware next) : base(next)
+    protected RequestDelegate _next;
+
+    public WebResourceAccessModule(RequestDelegate next)
     {
+      _next = next;
     }
 
     /// <summary>
     /// Method that process the url
     /// </summary>
-    public override async Task Invoke(IOwinContext context)
+    public async Task Invoke(HttpContext context)
     {
       string path = null;
-      var uri = context.Request.Uri.ToString();
+      var uri = context.Request.GetEncodedUrl();
       if (uri.EndsWith($"{RESOURCE_ACCESS_PATH}/", StringComparison.InvariantCultureIgnoreCase))
       {
-        if (context.Authentication.User?.Identity?.IsAuthenticated ?? false)
+        if (context?.User?.Identity?.IsAuthenticated ?? false)
           path = DEFAULT_PAGE;
         else
           path = LOGIN_PAGE;
@@ -62,7 +66,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       {
         if (uri.ToLowerInvariant().Contains(RESOURCE_ACCESS_PATH.ToLowerInvariant()))
           Logger.Debug("MP2Extended: Ignored request for {0}", context.Request.Path);
-        await Next.Invoke(context);
+        await _next.Invoke(context);
         return;
       }
 

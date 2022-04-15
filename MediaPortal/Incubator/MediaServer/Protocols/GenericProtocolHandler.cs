@@ -22,11 +22,11 @@
 
 #endregion
 
-using System.IO;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.MediaServer.DLNA;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
+using System.IO;
 
 namespace MediaPortal.Extensions.MediaServer.Protocols
 {
@@ -51,17 +51,17 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
       return new GenericAccessProtocol();
     }
 
-    public virtual bool HandleRequest(IOwinContext context, DlnaMediaItem item)
+    public virtual bool HandleRequest(HttpContext context, DlnaMediaItem item)
     {
       return false;
     }
 
-    public virtual bool CanHandleRequest(IOwinRequest request)
+    public virtual bool CanHandleRequest(HttpRequest request)
     {
       return false;
     }
 
-    public virtual Stream HandleResourceRequest(IOwinContext context, DlnaMediaItem item)
+    public virtual Stream HandleResourceRequest(HttpContext context, DlnaMediaItem item)
     {
       return null;
     }

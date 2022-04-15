@@ -26,7 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Common;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 
@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
   internal class GetMusicTrackCount
   {
-    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string filter)
+    public static async Task<WebIntResult> ProcessAsync(HttpContext context, string filter)
     {
       IList<WebMusicTrackBasic> output = await GetMusicTracksBasic.ProcessAsync(context, filter, null, null);
 

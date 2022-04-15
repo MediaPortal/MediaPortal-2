@@ -28,14 +28,14 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class TestConnectionToTVService
   {
-    public static Task<WebBoolResult> ProcessAsync(IOwinContext context)
+    public static Task<WebBoolResult> ProcessAsync(HttpContext context)
     {
       return Task.FromResult(new WebBoolResult { Result = ServiceRegistration.IsRegistered<ITvProvider>() });
     }

@@ -22,6 +22,10 @@
 
 #endregion
 
+using MediaPortal.Utilities;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -29,11 +33,9 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Web;
-using MediaPortal.Utilities;
-using Microsoft.Owin;
 using UPnP.Infrastructure.Dv.DeviceTree;
-using UPnP.Infrastructure.Utils.HTTP;
 using UPnP.Infrastructure.Utils;
+using UPnP.Infrastructure.Utils.HTTP;
 
 namespace UPnP.Infrastructure.Dv.GENA
 {
@@ -301,21 +303,21 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// <param name="context">The HTTP client context of the specified <paramref name="request"/>.</param>
     /// <param name="config">The UPnP endpoint over that the HTTP request was received.</param>
     /// <returns><c>true</c> if the request could be handled and a HTTP response was sent, else <c>false</c>.</returns>
-    public bool HandleHTTPRequest(IOwinRequest request, IOwinContext context, EndpointConfiguration config)
+    public bool HandleHTTPRequest(HttpRequest request, HttpContext context, EndpointConfiguration config)
     {
       var response = context.Response;
       if (request.Method == "SUBSCRIBE")
-      { // SUBSCRIBE events
-        string pathAndQuery = HttpUtility.UrlDecode(request.Uri.PathAndQuery);
+      { // SUBSCRIBE events        
+        string pathAndQuery = HttpUtility.UrlDecode(request.GetEncodedPathAndQuery());
         DvService service;
         if (config.EventSubPathsToServices.TryGetValue(pathAndQuery, out service))
         {
           string httpVersion = request.Protocol;
-          string userAgentStr = request.Headers.Get("USER-AGENT");
-          string callbackURLsStr = request.Headers.Get("CALLBACK");
-          string nt = request.Headers.Get("NT");
-          string sid = request.Headers.Get("SID");
-          string timeoutStr = request.Headers.Get("TIMEOUT");
+          string userAgentStr = request.Headers["USER-AGENT"];
+          string callbackURLsStr = request.Headers["CALLBACK"];
+          string nt = request.Headers["NT"];
+          string sid = request.Headers["SID"];
+          string timeoutStr = request.Headers["TIMEOUT"];
           int timeout = UPnPConsts.GENA_DEFAULT_SUBSCRIPTION_TIMEOUT;
           ICollection<string> callbackURLs = null;
           if ((!string.IsNullOrEmpty(timeoutStr) && (!timeoutStr.StartsWith("Second-") ||
@@ -329,13 +331,13 @@ namespace UPnP.Infrastructure.Dv.GENA
           if (!string.IsNullOrEmpty(sid) && (callbackURLs != null || !string.IsNullOrEmpty(nt)))
           {
             response.StatusCode = (int)HttpStatusCode.BadRequest;
-            response.ReasonPhrase = "Incompatible Header Fields";
+            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Incompatible Header Fields";
             return true;
           }
           if (callbackURLs != null && !CheckValidCallbackUrls(callbackURLs))
           {
             response.StatusCode = (int)HttpStatusCode.BadRequest;
-            response.ReasonPhrase = "Invalid callback urls: " + string.Join("; ", callbackURLs.ToArray());
+            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Invalid callback urls: " + string.Join("; ", callbackURLs.ToArray());
             return true;
           }
           if (callbackURLs != null && !string.IsNullOrEmpty(nt))
@@ -371,7 +373,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             if (nt != "upnp:event" || !validURLs)
             {
               response.StatusCode = (int)HttpStatusCode.PreconditionFailed;
-              response.ReasonPhrase = "Precondition Failed";
+              context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Precondition Failed";
               return true;
             }
             DateTime date;
@@ -388,7 +390,7 @@ namespace UPnP.Infrastructure.Dv.GENA
               return true;
             }
             response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-            response.ReasonPhrase = "Unable to accept renewal"; // See (DevArch), table 4-4
+            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Unable to accept renewal"; // See (DevArch), table 4-4
             return true;
           }
           if (!string.IsNullOrEmpty(sid))
@@ -405,24 +407,24 @@ namespace UPnP.Infrastructure.Dv.GENA
               return true;
             }
             response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-            response.ReasonPhrase = "Unable to accept renewal";
+            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Unable to accept renewal";
             return true;
           }
         }
       }
       else if (request.Method == "UNSUBSCRIBE")
       { // UNSUBSCRIBE events
-        string pathAndQuery = HttpUtility.UrlDecode(request.Uri.PathAndQuery);
+        string pathAndQuery = HttpUtility.UrlDecode(request.GetEncodedPathAndQuery());
         DvService service;
         if (config.EventSubPathsToServices.TryGetValue(pathAndQuery, out service))
         {
-          string sid = request.Headers.Get("SID");
-          string callbackURL = request.Headers.Get("CALLBACK");
-          string nt = request.Headers.Get("NT");
+          string sid = request.Headers["SID"];
+          string callbackURL = request.Headers["CALLBACK"];
+          string nt = request.Headers["NT"];
           if (string.IsNullOrEmpty(sid) || !string.IsNullOrEmpty(callbackURL) || !string.IsNullOrEmpty(nt))
           {
             response.StatusCode = (int)HttpStatusCode.BadRequest;
-            response.ReasonPhrase = "Incompatible Header Fields";
+            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Incompatible Header Fields";
             return true;
           }
           if (Unsubscribe(config, sid))
@@ -431,7 +433,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             return true;
           }
           response.StatusCode = (int)HttpStatusCode.PreconditionFailed;
-          response.ReasonPhrase = "Precondition Failed";
+          context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Precondition Failed";
           return true;
         }
       }

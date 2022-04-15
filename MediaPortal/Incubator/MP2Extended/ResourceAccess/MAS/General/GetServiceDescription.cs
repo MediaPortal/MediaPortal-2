@@ -22,20 +22,20 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal static class GetServiceDescription
   {
-    public static Task<WebMediaServiceDescription> ProcessAsync(IOwinContext context)
+    public static Task<WebMediaServiceDescription> ProcessAsync(HttpContext context)
     {
       WebMediaServiceDescription webMediaServiceDescription = new WebMediaServiceDescription();
       webMediaServiceDescription.ApiVersion = GlobalVersion.API_VERSION;

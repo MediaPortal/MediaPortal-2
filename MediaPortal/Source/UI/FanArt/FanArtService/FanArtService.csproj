@@ -11,6 +11,9 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs" Link="Properties\VersionInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+  <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Backend\MediaPortal.Backend.csproj" />
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\..\..\Core\UPnP\UPnP.csproj" />
@@ -18,9 +21,6 @@
     <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Owin">
-      <Version>4.1.1</Version>
-    </PackageReference>
     <PackageReference Include="Microsoft.Tpl.Dataflow">
       <Version>4.5.24</Version>
     </PackageReference>

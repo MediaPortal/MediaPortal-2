@@ -1,15 +1,14 @@
-﻿using System;
-using System.Collections.Generic;
-using MediaPortal.Backend.MediaLibrary;
+﻿using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
-using MediaPortal.Common.Services.Logging;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Extensions.MediaServer;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
+using System;
+using System.Collections.Generic;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
@@ -41,9 +40,10 @@ namespace Tests.Server.MediaServer
 
     private CallContext CreateContext()
     {
-      CallContext context = new CallContext(new OwinRequest(), new OwinContext(), null);
-      context.Request.RemoteIpAddress = "127.0.0.1";
-      context.Request.RemotePort = 1000;
+      HttpContext httpContext = new DefaultHttpContext();
+      CallContext context = new CallContext(httpContext.Request, new DefaultHttpContext(), null);
+      context.HttpContext.Connection.RemoteIpAddress = System.Net.IPAddress.Parse("127.0.0.1");
+      context.HttpContext.Connection.RemotePort = 1000;
       return context;
     }
 

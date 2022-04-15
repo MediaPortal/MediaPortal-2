@@ -30,7 +30,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.Utils;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetFileSystemFileBasicById : BaseFileBasic
   {
-    public static Task<WebFileBasic> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebFileBasic> ProcessAsync(HttpContext context, string id)
     {
       string path = Base64.Decode(id);
       if (!System.IO.File.Exists(path))

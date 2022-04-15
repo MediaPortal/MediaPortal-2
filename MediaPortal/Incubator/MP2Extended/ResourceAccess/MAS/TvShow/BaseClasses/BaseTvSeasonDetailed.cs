@@ -24,7 +24,7 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using System;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
@@ -32,7 +32,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   // TODO: Add more detailes
   class BaseTvSeasonDetailed : BaseTvSeasonBasic
   {
-    internal static WebTVSeasonDetailed TVSeasonDetailed(IOwinContext context, MediaItem item, Guid? showId)
+    internal static WebTVSeasonDetailed TVSeasonDetailed(HttpContext context, MediaItem item, Guid? showId)
     {
       WebTVSeasonBasic basic = TVSeasonBasic(context, item, showId);
 

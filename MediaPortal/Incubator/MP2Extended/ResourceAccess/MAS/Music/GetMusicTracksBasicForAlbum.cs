@@ -38,7 +38,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MP2Extended.Extensions;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetMusicTracksBasicForAlbum : BaseMusicTrackBasic
   {
-    public static Task<IList<WebMusicTrackBasic>> ProcessAsync(IOwinContext context, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebMusicTrackBasic>> ProcessAsync(HttpContext context, string id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       if (id == null)
         throw new BadRequestException("GetMusicTracksBasicForAlbum: id is null");

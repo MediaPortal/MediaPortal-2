@@ -28,8 +28,8 @@ using System.Net;
 using System.Net.Sockets;
 using System.Security.Claims;
 using System.Text;
+using System.Text.Encodings.Web;
 using System.Threading.Tasks;
-using System.Web.Http;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
@@ -37,15 +37,18 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Common.UserManagement;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Utilities.Network;
-using Microsoft.Owin;
-using Microsoft.Owin.Hosting;
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.OAuth;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 #if !NET6_0
 using Microsoft.Owin.Security.OAuth;
 #endif
-using Owin;
 using UPnP.Infrastructure.Dv;
 
-[assembly: OwinStartup(typeof(MediaPortal.Common.Services.ResourceAccess.ResourceServer))]
 namespace MediaPortal.Common.Services.ResourceAccess
 {
   public class ResourceServer : IResourceServer, IDisposable
@@ -53,7 +56,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public const string MEDIAPORTAL_AUTHENTICATION_TYPE = "MediaPortal";
 
     protected readonly List<Type> _middleWares = new List<Type>();
-    protected IDisposable _httpServer;
+    protected IWebHost _httpServer;
     protected int _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
     protected readonly object _syncObj = new object();
     protected string _servicePrefix;
@@ -70,16 +73,54 @@ namespace MediaPortal.Common.Services.ResourceAccess
       List<string> filters = settings.IPAddressBindingsList;
       _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
       _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH;
-      var startOptions = UPnPServer.BuildStartOptions(_servicePrefix, filters, _serverPort);
+      var urls = UPnPServer.BuildUrls(_servicePrefix, filters, _serverPort);
 
       lock (_syncObj)
       {
         if (_httpServer != null) //Already started
           return;
 
+        _httpServer = UPnPServer.CreateWebHostBuilder(urls)
+          .ConfigureServices(services=>
+          {
+            //ToDo
+            //services.AddAuthentication();
+
+            var mvc = services.AddControllers();
+            // This is only needed to tell the app where to look for API Controllers
+            // and is currently a hack because plugins that have controllers might not
+            // necessarily register a middleware (but all do currently)
+            // ToDo: A separate API host should probably be created with the necessary interfaces.
+            foreach(Type middleWareType in _middleWares)
+              mvc.AddApplicationPart(middleWareType.Assembly);
+          })
+          .Configure(app => 
+          {
+            app.UseRouting();
+
+            //ToDo
+            //app.UseAuthentication();
+            app.UseAuthorization();
+            // Support conventional routing
+            var routeTemplate = (_servicePrefix + "/api/{controller}/{id?}").TrimStart('/'); // No leading slash allowed
+            app.UseEndpoints(endpoints =>
+            {
+              endpoints.MapControllerRoute("DefaultApi", routeTemplate);
+              endpoints.MapControllers();
+            });
+
+            // Configure MiddleWare
+            foreach (Type middleWareType in _middleWares)
+            {
+              app.UseMiddleware(middleWareType);
+            }
+          })
+          .Build();
+        _httpServer.Start();
+
+#if !NET6_0
         _httpServer = WebApp.Start(startOptions, builder =>
         {
-#if !NET6_0
           // Configure OAuth Authorization Server
           builder.UseOAuthAuthorizationServer(new OAuthAuthorizationServerOptions
           {
@@ -98,9 +139,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
             }
           });
           builder.UseOAuthBearerAuthentication(new OAuthBearerAuthenticationOptions());
-#endif
-          // Configure Web API
-          HttpConfiguration config = new HttpConfiguration();
+        // Configure Web API
+        HttpConfiguration config = new HttpConfiguration();
 
           // Support conventional routing
           var routeTemplate = (_servicePrefix + "/api/{controller}/{id}").TrimStart('/'); // No leading slash allowed
@@ -126,6 +166,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
             builder.Use(middleWareType);
           }
         });
+        
+#endif
       }
     }
 
@@ -267,6 +309,6 @@ namespace MediaPortal.Common.Services.ResourceAccess
       _middleWares.Remove(moduleType);
     }
 
-#endregion
+    #endregion
   }
 }

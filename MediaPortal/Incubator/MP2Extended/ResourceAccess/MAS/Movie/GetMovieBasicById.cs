@@ -30,7 +30,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Movie;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Threading.Tasks;
 
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
   [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
   internal class GetMovieBasicById : BaseMovieBasic
   {
-    public static Task<WebMovieBasic> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebMovieBasic> ProcessAsync(HttpContext context, string id)
     {
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (item == null)

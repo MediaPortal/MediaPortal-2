@@ -25,13 +25,13 @@
 using MediaPortal.Plugins.MP2Extended.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   internal class GetTVShowGenresCount 
   {
-    public static async Task<WebIntResult> ProcessAsync(IOwinContext context)
+    public static async Task<WebIntResult> ProcessAsync(HttpContext context)
     {
       var output = (await GetTVShowGenres.ProcessAsync(context, null, null)).ToList();
 

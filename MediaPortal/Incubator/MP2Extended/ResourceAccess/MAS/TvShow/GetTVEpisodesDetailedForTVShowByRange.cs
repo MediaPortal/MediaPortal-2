@@ -31,13 +31,13 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   internal class GetTVEpisodesDetailedForTVShowByRange
   {
-    public static async Task<IList<WebTVEpisodeDetailed>> ProcessAsync(IOwinContext context, string id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebTVEpisodeDetailed>> ProcessAsync(HttpContext context, string id, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       var output = (await GetTVEpisodesDetailedForTVShow.ProcessAsync(context, id, sort, order))
         .Filter(filter);

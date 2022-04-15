@@ -33,7 +33,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetPicturesDetailedByCategory : BasePictureDetailed
   {
-    public static Task<IList<WebPictureDetailed>> ProcessAsync(IOwinContext context, string id)
+    public static Task<IList<WebPictureDetailed>> ProcessAsync(HttpContext context, string id)
     {
       if (string.IsNullOrEmpty(id) || id.Length != 4)
         throw new BadRequestException("GetPicturesDetailedByCategory: Couldn't convert id to year");

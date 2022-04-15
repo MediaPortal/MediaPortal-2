@@ -32,7 +32,7 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "position", Type = typeof(int), Nullable = true)]
   internal class AddPlaylistItems
   {
-    public static Task<WebBoolResult> ProcessAsync(IOwinContext context, string playlistId, WebMediaType type, int? position, List<string> ids)
+    public static Task<WebBoolResult> ProcessAsync(HttpContext context, string playlistId, WebMediaType type, int? position, List<string> ids)
     {
       if (ids.Count == 0)
         throw new BadRequestException(String.Format("AddPlaylistItems: id array is empty - itemIds: {0}", ids));

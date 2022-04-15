@@ -37,7 +37,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "startPosition", Type = typeof(long), Nullable = false)]
   internal class StartStream
   {
-    public static async Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition)
+    public static async Task<WebStringResult> ProcessAsync(HttpContext context, string identifier, string profileName, long startPosition)
     {
       if (identifier == null)
         throw new BadRequestException("InitStream: identifier is null");

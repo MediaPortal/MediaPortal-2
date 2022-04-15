@@ -22,28 +22,28 @@
 
 #endregion
 
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv
 {
   public class CallContext
   {
-    protected IOwinContext _httpContext;
+    protected HttpContext _httpContext;
     protected EndpointConfiguration _endpoint;
 
-    public CallContext(IOwinRequest request, IOwinContext httpContext, EndpointConfiguration endpoint)
+    public CallContext(HttpRequest request, HttpContext httpContext, EndpointConfiguration endpoint)
     {
       _httpContext = httpContext;
       _endpoint = endpoint;
     }
 
-    public IOwinRequest Request
+    public HttpRequest Request
     {
       get { return _httpContext?.Request; }
     }
 
-    public IOwinContext HttpContext
+    public HttpContext HttpContext
     {
       get { return _httpContext; }
     }

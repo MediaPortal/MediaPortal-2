@@ -22,39 +22,41 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.Network;
+using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.Network;
-using MediaPortal.Common.Services.ResourceAccess;
-using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using Microsoft.Owin;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
-  public class FanartAccessModule : OwinMiddleware
+  public class FanartAccessModule
   {
+    protected RequestDelegate _next;
 
-    public FanartAccessModule(OwinMiddleware next) : base(next)
+    public FanartAccessModule(RequestDelegate next)
     {
+      _next = next;
     }
 
     /// <summary>
     /// Method that process the url
     /// </summary>
-    public override async Task Invoke(IOwinContext context)
+    public async Task Invoke(HttpContext context)
     {
       var request = context.Request;
       var response = context.Response;
-      Uri uri = request.Uri;
+      Uri uri = new Uri(request.GetEncodedUrl());
       if (!uri.AbsolutePath.Contains("/FanartService"))
       {
-        await Next.Invoke(context);
+        await _next.Invoke(context);
         return;
       }
 
@@ -90,7 +92,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         await SendWholeStream(response, memoryStream, false);
     }
 
-    protected async Task SendWholeStream(IOwinResponse response, Stream resourceStream, bool onlyHeaders)
+    protected async Task SendWholeStream(HttpResponse response, Stream resourceStream, bool onlyHeaders)
     {
       var length = resourceStream.Length;
       response.StatusCode = (int)HttpStatusCode.OK;
@@ -104,7 +106,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       while ((bytesRead = resourceStream.Read(buffer, 0, length > BUF_LEN ? BUF_LEN : (int)length)) > 0) // Don't use Math.Min since (int) length is negative for length > Int32.MaxValue
       {
         length -= bytesRead;
-        await response.WriteAsync(buffer, 0, bytesRead, cts.Token);
+        await response.Body.WriteAsync(buffer, 0, bytesRead, cts.Token);
       }
     }
   }

@@ -29,7 +29,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.MP2Extended.Common;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "programId", Type = typeof(string), Nullable = false)]
   internal class GetProgramIsScheduledOnChannel : BaseProgramBasic
   {
-    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string channelId, string programId)
+    public static async Task<WebBoolResult> ProcessAsync(HttpContext context, string channelId, string programId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetProgramIsScheduledOnChannel: ITvProvider not found");

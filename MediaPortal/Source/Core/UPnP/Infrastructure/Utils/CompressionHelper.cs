@@ -25,13 +25,13 @@
 // For debugging purpose
 //#define DISABLE_COMPRESSION
 
+using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.IO;
 using System.IO.Compression;
-using System.Net;
 using System.Linq;
+using System.Net;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 
 namespace UPnP.Infrastructure.Utils
 {
@@ -144,7 +144,7 @@ namespace UPnP.Infrastructure.Utils
     /// <param name="acceptEncoding">The Request's accepted encodings.</param>
     /// <param name="response">Response to be written.</param>
     /// <param name="inputStream">The input stream the will be written into the Response.</param>
-    public static async Task WriteCompressedStream(string acceptEncoding, IOwinResponse response, MemoryStream inputStream)
+    public static async Task WriteCompressedStream(string acceptEncoding, HttpResponse response, MemoryStream inputStream)
     {
       IDeCompressor compressor = CheckSupportedCompression(acceptEncoding);
 

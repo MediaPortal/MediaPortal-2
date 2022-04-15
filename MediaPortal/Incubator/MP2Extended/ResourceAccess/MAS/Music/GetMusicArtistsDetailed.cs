@@ -38,7 +38,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetMusicArtistsDetailed : BaseMusicArtistDetailed
   {
-    public static Task<IList<WebMusicArtistDetailed>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebMusicArtistDetailed>> ProcessAsync(HttpContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
       var items = MediaLibraryAccess.GetMediaItemsByGroup(context, PersonAspect.ROLE_ARTIST, AudioAspect.ROLE_TRACK, Guid.Empty, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (items.Count == 0)

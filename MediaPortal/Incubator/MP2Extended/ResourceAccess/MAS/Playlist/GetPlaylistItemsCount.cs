@@ -28,7 +28,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetPlaylistItemsCount : BaseMusicTrackBasic
   {
-    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string playlistId, string filter)
+    public static async Task<WebIntResult> ProcessAsync(HttpContext context, string playlistId, string filter)
     {
       var output = await GetPlaylistItems.ProcessAsync(context, playlistId, filter, null, null);
 

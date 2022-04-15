@@ -27,7 +27,7 @@ using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using MP2Extended.Extensions;
 using System;
 using System.Collections.Generic;
@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
     {
     };
 
-    internal static WebTVSeasonBasic TVSeasonBasic(IOwinContext context, MediaItem item, Guid? showId = null)
+    internal static WebTVSeasonBasic TVSeasonBasic(HttpContext context, MediaItem item, Guid? showId = null)
     {
       Guid? user = ResourceAccessUtils.GetUser(context);
       ISet<Guid> necessaryMIATypespisodes = new HashSet<Guid>();

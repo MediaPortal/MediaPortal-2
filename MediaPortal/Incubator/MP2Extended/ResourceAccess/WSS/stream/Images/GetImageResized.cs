@@ -22,10 +22,8 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
@@ -35,12 +33,12 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using MediaPortal.Common.FanArt;
-using System.Web;
-using System.Threading.Tasks;
-using System.Web.Http.Controllers;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
+using System;
+using System.Collections.Generic;
+using System.IO;
 using System.Net;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -52,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "borders", Type = typeof(string), Nullable = true)]
   internal class GetImageResized : BaseSendData
   {
-    public static async Task ProcessAsync(IOwinContext context, WebMediaType type, string id, int maxWidth, int maxHeight, string borders = null)
+    public static async Task ProcessAsync(HttpContext context, WebMediaType type, string id, int maxWidth, int maxHeight, string borders = null)
     {
       if (id == null)
         throw new BadRequestException("GetImageResized: id is null");

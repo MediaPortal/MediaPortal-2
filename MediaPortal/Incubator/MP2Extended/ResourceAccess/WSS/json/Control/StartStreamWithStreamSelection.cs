@@ -37,7 +37,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using System;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "subtitleId", Type = typeof(string), Nullable = true)]
   internal class StartStreamWithStreamSelection
   {
-    public static async Task<WebStringResult> ProcessAsync(IOwinContext context, string identifier, string profileName, long startPosition, int audioId = -1, int subtitleId = -1)
+    public static async Task<WebStringResult> ProcessAsync(HttpContext context, string identifier, string profileName, long startPosition, int audioId = -1, int subtitleId = -1)
     {
       if (identifier == null)
         throw new BadRequestException("StartStreamWithStreamSelection: identifier is null");

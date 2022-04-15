@@ -33,7 +33,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionParam(Name = "scheduleId", Type = typeof(string), Nullable = false)]
   internal class GetScheduleById : BaseScheduleBasic
   {
-    public static async Task<WebScheduleBasic> ProcessAsync(IOwinContext context, string scheduleId)
+    public static async Task<WebScheduleBasic> ProcessAsync(HttpContext context, string scheduleId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetScheduleById: ITvProvider not found");

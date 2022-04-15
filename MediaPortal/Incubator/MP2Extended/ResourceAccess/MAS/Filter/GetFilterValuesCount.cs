@@ -28,7 +28,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "limit", Type = typeof(int), Nullable = true)]
   internal class GetFilterValuesCount
   {
-    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, WebMediaType mediaType, string filterField, string op, int? limit)
+    public static async Task<WebIntResult> ProcessAsync(HttpContext context, WebMediaType mediaType, string filterField, string op, int? limit)
     {
       IList<string> output = await GetFilterValues.ProcessAsync(context, mediaType, filterField, op, limit, null);
 

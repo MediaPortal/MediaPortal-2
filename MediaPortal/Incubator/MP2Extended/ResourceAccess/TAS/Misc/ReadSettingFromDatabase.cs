@@ -28,7 +28,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
@@ -36,7 +36,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
   [ApiFunctionParam(Name = "tagName", Type = typeof(string), Nullable = false)]
   internal class ReadSettingFromDatabase
   {
-    public static Task<WebStringResult> ProcessAsync(IOwinContext context, string tagName)
+    public static Task<WebStringResult> ProcessAsync(HttpContext context, string tagName)
     {
       if (tagName == null)
         throw new BadRequestException("ReadSettingFromDatabase: tagName is null");

@@ -35,7 +35,7 @@ using MediaPortal.Common.FanArt;
 using System.Net.Http;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using System.IO;
 using MediaPortal.Utilities.SystemAPI;
 using System.Drawing;
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   internal class ExtractImage : BaseGetArtwork
   {
     // We just return a Thumbnail from MP
-    public static async Task ProcessAsync(IOwinContext context, WebMediaType type, string itemId)
+    public static async Task ProcessAsync(HttpContext context, WebMediaType type, string itemId)
     {
       bool isSeason = false;
       string showId = string.Empty;

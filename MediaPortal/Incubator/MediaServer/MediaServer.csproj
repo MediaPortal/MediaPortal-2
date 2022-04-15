@@ -41,12 +41,6 @@
     <PackageReference Include="Antlr4.Runtime">
       <Version>4.6.4</Version>
     </PackageReference>
-    <PackageReference Include="Microsoft.Owin">
-      <Version>4.1.1</Version>
-    </PackageReference>
-    <PackageReference Include="Owin">
-      <Version>1.0.0</Version>
-    </PackageReference>
   </ItemGroup>
   <Import Project="build.targets" />
 </Project>

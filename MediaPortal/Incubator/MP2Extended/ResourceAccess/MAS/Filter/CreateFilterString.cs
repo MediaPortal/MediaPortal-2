@@ -29,7 +29,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "conjunction", Type = typeof(string), Nullable = true)]
   internal class CreateFilterString
   {
-    public static Task<WebStringResult> ProcessAsync(IOwinContext context, string field, string op, string value, string conjunction)
+    public static Task<WebStringResult> ProcessAsync(HttpContext context, string field, string op, string value, string conjunction)
     {
       if (field == null)
         throw new BadRequestException("CreateFilterString: field is null");

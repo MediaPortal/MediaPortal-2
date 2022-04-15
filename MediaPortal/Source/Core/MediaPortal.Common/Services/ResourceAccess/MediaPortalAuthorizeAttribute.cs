@@ -24,20 +24,19 @@
 
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
-using System.Net.Http;
-using System.Web.Http;
-using System.Web.Http.Controllers;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
-  public class MediaPortalAuthorizeAttribute : AuthorizeAttribute
+  public class MediaPortalAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
   {
     private bool? _webAutorizationEnabled = null;
 
-    protected override bool IsAuthorized(HttpActionContext actionContext)
+    public void OnAuthorization(AuthorizationFilterContext context)
     {
-      var owinContext = actionContext.Request.GetOwinContext();
-      var authenticated = owinContext.Authentication.User?.Identity?.IsAuthenticated ?? false;
+      var authenticated = context.HttpContext.User?.Identity?.IsAuthenticated ?? false;
 
       if (!_webAutorizationEnabled.HasValue)
       {
@@ -47,9 +46,13 @@ namespace MediaPortal.Common.Services.ResourceAccess
       if (!_webAutorizationEnabled.Value)
         authenticated = true;
       else
-        authenticated &= owinContext.Authentication.User?.Identity?.AuthenticationType == ResourceServer.MEDIAPORTAL_AUTHENTICATION_TYPE;
+        authenticated &= context.HttpContext.User?.Identity?.AuthenticationType == ResourceServer.MEDIAPORTAL_AUTHENTICATION_TYPE;
 
-      return authenticated;
+      if (!authenticated)
+      {
+        context.Result = new StatusCodeResult((int)System.Net.HttpStatusCode.Forbidden);
+        return;
+      }
     }
   }
 }

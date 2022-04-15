@@ -41,7 +41,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Utilities;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
@@ -57,9 +57,9 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return enc.GetBytes(str);
     }
 
-    internal static Guid? GetUser(IOwinContext context)
+    internal static Guid? GetUser(HttpContext context)
     {
-      var claim = context.Authentication.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Sid);
+      var claim = context?.User?.Claims?.FirstOrDefault(c => c.Type == ClaimTypes.Sid);
       var id = claim?.Value != null ? Guid.Parse(claim.Value) : (Guid?)null;
       if (id != null)
         return id;

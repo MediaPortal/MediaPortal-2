@@ -34,7 +34,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MP2Extended.Extensions;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class SwitchTVServerToChannelAndGetTimeshiftFilename
   {
-    public static async Task<WebStringResult> ProcessAsync(IOwinContext context, string userName, string channelId)
+    public static async Task<WebStringResult> ProcessAsync(HttpContext context, string userName, string channelId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("SwitchTVServerToChannelAndGetTimeshiftFilename: ITvProvider not found");

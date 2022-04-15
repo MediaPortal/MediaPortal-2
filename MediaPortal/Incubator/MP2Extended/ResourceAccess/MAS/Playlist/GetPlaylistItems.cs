@@ -35,7 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.MP2Extended.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetPlaylistItems : BaseMusicTrackBasic
   {
-    public static Task<IList<WebPlaylistItem>> ProcessAsync(IOwinContext context, string playlistId, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebPlaylistItem>> ProcessAsync(HttpContext context, string playlistId, string filter, WebSortField? sort, WebSortOrder? order)
     {
       // get the playlist
       PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(Guid.Parse(playlistId));

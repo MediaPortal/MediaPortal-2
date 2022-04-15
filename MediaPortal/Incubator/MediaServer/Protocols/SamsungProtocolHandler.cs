@@ -22,28 +22,26 @@
 
 #endregion
 
-using System;
-using System.IO;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
-using System.Collections.Generic;
-using System.Linq;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using System;
+using System.IO;
 
 namespace MediaPortal.Extensions.MediaServer.Protocols
 {
   public class SamsungProtocolHandler : GenericAccessProtocol
   {
-    public override bool HandleRequest(IOwinContext context, DlnaMediaItem item)
+    public override bool HandleRequest(HttpContext context, DlnaMediaItem item)
     {
       bool bHandled = false;
       if (!string.IsNullOrEmpty(context.Request.Headers["getCaptionInfo.sec"]))
       {
         if (context.Request.Headers["getCaptionInfo.sec"] == "1")
         {
-          if (context.Request.Uri.ToString().ToUpperInvariant().Contains("LOCALHOST"))
+          Uri uri = new Uri(context.Request.GetEncodedUrl());
+          if (uri.ToString().ToUpperInvariant().Contains("LOCALHOST"))
           {
             bHandled = true;
           }
@@ -67,7 +65,7 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
       return bHandled;
     }
 
-    public override bool CanHandleRequest(IOwinRequest request)
+    public override bool CanHandleRequest(HttpRequest request)
     {
       if (!string.IsNullOrEmpty(request.Headers["getCaptionInfo.sec"]))
       {
@@ -86,7 +84,7 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
       return false;
     }
 
-    public override Stream HandleResourceRequest(IOwinContext context, DlnaMediaItem item)
+    public override Stream HandleResourceRequest(HttpContext context, DlnaMediaItem item)
     {
       //if (item.DlnaProfile == "JPEG_SM")
       //{

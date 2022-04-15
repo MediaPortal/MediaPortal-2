@@ -34,7 +34,7 @@ using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
   [ApiFunctionParam(Name = "groupId", Type = typeof(string), Nullable = true)]
   internal class GetAllRadioChannelStatesForGroup : BaseChannelBasic
   {
-    public static async Task<IList<WebChannelState>> ProcessAsync(IOwinContext context, string groupId, string userName)
+    public static async Task<IList<WebChannelState>> ProcessAsync(HttpContext context, string groupId, string userName)
     {
       List<WebChannelState> output = new List<WebChannelState>();
 

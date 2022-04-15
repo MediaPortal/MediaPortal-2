@@ -27,7 +27,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.MP2Extended.WSS;
 using MediaPortal.Plugins.MP2Extended.Common;
 using System.Collections.Generic;
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetStreamSize
   {
-    public static Task<WebResolution> ProcessAsync(IOwinContext context, WebMediaType type, int? provider, string itemId, int? offset, string profileName)
+    public static Task<WebResolution> ProcessAsync(HttpContext context, WebMediaType type, int? provider, string itemId, int? offset, string profileName)
     {
       if (itemId == null)
         throw new BadRequestException("GetStreamSize: itemId is null");

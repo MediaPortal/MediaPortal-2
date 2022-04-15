@@ -30,7 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   internal class SearchProgramsBasicByRange
   {
-    public static async Task<IList<WebProgramBasic>> ProcessAsync(IOwinContext context, string searchTerm, int start, int end)
+    public static async Task<IList<WebProgramBasic>> ProcessAsync(HttpContext context, string searchTerm, int start, int end)
     {
       IList<WebProgramBasic> output = await SearchProgramsBasic.ProcessAsync(context, searchTerm);
 

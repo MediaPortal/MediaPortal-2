@@ -31,14 +31,14 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetTranscoderProfiles : BaseTranscoderProfile
   {
-    public static Task<IList<WebTranscoderProfile>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebTranscoderProfile>> ProcessAsync(HttpContext context)
     {
       return Task.FromResult<IList<WebTranscoderProfile>>(ProfileManager.Profiles.Select(profile => TranscoderProfile(profile)).ToList());
     }

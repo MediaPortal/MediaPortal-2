@@ -35,7 +35,7 @@ using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetRecordingDiskInformationForCard : BaseCard
   {
-    public static async Task<WebDiskSpaceInformation> ProcessAsync(IOwinContext context, string id)
+    public static async Task<WebDiskSpaceInformation> ProcessAsync(HttpContext context, string id)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordingDiskInformationForCard: ITvProvider not found");

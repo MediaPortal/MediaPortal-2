@@ -25,7 +25,7 @@
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -63,7 +63,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses
       return webTrackDetailed;
     }
 
-    internal static void AssignArtists(IOwinContext context, IEnumerable<WebMusicTrackDetailed> tracks)
+    internal static void AssignArtists(HttpContext context, IEnumerable<WebMusicTrackDetailed> tracks)
     {
       // assign artists
       var searchFilter = new MediaItemIdFilter(tracks.SelectMany(t => t.ArtistId).Concat(tracks.Select(t => t.AlbumArtistId)).Select(s => Guid.Parse(s)).Distinct());

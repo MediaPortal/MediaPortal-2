@@ -46,9 +46,10 @@ namespace MediaPortal.Plugins.MP2Extended
       Logger.Debug("MP2Extended: Registering HTTP resource access module");
       ServiceRegistration.Get<IResourceServer>().AddHttpModule((typeof(WebResourceAccessModule)));
 
+#if !NET6_0
       if (Settings.OnlineVideosEnabled)
         OnlineVideosManager = new OnlineVideosManager(); // must be loaded after the settings are loaded
-
+#endif
       StreamControl.StartStreamCleanupTask();
     }
 
@@ -68,7 +69,7 @@ namespace MediaPortal.Plugins.MP2Extended
       settingsManager.Save(Settings);
     }
 
-    #region IPluginStateTracker
+#region IPluginStateTracker
 
     public void Activated(PluginRuntime pluginRuntime)
     {
@@ -101,7 +102,7 @@ namespace MediaPortal.Plugins.MP2Extended
       StreamControl.StopStreamCleanupTask(true);
     }
 
-    #endregion IPluginStateTracker
+#endregion IPluginStateTracker
 
 
     internal static ILogger Logger

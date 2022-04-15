@@ -35,7 +35,7 @@ using MediaPortal.Common.FanArt;
 using System.Net.Http;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using System.IO;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
@@ -51,7 +51,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
   [ApiFunctionParam(Name = "offset", Type = typeof(string), Nullable = true)]
   internal class RequestImageResize : BaseGetArtwork
   {
-    public static Task<WebBoolResult> ProcessAsync(IOwinContext context, WebMediaType mediatype, int? provider, string id, WebFileType artworktype, int offset, int maxWidth, int maxHeight, string borders = null, string format = null)
+    public static Task<WebBoolResult> ProcessAsync(HttpContext context, WebMediaType mediatype, int? provider, string id, WebFileType artworktype, int offset, int maxWidth, int maxHeight, string borders = null, string format = null)
     {
       int offsetInt = 0;
 

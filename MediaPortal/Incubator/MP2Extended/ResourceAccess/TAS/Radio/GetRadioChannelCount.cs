@@ -33,7 +33,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
   [ApiFunctionParam(Name = "groupId", Type = typeof(string), Nullable = true)]
   internal class GetRadioChannelCount
   {
-    public static async Task<WebIntResult> ProcessAsync(IOwinContext context, string groupId = null)
+    public static async Task<WebIntResult> ProcessAsync(HttpContext context, string groupId = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRadioChannelCount: ITvProvider not found");

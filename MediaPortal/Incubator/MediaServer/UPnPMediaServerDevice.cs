@@ -22,14 +22,14 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Globalization;
-using System.Xml;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Xml;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
 
@@ -65,7 +65,7 @@ namespace MediaPortal.Extensions.MediaServer
       AddService(new UPnPMediaReceiverRegistrarServiceImpl());
     }
 
-    private static void GenerateDescriptionFunc(IOwinRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture)
+    private static void GenerateDescriptionFunc(HttpRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture)
     {
       if (request == null) return;
 
@@ -92,10 +92,10 @@ namespace MediaPortal.Extensions.MediaServer
       }
     }
 
-    private static void DeviceInfoFunc(IOwinRequest request, ILocalizedDeviceInformation deviceInfo, ref ILocalizedDeviceInformation overriddenDeviceInfo)
+    private static void DeviceInfoFunc(HttpRequest request, ILocalizedDeviceInformation deviceInfo, ref ILocalizedDeviceInformation overriddenDeviceInfo)
     {
       if (request == null) return;
-      string clientID = request.RemoteIpAddress;
+      string clientID = request.HttpContext?.Connection?.RemoteIpAddress.ToString();
       EndPointSettings client = ProfileManager.DetectProfileAsync(request).Result;
 
       if (client != null && client.Profile != null)

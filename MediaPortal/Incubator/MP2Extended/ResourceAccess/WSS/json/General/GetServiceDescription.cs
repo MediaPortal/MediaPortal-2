@@ -26,7 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetServiceDescription
   {
-    public static Task<WebStreamServiceDescription> ProcessAsync(IOwinContext context)
+    public static Task<WebStreamServiceDescription> ProcessAsync(HttpContext context)
     {
       WebStreamServiceDescription webStreamServiceDescription = new WebStreamServiceDescription
       {

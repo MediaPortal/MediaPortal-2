@@ -32,14 +32,14 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClasses;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using Microsoft.Owin;
+using Microsoft.AspNetCore.Http;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class DeleteRecording : BaseRecordingBasic
   {
-    public static Task<WebBoolResult> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebBoolResult> ProcessAsync(HttpContext context, string id)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("DeleteRecording: ITvProvider not found");
