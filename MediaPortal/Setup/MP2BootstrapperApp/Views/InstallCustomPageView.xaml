@@ -18,6 +18,7 @@
           <ResourceDictionary Source="../Styles/TextStyles.xaml" />
           <ResourceDictionary Source="../Styles/PackageStyles.xaml" />
           <ResourceDictionary Source="../Styles/ListViewStyles.xaml" />
+          <ResourceDictionary Source="../Styles/ScrollBarStyles.xaml" />
         </ResourceDictionary.MergedDictionaries>
 
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
@@ -31,17 +32,19 @@
       <RowDefinition Height="Auto"/>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
-
-    <ListView x:Name="PackageList" Grid.Row="0" HorizontalAlignment="Center"
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Disabled"
+                  IsManipulationEnabled="True" Template="{StaticResource ScrollViewerControlTemplate1}">
+      <ListView x:Name="PackageList" Grid.Row="0" HorizontalAlignment="Center"
               Style="{StaticResource ListViewSelectsOnMouseOverStyle}"
               ItemsSource="{Binding Path=Items}"
               ItemTemplate="{StaticResource PackageButtonDataTemplate}">
-      <ListView.ItemsPanel>
-        <ItemsPanelTemplate>
-          <WrapPanel />
-        </ItemsPanelTemplate>
-      </ListView.ItemsPanel>
-    </ListView>
+        <ListView.ItemsPanel>
+          <ItemsPanelTemplate>
+            <WrapPanel />
+          </ItemsPanelTemplate>
+        </ListView.ItemsPanel>
+      </ListView>
+    </ScrollViewer>
 
     <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,10,0,0" HorizontalAlignment="Center"
                 Visibility="{Binding ElementName=PackageList, Path=SelectedItem, Converter={StaticResource ReferenceToVisibilityConverter}}">
