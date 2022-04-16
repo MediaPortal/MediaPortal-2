@@ -17,7 +17,6 @@
 
     <ItemGroup>
       <References Include="$(TargetDir)System.Data.SQLite.dll" />
-      <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />
     </ItemGroup>
 
     <ItemGroup>
