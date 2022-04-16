@@ -1,10 +1,44 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+  <string name="Nereus.Configuration.EnableHelpTexts">Включить текст справки</string>
+  <string name="Nereus.Configuration.EnableHelpTexts.Help">Отображать текст справки для меню на главном экране.</string>
+  <string name="Nereus.Configuration.EnableFanart">Включить фан-арт</string>
+  <string name="Nereus.Configuration.EnableFanart.Help">Включить отображение фона фан-арт</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling">Разрешить циклическую прокрутку</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling.Help">Разрешить циклическую прокрутку в списках мультимедиа. </string>
+  <string name="Nereus.Configuration.EnableGridDetails">Показывать детали сетки</string>
+  <string name="Nereus.Configuration.EnableGridDetails.Help">Показывать сведения об элементе мультимедиа справа для вида отображения сетка. При отключении детали отображаются внизу. </string>
+  <string name="Nereus.Configuration.EnableCoverDetails">Включить сведения об обложке</string>
+  <string name="Nereus.Configuration.EnableCoverDetails.Help">Отображать детали медиафайла при выборе обложки</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling">Включить автоматическую прокрутку</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling.Help">Использовать автоматическую прокрутку вместо ручной, где это возможно</string>
+  <string name="Nereus.Configuration.AutoScrolling">Автоматическая прокрутка</string>
+  <string name="Nereus.Configuration.ManualAutoScrolling">Ручная прокрутка</string>
+  <string name="Nereus.Configuration.AutoScrollSpeed">Скорость прокрутки</string>
+  <string name="Nereus.Configuration.AutoScrollDelay">Задержка прокрутки </string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity">Видимость фан-арта </string>
+  <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Изменение непрозрачности фонового наложения фан-арта. Меньшее значение увеличивает видимость фан-арта (по умолчанию 1,0). </string>
+  <string name="Nereus.Configuration.EnableWatchedFlags">Включить флаги просмотра</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.Help">Отображение просматриваемых значков в выбранных представлениях. </string>
   <string name="Nereus.Configuration.EnableWatchedFlags.ListView">В виде списка</string>
   <string name="Nereus.Configuration.EnableWatchedFlags.GridView">В виде сетки</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.CoverView">В виде обложки</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos">Показывать логотип ограничения по возрасту</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos.Help">Отображать логотип ограничения по возрасту на экранах мультимедиа. </string>
+  <string name="Nereus.Configuration.MovieGridViewType">Макет для отображения фильмов</string>
+  <string name="Nereus.Configuration.MovieGridViewType.Help">Выбор макета, используемый для отображения фильмов в виде сетки. </string>
+  <string name="Nereus.Configuration.SeriesGridViewType">Макет для отображения сериалов</string>
+  <string name="Nereus.Configuration.SeriesGridViewType.Help">Выбор макета, используемый для отображения сериалов в виде сетки. </string>
+  <string name="Nereus.Configuration.SeasonGridViewType">Макет для отображения сезонов</string>
+  <string name="Nereus.Configuration.SeasonGridViewType.Help">Выбор макета, используемый для отображения сезонов в виде сетки. </string>
   <string name="Nereus.Configuration.GridViewType.Poster">Постеры</string>
   <string name="Nereus.Configuration.GridViewType.Banner">Баннеры</string>
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Миниатюры</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView">Включить просмотр сведений об элементе мультимедиа</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Отображать сведения об элементе вместо воспроизведения элемента мультимедиа. </string>
+  <string name="Nereus.Configuration.EnableTouchDisplay">Включить поддержку сенсорного дисплея </string>
+  <string name="Nereus.Configuration.EnableTouchDisplay.Help">Отключить автоматические скользящие меню и принудительно отображать кнопки навигации для лучшей поддержки сенсорного дисплея. </string>
+
   <string name="Nereus.Home.LatestAdded">Последнее добавленное</string>
   <string name="Nereus.Home.LatestPlayed">Последнее воспроизведенное</string>
   <string name="Nereus.Home.ContinuePlayed">Продолжить воспроизведение</string>
@@ -12,21 +46,30 @@
   <string name="Nereus.Home.CurrentSchedules">Текущие расписания</string>
   <string name="Nereus.Home.Favorites">Избранное</string>
   <string name="Nereus.Home.TopLanguages">Языки</string>
+  <string name="Nereus.Home.Unplayed">Не играл</string>
+  <string name="Nereus.Home.CurrentWeather">Текущий</string>
   <string name="Nereus.Home.Forecast">Прогноз</string>
+  <string name="Nereus.Home.News">Поставщик новостей</string>
+  <string name="Nereus.Home.TopNews">Главные новости</string>
   <string name="Nereus.Home.LatestLaunched">Последнее запущенное</string>
 
   <string name="Nereus.Shortcut.Genre">Жанр</string>
   <string name="Nereus.Shortcut.Year">Год</string>
+  <string name="Nereus.Shortcut.Age">Возраст</string>
   <string name="Nereus.Shortcut.Actor">Актер</string>
   <string name="Nereus.Shortcut.Artist">Исполнитель</string>
   <string name="Nereus.Shortcut.Search">Поиск</string>
   <string name="Nereus.Shortcut.Track">Трек</string>
   <string name="Nereus.Shortcut.Album">Альбом</string>
+  <string name="Nereus.Shortcut.LiveTV">Просмотр ТВ</string>
   <string name="Nereus.Shortcut.TVGuide">ТВ гид</string>
   <string name="Nereus.Shortcut.Schedules">Расписания</string>
   <string name="Nereus.Shortcut.Recordings">Записанные файлы</string>
+  <string name="Nereus.Shortcut.Place">Место</string>
   <string name="Nereus.Shortcut.System">Система</string>
   <string name="Nereus.Shortcut.Size">Размер</string>
+  <string name="Nereus.Shortcut.Setup">Настраивать</string>
+  <string name="Nereus.Shortcut.Location">Место нахождения</string>
   <string name="Nereus.Shortcut.Refresh">Обновить</string>
   
   <string name="Nereus.Home.OtherPlugins">Другое</string>
@@ -35,11 +78,19 @@
   <string name="Nereus.Dialog.EditMenu.Header">Изменить меню</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Добавить элемент меню</string>
 
+  <string name="Nereus.Dialog.EditMediaList.Header">Изменить домашний контент </string>
+  <string name="Nereus.Dialog.AddMediaListItem.Header">Добавить домашний контент </string>
+
   <string name="Nereus.Info.Director">Режиссер</string>
   <string name="Nereus.Info.Subtitles">Субтитры</string>
   <string name="Nereus.Info.Actors">Актеры</string>
   <string name="Nereus.Info.Collection">Коллекция</string>
+  <string name="Nereus.Info.Audio">Аудиодорожки</string>
   <string name="Nereus.Info.Artists">Артисты</string>
-  <string name="Nereus.Info.Composer">Composer</string>
+  <string name="Nereus.Info.AlbumArtists">Артисты альбомов</string>
+  <string name="Nereus.Info.Composer">композитор</string>
 
-  </resources>
+  <string name="Nereus.Configuration.SelectSkinColor">Выберите цветовую схему оболочки</string>
+  <string name="Nereus.Configuration.SelectSkinColor.Help">Настройте цветовую схему оболочки по шаблону</string>
+  
+</resources>

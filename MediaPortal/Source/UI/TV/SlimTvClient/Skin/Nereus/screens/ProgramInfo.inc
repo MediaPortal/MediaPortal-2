@@ -11,20 +11,23 @@
     </Grid.RowDefinitions>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="420"/>
-      <ColumnDefinition Width="1400"/>
+      <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
 
-    <StackPanel Orientation="Vertical" Grid.RowSpan="2">
+   <StackPanel Orientation="Vertical" Grid.RowSpan="2">
       <!-- Common control for program duration formatting -->
       <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}" />
-      <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"/>
+      <Label x:Name="GenreLabel" Content="{Binding Path=CurrentProgram.Genre}" Color="{ThemeResource TextColor}" Opacity="0.6" TextTrimming="CharacterEllipsis"
+             IsVisible="{Binding Path=CurrentProgram.Genre,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,0,10,0"/>
+      <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
+             HorizontalAlignment="Left" Opacity="0.6" IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}"/>
       <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
-             Stretch="Uniform" VerticalAlignment="Top" HorizontalAlignment="Left" >
+             Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
                                     fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
         </Image.Source>
-      </Image>      
+      </Image>
     </StackPanel>
 
     <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch">

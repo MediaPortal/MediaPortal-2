@@ -39,6 +39,7 @@
   <!--Schedule management-->
   <string name="SlimTvClient.Schedules">Расписания</string>
   <string name="SlimTvClient.ScheduleManagement">Управление расписаниями</string>
+  <string name="SlimTvClient.ErrorNoTvProvider">Нет доступного ТВ-провайдера (пока) </string>
   <!--Settings-->
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelName">Имя канала</string>
   <string name="SlimTvClient.EpgVisibleChannelInfo.ChannelNumber">Номер канала</string>

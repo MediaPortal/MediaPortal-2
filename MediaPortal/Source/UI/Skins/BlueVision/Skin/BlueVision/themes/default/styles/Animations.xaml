@@ -12,7 +12,7 @@
     >
 
   <ResourceWrapper x:Key="TransitionKeyFrame" Resource="00:00:00.300"/>
-  <ResourceWrapper x:Key="TransitionDuration" Resource="00:00:00.500"/>
+  <ResourceWrapper x:Key="TransitionDuration" Resource="00:00:00.700"/>
 
   <Model x:Key="MenuModel" Id="A6C6D5DA-55FE-4b5f-AE83-B03E8BBFA177"/>
 
@@ -39,24 +39,24 @@
   <Storyboard x:Key="SlideInLeft" FillBehavior="Stop">
     <StaticResource ResourceKey="TransitionBase"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="RenderTransform.X">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-1920"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="-2420"/>
       <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="0"/>
     </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="RenderTransform.X">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="1920"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="2420"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 
   <Storyboard x:Key="SlideInRight" FillBehavior="Stop">
     <StaticResource ResourceKey="TransitionBase"/>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="NextPage" Storyboard.TargetProperty="RenderTransform.X">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1920"/>
+      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="2420"/>
       <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="0"/>
     </DoubleAnimationUsingKeyFrames>
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="MainMenu" Storyboard.TargetProperty="RenderTransform.X">
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="-1920"/>
+      <SplineDoubleKeyFrame KeyTime="{StaticResource TransitionDuration}" Value="-2420"/>
     </DoubleAnimationUsingKeyFrames>
   </Storyboard>
 

@@ -250,32 +250,42 @@
         </Grid>
         <!--End Home Screen-->
 
-        <bv:GridListView x:Name="MainMenu" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="-60,0,-60,0" 
-            VerticalAlignment="Stretch" HorizontalAlignment="Stretch" SetFocusPrio="Fallback"
-            BeginNavigation="{Binding Source={StaticResource MenuModel},Path=BeginNavigation,Mode=TwoWay}"
-            ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
-            IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
-          <bv:GridListView.Resources>
-            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-          </bv:GridListView.Resources>
-          <bv:GridListView.RenderTransform>
-            <TranslateTransform X="0" Y="0"/>
-          </bv:GridListView.RenderTransform>
-        </bv:GridListView>
+        <Grid DockPanel.Dock="Center" HorizontalAlignment="Center" VerticalAlignment="Stretch">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1850"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <bv:GridListView x:Name="MainMenu" Style="{ThemeResource HomeMenuListViewStyle}" Margin="-60,0,-60,0" Width="1850" Grid.Column="1"
+                           VerticalAlignment="Stretch" HorizontalAlignment="Center" SetFocusPrio="Fallback"
+                           BeginNavigation="{Binding Source={StaticResource MenuModel},Path=BeginNavigation,Mode=TwoWay}"
+                           ItemsSource="{Binding Source={StaticResource MenuModel},Path=PositionedMenuItems,Mode=OneTime}"
+                           IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
+            <bv:GridListView.Resources>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </bv:GridListView.Resources>
+            <bv:GridListView.RenderTransform>
+              <TranslateTransform X="0" Y="0"/>
+            </bv:GridListView.RenderTransform>
+          </bv:GridListView>
 
-        <bv:GridListView x:Name="NextPage" DockPanel.Dock="Center" Style="{ThemeResource HomeMenuListViewStyle}" Margin="-60,0,-60,0" 
-            VerticalAlignment="Stretch" IsEnabled="False"
-            ItemsSource="{Binding Source={StaticResource MenuModel},Path=NextPageItems,Mode=OneTime}"
-            AnimationStarted="{Binding Source={StaticResource MenuModel},Path=AnimationStarted,Mode=OneWayToSource}"
-            AnimationCompleted="{Binding Source={StaticResource MenuModel},Path=AnimationCompleted,Mode=OneWayToSource}"
-            IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
-          <bv:GridListView.Resources>
-            <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
-          </bv:GridListView.Resources>
-          <bv:GridListView.RenderTransform>
-            <TranslateTransform X="-1920" Y="0"/>
-          </bv:GridListView.RenderTransform>
-        </bv:GridListView>
+          <bv:GridListView x:Name="NextPage" Style="{ThemeResource HomeMenuListViewStyle}" Margin="-60,0,-60,0" 
+                           VerticalAlignment="Stretch" IsEnabled="False" Width="1850" Grid.Column="1" HorizontalAlignment="Center"
+                           ItemsSource="{Binding Source={StaticResource MenuModel},Path=NextPageItems,Mode=OneTime}"
+                           AnimationStarted="{Binding Source={StaticResource MenuModel},Path=AnimationStarted,Mode=OneWayToSource}"
+                           AnimationCompleted="{Binding Source={StaticResource MenuModel},Path=AnimationCompleted,Mode=OneWayToSource}"
+                           IsVisible="{Binding Source={StaticResource MenuModel},Path=!IsHome}">
+            <bv:GridListView.Resources>
+              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+            </bv:GridListView.Resources>
+            <bv:GridListView.RenderTransform>
+              <TranslateTransform X="-2420" Y="0"/>
+            </bv:GridListView.RenderTransform>
+          </bv:GridListView>
+        </Grid>
 
       </DockPanel>
     </ControlTemplate>

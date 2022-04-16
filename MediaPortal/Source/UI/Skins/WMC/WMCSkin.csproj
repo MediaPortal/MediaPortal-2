@@ -34,6 +34,7 @@
     <Page Remove="Skin\WMCSkin\screens\LatestMedia.xaml" />
     <Page Remove="Skin\WMCSkin\screens\master_bare.xaml" />
     <Page Remove="Skin\WMCSkin\screens\master_bare_info.xaml" />
+    <Page Remove="Skin\WMCSkin\screens\master_configuration_menu.xaml" />
     <Page Remove="Skin\WMCSkin\screens\master_dialog_bare.xaml" />
     <Page Remove="Skin\WMCSkin\screens\master_mediamenu.xaml" />
     <Page Remove="Skin\WMCSkin\screens\shares_config_choose_system.xaml" />
@@ -680,6 +681,7 @@
     <Content Include="Skin\WMCSkin\screens\LatestMedia.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_bare.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_bare_info.xaml" />
+    <Content Include="Skin\WMCSkin\screens\master_configuration_menu.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_dialog_bare.xaml" />
     <Content Include="Skin\WMCSkin\screens\master_mediamenu.xaml" />
     <Content Include="Skin\WMCSkin\screens\MediaItemAudioAlbumDetails.inc" />

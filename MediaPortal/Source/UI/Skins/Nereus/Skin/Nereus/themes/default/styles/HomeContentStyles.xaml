@@ -403,13 +403,23 @@
         </MultiBinding>
       </Grid.Background>
 
-      <Image VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" Margin="10">
+      <Image x:Name="logo" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Stretch="Uniform" Margin="10">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Channel.Name}"
                                     fanart:MaxWidth="{StaticResource TvLogoChacheWidth}" fanart:MaxHeight="{StaticResource TvLogoChacheHeight}"/>
         </Image.Source>
       </Image>
-
+      <Label x:Name="ChannelLabel" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="10" Content="{Binding Channel.Name}" 
+             TextTrimming="CharacterEllipsis" Wrap="True" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+             IsVisible="{Binding ElementName=logo, Path=!HasImage}">
+        <Label.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="1"/>
+            <Binding Source="0.7"/>
+          </MultiBinding>
+        </Label.Opacity>
+      </Label>
     </Grid>
   </ControlTemplate>
 
@@ -433,170 +443,30 @@
         </Border.Background>
       </Border>
 
-      <Label x:Name="ProgramLabel" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,10,10,10" Content="{Binding Program.Title}" 
+      <Label x:Name="ProgramLabel" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="20,0,10,10" Content="{Binding Program.Title}" 
              TextTrimming="CharacterEllipsis" Wrap="True" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.7" />
       
       <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Margin="20,10,10,10"
              Content="{Binding Path=Program.StartTime, Converter={StaticResource DateFormatConverter}}"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" />
 
-      <!--Grid Grid.Column="1" Margin="10,15,10,15" Grid.RowSpan="2">
-        <Image VerticalAlignment="Center" HorizontalAlignment="Center" Stretch="Uniform">
-          <Image.Source>
-            <Binding Path="Progress" Converter="{StaticResource RoundingFormatConverter}" ConverterParameter="{}5;CircularBarDark\{0}.png"/>
-          </Image.Source>
-        </Image>
-        <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Color="White"
-               Margin="0,0,0,0" HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-          <Label.Content>
-            <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
-          </Label.Content>
-        </Label>
-      </Grid-->
+      <Image x:Name="ItemTypeImage" Grid.Column="1" Stretch="Uniform" Margin="0,5,10,0" Height="60">
+        <Image.Source>
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
+                                    fanart:MaxWidth="{StaticResource TvLogoChacheWidth}" fanart:MaxHeight="{StaticResource TvLogoChacheHeight}"/>
+        </Image.Source>
+      </Image>
 
-      <Grid RenderTransformOrigin="0.5,0.5" VerticalAlignment="Center" Grid.Column="1" Margin="0,5,-50,5" Grid.RowSpan="2" HorizontalAlignment="Right"
-            IsVisible="{Binding Path=Progress,Converter={StaticResource ReferenceToBoolConverter}}">
-        <Grid.RenderTransform>
-          <TransformGroup>
-            <ScaleTransform ScaleX="0.8" ScaleY="0.8"/>
-          </TransformGroup>
-        </Grid.RenderTransform>
-        <Control Style="{ThemeResource CircularBackgroundStyle_0}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_18}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_36}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_54}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_72}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_90}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_108}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_126}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_144}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_162}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_180}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_198}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_216}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_234}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_252}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_270}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_288}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_306}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_324}"/>
-        <Control Style="{ThemeResource CircularBackgroundStyle_342}"/>
-
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_0}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>0"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_18}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>5"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_36}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>10"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_54}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>15"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_72}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>20"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_90}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>25"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_108}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>30"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_126}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>35"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_144}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>40"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_162}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>45"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_180}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>50"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_198}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>55"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_216}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>60"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_234}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>65"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_252}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>70"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_270}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>75"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_288}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>80"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_306}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>85"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_324}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>90"/>
-          </Control.IsVisible>
-        </Control>
-        <Control Style="{ThemeResource CircularIndicatorWhiteStyle_342}">
-          <Control.IsVisible>
-            <Binding Path="Progress" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0}>95"/>
-          </Control.IsVisible>
-        </Control>
-        <Grid Margin="-65,-2,65,0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
-                 HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
-            <Label.Content>
-              <Binding Path="Progress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
-            </Label.Content>
-          </Label>
-        </Grid>
-      </Grid>
+      <ProgressBar x:Name="CurrentProgramProgress" Grid.Row="1" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Bottom"
+                   Value="{Binding Progress}" Style="{ThemeResource LinearProgressBarStyle}" IsVisible="{Binding !NoProgramData}">
+        <ProgressBar.Margin>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="4,0,0,5"/>
+            <Binding Source="0,0,0,0"/>
+          </MultiBinding>
+        </ProgressBar.Margin>
+      </ProgressBar>
 
     </Grid>
   </ControlTemplate>
@@ -606,7 +476,7 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="150"/>
+        <ColumnDefinition Width="Auto"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
@@ -624,22 +494,48 @@
         </Border.Background>
       </Border>
 
-      <Image x:Name="ItemTypeImage" Grid.RowSpan="2" Grid.Column="2" Stretch="Uniform" Margin="10" >
+      <Image x:Name="ItemTypeImage" Grid.RowSpan="2" Grid.Column="2" Stretch="Uniform" Margin="10" Width="150">
         <Image.Source>
           <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}"
                                     fanart:MaxWidth="{StaticResource TvLogoChacheWidth}" fanart:MaxHeight="{StaticResource TvLogoChacheHeight}"/>
         </Image.Source>
+        <Image.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}!={1}">
+            <Binding Path="[ScheduleTypeEnum]"/>
+            <Binding Source="EveryTimeOnEveryChannel"/>
+          </MultiBinding>
+        </Image.IsVisible>
       </Image>
 
       <Label x:Name="ItemLabel" Grid.RowSpan="2" Grid.Column="2" HorizontalAlignment="Center" VerticalAlignment="Center" 
-             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}"
-             Content="{Binding Program.ChannelName}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5"/>
+             TextTrimming="CharacterEllipsis" IsVisible="{Binding ElementName=ItemTypeImage, Path=!HasImage}" Width="150"
+             Content="{Binding Program.ChannelName}" Color="Black" FontSize="{ThemeResource SmallFontSize}" Margin="5">
+        <Label.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}!={1} &amp;&amp; {2}">
+            <Binding Path="[ScheduleTypeEnum]"/>
+            <Binding Source="EveryTimeOnEveryChannel"/>
+            <Binding ElementName="ItemTypeImage" Path="!HasImage"/>
+          </MultiBinding>
+        </Label.IsVisible>
+      </Label>
 
+      <Label x:Name="ScheduleLabel" Grid.ColumnSpan="2" TextTrimming="CharacterEllipsis" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+             Content="{Binding Path=ScheduleName}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
       <Label x:Name="ProgramLabel" VerticalAlignment="Top" HorizontalAlignment="Stretch" Grid.ColumnSpan="2" Margin="10,10,0,0" Content="{Binding Program.Title}"
-             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
-      
+             TextTrimming="CharacterEllipsis" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
+             IsVisible="{Binding Path=ScheduleName, Converter={StaticResource EmptyStringToFalseConverter}}"/>
+
       <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Grid.ColumnSpan="2" Grid.Row="1" Margin="10,0,0,0" Content="{Binding Program.StartTime}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6"/>
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Opacity="0.6">
+        <Label.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} != {1} &amp;&amp; {0} != {2} &amp;&amp; {0} != {3})">
+            <Binding Path="[ScheduleTypeEnum]"/>
+            <Binding Source="WeeklyEveryTimeOnThisChannel"/>
+            <Binding Source="EveryTimeOnThisChannel"/>
+            <Binding Source="EveryTimeOnEveryChannel"/>
+          </MultiBinding>
+        </Label.IsVisible>
+      </Label>
 
       <Image Grid.Row="2" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="{Binding Program.IsSeriesScheduled}"
              VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,5,0,5"/>

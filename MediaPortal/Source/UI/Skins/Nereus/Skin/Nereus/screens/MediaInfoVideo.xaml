@@ -187,14 +187,14 @@
                       </Image>
                     </Grid>
 
-                    <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform">
+                    <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" IsVisible="{Binding Path=AspectWidth,Converter={StaticResource ReferenceToBoolConverter}}">
                       <Image.Source>
-                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 340 ? {1} : ({0} &lt; 460 ? {2} : ({0} &lt; 520 ? {3} : ({0} &lt; 570 ? {4} : ({0} &lt; 700 ? {5} : ({0} &lt; 1000 ? {6} : ({0} &lt; 2000 ? {7} : ({0} &lt; 4000 ? {8} : {9})))))))">
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{1} &lt; 320 ? {2} : ({1} &lt; 450 ? {3} : ((({1} &lt; 485) &amp;&amp; ({0} &lt; 725)) ? {4} : ((({0} &lt; 725) &amp;&amp; ({1} &lt; 580)) ? {5} : ({0} &lt; 1285 ? {6} : ({0} &lt; 1925 ? {7} : ({0} &lt; 3845 ? {8} : {9}))))))">
+                          <Binding Path="AspectWidth"/>
                           <Binding Path="AspectHeight"/>
                           <Binding Source="Medialogos\resolution\240.png"/>
                           <Binding Source="Medialogos\resolution\360.png"/>
                           <Binding Source="Medialogos\resolution\480.png"/>
-                          <Binding Source="Medialogos\resolution\540.png"/>
                           <Binding Source="Medialogos\resolution\576.png"/>
                           <Binding Source="Medialogos\resolution\720p.png"/>
                           <Binding Source="Medialogos\resolution\1080p.png"/>
@@ -204,7 +204,7 @@
                       </Image.Source>
                     </Image>
 
-                    <Grid HorizontalAlignment="Center">
+                    <Grid HorizontalAlignment="Center" IsVisible="{Binding Path=AspectWidth,Converter={StaticResource ReferenceToBoolConverter}}">
                       <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Source="Medialogos\aspectratio\aspectratio.png"/>
                       <Label Margin="8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
                              HorizontalAlignment="Center" VerticalAlignment="Bottom">
@@ -268,6 +268,18 @@
               </Control.IsVisible>
               <Control.TemplateControl>
                 <Include Source="screens\MediaInfoSeriesDetails.inc"/>
+              </Control.TemplateControl>
+            </Control>
+
+            <Control x:Name="Info_Video" Grid.Row="1" Margin="0,0,0,100">
+              <Control.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!(({0}=={VisibilityEnum}.{Visible})||({1}=={VisibilityEnum}.{Visible}))">
+                  <Binding ElementName="Info_Movie" Path="Visibility" />
+                  <Binding ElementName="Info_Series" Path="Visibility" />
+                </MultiBinding>
+              </Control.IsVisible>
+              <Control.TemplateControl>
+                <Include Source="screens\MediaInfoVideoDetails.inc"/>
               </Control.TemplateControl>
             </Control>
 

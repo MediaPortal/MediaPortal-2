@@ -1,7 +1,9 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="MainForm.AttachedClients">Подключенные клиенты </string>
   <string name="MainForm.Client">Клиент</string>
   <string name="MainForm.System">Система</string>
+  <string name="MainForm.ConnectionState">Состояние подключения </string>
   <string name="MainForm.Connected">Подключено</string>
   <string name="MainForm.Disconnected">Отключено</string>
   <string name="UPnPBackendServer.DefaultFriendlyName">MediaPortal 2 server</string>

@@ -373,10 +373,15 @@
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                             Command="{Command SeekBackward}"/>
-                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                            Command="{Command Play}"/>
-                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                            Command="{Command Pause}"/>
+                    <Button x:Name="PlayPauseButton" Margin="5,0,5,0" Style="{ThemeResource PlayPauseButtonStyle}" 
+                              Command="{Command TogglePause}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                          <Binding Path="CanPlay"/>
+                          <Binding Path="CanPause"/>
+                        </MultiBinding>
+                      </Button.IsVisible>
+                    </Button>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
                             Command="{Command Stop}"/>
                     <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
@@ -471,10 +476,15 @@
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                             Command="{Command SeekBackward}"/>
-                    <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPlay}"
-                            Command="{Command Play}"/>
-                    <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanPause}"
-                            Command="{Command Pause}"/>
+                    <Button x:Name="PlayPauseButton" Margin="5,0,5,0" Style="{ThemeResource PlayPauseButtonStyle}" 
+                              Command="{Command TogglePause}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                          <Binding Path="CanPlay"/>
+                          <Binding Path="CanPause"/>
+                        </MultiBinding>
+                      </Button.IsVisible>
+                    </Button>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
                             Command="{Command Stop}"/>
                     <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
@@ -934,6 +944,25 @@
                   <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
                 </Image.IsVisible>
               </Image>
+              <!--Label Grid.Column="1" x:Name="FallbackNameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
+                     Color="{ThemeResource TextColor}">
+                <Label.IsVisible>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
+                    <Binding ElementName="ChannelLogoImage" Path="!HasImage"/>
+                  </MultiBinding>
+                </Label.IsVisible>
+                <Label.FontSize>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                  </MultiBinding>
+                </Label.FontSize>
+                <Label.Triggers>
+                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                    <Setter TargetName="FallbackNameLabel" Property="Scroll" Value="Auto"/>
+                  </DataTrigger>
+                </Label.Triggers>
+              </Label-->
               <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
                      Color="{ThemeResource TextColor}">
                 <Label.IsVisible>
@@ -1751,11 +1780,14 @@
   <DataTemplate x:Key="ScheduleDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="50">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="135"/>
+        <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="370"/>
+        <ColumnDefinition Width="380"/>
         <ColumnDefinition Width="75"/>
       </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="49"/>
+      </Grid.RowDefinitions>
 
       <Border x:Name="Shadow" Grid.Row="0" Grid.ColumnSpan="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Black" Opacity="0.3" BorderThickness="0" Margin="0,-5,-2,-7"/>
@@ -1764,20 +1796,61 @@
       <Border x:Name="Item" Grid.Row="0" Grid.ColumnSpan="4" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="{ThemeResource NereusColorMedium}" BorderThickness="0" Margin="0,-5,0,-5"/>
 
-      <Image x:Name="ChannelLogo" Height="44" Stretch="Uniform" Margin="5,2,5,2">
+      <Image Grid.Column="3" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="False"
+             VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,5,0,5"/>
+      <Image Grid.Column="3" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="False"
+             VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,10,0,10"/>
+
+      <Image x:Name="ChannelLogo" Height="44" Stretch="Uniform" Margin="5,2,5,2" Width="135">
         <Image.Source>
-          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
+          <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding [ChannelLogoType]}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding [ChannelName]}"
                                     fanart:MaxWidth="{StaticResource TvLogoChacheWidth}" fanart:MaxHeight="{StaticResource TvLogoChacheHeight}"/>
         </Image.Source>
+        <Image.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1} || {2}!={3}">
+            <Binding ElementName="SeriesRecIndicator" Path="HasImage"/>
+            <Binding ElementName="RecIndicator" Path="HasImage"/>
+            <Binding Path="[ScheduleTypeEnum]"/>
+            <Binding Source="EveryTimeOnEveryChannel"/>
+          </MultiBinding>
+        </Image.IsVisible>
       </Image>
-      
+
       <Label x:Name="ChannelName" Content="{Binding [ChannelName]}" Color="{ThemeResource TextColor}" ScrollDelay="0" 
              Scroll="None" IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}"
-             FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
-      <Label x:Name="ItemLabel" Grid.Column="1" Content="{Binding [Name]}" Color="{ThemeResource TextColor}" ScrollDelay="0" Scroll="None"
-             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+             FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+        <Label.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1} || {2}!={3} &amp;&amp; {4}">
+            <Binding ElementName="SeriesRecIndicator" Path="HasImage"/>
+            <Binding ElementName="RecIndicator" Path="HasImage"/>
+            <Binding Path="[ScheduleTypeEnum]"/>
+            <Binding Source="EveryTimeOnEveryChannel"/>
+            <Binding ElementName="ChannelLogo" Path="!HasImage"/>
+          </MultiBinding>
+        </Label.IsVisible>
+      </Label>
+      <Label x:Name="ItemLabel" Grid.Column="1" Color="{ThemeResource TextColor}" ScrollDelay="0" Scroll="None"
+             FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+        <Label.Content>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+({2})">
+            <Binding Path="[Name]"/>
+            <Binding Source=" "/>
+            <Binding Path="[Series]"/>
+          </MultiBinding>
+        </Label.Content>
+      </Label>
       <Label Grid.Column="2" x:Name="ProgramStartEnd" Margin="10,0,10,0" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
              FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Opacity="0.6">
+        <Label.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1} || ({2} != {3} &amp;&amp; {2} != {4} &amp;&amp; {2} != {5})">
+            <Binding ElementName="SeriesRecIndicator" Path="HasImage"/>
+            <Binding ElementName="RecIndicator" Path="HasImage"/>
+            <Binding Path="[ScheduleTypeEnum]"/>
+            <Binding Source="WeeklyEveryTimeOnThisChannel"/>
+            <Binding Source="EveryTimeOnThisChannel"/>
+            <Binding Source="EveryTimeOnEveryChannel"/>
+          </MultiBinding>
+        </Label.IsVisible>
         <Label.Content>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}+{2}">
             <Binding Path="[StartTime]"/>
@@ -1787,10 +1860,6 @@
         </Label.Content>
       </Label>
 
-      <Image Grid.Column="3" x:Name="SeriesRecIndicator" Source="RECORD.SERIES.png" IsVisible="False"
-             VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,5,0,5"/>
-      <Image Grid.Column="3" x:Name="RecIndicator" Source="RECORD.SINGLE.png" IsVisible="False"
-             VerticalAlignment="Center" HorizontalAlignment="Left" Height="30" Stretch="Uniform" Margin="10,10,0,10"/>
     </Grid>
   </DataTemplate>
 
