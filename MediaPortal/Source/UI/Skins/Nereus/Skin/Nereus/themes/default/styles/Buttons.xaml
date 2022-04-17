@@ -2700,10 +2700,56 @@
   </Style>
 
   <!-- Virtual Keyboard Styles -->
-  <ResourceWrapper x:Key="VKMargin" Resource="4"/>
+  <ResourceWrapper x:Key="VKMargin" Resource="2"/>
 
   <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource WizardButtonStyle}" TargetType="{x:Type Button}">
     <Setter Property="FontSize" Value="{ThemeResource NormalFontSize}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="2" Background="{ThemeResource NereusColorDark}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Control x:Name="GrowControl" Style="{ThemeResource ButtonControlStyle}"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1">
+            </Control>
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,2,10,4" Grid.ZIndex="2"
+                              HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="VKButtonModStyle" BasedOn="{ThemeResource WizardButtonStyle}" TargetType="{x:Type Button}">
+    <Setter Property="FontSize" Value="48"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="2" Background="{ThemeResource NereusColorDark}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Control x:Name="GrowControl" Style="{ThemeResource ButtonControlStyle}"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1">
+            </Control>
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,-22,10,18" Grid.ZIndex="2"
+                              HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="VirtualKeyboardControlStyle" TargetType="{x:Type VirtualKeyboardControl}" >
