@@ -27,18 +27,26 @@
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
-          <RowDefinition Height="Auto"/>
           <RowDefinition Height="36"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <!-- TODO: Change styles to toggle button style -->
-        <CheckBox Content="[Keys.AltGr]" Grid.Row="0" Grid.Column="1" Margin="{ThemeResource VKMargin}" IsChecked="{Binding Path=AltGrState,Mode=TwoWay}"/>
-        <CheckBox Content="[Keys.Shift]" Grid.Row="1" Grid.Column="0" Margin="{ThemeResource VKMargin}" IsChecked="{Binding Path=ShiftState,Mode=TwoWay}"/>
-        <CheckBox Content="[Keys.CapsLock]" Grid.Row="2" Grid.Column="0" Margin="{ThemeResource VKMargin}" IsChecked="{Binding Path=CapsLockState,Mode=TwoWay}"/>
-        <Button Content="[Keys.Copy]"  Style="{ThemeResource VKButtonStyle}" Grid.Row="4" Grid.Column="0" Margin="{ThemeResource VKMargin}" Command="{Command Copy}"/>
-        <Button Content="[Keys.Paste]" Style="{ThemeResource VKButtonStyle}" Grid.Row="5" Grid.Column="0" Margin="{ThemeResource VKMargin}" Command="{Command Paste}"/>
+        <Grid Margin="0,0,20,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <CheckBox Content="[Keys.AltGr]" Grid.Row="0" Grid.Column="1" Margin="{ThemeResource VKMargin}" IsChecked="{Binding Path=AltGrState,Mode=TwoWay}"/>
+          <CheckBox Content="[Keys.Shift]" Grid.Row="1" Grid.Column="0" Margin="{ThemeResource VKMargin}" IsChecked="{Binding Path=ShiftState,Mode=TwoWay}"/>
+          <CheckBox Content="[Keys.CapsLock]" Grid.Row="2" Grid.Column="0" Margin="{ThemeResource VKMargin}" IsChecked="{Binding Path=CapsLockState,Mode=TwoWay}"/>
+        </Grid>
+        <Button Content="[Keys.Copy]"  Style="{ThemeResource VKButtonStyle}" Grid.Row="2" Grid.Column="0" Margin="{ThemeResource VKMargin}" Command="{Command Copy}"/>
+        <Button Content="[Keys.Paste]" Style="{ThemeResource VKButtonStyle}" Grid.Row="3" Grid.Column="0" Margin="{ThemeResource VKMargin}" Command="{Command Paste}"/>
       </Grid>
 
       <Grid x:Name="Keyboard-Normal" Grid.Column="1" Grid.Row="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
