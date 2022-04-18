@@ -22,14 +22,15 @@
 
 #endregion
 
+using MediaPortal.Utilities.Network;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Net;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
-using MediaPortal.Utilities.Network;
+using System.Threading.Tasks;
 using UPnP.Infrastructure.Dv.DeviceTree;
-using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.Dv.GENA
 {
@@ -49,6 +50,9 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// </summary>
     public const int PENDING_EVENT_NOTIFICATION_TIMEOUT = 10;
 
+    // Static as multiple instances of HttpClient should be avoided to limit socket usage
+    protected static LocalEndPointHttpClient _httpClient;
+
     protected string _sid;
     protected DvService _service;
     protected ICollection<string> _callbackURLs;
@@ -61,10 +65,12 @@ namespace UPnP.Infrastructure.Dv.GENA
     protected bool _disposed = false;
     protected EventingState _eventingState = new EventingState();
     protected ICollection<AsyncRequestState> _pendingRequests = new List<AsyncRequestState>();
+    protected CancellationTokenSource _cancellationTokenSource;
 
     protected internal class AsyncRequestState
     {
-      protected HttpWebRequest _httpWebRequest;
+      protected HttpRequestMessage _request;
+      protected Task _requestTask;
       protected EndpointConfiguration _endpoint;
       protected string _sid;
       protected ICollection<string> _pendingCallbackURLs;
@@ -80,10 +86,16 @@ namespace UPnP.Infrastructure.Dv.GENA
         _messageData = messageData;
       }
 
-      public HttpWebRequest Request
+      public HttpRequestMessage Request
       {
-        get { return _httpWebRequest; }
-        set { _httpWebRequest = value; }
+        get { return _request; }
+        set { _request = value; }
+      }
+
+      public Task RequestTask
+      {
+        get { return _requestTask; }
+        set { _requestTask = value; }
       }
 
       public string SID
@@ -112,6 +124,12 @@ namespace UPnP.Infrastructure.Dv.GENA
       }
     }
 
+    static EventSubscription()
+    {
+      _httpClient = LocalEndPointHttpClient.Create();
+      _httpClient.Timeout = TimeSpan.FromSeconds(PENDING_EVENT_NOTIFICATION_TIMEOUT);
+    }
+
     public EventSubscription(string sid, DvService service, ICollection<string> callbackURLs, DateTime expiration,
         string httpVersion, bool subscriberSupportsUPnP11, EndpointConfiguration config, ServerData serverData)
     {
@@ -124,6 +142,7 @@ namespace UPnP.Infrastructure.Dv.GENA
       _config = config;
       _serverData = serverData;
       _notificationTimer = new Timer(OnNotificationTimerElapsed, null, Timeout.Infinite, Timeout.Infinite);
+      _cancellationTokenSource = new CancellationTokenSource();
     }
 
     public void Dispose()
@@ -131,9 +150,10 @@ namespace UPnP.Infrastructure.Dv.GENA
       lock (_serverData.SyncObj)
       {
         _disposed = true;
+        _cancellationTokenSource.Cancel();
         foreach (AsyncRequestState state in new List<AsyncRequestState>(_pendingRequests))
-          if (state.Request != null)
-            state.Request.Abort();
+          state.RequestTask?.Wait();
+        _cancellationTokenSource.Dispose();
       }
     }
 
@@ -166,46 +186,28 @@ namespace UPnP.Infrastructure.Dv.GENA
       string callbackURL = e.Current;
       state.PendingCallbackURLs.Remove(callbackURL);
 
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(callbackURL);
-      NetworkUtils.SetLocalEndpoint(request, _config.EndPointIPAddress);
-      request.Method = "NOTIFY";
-      request.KeepAlive = false;
-      request.ContentType = "text/xml; charset=\"utf-8\"";
-      request.Headers.Add("NT", "upnp:event");
-      request.Headers.Add("NTS", "upnp:propchange");
-      request.Headers.Add("SID", _sid);
-      request.Headers.Add("SEQ", _eventingState.EventKey.ToString());
-      state.Request = request;
+      HttpRequestMessage httpRequest = new HttpRequestMessage(new HttpMethod("NOTIFY"), callbackURL);
+      LocalEndPointHttpClient.SetLocalEndpoint(httpRequest, _config.EndPointIPAddress);
+      httpRequest.Headers.ConnectionClose = true;
+      httpRequest.Headers.Add("NT", "upnp:event");
+      httpRequest.Headers.Add("NTS", "upnp:propchange");
+      httpRequest.Headers.Add("SID", _sid);
+      httpRequest.Headers.Add("SEQ", _eventingState.EventKey.ToString());
 
-      // First get the request stream...
-      IAsyncResult result = state.Request.BeginGetRequestStream(OnEventGetRequestStream, state);
-      NetworkHelper.AddTimeout(request, result, PENDING_EVENT_NOTIFICATION_TIMEOUT * 1000);
+      ByteArrayContent requestContent = new ByteArrayContent(state.MessageData);
+      requestContent.Headers.ContentType = MediaTypeHeaderValue.Parse("text/xml; charset=\"utf-8\"");
+      httpRequest.Content = requestContent;
+
+      state.Request = httpRequest;
+      state.RequestTask = _httpClient.SendAsync(httpRequest, _cancellationTokenSource.Token).ContinueWith(response => OnEventResponseReceived(response, state));
     }
 
-    private void OnEventGetRequestStream(IAsyncResult ar)
+    private void OnEventResponseReceived(Task<HttpResponseMessage> responseTask, AsyncRequestState state)
     {
-      AsyncRequestState state = (AsyncRequestState) ar.AsyncState;
+      HttpResponseMessage response = null;
       try
       {
-        Stream requestStream = state.Request.EndGetRequestStream(ar);
-        // ... then write to it...
-        requestStream.Write(state.MessageData, 0, state.MessageData.Length);
-        requestStream.Close();
-        // ... and get the response
-        IAsyncResult result = state.Request.BeginGetResponse(OnEventResponseReceived, state);
-        NetworkHelper.AddTimeout(state.Request, result, PENDING_EVENT_NOTIFICATION_TIMEOUT * 1000);
-      }
-      catch (IOException) { }
-      catch (WebException) { }
-      ContinueEventNotification(state);
-    }
-
-    private void OnEventResponseReceived(IAsyncResult ar)
-    {
-      AsyncRequestState state = (AsyncRequestState) ar.AsyncState;
-      try
-      {
-        HttpWebResponse response = (HttpWebResponse) state.Request.EndGetResponse(ar);
+        response = responseTask.GetAwaiter().GetResult();
         if (response.StatusCode == HttpStatusCode.OK)
           // When one callback URL succeeded, break event notification for this SID
           lock (_serverData.SyncObj)
@@ -214,10 +216,18 @@ namespace UPnP.Infrastructure.Dv.GENA
             return;
           }
       }
-      catch (WebException e)
+      catch (TaskCanceledException)
       {
-        if (e.Response != null)
-          e.Response.Close();
+        // This instance is probably disposing, break event notification
+        return;
+      }
+      catch (HttpRequestException)
+      {
+      }
+      finally
+      {
+        if (response != null)
+          response.Dispose();
       }
       // Try next callback URL
       ContinueEventNotification(state);

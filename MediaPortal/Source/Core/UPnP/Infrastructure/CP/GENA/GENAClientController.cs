@@ -29,10 +29,13 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
+using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Xml;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.Description;
@@ -77,7 +80,7 @@ namespace UPnP.Infrastructure.CP.GENA
       protected ServiceDescriptor _serviceDescriptor;
       protected CpService _service;
 
-      public ChangeEventSubscriptionState(ServiceDescriptor serviceDescriptor, CpService service, HttpWebRequest request) :
+      public ChangeEventSubscriptionState(ServiceDescriptor serviceDescriptor, CpService service, HttpRequestMessage request) :
           base(request)
       {
         _serviceDescriptor = serviceDescriptor;
@@ -106,6 +109,9 @@ namespace UPnP.Infrastructure.CP.GENA
     protected IDictionary<string, EventSubscription> _subscriptions = new Dictionary<string, EventSubscription>();
     protected ICollection<AsyncWebRequestState> _pendingCalls = new List<AsyncWebRequestState>();
 
+    protected HttpClient _eventSubscribeClient;
+    protected HttpClient _eventUnsubscribeClient;
+
     public GENAClientController(CPData cpData, DeviceConnection connection, EndpointConfiguration endpoint, UPnPVersion upnpVersion)
     {
       _cpData = cpData;
@@ -117,6 +123,9 @@ namespace UPnP.Infrastructure.CP.GENA
       var port = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
       _eventNotificationEndpoint = new IPEndPoint(address, port);
       _subscriptionRenewalTimer = new Timer(OnSubscriptionRenewalTimerElapsed);
+
+      _eventSubscribeClient = CreateEventSubscribeClient();
+      _eventUnsubscribeClient = CreateEventUnsubscribeClient();
     }
 
     public void Close(bool unsubscribeEvents)
@@ -242,11 +251,10 @@ namespace UPnP.Infrastructure.CP.GENA
     {
       using (_cpData.Lock.EnterWrite())
       {
-        HttpWebRequest request = CreateEventSubscribeRequest(serviceDescriptor);
+        HttpRequestMessage request = CreateEventSubscribeRequest(serviceDescriptor);
         ChangeEventSubscriptionState state = new ChangeEventSubscriptionState(serviceDescriptor, service, request);
         _pendingCalls.Add(state);
-        IAsyncResult result = state.Request.BeginGetResponse(OnSubscribeOrRenewSubscriptionResponseReceived, state);
-        NetworkHelper.AddTimeout(request, result, EVENT_SUBSCRIPTION_CALL_TIMEOUT * 1000);
+        _eventSubscribeClient.SendAsync(request).ContinueWith(result => OnSubscribeOrRenewSubscriptionResponseReceived(result, state));
       }
     }
 
@@ -266,75 +274,69 @@ namespace UPnP.Infrastructure.CP.GENA
 
       using (_cpData.Lock.EnterWrite())
       {
-        HttpWebRequest request = CreateRenewEventSubscribeRequest(subscription);
+        HttpRequestMessage request = CreateRenewEventSubscribeRequest(subscription);
         ChangeEventSubscriptionState state = new ChangeEventSubscriptionState(subscription.ServiceDescriptor, subscription.Service, request);
         _pendingCalls.Add(state);
-        IAsyncResult result = state.Request.BeginGetResponse(OnSubscribeOrRenewSubscriptionResponseReceived, state);
-        NetworkHelper.AddTimeout(request, result, EVENT_SUBSCRIPTION_CALL_TIMEOUT * 1000);
+        _eventSubscribeClient.SendAsync(request).ContinueWith(result => OnSubscribeOrRenewSubscriptionResponseReceived(result, state));
       }
     }
 
-    private void OnSubscribeOrRenewSubscriptionResponseReceived(IAsyncResult ar)
+    private void OnSubscribeOrRenewSubscriptionResponseReceived(Task<HttpResponseMessage> responseTask, ChangeEventSubscriptionState state)
     {
-      ChangeEventSubscriptionState state = (ChangeEventSubscriptionState) ar.AsyncState;
       using (_cpData.Lock.EnterWrite())
         _pendingCalls.Remove(state);
 
       CpService service = state.Service;
+      HttpResponseMessage response = null;
       try
       {
-        HttpWebResponse response = (HttpWebResponse) state.Request.EndGetResponse(ar);
-        try
+        // GetAwaiter().GetResult() unwraps any aggregate exceptions to make exception handling easier
+        response = responseTask.GetAwaiter().GetResult();
+        if (response.StatusCode != HttpStatusCode.OK)
         {
-          if (response.StatusCode != HttpStatusCode.OK)
-          {
-            service.InvokeEventSubscriptionFailed(new UPnPError((uint) response.StatusCode, response.StatusDescription));
-            return;
-          }
-          string dateStr = response.Headers.Get("DATE");
-          string sid = response.Headers.Get("SID");
-          string timeoutStr = response.Headers.Get("TIMEOUT");
-          int timeout;
-          if (string.IsNullOrEmpty(timeoutStr) || (!timeoutStr.StartsWith("Second-") ||
-              !int.TryParse(timeoutStr.Substring("Second-".Length).Trim(), out timeout)))
-          {
-            service.InvokeEventSubscriptionFailed(new UPnPError((int) HttpStatusCode.BadRequest, "Invalid answer from UPnP device"));
-            return;
-          }
-
-          // The date header is not always available, and it is not always accurate either.
-          DateTime date = DateTime.Now;
-          if (DateTime.TryParseExact(dateStr, "R", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
-            date = parsedDate.ToLocalTime();
-
-          DateTime expiration = date.AddSeconds(timeout);
-          if (expiration < DateTime.Now)
-            // If the timeout is in the past already, assume it is invalid and estimate
-            // the timeout timestamp. This workaround is necessary for devices that do
-            // not have their date set correctly (so the DATE header is unusable).
-            expiration = DateTime.Now.AddSeconds(timeout);
-
-          EventSubscription subscription;
-          using (_cpData.Lock.EnterWrite())
-          {
-            if (_subscriptions.TryGetValue(sid, out subscription))
-              subscription.Expiration = expiration;
-            else
-              _subscriptions.Add(sid, new EventSubscription(sid, state.ServiceDescriptor, service, expiration));
-            CheckSubscriptionRenewalTimer(_subscriptions.Values);
-          }
+          service.InvokeEventSubscriptionFailed(new UPnPError((uint)response.StatusCode, response.ReasonPhrase));
+          return;
         }
-        finally
+        string dateStr = response.Headers.TryGetValues("DATE", out IEnumerable<string> dateHeaders) ? dateHeaders.FirstOrDefault() : null;
+        string sid = response.Headers.TryGetValues("SID", out IEnumerable<string> sidHeaders) ? sidHeaders.FirstOrDefault() : null;
+        string timeoutStr = response.Headers.TryGetValues("TIMEOUT", out IEnumerable<string> timeoutHeaders) ? timeoutHeaders.FirstOrDefault() : null;
+        int timeout;
+        if (string.IsNullOrEmpty(timeoutStr) || (!timeoutStr.StartsWith("Second-") ||
+            !int.TryParse(timeoutStr.Substring("Second-".Length).Trim(), out timeout)))
         {
-          response.Close();
+          service.InvokeEventSubscriptionFailed(new UPnPError((int)HttpStatusCode.BadRequest, "Invalid answer from UPnP device"));
+          return;
+        }
+
+        // The date header is not always available, and it is not always accurate either.
+        DateTime date = DateTime.Now;
+        if (DateTime.TryParseExact(dateStr, "R", CultureInfo.InvariantCulture, DateTimeStyles.None, out DateTime parsedDate))
+          date = parsedDate.ToLocalTime();
+
+        DateTime expiration = date.AddSeconds(timeout);
+        if (expiration < DateTime.Now)
+          // If the timeout is in the past already, assume it is invalid and estimate
+          // the timeout timestamp. This workaround is necessary for devices that do
+          // not have their date set correctly (so the DATE header is unusable).
+          expiration = DateTime.Now.AddSeconds(timeout);
+
+        EventSubscription subscription;
+        using (_cpData.Lock.EnterWrite())
+        {
+          if (_subscriptions.TryGetValue(sid, out subscription))
+            subscription.Expiration = expiration;
+          else
+            _subscriptions.Add(sid, new EventSubscription(sid, state.ServiceDescriptor, service, expiration));
+          CheckSubscriptionRenewalTimer(_subscriptions.Values);
         }
       }
-      catch (WebException e)
+      catch (Exception e) when (e is HttpRequestException || e is TaskCanceledException)
       {
-        HttpWebResponse response = (HttpWebResponse) e.Response;
-        service.InvokeEventSubscriptionFailed(new UPnPError(response == null ? 503 : (uint) response.StatusCode, "Cannot complete event subscription"));
-        if (response != null)
-          response.Close();
+        service.InvokeEventSubscriptionFailed(new UPnPError(response == null ? 503 : (uint)response.StatusCode, "Cannot complete event subscription"));
+      }
+      finally
+      {
+        response?.Dispose();
       }
     }
 
@@ -342,27 +344,24 @@ namespace UPnP.Infrastructure.CP.GENA
     {
       using (_cpData.Lock.EnterWrite())
       {
-        HttpWebRequest request = CreateEventUnsubscribeRequest(subscription);
+        HttpRequestMessage request = CreateEventUnsubscribeRequest(subscription);
         ChangeEventSubscriptionState state = new ChangeEventSubscriptionState(subscription.ServiceDescriptor, subscription.Service, request);
         _pendingCalls.Add(state);
-        IAsyncResult result = state.Request.BeginGetResponse(OnUnsubscribeResponseReceived, state);
-        NetworkHelper.AddTimeout(request, result, EVENT_UNSUBSCRIPTION_CALL_TIMEOUT * 1000);
+        _eventUnsubscribeClient.SendAsync(request).ContinueWith(response => OnUnsubscribeResponseReceived(response, state));
       }
     }
 
-    private void OnUnsubscribeResponseReceived(IAsyncResult ar)
+    private void OnUnsubscribeResponseReceived(Task<HttpResponseMessage> responseTask, ChangeEventSubscriptionState state)
     {
-      ChangeEventSubscriptionState state = (ChangeEventSubscriptionState) ar.AsyncState;
       EventSubscription subscription = FindEventSubscriptionByService(state.Service);
       try
       {
-        HttpWebResponse response = (HttpWebResponse) state.Request.EndGetResponse(ar);
-        response.Close();
+        // GetAwaiter().GetResult() unwraps any aggregate exceptions to make exception handling easier
+        HttpResponseMessage response = responseTask.GetAwaiter().GetResult();
+        response.Dispose();
       }
-      catch (WebException e)
+      catch (Exception e) when (e is HttpRequestException || e is TaskCanceledException)
       {
-        if (e.Response != null)
-          e.Response.Close();
       }
       using (_cpData.Lock.EnterWrite())
       {
@@ -424,41 +423,52 @@ namespace UPnP.Infrastructure.CP.GENA
       return null;
     }
 
-    protected HttpWebRequest CreateEventSubscribeRequest(ServiceDescriptor sd)
+    protected LocalEndPointHttpClient CreateEventSubscribeClient()
+    {
+      LocalEndPointHttpClient client = LocalEndPointHttpClient.Create();
+      client.Timeout = TimeSpan.FromSeconds(EVENT_SUBSCRIPTION_CALL_TIMEOUT);
+      client.DefaultRequestHeaders.Add("TIMEOUT", "Second-" + EVENT_SUBSCRIPTION_TIME);
+      return client;
+    }
+
+    protected HttpRequestMessage CreateEventSubscribeRequest(ServiceDescriptor sd)
     {
       LinkData preferredLink = sd.RootDescriptor.SSDPRootEntry.PreferredLink;
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
+      HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("SUBSCRIBE") ,new Uri(
           new Uri(preferredLink.DescriptionLocation), sd.EventSubURL));
-      NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
-      request.Method = "SUBSCRIBE";
-      request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
+      if (NetworkUtils.LimitIPEndpoints)
+        LocalEndPointHttpClient.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
+      request.Headers.UserAgent.TryParseAdd(UPnPConfiguration.UPnPMachineInfoHeader);
       request.Headers.Add("CALLBACK", "<http://" + NetworkHelper.IPEndPointToString(_eventNotificationEndpoint) + _eventNotificationPath + ">");
       request.Headers.Add("NT", "upnp:event");
-      request.Headers.Add("TIMEOUT", "Second-" + EVENT_SUBSCRIPTION_TIME);
       return request;
     }
 
-    protected HttpWebRequest CreateRenewEventSubscribeRequest(EventSubscription subscription)
+    protected HttpRequestMessage CreateRenewEventSubscribeRequest(EventSubscription subscription)
     {
       ServiceDescriptor sd = subscription.ServiceDescriptor;
       LinkData preferredLink = sd.RootDescriptor.SSDPRootEntry.PreferredLink;
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
+      HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("SUBSCRIBE"), new Uri(
           new Uri(preferredLink.DescriptionLocation), sd.EventSubURL));
-      NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
-      request.Method = "SUBSCRIBE";
+      if (NetworkUtils.LimitIPEndpoints)
+        LocalEndPointHttpClient.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
       request.Headers.Add("SID", subscription.Sid);
-      request.Headers.Add("TIMEOUT", "Second-" + EVENT_SUBSCRIPTION_TIME);
       return request;
     }
 
-    protected HttpWebRequest CreateEventUnsubscribeRequest(EventSubscription subscription)
+    protected LocalEndPointHttpClient CreateEventUnsubscribeClient()
+    {
+      LocalEndPointHttpClient client = LocalEndPointHttpClient.Create();
+      client.Timeout = TimeSpan.FromSeconds(EVENT_UNSUBSCRIPTION_CALL_TIMEOUT);
+      return client;
+    }
+
+    protected HttpRequestMessage CreateEventUnsubscribeRequest(EventSubscription subscription)
     {
       ServiceDescriptor sd = subscription.ServiceDescriptor;
       LinkData preferredLink = sd.RootDescriptor.SSDPRootEntry.PreferredLink;
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
+      HttpRequestMessage request = new HttpRequestMessage(new HttpMethod("UNSUBSCRIBE"), new Uri(
           new Uri(preferredLink.DescriptionLocation), sd.EventSubURL));
-      NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
-      request.Method = "UNSUBSCRIBE";
       request.Headers.Add("SID", subscription.Sid);
       return request;
     }

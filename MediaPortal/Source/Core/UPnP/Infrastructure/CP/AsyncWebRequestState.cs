@@ -22,20 +22,20 @@
 
 #endregion
 
-using System.Net;
+using System.Net.Http;
 
 namespace UPnP.Infrastructure.CP
 {
   public class AsyncWebRequestState
   {
-    protected HttpWebRequest _httpWebRequest;
+    protected HttpRequestMessage _httpWebRequest;
 
-    public AsyncWebRequestState(HttpWebRequest request)
+    public AsyncWebRequestState(HttpRequestMessage request)
     {
       _httpWebRequest = request;
     }
 
-    public HttpWebRequest Request
+    public HttpRequestMessage Request
     {
       get { return _httpWebRequest; }
     }
