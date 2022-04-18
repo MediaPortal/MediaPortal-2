@@ -29,6 +29,7 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using MediaPortal.UI.SkinEngine.Xaml.Exceptions;
+using MediaPortal.UI.SkinEngine.MpfElements.Converters;
 
 namespace MediaPortal.UI.SkinEngine.Xaml
 {
@@ -223,9 +224,10 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       }
 
       // Simple type conversions
-
       System.ComponentModel.TypeConverter tc = TypeDescriptor.GetConverter(targetType);
-      if (tc != null && tc.CanConvertFrom(val.GetType()))
+      // GetConverter might return an IMPFConverter, which internally will call this
+      // convert method again, leading to a StackOverflowException, so ignore those 
+      if (tc != null && !(tc is IMPFConverter) && tc.CanConvertFrom(val.GetType()))
       {
         try
         {
@@ -236,7 +238,9 @@ namespace MediaPortal.UI.SkinEngine.Xaml
       }
 
       tc = TypeDescriptor.GetConverter(val);
-      if (tc != null && tc.CanConvertTo(targetType))
+      // GetConverter might return an IMPFConverter, which internally will call this
+      // convert method again, leading to a StackOverflowException, so ignore those 
+      if (tc != null && !(tc is IMPFConverter) && tc.CanConvertTo(targetType))
       {
         result = tc.ConvertTo(val, targetType);
         return true;
