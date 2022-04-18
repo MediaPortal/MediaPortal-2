@@ -172,10 +172,16 @@ namespace MediaPortal.Common.Services.ResourceAccess.StreamedResourceToLocalFsAc
       get { return _localFsPath; }
     }
 
-    public IDisposable EnsureLocalFileSystemAccess()
+    public void RunWithLocalFileSystemAccess(Action action)
     {
       // Nothing to do here; access is ensured as of the instantiation of this class
-      return null;
+      action();
+    }
+
+    public T RunWithLocalFileSystemAccess<T>(Func<T> func)
+    {
+      // Nothing to do here; access is ensured as of the instantiation of this class
+      return func();
     }
 
     public ResourcePath CanonicalLocalResourcePath

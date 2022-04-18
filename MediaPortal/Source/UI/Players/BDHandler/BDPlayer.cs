@@ -105,7 +105,7 @@ namespace MediaPortal.UI.Players.Video
       if (!IsLocalFilesystemResource)
         throw new IllegalCallException("The BDPlayer can only play local file system resources");
 
-      using (((ILocalFsResourceAccessor)_resourceAccessor).EnsureLocalFileSystemAccess())
+      ((ILocalFsResourceAccessor)_resourceAccessor).RunWithLocalFileSystemAccess(() =>
       {
         string strFile = ((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath;
 
@@ -133,7 +133,7 @@ namespace MediaPortal.UI.Players.Video
             throw new Exception("Unable to load DirectShowFilter");
           }
         }
-      }
+      });
     }
 
     protected override void OnBeforeGraphRunning()

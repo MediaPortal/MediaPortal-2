@@ -173,7 +173,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
       await OPENCV_THROTTLE_LOCK.WaitAsync().ConfigureAwait(false);
       try
       {
-        using (lfsra.EnsureLocalFileSystemAccess())
+        lfsra.RunWithLocalFileSystemAccess(() =>
         {
           using (VideoCapture capture = new VideoCapture())
           {
@@ -213,7 +213,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.OCVVideoThumbnailer
               }
             }
           }
-        }
+        });
       }
       finally
       {

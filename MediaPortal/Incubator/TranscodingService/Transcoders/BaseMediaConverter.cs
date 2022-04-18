@@ -1315,20 +1315,14 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders
     public async Task<StreamContext> GetFileStreamAsync(ResourcePath filePath)
     {
       var context = new StreamContext();
-      // Impersonation
-      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(filePath))
+      if (filePath.TryCreateLocalResourceAccessor(out var res))
       {
-        if (filePath.TryCreateLocalResourceAccessor(out var res))
-        {
-          var rah = new LocalFsResourceAccessorHelper(res);
-          var accessToken = rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess();
-          if (accessToken != null)
-            context.StreamDisposables.Add(accessToken);
-          context.StreamDisposables.Add(rah);
-          context.StreamDisposables.Add(res);
-          context.Stream = await GetFileStreamAsync(rah.LocalFsResourceAccessor.LocalFileSystemPath);
-          return context;
-        }
+        var rah = new LocalFsResourceAccessorHelper(res);
+        context.StreamDisposables.Add(rah);
+        context.StreamDisposables.Add(res);
+        context.Stream = await rah.LocalFsResourceAccessor.RunWithLocalFileSystemAccess(() =>
+          GetFileStreamAsync(rah.LocalFsResourceAccessor.LocalFileSystemPath)).ConfigureAwait(false);
+        return context;
       }
       return null;
     }

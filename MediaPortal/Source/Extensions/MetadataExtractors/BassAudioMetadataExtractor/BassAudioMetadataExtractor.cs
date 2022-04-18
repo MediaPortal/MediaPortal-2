@@ -119,9 +119,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.BassAudioMetadataExtractor
 
       try
       {
-        TAG_INFO tags;
-        using (fsra.EnsureLocalFileSystemAccess())
-          tags = BassTags.BASS_TAG_GetFromFile(fsra.LocalFileSystemPath);
+        TAG_INFO tags = fsra.RunWithLocalFileSystemAccess(() => BassTags.BASS_TAG_GetFromFile(fsra.LocalFileSystemPath));
         if (tags == null)
           return false;
 

@@ -44,6 +44,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Settings;
+using MediaPortal.Common;
 #if !TRANSCODE_CONSOLE_TEST
 using MediaPortal.Common;
 using MediaPortal.Utilities.Process;
@@ -162,9 +163,8 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       if (path.TryCreateLocalResourceAccessor(out var subRes))
       {
         using (var rah = new LocalFsResourceAccessorHelper(subRes))
-        using (var access = rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
         {
-          var result = await FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(rah.LocalFsResourceAccessor, data.TranscoderArguments, ProcessPriorityClass.Normal, _transcoderTimeout).ConfigureAwait(false);
+          var result = await FFMpegBinary.FFMpegExecuteWithResourceAccessAsync(rah.LocalFsResourceAccessor, data.TranscoderArguments, ProcessPriorityClass.Normal, _transcoderTimeout);
           success = result.Success;
         }
       }
@@ -791,9 +791,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
             {
               var rah = new LocalFsResourceAccessorHelper(res);
               data.TranscodeData.AddRuntimeResourcePath(res.CanonicalLocalResourcePath, rah.LocalFsResourceAccessor.LocalFileSystemPath);
-              var accessToken = rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess();
-              if (accessToken != null)
-                disposables.Add(accessToken);
+              // No need to use rah.RunWithLocalFileSystemAccess, the transcode process should be started with appropriate impersonation
               disposables.Add(rah);
             }
 

@@ -62,18 +62,28 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="path"><see cref="ResourcePath"/> for which the credential should be unregistered</param>
     /// <returns><c>true</c>, if the credential was unregistered successfully; else <c>false</c></returns>
     bool TryUnregisterCredential(ResourcePath path);
-    
+
     /// <summary>
-    /// Checks wheteher impersonation is necessary to access a resource and, if so, impersonates the calling thread
+    /// Runs the specified action with any impersonation necessary to access the specified resource.
     /// </summary>
-    /// <param name="path"><see cref="ResourcePath"/> to check</param>
-    /// <returns>
-    /// An <see cref="IDisposable"/> until the disposal of which the impersonaion is maintained.
-    /// If no impersonation is required to access <paramref name="path"/>, <c>null</c> is returned. It is therefore
-    /// recommended to use <example>using (ImpersonationService.CheckImpersonationFor(path)) { Access to Resource }</example>,
-    /// which handles null automatically.
-    /// </returns>
-    IDisposable CheckImpersonationFor(ResourcePath path);
+    /// <param name="path"><see cref="ResourcePath"/> which might require impersonation to access.</param>
+    /// <param name="action">The <see cref="Action"/> to run</param>
+    /// <remarks>
+    /// This method can be reliably used with the async/await pattern by passing an async delegate and awaiting the resulting task.
+    /// </remarks>
+    void RunImpersonatedFor(ResourcePath path, Action action);
+
+    /// <summary>
+    /// Runs the specified function with any impersonation necessary to access the specified resource.
+    /// </summary>
+    /// <typeparam name="T">The type of object returned by the function.</typeparam>
+    /// <param name="path"><see cref="ResourcePath"/> which might require impersonation to access.</param>
+    /// <param name="func">The <see cref="Func{T}"/> to run.</param>
+    /// <returns>The result of the function.</returns>
+    /// <remarks>
+    /// This method can be reliably used with the async/await pattern by passing an async delegate and awaiting the resulting task.
+    /// </remarks>
+    T RunImpersonatedFor<T>(ResourcePath path, Func<T> func);
 
     /// <summary>
     /// Executes the <paramref name="executable"/> and waits a maximum of <paramref name="maxWaitMs"/> miliseconds for completion.

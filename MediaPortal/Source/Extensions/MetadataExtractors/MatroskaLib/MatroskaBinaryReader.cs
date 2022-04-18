@@ -409,83 +409,85 @@ namespace MediaPortal.Extensions.MetadataExtractors.MatroskaLib
         return;
 
       SortedSet<long> wantedElementPositions = new SortedSet<long>();
-      using (_lfsra.EnsureLocalFileSystemAccess())
-      using (var fs = new FileStream(_lfsra.LocalFileSystemPath, FileMode.Open, FileAccess.Read))
-      using (EbmlReader ebmlReader = new EbmlReader(fs))
+      _lfsra.RunWithLocalFileSystemAccess(() =>
       {
-        if (fs.Length == 0)
-          return;
-
-        try
+        using (var fs = new FileStream(_lfsra.LocalFileSystemPath, FileMode.Open, FileAccess.Read))
+        using (EbmlReader ebmlReader = new EbmlReader(fs))
         {
-          while (ebmlReader.ReadNext())
+          if (fs.Length == 0)
+            return;
+
+          try
           {
-            //Segment element contains all the data we need
-            if (ebmlReader.ElementId == SegmentElement.Identifier)
+            while (ebmlReader.ReadNext())
             {
-              ebmlReader.EnterContainer();
-              while (ebmlReader.ReadNext())
+              //Segment element contains all the data we need
+              if (ebmlReader.ElementId == SegmentElement.Identifier)
               {
-                //Find file position of relevant elements via seek heads
-                if (ebmlReader.ElementId == SeekHeadElement.Identifier)
+                ebmlReader.EnterContainer();
+                while (ebmlReader.ReadNext())
                 {
-                  long elementOffset = ebmlReader.ElementPosition;
-                  var seekElements = ReadSeekHeads(ebmlReader);
-                  if (seekElements?.Count > 0)
+                  //Find file position of relevant elements via seek heads
+                  if (ebmlReader.ElementId == SeekHeadElement.Identifier)
                   {
-                    //Find all the wanted or possible elements
-                    var availableSegments = seekElements.Select(a => a.Element);
-                    var newElements = wantedElements.Count() > 0 ? wantedElements.Intersect(availableSegments) : availableSegments.AsEnumerable();
-                    if (newElements != null)
-                      wantedElements = newElements;
+                    long elementOffset = ebmlReader.ElementPosition;
+                    var seekElements = ReadSeekHeads(ebmlReader);
+                    if (seekElements?.Count > 0)
+                    {
+                      //Find all the wanted or possible elements
+                      var availableSegments = seekElements.Select(a => a.Element);
+                      var newElements = wantedElements.Count() > 0 ? wantedElements.Intersect(availableSegments) : availableSegments.AsEnumerable();
+                      if (newElements != null)
+                        wantedElements = newElements;
 
-                    //Find file positions of wanted elements
-                    foreach (var e in seekElements.Where(e => wantedElements.Any(n => n.Identifier == e.Element.Identifier)))
-                      wantedElementPositions.Add(Convert.ToInt64(e.Position) + elementOffset);
+                      //Find file positions of wanted elements
+                      foreach (var e in seekElements.Where(e => wantedElements.Any(n => n.Identifier == e.Element.Identifier)))
+                        wantedElementPositions.Add(Convert.ToInt64(e.Position) + elementOffset);
+                    }
                   }
+                  else if (ShouldReadElement(ebmlReader.ElementId, wantedElements.ToArray()))
+                  {
+                    //Read wanted elements
+                    if (ebmlReader.ElementId == SegmentInfoElement.Identifier)
+                      ReadInfo(ebmlReader);
+                    else if (ebmlReader.ElementId == TagsElement.Identifier)
+                      ReadTags(ebmlReader);
+                    else if (ebmlReader.ElementId == TracksElement.Identifier)
+                      ReadTracks(ebmlReader);
+                    else if (ebmlReader.ElementId == AttachmentsElement.Identifier)
+                      ReadAttachments(ebmlReader);
+
+                    _elementsRead.Add(ebmlReader.ElementId.EncodedValue);
+                  }
+
+                  //All wanted elements read so exit
+                  if (wantedElements.Count() == 0 || wantedElements.All(e => _elementsRead.Contains(e.Identifier.EncodedValue)))
+                    return;
+
+                  //Skip to next position in file if possible
+                  wantedElementPositions.RemoveWhere(p => p < (fs.Position));
+                  if (fs.Position < wantedElementPositions.FirstOrDefault())
+                    fs.Position = wantedElementPositions.First();
+
+                  //Exit if we reading past the file length
+                  if ((fs.Position + ebmlReader.ElementSize) >= fs.Length)
+                    return;
                 }
-                else if (ShouldReadElement(ebmlReader.ElementId, wantedElements.ToArray()))
-                {
-                  //Read wanted elements
-                  if (ebmlReader.ElementId == SegmentInfoElement.Identifier)
-                    ReadInfo(ebmlReader);
-                  else if (ebmlReader.ElementId == TagsElement.Identifier)
-                    ReadTags(ebmlReader);
-                  else if (ebmlReader.ElementId == TracksElement.Identifier)
-                    ReadTracks(ebmlReader);
-                  else if (ebmlReader.ElementId == AttachmentsElement.Identifier)
-                    ReadAttachments(ebmlReader);
-
-                  _elementsRead.Add(ebmlReader.ElementId.EncodedValue);
-                }
-
-                //All wanted elements read so exit
-                if (wantedElements.Count() == 0 || wantedElements.All(e => _elementsRead.Contains(e.Identifier.EncodedValue)))
-                  return;
-
-                //Skip to next position in file if possible
-                wantedElementPositions.RemoveWhere(p => p < (fs.Position));
-                if (fs.Position < wantedElementPositions.FirstOrDefault())
-                  fs.Position = wantedElementPositions.First();
-
-                //Exit if we reading past the file length
-                if ((fs.Position + ebmlReader.ElementSize) >= fs.Length)
-                  return;
+                ebmlReader.LeaveContainer();
+                break;
               }
-              ebmlReader.LeaveContainer();
-              break;
+              //Exit if we reading past the file length
+              if ((fs.Position + ebmlReader.ElementSize) >= fs.Length)
+                break;
             }
-            //Exit if we reading past the file length
-            if ((fs.Position + ebmlReader.ElementSize) >= fs.Length)
-              break;
+          }
+          catch (EbmlDataFormatException)
+          {
+            //Rest of the EBML seems to be invalid so ignore it
+            ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader: Matroska file '{0}' has invalid EBML elements", _lfsra.LocalFileSystemPath);
           }
         }
-        catch (EbmlDataFormatException)
-        {
-          //Rest of the EBML seems to be invalid so ignore it
-          ServiceRegistration.Get<ILogger>().Warn("MatroskaInfoReader: Matroska file '{0}' has invalid EBML elements", _lfsra.LocalFileSystemPath);
-        }
-      }
+      });
     }
 
     private List<(ElementDescriptor Element, ulong Position)> ReadSeekHeads(EbmlReader ebmlReader)

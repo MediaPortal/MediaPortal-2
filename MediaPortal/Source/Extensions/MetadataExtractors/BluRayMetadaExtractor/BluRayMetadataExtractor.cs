@@ -149,7 +149,7 @@ namespace MediaPortal.Media.MetadataExtractors
                 MediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(extractedAspectData, MediaAspect.Metadata);
                 mediaAspect.SetAttribute(MediaAspect.ATTR_ISVIRTUAL, false);
 
-                using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
+                rah.LocalFsResourceAccessor.RunWithLocalFileSystemAccess(() =>
                 {
                   BDInfoExt bdinfo = new BDInfoExt(rah.LocalFsResourceAccessor.LocalFileSystemPath);
                   string title = bdinfo.GetTitle();
@@ -173,7 +173,7 @@ namespace MediaPortal.Media.MetadataExtractors
                     {
                     }
                   }
-                }
+                });
                 return Task.FromResult(true);
               }
           }
