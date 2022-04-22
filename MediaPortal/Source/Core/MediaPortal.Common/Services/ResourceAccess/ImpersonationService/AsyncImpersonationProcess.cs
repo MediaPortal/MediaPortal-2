@@ -590,21 +590,33 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       {
         _stdinReadHandle.Dispose();
         var standardInput = new StreamWriter(new FileStream(_stdinWriteHandle, FileAccess.Write, DEFAULT_PIPE_BUFFER_SIZE), Console.Out.Encoding) { AutoFlush = true };
+#if NET5_0_OR_GREATER
+        SetField("_standardInput", standardInput);
+#else
         SetField("standardInput", standardInput);
+#endif
       }
 
       if (StartInfo.RedirectStandardOutput)
       {
         _stdoutWriteHandle.Dispose();
         var standardOutput = new StreamReader(new FileStream(_stdoutReadHandle, FileAccess.Read, DEFAULT_PIPE_BUFFER_SIZE), StartInfo.StandardOutputEncoding);
+#if NET5_0_OR_GREATER
+        SetField("_standardOutput", standardOutput);
+#else
         SetField("standardOutput", standardOutput);
+#endif
       }
 
       if (StartInfo.RedirectStandardError)
       {
         _stderrWriteHandle.Dispose();
         var standardError = new StreamReader(new FileStream(_stderrReadHandle, FileAccess.Read, DEFAULT_PIPE_BUFFER_SIZE), StartInfo.StandardErrorEncoding);
+#if NET5_0_OR_GREATER
+        SetField("_standardError", standardError);
+#else
         SetField("standardError", standardError);
+#endif
       }
 
       // Workaround to get process handle as Microsoft.Win32.SafeHandles.SafeProcessHandle.
