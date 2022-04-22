@@ -229,10 +229,22 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// <returns>A <see cref="Task"/> representing the result of executing the external program</returns>
     public Task<ProcessExecutionResult> ExecuteWithResourceAccessAsync(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass, int maxWaitMs)
     {
+      return ProcessUtils.ExecuteAsync(executable, arguments, startInfo => CreateProcessWithResourceAccess(path, startInfo), priorityClass, maxWaitMs);
+    }
+
+    /// <summary>
+    /// Creates, but does not start, an implementation of <see cref="IProcess"/> which will execute
+    /// with the best matching credential for <paramref name="path"/>.
+    /// </summary>
+    /// <param name="path"><see cref="ResourcePath"/> to which the external program shall have access</param>
+    /// <param name="startInfo"><see cref="ProcessStartInfo"/> to create the process with</param>
+    /// <returns>Implementation of <see cref="IProcess"/> that can be started and managed by the caller.</returns>
+    public IProcess CreateProcessWithResourceAccess(ResourcePath path, ProcessStartInfo startInfo)
+    {
       WindowsIdentityWrapper bestMatchingIdentity;
       return TryGetBestMatchingIdentityForPath(path, out bestMatchingIdentity) ?
-        AsyncImpersonationProcess.ExecuteAsync(executable, arguments, bestMatchingIdentity, _debugLogger, priorityClass, maxWaitMs) :
-        ProcessUtils.ExecuteAsync(executable, arguments, priorityClass, maxWaitMs);
+        AsyncImpersonationProcess.Create(startInfo, bestMatchingIdentity, _debugLogger) :
+        ProcessUtils.Create(startInfo);
     }
 
     #endregion

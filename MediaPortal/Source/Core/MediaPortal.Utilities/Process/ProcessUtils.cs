@@ -33,11 +33,34 @@ namespace MediaPortal.Utilities.Process
 {
   public class ProcessUtils
   {
+    /// <summary>
+    /// Implementation of <see cref="IProcess"/> that uses <see cref="System.Diagnostics.Process"/> directly.
+    /// </summary>
+    private class ProcessImpl : System.Diagnostics.Process, IProcess
+    {
+    }
+
     public static readonly Encoding CONSOLE_ENCODING = Encoding.UTF8;
     private static readonly string CONSOLE_ENCODING_PREAMBLE = CONSOLE_ENCODING.GetString(CONSOLE_ENCODING.GetPreamble());
 
     public const int INFINITE = -1;
     public const int DEFAULT_TIMEOUT = 10000;
+
+    /// <summary>
+    /// Creates an instance of <see cref="IProcess"/> that uses a <see cref="System.Diagnostics.Process"/> as the underlying type. 
+    /// </summary>
+    /// <remarks>
+    /// This method will only create the process class, and will not start or otherwise modify the process.
+    /// </remarks>
+    /// <param name="startInfo"><see cref="ProcessStartInfo"/> to create the process with.</param>
+    /// <returns>Implementation of <see cref="IProcess"/> that can be started and managed by the caller.</returns>
+    public static IProcess Create(ProcessStartInfo startInfo)
+    {
+      return new ProcessImpl()
+      {
+        StartInfo = startInfo
+      };
+    }
 
     /// <summary>
     /// Executes the <paramref name="executable"/> asynchronously and waits a maximum time of <paramref name="maxWaitMs"/> for completion.
@@ -52,28 +75,43 @@ namespace MediaPortal.Utilities.Process
     /// Any other error in managed code is signaled by the returned task being set to Faulted state.
     /// If the program itself does not result in an ExitCode of 0, the returned task ends in RanToCompletion state;
     /// the ExitCode of the program will be contained in the returned <see cref="ProcessExecutionResult"/>.
-    /// This method is nearly identical to ImpersonationService.ExecuteWithResourceAccessAsync; it is necessary to have this code duplicated
-    /// because AsyncImpersonationProcess hides several methods of the Process class and executing these methods on the base class does
-    /// therefore not work. If this method is changed it is likely that ImpersonationService.ExecuteWithResourceAccessAsync also
-    /// needs to be changed.
     /// </remarks>
     public static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
     {
+      return ExecuteAsync(executable, arguments, startInfo => Create(startInfo), priorityClass, maxWaitMs);
+    }
+
+    /// <summary>
+    /// Executes the <paramref name="executable"/> asynchronously and waits a maximum time of <paramref name="maxWaitMs"/> for completion.
+    /// </summary>
+    /// <param name="executable">Program to execute</param>
+    /// <param name="arguments">Program arguments</param>
+    /// <param name="createProcessDlgt">Delegate to use to create the implementation of <see cref="IProcess"/> to execute.</param>
+    /// <param name="priorityClass">Process priority</param>
+    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
+    /// <returns>> <see cref="ProcessExecutionResult"/> object that respresents the result of executing the Program</returns>
+    /// <remarks>
+    /// This method throws an exception only if process.Start() fails.
+    /// Any other error in managed code is signaled by the returned task being set to Faulted state.
+    /// If the program itself does not result in an ExitCode of 0, the returned task ends in RanToCompletion state;
+    /// the ExitCode of the program will be contained in the returned <see cref="ProcessExecutionResult"/>.
+    /// </remarks>
+    public static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, Func<ProcessStartInfo, IProcess> createProcessDlgt, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = DEFAULT_TIMEOUT)
+    {
       var tcs = new TaskCompletionSource<ProcessExecutionResult>();
       bool exited = false;
-      var process = new System.Diagnostics.Process
+
+      IProcess process = createProcessDlgt(new ProcessStartInfo(executable, arguments)
       {
-        StartInfo = new ProcessStartInfo(executable, arguments)
-        {
-          UseShellExecute = false,
-          CreateNoWindow = true,
-          RedirectStandardOutput = true,
-          RedirectStandardError = true,
-          StandardOutputEncoding = CONSOLE_ENCODING,
-          StandardErrorEncoding = CONSOLE_ENCODING
-        },
-        EnableRaisingEvents = true
-      };
+        UseShellExecute = false,
+        CreateNoWindow = true,
+        RedirectStandardOutput = true,
+        RedirectStandardError = true,
+        StandardOutputEncoding = CONSOLE_ENCODING,
+        StandardErrorEncoding = CONSOLE_ENCODING
+      });
+
+      process.EnableRaisingEvents = true;
 
       // We need to read standardOutput and standardError asynchronously to avoid a deadlock
       // when the buffer is not big enough to receive all the respective output. Otherwise the

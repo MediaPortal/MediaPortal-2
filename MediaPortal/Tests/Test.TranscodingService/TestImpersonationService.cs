@@ -67,5 +67,10 @@ namespace Test.TranscodingService
     {
       return func();
     }
+
+    public IProcess CreateProcessWithResourceAccess(ResourcePath path, ProcessStartInfo startInfo)
+    {
+      return ProcessUtils.Create(startInfo);
+    }
   }
 }

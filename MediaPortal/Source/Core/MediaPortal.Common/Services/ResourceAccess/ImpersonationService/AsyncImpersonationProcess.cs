@@ -15,6 +15,10 @@
 // along with MPExtended. If not, see <http://www.gnu.org/licenses/>.
 #endregion
 
+using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.Process;
+using MediaPortal.Utilities.Security;
+using Microsoft.Win32.SafeHandles;
 using System;
 using System.ComponentModel;
 using System.Diagnostics;
@@ -23,12 +27,6 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
-using MediaPortal.Common.Logging;
-using MediaPortal.Utilities.Process;
-using MediaPortal.Utilities.Security;
-using Microsoft.Win32.SafeHandles;
 
 namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 {
@@ -41,9 +39,8 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
   /// respective fields of the <see cref="Process"/> base class. Some methods of the base class are hidden by new methods.
   /// It is therefore not recommended to cast this class to <see cref="Process"/> because then the respective base class
   /// methods are called instead of the new ones.
-  /// This class can only be used via <see cref="ExecuteAsync"/>.
   /// </remarks>
-  internal class AsyncImpersonationProcess : Process
+  internal class AsyncImpersonationProcess : Process, IProcess
   {
     #region External methods and related consts, structs, classes and enums
 
@@ -267,6 +264,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     private SafeFileHandle _stderrReadHandle;
     private SafeProcessHandle _processHandle;
     private int _processId;
+    private readonly WindowsIdentityWrapper _idWrapper;
     private readonly ILogger _debugLogger;
 
     #endregion
@@ -275,10 +273,12 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 
     /// <summary>
     /// Creates a new instance of this class
-    /// </summary>
+    /// </summary>    /// 
+    /// <param name="idWrapper">The idenity to use when starting the process.</param>
     /// <param name="debugLogger">Debug logger used for debug output</param>
-    private AsyncImpersonationProcess(ILogger debugLogger)
+    private AsyncImpersonationProcess(WindowsIdentityWrapper idWrapper, ILogger debugLogger)
     {
+      _idWrapper = idWrapper;
       _debugLogger = debugLogger;
     }
 
@@ -287,178 +287,33 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     #region Internal static methods
 
     /// <summary>
-    /// Executes the <paramref name="executable"/> asynchronously and waits a maximum time of <paramref name="maxWaitMs"/> for completion.
+    /// Creates an instance of <see cref="IProcess"/> that uses a <see cref="AsyncImpersonationProcess"/> as the underlying type
+    /// and that will start under the specified windows identity. 
     /// </summary>
-    /// <param name="executable">Program to execute</param>
-    /// <param name="arguments">Program arguments</param>
-    /// <param name="idWrapper"><see cref="WindowsIdentityWrapper"/> used to impersonate the external process</param>
-    /// <param name="debugLogger">Debug logger for debug output</param>
-    /// <param name="priorityClass">Process priority</param>
-    /// <param name="maxWaitMs">Maximum time to wait for completion</param>
-    /// <returns>> <see cref="ProcessExecutionResult"/> object that respresents the result of executing the Program</returns>
     /// <remarks>
-    /// This method throws an exception only if process.Start() fails (in partiular, if the <paramref name="executable"/> doesn't exist).
-    /// Any other error in managed code is signaled by the returned task being set to Faulted state.
-    /// If the program itself does not result in an ExitCode of 0, the returned task ends in RanToCompletion state;
-    /// the ExitCode of the program will be contained in the returned <see cref="ProcessExecutionResult"/>.
-    /// This method is nearly identical to <see cref="ProcessUtils.ExecuteAsync"/>; it is necessary to have this code duplicated
-    /// because AsyncImpersonationProcess hides several methods of the Process class and executing these methods on the base class does
-    /// therefore not work. If this method is changed it is likely that <see cref="ProcessUtils.ExecuteAsync"/> also
-    /// needs to be changed.
+    /// This method will only create the process class, and will not start or otherwise modify the process.
     /// </remarks>
-    internal static Task<ProcessExecutionResult> ExecuteAsync(string executable, string arguments, WindowsIdentityWrapper idWrapper, ILogger debugLogger, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT)
+    /// <param name="startInfo"><see cref="ProcessStartInfo"/> to create the process with.</param>
+    /// <param name="idWrapper">The idenity to use when starting the process.</param>
+    /// <param name="debugLogger">Debug logger used for debug output</param>
+    /// <returns>Implementation of <see cref="IProcess"/> that can be started and managed by the caller.</returns>
+    internal static IProcess Create(ProcessStartInfo startInfo, WindowsIdentityWrapper idWrapper, ILogger debugLogger)
     {
-      var tcs = new TaskCompletionSource<ProcessExecutionResult>();
-      bool exited = false;
-      var process = new AsyncImpersonationProcess(debugLogger)
+      return new AsyncImpersonationProcess(idWrapper, debugLogger)
       {
-        StartInfo = new ProcessStartInfo(executable, arguments)
-        {
-          UseShellExecute = false,
-          CreateNoWindow = true,
-          RedirectStandardOutput = true,
-          RedirectStandardError = true,
-          RedirectStandardInput = true,
-          StandardOutputEncoding = ProcessUtils.CONSOLE_ENCODING,
-          StandardErrorEncoding = ProcessUtils.CONSOLE_ENCODING
-        },
-        EnableRaisingEvents = true
+        StartInfo = startInfo
       };
-
-      // We need to read standardOutput and standardError asynchronously to avoid a deadlock
-      // when the buffer is not big enough to receive all the respective output. Otherwise the
-      // process may block because the buffer is full and the Exited event below is never raised.
-      var standardOutput = new StringBuilder();
-      var standardOutputResults = new TaskCompletionSource<string>();
-      process.OutputDataReceived += (sender, args) =>
-      {
-        if (args.Data != null)
-          standardOutput.AppendLine(args.Data);
-        else
-          standardOutputResults.SetResult(standardOutput.Length > 0 ? ProcessUtils.RemoveEncodingPreamble(standardOutput.ToString()) : null);
-      };
-
-      var standardError = new StringBuilder();
-      var standardErrorResults = new TaskCompletionSource<string>();
-      process.ErrorDataReceived += (sender, args) =>
-      {
-        if (args.Data != null)
-          standardError.AppendLine(args.Data);
-        else
-          standardErrorResults.SetResult(standardError.Length > 0 ? ProcessUtils.RemoveEncodingPreamble(standardError.ToString()) : null);
-      };
-
-      var processStart = new TaskCompletionSource<bool>();
-      // The Exited event is raised in any case when the process has finished, i.e. when it gracefully
-      // finished (ExitCode = 0), finished with an error (ExitCode != 0) and when it was killed below.
-      // That ensures disposal of the process object.
-      process.Exited += async (sender, args) =>
-      {
-        exited = true;
-        try
-        {
-          await processStart.Task;
-          // standardStreamTasksReady is only disposed when starting the process was not successful,
-          // in which case the Exited event is never raised.
-          // ReSharper disable once AccessToDisposedClosure
-          tcs.TrySetResult(new ProcessExecutionResult
-          {
-            ExitCode = process.ExitCode,
-            // standardStreamTasksReady makes sure that we do not access the standard stream tasks before they are initialized.
-            // For the same reason it is intended that these tasks (as closures) are modified (i.e. initialized).
-            // We need to take this cumbersome way because it is not possible to access the standard streams before the process
-            // is started. If on the other hand the Exited event is raised before the tasks are initialized, we need to make
-            // sure that this method waits until the tasks are initialized before they are accessed.
-            // ReSharper disable PossibleNullReferenceException
-            // ReSharper disable AccessToModifiedClosure
-            StandardOutput = await standardOutputResults.Task,
-            StandardError = await standardErrorResults.Task
-            // ReSharper restore AccessToModifiedClosure
-            // ReSharper restore PossibleNullReferenceException
-          });
-        }
-        catch (Exception e)
-        {
-          tcs.TrySetException(e);
-        }
-        finally
-        {
-          process.Dispose();
-        }
-      };
-
-      bool processStarted = false;
-      using (var tokenWrapper = idWrapper.TokenWrapper)
-        processStarted = process.StartAsUser(tokenWrapper.Token);
-      processStart.SetResult(processStarted);
-      if (processStarted)
-      {
-        process.BeginOutputReadLine();
-        process.BeginErrorReadLine();
-        try
-        {
-          // This call may throw an exception if the process has already exited when we get here.
-          // In that case the Exited event has already set tcs to RanToCompletion state so that
-          // the TrySetException call below does not change the state of tcs anymore. This is correct
-          // as it doesn't make sense to change the priority of the process if it is already finished.
-          // Any other "real" error sets the state of tcs to Faulted below.
-          process.PriorityClass = priorityClass;
-        }
-        catch (InvalidOperationException e)
-        {
-          // This exception indicates that the process is no longer available which is probably 
-          // because the process has exited already. The exception should not be logged because 
-          // there is no guarantee that the exited event has finished setting the task to the 
-          // RanToCompletion state before this exception sets it to the Faulted state.
-          if (!exited && !process.HasExited && tcs.TrySetException(e))
-            debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while setting the PriorityClass", e, executable);
-        }
-        catch (Exception e)
-        {
-          if (tcs.TrySetException(e))
-            debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while setting the PriorityClass", e, executable);
-        }
-      }
-      else
-      {
-        exited = true;
-        standardOutputResults.SetResult(null);
-        standardErrorResults.SetResult(null);
-
-        debugLogger.Error("AsyncImpersonationProcess ({0}): Could not start process", executable);
-        return Task.FromResult(new ProcessExecutionResult { ExitCode = Int32.MinValue });
-      }
-
-      // Here we take care of the maximum time to wait for the process if such was requested.
-      if (maxWaitMs != ProcessUtils.INFINITE)
-        Task.Delay(maxWaitMs).ContinueWith(task =>
-        {
-          try
-          {
-            // Cancel the state of tcs if it was not set to Faulted or
-            // RanToCompletion before.
-            tcs.TrySetCanceled();
-            // Always kill the process if is running.
-            if (!exited && !process.HasExited)
-            {
-              process.Kill();
-              debugLogger.Warn("AsyncImpersonationProcess ({0}): Process was killed because maxWaitMs was reached.", executable);
-            }
-          }
-          // An exception is thrown in process.Kill() when the external process exits
-          // while we set tcs to canceled. In that case there is nothing to do anymore.
-          // This is not an error. In case of other errors that may happen, we log it anyways
-          catch (Exception e)
-          {
-            debugLogger.Error("AsyncImpersonationProcess ({0}): Exception while trying to kill the process", e, executable);
-          }
-        });
-      return tcs.Task;
     }
 
     #endregion
 
     #region Base hides and overrides
+
+    public new bool Start()
+    {
+      using (var tokenWrapper = _idWrapper.TokenWrapper)
+        return StartAsUser(tokenWrapper.Token);
+    }
 
     public new void Kill()
     {
@@ -753,6 +608,6 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       typeof(Process).InvokeMember(member, BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Instance, null, this, args);
     }
 
-    #endregion
+#endregion
   }
 }

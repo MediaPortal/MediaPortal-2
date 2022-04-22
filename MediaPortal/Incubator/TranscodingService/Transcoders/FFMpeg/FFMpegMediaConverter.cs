@@ -45,6 +45,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Settings;
 using MediaPortal.Common;
+using MediaPortal.Utilities.Process;
 #if !TRANSCODE_CONSOLE_TEST
 using MediaPortal.Common;
 using MediaPortal.Utilities.Process;
@@ -814,48 +815,35 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
 
           _logger.Debug("FFMpegMediaConverter: Transcoder '{0}' invoked with command line arguments '{1}'", data.TranscodeData.TranscoderBinPath, data.TranscodeData.TranscoderArguments);
 
-          IntPtr userToken = IntPtr.Zero;
           try
           {
-            //TODO: Fix usages of obsolete and deprecated methods when alternative is available
 #if !TRANSCODE_CONSOLE_TEST
-            using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(firstPath))
+            //Only when the server is running as a service it will have elevation rights
+            using (IProcess ffmpeg = ServiceRegistration.Get<IImpersonationService>().CreateProcessWithResourceAccess(firstPath, startInfo))
             {
-              //Only when the server is running as a service it will have elevation rights
-              using (ImpersonationProcess ffmpeg = new ImpersonationProcess { StartInfo = startInfo })
-              {
-                if (isFile && !ImpersonationHelper.GetTokenByProcess(out userToken, true))
-                  return;
 #else
+            using (IProcess ffmpeg = ProcessUtils.Create(startInfo))
             {
-              using (Process ffmpeg = new Process() { StartInfo = startInfo })
-              {
 #endif
-                ffmpeg.EnableRaisingEvents = true; //Enable raising events because Process does not raise events by default.
-                if (isStream == false)
-                  ffmpeg.OutputDataReceived += data.Context.OutputDataReceived;
+              ffmpeg.EnableRaisingEvents = true; //Enable raising events because Process does not raise events by default.
+              if (isStream == false)
+                ffmpeg.OutputDataReceived += data.Context.OutputDataReceived;
 
-                ffmpeg.ErrorDataReceived += data.Context.ErrorDataReceived;
-#if !TRANSCODE_CONSOLE_TEST
-                if (isFile)
-                  ffmpeg.StartAsUser(userToken);
-                else
-                  ffmpeg.Start();
-#else
-                ffmpeg.Start();
-#endif
-                ffmpeg.BeginErrorReadLine();
-                if (isStream == false)
-                  ffmpeg.BeginOutputReadLine();
-                else
-                  data.TranscodeData.LiveStream = ffmpeg.StandardOutput.BaseStream;
+              ffmpeg.ErrorDataReceived += data.Context.ErrorDataReceived;
 
-                RunTranscodingProcess(ffmpeg, data, isStream);
-               
-                ffmpeg.WaitForExit();
-                exitCode = ffmpeg.ExitCode;
-                ffmpeg.Close();
-              }
+              ffmpeg.Start();
+
+              ffmpeg.BeginErrorReadLine();
+              if (isStream == false)
+                ffmpeg.BeginOutputReadLine();
+              else
+                data.TranscodeData.LiveStream = ffmpeg.StandardOutput.BaseStream;
+
+              RunTranscodingProcess(ffmpeg, data, isStream);
+
+              ffmpeg.WaitForExit();
+              exitCode = ffmpeg.ExitCode;
+              ffmpeg.Close();
             }
           }
           catch (Exception ex)
@@ -869,10 +857,6 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           }
           finally
           {
-#if !TRANSCODE_CONSOLE_TEST
-            if (userToken != IntPtr.Zero)
-              NativeMethods.CloseHandle(userToken);
-#endif
             data.TranscodeData.LiveStream?.Dispose();
             foreach (var disposable in disposables)
               disposable?.Dispose();
@@ -945,7 +929,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       }
     }
 
-    private void RunTranscodingProcess(Process ffmpeg, FFMpegTranscodeThreadData data, bool isStream)
+    private void RunTranscodingProcess(IProcess ffmpeg, FFMpegTranscodeThreadData data, bool isStream)
     {
       while (ffmpeg.HasExited == false)
       {

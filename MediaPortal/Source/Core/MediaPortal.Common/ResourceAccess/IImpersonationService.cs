@@ -98,5 +98,14 @@ namespace MediaPortal.Common.ResourceAccess
     /// <param name="maxWaitMs">Maximum time to wait for completion</param>
     /// <returns>A task representing the result of executing the process</returns>
     Task<ProcessExecutionResult> ExecuteWithResourceAccessAsync(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass = ProcessPriorityClass.Normal, int maxWaitMs = ProcessUtils.DEFAULT_TIMEOUT);
+
+    /// <summary>
+    /// Creates, but does not start, an implementation of <see cref="IProcess"/> which will execute
+    /// with the best matching credential for <paramref name="path"/>.
+    /// </summary>
+    /// <param name="path"><see cref="ResourcePath"/> to which the external program shall have access</param>
+    /// <param name="startInfo"><see cref="ProcessStartInfo"/> to create the process with</param>
+    /// <returns>Implementation of <see cref="IProcess"/> that can be started and managed by the caller.</returns>
+    IProcess CreateProcessWithResourceAccess(ResourcePath path, ProcessStartInfo startInfo);
   }
 }
