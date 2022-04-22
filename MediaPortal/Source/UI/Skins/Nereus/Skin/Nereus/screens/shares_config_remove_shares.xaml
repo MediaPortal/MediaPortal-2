@@ -15,7 +15,7 @@
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <Grid DataContext="{Binding Source={StaticResource Model}}"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10,10,20,110">
+            HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,10,20,110">
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
