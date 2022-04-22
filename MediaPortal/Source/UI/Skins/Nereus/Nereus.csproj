@@ -801,6 +801,7 @@
     <Content Include="Skin\Nereus\images\PowerMenu\Shutdown.png" />
     <Content Include="Skin\Nereus\images\PowerMenu\SleepTimer.png" />
     <Content Include="Skin\Nereus\images\PowerMenu\Suspend.png" />
+    <Content Include="Skin\Nereus\images\press.png" />
     <Content Include="Skin\Nereus\images\preview.png" />
     <Content Include="Skin\Nereus\images\recording.PNG" />
     <Content Include="Skin\Nereus\images\remove.focus.png" />
