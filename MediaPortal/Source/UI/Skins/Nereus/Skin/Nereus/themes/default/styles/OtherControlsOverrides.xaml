@@ -1148,8 +1148,15 @@
                   <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
                   <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" IsVisible="{Binding CanSkipBack}" Command="{Command Previous}" />
                   <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" IsVisible="{Binding CanSeekBackward}" Command="{Command SeekBackward}" />
-                  <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" IsVisible="{Binding CanPlay}" Command="{Command Play}" />
-                  <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" IsVisible="{Binding CanPause}" Command="{Command Pause}" />
+                  <Button x:Name="PlayPauseButton" Margin="{ThemeResource PlayerControlButtonMargins}" Style="{ThemeResource PlayPauseButtonStyle}" 
+                            Command="{Command TogglePause}">
+                    <Button.IsVisible>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                        <Binding Path="CanPlay"/>
+                        <Binding Path="CanPause"/>
+                      </MultiBinding>
+                    </Button.IsVisible>
+                  </Button>
                   <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" IsVisible="{Binding CanSeekForward}" Command="{Command SeekForward}" />
                   <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}" Command="{Command Next}"/>
                   <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
