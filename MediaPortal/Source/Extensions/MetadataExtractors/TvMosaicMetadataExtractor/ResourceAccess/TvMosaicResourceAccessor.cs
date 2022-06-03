@@ -23,13 +23,14 @@
 #endregion
 
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using TvMosaic.API;
+using TvMosaic.Shared;
 
 namespace TvMosaicMetadataExtractor.ResourceAccess
 {
@@ -38,26 +39,41 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
   /// </summary>
   public class TvMosaicResourceAccessor : IFileSystemResourceAccessor, INetworkResourceAccessor
   {
-    // We cache the stream url for a recorded tv item when it's first requested, if the url cannot be found,
-    // e.g. the item has been removed or the path is invalid, we set it to this value to avoid retrying the next
-    // time the url is requested.
-    protected const string INVALID_STREAM_URL = "";
+    protected readonly SemaphoreSlim _syncObj = new SemaphoreSlim(1);
 
     protected ITvMosaicNavigator _navigator;
-    protected IResourceProvider _parent;
+    protected TvMosaicResourceProvider _parent;
     protected string _path;
-    protected string _cachedStreamUrl;
+    protected string _objectId;
 
-    public TvMosaicResourceAccessor(IResourceProvider parent, string path)
+    /// <summary>
+    /// For "files" this will hold the underlying RecordedTV object, this should not be referenced directly,
+    /// instead GetItem() should be called to ensure that the item has been loaded.
+    /// </summary>
+    protected RecordedTV _underlyingItem;
+    protected volatile bool _underlyingItemLoaded;
+
+    public TvMosaicResourceAccessor(TvMosaicResourceProvider parent, string path)
     : this(parent, path, new TvMosaicNavigator())
     {
     }
 
-    public TvMosaicResourceAccessor(IResourceProvider parent, string path, ITvMosaicNavigator navigator)
+    public TvMosaicResourceAccessor(TvMosaicResourceProvider parent, string path, ITvMosaicNavigator navigator)
     {
       _navigator = navigator;
       _parent = parent;
       _path = path;
+      _objectId = TvMosaicResourceProvider.ToObjectId(path);
+    }
+
+    internal TvMosaicResourceAccessor(TvMosaicResourceProvider parent, RecordedTV item, ITvMosaicNavigator navigator)
+    {
+      _navigator = navigator;
+      _parent = parent;
+      _objectId = item.ObjectID;
+      _path = TvMosaicResourceProvider.ToProviderPath(item.ObjectID);
+      _underlyingItem = item;
+      _underlyingItemLoaded = true;
     }
 
     /// <summary>
@@ -65,7 +81,31 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     /// </summary>
     public string TvMosaicObjectId
     {
-      get { return GetObjectId(_path); }
+      get { return _objectId; }
+    }
+
+    /// <summary>
+    /// If this is a file resource, attempts to retrieve the <see cref="RecordedTV"/> item that corresponds to this resource.
+    /// </summary>
+    /// <returns>Task that completes with the <see cref="RecordedTV"/> item; else <c>null</c> if the item is not available or this is a directory resource.</returns>
+    public async Task<RecordedTV> GetItem()
+    {
+      if (_underlyingItemLoaded)
+        return _underlyingItem;
+      await _syncObj.WaitAsync().ConfigureAwait(false);
+      try
+      {
+        if (_underlyingItemLoaded)
+          return _underlyingItem;
+        if (IsItemId(_objectId))
+          _underlyingItem = await _navigator.GetItemAsync(_objectId).ConfigureAwait(false);
+        _underlyingItemLoaded = true;
+        return _underlyingItem;
+      }
+      finally
+      {
+        _syncObj.Release();
+      }
     }
 
     #region Protected methods
@@ -81,67 +121,47 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     }
 
     /// <summary>
-    /// Determines whether the specified path points to a TvMosaic container.
+    /// Determines whether the specified object id is the id of a TvMosaic container.
     /// </summary>
-    /// <param name="providerPath">The path to check.</param>
-    /// <returns><c>true</c> if the path points to a container.</returns>
-    protected internal static bool IsContainerPath(string providerPath)
+    /// <param name="objectId">The id to check.</param>
+    /// <returns><c>true</c> if the id is the id of a TvMosaic container.</returns>
+    protected internal static bool IsContainerId(string objectId)
     {
-      string objectId = GetObjectId(providerPath);
       return !string.IsNullOrEmpty(objectId) && !objectId.Contains("/");
     }
 
     /// <summary>
-    /// Determines whether the specified path points to a TvMosaic item in a container.
+    /// Determines whether the specified object id is the id of a TvMosaic item in a container.
     /// </summary>
-    /// <param name="providerPath">The path to check.</param>
-    /// <returns><c>true</c> if the path points to an item.</returns>
-    protected internal static bool IsItemPath(string providerPath)
+    /// <param name="objectId">The id to check.</param>
+    /// <returns><c>true</c> if the id is the id of a TvMosaic item.</returns>
+    protected internal static bool IsItemId(string objectId)
     {
-      return !IsRootPath(providerPath) && !IsContainerPath(providerPath) && !string.IsNullOrEmpty(GetObjectId(providerPath));
+      return !string.IsNullOrEmpty(objectId) && !IsContainerId(objectId);
     }
 
     /// <summary>
-    /// Gets the TvMosaic object id for the specified path.
-    /// </summary>
-    /// <param name="providerPath">The path to get the id from.</param>
-    /// <returns>The TvMosaic object id that this path points to.</returns>
-    protected internal static string GetObjectId(string providerPath)
-    {
-      if (IsRootPath(providerPath))
-        return null;
-      return StringUtils.RemoveSuffixIfPresent(providerPath, "/");
-    }
-
-    /// <summary>
-    /// Determines whether the path points to an object that exists in the TvMosaic API.
+    /// Determines whether this accessor points to an object that exists in the TvMosaic API.
     /// This method will trigger a network request.
     /// </summary>
-    /// <param name="providerPath">The path to check.</param>
     /// <returns><c>true</c> if the path points to an item that exists.</returns>
-    protected internal bool ObjectExists(string providerPath)
+    protected internal bool ObjectExists()
     {
       // Assume the root always exists
-      if (IsRootPath(providerPath))
+      if (IsRootPath(_path))
         return true;
-      
-      string objectId = GetObjectId(providerPath);
-      if (string.IsNullOrEmpty(objectId))
+      if (string.IsNullOrEmpty(_objectId))
         return false;
-      return _navigator.ObjectExists(objectId);
+      if (IsItemId(_objectId))
+        return GetItem().Result != null;
+      return _navigator.ObjectExistsAsync(_objectId).Result;
     }
 
     protected string GetStreamUrl()
     {
-      if (!IsItemPath(_path) || _cachedStreamUrl == INVALID_STREAM_URL)
+      if (!IsItemId(_objectId))
         return null;
-
-      if (!string.IsNullOrEmpty(_cachedStreamUrl))
-        return _cachedStreamUrl;
-
-      string url = _navigator.GetItem(GetObjectId(_path))?.Url;
-      _cachedStreamUrl = string.IsNullOrEmpty(url) ? INVALID_STREAM_URL : url;
-      return _cachedStreamUrl != INVALID_STREAM_URL ? _cachedStreamUrl : null;
+      return GetItem().Result?.Url;
     }
 
     #endregion
@@ -152,7 +172,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     {
       get
       {
-        return ObjectExists(_path);
+        return ObjectExists();
       }
     }
 
@@ -160,7 +180,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     {
       get
       {
-        return IsItemPath(_path);
+        return IsItemId(_objectId) && ObjectExists();
       }
     }
 
@@ -168,6 +188,12 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     {
       get
       {
+        if (IsItemId(_objectId))
+        {
+          RecordedTV item = GetItem().Result;
+          if (item != null)
+            return (item.VideoInfo.StartTime + item.VideoInfo.Duration).FromUnixTime();
+        }
         return DateTime.MinValue;
       }
     }
@@ -192,7 +218,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     {
       get
       {
-        return TvMosaicResourceProvider.ToProviderResourcePath(_path).Serialize();
+        return _path;
       }
     }
 
@@ -200,7 +226,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     {
       get
       {
-        return _navigator.GetObjectFriendlyName(GetObjectId(_path));
+        return _navigator.GetObjectFriendlyNameAsync(_objectId).Result;
       }
     }
 
@@ -208,7 +234,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     {
       get
       {
-        return GetObjectId(_path);
+        return _objectId;
       }
     }
 
@@ -234,30 +260,28 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     {
       // The only 'directories' are the top level containers under the root, so just ignore for all other paths
       if (!IsRootPath(_path))
-        return null;      
-      return _navigator.GetRootContainerIds().Select(id => new TvMosaicResourceAccessor(_parent, id, _navigator)).ToList<IFileSystemResourceAccessor>();
+        return new List<IFileSystemResourceAccessor>();
+      return _navigator.GetRootContainerIds().Select(id => new TvMosaicResourceAccessor(_parent, TvMosaicResourceProvider.ToProviderPath(id), _navigator)).ToList<IFileSystemResourceAccessor>();
     }
 
     public ICollection<IFileSystemResourceAccessor> GetFiles()
     {
       // Only containers contain items
-      if (!IsContainerPath(_path))
+      if (!IsContainerId(_objectId))
         return null;
 
-      string objectId = GetObjectId(_path);
-      Items items = _navigator.GetChildItems(objectId);
+      IList<RecordedTV> items = _navigator.GetChildItemsAsync(_objectId).Result;
       // This path is a directory so callers expect this method to not return
       // null, so return an empty list in case of an error retrieving the items
       if (items == null)
         return new List<IFileSystemResourceAccessor>();
-
-      return items.Select(item => new TvMosaicResourceAccessor(_parent, item.ObjectID, _navigator)).ToList<IFileSystemResourceAccessor>();
+      return items.Select(item => new TvMosaicResourceAccessor(_parent, item, _navigator)).ToList<IFileSystemResourceAccessor>();
     }
 
     public IFileSystemResourceAccessor GetResource(string path)
     {
-      // Path should be an object id which are always absolute, so just return the new path
-      return new TvMosaicResourceAccessor(_parent, path, _navigator);
+      // Path should be an object id which are always absolute, so just return the new path      
+      return _parent.IsResource(path) ? new TvMosaicResourceAccessor(_parent, path, _navigator) : null;
     }
 
     public Stream OpenRead()
@@ -290,7 +314,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
 
     public void Dispose()
     {
-
+      _syncObj.Dispose();
     }
 
     #endregion

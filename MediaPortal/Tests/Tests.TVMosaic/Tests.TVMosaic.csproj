@@ -50,12 +50,6 @@
     <ErrorReport>prompt</ErrorReport>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="MediaPortal.Common">
-      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\MediaPortal.Common.dll</HintPath>
-    </Reference>
-    <Reference Include="SlimTv.Interfaces">
-      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\SlimTv.Client\SlimTv.Interfaces.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -76,9 +70,17 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\TvMosaicMetadataExtractor\TvMosaicMetadataExtractor.csproj">
       <Project>{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}</Project>
       <Name>TvMosaicMetadataExtractor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{f31c71fa-4a24-4d33-b0ee-52cf667dcef4}</Project>
+      <Name>SlimTv.Interfaces</Name>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\TV\TvMosaic\SlimTv.TvMosaicProvider\SlimTv.TvMosaicProvider.csproj">
       <Project>{1976DE17-3729-4F01-BA45-DF359F005297}</Project>

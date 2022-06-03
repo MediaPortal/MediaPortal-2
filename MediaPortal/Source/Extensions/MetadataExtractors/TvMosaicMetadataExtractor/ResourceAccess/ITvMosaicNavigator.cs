@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using TvMosaic.API;
 
 namespace TvMosaicMetadataExtractor.ResourceAccess
@@ -42,28 +43,28 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     /// Gets the child items of the container with the specified id.
     /// </summary>
     /// <param name="containerId">Id of the container object.</param>
-    /// <returns>If the <paramref name="containerId"/> is valid, <see cref="Items"/> containing the container's child items; else <c>null</c>.</returns>
-    Items GetChildItems(string containerId);
+    /// <returns>If the <paramref name="containerId"/> is valid, <see cref="IList{T}"/> containing the container's child items; else <c>null</c>.</returns>
+    Task<IList<RecordedTV>> GetChildItemsAsync(string containerId);
 
     /// <summary>
     /// Gets the item with the specified id.
     /// </summary>
     /// <param name="itemId">Id of the item object.</param>
     /// <returns>Is the <paramref name="itemId"/> is valid, the <see cref="RecordedTV"/> item; else <c>null</c>.</returns>
-    RecordedTV GetItem(string itemId);
+    Task<RecordedTV> GetItemAsync(string itemId);
 
     /// <summary>
     /// Determines whether an object (container or item) with the specified id exists.
     /// </summary>
     /// <param name="objectId">The id to check.</param>
     /// <returns><c>true</c> if the object exists.</returns>
-    bool ObjectExists(string objectId);
+    Task<bool> ObjectExistsAsync(string objectId);
 
     /// <summary>
     /// Gets a human readable name for the object.
     /// </summary>
     /// <param name="objectId">The id of the object to get the name of.</param>
     /// <returns>The object name</returns>
-    string GetObjectFriendlyName(string objectId);
+    Task<string> GetObjectFriendlyNameAsync(string objectId);
   }
 }

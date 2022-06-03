@@ -41,7 +41,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     /// <summary>
     /// Id of the container containing recorded TV items sorted alphabetically
     /// </summary>
-    protected internal const string RECORDED_TV_OBJECT_ID = "8F94B459-EFC0-4D91-9B29-EC3D72E92677:E44367A7-6293-4492-8C07-0E551195B99F";
+    public const string RECORDED_TV_OBJECT_ID = "8F94B459-EFC0-4D91-9B29-EC3D72E92677:E44367A7-6293-4492-8C07-0E551195B99F";
 
     protected HttpDataProvider _httpDataProvider;
 
@@ -54,19 +54,19 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
       };
     }
 
-    public Items GetChildItems(string containerId)
+    public async Task<IList<RecordedTV>> GetChildItemsAsync(string containerId)
     {
-      return GetObjectResponseAsync(containerId, true).Result?.Items;
+      return (await GetObjectResponseAsync(containerId, true).ConfigureAwait(false))?.Items;
     }
 
-    public RecordedTV GetItem(string itemId)
+    public async Task<RecordedTV> GetItemAsync(string itemId)
     {
-      return GetObjectResponseAsync(itemId, false).Result?.Items?.FirstOrDefault();
+      return (await GetObjectResponseAsync(itemId, false).ConfigureAwait(false))?.Items?.FirstOrDefault();
     }
 
-    public bool ObjectExists(string objectId)
+    public async Task<bool> ObjectExistsAsync(string objectId)
     {
-      return GetObjectResponseAsync(objectId, false).Result != null;
+      return (await GetObjectResponseAsync(objectId, false).ConfigureAwait(false)) != null;
     }
 
     /// <summary>
@@ -74,8 +74,8 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     /// </summary>
     /// <param name="objectId">The id of the object to retrieve.</param>
     /// <param name="childrenRequest">Whether to request the object's child items.</param>
-    /// <returns></returns>
-    public async Task<ObjectResponse> GetObjectResponseAsync(string objectId, bool childrenRequest)
+    /// <returns>The object or it's child items.</returns>
+    protected async Task<ObjectResponse> GetObjectResponseAsync(string objectId, bool childrenRequest)
     {
       ObjectRequester request = new ObjectRequester
       {
@@ -98,12 +98,12 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
       return response.Result;
     }
 
-    public string GetObjectFriendlyName(string objectId)
+    public Task<string> GetObjectFriendlyNameAsync(string objectId)
     {
       if (objectId == RECORDED_TV_OBJECT_ID)
-        return "TvMosaic Recorded TV";
+        return Task.FromResult("TvMosaic Recorded TV");
       //ToDo: we could retrieve the actual name of the object from the API, but for now we avoid an additional network request.
-      return objectId;
+      return Task.FromResult(objectId);
     }
 
     HttpDataProvider GetHttpDataProvider()

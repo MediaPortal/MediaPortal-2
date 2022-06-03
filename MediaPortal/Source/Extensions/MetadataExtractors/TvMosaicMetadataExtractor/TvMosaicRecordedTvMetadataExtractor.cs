@@ -26,7 +26,9 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
+using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Services.GenreConverter;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using System;
@@ -34,8 +36,6 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using MediaPortal.Common.MediaManagement.Helpers;
-using MediaPortal.Common.Services.GenreConverter;
 using TvMosaic.API;
 using TvMosaic.Shared;
 using TvMosaicMetadataExtractor.ResourceAccess;
@@ -165,12 +165,7 @@ namespace TvMosaicMetadataExtractor
       if (ra == null || !ra.IsFile)
         return false;
 
-      string objectId = ra.TvMosaicObjectId;
-      if (string.IsNullOrEmpty(objectId))
-        return false;
-
-      TvMosaicNavigator navigator = new TvMosaicNavigator();
-      RecordedTV recordedTV = (await navigator.GetObjectResponseAsync(objectId, false))?.Items?.FirstOrDefault();
+      RecordedTV recordedTV = await ra.GetItem().ConfigureAwait(false);
       if (recordedTV == null)
         return false;
 

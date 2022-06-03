@@ -18,6 +18,8 @@
 
   <Runtime>
     <Assembly FileName="TvMosaicMetadataExtractor.dll"/>
+    <Assembly FileName="TvMosaic.Shared.dll"/>
+    <Assembly FileName="TvMosaic.API.dll"/>
   </Runtime>
 
   <Register Location="/Resources/Language">

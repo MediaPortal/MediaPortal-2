@@ -24,6 +24,7 @@
 
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Utilities;
 using System;
 
 namespace TvMosaicMetadataExtractor.ResourceAccess
@@ -59,13 +60,13 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
 
     public ResourcePath ExpandResourcePathFromString(string pathStr)
     {
-      if (pathStr == null)
+      if (string.IsNullOrEmpty(pathStr))
         return null;
 
       // Check if the path is already in the resource path syntax (i.e. {[Base-Provider-Id]}://[Base-Provider-Path])
       // If not, expand it to include the provider id
       if (!pathStr.Contains("://"))
-        return ResourcePath.BuildBaseProviderPath(TVMOSAIC_RESOURCE_PROVIDER_ID, pathStr);
+        return ToProviderResourcePath(pathStr);
 
       // Else, path looks like it is in the resource path syntax so can just be deserialized as is
       try
@@ -80,7 +81,12 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
 
     public bool IsResource(string path)
     {
-      return TvMosaicResourceAccessor.IsRootPath(path) || TvMosaicResourceAccessor.IsContainerPath(path) || TvMosaicResourceAccessor.IsItemPath(path);
+      if (string.IsNullOrEmpty(path))
+        return false;
+      if (path == ROOT_PROVIDER_PATH)
+        return true;
+      string objectId = ToObjectId(path);
+      return TvMosaicResourceAccessor.IsContainerId(objectId) || TvMosaicResourceAccessor.IsItemId(objectId);
     }
 
     public bool TryCreateResourceAccessor(string path, out IResourceAccessor result)
@@ -95,9 +101,27 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
       return true;
     }
 
+    public static string ToProviderPath(string objectId)
+    {
+      return StringUtils.CheckPrefix(objectId, ROOT_PROVIDER_PATH);
+    }
+
+    /// <summary>
+    /// Converts the specified provider path to a TvMosiac object id.
+    /// </summary>
+    /// <param name="providerPath">The path to convert to an id.</param>
+    /// <returns>The TvMosaic object id that this path points to.</returns>
+    public static string ToObjectId(string providerPath)
+    {
+      if (string.IsNullOrEmpty(providerPath) || providerPath == ROOT_PROVIDER_PATH)
+        return null;
+      providerPath = StringUtils.RemoveSuffixIfPresent(providerPath, "/");
+      return StringUtils.RemovePrefixIfPresent(providerPath, ROOT_PROVIDER_PATH);
+    }
+
     public static ResourcePath ToProviderResourcePath(string path)
     {
-      return ResourcePath.BuildBaseProviderPath(TVMOSAIC_RESOURCE_PROVIDER_ID, path);
+      return ResourcePath.BuildBaseProviderPath(TVMOSAIC_RESOURCE_PROVIDER_ID, ToProviderPath(path));
     }
   }
 }
