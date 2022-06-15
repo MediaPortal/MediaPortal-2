@@ -22,15 +22,28 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MediaPortal.Common.Settings;
 
 namespace TvMosaic.Server
 {
-    public class Class1
-    {
-    }
+  public class TvMosaicShareSettings
+  {
+    /// <summary>
+    /// Gets or sets whether to watch the TvMosaic recorded tv share for changes.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool EnableRecordedTvShareWatcher { get; set; }
+
+    /// <summary>
+    /// Gets or sets the initial number of seconds to wait before checking the TvMosaic recorded tv share for changes.
+    /// </summary>
+    [Setting(SettingScope.Global, 30)]
+    public int InitialCheckDelaySeconds { get; set; }
+
+    /// <summary>
+    /// Gets or sets the number of seconds between checking the TvMosaic recorded tv share for changes.
+    /// </summary>
+    [Setting(SettingScope.Global, 60)]
+    public int CheckIntervalSeconds { get; set; }
+  }
 }
