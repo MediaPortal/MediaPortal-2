@@ -20,7 +20,6 @@
       <ReferencesTarget Include="$(TargetDir)SlimTv.Integration.MP2.dll" />
       <ReferencesTarget Include="$(TargetDir)Common.Utils.dll" />
       <ReferencesTarget Include="$(TargetDir)MediaPortal.TV.Server.*.dll" />
-      <ReferencesTarget Include="$(TargetDir)NCode.ReparsePoints.dll" />
     </ItemGroup>
 
     <ItemGroup>

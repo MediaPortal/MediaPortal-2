@@ -6,6 +6,7 @@
     <AssemblyName>SlimTv.Service35</AssemblyName>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
     <Compile Remove="Database\**" />
@@ -61,7 +62,9 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Core">
-      <Version>1.1.1.10</Version>
+      <Version>6.0.0</Version>
+      <GeneratePathProperty>True</GeneratePathProperty>
+      <IncludeAssets>all</IncludeAssets>
     </PackageReference>
     <PackageReference Include="MediaPortal.TvEngine.Interfaces">
       <Version>1.0.6</Version>

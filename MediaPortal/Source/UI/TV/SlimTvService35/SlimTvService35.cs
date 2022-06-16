@@ -69,7 +69,8 @@ using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common.Async;
 using System.Threading.Tasks;
 using MediaPortal.Common.Reflection;
-using NCode.ReparsePoints;
+using MediaPortal.Utilities.FileSystem;
+using NativeMethods = MediaPortal.Utilities.SystemAPI.NativeMethods;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -106,16 +107,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       // Load assemblies via file name without version check
       AssemblyResolver.RedirectAllAssemblies();
 
-      // Unfortunately native images are expected at the level of the executing assembly. The LoadLibraryEx is not used, so we can't override the load path of SQLite.
-      // So instead of making a copy of files, we create a Junction to point into SlimTV plugin subfolder.
-      var executingFolder = Path.GetDirectoryName(Assembly.GetEntryAssembly().Location);
-      var runtimeFolder = Path.Combine(executingFolder, "runtimes");
-      if (!Directory.Exists(runtimeFolder))
-      {
-        var assemblyFolder = Path.GetDirectoryName(GetType().Assembly.Location);
-        var targetFolder = Path.Combine(assemblyFolder, "runtimes");
-        ReparsePointFactory.Provider.CreateLink(runtimeFolder, targetFolder, LinkType.Junction);
-      }
+      string absolutePlatformDir;
+      if (!NativeMethods.SetRuntimeIdentifierSearchDirectories(out absolutePlatformDir))
+        throw new Exception("Error adding dll probe path");
 
       var dbPath = ServiceRegistration.Get<MediaPortal.Common.PathManager.IPathManager>().GetPath("<DATABASE>\\" + TVDB_NAME + ".s3db");
       ConnectionStringSettings connectionString = new ConnectionStringSettings("TvEngineDb", "Data Source=" + dbPath, "SQLite");
