@@ -467,7 +467,7 @@ namespace MediaPortal.UiComponents.Media.Models
         navigationData = GetNavigationData(newContext, false);
         navigationData.Enable();
 
-        if (navigationData.CurrentScreenData.SkipForSingleItem && navigationData.CurrentScreenData.Items.Count == 1)
+        if (navigationData.CurrentScreenData.SkipForSingleItem && navigationData.CurrentScreenData.Items?.Count == 1)
         {
           var command = navigationData.CurrentScreenData.Items.FirstOrDefault()?.Command;
           if (command != null)
