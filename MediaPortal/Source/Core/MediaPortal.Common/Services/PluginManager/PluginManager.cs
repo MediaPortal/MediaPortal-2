@@ -958,7 +958,13 @@ namespace MediaPortal.Common.Services.PluginManager
           return true;
         // Exchange pure read lock by upgradable read lock
         UnlockPluginState(plugin);
-        LockPluginStateDependency(plugin, true, PluginState.Disabled, PluginState.Available, PluginState.Enabled);
+        // The plugin may get activated by another thread between the release of the read lock above and obtaining the ugradeable lock below,
+        // so allow the Active state when locking to avoid LockPluginStateDependency throwing an exception in such cases. The state is
+        // checked again immediately after the lock is obtained below to break in that case.
+        LockPluginStateDependency(plugin, true, PluginState.Disabled, PluginState.Available, PluginState.Enabled, PluginState.Active);
+        // Plugin was activated by another thread (see comment above), we can break the method early
+        if (plugin.State == PluginState.Active)
+          return true;
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
         ILogger logger = ServiceRegistration.Get<ILogger>();
