@@ -8,6 +8,7 @@
     <ApplicationIcon>MP2.ico</ApplicationIcon>
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
     <StartupObject>MediaPortal.Server.ApplicationLauncher</StartupObject>
+    <LargeAddressAware>true</LargeAddressAware>
     <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">

@@ -3,9 +3,11 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Utilities.Process;
 using System;
+using System.IO;
 using System.Threading;
 using System.Windows;
 using CommandLine;
+using MediaPortal.Common.PathManager;
 
 namespace MediaPortal.Client.Launcher
 {
