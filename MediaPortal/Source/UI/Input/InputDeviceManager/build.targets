@@ -25,7 +25,7 @@
     </ItemGroup>
 
   <ItemGroup>
-    <References Include="$(TargetDir)SharpLibHid.dll" />
+    <References Include="$(TargetDir)SharpLib.Hid.dll" />
     <References Include="$(TargetDir)SharpLibWin32.dll" />
   </ItemGroup>
 
