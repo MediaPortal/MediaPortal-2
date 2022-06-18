@@ -720,16 +720,16 @@ namespace MediaPortal.Common.Services.PluginManager
     /// <param name="statesToLock">The plugin must be in one of those states to be locked.</param>
     protected void LockPluginStateDependency(PluginRuntime plugin, bool upgradableToWriteLock, params PluginState[] statesToLock)
     {
-      lock (_syncObj)
+      plugin.LockForStateDependency(upgradableToWriteLock);
+      if (statesToLock.Length > 0)
       {
-        if (statesToLock.Length > 0)
+        ICollection<PluginState> states = new List<PluginState>(statesToLock);
+        if (!states.Contains(plugin.State))
         {
-          ICollection<PluginState> states = new List<PluginState>(statesToLock);
-          if (!states.Contains(plugin.State))
-            throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') is in state '{2}' but is supposed to be in one of the states ('{3}')",
-                plugin.Metadata.Name, plugin.Metadata.PluginId, plugin.State, StringUtils.Join(", ", statesToLock));
+          plugin.UnlockState();
+          throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') is in state '{2}' but is supposed to be in one of the states ('{3}')",
+              plugin.Metadata.Name, plugin.Metadata.PluginId, plugin.State, StringUtils.Join(", ", statesToLock));
         }
-        plugin.LockForStateDependency(upgradableToWriteLock);
       }
     }
 
