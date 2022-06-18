@@ -625,7 +625,7 @@ namespace SlimTv.TvMosaicProvider
       var channelId = GetTvMosaicId(channel.ChannelId);
       int dayMask = 0;
       var startTime = @from.ToUnixTime();
-      var manualSchedule = new ManualSchedule(channelId, "Manual schedule", startTime, (int)(to - from).TotalSeconds, dayMask);
+      var manualSchedule = new ManualSchedule(channelId, "Manual", startTime, (int)(to - from).TotalSeconds, dayMask);
       var scheduleRequest = new TvMosaic.API.Schedule(manualSchedule);
       var result = await _dvbLink.AddSchedule(scheduleRequest).ConfigureAwait(false);
       if (result.Status == StatusCode.STATUS_OK)
@@ -729,7 +729,7 @@ namespace SlimTv.TvMosaicProvider
       bool success = scheduledPrograms.Status == StatusCode.STATUS_OK;
       if (success)
       {
-        foreach (Recording recording in scheduledPrograms.Result.Where(r => r.ScheduleId == schedule.ScheduleId.ToString()))
+        foreach (Recording recording in scheduledPrograms.Result.Where(r => r.ScheduleId == schedule.ScheduleId.ToString() && !string.IsNullOrEmpty(r.Program.Id)))
         {
           MPProgram program = ToProgram(recording.Program);
           programs.Add(program);
