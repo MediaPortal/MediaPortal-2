@@ -33,13 +33,17 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Antlr4">
-      <Version>4.6.4</Version>
+      <Version>4.6.6</Version>
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Antlr4.CodeGenerator">
-      <Version>4.6.4</Version>
+      <Version>4.6.6</Version>
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>
     <PackageReference Include="Antlr4.Runtime">
-      <Version>4.6.4</Version>
+      <Version>4.6.6</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="build.targets" />
