@@ -827,7 +827,13 @@
     <Content Include="Skin\Nereus\images\Weather\64x64\permission.txt" />
     <Content Include="Skin\Nereus\images\Weather\64x64\WEATHERALERT.png" />
     <Content Include="Skin\Nereus\images\Wide_small.png" />
+    <Content Include="Skin\Nereus\screens\configuration-section.xaml">
+      <Generator></Generator>
+    </Content>
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingVideoDetails.inc" />
+    <Content Include="Skin\Nereus\screens\dialogAutoScrollSettings.xaml">
+      <Generator></Generator>
+    </Content>
     <Content Include="Skin\Nereus\screens\MediaInfoVideoDetails.inc" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingVideo.xaml" />
@@ -933,6 +939,9 @@
     </Content>
     <Content Include="Skin\Nereus\skin.xml" />
     <Content Include="Skin\Nereus\superlayers\BusyCursor.xaml" />
+    <Content Include="Skin\Nereus\superlayers\ScreenSaver.xaml">
+      <Generator></Generator>
+    </Content>
     <Content Include="Skin\Nereus\superlayers\SkipStepOSD.xaml" />
     <Content Include="Skin\Nereus\superlayers\Volume.xaml" />
     <Content Include="Skin\Nereus\themes\default\styles\CircularIndicator.xaml">
@@ -1011,8 +1020,8 @@
     <Page Remove="Skin\Nereus\screens\CurrentlyPlayingAudio.xaml" />
     <Page Remove="Skin\Nereus\screens\CurrentlyPlayingVideo.xaml" />
     <Page Remove="Skin\Nereus\screens\DialogAddMediaListMenuItem.xaml" />
-    <Page Remove="Skin\Nereus\screens\dialogAutoScrollSettings.xaml" />
     <Page Remove="Skin\Nereus\screens\DialogAddMenuItem.xaml" />
+    <Page Remove="Skin\Nereus\screens\dialogAutoScrollSettings.xaml" />
     <Page Remove="Skin\Nereus\screens\DialogEditMediaListMenu.xaml" />
     <Page Remove="Skin\Nereus\screens\DialogEditMenu.xaml" />
     <Page Remove="Skin\Nereus\screens\dialogSkinColorSettings.xaml" />
@@ -1043,6 +1052,7 @@
     <Page Remove="Skin\Nereus\screens\SimpleSearch.xaml" />
     <Page Remove="Skin\Nereus\screens\SimpleShowItems.xaml" />
     <Page Remove="Skin\Nereus\superlayers\BusyCursor.xaml" />
+    <Page Remove="Skin\Nereus\superlayers\ScreenSaver.xaml" />
     <Page Remove="Skin\Nereus\superlayers\SkipStepOSD.xaml" />
     <Page Remove="Skin\Nereus\superlayers\Volume.xaml" />
     <Page Remove="Skin\Nereus\themes\default\styles\Animations.xaml" />
