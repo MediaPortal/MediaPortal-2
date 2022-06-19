@@ -3,9 +3,7 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <RootNamespace>MediaPortal.UiComponents.Weather</RootNamespace>
     <OutputType>Library</OutputType>
-    <MinFrameworkVersionRequired>3.0</MinFrameworkVersionRequired>
     <StartupObject></StartupObject>
-    <OldToolsVersion>3.5</OldToolsVersion>
     <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\..\..\</SolutionDir>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
   </PropertyGroup>
@@ -13,46 +11,10 @@
     <!--required for assemblies from nuget packages to be copied to output folder, so our build.targets can copy them further -->
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>bin\x86\Debug\</OutputPath>
-    <CodeAnalysisRuleAssemblies></CodeAnalysisRuleAssemblies>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x86\Release\</OutputPath>
-    <CodeAnalysisRuleAssemblies></CodeAnalysisRuleAssemblies>
-    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
-    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
-    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <DebugSymbols>true</DebugSymbols>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <ItemGroup>
-    <Reference Include="System.Device" />
-    <Reference Include="System.Net" />
-    <Reference Include="System.Net.Http.WebRequest" />
-  </ItemGroup>
   <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Language\strings_en.xml" />
-    <Content Include="plugin.xml" />
-    <Content Include="Skin\default\shortcuts\Weather-shortcuts.xml" />
-    <Content Include="Skin\default\workflow\weather-actions.xml" />
-    <AppDesigner Include="Properties\" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
@@ -61,6 +23,11 @@
     <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj" />
   </ItemGroup>
   <ItemGroup>
+    <AppDesigner Include="Properties\" />
+    <Content Include="Language\strings_en.xml" />
+    <Content Include="plugin.xml" />
+    <Content Include="Skin\default\shortcuts\Weather-shortcuts.xml" />
+    <Content Include="Skin\default\workflow\weather-actions.xml" />
     <Content Include="Skin\default\screens\weather.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherSetup.xaml" />
     <Content Include="Skin\default\screens\dialogWeatherLocations.xaml" />
@@ -70,6 +37,9 @@
     <Content Include="Skin\default\screens\dialogWeatherSearchDetectionFailed.xaml" />
     <Content Include="Skin\default\themes\default\styles\WeatherConsts.xaml" />
     <Content Include="Skin\default\themes\default\styles\WeatherStyles.xaml" />
+    <Content Include="Skin\Nereus\screens\weather.xaml" />
+    <Content Include="Skin\Nereus\themes\default\styles\WeatherStyles.xaml" />
+    <Content Include="Skin\Nereus\screens\dialogWeatherSetup.xaml" />
     <Content Include="Skin\default\images\Weather\128x128\0.png" />
     <Content Include="Skin\default\images\Weather\128x128\1.png" />
     <Content Include="Skin\default\images\Weather\128x128\10.png" />
@@ -177,40 +147,10 @@
     <Content Include="Skin\default\images\Weather\Logos\weather48x48.gif" />
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="Microsoft.Bcl">
-      <Version>1.1.10</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.Async">
-      <Version>1.0.168</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Bcl.Build">
-      <Version>1.0.21</Version>
-    </PackageReference>
-    <PackageReference Include="Microsoft.Net.Http">
-      <Version>2.2.29</Version>
-    </PackageReference>
-    <PackageReference Include="OpenWeatherMap.Net">
-      <Version>1.0.0</Version>
-    </PackageReference>
+    <PackageReference Include="OpenWeatherMap" Version="1.1.0" />
     <PackageReference Include="WorldWeatherOnlineHelper">
       <Version>1.0.0.3</Version>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\weather.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\themes\default\styles\WeatherStyles.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\dialogWeatherSetup.xaml">
-      <SubType>Designer</SubType>
-    </Content>
   </ItemGroup>
   <Import Project="build.targets" />
 </Project>
