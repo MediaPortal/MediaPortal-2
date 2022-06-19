@@ -720,6 +720,13 @@ namespace MediaPortal.Common.Services.PluginManager
     /// <param name="statesToLock">The plugin must be in one of those states to be locked.</param>
     protected void LockPluginStateDependency(PluginRuntime plugin, bool upgradableToWriteLock, params PluginState[] statesToLock)
     {
+      // Brownard 19/6/2022
+      // In order to reliably check the plugin's current state a lock is needed, previously this was done by locking _syncObj, checking
+      // the state, and only if it was one of the states to lock, calling plugin.LockForStateDependency whilst still holding a lock on _syncObj.
+      // However, this lead to a deadlock when plugin.LockForStateDependency blocks, and the other thread that's blocking it then tries to
+      // lock _syncObj, which is being held by the thread thats currently blocked in this method waiting for plugin.LockForStateDependency.
+      // To avoid this, plugin.LockForStateDependency is always called, regardless of the plugins current state, which allows the state to be reliably checked
+      // wihout holding a lock on _syncObj, and then subsequently released if the plugin is not in one of the requested states.
       plugin.LockForStateDependency(upgradableToWriteLock);
       if (statesToLock.Length > 0)
       {
