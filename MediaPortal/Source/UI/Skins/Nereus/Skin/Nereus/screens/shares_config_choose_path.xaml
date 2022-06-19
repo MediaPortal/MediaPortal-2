@@ -17,7 +17,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Margin="10,10,10,60" DataContext="{Binding Source={StaticResource Model}}">
+      <Grid Margin="30,10,10,60" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
