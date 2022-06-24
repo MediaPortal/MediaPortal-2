@@ -324,7 +324,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
     public void SelectItem(ListItem item)
     {
       // If touch display is not enabled just execute the item's command, else only execute it if the item was previously selected
-      if (!_settingsWatcher.Settings.EnableTouchDisplay || (SelectedItem != null && GetAction(SelectedItem).ActionId == GetAction(item).ActionId))
+      if (!_settingsWatcher.Settings.EnableTouchDisplay || (SelectedItem != null && GetAction(SelectedItem)?.ActionId == GetAction(item)?.ActionId))
         item.Command.Execute();
       // Touch display is enabled and the item was not previously selected, select it now
       else
