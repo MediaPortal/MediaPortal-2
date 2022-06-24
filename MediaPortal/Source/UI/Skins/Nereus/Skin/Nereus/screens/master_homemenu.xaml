@@ -351,7 +351,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <nc:NereusHomeListView x:Name="MainMenu" Style="{ThemeResource HomeMenuListViewStyle}" Height="1200"
                     HorizontalAlignment="Center" VerticalAlignment="Stretch"
                     ItemsSource="{Binding Source={StaticResource HomeMenuModel}, Path=MainMenuItems, Mode=OneTime}"
-                    SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetSelectedItem}"
+                    SelectionChanged="{CommandStencil Source={StaticResource HomeMenuModel}, Path=SetFocusedItem}"
                     RestoreFocusItem="{Binding Source={StaticResource HomeMenuModel}, Path=SelectedItem}">
             
             <nc:NereusHomeListView.IsEnabled>
@@ -372,7 +372,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             
             <nc:NereusHomeListView.Resources>
               <!--Main command-->
-              <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
+              <Command x:Key="Menu_Command" Source="{StaticResource HomeMenuModel}" Path="SelectItem" Parameters="{LateBoundValue BindingValue={Binding}}" />
               <!--Context menu command-->
               <Command x:Key="Context_Menu_Command" Source="{StaticResource HomeMenuModel}" Path="BeginMenuEdit" />
             </nc:NereusHomeListView.Resources>

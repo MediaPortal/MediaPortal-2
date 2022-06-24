@@ -311,11 +311,23 @@ namespace MediaPortal.UiComponents.Nereus.Models
       set { _menuEditModelProperty.SetValue(value); }
     }
 
-    public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
+    public void SetFocusedItem(object sender, SelectionChangedEventArgs e)
     {
       ListItem item = e.FirstAddedItem as ListItem;
       IsMenuSelected = item != null;
-      if (item != null)
+      // If touch display is not enabled then the focused item should be set as the selected item,
+      // else if touch display is enabled then the selected item is set explicitly when clicked in SelectItem below
+      if (!_settingsWatcher.Settings.EnableTouchDisplay && item != null)
+        SelectedItem = item;
+    }
+
+    public void SelectItem(ListItem item)
+    {
+      // If touch display is not enabled just execute the item's command, else only execute it if the item was previously selected
+      if (!_settingsWatcher.Settings.EnableTouchDisplay || (SelectedItem != null && GetAction(SelectedItem).ActionId == GetAction(item).ActionId))
+        item.Command.Execute();
+      // Touch display is enabled and the item was not previously selected, select it now
+      else
         SelectedItem = item;
     }
 
@@ -582,6 +594,11 @@ namespace MediaPortal.UiComponents.Nereus.Models
             _hasSelectionChanged = false;
             _initialSelectedActionId = itemActionId;
           }
+          // setting the Selected property above only causes the item to gain focus, which doesn't select the item
+          // when touch display is enbled, so explicitly set the SelectedItem here.
+          // This needs to be done after setting _initialSelectedActionId so that the SelectedItemChanged callback doesn't erroneously
+          // detect this as a manual change of selection (see comment above about restoring previousSelectedAction).
+          SelectedItem = item;
         }
       }
     }
@@ -606,7 +623,14 @@ namespace MediaPortal.UiComponents.Nereus.Models
       item.Selected = true;
 
       WorkflowAction action = GetAction(item);
-      EnqueueUpdate(action);
+      // If touch display is enabled then the item was explicitly selected
+      // with a click so update the content immediately
+      if (_settingsWatcher.Settings.EnableTouchDisplay)
+        UpdateContent(action);
+      // Else the item was selected on focus, maybe when scrolling past, so only update
+      // after a delay if no other item was focused in the meantime.
+      else
+        EnqueueUpdate(action);
     }
 
     private void SaveLastSelectedAction(ListItem item)
