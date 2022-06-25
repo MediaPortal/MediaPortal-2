@@ -316,8 +316,10 @@ namespace MediaPortal.UiComponents.Nereus.Models
       ListItem item = e.FirstAddedItem as ListItem;
       IsMenuSelected = item != null;
       // If touch display is not enabled then the focused item should be set as the selected item,
-      // else if touch display is enabled then the selected item is set explicitly when clicked in SelectItem below
-      if ((!_settingsWatcher.Settings.EnableTouchDisplay || !_settingsWatcher.Settings.EnableMenuSelection) && item != null)
+      // if touch display is enabled then the selected item is set explicitly when clicked in SelectItem below.
+      // The exception is if item.Selected is true, which is the case when selection is being restored during
+      // startup/navigation, so the item should always be set as the selected item.
+      if (item != null && (item.Selected || !_settingsWatcher.Settings.EnableTouchDisplay || !_settingsWatcher.Settings.EnableMenuSelection))
         SelectedItem = item;
     }
 
@@ -594,11 +596,6 @@ namespace MediaPortal.UiComponents.Nereus.Models
             _hasSelectionChanged = false;
             _initialSelectedActionId = itemActionId;
           }
-          // setting the Selected property above only causes the item to gain focus, which doesn't select the item
-          // when touch display is enbled, so explicitly set the SelectedItem here.
-          // This needs to be done after setting _initialSelectedActionId so that the SelectedItemChanged callback doesn't erroneously
-          // detect this as a manual change of selection (see comment above about restoring previousSelectedAction).
-          SelectedItem = item;
         }
       }
     }
