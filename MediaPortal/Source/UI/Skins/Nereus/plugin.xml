@@ -119,17 +119,11 @@
         HelpText="[Nereus.Configuration.EnableTouchDisplay.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableTouchDisplayConfiguration"/>
 
-    <!--ConfigSetting
-        Id="NereusEnableGridDetails"
-        Text="[Nereus.Configuration.EnableGridDetails]"
-        HelpText="[Nereus.Configuration.EnableGridDetails.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableGridDetailsConfiguration"/>
-
     <ConfigSetting
-        Id="NereusEnableCoverDetails"
-        Text="[Nereus.Configuration.EnableCoverDetails]"
-        HelpText="[Nereus.Configuration.EnableCoverDetails.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableCoverDetailsConfiguration"/-->
+        Id="NereusEnableMenuSelection"
+        Text="[Nereus.Configuration.EnableMenuSelection]"
+        HelpText="[Nereus.Configuration.EnableMenuSelection.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMenuSelectionConfiguration"/>
 
     <ConfigSetting
         Id="NereusFanartOverlayOpacity"

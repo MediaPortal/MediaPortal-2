@@ -317,14 +317,14 @@ namespace MediaPortal.UiComponents.Nereus.Models
       IsMenuSelected = item != null;
       // If touch display is not enabled then the focused item should be set as the selected item,
       // else if touch display is enabled then the selected item is set explicitly when clicked in SelectItem below
-      if (!_settingsWatcher.Settings.EnableTouchDisplay && item != null)
+      if ((!_settingsWatcher.Settings.EnableTouchDisplay || !_settingsWatcher.Settings.EnableMenuSelection) && item != null)
         SelectedItem = item;
     }
 
     public void SelectItem(ListItem item)
     {
       // If touch display is not enabled just execute the item's command, else only execute it if the item was previously selected
-      if (!_settingsWatcher.Settings.EnableTouchDisplay || (SelectedItem != null && GetAction(SelectedItem)?.ActionId == GetAction(item)?.ActionId))
+      if ((!_settingsWatcher.Settings.EnableTouchDisplay || !_settingsWatcher.Settings.EnableMenuSelection) || (SelectedItem != null && GetAction(SelectedItem)?.ActionId == GetAction(item)?.ActionId))
         item.Command.Execute();
       // Touch display is enabled and the item was not previously selected, select it now
       else
@@ -625,7 +625,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       WorkflowAction action = GetAction(item);
       // If touch display is enabled then the item was explicitly selected
       // with a click so update the content immediately
-      if (_settingsWatcher.Settings.EnableTouchDisplay)
+      if (_settingsWatcher.Settings.EnableTouchDisplay || _settingsWatcher.Settings.EnableMenuSelection)
         UpdateContent(action);
       // Else the item was selected on focus, maybe when scrolling past, so only update
       // after a delay if no other item was focused in the meantime.
