@@ -23,11 +23,10 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
-using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -35,15 +34,12 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public SeriesHomeContent()
     {
-      _availableLists.Add(new LatestEpisodeList());
-      _availableLists.Add(new ContinueSeriesList());
-      _availableLists.Add(new FavoriteSeriesList());
-      _availableLists.Add(new UnplayedSeriesList());
-    }
+      _availableMediaLists.Add(new LatestEpisodeList());
+      _availableMediaLists.Add(new ContinueSeriesList());
+      _availableMediaLists.Add(new FavoriteSeriesList());
+      _availableMediaLists.Add(new UnplayedSeriesList());
 
-    protected override void PopulateBackingList()
-    {
-      _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
+      _shortcutLists.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new SeriesGenreShortcut(),
         new SeriesYearShortcut(),
