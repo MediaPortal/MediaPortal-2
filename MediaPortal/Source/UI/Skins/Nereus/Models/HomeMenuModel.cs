@@ -319,14 +319,14 @@ namespace MediaPortal.UiComponents.Nereus.Models
       // if touch display is enabled then the selected item is set explicitly when clicked in SelectItem below.
       // The exception is if item.Selected is true, which is the case when selection is being restored during
       // startup/navigation, so the item should always be set as the selected item.
-      if (item != null && (item.Selected || !_settingsWatcher.Settings.EnableTouchDisplay || !_settingsWatcher.Settings.EnableMenuSelection))
+      if (item != null && (item.Selected || (!_settingsWatcher.Settings.EnableTouchDisplay && !_settingsWatcher.Settings.EnableMenuSelection)))
         SelectedItem = item;
     }
 
     public void SelectItem(ListItem item)
     {
       // If touch display is not enabled just execute the item's command, else only execute it if the item was previously selected
-      if ((!_settingsWatcher.Settings.EnableTouchDisplay || !_settingsWatcher.Settings.EnableMenuSelection) || (SelectedItem != null && GetAction(SelectedItem)?.ActionId == GetAction(item)?.ActionId))
+      if ((!_settingsWatcher.Settings.EnableTouchDisplay && !_settingsWatcher.Settings.EnableMenuSelection) || (SelectedItem != null && GetAction(SelectedItem)?.ActionId == GetAction(item)?.ActionId))
         item.Command.Execute();
       // Touch display is enabled and the item was not previously selected, select it now
       else
