@@ -145,5 +145,10 @@ namespace Test.TVMosaic
     {
       throw new NotImplementedException();
     }
+
+    public Task<bool> RemoveObject(string objectId)
+    {
+      throw new NotImplementedException();
+    }
   }
 }

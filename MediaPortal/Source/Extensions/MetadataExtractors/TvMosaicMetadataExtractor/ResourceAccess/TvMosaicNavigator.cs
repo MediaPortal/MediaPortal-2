@@ -69,6 +69,13 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
       return (await GetObjectResponseAsync(objectId, false).ConfigureAwait(false)) != null;
     }
 
+    public async Task<bool> RemoveObject(string objectId)
+    {
+      HttpDataProvider httpDataProvider = GetHttpDataProvider();
+      var response = await httpDataProvider.RemoveObject(new ObjectRemover(objectId)).ConfigureAwait(false);
+      return response.Status == StatusCode.STATUS_OK;
+    }
+
     /// <summary>
     /// Asynchronously retrieves the object with the specified id, or it's child items.
     /// </summary>
@@ -83,14 +90,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
         ChildrenRequest = childrenRequest
       };
 
-      // We could be called concurrently from multiple threads so use a local reference
-      // to the data provider to avoid another thread changing it whilst we are using it.
-      HttpDataProvider httpDataProvider = _httpDataProvider;
-      // There's a potential race condition when checking whether to create a new instance if the class
-      // reference was null, but it will just cause another instance to be constructed unnecessarily and
-      // won't effect usage so just allow it and avoid a lock.
-      if (httpDataProvider == null)
-        _httpDataProvider = httpDataProvider = GetHttpDataProvider();
+      HttpDataProvider httpDataProvider = GetHttpDataProvider();
 
       var response = await httpDataProvider.GetObject(request);
       if (response.Status != StatusCode.STATUS_OK)
@@ -108,8 +108,15 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
 
     HttpDataProvider GetHttpDataProvider()
     {
+      if (_httpDataProvider != null)
+        return _httpDataProvider;
+
+      // There's a potential race condition when checking whether to create a new instance if the class
+      // reference was null, but it will just cause another instance to be constructed unnecessarily and
+      // won't effect usage so just allow it and avoid a lock.
       TvMosaicProviderSettings settings = GetSettings();
-      return new HttpDataProvider(settings.Host, settings.Port, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
+      _httpDataProvider = new HttpDataProvider(settings.Host, settings.Port, settings.Username ?? string.Empty, settings.Password ?? string.Empty);
+      return _httpDataProvider;
     }
 
     protected TvMosaicProviderSettings GetSettings()

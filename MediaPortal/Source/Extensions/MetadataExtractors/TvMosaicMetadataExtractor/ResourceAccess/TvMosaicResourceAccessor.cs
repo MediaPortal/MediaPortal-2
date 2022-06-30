@@ -37,7 +37,7 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
   /// <summary>
   /// <see cref="IFileSystemResourceAccessor"/> that can navigate the TvMosaic object API from the root to get containers and their child items.
   /// </summary>
-  public class TvMosaicResourceAccessor : IFileSystemResourceAccessor, INetworkResourceAccessor
+  public class TvMosaicResourceAccessor : IFileSystemResourceAccessor, INetworkResourceAccessor, IResourceDeletor
   {
     protected readonly SemaphoreSlim _syncObj = new SemaphoreSlim(1);
 
@@ -315,6 +315,17 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     public void Dispose()
     {
       _syncObj.Dispose();
+    }
+
+    #endregion
+
+    #region IResourceDeletor implementation
+
+    public bool Delete()
+    {
+      if (IsItemId(_objectId))
+        return _navigator.RemoveObject(_objectId).Result;
+      return false;
     }
 
     #endregion

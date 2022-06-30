@@ -61,6 +61,13 @@ namespace TvMosaicMetadataExtractor.ResourceAccess
     Task<bool> ObjectExistsAsync(string objectId);
 
     /// <summary>
+    /// Removes the object with the specified id.
+    /// </summary>
+    /// <param name="objectId">The id of the object to remove.</param>
+    /// <returns><c>true</c> if the object was removed successfully; else <c>false</c>.</returns>
+    Task<bool> RemoveObject(string objectId);
+
+    /// <summary>
     /// Gets a human readable name for the object.
     /// </summary>
     /// <param name="objectId">The id of the object to get the name of.</param>
