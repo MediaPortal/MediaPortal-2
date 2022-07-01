@@ -16,7 +16,7 @@
       <Model x:Key="ChannelZapModel" Id="1C7DCFFE-E34E-41FD-9104-9AA594E49375"/>
     </Grid.Resources>
     <Grid.Background>
-      <VideoBrush Stream="0"/>
+      <SolidColorBrush Color="Black"/>
     </Grid.Background>
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
@@ -29,6 +29,18 @@
       <RowDefinition Height="*"/>
       <RowDefinition Height="Auto"/>
     </Grid.RowDefinitions>
+
+    <Grid x:Name="FullscreenLayoutGridDummyBackground" Grid.ColumnSpan="3" Grid.RowSpan="4">
+      <Grid.Background>
+        <VideoBrush Stream="0"/>
+      </Grid.Background>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+    </Grid>
 
     <!--Playerstate overlay-->
     <Image Grid.ColumnSpan="3" Grid.RowSpan="4" Width="250" Stretch="Uniform" Opacity="0.7" 

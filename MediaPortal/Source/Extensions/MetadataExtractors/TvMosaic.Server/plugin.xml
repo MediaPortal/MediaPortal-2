@@ -1,0 +1,27 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="TvMosaic Server Plugin"
+    PluginId="{7E876B86-412C-4D90-986E-F975EF189941}"
+    Author="Brownard"
+    Copyright="GPL"
+    Description="Exposes TvMosaic related classes to the MP2 Server."
+    AutoActivate="true">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2022-06-15 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+  
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Backend" CompatibleAPI="2" />
+    <PluginReference PluginId="{A252A526-186A-448C-B3F8-94C75E50C067}" CompatibleAPI="1"/> <!-- TvMosaicMetadataExtractor -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="TvMosaic.Server.dll"/>
+    <PluginStateTracker ClassName="TvMosaic.Server.TvMosaicServerPlugin"/>
+  </Runtime>
+
+</Plugin>
+

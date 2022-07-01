@@ -32,7 +32,7 @@ namespace AssemblyInfoHelper
 {
   class Program
   {
-    private const string MAJOR_VERSION = "2.3"; // 2.3 from 10/2020
+    private const string MAJOR_VERSION = "2.4"; // 2.3 from 10/2020
     private static readonly Regex RE_REPLACE_ADDITIONAL = new Regex("(AssemblyInformationalVersion\\(\").*(\")", RegexOptions.Multiline);
     private static readonly Regex RE_REPLACE_VERSION_NUMBER = new Regex("(Assembly.*Version\\(\")([^\"]*)(\")", RegexOptions.Multiline);
     private static readonly Regex RE_REPLACE_YEAR_COPY = new Regex("(AssemblyCopyright\\(\"Copyright © Team MediaPortal 2007 - )\\d{4}(\")", RegexOptions.Multiline);
@@ -64,6 +64,14 @@ namespace AssemblyInfoHelper
             name = tag.CanonicalName.Replace("refs/tags/", string.Empty);
             break;
           }
+        }
+
+        // AppVeyor does a checkout by hash and branch name is empty. But it exposes an environmental variable which we try to read here.
+        if (name == "(no branch)")
+        {
+          var envName = Environment.ExpandEnvironmentVariables("%APPVEYOR_REPO_BRANCH%");
+          if (!string.IsNullOrWhiteSpace(envName))
+            name = envName;
         }
         string versionInfo = string.Format("{0}-{1}", name, branch.Tip.Sha.Substring(0, 6));
         WriteToFile(path, versionInfo, commits);

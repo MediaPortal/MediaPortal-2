@@ -21,12 +21,12 @@
       <References Include="$(TargetDir)FanArtService.Interfaces.dll" />
       <References Include="$(TargetDir)MediaPortal.LogoManager.dll" />
     </ItemGroup>
-  
+
     <ItemGroup>
       <Resources Include="$(ProjectDir)Designs\**\*.*" />
     </ItemGroup>
-  
-      <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(Resources)"
           DestinationFiles="@(Resources->'$(PluginDestination)Designs\%(RecursiveDir)%(Filename)%(Extension)')" />
