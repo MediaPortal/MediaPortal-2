@@ -1582,15 +1582,15 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <StackPanel Orientation="Horizontal" IsVisible="{Binding ElementName=CurrentlyPlaying, Path=HasFocus}">
-              <Label x:Name="PlayerName" Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4"/>
+              <Label x:Name="PlayerName" Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="Noto-Bold" Opacity="0.4"/>
               <Label x:Name="PlayerState" Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" 
-                     FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4" Margin="10,0,10,0"/>
-              <Label x:Name="PercentagePlayed" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4">
+                     FontSize="21" FontFamily="Noto-Bold" Opacity="0.4" Margin="10,0,10,0"/>
+              <Label x:Name="PercentagePlayed" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="Noto-Bold" Opacity="0.4">
                 <Label.Content>
                   <Binding Path="PercentPlayed" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}"/>
                 </Label.Content>
               </Label>
-              <Label x:Name="PercentageSign" Content="%" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4">
+              <Label x:Name="PercentageSign" Content="%" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="Noto-Bold" Opacity="0.4">
               </Label>
             </StackPanel>
           </Grid>
@@ -2462,7 +2462,7 @@
 
   <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource WizardButtonStyle}" TargetType="{x:Type Button}">
     <Setter Property="FontSize" Value="{ThemeResource NormalFontSize}"/>
-    <Setter Property="FontFamily" Value="SegoeUIBold"/>
+    <Setter Property="FontFamily" Value="Noto-Bold"/>
   </Style>
 
   <Style x:Key="VirtualKeyboardControlStyle" TargetType="{x:Type VirtualKeyboardControl}" >

@@ -75,7 +75,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Storyboard>
 
     <ControlTemplate x:Key="Header_Text_Template">
-      <Label x:Name="HeaderLabel" FontFamily="DefaultBold" FontSize="{ThemeResource BiggerFontSize}"
+      <Label x:Name="HeaderLabel" FontFamily="Noto-Bold" FontSize="{ThemeResource BiggerFontSize}"
              VerticalAlignment="Center" HorizontalAlignment="Left" Color="{ThemeResource TextColor}"
              Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
       </Label>

@@ -21,7 +21,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" Content="{Binding Title}" Margin="10,0,10,0"/>
     </Grid>
   </DataTemplate>
@@ -207,7 +207,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" Content="{Binding Title}" Margin="10,0,10,0"/>
     </Grid>
   </DataTemplate>
@@ -252,7 +252,7 @@
       <Image Stretch="Uniform" Margin="10,6,8,10" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" 
              Grid.Column="2" Source="News.png"/>
 
-      <Label Content="{Binding PublishDate}" Color="{ThemeResource TextColor}" Margin="10,10,-50,10" FontFamily="SegoeUIBold"
+      <Label Content="{Binding PublishDate}" Color="{ThemeResource TextColor}" Margin="10,10,-50,10" FontFamily="Noto-Bold"
              IsVisible="{Binding ElementName=thumb, Path=!HasImage}" FontSize="{ThemeResource SmallFontSize}" />
 
       <Label Grid.Row="1" Grid.ColumnSpan="2" x:Name="ItemLabel" FontSize="{ThemeResource SmallerFontSize}" 

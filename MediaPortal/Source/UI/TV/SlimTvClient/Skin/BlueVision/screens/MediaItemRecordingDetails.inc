@@ -105,7 +105,7 @@
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
     <Label x:Name="MediaItemName" Wrap="True" Margin="0,0,0,0" 
-           HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+           HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
            Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}"/>
     <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
       <media:EpisodeAspectWrapper.Template>

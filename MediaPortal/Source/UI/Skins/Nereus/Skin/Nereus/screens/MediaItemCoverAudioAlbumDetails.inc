@@ -38,7 +38,7 @@
                       DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
 
             <Label Content="{Binding Path=Album}" Wrap="True" Margin="0,0,0,0" Color="{ThemeResource TextColor}"
-                   FontFamily="SegoeUIBold" FontSize="{ThemeResource NormalFontSize}" TextTrimming="WordEllipsis"
+                   FontFamily="Noto-Bold" FontSize="{ThemeResource NormalFontSize}" TextTrimming="WordEllipsis"
                    IsVisible="{Binding Path=Album,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" VerticalAlignment="Center" Margin="0,0,0,3">

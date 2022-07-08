@@ -78,7 +78,7 @@
 
       <Label x:Name="TimeLabel" Grid.Column="1" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
              HorizontalAlignment="Right" FontSize="30" 
-             Margin="0,0,15,0" FontFamily="DefaultBold" Color="{ThemeResource TextColor}"/>
+             Margin="0,0,15,0" FontFamily="Noto-Bold" Color="{ThemeResource TextColor}"/>
 
       <StackPanel Orientation="Vertical" Grid.RowSpan="2">
         <!-- Common control for program duration formatting -->
@@ -96,7 +96,7 @@
       </StackPanel>
 
       <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1">
-        <Label x:Name="Program" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+        <Label x:Name="Program" Scroll="Auto" FontFamily="Noto-Bold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                Content="{Binding SelectedCurrentProgram.Title}" Margin="0,0,0,0"
                Color="{ThemeResource TextColor}"/>
         <Label x:Name="SeriesLabel" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Opacity="0.6"

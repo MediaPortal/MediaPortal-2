@@ -74,7 +74,7 @@
               </MultiBinding>
             </Image.Source>
           </Image>
-          <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="SegoeUIBold" Opacity="0.7" Margin="0,0,0,5"
+          <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="Noto-Bold" Opacity="0.7" Margin="0,0,0,5"
                  Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </Grid>
 
@@ -157,7 +157,7 @@
                          DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
 
                 <Label x:Name="Title" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto" ScrollDelay="0" Margin="0,0,0,-5"
-                       Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                       Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
 
                 <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
                        Content="{Binding Artists}" Color="{ThemeResource TextColor}" Margin="0,0,0,-5"/>
@@ -240,7 +240,7 @@
             <ControlTemplate>
               <StackPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
                 <Label x:Name="Album" FontSize="{ThemeResource SmallFontSize}" Content="{Binding Album}" 
-                       Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis"/>
+                       Color="{ThemeResource TextColor}" FontFamily="Noto-Bold" TextTrimming="WordEllipsis"/>
                 <Label x:Name="AlbumArtists" FontSize="{ThemeResource SmallFontSize}" Content="{Binding Path=AlbumArtists}" 
                        Color="{ThemeResource TextColor}" TextTrimming="WordEllipsis"/>
               </StackPanel>

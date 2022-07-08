@@ -70,7 +70,7 @@
     <media:SeriesAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}" VerticalAlignment="Stretch">
       <media:SeriesAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold" Wrap="True"
+          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold" Wrap="True"
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Stretch">
             <Label.Content>
               <Binding Path="SeriesName"/>
@@ -297,7 +297,7 @@
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
-                  <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
+                  <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="Noto-Bold"
                          HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                     <Label.Content>
                       <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>

@@ -36,7 +36,7 @@
                Height="20" Margin="0,0,-30,-20"/>
 
         <Label x:Name="Time" Grid.ColumnSpan="2" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="20,5,10,5"
-               FontFamily="SegoeUIBold" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" >
+               FontFamily="Noto-Bold" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" >
           <Label.Resources>
             <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
           </Label.Resources>
@@ -132,7 +132,7 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="Program" Grid.Column="0" FontFamily="DefaultBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+            <Label x:Name="Program" Grid.Column="0" FontFamily="Noto-Bold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                    Content="{Binding Path=SelectedCurrentProgram.Title}"
                    Color="{ThemeResource TextColor}"/>
             <Label Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" Opacity="0.6"

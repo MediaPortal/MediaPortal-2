@@ -31,7 +31,7 @@
     </StackPanel>
 
     <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch">
-      <Label x:Name="Program" Scroll="Auto" FontFamily="DefaultBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+      <Label x:Name="Program" Scroll="Auto" FontFamily="Noto-Bold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              Content="{Binding CurrentProgram.Title}" Margin="0,0,0,0"
              Color="{ThemeResource TextColor}"/>
       <Label x:Name="SeriesLabel" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Opacity="0.6"

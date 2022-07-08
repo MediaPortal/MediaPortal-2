@@ -97,7 +97,7 @@
               </Image.Source>
             </Image>
           </StackPanel>
-          <Label x:Name="Program" Grid.Row="0" Grid.Column="1" Scroll="Auto" FontFamily="DefaultBold"
+          <Label x:Name="Program" Grid.Row="0" Grid.Column="1" Scroll="Auto" FontFamily="Noto-Bold"
                  Content="{Binding Path=CurrentProgram.Title}" Margin="0,0,0,0"
                  Color="{ThemeResource TextColor}"/>
 

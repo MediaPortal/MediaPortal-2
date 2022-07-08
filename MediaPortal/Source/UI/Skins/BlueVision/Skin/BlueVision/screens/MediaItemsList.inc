@@ -23,7 +23,7 @@
      IsVisible="{Binding IsItemsValid}">
     <!---Grid+CoverView-->
     <StackPanel DockPanel.Dock="Left" Orientation="Horizontal">
-      <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0" FontFamily="DefaultBold"
+      <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0" FontFamily="Noto-Bold"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}">
         <Label.Content>
           <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
@@ -32,8 +32,8 @@
           </MultiBinding>
         </Label.Content>
       </Label>
-      <Label Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Content="| " FontSize="{ThemeResource SmallFontSize}" Opacity="1"/>
-      <Label Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}" Opacity="1"/>
+      <Label Color="{ThemeResource TextColor}" FontFamily="Noto-Bold" Content="| " FontSize="{ThemeResource SmallFontSize}" Opacity="1"/>
+      <Label Color="{ThemeResource TextColor}" FontFamily="Noto-Bold" Content="{Binding NumItems}" FontSize="{ThemeResource SmallFontSize}" Opacity="1"/>
     </StackPanel>
   </DockPanel>
 

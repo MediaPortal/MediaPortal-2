@@ -321,7 +321,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.5"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold">
 
         </Label>
       </Grid>
@@ -545,7 +545,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold"/>
       </Grid>
       <Image Width="15" HorizontalAlignment="Left" Grid.RowSpan="2" Source="Horizontal_gradient.png" Opacity="0.8"
              VerticalAlignment="Stretch" IsVisible="{Binding Path=Selected}" Stretch="Fill"/>
@@ -586,7 +586,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.5"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Opacity="0.6" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="76,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold">
           <!--Label.Content>
             <Binding Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}{0}.jpg"/>
           </-->
@@ -662,7 +662,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,5"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold"/>
       </Grid>
 
       <Rectangle Fill="#FFFFFF" Height="5" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
@@ -729,7 +729,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold"/>
       </Grid>
       <Image HorizontalAlignment="Left" Source="Horizontal_gradient.png"
              VerticalAlignment="Stretch" Stretch="Fill" Width="15" Opacity="0.8"
@@ -1239,7 +1239,7 @@
                        VerticalAlignment="Top" HorizontalAlignment="Center" Opacity="0.9"/>
                 
                 <Label x:Name="CurrentTimeLabel" Grid.Row="0" Content="{Binding CurrentTime}" Opacity="0.9"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="SegoeUIBold"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="Noto-Bold"
                        Color="Black" FontSize="{ThemeResource SmallerFontSize}"/>
                 </Grid>
               </Grid>
@@ -1267,9 +1267,9 @@
              same internal property for all panel types -->
         <Setter Property="StackPanel.ZIndex" Value="100.0"/>
         <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-        <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+        <Setter TargetName="ShareName" Property="FontFamily" Value="Noto-Bold"/>
         <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
-        <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+        <Setter TargetName="Categories" Property="FontFamily" Value="Noto-Bold"/>
         <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
         <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
         <Setter TargetName="Grid3" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1282,18 +1282,18 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ShareName" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="ShareName" Property="Opacity" Value="1"/>
                 <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="Categories" Property="Opacity" Value="1"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="SharePath" Property="Opacity" Value="1"/>
-                <Setter TargetName="OnlineState_1" Property="FontFamily" Value="SegoeUIBold"/>
-                <Setter TargetName="OnlineState_2" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="OnlineState_1" Property="FontFamily" Value="Noto-Bold"/>
+                <Setter TargetName="OnlineState_2" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="OnlineState" Property="Opacity" Value="1"/>
-                <Setter TargetName="ReImportLabel" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ReImportLabel" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="ReImportLabel" Property="Opacity" Value="1"/>
                 <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1558,13 +1558,13 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ShareName" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="ShareName" Property="Opacity" Value="1"/>
                 <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="Categories" Property="Opacity" Value="1"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="SharePath" Property="Opacity" Value="1"/>
                 <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1647,13 +1647,13 @@
             <CheckBox.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ShareName" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="ShareName" Property="Opacity" Value="1"/>
                 <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="Categories" Property="Opacity" Value="1"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="SharePath" Property="Opacity" Value="1"/>
                 <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1749,7 +1749,7 @@
         </Rectangle.Fill>
       </Rectangle>
       <Label x:Name="ItemLabel" Margin="10,5,10,0" Content="{Binding [Name]}"
-             Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}"
+             Color="{ThemeResource TextColor}" FontFamily="Noto-Bold" FontSize="{ThemeResource SmallerFontSize}"
              HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
     </Grid>
   </DataTemplate>

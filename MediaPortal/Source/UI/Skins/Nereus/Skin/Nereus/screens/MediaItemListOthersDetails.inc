@@ -23,7 +23,7 @@
 
   <StackPanel Orientation="Vertical" Margin="0,0,20,0" VerticalAlignment="Stretch">
 
-    <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+    <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
            DataContext="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem}" Content="{Binding SimpleTitle}" Margin="0,0,-100,0"
            IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=SelectedItem,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
@@ -259,7 +259,7 @@
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
-                  <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
+                  <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="Noto-Bold"
                          HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                     <Label.Content>
                       <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>

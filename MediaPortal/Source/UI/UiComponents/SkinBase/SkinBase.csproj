@@ -344,16 +344,10 @@
     <Content Include="Skin\default\themes\default\styles\VirtualKeyboardStyle_de.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Skin\default\fonts\DejaVuSans.desc" />
-    <None Include="Skin\default\fonts\DejaVuSans.ttf" />
-    <None Include="Skin\default\fonts\eurof55.ttf" />
-    <None Include="Skin\default\fonts\EuroFurence.desc" />
-    <None Include="Skin\default\fonts\RitzyNormal.desc" />
-    <None Include="Skin\default\fonts\RitzyNormal.ttf" />
-    <None Include="Skin\default\fonts\SansBetween.desc" />
-    <None Include="Skin\default\fonts\SansBetween.ttf" />
-    <None Include="Skin\default\fonts\SketchyTimes.desc" />
-    <None Include="Skin\default\fonts\SketchyTimes.ttf" />
+    <None Include="Skin\default\fonts\Arial-Unicode-Bold.ttf" />
+    <None Include="Skin\default\fonts\GoNotoCJKCore.ttf" />
+    <None Include="Skin\default\fonts\Noto-Bold.desc" />
+    <None Include="Skin\default\fonts\Noto-Regular.desc" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />

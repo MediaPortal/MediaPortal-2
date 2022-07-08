@@ -186,7 +186,7 @@
               </RadioButton.SetFocus>
             </RadioButton>
             <Label Grid.Column="1" Content="[Media.List]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
-                   FontFamily="SegoeUIBold" VerticalAlignment="Center">
+                   FontFamily="Noto-Bold" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="List" Path="HasFocus"/>
@@ -467,7 +467,7 @@
             </RadioButton>
 
             <Label Grid.Column="1" Content="[Media.LargeGrid]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
-                   FontFamily="SegoeUIBold" VerticalAlignment="Center">
+                   FontFamily="Noto-Bold" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="Grid" Path="HasFocus"/>
@@ -761,7 +761,7 @@
           </RadioButton>
 
           <Label Grid.Column="1" Content="[Media.CoverLayout]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
-                 FontFamily="SegoeUIBold" VerticalAlignment="Center">
+                 FontFamily="Noto-Bold" VerticalAlignment="Center">
             <Label.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
                 <Binding ElementName="Coverflow" Path="HasFocus"/>

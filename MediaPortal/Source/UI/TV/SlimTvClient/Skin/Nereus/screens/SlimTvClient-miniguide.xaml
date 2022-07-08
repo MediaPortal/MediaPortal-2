@@ -41,7 +41,7 @@
         </Grid.RowDefinitions>
 
         <Label x:Name="Time" Grid.ColumnSpan="2" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="40,32,10,10"
-               FontFamily="SegoeUIBold" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" >
+               FontFamily="Noto-Bold" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" >
           <Label.Resources>
             <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
           </Label.Resources>
@@ -137,7 +137,7 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Label x:Name="Program" Scroll="Auto" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Label x:Name="Program" Scroll="Auto" FontFamily="Noto-Bold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                    Content="{Binding SelectedCurrentProgram.Title}" Color="{ThemeResource TextColor}" />
             <Label x:Name="SeriesLabel" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Opacity="0.6" Scroll="Auto" MinWidth="100" Grid.Column="1"
                    IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">

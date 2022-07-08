@@ -243,7 +243,7 @@
                           </Border>
                           <Image Source="Medialogos\video\3d.png" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Margin="23"/>
                           <Label HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,30" Content="{Binding VideoType}"
-                                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold">
+                                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold">
                           </Label>
                         </Grid>
 
@@ -280,13 +280,13 @@
                                 IsVisible="{Binding Path=AspectRatio,Converter={StaticResource ReferenceToBoolConverter}}">
                           <Grid HorizontalAlignment="Center">
                             <Image HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" Source="Medialogos\aspectratio\aspectratio.png"/>
-                            <Label Margin="8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                            <Label Margin="8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                                HorizontalAlignment="Center" VerticalAlignment="Bottom">
                               <Label.Content>
                                 <Binding Path="AspectRatio" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F2}:1" />
                               </Label.Content>
                             </Label>
-                            <Label Margin="8,13,8,8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                            <Label Margin="8,13,8,8" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                                HorizontalAlignment="Center" VerticalAlignment="Top">
                               <Label.Content>
                                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &lt; 1.4 ? {1} : ({0} &lt; 1.8 ? {2} : {3})">
@@ -301,14 +301,14 @@
                         </Border>
                         <Border CornerRadius="6" Background="#1A000000" Margin="10">
                           <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                                    IsVisible="{Binding Path=VideoBitRate,Converter={StaticResource ReferenceToBoolConverter}}"
                                  HorizontalAlignment="Center" VerticalAlignment="Center">
                               <Label.Content>
                                 <Binding Path="VideoBitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kbps"/>
                               </Label.Content>
                             </Label>
-                            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                                    IsVisible="{Binding Path=FPS,Converter={StaticResource ReferenceToBoolConverter}}"
                                    HorizontalAlignment="Center" VerticalAlignment="Center">
                               <Label.Content>
