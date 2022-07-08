@@ -178,8 +178,9 @@
     <Image Source="HomeContentIcons\helptext.png" Height="26" Width="26" Stretch="Uniform" Margin="0,10,5,-5"
            IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
            VerticalAlignment="Top" HorizontalAlignment="Left"/>
-    <Label x:Name="HelpLabel" DataContext="{Binding Source={StaticResource HomeMenuModel}, Path=SelectedItem}" Opacity="0.6" Margin="38,5,0,-5"
-           Content="{Binding Path=[Help], NotifyOnTargetUpdated=True}" Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource SmallerFontSize}"/> 
+    <Label x:Name="HelpLabel" DataContext="{Binding Source={StaticResource HomeMenuModel}, Path=SelectedItem}" 
+           Opacity="0.6" Margin="38,5,-5,-10" MaxHeight="93" TextTrimming="WordEllipsis" Wrap="True" 
+           Content="{Binding Path=[Help], NotifyOnTargetUpdated=True}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"/> 
   </Grid>
 
 </Grid>

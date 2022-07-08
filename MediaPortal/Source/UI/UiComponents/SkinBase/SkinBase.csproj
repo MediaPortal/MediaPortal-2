@@ -344,9 +344,9 @@
     <Content Include="Skin\default\themes\default\styles\VirtualKeyboardStyle_de.xaml" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Skin\default\fonts\Arial-Unicode-Bold.ttf" />
-    <None Include="Skin\default\fonts\GoNotoCJKCore.ttf" />
+    <None Include="Skin\default\fonts\Noto-Bold-Core.ttf" />
     <None Include="Skin\default\fonts\Noto-Bold.desc" />
+    <None Include="Skin\default\fonts\Noto-Regular-Core.ttf" />
     <None Include="Skin\default\fonts\Noto-Regular.desc" />
   </ItemGroup>
   <ItemGroup>
