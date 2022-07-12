@@ -9,12 +9,15 @@
   <string name="Settings.ServerSettings.Password">Password:</string>
   <string name="Settings.ServerSettings.ImporterWorker">Aggiornamento automatico condivisioni</string>
   <string name="Settings.ServerSettings.ImporterWorker.Help">Configura l\'aggiornamento automatico delle condivisioni</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableAutoRefresh">Abilita la ricarica automatica del server</string>
+  <string name="Settings.ServerSettings.ImporterWorker.EnableClientAutoRefresh">Abilita la ricarica automatica del client</string>
   <string name="Settings.ServerSettings.ImporterWorker.RunAtHour">Attivazione alle ore (in formato 24h)</string>
   <string name="Settings.ServerSettings.AudioMDESettings">Importazione impostazioni audio</string>
   <string name="Settings.ServerSettings.MovieMDESettings">Impostazioni importazione Film</string>
   <string name="Settings.ServerSettings.SeriesMDESettings">Impostazioni importazione serie TV</string>
   <string name="Settings.ServerSettings.VideoMDESettings">Impostazioni di importazione video</string>
   <string name="Settings.ServerSettings.ImageMDESettings">Impostazione importazione Immagini</string>
+  <string name="Settings.ServerSettings.SubtitleMDESettings">Impostazioni di importazione dei sottotitoli</string>
   <string name="Settings.ServerSettings.FanArtSettings">Impostazioni FanArt</string>
   <string name="Settings.ServerSettings.MDESettings.MDESourceEnable">Risorse online da consentire durante l\'importazione</string>
   <string name="Settings.ServerSettings.MDESettings.MDESourceEnable.Help">Scegli le sorgenti online da usare durante l\'importazione. Se disabilitate la velocità di importazione sarà maggiore ma alcuni metadati potrebbero non essere resi disponibili.</string>
@@ -33,6 +36,7 @@ Disabilitando dei filtri si migliorerà la velocità di importazione.</string>
   <string name="Settings.ServerSettings.MDESettings.MDEBrowseOfflineLocal">Memorizza FanArt in una condivisione locale</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Artists">Popola il filtro artisti</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Composers">Popola il filtro compositori</string>
+  <string name="Settings.ServerSettings.MDESettings.MDEFilter.Conductors">Popola il filtro conduttori</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.MusicLabels">Popola il filtro etichetta musicale</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Actors">Popola il filtro interpreti</string>
   <string name="Settings.ServerSettings.MDESettings.MDEFilter.Characters">Popola il filtro personaggi</string>
@@ -69,4 +73,6 @@ Disabilitando dei filtri si migliorerà la velocità di importazione.</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help">Lingua preferita per i dettagli dei Film online</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage">Lingua preferita serie TV online</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help">Lingua preferita per i dettagli delle serie TV online</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage">Lingua dei sottotitoli online preferita</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage.Help">Lingua preferita dei sottotitoli online.</string>
 </resources>

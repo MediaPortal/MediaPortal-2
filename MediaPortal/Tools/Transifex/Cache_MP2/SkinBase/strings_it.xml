@@ -35,9 +35,9 @@
   <!--{0} = server name, {1} = host name-->
   <string name="ServerConnection.UnknownServerName">&lt;Sconosciuto&gt;</string>
   <string name="ServerConnection.UnknownServerSystem">&lt;Sconosciuto&gt;</string>
-  <string name="ServerConnection.HomeServer">Server Home server</string>
+  <string name="ServerConnection.HomeServer">Server Home</string>
   <string name="ServerConnection.AttachToServerWorkflowStateLabel">Collega al server</string>
-  <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Scollega dal server</string>
+  <string name="ServerConnection.DetachFromServerWorkflowStateLabel">Scollegare dal server</string>
   <string name="ServerConnection.HomeServerWorkflowStateLabel">ServerHome</string>
   <string name="ServerConnection.AttachedText.Before">Questo client MediaPortal 2 è attualmente collegato al server home</string>
   <string name="ServerConnection.NoHomeServerAttached">Questo client MediaPortal 2 non è attualmente collegato al server home.</string>

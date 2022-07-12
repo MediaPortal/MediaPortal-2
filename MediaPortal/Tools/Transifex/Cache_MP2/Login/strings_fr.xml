@@ -26,9 +26,14 @@
   <string name="Settings.Users.Config.AutoLoginUser.Help">Utilisateur pour une connexion automatique</string>
   <string name="Settings.Users.Config.SystemDefault">Défaillance du système</string>
   <string name="Settings.Users.Config.AutoLoginUser.Title">Connexion automatique de l\'utilisateur</string>
-  <string name="Settings.Users.Config.UserLanguage">Préférence de language</string>  <!-- User configuration workflow -->
+  <string name="Settings.Users.Config.UserLanguage">Préférence de language</string>  <!-- Setting -->
+  <string name="Settings.Users.Config.UserLanguage.Help">Configurer les langues de contenu préférées pour les utilisateurs</string>
+
+  <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">Gestion des utilisateurs</string>
+  <string name="UserConfig.UserLanguagewWorkflowNavigationContextDisplayLabel">Langages utilisateur</string>
   <string name="UserConfig.UserConfiguration.Title">Gestion des utilisateurs</string>
+  <string name="UserConfig.UserLanguages.Title">Langages utilisateur</string>
   <string name="UserConfig.Users">Utilisateurs</string>
   <string name="UserConfig.NoConfigUserHomeServerNotConnected">Le serveur domestique n\'est actuellement pas connecté, de sorte que les utilisateurs du serveur ne peuvent pas être gérés pour le moment.</string>
   <string name="UserConfig.UserName">Nom de l\'utilisateur</string>
@@ -52,7 +57,15 @@
   <string name="UserConfig.Ok">OK</string>
   <string name="UserConfig.Disable">Désactivé</string>
 
+  <string name="UserConfig.SelectLanguage">Sélectionnez le language</string>
   <string name="UserConfig.Default">Par défaut</string>
+  <string name="UserConfig.MainAudioLanguage">Langue audio principal</string>
+  <string name="UserConfig.SecondaryAudioLanguage">Langue audio secondaire</string>
+  <string name="UserConfig.MainSubtitleLanguage">Langue sous-titre principal</string>
+  <string name="UserConfig.SecondarySubtitleLanguage">Langue sous-titre secondaire</string>
+  <string name="UserConfig.MainMenuLanguage">Langue de menu principal</string>
+  <string name="UserConfig.SecondaryMenuLanguage">Langue de menu secondaire</string>
+
   <string name="UserConfig.SelectProfileTemplate">Sélectionnez un modèle de profil</string>
   <string name="UserConfig.ClientProfile">Profil Clent</string>
   <string name="UserConfig.UserProfile">Profil de l\'utilisateur</string>

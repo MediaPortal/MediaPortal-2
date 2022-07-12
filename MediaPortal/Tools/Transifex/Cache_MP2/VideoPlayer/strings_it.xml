@@ -20,13 +20,20 @@
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecLATMAAC.Help">Scegli il codec audio  LATM-AAC</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC">Codec audio AAC</string>
   <string name="Settings.Players.Codecs.AudioCodecs.AudioCodecAAC.Help">Scegli il codec audio AAC</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Renderer audio</string>
-  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Scegli il renderer audio</string>
-  <string name="Settings.Players.VideoPlayer">Player video</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer">Renderizzatore audio</string>
+  <string name="Settings.Players.Codecs.AudioCodecs.AudioRenderer.Help">Scegli il renderizzatore audio</string>
+  <string name="Settings.Players.VideoPlayer">Lettore video</string>
   <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio">Preferisci i flussi audio multicanale</string>
-  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">se abilitato, flussi audio a 6ch avranno la preferenza (es: AC3, AAC)</string>
-  <string name="Settings.Players.DVDPlayer">Player DVD </string>
+  <string name="Settings.Players.VideoPlayer.PreferMultiChannelAudio.Help">Se abilitato, i flussi audio a 6 canali avranno la preferenza (es: AC3, AAC)</string>
+  <string name="Settings.Players.DVDPlayer">Lettore DVD</string>
   <string name="Settings.Players.Subtitles">Sottotitoli</string>
+  <string name="Settings.Players.Subtitles.Help">Selezionare la tipologia di sottotitolo da abilitare</string>
+  <string name="Settings.Players.EnableAtscClosedCaptions">Sottotitoli chiusi ATSC</string>
+  <string name="Settings.Players.EnableDvbSubtitles">Trasmissione video digitale (DVB)</string>
+  <string name="Settings.Players.EnableTeletextSubtitles">Televideo</string>
+  <string name="Settings.Players.EnableDvdSubtitles">Sottotitoli DVD</string>
+  <string name="Settings.Players.EnableDvdClosedCaptions">Sottotitoli chiusi DVD</string>
+  <string name="Settings.Players.EnableMpcHcEngineSubtitles">Motore di sottotitoli per video MPC-HC</string>
   <string name="Playback.NotSpecified">Non specificato</string>
   <string name="Playback.CaptionNormal">Sottotitoli normali</string>
   <string name="Playback.CaptionBig">Sottotitoli grandi</string>
@@ -45,4 +52,5 @@
   <!--For example: "Chapter 1"-->
   <string name="Playback.Title">Titolo {0}</string>
   <!--For example: "Title 1"-->
+  <string name="Playback.Players.No.Subtitles">Nessun sottotitolo</string>
 </resources>

@@ -4,6 +4,18 @@
   <string name="Nereus.Configuration.EnableHelpTexts.Help">Permitir, ou não, textos de ajuda para menus no ecrã principal.</string>
   <string name="Nereus.Configuration.EnableFanart">Ativar Fanart</string>
   <string name="Nereus.Configuration.EnableFanart.Help">Permitir, ou não, fanart de fundo de ecrã.</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling">Permitir repetição em listagem</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling.Help">Permitir ou não repetição dos elementos em listagem media ao percorrer entre eles.</string>
+  <string name="Nereus.Configuration.EnableGridDetails">Ativar detalhes em grelha</string>
+  <string name="Nereus.Configuration.EnableGridDetails.Help">Permitir ou não detalhes de item no lado direito das vistas em grelha. Quando desativado apenas detalhes minimalistas são mostrados abaixo.</string>
+  <string name="Nereus.Configuration.EnableCoverDetails">Ativar detalhes de capa</string>
+  <string name="Nereus.Configuration.EnableCoverDetails.Help">Permitir ou não ser mostrado detalhes em vista de capa.</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling">Permitir deslocamento automático</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling.Help">Utilizar ou não o deslocamento automático em vez do manual em vistas de deslocamento.</string>
+  <string name="Nereus.Configuration.AutoScrolling">Auto deslocamento</string>
+  <string name="Nereus.Configuration.ManualAutoScrolling">Deslocamento Manual</string>
+  <string name="Nereus.Configuration.AutoScrollSpeed">Velocidade de deslocamento</string>
+  <string name="Nereus.Configuration.AutoScrollDelay">Atraso de deslocamento</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity">Visibilidade FanArt</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Ajusta a opacidade do fundo fanart. Um valor mais baixo aumenta a visibilidade da fanart (predefinição 1.0)</string>
   <string name="Nereus.Configuration.EnableWatchedFlags">Activar sinalizadores de visualização</string>
@@ -24,6 +36,9 @@
   <string name="Nereus.Configuration.GridViewType.Thumbnail">Miniaturas</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView">Permitir vista detalhada de media</string>
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Permitir, ou não, mostrar detalhes de media em vez de reproduzir directamente.</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay">Ativar suporte a ecrã tátil </string>
+  <string name="Nereus.Configuration.EnableTouchDisplay.Help">Permite ativar o deslocamento automático dos menus e força serem mostrados os botões de navegação para melhor suporte em ecrãs táteis.</string>
+
   <string name="Nereus.Home.LatestAdded">Adicionado</string>
   <string name="Nereus.Home.LatestPlayed">Visto pela última vez</string>
   <string name="Nereus.Home.ContinuePlayed">Continuar Reprodução</string>
@@ -63,12 +78,19 @@
   <string name="Nereus.Dialog.EditMenu.Header">Editar menu</string>
   <string name="Nereus.Dialog.AddMenuItem.Header">Adicionar item ao menu</string>
 
+  <string name="Nereus.Dialog.EditMediaList.Header">Mostrar conteúdo do home</string>
+  <string name="Nereus.Dialog.AddMediaListItem.Header">Adicionar conteúdo ao home</string>
+
   <string name="Nereus.Info.Director">Director</string>
   <string name="Nereus.Info.Subtitles">Legendas</string>
   <string name="Nereus.Info.Actors">Actores:</string>
   <string name="Nereus.Info.Collection">Colecção</string>
+  <string name="Nereus.Info.Audio">Faixas áudio</string>
   <string name="Nereus.Info.Artists">Artistas</string>
   <string name="Nereus.Info.AlbumArtists">Artistas</string>
   <string name="Nereus.Info.Composer">Compositor</string>
 
-  </resources>
+  <string name="Nereus.Configuration.SelectSkinColor">Escolher tema de cor</string>
+  <string name="Nereus.Configuration.SelectSkinColor.Help">Escolha um tema de cor ao selecionar um padrão</string>
+  
+</resources>

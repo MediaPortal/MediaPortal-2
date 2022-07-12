@@ -1,6 +1,28 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+  <!--Client Settings-->
+  <string name="Settings.Transcode.Title">Transcodage</string> <!-- Section name -->
+  <string name="Settings.Transcode.HWAcceleration">Accélération matérielle</string> <!-- Setting -->
+  <string name="Settings.Transcode.HWAcceleration.Help">Activer l\'accélération matérielle pour le transcodage si supporté</string>
+  <string name="Settings.Transcode.Cache">Cache</string> <!-- Setting -->
+  <string name="Settings.Transcode.Cache.Help">Activer un cache pour le transcodage afin qu\'ils puissent être réutilisés plus tard</string>
+  <string name="Settings.Transcode.CacheAge">Conservation du cache (jours)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheAge.Help">Le durée maximale de stockage d\'élément transcodé mis en cache doivent être stockée avant leur expiration.
+0 signifie qu\'ils n\'expirent jamais.</string>
+  <string name="Settings.Transcode.CacheSize">Taille maximal du cache (Go)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheSize.Help">Le taille maximale du cache en Go. Les plus anciens seront supprimés quand le cache est plein, et 0 signifie qu\'il n\'y a aucune limite de taille.</string>
+  <string name="Settings.Transcode.SubtitleForce">Forcer sous-titres hard-codés</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleForce.Help">Forcer les sous-titres hard-codés si aucune autre forme de sous-titres n\'est supporté.</string>
+  <string name="Settings.Transcode.SubtitleBox">Afficher la boîte de sous-titres</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleBox.Help">Afficher un cadre autour des sous-titres hard-codés</string>
+  <string name="Settings.Transcode.SubtitleFont">Police des sous-titre</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFont.Help">Police utilisé pour les sous-titres hard-codés.</string>
+  <string name="Settings.Transcode.SubtitleFontSize">Taille de la police des sous-titres</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontSize.Help">Taille de la police utilisé pour les sous-titres hard-codés</string>
+  <string name="Settings.Transcode.SubtitleFontColor">Couleur des sous-titres</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontColor.Help">La couleur utilisé pour les sous-titres hard-codés.</string>
+
   <string name="Settings.Transcode.None">Aucun</string>
   <string name="Settings.Transcode.Auto">Automatiquement</string>
   <string name="Settings.Transcode.Default">Par défaut</string>
