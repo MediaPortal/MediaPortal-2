@@ -179,7 +179,7 @@
            IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter}, ElementName=HelpLabel, Path=Content}"
            VerticalAlignment="Top" HorizontalAlignment="Left"/>
     <Label x:Name="HelpLabel" DataContext="{Binding Source={StaticResource HomeMenuModel}, Path=SelectedItem}" 
-           Opacity="0.6" Margin="38,5,-5,-10" MaxHeight="93" TextTrimming="WordEllipsis" Wrap="True" 
+           Opacity="0.6" Margin="38,4,-5,-8" MaxHeight="95" TextTrimming="WordEllipsis" Wrap="True" 
            Content="{Binding Path=[Help], NotifyOnTargetUpdated=True}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"/> 
   </Grid>
 
