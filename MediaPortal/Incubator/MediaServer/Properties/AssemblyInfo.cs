@@ -1,4 +1,5 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
@@ -17,5 +18,6 @@ using System.Runtime.InteropServices;
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
 [assembly: Guid("8a30b6ca-d3e4-425f-9010-b71af9c028af")]
-
+// Explicitly set CLSCompliant to false, this prevents the ANTLR code generator applying the attribute to the generated code and causing a warning on dotnet core
+[assembly: CLSCompliant(false)]
 // Other attributes are included from VersionInfo.cs!

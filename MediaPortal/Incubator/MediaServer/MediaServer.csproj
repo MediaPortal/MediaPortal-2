@@ -22,7 +22,7 @@
     <ProjectReference Include="..\TranscodingService.Interfaces\TranscodingService.Interfaces.csproj" />
   </ItemGroup>
   <ItemGroup>
-    <Antlr4 Include="Parser\UPnP.g4">
+    <Antlr4 Update="Parser\UPnP.g4">
       <Generator>MSBuild:Compile</Generator>
       <CustomToolNamespace>MediaPortal.Plugins.MediaServer.Parser</CustomToolNamespace>
       <Listener>True</Listener>
