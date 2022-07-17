@@ -175,42 +175,27 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
         StandardErrorEncoding = Encoding.UTF8
       };
 #if !TRANSCODE_CONSOLE_TEST
-      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(accessor.CanonicalLocalResourcePath))
+      using (IProcess ffmpeg = ServiceRegistration.Get<IImpersonationService>().CreateProcessWithResourceAccess(accessor.CanonicalLocalResourcePath, startInfo))
       {
-        //Only when the server is running as a service it will have elevation rights
-        using (ImpersonationProcess ffmpeg = new ImpersonationProcess { StartInfo = startInfo })
-        {
-          IntPtr userToken = IntPtr.Zero;
-          if (!ImpersonationHelper.GetTokenByProcess(out userToken, true))
-            return null;
 #else
+      using (Process ffmpeg = new Process() { StartInfo = startInfo })
       {
+#endif
+        ffmpeg.Start();
+        ffmpeg.BeginErrorReadLine();
+
+        var stream = ffmpeg.StandardOutput.BaseStream;
+        if (!ffmpeg.WaitForExit(transcoderTimeout))
         {
-          Process ffmpeg = new Process() { StartInfo = startInfo };
-#endif
-#if !TRANSCODE_CONSOLE_TEST
-          ffmpeg.StartAsUser(userToken);
-#else
-          ffmpeg.Start();
-#endif
-          ffmpeg.BeginErrorReadLine();
-
-          var stream = ffmpeg.StandardOutput.BaseStream;
-          if (!ffmpeg.WaitForExit(transcoderTimeout))
-          {
-            ffmpeg.Kill();
-            stream.Dispose();
-            return null;
-          }
-
-          ffmpeg.Close();
-          byte[] data = ReadToEnd(stream);
+          ffmpeg.Kill();
           stream.Dispose();
-#if !TRANSCODE_CONSOLE_TEST
-          NativeMethods.CloseHandle(userToken);
-#endif
-          return data;
+          return null;
         }
+
+        ffmpeg.Close();
+        byte[] data = ReadToEnd(stream);
+        stream.Dispose();
+        return data;
       }
     }
 
