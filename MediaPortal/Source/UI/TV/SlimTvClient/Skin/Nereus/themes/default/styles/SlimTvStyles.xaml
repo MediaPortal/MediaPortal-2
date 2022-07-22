@@ -374,13 +374,18 @@
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                             Command="{Command SeekBackward}"/>
                     <Button x:Name="PlayPauseButton" Margin="5,0,5,0" Style="{ThemeResource PlayPauseButtonStyle}" 
-                              Command="{Command TogglePause}">
+                              Command="{Command Play}">
                       <Button.IsVisible>
                         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
                           <Binding Path="CanPlay"/>
                           <Binding Path="CanPause"/>
                         </MultiBinding>
                       </Button.IsVisible>
+                      <Button.Triggers>
+                        <DataTrigger Binding="{Binding CanPause}" Value="True">
+                          <Setter Property="Command" Value="{Command Pause}"/>
+                        </DataTrigger>
+                      </Button.Triggers>
                     </Button>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
                             Command="{Command Stop}"/>
@@ -476,14 +481,19 @@
                   <StackPanel x:Name="PlayControlsPanel_Front" DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
                     <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
                             Command="{Command SeekBackward}"/>
-                    <Button x:Name="PlayPauseButton" Margin="5,0,5,0" Style="{ThemeResource PlayPauseButtonStyle}" 
-                              Command="{Command TogglePause}">
+                    <Button x:Name="PlayPauseButton" Margin="5,0,5,0" Style="{ThemeResource PlayPauseButtonStyle}"
+                            Command="{Command Play}">
                       <Button.IsVisible>
                         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
                           <Binding Path="CanPlay"/>
                           <Binding Path="CanPause"/>
                         </MultiBinding>
                       </Button.IsVisible>
+                      <Button.Triggers>
+                        <DataTrigger Binding="{Binding CanPause}" Value="True">
+                          <Setter Property="Command" Value="{Command Pause}"/>
+                        </DataTrigger>
+                      </Button.Triggers>
                     </Button>
                     <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
                             Command="{Command Stop}"/>
