@@ -275,7 +275,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
       {
         TeletextPageEntry pageEntry = new TeletextPageEntry
                                         {
-                                          Language = String.Copy(sub.Language),
+                                          Language = sub.Language,
                                           Encoding = (TeletextCharTable) sub.Encoding,
                                           Page = sub.Page
                                         };

@@ -125,7 +125,7 @@ namespace MediaPortal.UI.Players.Video.Subtitles
     {
       Page = e.Page;
       Encoding = e.Encoding;
-      Language = String.Copy(e.Language);
+      Language = e.Language;
     }
 
     public int Page = -1; // indicates not valid
