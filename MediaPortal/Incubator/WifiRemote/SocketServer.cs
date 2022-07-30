@@ -579,7 +579,7 @@ namespace MediaPortal.Plugins.WifiRemote
       string randomString = System.IO.Path.GetRandomFileName();
       randomString = randomString.Replace(".", "");
 
-      System.Security.Cryptography.MD5CryptoServiceProvider md5 = new System.Security.Cryptography.MD5CryptoServiceProvider();
+      var md5 = System.Security.Cryptography.MD5.Create();
       byte[] randomBytes = Encoding.UTF8.GetBytes(randomString);
       randomBytes = md5.ComputeHash(randomBytes);
       StringBuilder hash = new StringBuilder();

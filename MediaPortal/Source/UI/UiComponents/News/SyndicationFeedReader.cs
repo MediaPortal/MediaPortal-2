@@ -25,6 +25,7 @@
 using System;
 using System.Linq;
 using System.Net;
+using System.Security.Cryptography;
 using System.ServiceModel.Syndication;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -76,9 +77,9 @@ namespace MediaPortal.UiComponents.News
 
       try
       {
-        using (var md5 = new System.Security.Cryptography.MD5CryptoServiceProvider())
+        using (var md5 = MD5.Create())
         {
-          string iconUrlHash = BitConverter.ToString(md5.ComputeHash(UTF8Encoding.UTF8.GetBytes(url.ToString())));
+          string iconUrlHash = BitConverter.ToString(md5.ComputeHash(Encoding.UTF8.GetBytes(url.ToString())));
           string thumbsPath = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\News\Thumbs");
           if (!System.IO.Directory.Exists(thumbsPath)) System.IO.Directory.CreateDirectory(thumbsPath);
           string originalExtension = System.IO.Path.GetExtension(url.LocalPath);
