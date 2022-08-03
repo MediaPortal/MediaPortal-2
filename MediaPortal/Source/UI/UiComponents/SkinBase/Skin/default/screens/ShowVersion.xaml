@@ -7,7 +7,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.General.System.Version]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.General.System.Version.Help]"/>
 
     <!-- HomeServerModel -->
     <Model x:Key="Model" Id="854ABA9A-71A1-420b-A657-9641815F9C01"/>
@@ -24,15 +24,13 @@
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
-        <Label Content="[Settings.General.System.Version.Help]" Color="{ThemeResource TextColor}" Margin="0,0,0,20"/>
-        
         <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" >
-          <Label Content="Server version: " Color="{ThemeResource TextColor}"/>
-          <Label Content="123456" Color="{ThemeResource TextColor}" IsVisible="{Binding IsHomeServerAttached}"/>
-          <Label Content="[ServerConnection.NoHomeServerAttached]" Color="{ThemeResource TextColor}" IsVisible="{Binding !IsHomeServerAttached}"/>
+          <Label Content="Server: " Color="{ThemeResource TextColor}"/>
+          <Label Content="123456" Color="{ThemeResource TextColor}" IsVisible="{Binding IsHomeServerConnected}"/>
+          <Label Content="[ServerConnection.NoHomeServerAttached]" Color="{ThemeResource TextColor}" IsVisible="{Binding !IsHomeServerConnected}"/>
         </StackPanel>
         <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" >
-          <Label Content="Client version: " Color="{ThemeResource TextColor}"/>
+          <Label Content="Client: " Color="{ThemeResource TextColor}"/>
           <Label Content="123456" Color="{ThemeResource TextColor}"/>
         </StackPanel>
       </Grid>

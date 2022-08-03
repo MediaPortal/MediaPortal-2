@@ -156,9 +156,9 @@
         Name="ShowHomeServer" DisplayLabel="[ServerConnection.HomeServerWorkflowStateLabel]"
         MainScreen="ShowHomeServer"/>
     
-    <WorkflowState Id="9FDDD399-FBD7-4705-9C50-B21CC9079A8E"
-        Name="ShowVersion" DisplayLabel="[ServerConnection.HomeServerWorkflowStateLabel]"
-        MainScreen="ShowVersion"/>
+    <DialogState Id="9FDDD399-FBD7-4705-9C50-B21CC9079A8E"
+        Name="ShowVersion" DisplayLabel="[Settings.General.System.Version]"
+        DialogScreen="ShowVersion"/>
 
     <!-- Player states -->
 
