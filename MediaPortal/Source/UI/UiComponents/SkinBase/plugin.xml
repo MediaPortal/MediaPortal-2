@@ -155,6 +155,10 @@
     <WorkflowState Id="17214BAC-E79C-4e5e-9280-A01478B27579"
         Name="ShowHomeServer" DisplayLabel="[ServerConnection.HomeServerWorkflowStateLabel]"
         MainScreen="ShowHomeServer"/>
+    
+    <WorkflowState Id="9FDDD399-FBD7-4705-9C50-B21CC9079A8E"
+        Name="ShowVersion" DisplayLabel="[ServerConnection.HomeServerWorkflowStateLabel]"
+        MainScreen="ShowVersion"/>
 
     <!-- Player states -->
 
@@ -198,42 +202,6 @@
   <Register Location="/Resources/Skin">
     <Resource Id="DefaultSkinBaseSkin" Directory="Skin" Type="Skin"/>
   </Register>
-
-  <!-- Registrations for MIA types which need to be loaded by the Media navigation model for this skin -->
-  <!--<Register Location="/Media/SkinSettings/default/default/Audio/OptionalMIATypes">
-    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
-    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
-  </Register>
-
-  <Register Location="/Media/SkinSettings/default/default/Video/OptionalMIATypes">
-    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
-    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
-  </Register>
-
-  <Register Location="/Media/SkinSettings/default/default/Series/OptionalMIATypes">
-    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
-    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
-  </Register>
-
-  <Register Location="/Media/SkinSettings/default/default/Movies/OptionalMIATypes">
-    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
-    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
-  </Register>
-
-  <Register Location="/Media/SkinSettings/default/default/Image/OptionalMIATypes">
-    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
-    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
-  </Register>
-
-  <Register Location="/Media/SkinSettings/default/default/BrowseMediaLibrary/OptionalMIATypes">
-    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
-    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
-  </Register>
-
-  <Register Location="/Media/SkinSettings/default/default/BrowseLocalMedia/OptionalMIATypes">
-    <MIATypeRegistration Id="ThumbnailSmallAspect" MediaItemAspectTypeId="A61846E9-0910-499D-9868-A1FABCE7CCFD"/>
-    <MIATypeRegistration Id="ThumbnailLargeAspect" MediaItemAspectTypeId="1FDA5774-9AC5-4873-926C-E84E3C36A966"/>
-  </Register>-->
 
   <!-- Root configuration sections -->
   <Register Location="/Configuration/Settings">
@@ -346,6 +314,12 @@
 
   <!-- Contents of '/General/System' group -->
   <Register Location="/Configuration/Settings/General/System">
+    <CustomConfigSetting
+        Id="Version"
+        Text="[Settings.General.System.Version]"
+        HelpText="[Settings.General.System.Version.Help]"
+        ClassName="MediaPortal.UiComponents.SkinBase.Settings.Configuration.General.Version"
+        AdditionalData="WorkflowState=9FDDD399-FBD7-4705-9C50-B21CC9079A8E,ConfAppPanel=..."/>
     <ConfigSetting
         Id="Autostart"
         Text="[Settings.General.System.Autostart]"

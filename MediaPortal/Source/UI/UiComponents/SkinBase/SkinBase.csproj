@@ -129,6 +129,7 @@
     <Compile Include="Settings\Configuration\General\ServerListener.cs" />
     <Compile Include="Settings\Configuration\General\UseIPv4Setting.cs" />
     <Compile Include="Settings\Configuration\General\UseIPv6Setting.cs" />
+    <Compile Include="Settings\Configuration\General\Version.cs" />
     <Compile Include="Settings\Configuration\Regional\MainLanguage.cs" />
     <Compile Include="Settings\Configuration\Shares\SharesOverviewSetting.cs" />
     <Compile Include="Settings\Configuration\Shares\SharesConfigSetting.cs" />
@@ -362,6 +363,11 @@
     <None Include="Skin\default\themes\default\styles\VirtualKeyboardStyle_fr.xaml">
       <SubType>Designer</SubType>
     </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\ShowVersion.xaml">
+      <SubType>Designer</SubType>
+    </Content>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="build.targets" />
