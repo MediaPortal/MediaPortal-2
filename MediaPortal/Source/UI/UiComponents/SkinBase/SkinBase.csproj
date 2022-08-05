@@ -165,6 +165,8 @@
     <Content Include="Skin\default\images\delete-icon.png" />
     <Content Include="Skin\default\images\internet-icon.png" />
     <Content Include="Skin\default\images\movie_track.png" />
+    <Content Include="Skin\default\images\MP2Client.png" />
+    <Content Include="Skin\default\images\MP2Server.png" />
     <Content Include="Skin\default\images\network-icon.png" />
     <Content Include="Skin\default\images\pause.png" />
     <Content Include="Skin\default\images\picture-icon.png" />

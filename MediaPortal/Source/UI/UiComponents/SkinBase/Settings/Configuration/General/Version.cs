@@ -27,6 +27,12 @@ using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.UI.FrontendServer;
 using MediaPortal.UI.ServerCommunication.Settings;
 
+using System;
+using System.ComponentModel;
+using System.Threading;
+using System.Windows.Forms;
+
+
 namespace MediaPortal.UiComponents.SkinBase.Settings.Configuration.General
 {
   public class Version : CustomConfigSetting

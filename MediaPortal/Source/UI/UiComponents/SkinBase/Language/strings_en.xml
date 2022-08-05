@@ -126,7 +126,7 @@
   <string name="Settings.General.System.Autostart">Autostart</string>
   <string name="Settings.General.System.Autostart.Help">Start MediaPortal automatically on Windows startup</string>
   <string name="Settings.General.System.Version">Version</string>
-  <string name="Settings.General.System.Version.Help">Shows the version of the installed MediaPortal 2 client and server</string>
+  <string name="Settings.General.System.Version.Help">Shows the installed MediaPortal 2 versions </string>
 
   <string name="Settings.General.Connectivity">Connectivity</string>
   <string name="Settings.General.Connectivity.HomeServer">Home server</string>
