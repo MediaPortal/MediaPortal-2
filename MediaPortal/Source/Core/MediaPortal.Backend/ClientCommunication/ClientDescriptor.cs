@@ -59,6 +59,11 @@ namespace MediaPortal.Backend.ClientCommunication
       get { return _clientDeviceDescriptor.FriendlyName; }
     }
 
+    public string SoftwareVersion
+    {
+      get { return _clientDeviceDescriptor.SoftwareVersion; }
+    }
+
     public SystemName System
     {
       get { return new SystemName(new Uri(_clientDeviceDescriptor.RootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host); }

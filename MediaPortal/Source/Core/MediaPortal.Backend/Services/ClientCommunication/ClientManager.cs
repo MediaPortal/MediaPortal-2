@@ -71,7 +71,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     {
       if (!ValidateAttachmentState(client))
         return;
-      UpdateClientSystem(client.MPFrontendServerUUID, client.System, client.ClientName);
+      UpdateClientSystem(client.MPFrontendServerUUID, client.System, client.ClientName, client.SoftwareVersion);
       ClientManagerMessaging.SendConnectionStateChangedMessage(ClientManagerMessaging.MessageType.ClientOnline, client);
     }
 
@@ -121,9 +121,10 @@ namespace MediaPortal.Backend.Services.ClientCommunication
         int systemIdIndex;
         int lastHostNameIndex;
         int lastClientNameIndex;
+        int lastClientVersionIndex;
         IDictionary<string, MPClientMetadata> result = new Dictionary<string, MPClientMetadata>();
         using (IDbCommand command = ClientManager_SubSchema.SelectAttachedClientsCommand(transaction, out systemIdIndex,
-            out lastHostNameIndex, out lastClientNameIndex))
+            out lastHostNameIndex, out lastClientNameIndex, out lastClientVersionIndex))
         using (IDataReader reader = command.ExecuteReader())
         {
           while (reader.Read())
@@ -132,7 +133,8 @@ namespace MediaPortal.Backend.Services.ClientCommunication
             string lastClientHostName = database.ReadDBValue<string>(reader, lastHostNameIndex);
             SystemName lastHostName = lastClientHostName == null ? null : new SystemName(lastClientHostName);
             string lastClientName = database.ReadDBValue<string>(reader, lastClientNameIndex);
-            result.Add(clientSystemId, new MPClientMetadata(clientSystemId, lastHostName, lastClientName));
+            string lastClientVersion = database.ReadDBValue<string>(reader, lastClientVersionIndex);
+            result.Add(clientSystemId, new MPClientMetadata(clientSystemId, lastHostName, lastClientName, lastClientVersion));
           }
         }
         return result;
@@ -143,14 +145,14 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       }
     }
 
-    protected void UpdateClientSystem(string clientSystemId, SystemName system, string clientName)
+    protected void UpdateClientSystem(string clientSystemId, SystemName system, string clientName, string clientVersion)
     {
       ServiceRegistration.Get<ILogger>().Info("ClientManager: Updating host name of client '{0}' to '{1}'", clientSystemId, system.HostName);
       ISQLDatabase database = ServiceRegistration.Get<ISQLDatabase>();
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        using (IDbCommand command = ClientManager_SubSchema.UpdateAttachedClientDataCommand(transaction, clientSystemId, system, clientName))
+        using (IDbCommand command = ClientManager_SubSchema.UpdateAttachedClientDataCommand(transaction, clientSystemId, system, clientName, clientVersion))
           command.ExecuteNonQuery();
         transaction.Commit();
       }
@@ -220,7 +222,7 @@ namespace MediaPortal.Backend.Services.ClientCommunication
       ITransaction transaction = database.BeginTransaction();
       try
       {
-        using (IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, null, null))
+        using (IDbCommand command = ClientManager_SubSchema.InsertAttachedClientCommand(transaction, clientSystemId, null, null, null))
           command.ExecuteNonQuery();
         transaction.Commit();
       }

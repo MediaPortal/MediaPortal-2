@@ -49,6 +49,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
   {
     public string Name { get; set; }
     public string System { get; set; }
+    public string SoftwareVersion { get; set; }
     public bool IsConnected { get; set; }
   }
 
@@ -511,6 +512,7 @@ namespace MediaPortal.ServiceMonitor.ViewModel
           {
             IsConnected = connectedClientSystemIDs != null && connectedClientSystemIDs.Contains(attachedClient.SystemId),
             Name = attachedClient.LastClientName,
+            SoftwareVersion = attachedClient.LastClientVersion,
             System = attachedClient.LastSystem == null ? string.Empty : attachedClient.LastSystem.HostName
           });
         }

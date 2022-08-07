@@ -44,6 +44,7 @@
           </GridViewColumn>
           <GridViewColumn Header="Client" DisplayMemberBinding="{Binding Path=Name}" Width="240" />
           <GridViewColumn Header="System" DisplayMemberBinding="{Binding Path=System}" Width="240" />
+          <GridViewColumn Header="Version" DisplayMemberBinding="{Binding Path=SoftwareVersion}" Width="150" />
         </GridView>
       </ListView.View>
 

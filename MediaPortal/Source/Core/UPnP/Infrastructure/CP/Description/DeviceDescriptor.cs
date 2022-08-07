@@ -122,6 +122,14 @@ namespace UPnP.Infrastructure.CP.Description
     }
 
     /// <summary>
+    /// String containing the software version of the device or <c>null</c> if the device description doesn't contain a software version entry.
+    /// </summary>
+    public string SoftwareVersion
+    {
+      get { return ParserHelper.SelectText(_deviceNavigator, DEVICE_DESCRIPTION_NAMESPACE_PREFIX + ":softwareVersion/text()", _nsmgr); }
+    }
+
+    /// <summary>
     /// Returns a collection of descriptors for the child devices of this device.
     /// </summary>
     public ICollection<DeviceDescriptor> ChildDevices
