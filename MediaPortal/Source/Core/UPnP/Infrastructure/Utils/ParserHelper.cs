@@ -147,5 +147,22 @@ namespace UPnP.Infrastructure.Utils
         return it.Current.Value;
       throw new ArgumentException(string.Format("Error evaluating XPath expression '{0}'", xPathExpr));
     }
+
+    /// <summary>
+    /// Returns the text string result of the specified <paramref name="xPathExpr"/> referencing an
+    /// XML text node.
+    /// </summary>
+    /// <param name="elementNav">XPath navigator pointing to an XML element to apply the XPath expression to.</param>
+    /// <param name="xPathExpr">XPath expression which references an XML text node (i.e. must end with "text()").</param>
+    /// <param name="nsmgr">Namespace resolver for the used namespace prefixes in the <paramref name="xPathExpr"/>.
+    /// If set to <c>null</c>, no namespace resolver will be used.</param>
+    /// <returns>Contents of the referenced XML text node or <c>null</c> if element is missing.</returns>
+    public static string SelectOptionalText(XPathNavigator elementNav, string xPathExpr, IXmlNamespaceResolver nsmgr)
+    {
+      XPathNodeIterator it = elementNav.Select(xPathExpr, nsmgr);
+      if (it.MoveNext())
+        return it.Current.Value;
+      return null;
+    }
   }
 }

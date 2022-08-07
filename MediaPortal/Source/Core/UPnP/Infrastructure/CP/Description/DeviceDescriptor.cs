@@ -126,7 +126,7 @@ namespace UPnP.Infrastructure.CP.Description
     /// </summary>
     public string SoftwareVersion
     {
-      get { return ParserHelper.SelectText(_deviceNavigator, DEVICE_DESCRIPTION_NAMESPACE_PREFIX + ":softwareVersion/text()", _nsmgr); }
+      get { return ParserHelper.SelectOptionalText(_deviceNavigator, DEVICE_DESCRIPTION_NAMESPACE_PREFIX + ":softwareVersion/text()", _nsmgr); }
     }
 
     /// <summary>

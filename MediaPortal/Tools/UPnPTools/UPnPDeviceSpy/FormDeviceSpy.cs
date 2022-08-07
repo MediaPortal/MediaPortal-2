@@ -90,7 +90,8 @@ namespace UPnPDeviceSpy
 
     protected string BuildDeviceName(DeviceDescriptor descriptor)
     {
-      return descriptor.FriendlyName + " (" + descriptor.RootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation + ")";
+      var version = string.IsNullOrWhiteSpace(descriptor.SoftwareVersion) ? "" : " [" + descriptor.SoftwareVersion + "]";
+      return descriptor.FriendlyName + version + " (" + descriptor.RootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation + ")";
     }
 
     private void exitToolStripMenuItem_Click(object sender, System.EventArgs e)
