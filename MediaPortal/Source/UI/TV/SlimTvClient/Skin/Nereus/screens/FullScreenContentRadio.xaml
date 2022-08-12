@@ -109,7 +109,7 @@
     <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" Margin="60,10,20,0" 
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <Label x:Name="CurrentProgramTitleLabel" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" 
-             HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" 
+             HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="Noto-Bold" 
              Color="{ThemeResource TextColor}" Scroll="Auto"/>
       <Label x:Name="StartTime" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
              Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}" />

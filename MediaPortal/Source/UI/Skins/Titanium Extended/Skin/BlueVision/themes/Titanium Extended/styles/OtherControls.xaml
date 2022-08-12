@@ -898,7 +898,7 @@
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
           HorizontalAlignment="Left" VerticalAlignment="Center"
-          Color="{ThemeResource DialogHeaderColor}" FontFamily="Titan"/>
+          Color="{ThemeResource DialogHeaderColor}" />
     </DockPanel>
   </DataTemplate>
   
@@ -906,7 +906,7 @@
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
           HorizontalAlignment="Left" VerticalAlignment="Center"
-          Color="{ThemeResource DialogHeaderColor}" FontFamily="Titan"/>
+          Color="{ThemeResource DialogHeaderColor}" />
     </DockPanel>
   </DataTemplate>
 
@@ -939,7 +939,7 @@
           Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" 
           HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
-          Color="Black" FontFamily="Titan"/>
+          Color="Black" />
     </DockPanel>
   </DataTemplate>
 
@@ -952,7 +952,7 @@
           Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"/>
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Margin="10,5,0,0" Content="{Binding [Name]}"
           HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
-          Color="Black" FontFamily="Titan"/>
+          Color="Black" />
     </DockPanel>
   </DataTemplate>
 
@@ -2306,7 +2306,7 @@
 
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center"  Content="{Binding [Name]}"
-             FontSize="{ThemeResource DialogTitleFontSize}" FontFamily="Titan" Color="{ThemeResource HomeNonFocusedColor}" Margin="0,-5,0,0"/>
+             FontSize="{ThemeResource DialogTitleFontSize}"  Color="{ThemeResource HomeNonFocusedColor}" Margin="0,-5,0,0"/>
       
     </Grid>
   </DataTemplate>

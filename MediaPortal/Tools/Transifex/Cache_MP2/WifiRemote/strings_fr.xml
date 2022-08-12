@@ -15,4 +15,9 @@
   <string name="Settings.WifiRemote.Passcode.Help">Passcode pour une authentification par passcode.</string>
   <string name="Settings.WifiRemote.AutoLoginTimeout">Délai d’authentification </string> <!-- Setting -->
   <string name="Settings.WifiRemote.AutoLoginTimeout.Help">Durée en minutes, après quoi le client doit se ré-authentifier. </string>
-  <string name="Settings.WifiRemote.EnableBonjour">Disponibilité des services Broadcast (Bonjour, ZeroConf)</string> <string name="Settings.WifiRemote.Port">Port utlisée</string> </resources>
+  <string name="Settings.WifiRemote.EnableBonjour">Disponibilité des services Broadcast (Bonjour, ZeroConf)</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.EnableBonjour.Help">Rendre visible la disponibilité de service afin qu\'il soit plus facilement détectable par les clients</string>
+  <string name="Settings.WifiRemote.Port">Port utlisée</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Port.Help">Numéro du ports pour la connexion des clients </string>
+
+</resources>

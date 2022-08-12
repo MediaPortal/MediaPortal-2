@@ -3,6 +3,7 @@
   <string name="AppLauncher.Stop">停止</string>
   <string name="AppLauncher.Settings.Title">设置</string>
   <string name="AppLauncher.Settings.Add.Description">介绍</string>
+  <string name="AppLauncher.Settings.Add.Username">用户名</string>
   <string name="AppLauncher.Settings.Add.Password">密码</string>
   <string name="AppLauncher.Settings.Add.Search">搜索</string>
   <string name="AppLauncher.Settings.Add.Select">选择</string>

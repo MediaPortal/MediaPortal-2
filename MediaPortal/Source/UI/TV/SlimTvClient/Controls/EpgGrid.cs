@@ -63,6 +63,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     protected double _perCellTime; // Time in minutes per grid cell.
 
     protected AsynchronousMessageQueue _messageQueue = null;
+    protected AbstractProperty _loopScrollProperty;
     protected AbstractProperty _headerWidthProperty;
     protected AbstractProperty _groupButtonWidthProperty;
     protected AbstractProperty _programTemplateProperty;
@@ -102,6 +103,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       _headerTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       _groupButtonTemplateProperty = new SProperty(typeof(ControlTemplate), null);
       _timeIndicatorTemplateProperty = new SProperty(typeof(ControlTemplate), null);
+      _loopScrollProperty = new SProperty(typeof(bool), false);
       Attach();
       SubscribeToMessages();
       StartTimer();
@@ -227,6 +229,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       }
     }
 
+    public bool LoopScroll
+    {
+      get { return (bool)_loopScrollProperty.GetValue(); }
+      set { _loopScrollProperty.SetValue(value); }
+    }
+
     public override void DeepCopy(IDeepCopyable source, ICopyManager copyManager)
     {
       Detach();
@@ -235,6 +243,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
       EpgGrid c = (EpgGrid)source;
       HeaderWidth = c.HeaderWidth;
+      LoopScroll = c.LoopScroll;
       GroupButtonWidth = c.GroupButtonWidth;
       HeaderTemplate = copyManager.GetCopy(c.HeaderTemplate);
       GroupButtonTemplate = copyManager.GetCopy(c.GroupButtonTemplate);
@@ -272,6 +281,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     #endregion
 
     #region Public Properties
+
+    public AbstractProperty LoopScrollProperty
+    {
+      get { return _loopScrollProperty; }
+    }
 
     public ItemsList ChannelsPrograms
     {
@@ -1024,7 +1038,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         if (row == _numberOfRows - 1)
         {
           if (IsViewPortAtBottom)
-            return false;
+          {
+            if (LoopScroll)
+            {
+              OnHome();
+              FocusFirstProgramInRow(_channelViewOffset);
+            }
+            else
+              return false;
+          }
+          else
           // Scroll down
           UpdateViewportVertical(scrollDirection);
         }
@@ -1036,7 +1059,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         if (row == 0)
         {
           if (IsViewPortAtTop)
-            return false;
+          {
+            if (LoopScroll)
+            {
+              OnEnd();
+              FocusLastProgramInRow(_channelViewOffset);
+            }
+            else
+              return false;
+          }
+          else
           // Scroll up
           UpdateViewportVertical(scrollDirection);
         }

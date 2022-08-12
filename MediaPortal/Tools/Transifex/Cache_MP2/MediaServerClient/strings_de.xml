@@ -4,7 +4,7 @@
   <!--Client Settings-->
   <string name="Settings.DLNA.Title">DLNA</string> <!-- Section name -->
   <string name="Settings.DLNA.Clients.Config">Client Setup</string> <!-- Group name -->
-  <string name="Settings.DLNA.Clients.Config.Help">Manage DLNA Clients auf dem Home Server</string>
+  <string name="Settings.DLNA.Clients.Config.Help">Steuere DLNA Clienten auf dem Home Server</string>
   <string name="Settings.DLNA.Clients.Config.Clients">Clients</string> 
   <string name="Settings.DLNA.Clients.Config.ClientName">Name</string>
   <string name="Settings.DLNA.Clients.Config.Profile">Profil</string>

@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UiComponents.Nereus</RootNamespace>
     <AssemblyName>Nereus</AssemblyName>
-    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -111,6 +111,7 @@
     <Compile Include="Models\AutoScrollConfigurationModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\BaseGridViewTypeConfiguration.cs" />
+    <Compile Include="Settings\Configuration\EnableMenuSelectionConfiguration.cs" />
     <Compile Include="Settings\Configuration\SkinColorConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableCoverDetailsConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableTouchDisplayConfiguration.cs" />
@@ -801,6 +802,7 @@
     <Content Include="Skin\Nereus\images\PowerMenu\Shutdown.png" />
     <Content Include="Skin\Nereus\images\PowerMenu\SleepTimer.png" />
     <Content Include="Skin\Nereus\images\PowerMenu\Suspend.png" />
+    <Content Include="Skin\Nereus\images\press.png" />
     <Content Include="Skin\Nereus\images\preview.png" />
     <Content Include="Skin\Nereus\images\recording.PNG" />
     <Content Include="Skin\Nereus\images\remove.focus.png" />
@@ -1384,6 +1386,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Nereus\themes\default\styles\CircularIndicator.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\superlayers\ScreenSaver.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\CurrentlyPlayingImage.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

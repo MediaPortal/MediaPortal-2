@@ -9,7 +9,7 @@
   <string name="Settings.Appearance.System.CellPhoneInputStyle">Inserimento in modalità tastierino telefonico</string>
   <string name="Settings.Appearance.System.CellPhoneInputStyle.Help">Usa immissione in modalità cellulare/SMS</string>
   <string name="Settings.Appearance.System.ScreenSaverEnabled">Abilita salvaschermo</string>
-  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Decidi se usare il slvaschermo</string>
+  <string name="Settings.Appearance.System.ScreenSaverEnabled.Help">Decidi se usare il salvaschermo</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout">Ritardo salvaschermo</string>
   <string name="Settings.Appearance.System.ScreenSaverTimeout.Help">Configura, in minuti,  il tempo trascorso il quale viene visualizzato il salvaschermo dopo l\'ultimo input dell\'utente</string>
   <string name="Settings.Appearance.Skin">Skin</string>

@@ -50,6 +50,7 @@
   <string name="Nereus.Info.Actors">interpreti</string>
   <string name="Nereus.Info.Collection">Collezione</string>
   <string name="Nereus.Info.Artists">Artisti</string>
+  <string name="Nereus.Info.AlbumArtists">Artisti album</string>
   <string name="Nereus.Info.Composer">Compositore</string>
 
   </resources>

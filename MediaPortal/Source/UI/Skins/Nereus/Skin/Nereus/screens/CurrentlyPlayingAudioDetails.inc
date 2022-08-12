@@ -87,7 +87,7 @@
         <StackPanel Orientation="Vertical" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
 
           <Label x:Name="Title" FontSize="{ThemeResource NormalFontSize}" Wrap="True" TextTrimming="WordEllipsis" Margin="0,0,-300,0"
-                 Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                 Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
 
           <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}"
                  Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>

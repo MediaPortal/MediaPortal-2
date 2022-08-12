@@ -30,7 +30,7 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Label x:Name="MediaItemName" Wrap="True" TextTrimming="WordEllipsis"
-                   VerticalAlignment="Stretch" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
+                   VerticalAlignment="Stretch" FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold"
                    Content="{Binding MovieName}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>

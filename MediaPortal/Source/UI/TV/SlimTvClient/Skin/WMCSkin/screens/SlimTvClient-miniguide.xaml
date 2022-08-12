@@ -115,7 +115,7 @@
           </Grid>
 
           <Label Grid.Column="0" Grid.Row="1" x:Name="CurrentProgramLabel" Margin="10,0,10,5" TextTrimming="WordEllipsis"
-              Content="{Binding Path=SelectedCurrentProgram.Title}" FontFamily="SegoeUIBold"
+              Content="{Binding Path=SelectedCurrentProgram.Title}" FontFamily="Noto-Bold"
               Color="{ThemeResource TextColor}"/>
 
           <Label Grid.Column="0" Grid.Row="2" x:Name="CurrentGenreLabel" Margin="10,0,10,5" FontSize="{ThemeResource SmallFontSize}"

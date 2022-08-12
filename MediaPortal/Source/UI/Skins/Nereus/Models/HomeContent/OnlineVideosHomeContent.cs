@@ -31,9 +31,9 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public OnlineVideosHomeContent()
     {
-      _availableLists.Add(new TopLanguagesOnlineVideoSitesList());
-      _availableLists.Add(new LastOnlineVideoSiteList());
-      _availableLists.Add(new FavoriteOnlineVideoSiteList());
+      _availableMediaLists.Add(new TopLanguagesOnlineVideoSitesList());
+      _availableMediaLists.Add(new LastOnlineVideoSiteList());
+      _availableMediaLists.Add(new FavoriteOnlineVideoSiteList());
     }
 
     protected override IContentListModel GetContentListModel()

@@ -29,7 +29,7 @@
         <!-- Actual Item / Total items -->
         <DockPanel DockPanel.Dock="Top" VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" IsVisible="{Binding IsItemsValid}" Margin="13,-85,25,-10">
           <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Top">
-            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold">
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
                   <Binding ElementName="newsitems" Path="CurrentItem"/>
@@ -37,8 +37,8 @@
                 </MultiBinding>
               </Label.Content>
             </Label>
-            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold"/>
-            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold">
+            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold"/>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold">
               <Label.Content>
                 <Binding ElementName="newsitems" Path="ItemsSource.Count" />
               </Label.Content>
@@ -57,7 +57,7 @@
               <RowDefinition Height="Auto"/>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Label Grid.ColumnSpan="2" DataContext="{Binding ElementName=newsitems,Path=CurrentItem}" FontFamily="DefaultBold" Color="{ThemeResource TextColor}"
+            <Label Grid.ColumnSpan="2" DataContext="{Binding ElementName=newsitems,Path=CurrentItem}" FontFamily="Noto-Bold" Color="{ThemeResource TextColor}"
                    Content="{Binding Title}" Margin="0" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" />
             <Label Grid.Row="1" Color="{ThemeResource TextColor}" DataContext="{Binding ElementName=newsitems,Path=CurrentItem}"
                    Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" VerticalAlignment="Stretch" />

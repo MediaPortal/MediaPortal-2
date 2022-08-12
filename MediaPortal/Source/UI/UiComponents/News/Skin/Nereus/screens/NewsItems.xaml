@@ -102,7 +102,7 @@
           </Grid.ColumnDefinitions>
           
           <Label Color="{ThemeResource TextColor}" Wrap="True" Width="900" VerticalAlignment="Stretch"
-                 FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold" Grid.ColumnSpan="2"
+                 FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold" Grid.ColumnSpan="2"
                  Content="{Binding Path=SelectedFeed.Title}" Margin="0,0,0,10"/>
 
           <Grid Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ColumnSpan="2">

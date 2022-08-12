@@ -17,6 +17,7 @@
   <string name="Settings.ServerSettings.SeriesMDESettings">Paramètres d\'importation Séries</string>
   <string name="Settings.ServerSettings.VideoMDESettings">Paramètre d\'importation des vidéos</string>
   <string name="Settings.ServerSettings.ImageMDESettings">Paramètres d\'importation des Images</string>
+  <string name="Settings.ServerSettings.SubtitleMDESettings">Paramètres d\'importation Sous-titre</string>
   <string name="Settings.ServerSettings.FanArtSettings">Paramètres FanArt</string>
   <string name="Settings.ServerSettings.MDESettings.MDESourceEnable">Autorisé les sources internet durant l\'import. </string>
   <string name="Settings.ServerSettings.MDESettings.MDESourceEnable.Help">Sélectionnez les sources internet qui doivent être autorisées pendant l\'importation. La désactivation des sources internet améliorera la vitesse d\'importation, mais certaines métadonnées pourraient ne pas être disponibles.</string>
@@ -72,4 +73,6 @@ Désactiver les filtres réduira le temps d\'importation.</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerMovieLanguage.Help">Langue préférée pour les détails du film depuis internet.</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage">Langue préférée pour la série depuis internet</string>
   <string name="Settings.ServerSettings.LanguageSettings.ServerSeriesLanguage.Help">Langue préférée pour les détails depuis internet</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage">Sous-titre préféré depuis internet</string>
+  <string name="Settings.ServerSettings.LanguageSettings.ServerSubtitleLanguage.Help">Langue préférée des sous-titres depuis internet.</string>
 </resources>

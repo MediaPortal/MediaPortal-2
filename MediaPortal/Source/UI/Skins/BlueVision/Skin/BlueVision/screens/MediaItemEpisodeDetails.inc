@@ -27,14 +27,14 @@
       <ControlTemplate>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                     DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
                  VerticalAlignment="Stretch">
             <Label.Content>
               <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
             </Label.Content>
           </Label>
-          <Label Content=" – " Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
-          <Label x:Name="EpisodeNameLabel" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+          <Label Content=" – " Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
+          <Label x:Name="EpisodeNameLabel" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
                  VerticalAlignment="Stretch">
             <Label.Content>
               <Binding Path="EpisodeName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
@@ -63,7 +63,7 @@
       <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
         <media:MediaAspectWrapper.Template>
           <ControlTemplate>
-              <Label x:Name="FirstAired" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+              <Label x:Name="FirstAired" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
                      DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,10,0"
                      Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=d}" />
           </ControlTemplate>

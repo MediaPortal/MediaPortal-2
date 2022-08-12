@@ -47,7 +47,7 @@
       <media:MovieCollectionAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="MediaItemName" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+            <Label x:Name="MediaItemName" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
                    Content="{Binding CollectionName}" Color="{ThemeResource TextColor}" TextTrimming="WordEllipsis"/>
           </Grid>
         </ControlTemplate>

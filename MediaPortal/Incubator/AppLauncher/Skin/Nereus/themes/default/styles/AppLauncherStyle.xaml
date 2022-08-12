@@ -16,7 +16,7 @@
 
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Margin="10,0,10,0"
              HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
-             Color="{ThemeResource MediaItemUnwatchedColor}" FontFamily="SegoeUIBold"/>
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontFamily="Noto-Bold"/>
     </DockPanel>
   </DataTemplate>
 
@@ -59,7 +59,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
                  FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,5"
-                 ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+                 ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold"/>
       </Grid>
     </Grid>
   </DataTemplate>

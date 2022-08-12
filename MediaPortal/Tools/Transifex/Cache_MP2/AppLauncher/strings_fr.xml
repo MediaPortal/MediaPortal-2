@@ -1,12 +1,20 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+  <string name="AppLauncher.Title">Lanceur</string>
+  <string name="AppLauncher.Helptext">Lier les applications externes et les lancer à partir de MediaPortal 2</string>
   <string name="AppLauncher.Stop">Stop</string>
   <string name="AppLauncher.Pause">Pause</string>
+  <string name="AppLauncher.SwitchPlaying">Changer le statut de lecture</string>
   <string name="AppLauncher.Settings.Title">Réglages</string>
+  <string name="AppLauncher.Settings.Helptext">Sélectionnez vos applications externes</string>
+  <string name="AppLauncher.Settings.Add">Ajouter une application</string>
+  <string name="AppLauncher.Settings.Add.Shortname">Nom abrégé</string>
   <string name="AppLauncher.Settings.Add.Arguments">Arguments</string>
+  <string name="AppLauncher.Settings.Add.Path">Chemin de l\'Application</string>
   <string name="AppLauncher.Settings.Add.Description">Description</string>
   <string name="AppLauncher.Settings.Add.Username">Nom de l\'utilisateur</string>
   <string name="AppLauncher.Settings.Add.Password">Mot de passe</string>
+  <string name="AppLauncher.Settings.Add.Icon">Chemin de l\'icon</string>
   <string name="AppLauncher.Settings.Add.Search">Recherche</string>
   <string name="AppLauncher.Settings.Add.Select">Sélectionnez</string>
   <string name="AppLauncher.Settings.Add.Minimum">Minimum</string>
@@ -16,14 +24,25 @@
   <string name="AppLauncher.Settings.Add.SearchIcon">Recherche d\'icône</string>
   <string name="AppLauncher.Settings.Add.SearchApp">Recherche d\'application</string>
   <string name="AppLauncher.Settings.Add.AsAdmin">Lancer en tant qu\'administrateur</string>
+  <string name="AppLauncher.Settings.Edit">Editer Application</string>
+  <string name="AppLauncher.Settings.Delete">Supprimer Application</string>
+  <string name="AppLauncher.Settings.Menu">Menus de l\'application</string>
+  <string name="AppLauncher.Settings.Menu.ClearMapping">Nettoyer mappage</string>
+  <string name="AppLauncher.Settings.Test">Tester Application</string>
   <string name="AppLauncher.Settings.Add.Helptext">Ajouter une nouvelle Application</string>
   <string name="AppLauncher.Settings.Edit.Helptext">Éditer une Application existante</string>
   <string name="AppLauncher.Settings.Delete.Helptext">Supprimer une Application existante</string>
+  <string name="AppLauncher.Settings.Menu.Helptext">Lier une application à une entrée de menu</string>
   <string name="AppLauncher.Settings.RemoveGroup.Helptext">Supprimer un Groupe existant</string>
 
   <string name="AppLauncher.Group">Groupe</string>
+  <string name="AppLauncher.Ungrouped">Non groupé</string>
   <string name="AppLauncher.SelectGroup">Sélectionnez un groupe</string>
+  <string name="AppLauncher.SelectApp">Sélectionnez une application</string>
   <string name="AppLauncher.RemoveGroup">Supprimer le groupe</string>
   <string name="AppLauncher.Delete">Effacer</string>
+  <string name="AppLauncher.MenuEntry">Lancer l\'Application</string>
+  <string name="AppLauncher.MenuEntry.Help">Lance l\'application liée</string>
+  <string name="AppLauncher.Menu">Menu</string>
   <string name="AppLauncher.Menu.Clear">Supprimer</string>
 </resources>

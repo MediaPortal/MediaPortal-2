@@ -22,25 +22,17 @@
 
 #endregion
 
+using MediaPortal.UI.Presentation.DataObjects;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediaPortal.Common;
-using MediaPortal.Common.Commands;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class WeatherHomeContent : AbstractHomeContent
   {
-    protected override void PopulateBackingList()
+    public WeatherHomeContent()
     {
-      _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
+      _shortcutLists.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new LocationShortcut(),
         new SetupShortcut(),

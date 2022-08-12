@@ -129,23 +129,23 @@
                       <Image HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Uniform" Source="Medialogos\audio\disc.png" Margin="-30,15,0,15"/>
                       <StackPanel Orientation="Horizontal" Margin="-20,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center">
                         <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=DiscId}" 
-                                   Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                                   Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
                         <Label FontSize="{ThemeResource SmallerFontSize}" Content="|" 
-                                   Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                                   Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
                         <Label FontSize="{ThemeResource SmallerFontSize}" Content="{Binding Path=NumDiscs}" 
-                                   Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                                   Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
                       </StackPanel>
                     </Grid>
 
                     <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-                      <Label Margin="5,5,5,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
+                      <Label Margin="5,5,5,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="Noto-Bold"
                                  IsVisible="{Binding Path=BitRate,Converter={StaticResource ReferenceToBoolConverter}}"
                                  HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Label.Content>
                           <Binding Path="BitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kbps"/>
                         </Label.Content>
                       </Label>
-                      <Label Margin="5,0,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="SegoeUIBold"
+                      <Label Margin="5,0,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource InfoFontSize}" FontFamily="Noto-Bold"
                                  IsVisible="{Binding Path=SampleRate,Converter={StaticResource ReferenceToBoolConverter}}"
                                  HorizontalAlignment="Center" VerticalAlignment="Center">
                         <Label.Content>

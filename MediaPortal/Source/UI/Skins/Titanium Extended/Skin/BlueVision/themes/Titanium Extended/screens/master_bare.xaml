@@ -131,18 +131,18 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
         <!-- Time -->
         <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Margin="0,10,10,0"
-               FontSize="{ThemeResource DialogTitleFontSize}" FontFamily="Titan"
+               FontSize="{ThemeResource DialogTitleFontSize}" 
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
       </StackPanel>
 
       <!-- Date & Weather -->
       <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="2" Margin="0,-20,10,0">
-        <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontFamily="TitanBold"
+        <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontFamily="Noto-Bold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-        <Label x:Name="PlaceHolder" Content=" / " FontFamily="TitanBold" Color="{ThemeResource TextColor}" 
+        <Label x:Name="PlaceHolder" Content=" / " FontFamily="Noto-Bold" Color="{ThemeResource TextColor}" 
                VerticalAlignment="Center" HorizontalAlignment="Right"/>
         <Label x:Name="Temp" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Temperature}"
-               FontFamily="TitanBold" Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
+               FontFamily="Noto-Bold" Color="{ThemeResource TextColor}" IsVisible="{Binding UseInHome}"
                VerticalAlignment="Center" HorizontalAlignment="Right"/>
       </StackPanel>
 
@@ -173,7 +173,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     <Grid Width="800" Canvas.Top="20" Canvas.Left="60" IsVisible="{Binding Source={StaticResource MenuModel},Path=IsHomeScreen}">
       <Label x:Name="SelectedItem"
           Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
-          VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource HeaderFontSize}" FontFamily="Titan"
+          VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="{ThemeResource HeaderFontSize}" 
           Color="{ThemeResource TextColor}">
       </Label>
     </Grid>
@@ -221,7 +221,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Border Name="mask" Background="#99000000" CornerRadius="23"/>
         <bvm:GroupMenuListView x:Name="GroupList" Style="{ThemeResource HomeGroupListViewStyle}"
                               VerticalAlignment="Center" HorizontalAlignment="Center"
-                              HomeMenuModel="{StaticResource MenuModel}" Margin="20,30,0,0" FontFamily="Titan" 
+                              HomeMenuModel="{StaticResource MenuModel}" Margin="20,30,0,0"  
                               ItemsSource="{Binding Source={StaticResource MenuModel},Path=MainMenuGroupList,Mode=OneTime}"
                               SelectionChanged="{CommandStencil Source={StaticResource MenuModel},Path=OnGroupItemSelectionChanged}">
          <bvm:GroupMenuListView.Resources>

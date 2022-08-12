@@ -198,7 +198,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       ListItem item = SelectedItem;
       if (item == null)
         return;
-      if(_isScheduleMode)
+      if (_isScheduleMode)
       {
         item.Command.Execute();
         return;
@@ -326,9 +326,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       DialogHeader = "[SlimTvClient.DeleteScheduleType]";
       _dialogActionsList.Clear();
       ListItem recTypeItem = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteSingle]")
-          {
-            Command = new AsyncMethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.Once))
-          };
+      {
+        Command = new AsyncMethodDelegateCommand(() => RecordOrCancelSeries(ScheduleRecordingType.Once))
+      };
       _dialogActionsList.Add(recTypeItem);
       recTypeItem = new ListItem(Consts.KEY_NAME, "[SlimTvClient.DeleteFullSchedule]")
       {
@@ -351,8 +351,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
       var result = _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId).Result;
       IChannel channel = result.Result;
-      ChannelName =  channel?.Name ?? string.Empty;
-      ChannelNumber =  channel?.ChannelNumber ?? 0;
+      ChannelName = channel?.Name ?? string.Empty;
+      ChannelNumber = channel?.ChannelNumber ?? 0;
       ChannelLogoType = channel.GetFanArtMediaType();
     }
 
@@ -496,8 +496,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void NotifyAllPrograms()
     {
       // Send message to all listeners that programs might have been changed
-      foreach (IProgram program in _programs)
-        SlimTvClientMessaging.SendSlimTvProgramChangedMessage(program);
+      if (_programs != null)
+        foreach (IProgram program in _programs)
+          SlimTvClientMessaging.SendSlimTvProgramChangedMessage(program);
     }
 
     protected override bool UpdateRecordingStatus(IProgram program, RecordingStatus newStatus)

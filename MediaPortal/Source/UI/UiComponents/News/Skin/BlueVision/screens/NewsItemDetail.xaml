@@ -24,7 +24,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold" Content="{Binding SelectedItem.Title}" Wrap="True" Margin="0,0,10,10"/>
+        <Label Grid.Column="0" Grid.Row="0" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold" Content="{Binding SelectedItem.Title}" Wrap="True" Margin="0,0,10,10"/>
 
         <ScrollViewer CanContentScroll="False" Grid.Column="0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled" Focusable="True" Margin="0,0,10,0">
           <ScrollViewer.Resources>

@@ -31,8 +31,8 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public LauncherHomeContent()
     {
-      _availableLists.Add(new LatestLaunchedAppList());
-      _availableLists.Add(new FavoriteAppList());
+      _availableMediaLists.Add(new LatestLaunchedAppList());
+      _availableMediaLists.Add(new FavoriteAppList());
     }
 
     protected override IContentListModel GetContentListModel()

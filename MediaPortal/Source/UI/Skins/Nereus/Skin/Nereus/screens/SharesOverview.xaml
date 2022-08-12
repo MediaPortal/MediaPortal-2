@@ -13,7 +13,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid DataContext="{Binding Source={StaticResource SharesModel}}">
+      <Grid DataContext="{Binding Source={StaticResource SharesModel}}" Margin="20,0,0,0">
         <Grid.RowDefinitions>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>

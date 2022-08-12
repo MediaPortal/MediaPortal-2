@@ -45,6 +45,9 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, false)]
     public bool EnableTouchDisplay { get; set; }
 
+    [Setting(SettingScope.User, false)]
+    public bool EnableMenuSelection { get; set; }
+
     [Setting(SettingScope.User, 1.0)]
     public double FanartOverlayOpacity { get; set; }
 

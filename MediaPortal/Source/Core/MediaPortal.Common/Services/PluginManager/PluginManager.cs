@@ -720,16 +720,23 @@ namespace MediaPortal.Common.Services.PluginManager
     /// <param name="statesToLock">The plugin must be in one of those states to be locked.</param>
     protected void LockPluginStateDependency(PluginRuntime plugin, bool upgradableToWriteLock, params PluginState[] statesToLock)
     {
-      lock (_syncObj)
+      // Brownard 19/6/2022
+      // In order to reliably check the plugin's current state a lock is needed, previously this was done by locking _syncObj, checking
+      // the state, and only if it was one of the states to lock, calling plugin.LockForStateDependency whilst still holding a lock on _syncObj.
+      // However, this lead to a deadlock when plugin.LockForStateDependency blocks, and the other thread that's blocking it then tries to
+      // lock _syncObj, which is being held by the thread thats currently blocked in this method waiting for plugin.LockForStateDependency.
+      // To avoid this, plugin.LockForStateDependency is always called, regardless of the plugins current state, which allows the state to be reliably checked
+      // wihout holding a lock on _syncObj, and then subsequently released if the plugin is not in one of the requested states.
+      plugin.LockForStateDependency(upgradableToWriteLock);
+      if (statesToLock.Length > 0)
       {
-        if (statesToLock.Length > 0)
+        ICollection<PluginState> states = new List<PluginState>(statesToLock);
+        if (!states.Contains(plugin.State))
         {
-          ICollection<PluginState> states = new List<PluginState>(statesToLock);
-          if (!states.Contains(plugin.State))
-            throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') is in state '{2}' but is supposed to be in one of the states ('{3}')",
-                plugin.Metadata.Name, plugin.Metadata.PluginId, plugin.State, StringUtils.Join(", ", statesToLock));
+          plugin.UnlockState();
+          throw new PluginInvalidStateException("Plugin '{0}' (id '{1}') is in state '{2}' but is supposed to be in one of the states ('{3}')",
+              plugin.Metadata.Name, plugin.Metadata.PluginId, plugin.State, StringUtils.Join(", ", statesToLock));
         }
-        plugin.LockForStateDependency(upgradableToWriteLock);
       }
     }
 
@@ -958,7 +965,13 @@ namespace MediaPortal.Common.Services.PluginManager
           return true;
         // Exchange pure read lock by upgradable read lock
         UnlockPluginState(plugin);
-        LockPluginStateDependency(plugin, true, PluginState.Disabled, PluginState.Available, PluginState.Enabled);
+        // The plugin may get activated by another thread between the release of the read lock above and obtaining the ugradeable lock below,
+        // so allow the Active state when locking to avoid LockPluginStateDependency throwing an exception in such cases. The state is
+        // checked again immediately after the lock is obtained below to break in that case.
+        LockPluginStateDependency(plugin, true, PluginState.Disabled, PluginState.Available, PluginState.Enabled, PluginState.Active);
+        // Plugin was activated by another thread (see comment above), we can break the method early
+        if (plugin.State == PluginState.Active)
+          return true;
         string pluginName = plugin.Metadata.Name;
         Guid pluginId = plugin.Metadata.PluginId;
         ILogger logger = ServiceRegistration.Get<ILogger>();

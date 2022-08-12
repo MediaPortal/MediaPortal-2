@@ -37,7 +37,7 @@
         <StackPanel DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Top" Orientation="Vertical">
 
             <Label VerticalAlignment="Stretch" Content="{Binding PersonName}" TextTrimming="WordEllipsis"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold" Wrap="True"/>
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold" Wrap="True"/>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
               <Image Source="HomeContentIcons\year.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
                      IsVisible="{Binding Path=BornDate,Converter={StaticResource ReferenceToBoolConverter}}"

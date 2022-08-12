@@ -2,16 +2,60 @@
 <resources>
   <string name="Nereus.Configuration.EnableFanart">启用同人画</string>
   <string name="Nereus.Configuration.EnableFanart.Help">是否在背景中显示同人画。</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling">启用循环滚动</string>
+  <string name="Nereus.Configuration.EnableLoopScrolling.Help"> 是否在媒体列表中使用循环滚动。</string>
+  <string name="Nereus.Configuration.EnableGridDetails"> 启用网格详细信息</string>
+  <string name="Nereus.Configuration.EnableGridDetails.Help">是否显示网格视图的右侧媒体项详细信息。禁用时，简化的详细信息显示在底部。</string>
+  <string name="Nereus.Configuration.EnableCoverDetails"> 
+启用封面详细信息</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling">启用自动滚动</string>
+  <string name="Nereus.Configuration.EnableAutoScrolling.Help">是否在滚动视图中使用自动滚动而不是手动滚动</string>
+  <string name="Nereus.Configuration.AutoScrolling">自动滚动</string>
+  <string name="Nereus.Configuration.ManualAutoScrolling"> 手动滚动</string>
+  <string name="Nereus.Configuration.AutoScrollSpeed">滚动速度</string>
+  <string name="Nereus.Configuration.AutoScrollDelay">滚动延迟</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags"> 启用监视标志</string>
+  <string name="Nereus.Configuration.EnableWatchedFlags.ListView"> 列表显示</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos"> 启用年龄认证徽标</string>
+  <string name="Nereus.Configuration.EnableAgeCertificationLogos.Help"> 是否在媒体屏幕中显示年龄认证标志。</string>
+  <string name="Nereus.Configuration.MovieGridViewType">电影网格布局</string>
+  <string name="Nereus.Configuration.MovieGridViewType.Help">选择电影网格视图中使用的布局</string>
+  <string name="Nereus.Configuration.SeriesGridViewType"> 系列网格布局</string>
+  <string name="Nereus.Configuration.SeriesGridViewType.Help">选择系列网格视图中使用的布局。</string>
+  <string name="Nereus.Configuration.SeasonGridViewType">季节网格布局</string>
+  <string name="Nereus.Configuration.SeasonGridViewType.Help">选择季节网格视图中使用的布局。</string>
+  <string name="Nereus.Configuration.GridViewType.Poster">海报</string>
+  <string name="Nereus.Configuration.GridViewType.Banner"> 横幅</string>
+  <string name="Nereus.Configuration.GridViewType.Thumbnail">缩略图</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView"> 启用媒体项目详细信息视图</string>
+  <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help"> 是否显示媒体项目详细信息而不是直接播放媒体项目。</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay">启用触控显示支持</string>
+  <string name="Nereus.Configuration.EnableTouchDisplay.Help">是否禁用自动滑动菜单并强制显示导航按钮以获得更好的触摸显示支持</string>
+
+  <string name="Nereus.Home.LatestAdded">最新添加</string>
+  <string name="Nereus.Home.LatestPlayed">最近播放</string>
+  <string name="Nereus.Home.ContinuePlayed"> 继续播放</string>
+  <string name="Nereus.Home.CurrentPrograms"> 当前计划</string>
+  <string name="Nereus.Home.CurrentSchedules">当前时间表</string>
   <string name="Nereus.Home.Favorites">收藏夹</string>
+  <string name="Nereus.Home.TopLanguages">语言</string>
+  <string name="Nereus.Home.Unplayed">未播放</string>
   <string name="Nereus.Shortcut.Genre">流派</string>
+  <string name="Nereus.Shortcut.Year">年</string>
   <string name="Nereus.Shortcut.Artist">艺术家</string>
   <string name="Nereus.Shortcut.Search">搜索</string>
+  <string name="Nereus.Shortcut.TVGuide">节目表</string>
   <string name="Nereus.Shortcut.Recordings">录制</string>
   <string name="Nereus.Shortcut.System">系统</string>
   <string name="Nereus.Shortcut.Size">大小</string>
+  <string name="Nereus.Shortcut.Setup"> 设置</string>
+  <string name="Nereus.Shortcut.Location"> 地点</string>
   <string name="Nereus.Shortcut.Refresh">刷新</string>
   
   <string name="Nereus.Home.OtherPlugins">其它的</string>
+  <string name="Nereus.Home.OtherPlugins.Help"> 所有其他插件。</string>
+  
   <string name="Nereus.Info.Subtitles">字幕</string>
   <string name="Nereus.Info.Actors">演员</string>
+  <string name="Nereus.Info.Artists">艺术家</string>
   </resources>

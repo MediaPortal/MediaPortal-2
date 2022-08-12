@@ -34,7 +34,7 @@
         <!-- Actual Item / Total items -->
         <DockPanel DockPanel.Dock="Top" VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" IsVisible="{Binding IsItemsValid}" Margin="13,-85,25,-10">
           <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Top">
-            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold">
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
                   <Binding ElementName="newslist" Path="CurrentItem"/>
@@ -42,8 +42,8 @@
                 </MultiBinding>
               </Label.Content>
             </Label>
-            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold"/>
-            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold">
+            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold"/>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold">
               <Label.Content>
                 <Binding ElementName="newslist" Path="ItemsSource.Count" />
               </Label.Content>
@@ -63,7 +63,7 @@
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
 
-            <Label Grid.ColumnSpan="2" DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+            <Label Grid.ColumnSpan="2" DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
                    Content="{Binding Title}" Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextTrimming="WordEllipsis"/>
             <Label Grid.Column="1" Grid.Row="1" DataContext="{Binding ElementName=newslist,Path=CurrentItem}" Color="{ThemeResource TextColor}" Opacity="0.6"
                    Content="{Binding Description}" Wrap="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" TextTrimming="WordEllipsis"/>

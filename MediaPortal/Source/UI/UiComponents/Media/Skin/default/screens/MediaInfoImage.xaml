@@ -12,7 +12,7 @@
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,10">
           <Label x:Name="Title" Scroll="Auto" ScrollDelay="0"
-                     Content="{Binding Title}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
+                     Content="{Binding Title}" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
         </Grid>
       </ControlTemplate>
     </media:MediaAspectWrapper.Template>

@@ -11,7 +11,7 @@
               <media:MediaAspectWrapper.Template>
                 <ControlTemplate>
                   <StackPanel DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-                    <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+                    <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
                         Content="{Binding Title}" Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis"/>
                     <Label x:Name="Year" FontSize="{ThemeResource SmallFontSize}"
                         Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}" Color="{ThemeResource TextColor}"/>

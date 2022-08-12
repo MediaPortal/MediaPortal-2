@@ -88,7 +88,8 @@ namespace MediaPortal.UiComponents.Media.Models
       {
         if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.StatePushed)
         {
-          bool isPlayerConfigDialog = ServiceRegistration.Get<IWorkflowManager>().CurrentNavigationContext.WorkflowState.StateId.ToString().Equals("D0B79345-69DF-4870-B80E-39050434C8B3", StringComparison.OrdinalIgnoreCase);
+          NavigationContext currentContext = (NavigationContext)message.MessageData[WorkflowManagerMessaging.CONTEXT];
+          bool isPlayerConfigDialog = currentContext.WorkflowState.StateId == SkinBase.General.Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG;
           if (isPlayerConfigDialog)
           {
             IsOSDVisible = false;
@@ -98,7 +99,7 @@ namespace MediaPortal.UiComponents.Media.Models
         if ((WorkflowManagerMessaging.MessageType)message.MessageType == WorkflowManagerMessaging.MessageType.StatesPopped)
         {
           ICollection<Guid> statesRemoved = new List<Guid>(((IDictionary<Guid, NavigationContext>)message.MessageData[WorkflowManagerMessaging.CONTEXTS]).Keys);
-          if (statesRemoved.Contains(new Guid("D0B79345-69DF-4870-B80E-39050434C8B3")))
+          if (statesRemoved.Contains(SkinBase.General.Consts.WF_STATE_ID_PLAYER_CONFIGURATION_DIALOG))
           {
             _isOsdOpenOnDemand = false;
             SetLastOSDMouseUsageTime();

@@ -34,7 +34,7 @@
                       HorizontalAlignment="Left" VerticalAlignment="Top" Margin="10,10,0,40">
             <StackPanel x:Name="Temperatures" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding CurrentLocation}">
               <Image x:Name="BigIcon" Width="150" Height="150" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
-              <Label x:Name="Temperature" FontSize="48" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+              <Label x:Name="Temperature" FontSize="48" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
                   Content="{Binding CurrentLocation.Condition.Temperature}" VerticalAlignment="Center"/>
               <!-- Morpheus_xx 2011-29-12: Currently not supported by grabber, temporary removed
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Content=" ("/>

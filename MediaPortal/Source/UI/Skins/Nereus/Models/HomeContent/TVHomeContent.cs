@@ -25,11 +25,10 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Media.Models;
 using System;
 using System.Collections.Generic;
-using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -37,15 +36,12 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public TVHomeContent()
     {
-      _availableLists.Add(new LastPlayTVList());
-      _availableLists.Add(new FavoriteTVList());
-      _availableLists.Add(new CurrentTVList());
-      _availableLists.Add(new CurrentSchedulesList());
-    }
+      _availableMediaLists.Add(new LastPlayTVList());
+      _availableMediaLists.Add(new FavoriteTVList());
+      _availableMediaLists.Add(new CurrentTVList());
+      _availableMediaLists.Add(new CurrentSchedulesList());
 
-    protected override void PopulateBackingList()
-    {
-      _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
+      _shortcutLists.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new LiveTVShortcut(),
         new EPGShortcut(),

@@ -764,7 +764,7 @@
                FontSize="{ThemeResource BigFontSize}" Color="{ThemeResource HomeNonFocusedColor}" Margin="5,0,5,0">
         <Label.Triggers>
           <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-            <Setter TargetName="ItemLabel" Property="FontFamily" Value="DefaultBold"/> 
+            <Setter TargetName="ItemLabel" Property="FontFamily" Value="Noto-Bold"/> 
           </DataTrigger>
         </Label.Triggers>
       </Label>

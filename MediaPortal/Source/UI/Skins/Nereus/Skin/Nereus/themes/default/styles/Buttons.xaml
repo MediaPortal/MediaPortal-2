@@ -1499,15 +1499,15 @@
         <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <StackPanel Orientation="Horizontal" IsVisible="{Binding ElementName=CurrentlyPlaying, Path=HasFocus}">
-              <Label x:Name="PlayerName" Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4"/>
+              <Label x:Name="PlayerName" Content="{Binding MediaItemTitle}" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="Noto-Bold" Opacity="0.4"/>
               <Label x:Name="PlayerState" Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" Margin="10,0,5,0"
-                     FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4"/>
-              <Label x:Name="PercentagePlayed" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4">
+                     FontSize="21" FontFamily="Noto-Bold" Opacity="0.4"/>
+              <Label x:Name="PercentagePlayed" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="Noto-Bold" Opacity="0.4">
                 <Label.Content>
                   <Binding Path="PercentPlayed" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}"/>
                 </Label.Content>
               </Label>
-              <Label x:Name="PercentageSign" Content="%" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="SegoeUIBold" Opacity="0.4">
+              <Label x:Name="PercentageSign" Content="%" Color="{ThemeResource TextColor}" FontSize="21" FontFamily="Noto-Bold" Opacity="0.4">
               </Label>
             </StackPanel>
           </Grid>
@@ -2700,10 +2700,56 @@
   </Style>
 
   <!-- Virtual Keyboard Styles -->
-  <ResourceWrapper x:Key="VKMargin" Resource="4"/>
+  <ResourceWrapper x:Key="VKMargin" Resource="2"/>
 
   <Style x:Key="VKButtonStyle" BasedOn="{ThemeResource WizardButtonStyle}" TargetType="{x:Type Button}">
     <Setter Property="FontSize" Value="{ThemeResource NormalFontSize}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="2" Background="{ThemeResource NereusColorDark}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Control x:Name="GrowControl" Style="{ThemeResource ButtonControlStyle}"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1">
+            </Control>
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,2,10,4" Grid.ZIndex="2"
+                              HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="VKButtonModStyle" BasedOn="{ThemeResource WizardButtonStyle}" TargetType="{x:Type Button}">
+    <Setter Property="FontSize" Value="48"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid Margin="2" Background="{ThemeResource NereusColorDark}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Control x:Name="GrowControl" Style="{ThemeResource ButtonControlStyle}"
+                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1">
+            </Control>
+            <ContentPresenter x:Name="ContentPresenter" Margin="10,-22,10,18" Grid.ZIndex="2"
+                              HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
+                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
   </Style>
 
   <Style x:Key="VirtualKeyboardControlStyle" TargetType="{x:Type VirtualKeyboardControl}" >

@@ -31,8 +31,8 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public WebradioHomeContent()
     {
-      _availableLists.Add(new LastPlayedWebradioList());
-      _availableLists.Add(new TopPlayedWebradioList());
+      _availableMediaLists.Add(new LastPlayedWebradioList());
+      _availableMediaLists.Add(new TopPlayedWebradioList());
     }
 
     protected override IContentListModel GetContentListModel()
