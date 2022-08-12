@@ -30,7 +30,7 @@ namespace MP2BootstrapperApp.BundlePackages.Features.Metadata
   public class TvServiceClient : AbstractFeatureMetadata
   {
     public TvServiceClient()
-    : base(FeatureId.SlimTvServiceClient, null, null)
+    : base(FeatureId.SlimTvServiceClient, null, new[] { FeatureId.SlimTvTvMosaicClient })
     {
     }
   }

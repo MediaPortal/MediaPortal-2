@@ -25,13 +25,12 @@
 namespace MP2BootstrapperApp.BundlePackages.Features.Metadata
 {
   /// <summary>
-  /// Metadata for the TV Service 3.5 feature. Specifies that the TV Service Client feature should also be
-  /// installed if the client is being installed, and specifies a conflict with the TV Service 3 feature.
+  /// Metadata for the TV Service Client feature.
   /// </summary>
-  public class TvService35 : AbstractFeatureMetadata
+  public class TvMosaicClient : AbstractFeatureMetadata
   {
-    public TvService35()
-    : base(FeatureId.SlimTvService35, new[] { FeatureId.SlimTvServiceClient }, new[] { FeatureId.SlimTvService3, FeatureId.SlimTvTvMosaicClient })
+    public TvMosaicClient()
+    : base(FeatureId.SlimTvTvMosaicClient, null, new[] { FeatureId.SlimTvServiceClient, FeatureId.SlimTvService3, FeatureId.SlimTvService35 })
     {
     }
   }

@@ -73,6 +73,7 @@
     <Compile Include="BootstrapperWrapper\IVariables.cs" />
     <Compile Include="BootstrapperWrapper\Variables.cs" />
     <Compile Include="BundlePackages\Features\AbstractFeatureMetadata.cs" />
+    <Compile Include="BundlePackages\Features\Metadata\TvMosaicClient.cs" />
     <Compile Include="BundlePackages\Features\Metadata\TvServiceClient.cs" />
     <Compile Include="BundlePackages\Features\Metadata\TvService35.cs" />
     <Compile Include="BundlePackages\Features\Metadata\TvService3.cs" />
@@ -438,7 +439,7 @@
     <Resource Include="Resources\path.png" />
   </ItemGroup>
   <ItemGroup>
-    <Resource Include="Resources\Features\SlimTv.TvMosaic.png" />
+    <Resource Include="Resources\Features\SlimTv.TvMosaicClient.png" />
     <Resource Include="Resources\Features\SlimTv.Service3.png" />
     <Resource Include="Resources\Features\SlimTv.Service35.png" />
   </ItemGroup>

@@ -10,6 +10,7 @@
   <string name="FeatureDescription.ServiceMonitor">The GUI for the server part of MediaPortal 2. Provides monitoring and configuration for MP2-Server.</string>
   <string name="FeatureDescription.LogCollector">LogCollector allows you to easily collect all MediaPortal 2 logfiles for creating bug reports.</string>
   <string name="FeatureDescription.SlimTv.ServiceClient">Watch and record live TV using TV Service running on an MP2 server available in the network.</string>
+  <string name="FeatureDescription.SlimTv.TvMosaicClient">Watch and record live TV using a TV Mosaic server available in the network.</string>
   <string name="FeatureDescription.SlimTv.Service3">Watch and record live TV using TV Service 3.</string>
   <string name="FeatureDescription.SlimTv.Service35">Watch and record live TV using TV Service 3.5.</string>
   

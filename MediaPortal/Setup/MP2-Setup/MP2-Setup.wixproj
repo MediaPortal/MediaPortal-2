@@ -38,6 +38,7 @@
     <Compile Include="Features\Server.wxs" />
     <Compile Include="Features\ServiceMonitor.Heat.wxs" />
     <Compile Include="Features\ServiceMonitor.wxs" />
+    <Compile Include="Features\TV\SlimTv.TvMosaicClient.wxs" />
     <Compile Include="Features\TV\SlimTv.Service35.Heat.wxs" />
     <Compile Include="Features\TV\SlimTv.Service35.wxs" />
     <Compile Include="Features\TV\SlimTv.Client.Heat.wxs" />
@@ -45,6 +46,7 @@
     <Compile Include="Features\TV\SlimTv.ServiceClient.wxs" />
     <Compile Include="Features\TV\SlimTv.Service3.Heat.wxs" />
     <Compile Include="Features\TV\SlimTv.Service3.wxs" />
+    <Compile Include="Features\TV\SlimTv.TvMosaicProvider.Heat.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
     <Compile Include="Fragments\ShortcutProperties.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />

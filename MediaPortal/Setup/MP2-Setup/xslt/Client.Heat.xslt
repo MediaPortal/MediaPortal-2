@@ -19,6 +19,9 @@
   <xsl:key name="SlimTv.NativeProvider"
            match="//wix:Directory[@Name = 'SlimTv.NativeProvider']//wix:Component"
            use="@Id"/>
+  <xsl:key name="SlimTv.TvMosaicProvider"
+           match="//wix:Directory[@Name = 'SlimTv.TvMosaicProvider']//wix:Component"
+           use="@Id"/>
 
   <!-- Copy all nodes from source to target and apply templates. -->
   <xsl:template match="node()|@*">
@@ -84,5 +87,7 @@
   <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.Client', @Id)/@Id]"/>
   <xsl:template match="wix:Directory[@Name = 'SlimTv.NativeProvider']"/>
   <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.NativeProvider', @Id)/@Id]"/>
+  <xsl:template match="wix:Directory[@Name = 'SlimTv.TvMosaicProvider']"/>
+  <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.TvMosaicProvider', @Id)/@Id]"/>
   
 </xsl:stylesheet>
