@@ -31,7 +31,7 @@
 
     <Chain>
 
-      <PackageGroupRef Id="NetFx471Web"/>
+      <PackageGroupRef Id="NetFx48Web"/>
       <PackageGroupRef Id="redist"/>
       <PackageGroupRef Id="dokan"/>
       <PackageGroupRef Id="LAVFilters"/>

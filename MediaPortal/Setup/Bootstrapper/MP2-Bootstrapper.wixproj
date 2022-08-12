@@ -25,10 +25,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Bundle.wxs" />
+    <Compile Include="Fragments\NetFx48Web.wxs" />
     <Compile Include="Fragments\MediaPortal2.wxs" />
     <Compile Include="Fragments\Dokan.wxs" />
     <Compile Include="Fragments\LAVFilters.wxs" />
-    <Compile Include="Fragments\NetFx471Web.wxs" />
     <Compile Include="Fragments\VCRedists.wxs" />
   </ItemGroup>
   <ItemGroup>
