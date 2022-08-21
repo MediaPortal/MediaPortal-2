@@ -94,7 +94,7 @@ namespace MediaPortal.Extensions.MediaServer
       catch { }
       if (string.IsNullOrEmpty(result))
       {
-        result = "MP2 Media Server";
+        result = "MediaPortal 2 DLNA Server";
       }
       result += " (" + Dns.GetHostName() + ")";
       return result;
@@ -155,7 +155,7 @@ namespace MediaPortal.Extensions.MediaServer
       catch { }
       if (string.IsNullOrEmpty(result))
       {
-        result = "MediaPortal 2 Media Server";
+        result = "MediaPortal 2 DLNA Server";
       }
       return result;
     }

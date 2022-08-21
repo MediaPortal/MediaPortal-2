@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using MediaPortal.Backend.Services.ClientCommunication;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.UPnP;
 using MediaPortal.Utilities.Exceptions;
 using UPnP.Infrastructure;

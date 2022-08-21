@@ -222,6 +222,7 @@
     <Compile Include="Services\ThumbnailGenerator\IThumbnailProvider.cs" />
     <Compile Include="Services\ThumbnailGenerator\ThumbnailProviderBuilder.cs" />
     <Compile Include="Settings\SerializableRegex.cs" />
+    <Compile Include="SystemCommunication\ClientDescriptor.cs" />
     <Compile Include="SystemCommunication\MPClientMetadata.cs" />
     <Compile Include="Commands\CommandList.cs" />
     <Compile Include="Commands\ICommand.cs" />

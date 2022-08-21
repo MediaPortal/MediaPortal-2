@@ -28,6 +28,7 @@ using System.Linq;
 using MediaPortal.Backend.ClientCommunication;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
+using MediaPortal.Common.SystemCommunication;
 using MediaPortal.Common.UPnP;
 using UPnP.Infrastructure;
 using UPnP.Infrastructure.CP;

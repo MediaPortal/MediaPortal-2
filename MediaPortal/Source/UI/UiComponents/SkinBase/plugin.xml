@@ -31,6 +31,7 @@
     <Model Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62" Name="MouseModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.MouseModel"/>
     <Model Id="81A130E1-F417-47e4-AC9C-0B2E4912331F" Name="ServerAttachmentModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.ServerAttachmentModel"/>
     <Model Id="854ABA9A-71A1-420b-A657-9641815F9C01" Name="HomeServerModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.HomeServerModel"/>
+    <Model Id="5D2EE1D6-BE95-4E21-B34C-C1F204B565D7" Name="UPnPDeviceVersionsModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.UPnPDeviceVersionsModel"/>
     <Model Id="1768FC91-86B9-4f78-8A4C-E204F0D51502" Name="SharesConfigModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.SharesConfigModel"/>
     <Model Id="0F1B04C1-0914-4AEB-BBE6-44708BADB25D" Name="SharesOverviewModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.SharesOverviewModel"/>
     <Model Id="A2F24149-B44C-498b-AE93-288213B87A1A" Name="GeneralPlayerModel" ClassName="MediaPortal.UiComponents.SkinBase.Models.GeneralPlayerModel"/>
