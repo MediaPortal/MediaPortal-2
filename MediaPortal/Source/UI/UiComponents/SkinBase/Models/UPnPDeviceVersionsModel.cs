@@ -32,6 +32,7 @@ using MediaPortal.Common.General;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Messaging;
 using MediaPortal.Common.SystemCommunication;
+using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.ServerCommunication;
 using MediaPortal.UiComponents.SkinBase.General;
@@ -83,7 +84,12 @@ namespace MediaPortal.UiComponents.SkinBase.Models
 
     private void networkTracker_RootDeviceAdded(RootDescriptor rootdescriptor)
     {
-      UpdateDevices();
+      lock (Devices) UpdateDevices();
+    }
+
+    private void networkTracker_RootDeviceRemoved(RootDescriptor rootdescriptor)
+    {
+      lock (Devices) UpdateDevices();
     }
 
     private void UpdateDevices()
@@ -95,7 +101,15 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       }
 
       Devices.Clear();
-      var tmpList = new List<ListItem>();
+
+      IDictionary<string, ListItem> allItems = new Dictionary<string, ListItem>(StringComparer.InvariantCultureIgnoreCase);
+      ISystemResolver systemResolver = ServiceRegistration.Get<ISystemResolver>();
+      var serverConnectionManager = ServiceRegistration.Get<IServerConnectionManager>();
+      var serverController = serverConnectionManager.ServerController;
+      ICollection<MPClientMetadata> attachedClients = null;
+      if (serverConnectionManager.IsHomeServerConnected && serverController != null)
+        attachedClients = serverController.GetAttachedClients();
+
       foreach (RootDescriptor rootDescriptor in knownDevices.Values)
       {
         if (rootDescriptor.State != RootDescriptorState.Ready)
@@ -110,29 +124,49 @@ namespace MediaPortal.UiComponents.SkinBase.Models
         if (serverDescriptor == null && clientDescriptor == null && !RE_NAME_FILTER.IsMatch(deviceDescriptor.FriendlyName))
           continue;
 
-        string deviceUUID = serverDescriptor?.MPBackendServerUUID ?? clientDescriptor?.MPFrontendServerUUID;
+        string deviceUUID = deviceDescriptor.DeviceUUID;
+        bool isOwnHomeServer = deviceUUID == serverConnectionManager.HomeServerSystemId;
+        bool isAttached = attachedClients?.FirstOrDefault(c => c.SystemId == deviceUUID) != null;
+        bool isSelfSystem = deviceUUID == systemResolver.LocalSystemId;
 
-        ListItem item = new ListItem();
-        if (systemName != null)
-        {
-          item.SetLabel("HostNameWithAddress", $"{systemName.HostName} ({systemName.Address})");
-          item.SetLabel("HostName", systemName.HostName);
-          item.SetLabel("IPAddress", systemName.Address);
-        }
-        item.SetLabel("FriendlyName", deviceDescriptor.FriendlyName);
-        item.SetLabel("SoftwareVersion", deviceDescriptor.SoftwareVersion);
+        // Try to update existing entry
+        if (!allItems.TryGetValue(deviceUUID, out ListItem item))
+          item = BuildItem(systemName, deviceDescriptor.FriendlyName, deviceDescriptor.SoftwareVersion, isOwnHomeServer, isAttached, isSelfSystem);
+
         item.SetLabel("Icon",
           serverDescriptor != null ?
             "MP2Server.png" :
             (clientDescriptor != null ? "MP2Client.png" : ""));
-        tmpList.Add(item);
+        allItems[deviceUUID] = item;
       }
 
-      foreach (var listItem in tmpList.OrderBy(l => l["FriendlyName"]))
+      foreach (var listItem in allItems.Values
+                 .OrderByDescending(l => l["OwnHomeServer"])
+                 .ThenByDescending(l => l["Icon"])
+                 .ThenBy(l => l["HostNameWithAddress"])
+                 .ThenBy(l => l["FriendlyName"]))
       {
         Devices.Add(listItem);
       }
       Devices.FireChange();
+    }
+
+    private static ListItem BuildItem(SystemName systemName, string friendlyName, string softwareVersion, bool isOwnHomeServer, bool isAttachedToCurrentHomeServer, bool isSelfSystem)
+    {
+      ListItem item = new ListItem();
+      if (systemName != null)
+      {
+        item.SetLabel("HostNameWithAddress", $"{systemName.HostName} ({systemName.Address})");
+        item.SetLabel("HostName", systemName.HostName);
+        item.SetLabel("IPAddress", systemName.Address);
+      }
+
+      item.SetLabel("FriendlyName", friendlyName);
+      item.SetLabel("SoftwareVersion", softwareVersion);
+
+      item.SetLabel("OwnHomeServer", (isOwnHomeServer || isAttachedToCurrentHomeServer).ToString());
+      item.SetLabel("SelfSystem", isSelfSystem ? "*" : "");
+      return item;
     }
 
     private SystemName GetSystemName(RootDescriptor rootDescriptor)
@@ -149,11 +183,6 @@ namespace MediaPortal.UiComponents.SkinBase.Models
       {
         return null;
       }
-    }
-
-    private void networkTracker_RootDeviceRemoved(RootDescriptor rootdescriptor)
-    {
-      UpdateDevices();
     }
 
     public Guid ModelId
