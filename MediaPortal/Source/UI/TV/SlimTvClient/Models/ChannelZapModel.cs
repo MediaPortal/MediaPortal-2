@@ -79,7 +79,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void ZapByNumber(string key)
     {
       int number;
-      if (!int.TryParse(key, out number) || ChannelNumberOrIndex.Length >= 4)
+      if (!int.TryParse(key, out number))
         return;
 
       ChannelNumberOrIndex += number.ToString();
@@ -127,12 +127,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ZapTimerElapsed(object sender, EventArgs eventArgs)
     {
+      // Clear zap timer first so that ChannelNumberOrIndex string is
+      // cleared regardless of whether the channel number parsing fails,
+      // otherwise it will keep it's erroneous value on the next zap attempt
+      ClearZapTimer();
+
       // Zap to channel
       int number;
       if (!int.TryParse(ChannelNumberOrIndex, out number))
         return;
-
-      ClearZapTimer();
 
 #if DEBUG_FOCUS
       ServiceRegistration.Get<MediaPortal.Common.Logging.ILogger>().Debug("EPG: ChannelZapModel goto {0}", number);
