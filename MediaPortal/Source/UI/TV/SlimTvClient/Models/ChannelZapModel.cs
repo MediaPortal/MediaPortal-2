@@ -22,16 +22,14 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
 using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Client.Settings;
-using MediaPortal.UI.Presentation.Players;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.Utilities.Events;
+using System;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -62,14 +60,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         _zapTimer.Dispose();
     }
 
-  #region GUI Properties
+    #region GUI Properties
 
-  /// <summary>
-  /// Contains the user inputs of numbers which are either treated as channel index or absolute (logical) channel number.
-  /// </summary>
-  public string ChannelNumberOrIndex
+    /// <summary>
+    /// Contains the user inputs of numbers which are either treated as channel index or absolute (logical) channel number.
+    /// </summary>
+    public string ChannelNumberOrIndex
     {
-      get { return (string) _channelNumberOrIndexProperty.GetValue(); }
+      get { return (string)_channelNumberOrIndexProperty.GetValue(); }
       internal set { _channelNumberOrIndexProperty.SetValue(value); }
     }
 
@@ -151,7 +149,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           // Channel index starts by 0, user enters 1 based numbers
           number--;
           guide.GoToChannelIndex(number);
-        } else
+        }
+        else
         {
           guide.GoToChannelNumber(number);
         }
