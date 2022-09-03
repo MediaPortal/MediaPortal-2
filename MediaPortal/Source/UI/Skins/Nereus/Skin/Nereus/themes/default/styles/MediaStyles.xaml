@@ -925,16 +925,32 @@
 
   <ControlTemplate x:Key="List_WatchedFlag_Template">
     <Grid>
-      <Image x:Name="PartlyWatchedLabel" Height="33" Margin="0,4,5,0" Stretch="Uniform" Opacity="0.7" Source="partlywatched.png">
+      <Image x:Name="PartlyWatchedLabel" Height="33" Stretch="Uniform" Opacity="0.7" Source="partlywatched.png">
         <Image.IsVisible>
           <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} > 0"/>
         </Image.IsVisible>
+        <Image.Margin>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} &amp;&amp; {1} == &quot;False&quot; ? {2} : {3}">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+            <Binding Source="0,4,30,0"/>
+            <Binding Source="0,4,5,0"/>
+          </MultiBinding>
+        </Image.Margin>
       </Image>
 
-      <Image x:Name="WatchedLabel" Height="33" Margin="0,4,5,0" Stretch="Uniform" Opacity="0.7" Source="watched.png">
+      <Image x:Name="WatchedLabel" Height="33" Stretch="Uniform" Opacity="0.7" Source="watched.png">
         <Image.IsVisible>
           <Binding Path="WatchPercentage" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == 100"/>
         </Image.IsVisible>
+        <Image.Margin>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} &amp;&amp; {1} == &quot;False&quot; ? {2} : {3}">
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
+            <Binding Source="{StaticResource ViewModeModel}" Path="AdditionalProperties[extEnableListDetails].Value"/>
+            <Binding Source="0,4,30,0"/>
+            <Binding Source="0,4,5,0"/>
+          </MultiBinding>
+        </Image.Margin>
       </Image>
     </Grid>
   </ControlTemplate>
