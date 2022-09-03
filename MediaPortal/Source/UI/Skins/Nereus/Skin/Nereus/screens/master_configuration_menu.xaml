@@ -79,6 +79,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Color="#E6000000" Offset="0" />
+                <GradientStop Color="#78000000" Offset="0.3" />
+                <GradientStop Color="#46000000" Offset="0.45" />
+                <GradientStop Color="#21000000" Offset="0.6" />
+                <GradientStop Color="#0C000000" Offset="0.75" />
+                <GradientStop Color="#01000000" Offset="0.87" />
                 <GradientStop Color="#00000000" Offset="1" />
               </LinearGradientBrush>
             </Border.Background>
@@ -88,8 +93,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Border Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Color="#00000000" Offset="0" />
                 <GradientStop Color="#E6000000" Offset="1" />
+                <GradientStop Color="#78000000" Offset="0.87" />
+                <GradientStop Color="#46000000" Offset="0.75" />
+                <GradientStop Color="#21000000" Offset="0.6" />
+                <GradientStop Color="#0C000000" Offset="0.45" />
+                <GradientStop Color="#01000000" Offset="0.3" />
+                <GradientStop Color="#00000000" Offset="0" />
               </LinearGradientBrush>
             </Border.Background>
           </Border>
@@ -186,6 +196,11 @@ Parameters which have to be accessible by a DynamicResource lookup:
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Color="#E6000000" Offset="0" />
+                <GradientStop Color="#78000000" Offset="0.3" />
+                <GradientStop Color="#46000000" Offset="0.45" />
+                <GradientStop Color="#21000000" Offset="0.6" />
+                <GradientStop Color="#0C000000" Offset="0.75" />
+                <GradientStop Color="#01000000" Offset="0.87" />
                 <GradientStop Color="#00000000" Offset="1" />
               </LinearGradientBrush>
             </Border.Background>
@@ -195,8 +210,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-                <GradientStop Color="#00000000" Offset="0" />
                 <GradientStop Color="#E6000000" Offset="1" />
+                <GradientStop Color="#78000000" Offset="0.87" />
+                <GradientStop Color="#46000000" Offset="0.75" />
+                <GradientStop Color="#21000000" Offset="0.6" />
+                <GradientStop Color="#0C000000" Offset="0.45" />
+                <GradientStop Color="#01000000" Offset="0.3" />
+                <GradientStop Color="#00000000" Offset="0" />
               </LinearGradientBrush>
             </Border.Background>
           </Border>
