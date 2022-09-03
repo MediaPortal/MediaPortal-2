@@ -152,7 +152,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
             </ListView.Resources>
           </ListView>
 
-          <Grid x:Name="HeaderTextPanel" Grid.Row="2" HorizontalAlignment="Left" Margin="30,0,0,0" VerticalAlignment="Center">
+          <Grid x:Name="HeaderTextPanel" Grid.Row="2" HorizontalAlignment="Left" Margin="30,0,0,10" VerticalAlignment="Center">
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
               <RowDefinition Height="Auto"/>
@@ -161,7 +161,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image x:Name="ItemImage" Width="240" Stretch="Uniform" Opacity="0.8">
+            <Image x:Name="ItemImage" Width="240" Height="240" Stretch="Fill" Opacity="0.8" HorizontalAlignment="Left">
               <Image.Source>
                 <Binding Source="{StaticResource Model}" Path="CurrentLocation" Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}SettingsMenu\{0}.jpg"/>
               </Image.Source>
@@ -169,7 +169,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0" />
               </Image.IsVisible>
             </Image>
-            <Label x:Name="HeaderLabel" Grid.Row="1" MaxWidth="1400" Margin="10" VerticalAlignment="Bottom" Wrap="True"
+            <Label x:Name="HeaderLabel" Grid.Row="1" MaxWidth="1400" Margin="0,10,10,10" VerticalAlignment="Bottom" Wrap="True" HorizontalAlignment="Left"
                    Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" Color="White" Opacity="0.2">
               <Label.FontSize>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
