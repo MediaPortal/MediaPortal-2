@@ -22,28 +22,30 @@
 
 #endregion
 
-using System;
-using System.Globalization;
-using System.Linq;
-using System.Text.RegularExpressions;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
+using MediaPortal.Utilities;
+using System;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 {
   public abstract class AbstractConfigurationConverter : AbstractSingleDirectionConverter
   {
     public const string KEY_ITEM_ACTION = "MenuModel: Item-Action";
+    private static Regex _reLocation = new Regex(@"Config.*->\/(.*)");
+
     public override bool Convert(object val, Type targetType, object parameter, CultureInfo culture, out object result)
     {
       result = null;
-      if (!GetAction(val, out var action))
+      if (!GetConfigLocation(val, out var location))
         return false;
 
-      return ConvertAction(action, parameter, out result);
+      return ConvertConfigLocation(location, parameter, out result);
     }
 
-    protected abstract bool ConvertAction(WorkflowAction action, object parameter, out object result);
+    protected abstract bool ConvertConfigLocation(string configLocation, object parameter, out object result);
     protected static void ProcessFormatString(object parameter, ref object result)
     {
       var formatString = parameter as string;
@@ -51,28 +53,40 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
         result = string.Format(formatString, result);
     }
 
-    internal static bool GetAction(object val, out WorkflowAction action)
+    internal static bool GetConfigLocation(object val, out string location)
     {
+      location = null;
+
+      // Assume that if val is a string then it is already a config location
+      if (val is string l)
+      {
+        location = StringUtils.RemovePrefixIfPresent(l, "/");
+        return true;
+      }
+
+      // Else see if val is a list item containing a WF action that contains the location in it's name
       ListItem li = val as ListItem;
-      action = null;
       if (li == null)
         return false;
 
-      if (!li.AdditionalProperties.TryGetValue(KEY_ITEM_ACTION, out object oAction))
+      if (!li.AdditionalProperties.TryGetValue(KEY_ITEM_ACTION, out object oAction) || !(oAction is WorkflowAction action))
         return false;
 
-      action = oAction as WorkflowAction;
-      return action != null;
+      Match match = _reLocation.Match(action.Name);
+      if (!match.Success)
+        return false;
+
+      location = match.Groups[1].Value;
+      return true;
     }
   }
 
   public class ConfigurationRootConverter : AbstractConfigurationConverter
   {
-    private static Regex _reRoot = new Regex(@"Config.*->\/([^\/]*)");
-    protected override bool ConvertAction(WorkflowAction action, object parameter, out object result)
+    private static Regex _reRoot = new Regex(@"([^\/]*)");
+    protected override bool ConvertConfigLocation(string configLocation, object parameter, out object result)
     {
-      var name = action.Name;
-      Match match = _reRoot.Match(name);
+      Match match = _reRoot.Match(configLocation);
       if (match.Success)
       {
         result = match.Groups[1].Value;
@@ -86,24 +100,15 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
 
   public class ConfigurationPathConverter : AbstractConfigurationConverter
   {
-    private static Regex _rePath = new Regex(@"Config.*->\/(.*)");
-    protected override bool ConvertAction(WorkflowAction action, object parameter, out object result)
+    protected override bool ConvertConfigLocation(string configLocation, object parameter, out object result)
     {
       bool noReplace = parameter is bool b && b;
-      var name = action.Name;
-      Match match = _rePath.Match(name);
-      if (match.Success)
-      {
-        string value = match.Groups[1].Value;
-        if (!noReplace)
-          value = value.Replace('/', '_');
+      if (!noReplace)
+        configLocation = configLocation.Replace('/', '_');
 
-        result = value;
-        ProcessFormatString(parameter, ref result);
-        return true;
-      }
-      result = null;
-      return false;
+      result = configLocation;
+      ProcessFormatString(parameter, ref result);
+      return true;
     }
   }
 
