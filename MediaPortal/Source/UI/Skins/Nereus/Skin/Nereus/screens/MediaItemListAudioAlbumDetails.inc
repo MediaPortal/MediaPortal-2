@@ -5,7 +5,7 @@
   xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
   xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
   xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
-  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,200,20,-10"
+  Grid.Column="0" Grid.Row="0" x:Name="MediaItemDetails" Margin="0,60,20,-10"
   HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
   <Grid.Resources>
@@ -14,6 +14,7 @@
   </Grid.Resources>
 
   <Grid.RowDefinitions>
+    <RowDefinition Height="140"/>
     <RowDefinition Height="*"/>
     <RowDefinition Height="456"/>
   </Grid.RowDefinitions>
@@ -22,7 +23,20 @@
     <ColumnDefinition Width="456"/>
   </Grid.ColumnDefinitions>
 
-  <Grid Grid.Row="1" Grid.Column="1" Height="456" Width="456" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+  <Image HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Uniform" Margin="0,5,0,15" Height="120" Width="250">
+    <Image.Source>
+      <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+                                fanart:MaxWidth="250" fanart:MaxHeight="120"/>
+    </Image.Source>
+  </Image>
+  <!--Image Margin="0,5,0,15" Height="120" Width="250" HorizontalAlignment="Left" VerticalAlignment="Top">
+    <Image.Source>
+      <ImageSourceWrapper Delay="0.5" DelayInOut="true"
+                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;250;120;False}"/>
+    </Image.Source>
+  </Image-->
+
+  <Grid Grid.Row="2" Grid.Column="1" Height="456" Width="456" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <Grid.RowDefinitions>
       <RowDefinition Height="*"/>
     </Grid.RowDefinitions>
@@ -52,7 +66,7 @@
   </Grid>
 
   <media:AudioAlbumAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}"
-                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,20,0" Grid.RowSpan="2">
+                                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,20,0" Grid.Row="1" Grid.RowSpan="2">
     <media:AudioAlbumAspectWrapper.Template>
       <ControlTemplate>
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">

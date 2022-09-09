@@ -76,6 +76,11 @@
               <Label Content="{Binding Origin}" FontSize="{ThemeResource SmallFontSize}" Margin="40,0,0,0"
                      Color="{ThemeResource TextColorForeground}" TextTrimming="WordEllipsis"/>
             </Grid>
+            <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-40,-380,-40">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;140;240}"/>
+              </Image.Source>
+            </Image>
           </StackPanel>
 
         </Grid>
