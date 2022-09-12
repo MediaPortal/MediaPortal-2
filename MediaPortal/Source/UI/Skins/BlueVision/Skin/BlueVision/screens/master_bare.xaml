@@ -151,9 +151,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
 
       <!-- Time & Date -->
       <StackPanel Grid.Row="0" Grid.Column="2" HorizontalAlignment="Right" Margin="-70,-5,10,0" VerticalAlignment="Center">
-        <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
+        <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="{ThemeResource BiggerFontSize}" FontFamily="Noto-Bold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
-        <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
+        <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
       </StackPanel>
 

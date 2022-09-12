@@ -4,6 +4,10 @@
   <string name="MediaServer.ModelUrl">www.team-mediaportal.com</string>
 
   <string name="MediaServer.AudiotContainter">音频</string>
+  <string name="MediaServer.AlbumContainter">相册</string>
+  <string name="MediaServer.ArtistContainter">艺术家</string>
+  <string name="MediaServer.GenreContainter">流派</string>
+  <string name="MediaServer.YearContainter">年</string>
   <string name="MediaServer.ShareContainter">共享</string>
   <string name="MediaServer.ImageContainter">图片</string>
   <string name="MediaServer.VideoContainter">视频</string>
@@ -12,4 +16,5 @@
   <string name="MediaServer.ActorContainter">演员</string>
   <string name="MediaServer.SeriesContainter">系列</string>
   <string name="MediaServer.TV">电视</string>
-  </resources>
+  <string name="MediaServer.Radio">收音机</string>
+</resources>

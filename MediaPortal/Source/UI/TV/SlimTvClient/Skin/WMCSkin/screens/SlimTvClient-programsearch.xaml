@@ -100,7 +100,7 @@
             <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}"
                  Opacity="0.4"/>
             <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
-                 FontFamily="DefaultBold" Opacity="0.4">
+                 FontFamily="Noto-Bold" Opacity="0.4">
               <Label.Content>
                 <Binding ElementName="SearchResult" Path="ItemsCount"/>
               </Label.Content>

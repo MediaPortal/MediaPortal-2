@@ -34,6 +34,8 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="SlimTvClient.DeleteAllRecordings.Text">Effacer ces enregeistrements</string>
   <string name="SlimTvClient.DeleteAllRecordings.Confirmation">Êtes vous sur de vouloir effacer {0} enregistrements?
 Vous ne pourrez pas revenir sur ce choix. </string>
+  <string name="SlimTvClient.UseContainsQuery">Utiliser \"contient\"</string>
+  <string name="SlimTvClient.UseStartsWithQuery">Utiliser \"commence par\"</string>
   <string name="SlimTvClient.ProgramSearch">Recherche de programmes</string>
   <string name="SlimTvClient.ProgramSearch.Help">Chercher les titre des programmes dans l\'EPG et trouver vos émissions souhaitées. </string>
   <!--Extended recording features-->
@@ -95,6 +97,8 @@ Vous ne pourrez pas revenir sur ce choix. </string>
   <string name="SlimTvClient.HideAllChannelsGroup.Help">Si activer, le groupe \"All Channels\" sera caché.</string>
   <string name="SlimTvClient.ChannelLogoStyle">Style du logo de la chaîne</string>
   <string name="SlimTvClient.ChannelLogoStyle.Help">Sélectionnez le style du logo de la chaîne. Le serveur et les clients doivent être redémarrés après les modifications.</string>
+  <string name="SlimTvClient.ChannelLogoAutoUpdate">Mise à jour automatique du logos des chaines</string>
+  <string name="SlimTvClient.ChannelLogoAutoUpdate.Help">Configurez si vous souhaitez mettre à jour automatiquement le logo des chaines.</string>
   <string name="SlimTvClient.RecordingNotificationDuration">Durée de la notification d\'enregistrement </string>
   <string name="SlimTvClient.RecordingNotificationDuration.Help">Configurer la durée d\'affichage de la notification pour les enregistrements.</string>
   <string name="SlimTvClient.Notifications">Notifications</string>

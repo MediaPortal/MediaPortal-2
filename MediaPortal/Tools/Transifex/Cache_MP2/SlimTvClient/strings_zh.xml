@@ -12,6 +12,8 @@
   <string name="SlimTvClient.ProgramStartLabel">开始时间</string>
   <string name="SlimTvClient.ProgramEndLabel">结束时间</string>
   <string name="SlimTvClient.EpisodeLabel">集</string>
+  <string name="SlimTvClient.CurrentProgram">当前计划</string>
+  <string name="SlimTvClient.NextProgram"> 下一个节目</string>
   <string name="SlimTvClient.Progress">进度</string>
   <string name="SlimTvClient.Guide">电视指南</string>
   <string name="SlimTvClient.NoProgram">没有节目数据</string>
@@ -42,9 +44,12 @@
   <string name="SlimTvClient.EpgNumberOfRows.Help">定义EPG显示的条目(频道) 数</string>
   <string name="SlimTvClient.EpgNumberOfHours">EPG中的小时数</string>
   <string name="SlimTvClient.EpgNumberOfHours.Help">定义EPG中显示的小时(节目)数</string>
+  <string name="SlimTvClient.HideAllChannelsGroup">隐藏“所有频道”组</string>
+  <string name="SlimTvClient.HideAllChannelsGroup.Help"> 如果启用，内置的“所有频道”组将被隐藏。</string>
   <string name="SlimTvClient.Notifications">提示信息</string>
   <string name="SlimTvClient.NoColor">无</string>
   <string name="SlimTvClient.RecordingsMenuItem">录制</string>
+  <string name="SlimTvClient.ChannelsMenuItem">频道</string>
   <string name="SlimTvClient.RecordingsRootViewName">电视录制</string>
   <string name="SlimTvClient.ChannelMenuItemLabel">频道</string>
   <string name="SlimTvClient.ChannelNavBarItemLabel">频道：{0}</string>

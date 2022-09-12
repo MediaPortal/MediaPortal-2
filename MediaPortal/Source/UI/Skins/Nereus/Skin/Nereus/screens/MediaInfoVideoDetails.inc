@@ -82,7 +82,7 @@
     <media:MediaAspectWrapper MediaItem="{Binding MediaItem}">
       <media:MediaAspectWrapper.Template>
         <ControlTemplate>
-          <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+          <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
                  Content="{Binding Title}" Wrap="True" TextTrimming="WordEllipsis" VerticalAlignment="Stretch" Margin="0,0,0,5" 
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
         </ControlTemplate>
@@ -293,7 +293,7 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
+                <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="Noto-Bold"
                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                   <Label.Content>
                     <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>

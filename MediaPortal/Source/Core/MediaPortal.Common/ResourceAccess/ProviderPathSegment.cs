@@ -90,7 +90,7 @@ namespace MediaPortal.Common.ResourceAccess
     {
       int index = ppsStr.IndexOf("://");
       if (index == -1)
-        throw new ArgumentException("ProviderPathSegment cannot be deserialized from string '{0}', missing '://' separator", ppsStr);
+        throw new ArgumentException($"ProviderPathSegment cannot be deserialized from string '{ppsStr}', missing '://' separator");
       Guid providerId = new Guid(ppsStr.Substring(0, index));
       string path = UnescapePath(ppsStr.Substring(index + 3));
       return new ProviderPathSegment(providerId, path, isBasePathSegment);

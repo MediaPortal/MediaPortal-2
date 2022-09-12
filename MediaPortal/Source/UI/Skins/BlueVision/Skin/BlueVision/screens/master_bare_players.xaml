@@ -203,10 +203,10 @@ Parameters which have to be accessible by a DynamicResource lookup:
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=2529B0F0-8415-4A4E-971B-38D6CDD2406A}"/>
 
           <!-- Time & Date -->
-          <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="{ThemeResource BiggerFontSize}" FontFamily="DefaultBold"
+          <Label x:Name="TimeLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="{ThemeResource BiggerFontSize}" FontFamily="Noto-Bold"
                    Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
         </StackPanel>
-        <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
+        <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
                Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right" Margin="0,-8,0,0"/>
       </StackPanel>
 

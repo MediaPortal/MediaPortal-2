@@ -86,7 +86,7 @@
                         <ColumnDefinition Width="*"/>
                       </Grid.ColumnDefinitions>
                       <Label Grid.Column="0" x:Name="CurrentProgramTitleLabel" Content="{Binding Path=CurrentProgram.Title}" Scroll="Auto"
-                             FontFamily="DefaultBold" Color="{ThemeResource TextColor}"/>
+                             FontFamily="Noto-Bold" Color="{ThemeResource TextColor}"/>
                       <Label Grid.Column="1" x:Name="CurrentProgramSeriesLabel" Color="{ThemeResource TextColor}" Scroll="Auto"
                              IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
                         <Label.Content>
@@ -930,7 +930,7 @@
                   <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
                 </Image.Source>
               </Image>
-              <Label x:Name="ChannelNumber" Grid.Column="1" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="DefaultBold" Opacity="0.4"
+              <Label x:Name="ChannelNumber" Grid.Column="1" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="Noto-Bold" Opacity="0.4"
                      Color="{ThemeResource TextColor}" Margin="0,-3,5,-1">
                 <Label.FontSize>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
@@ -1006,7 +1006,7 @@
                 </Label.FontSize>
               </Label>
               <Label x:Name="ItemLabel2" Content="{Binding [Name]}" VerticalAlignment="Center" Color="{ThemeResource TextColor}"
-                     Margin="2,-1,0,-1" FontFamily="DefaultBold" IsVisible="{Binding IsRunning}">
+                     Margin="2,-1,0,-1" FontFamily="Noto-Bold" IsVisible="{Binding IsRunning}">
                 <Label.FontSize>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
                     <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>

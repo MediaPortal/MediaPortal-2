@@ -3,4 +3,5 @@
   <string name="SkinSettings.Configuration.SkinSettings">Impostazioni skin</string>
   <string name="SkinSettings.ViewModes.LayoutType.ListLayout">Lista</string>
   <string name="SkinSettings.ViewModes.LayoutType.GridLayout">Griglia</string>
-  </resources>
+  <string name="SkinSettings.ViewModes.LayoutType.CoverLayout">Copertina</string>
+</resources>

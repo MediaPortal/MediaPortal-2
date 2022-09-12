@@ -22,7 +22,7 @@
       <Grid.RowDefinitions>
         <RowDefinition Height="*"/>
       </Grid.RowDefinitions>
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemWatchedColor}" Content="{Binding Title}" Margin="5,0,5,0"/>
     </Grid>
   </DataTemplate>
@@ -39,7 +39,7 @@
         <!--Label FontSize="{ThemeResource TinyFontSize}" Color="{ThemeResource TextColor}" Content="{Binding Path=PublishDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=g}"
                Wrap="true" HorizontalAlignment="Right" Margin="0,0,5,0"
                MaxWidth="{ResolutionResource NewsItemDateWidth}"/-->
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" 
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" 
              Color="{ThemeResource MediaItemWatchedColor}" Content="{Binding Title}" VerticalAlignment="Center"/>
 
         <!--VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/-->

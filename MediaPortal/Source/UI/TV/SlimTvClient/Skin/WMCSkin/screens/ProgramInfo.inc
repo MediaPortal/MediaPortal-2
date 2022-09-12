@@ -42,7 +42,7 @@
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
-      <Label x:Name="Program" Scroll="Auto" FontFamily="SegoeUIBold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+      <Label x:Name="Program" Scroll="Auto" FontFamily="Noto-Bold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
              Content="{Binding CurrentProgram.Title}" Margin="10,0,0,0" Grid.Column="0" FontSize="{ThemeResource SmallFontSize}"
              Color="{ThemeResource TextColor}"/>
       <Label x:Name="SeriesLabel" Content="{Binding CurrentProgram.Series}" Opacity="1.3" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}"

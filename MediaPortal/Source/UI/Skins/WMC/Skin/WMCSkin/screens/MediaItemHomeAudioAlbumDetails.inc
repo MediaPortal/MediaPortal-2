@@ -27,7 +27,7 @@
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
 
             <Label Content="{Binding Path=Album}" Wrap="True" Color="{ThemeResource TextColor}" 
-                   FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+                   FontFamily="Noto-Bold" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
                    IsVisible="{Binding Path=Album,Converter={StaticResource ReferenceToBoolConverter}}"/>
             
             <Label Content="{Binding Path=Artists}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"

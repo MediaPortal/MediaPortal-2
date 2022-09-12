@@ -85,7 +85,7 @@
               </MultiBinding>
             </Image.Source>
           </Image>
-          <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="DefaultBold" Opacity="0.7" Margin="0,0,0,5"
+          <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="Noto-Bold" Opacity="0.7" Margin="0,0,0,5"
                  Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </Grid>
       </mp_special_controls:PlayerControl.TemplateControl>
@@ -127,7 +127,7 @@
     <StackPanel Orientation="Vertical" Grid.Column="1" Grid.Row="1" Margin="60,10,20,0" 
                 HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
       <Label x:Name="CurrentProgramTitleLabel" Content="{Binding Source={StaticResource SlimTvClient},Path=CurrentProgram.Title}" 
-             HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="SegoeUIBold" 
+             HorizontalAlignment="Stretch" VerticalAlignment="Center" FontFamily="Noto-Bold" 
              Color="{ThemeResource TextColor}" Scroll="Auto"/>
       <Label x:Name="StartTime" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
              Content="{Binding Source={StaticResource SlimTvClient}, Path=CurrentProgram.StartTime, Converter={StaticResource SlimTvDateFormatConverter}}" />

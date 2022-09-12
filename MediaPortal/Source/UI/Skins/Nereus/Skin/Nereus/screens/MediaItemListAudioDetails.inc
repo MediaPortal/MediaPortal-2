@@ -63,7 +63,7 @@
 
           <StackPanel Grid.Row="1" Orientation="Vertical" Margin="0,0,20,0">
             <Label x:Name="Title" FontSize="{ThemeResource NormalFontSize}" Wrap="True" TextTrimming="WordEllipsis"
-                   Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                 Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
 
             <Label x:Name="Artists" FontSize="{ThemeResource SmallFontSize}"
                    Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>
@@ -259,7 +259,7 @@
                         <Grid.ColumnDefinitions>
                           <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
+                      <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="Noto-Bold"
                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                           <Label.Content>
                             <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>

@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
   <string name="SkinSettings.Configuration.SkinSettings">皮肤设置</string>
+  <string name="SkinSettings.ViewModes.LayoutType.ListLayout">列表</string>
   <string name="SkinSettings.ViewModes.LayoutType.GridLayout">格</string>
-  </resources>
+  <string name="SkinSettings.ViewModes.LayoutType.CoverLayout">覆盖</string>
+</resources>

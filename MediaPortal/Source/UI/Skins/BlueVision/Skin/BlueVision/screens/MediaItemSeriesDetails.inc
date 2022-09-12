@@ -25,7 +25,7 @@
                              Grid.Column="0" Grid.Row="0" Grid.ColumnSpan="2" Margin="-10,-15,140,0">
     <media:SeriesAspectWrapper.Template>
       <ControlTemplate>
-          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
                  Content="{Binding SeriesName}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"/>
       </ControlTemplate>
     </media:SeriesAspectWrapper.Template>
@@ -57,7 +57,7 @@
         <media:MediaAspectWrapper.Template>
           <ControlTemplate>
             <DockPanel DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" LastChildFill="True">
-              <Label x:Name="Year" HorizontalAlignment="Left" Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+              <Label x:Name="Year" HorizontalAlignment="Left" Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
                      Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
             </DockPanel>
           </ControlTemplate>

@@ -17,7 +17,7 @@
   <media:MediaAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
     <media:MediaAspectWrapper.Template>
       <ControlTemplate>
-        <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+        <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
                Content="{Binding Title}" Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis"/>
       </ControlTemplate>

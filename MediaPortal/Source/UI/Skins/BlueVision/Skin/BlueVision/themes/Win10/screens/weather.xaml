@@ -50,7 +50,7 @@
                 HorizontalAlignment="Left" VerticalAlignment="Bottom" Margin="10,55,0,25">
               <StackPanel x:Name="Temperatures" Orientation="Horizontal" HorizontalAlignment="Center" IsVisible="{Binding CurrentLocation}">
                 <Image x:Name="BigIcon" Width="150" Height="150" Source="{Binding CurrentLocation.Condition.BigIconProperty}"/>
-                <Label x:Name="Temperature" FontSize="48" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+                <Label x:Name="Temperature" FontSize="48" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
                     Content="{Binding CurrentLocation.Condition.Temperature}" VerticalAlignment="Center"/>
               </StackPanel>
               <Label x:Name="LocName" HorizontalAlignment="Center" FontSize="55" Color="{ThemeResource TextColor}"

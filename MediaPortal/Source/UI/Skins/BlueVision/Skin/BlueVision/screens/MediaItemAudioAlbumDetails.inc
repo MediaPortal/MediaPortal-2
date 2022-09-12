@@ -36,7 +36,7 @@
           </Grid.ColumnDefinitions>
 
           <Label Content="{Binding Path=Album}" Color="{ThemeResource TextColor}" Grid.ColumnSpan="2"
-                 FontFamily="DefaultBold" TextTrimming="WordEllipsis" Margin="-10,0,0,0"/>
+                 FontFamily="Noto-Bold" TextTrimming="WordEllipsis" Margin="-10,0,0,0"/>
           
           <Label x:Name="Description" Grid.Row="1" Grid.Column="1" Margin="30,0,35,25" TextTrimming="WordEllipsis"
                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Wrap="True"
@@ -50,7 +50,7 @@
                 <media:MediaAspectWrapper.Template>
                   <ControlTemplate>
                     <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-                      <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontFamily="DefaultBold"
+                      <Label x:Name="Year" Grid.Row="0" Grid.Column="1" FontFamily="Noto-Bold"
                           Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" Color="{ThemeResource TextColor}"/>
                     </Grid>
                   </ControlTemplate>

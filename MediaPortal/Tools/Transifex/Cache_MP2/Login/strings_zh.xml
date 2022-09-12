@@ -17,19 +17,36 @@
 </string> <!-- Group name -->
   <string name="Settings.Users.Config.UserManagement">用户管理</string> <!-- Setting -->
   <string name="Settings.Users.Config.UserManagement.Help">管理家庭服务器上的用户</string>
+  <string name="Settings.Users.Config.UserEnable"> 启用用户登录和限制</string> <!-- Setting -->
+  <string name="Settings.Users.Config.UserEnable.Help">使用户能够登录、更改当前用户并应用用户特定设置</string>
   <!-- User configuration workflow -->
   <string name="UserConfig.UserOverviewWorkflowNavigationContextDisplayLabel">用户管理
 </string>
   <string name="UserConfig.UserConfiguration.Title">用户管理
 </string>
   <string name="UserConfig.Users">用户</string>
+  <string name="UserConfig.UserName">用户名</string>
   <string name="UserConfig.Password">密码</string>
+  <string name="UserConfig.NewUserText">新用户</string>
   <string name="UserConfig.AddUser">增加</string>
   <string name="UserConfig.CopyUser">拷贝</string>
   <string name="UserConfig.DeleteUser">删除</string>
+  <string name="UserConfig.SaveUser"> 节省</string>
+  <string name="UserConfig.DeleteConfirmation">您确定要删除选定的用户吗？</string>
   <string name="UserConfig.Yes">确认</string>
   <string name="UserConfig.No">否定</string>
   <string name="UserConfig.Ok">OK</string>
   <string name="UserConfig.Default">默认</string>
+  <string name="UserConfig.SelectProfileTemplate"> 选择个人资料模板</string>
+  <string name="UserConfig.ClientProfile">客户资料</string>
+  <string name="UserConfig.RestrictedAll">全部允许</string>
   <string name="UserConfig.SharesText">共享</string>
+  <string name="UserConfig.LocalShare"> 客户媒体来源</string>
+  <string name="UserConfig.LocalShares"> 客户媒体来源</string>
+  <string name="UserConfig.GlobalShare">服务器媒体源</string>
+  <string name="UserConfig.GlobalShares">服务器媒体源</string>
+  <string name="UserConfig.NoConfigGlobalSharesHomeServerNotConnected">主服务器当前未连接，因此暂时无法管理服务器媒体源。</string>
+  <string name="UserConfig.NoConfigLocalSharesHomeServerLocal">主服务器位于同一台机器上，因此只能配置服务器媒体源。</string>
+
+  <string name="UserProfileTemplate.Teenager">青少年</string>
   </resources>

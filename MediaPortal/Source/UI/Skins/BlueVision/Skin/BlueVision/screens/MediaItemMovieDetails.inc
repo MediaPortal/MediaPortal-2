@@ -27,7 +27,7 @@
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
           <Label x:Name="MediaItemName" Margin="0,0,0,0" TextTrimming="WordEllipsis"
-                  VerticalAlignment="Stretch" FontFamily="DefaultBold"
+                  VerticalAlignment="Stretch" FontFamily="Noto-Bold"
                   Content="{Binding MovieName}" Color="{ThemeResource TextColor}"/>
         </Grid>
       </ControlTemplate>
@@ -46,7 +46,7 @@
         <media:MediaAspectWrapper.Template>
           <ControlTemplate>
             <DockPanel DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" LastChildFill="True">
-              <Label x:Name="Year" HorizontalAlignment="Left" Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"
+              <Label x:Name="Year" HorizontalAlignment="Left" Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
                      Content="{Binding Path=RecordingTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
             </DockPanel>
           </ControlTemplate>
