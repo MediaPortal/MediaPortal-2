@@ -35,7 +35,7 @@ using MediaPortal.Extensions.UserServices.FanArtService.Interfaces.Providers;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
-  public class FanArtService : IFanArtService
+  public class FanArtService : IFanArtService, IDisposable
   {
     protected readonly object _syncObj = new object();
     protected IList<IFanArtProvider> _providerList = null;
@@ -119,6 +119,12 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
       Random rnd = new Random(DateTime.Now.Millisecond);
       int rndIndex = rnd.Next(fullList.Count - 1);
       return new List<TE> { fullList[rndIndex] };
+    }
+
+    public void Dispose()
+    {
+      foreach(var disposable in _providerList.OfType<IDisposable>()) 
+        disposable.Dispose();
     }
   }
 }

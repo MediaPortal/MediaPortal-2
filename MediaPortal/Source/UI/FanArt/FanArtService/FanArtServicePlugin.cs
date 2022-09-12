@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PluginManager;
@@ -62,6 +63,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     public void Shutdown()
     {
+      ServiceRegistration.RemoveAndDispose<IFanArtService>();
     }
 
     internal static ILogger Logger

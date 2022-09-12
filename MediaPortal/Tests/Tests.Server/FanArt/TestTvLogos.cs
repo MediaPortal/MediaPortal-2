@@ -25,6 +25,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
+using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Localization;
@@ -67,6 +68,21 @@ namespace Tests.Server.FanArt
       //Assert
       Assert.IsTrue(result);
       Assert.AreEqual(1, fanartResources.Count);
+    }
+
+    // Note: We do not have a Mock ITvHandler yet, so test is commented
+    //[Test]
+    public async Task TestUpdateLogosBatch()
+    {
+      //Arrange
+      string designsFolder = Path.Combine(TestContext.CurrentContext.TestDirectory, "Designs");
+      SlimTvFanartProvider provider = new SlimTvFanartProvider(designsFolder);
+
+      //Act
+      var result = await provider.UpdateLogosAsync();
+
+      //Assert
+      Assert.IsTrue(result);
     }
   }
 }
