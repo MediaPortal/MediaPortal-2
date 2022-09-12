@@ -3289,7 +3289,7 @@ namespace MediaPortal.Backend.Services.MediaLibrary
       finally
       {
         if (transaction == null)
-          shareTransaction.Dispose();
+          shareTransaction?.Dispose();
       }
     }
 
