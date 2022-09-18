@@ -168,6 +168,6 @@
 
   <Label x:Name="MediaItemDescription" Wrap="True" Grid.Row="1" Opacity="0.6" Color="{ThemeResource TextColor}"
          TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
-         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Margin="0,50,20,0"/>
+         Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}" Margin="0,50,20,20"/>
 
 </Grid>

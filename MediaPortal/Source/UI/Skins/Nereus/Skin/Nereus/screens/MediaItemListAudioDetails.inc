@@ -56,7 +56,7 @@
 
           <Image HorizontalAlignment="Left" VerticalAlignment="Top" Stretch="Uniform" Margin="0,5,0,15" Height="120" Width="250">
             <Image.Source>
-              <fanart:FanArtImageSource fanart:FanArtMediaType="Other" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
+              <fanart:FanArtImageSource fanart:FanArtMediaType="Audio" fanart:FanArtType="ClearArt" fanart:FanArtName="{Binding MediaItem.MediaItemId}"
                                         fanart:MaxWidth="250" fanart:MaxHeight="120"/>
             </Image.Source>
           </Image>

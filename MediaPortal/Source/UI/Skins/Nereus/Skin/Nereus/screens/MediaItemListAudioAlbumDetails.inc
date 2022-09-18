@@ -29,12 +29,6 @@
                                 fanart:MaxWidth="250" fanart:MaxHeight="120"/>
     </Image.Source>
   </Image>
-  <!--Image Margin="0,5,0,15" Height="120" Width="250" HorizontalAlignment="Left" VerticalAlignment="Top">
-    <Image.Source>
-      <ImageSourceWrapper Delay="0.5" DelayInOut="true"
-                          Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;250;120;False}"/>
-    </Image.Source>
-  </Image-->
 
   <Grid Grid.Row="2" Grid.Column="1" Height="456" Width="456" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
     <Grid.RowDefinitions>
