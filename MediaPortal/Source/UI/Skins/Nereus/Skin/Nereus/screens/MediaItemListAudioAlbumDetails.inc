@@ -75,7 +75,7 @@
           <StackPanel Grid.Row="0" Orientation="Vertical" Margin="0,0,-500,0">
 
             <Label Content="{Binding Path=Album}" Wrap="True" Margin="0,0,0,0" Color="{ThemeResource TextColor}"
-                   FontFamily="SegoeUIBold" FontSize="{ThemeResource NormalFontSize}" TextTrimming="WordEllipsis"
+                   FontFamily="Noto-Bold" FontSize="{ThemeResource NormalFontSize}" TextTrimming="WordEllipsis"
                    IsVisible="{Binding Path=Album,Converter={StaticResource ReferenceToBoolConverter}}"/>
 
             <Label Content="{Binding Path=Artists}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
@@ -284,7 +284,7 @@
                         <Grid.ColumnDefinitions>
                           <ColumnDefinition Width="*"/>
                         </Grid.ColumnDefinitions>
-                        <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
+                        <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="Noto-Bold"
                                HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                           <Label.Content>
                             <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>

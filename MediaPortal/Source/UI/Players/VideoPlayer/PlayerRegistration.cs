@@ -35,8 +35,8 @@ namespace MediaPortal.UI.Players.Video
     /// List of (lower-case!) extensions which are played with one of our players.
     /// TODO: Move to settings like in ImagePlayer and BassPlayer.
     /// </summary>
-    protected static IDictionary<string, Type> EXTENSIONS2PLAYER = new Dictionary<string, Type>();
-    protected static IDictionary<string, Type> MIMETYPES2PLAYER = new Dictionary<string, Type>();
+    protected static IDictionary<string, Type> EXTENSIONS2PLAYER = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
+    protected static IDictionary<string, Type> MIMETYPES2PLAYER = new Dictionary<string, Type>(StringComparer.InvariantCultureIgnoreCase);
 
     static PlayerRegistration()
     {
@@ -77,12 +77,12 @@ namespace MediaPortal.UI.Players.Video
     {
       Type playerType;
       // When a mimetype is set, try to get the player type for it
-      if (mimeType != null && MIMETYPES2PLAYER.TryGetValue(mimeType.ToLowerInvariant(), out playerType))
+      if (mimeType != null && MIMETYPES2PLAYER.TryGetValue(mimeType, out playerType))
         return playerType;
 
       // 2nd chance: If no mimetype matches, try extension
       string path = locator.NativeResourcePath.LastPathSegment.Path;
-      string extension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(path)).ToLowerInvariant();
+      string extension = StringUtils.TrimToEmpty(ProviderPathHelper.GetExtension(path));
 
       if (EXTENSIONS2PLAYER.TryGetValue(extension, out playerType))
         return playerType;

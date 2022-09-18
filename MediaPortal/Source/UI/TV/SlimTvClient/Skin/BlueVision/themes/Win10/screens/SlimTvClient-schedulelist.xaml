@@ -104,7 +104,7 @@
               <ColumnDefinition Width="Auto"/>
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="Program" Grid.Column="0" FontFamily="DefaultBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+            <Label x:Name="Program" Grid.Column="0" FontFamily="Noto-Bold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                    Content="{Binding Path=CurrentProgram.Title}"
                    Color="{ThemeResource TextColor}"/>
             <Label Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" Opacity="0.6"
@@ -125,7 +125,7 @@
         <!-- Actual Item / Total items -->
         <DockPanel VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" IsVisible="{Binding IsItemsValid}" Margin="98,-153,25,-10">
           <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Top">
-            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold">
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
                   <Binding ElementName="ScheduleList" Path="CurrentItem"/>

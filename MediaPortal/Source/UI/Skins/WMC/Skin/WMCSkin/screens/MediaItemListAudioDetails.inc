@@ -53,7 +53,7 @@
             </Grid.RowDefinitions>
 
             <Label x:Name="Title" FontSize="{ThemeResource SmallFontSize}" Wrap="True" TextTrimming="WordEllipsis"
-                   Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                   Content="{Binding TrackName}" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
 
             <Label Grid.Row="1" x:Name="Artists" FontSize="{ThemeResource SmallFontSize}"
                    Content="{Binding Artists}" Color="{ThemeResource TextColor}"/>

@@ -1,0 +1,39 @@
+<Plugin
+    DescriptorVersion="1.0" 
+    Name="TvMosaic Metadata Extractor"
+    PluginId="{A252A526-186A-448C-B3F8-94C75E50C067}"
+    Author="Morpheus_xx"
+    Copyright="GPL"
+    Description="Retrieves metadata for TvMosaic recorded tv.">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2019-08-26 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.Utilities" CompatibleAPI="1" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="TvMosaicMetadataExtractor.dll"/>
+    <Assembly FileName="TvMosaic.Shared.dll"/>
+    <Assembly FileName="TvMosaic.API.dll"/>
+  </Runtime>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="TvMosaicMetadataExtractorLanguage" Directory="Language" Type="Language"/>
+  </Register>
+  
+  <!-- The ResourceProvider to access and navigate the TvMosaic API for recorded tv. -->
+  <Register Location="/ResourceProviders">
+    <Instance Id="TvMosaicResourceProvider" ClassName="TvMosaicMetadataExtractor.ResourceAccess.TvMosaicResourceProvider"/>
+  </Register>
+  
+  <Register Location="/Media/MetadataExtractors">
+    <Instance
+        Id="TvMosaicRecordingMetadataExtractor"
+        ClassName="TvMosaicMetadataExtractor.TvMosaicRecordedTvMetadataExtractor"/>
+  </Register>
+</Plugin>

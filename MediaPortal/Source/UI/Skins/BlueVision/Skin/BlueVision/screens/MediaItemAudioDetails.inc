@@ -27,7 +27,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label x:Name="Title" FontFamily="DefaultBold"
+          <Label x:Name="Title" FontFamily="Noto-Bold"
               Content="{Binding TrackName}"  Color="{ThemeResource TextColor}"/>
         </Grid>
       </ControlTemplate>

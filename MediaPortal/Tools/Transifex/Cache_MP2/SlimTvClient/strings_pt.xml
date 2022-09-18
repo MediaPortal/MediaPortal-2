@@ -95,6 +95,8 @@
   <string name="SlimTvClient.HideAllChannelsGroup.Help">Caso activado, o grupo \"Todos os canais\" será escondido.</string>
   <string name="SlimTvClient.ChannelLogoStyle">Mudar o estilo de logo de Canal</string>
   <string name="SlimTvClient.ChannelLogoStyle.Help">Seleccione o estilo de logo de canal. Servidor e cliente necessitam ser reiniciados para visualizar as alterações.</string>
+  <string name="SlimTvClient.ChannelLogoAutoUpdate">Atualização automática de logo de canal</string>
+  <string name="SlimTvClient.ChannelLogoAutoUpdate.Help">Configura se os canais atualizam automaticamente os seus logos.</string>
   <string name="SlimTvClient.RecordingNotificationDuration">Tempo que as notificações de gravação ficam no ecrã</string>
   <string name="SlimTvClient.RecordingNotificationDuration.Help">Configure o tempo que as notificações de gravação permanecem no ecrã</string>
   <string name="SlimTvClient.Notifications">Notificações</string>

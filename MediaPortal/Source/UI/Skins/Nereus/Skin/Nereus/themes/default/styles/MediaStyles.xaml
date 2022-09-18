@@ -137,11 +137,11 @@
                   </Grid.RowDefinitions>
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                         FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+                         FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
                   <Label x:Name="CurrentTimeLabel" Grid.Column="1" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}"
-                         HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,25,0" FontFamily="SegoeUIBold"
+                         HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10,0,25,0" FontFamily="Noto-Bold"
                          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
 
                   <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
@@ -386,7 +386,7 @@
                   </Grid.RowDefinitions>
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                         FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+                         FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
 
                   <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2">
@@ -536,7 +536,7 @@
                 <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}" Command="{Command Next}"/>
               </StackPanel>
 
-              <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="10" Content="{Binding Path=MediaItemTitle}" FontFamily="SegoeUIBold"
+              <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="10" Content="{Binding Path=MediaItemTitle}" FontFamily="Noto-Bold"
                      Color="{ThemeResource TextColor}" HorizontalAlignment="Center" VerticalAlignment="Center" TextTrimming="CharacterEllipsis"/>
 
               <StackPanel x:Name="NavigateControlsPanel" Orientation="Horizontal" DockPanel.Dock="Right"  VerticalAlignment="Center" HorizontalAlignment="Right">
@@ -1086,9 +1086,9 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
     </Grid>
   </ControlTemplate>
@@ -1198,7 +1198,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
-             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+             FontFamily="Noto-Bold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1254,9 +1254,9 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
     </Grid>
   </ControlTemplate>
@@ -1330,7 +1330,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="0,10,0,0"
-             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+             FontFamily="Noto-Bold" TextTrimming="CharacterEllipsis"
              FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1377,9 +1377,9 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
     </Grid>
   </ControlTemplate>
@@ -1480,7 +1480,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
-             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+             FontFamily="Noto-Bold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1512,7 +1512,7 @@
       <media:SeriesAspectWrapper MediaItem="{Binding MediaItem}" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0">
         <media:SeriesAspectWrapper.Template>
           <ControlTemplate>
-            <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}"
+            <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Color="{ThemeResource MediaItemUnwatchedColor}"
                      Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}">
             </Label>
           </ControlTemplate>
@@ -1853,7 +1853,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,5,8,0"
-             TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3" MaxHeight="60"
+             TextTrimming="CharacterEllipsis" FontFamily="Noto-Bold" Opacity="1.3" MaxHeight="60"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1886,7 +1886,7 @@
         <media:SeasonAspectWrapper.Template>
           <ControlTemplate>
             <StackPanel Orientation="Horizontal">
-              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Margin="0,0,7,0"
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Margin="0,0,7,0"
                      Content="[Media.SeasonRootViewName]" Color="{ThemeResource MediaItemUnwatchedColor}">
                 <!--Label.Color>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1896,7 +1896,7 @@
                   </MultiBinding>
                 </-->
               </Label>
-              <Label x:Name="NumberLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}"
+              <Label x:Name="NumberLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Color="{ThemeResource MediaItemUnwatchedColor}"
                      Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=Season}">
                 <!--Label.Color>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -2185,7 +2185,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,5,8,0"
-             TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3" MaxHeight="60"
+             TextTrimming="CharacterEllipsis" FontFamily="Noto-Bold" Opacity="1.3" MaxHeight="60"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -2234,7 +2234,7 @@
         </Image.IsVisible>
       </Image>
 
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
              Grid.Row="0" Grid.Column="1" Color="{ThemeResource MediaItemUnwatchedColor}">
         <Label.Content>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
@@ -2464,7 +2464,7 @@
       </Control>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Wrap="True" Content="{Binding Path=EpisodeName}"
-             Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3"
+             Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="Noto-Bold" Opacity="1.3"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource VIDEO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -2492,7 +2492,7 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,10,0" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,10,0" FontFamily="Noto-Bold"
              FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
       </Label>
       <Image x:Name="ItemTypeSmall" Stretch="Uniform" Margin="10,2,0,2"
@@ -2743,7 +2743,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="1" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,5,8,0"
-             TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3" MaxHeight="60"
+             TextTrimming="CharacterEllipsis" FontFamily="Noto-Bold" Opacity="1.3" MaxHeight="60"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -2777,7 +2777,7 @@
         <media:MovieAspectWrapper.Template>
           <ControlTemplate>
             <Grid >
-              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}"
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Color="{ThemeResource MediaItemUnwatchedColor}"
                      Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=MovieName}">
                 <!--Label.Color>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -3157,7 +3157,7 @@
         <media:MovieAspectWrapper.Template>
           <ControlTemplate>
             <Label x:Name="ItemLabel" Content="{Binding MovieName}" Wrap="True" Margin="8,5,8,0" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
-                     TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold" Opacity="1.3" MaxHeight="60"
+                     TextTrimming="CharacterEllipsis" FontFamily="Noto-Bold" Opacity="1.3" MaxHeight="60"
                      HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource POSTER_COVER_WIDTH}">
               <Label.Color>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -3209,7 +3209,7 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding Title}" Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold">
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding Title}" Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold">
       </Label>
       <Control Grid.Row="0" Grid.Column="2" Template="{StaticResource List_WatchedFlag_Template}">
         <Control.IsVisible>
@@ -3373,7 +3373,7 @@
       </Control>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Wrap="True" Content="{Binding SimpleTitle}"
-             Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold"
+             Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="Noto-Bold"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource VIDEO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -3406,7 +3406,7 @@
         <media:AudioAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
-              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}">
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Color="{ThemeResource MediaItemUnwatchedColor}">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
                     <Binding Path="Track"/>
@@ -3518,7 +3518,7 @@
           <Binding Source="{StaticResource ViewModeModel}" Path="LayoutSize" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} == {LayoutSize}.{Large}"/>
         </Image.IsVisible>
       </Image>
-      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Duration}" Margin="0,0,10,0" FontFamily="SegoeUIBold" 
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Duration}" Margin="0,0,10,0" FontFamily="Noto-Bold" 
              FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}" HorizontalAlignment="Right">
         <Label.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; ({1} == &quot;True&quot;)">
@@ -3648,7 +3648,7 @@
         <media:AudioAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold" Wrap="True"
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold" Wrap="True"
                      HorizontalAlignment="Center" Width="{StaticResource AUDIO_COVER_WIDTH}">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
@@ -3689,7 +3689,7 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,10,0" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,10,0" FontFamily="Noto-Bold"
              FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource MediaItemUnwatchedColor}">
       </Label>
 
@@ -3847,7 +3847,7 @@
         </Image>
       </Grid>
 
-      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Tracks}" Margin="20,0,10,0" FontFamily="SegoeUIBold"
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="3" Content="{Binding Tracks}" Margin="20,0,10,0" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Right">
         <Label.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; ({1} == &quot;True&quot;)">
@@ -3976,7 +3976,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
-             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+             FontFamily="Noto-Bold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -4025,8 +4025,8 @@
         </Image>
       </DockPanel>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Color="{ThemeResource MediaItemUnwatchedColor}"
-             FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"/>
-      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding Size}" FontFamily="SegoeUIBold"
+             FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"/>
+      <Label x:Name="NumberLabel" Grid.Row="0" Grid.Column="2" Content="{Binding Size}" FontFamily="Noto-Bold"
              Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="0,0,10,0">
         <Label.IsVisible>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutSize}.{Large}) &amp;&amp; ({1} == &quot;True&quot;)">
@@ -4242,7 +4242,7 @@
       </Control>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Wrap="True" Content="{Binding SimpleTitle}"
-             Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="SegoeUIBold"
+             Margin="0,10,0,0" TextTrimming="CharacterEllipsis" FontFamily="Noto-Bold"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource VIDEO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -4272,7 +4272,7 @@
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
               Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
       <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
-             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
              IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -4361,9 +4361,9 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="Noto-Bold"
           Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/>
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="Noto-Bold"
           Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
     </Grid>
   </ControlTemplate>
@@ -4408,7 +4408,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
-             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+             FontFamily="Noto-Bold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -4444,7 +4444,7 @@
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
               Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
       <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
-             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
              IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -4533,15 +4533,15 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label Grid.Row="0" Grid.Column="1" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}">
+      <Label Grid.Row="0" Grid.Column="1" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Color="{ThemeResource MediaItemUnwatchedColor}">
         <Label.Content>
           <Binding Path="SimpleTitle" />
         </Label.Content>
       </Label>
 
-      <!--Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
+      <!--Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="Noto-Bold"
           Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/-->
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="Noto-Bold"
           Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
     </Grid>
   </ControlTemplate>
@@ -4585,7 +4585,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
-             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+             FontFamily="Noto-Bold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -4621,7 +4621,7 @@
       <Border VerticalAlignment="Bottom" HorizontalAlignment="Stretch" BorderThickness="0" Background="Black" Opacity="0.5" 
               Height="45" Margin="3" IsVisible="{Binding ElementName=thumbnail, Path=HasImage}"/>
       <Label x:Name="ItemLabel" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" VerticalAlignment="Bottom" Margin="5,5,5,8" 
-             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+             Color="{ThemeResource TextColor}" Height="45" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
              IsVisible="{Binding ElementName=thumbnail, Path=HasImage}" Content="{Binding Path=SimpleTitle}">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -4710,15 +4710,15 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label Grid.Row="0" Grid.Column="1" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Color="{ThemeResource MediaItemUnwatchedColor}">
+      <Label Grid.Row="0" Grid.Column="1" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Color="{ThemeResource MediaItemUnwatchedColor}">
         <Label.Content>
           <Binding Path="SimpleTitle" />
         </Label.Content>
       </Label>
 
-      <!--Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="SegoeUIBold"
+      <!--Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="Noto-Bold"
           Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}"/-->
-      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="SegoeUIBold"
+      <Label x:Name="NumItems" Grid.Row="0" Grid.Column="2" Content="{Binding NumItems}" FontFamily="Noto-Bold"
           Color="{ThemeResource MediaItemUnwatchedColor}" FontSize="{ThemeResource SmallFontSize}" Margin="10,0,10,0"/>
     </Grid>
   </ControlTemplate>
@@ -4762,7 +4762,7 @@
               BorderBrush="{ThemeResource TileFocusedBorderBrush}"/>
 
       <Label x:Name="ItemLabel" Grid.Row="2" Grid.Column="0" Content="{Binding SimpleTitle}" Wrap="True" Margin="8,10,8,0"
-             FontFamily="SegoeUIBold" TextTrimming="CharacterEllipsis"
+             FontFamily="Noto-Bold" TextTrimming="CharacterEllipsis"
              HorizontalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}" Width="{StaticResource AUDIO_COVER_WIDTH}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -5319,7 +5319,7 @@
 
   <DataTemplate x:Key="NestedMediaListDataTemplate" DataType="{x:Type collections:ListItem}">
     <StackPanel>
-      <Label Content="{Binding [Name]}" FontFamily="SegoeUIBold"
+      <Label Content="{Binding [Name]}" FontFamily="Noto-Bold"
              Color="{ThemeResource MenuTextBackground}" Margin="20,0,20,20"/>
 
       <ListView x:Name="MediaItemsList" Style="{ThemeResource LatestMediaListViewStyle}" ItemsSource="{Binding Items}"

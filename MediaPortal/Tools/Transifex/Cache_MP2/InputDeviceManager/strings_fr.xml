@@ -3,6 +3,8 @@
   <string name="Settings.InputDeviceManager.Section">Périphériques d\'Entrés</string>
   <string name="Settings.InputDeviceManager.EnterKeyConfig">Gestionnaire de saisi des clés</string>
   <string name="Settings.InputDeviceManager.EnterKeyConfigHelp">Cela vous permet de lier les fonctions de MediaPortal aux touches de vos périphériques d’entrée. Vous pouvez par exemple affecter VolumeUp / Down à \'+\' et \'-\' sur votre clavier si vous n\'avez pas de touches de volume sur votre clavier.</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfig">Raccourcis d\'action</string>
+  <string name="Settings.InputDeviceManager.EnterActionConfigHelp">Cela vous permet de mapper des actions générales de MediaPortal sur les touches / boutons de votre périphérique pour un accès rapide.</string>
   <string name="Settings.InputDeviceManager.EnterScreenConfig"> Ecran de Configuration du Gestionnaire des Entrées </string>
   <string name="Settings.InputDeviceManager.EnterScreenConfigHelp">Cela vous permet de définir des accès aux différent écran de MediaPortal grâce à une touche de votre périphérique d\'entrée pour un accès rapide.</string>
   <string name="Settings.InputDeviceManager.EnterScreenHome"> Ecran Principal du Gestionnaire des Entrées </string>

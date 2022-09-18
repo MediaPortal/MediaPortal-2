@@ -3,4 +3,19 @@
 
   <string name="Settings.InputDevice.Section">Gestione dispositivi di immissione</string>
   
-  </resources>
+  <string name="Settings.WifiRemote.Title">Telecomando Wi-Fi</string> <!-- Section name -->
+  <string name="Settings.WifiRemote.AuthMode.None">Nessuna autenticazione</string>
+  <string name="Settings.WifiRemote.AuthMode.UserPassword">Nome utente e password</string>
+  <string name="Settings.WifiRemote.AuthMode.Passcode">Codice di accesso</string> 
+  <string name="Settings.WifiRemote.AuthMode.Both">Nome utente e password o codice di accesso</string>
+
+  <string name="Settings.WifiRemote.AuthenticationMethod">Metodo di autenticazione</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AuthenticationMethod.Help">Metodo di autenticazione consentito durante la connessione ad un client di controllo remoto</string>
+  <string name="Settings.WifiRemote.Passcode">Autenticazione con codice di accesso</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Passcode.Help">Consentire il codice d\'accesso durante l\'autenticazione con codice di accesso</string>
+  <string name="Settings.WifiRemote.AutoLoginTimeout">Tempo scaduto per l\'autenticazione</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.AutoLoginTimeout.Help">Tempo in minuti dopo cui è richiesta nuovamente l\'autenticazione del client</string>
+  <string name="Settings.WifiRemote.Port">Porta di servizio</string> <!-- Setting -->
+  <string name="Settings.WifiRemote.Port.Help">I client della porta di servizio numero possono connettersi a</string>
+
+</resources>

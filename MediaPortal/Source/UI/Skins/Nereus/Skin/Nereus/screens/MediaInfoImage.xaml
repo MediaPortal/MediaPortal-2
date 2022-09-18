@@ -111,7 +111,7 @@
                 <ControlTemplate>
                   <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0"
                 IsVisible="{Binding ElementName=Title, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
-                    <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
+                    <Label x:Name="Title" Scroll="Auto" FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold"
                    Content="{Binding Title}" Color="{ThemeResource TextColor}" TextTrimming="CharacterEllipsis" Margin="0,0,0,10"/>
                   </Grid>
                 </ControlTemplate>

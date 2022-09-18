@@ -49,7 +49,7 @@
       <media:MovieCollectionAspectWrapper.Template>
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="MediaItemName" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
+            <Label x:Name="MediaItemName" FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold"
                    Content="{Binding CollectionName}" Color="{ThemeResource TextColor}" TextTrimming="WordEllipsis"/>
           </Grid>
         </ControlTemplate>
@@ -205,7 +205,7 @@
                   <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                   </Grid.ColumnDefinitions>
-                  <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
+                  <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="Noto-Bold"
                          HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                     <Label.Content>
                       <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>

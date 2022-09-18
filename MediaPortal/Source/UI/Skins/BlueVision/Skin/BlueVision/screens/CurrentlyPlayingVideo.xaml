@@ -30,7 +30,7 @@
                   <Label.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                       <Setter TargetName="TabLabel" Property="Color" Value="White"/> 
-                      <Setter TargetName="TabLabel" Property="FontFamily" Value="DefaultBold"/> 
+                      <Setter TargetName="TabLabel" Property="FontFamily" Value="Noto-Bold"/> 
                   </DataTrigger>
                   </Label.Triggers>
                 </Label>
@@ -41,7 +41,7 @@
                   <Label.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                       <Setter TargetName="TabLabel2" Property="Color" Value="White"/>
-                      <Setter TargetName="TabLabel2" Property="FontFamily" Value="DefaultBold"/>
+                      <Setter TargetName="TabLabel2" Property="FontFamily" Value="Noto-Bold"/>
                     </DataTrigger>
                   </Label.Triggers>
                 </Label>
@@ -52,7 +52,7 @@
                   <Label.Triggers>
                     <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
                       <Setter TargetName="TabLabel3" Property="Color" Value="White"/>
-                      <Setter TargetName="TabLabel3" Property="FontFamily" Value="DefaultBold"/>
+                      <Setter TargetName="TabLabel3" Property="FontFamily" Value="Noto-Bold"/>
                     </DataTrigger>
                   </Label.Triggers>
                 </Label>

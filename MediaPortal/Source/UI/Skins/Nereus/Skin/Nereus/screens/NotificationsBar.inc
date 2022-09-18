@@ -20,7 +20,7 @@
         DataContext="{Binding Source={StaticResource StateModel}, Path=[C37B62D0-8E87-42A4-877E-B41944DA9FC9]}"
         IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}">
     <Button Style="{ThemeResource ImportingButtonStyle}" IsVisible="{Binding IsImporting}"/>
-    <Label FontSize="20" Margin="5,-7,0,0" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"
+    <Label FontSize="20" Margin="5,-7,0,0" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"
            VerticalAlignment="Top" HorizontalAlignment="Center">
       <Label.IsVisible>
         <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}>=0">

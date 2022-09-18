@@ -26,7 +26,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <Label x:Name="Title" Grid.Row="0" Grid.Column="0" FontFamily="DefaultBold"
+          <Label x:Name="Title" Grid.Row="0" Grid.Column="0" FontFamily="Noto-Bold"
                  Content="{Binding PersonName}" Color="{ThemeResource TextColor}" TextTrimming="WordEllipsis"/>
           <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="0" Margin="0,0,20,0">
             <StackPanel Orientation="Horizontal">

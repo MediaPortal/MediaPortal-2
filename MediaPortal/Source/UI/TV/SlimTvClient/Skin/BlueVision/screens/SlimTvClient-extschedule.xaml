@@ -83,7 +83,7 @@
         <!-- Actual Item / Total items -->
         <DockPanel VerticalAlignment="Top" HorizontalAlignment="Left" LastChildFill="false" IsVisible="{Binding IsItemsValid}" Margin="60,-113,25,-10">
           <StackPanel DockPanel.Dock="Left" Orientation="Horizontal" VerticalAlignment="Top">
-            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold">
+            <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
                   <Binding ElementName="ExtScheduleList" Path="CurrentItem"/>
@@ -91,8 +91,8 @@
                 </MultiBinding>
               </Label.Content>
             </Label>
-            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold"/>
-            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold">
+            <Label Color="{ThemeResource TextColor}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold"/>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold">
               <Label.Content>
                 <Binding ElementName="ExtScheduleList" Path="ItemsCount" />
               </Label.Content>

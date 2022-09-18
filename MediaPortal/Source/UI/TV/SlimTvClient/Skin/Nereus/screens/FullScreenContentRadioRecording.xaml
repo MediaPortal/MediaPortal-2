@@ -77,7 +77,7 @@
               </MultiBinding>
             </Image.Source>
           </Image>
-          <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="SegoeUIBold" Opacity="0.7" Margin="0,0,0,5"
+          <Label Content="{Binding SeekHint}" FontSize="50" FontFamily="Noto-Bold" Opacity="0.7" Margin="0,0,0,5"
                  Color="Black" VerticalAlignment="Center" HorizontalAlignment="Center"/>
         </Grid>
 
@@ -121,7 +121,7 @@
                     <ControlTemplate>
                       <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,10">
                         <Label x:Name="Title" FontSize="{ThemeResource SmallFontSize}" Scroll="Auto" ScrollDelay="0"
-                               Content="{Binding Title}" Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold"/>
+                               Content="{Binding Title}" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
                       </Grid>
                     </ControlTemplate>
                   </media:MediaAspectWrapper.Template>

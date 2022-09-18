@@ -106,10 +106,10 @@
                   </Grid.RowDefinitions>
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                         FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold" Margin="-10,0,50,0"
+                         FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="Noto-Bold" Margin="-10,0,50,0"
                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                   <Label x:Name="TimeLabel" HorizontalAlignment="Right" VerticalAlignment="Center" 
-                         Color="{ThemeResource FooterShapeFillColor}" FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold"
+                         Color="{ThemeResource FooterShapeFillColor}" FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="Noto-Bold"
                          Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
                 </Grid>
               </ControlTemplate>
@@ -333,10 +333,10 @@
                   </Grid.RowDefinitions>
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}"
-                         FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold" Margin="-10,0,50,0"
+                         FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="Noto-Bold" Margin="-10,0,50,0"
                          Scroll="Auto" HorizontalAlignment="Left" VerticalAlignment="Center"/>
                   <Label x:Name="TimeLabel" HorizontalAlignment="Right" VerticalAlignment="Center" 
-                         Color="{ThemeResource FooterShapeFillColor}" FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold"
+                         Color="{ThemeResource FooterShapeFillColor}" FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="Noto-Bold"
                          Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" />
                 </Grid>
               </ControlTemplate>
@@ -449,7 +449,7 @@
                 <DockPanel x:Name="HeadLine" Grid.Row="0" Grid.Column="0" LastChildFill="True">
                   <Label x:Name="ImageName" DockPanel.Dock="Center" Margin="3" Content="{Binding Path=MediaItemTitle}" Scroll="Auto"
                     Color="{ThemeResource TextColor}" HorizontalAlignment="Left" VerticalAlignment="Center"
-                    FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="TitanBold" />
+                    FontSize="{ThemeResource OsdTitleFontSize}" FontFamily="Noto-Bold" />
                 </DockPanel>
                 <!-- HeadLine -->
               </ControlTemplate>
@@ -2204,7 +2204,7 @@
           </Image.OpacityMask>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="DefaultBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="Noto-Bold"
              Color="{ThemeResource TextColor}">
       </Label>
     </Grid>

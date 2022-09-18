@@ -55,7 +55,7 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Label x:Name="MediaItemName" Wrap="True" HorizontalAlignment="Stretch" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}"
-             FontFamily="SegoeUIBold" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}" Margin="0,0,-460,0"/>
+             FontFamily="Noto-Bold" Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=SimpleTitle}" Margin="0,0,-460,0"/>
       <media:EpisodeAspectWrapper MediaItem="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem}">
         <media:EpisodeAspectWrapper.Template>
           <ControlTemplate>

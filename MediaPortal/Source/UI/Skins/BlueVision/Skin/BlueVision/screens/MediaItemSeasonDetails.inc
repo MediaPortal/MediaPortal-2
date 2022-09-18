@@ -27,7 +27,7 @@
       <ControlTemplate>
           <StackPanel Orientation="Horizontal"
                       DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="DefaultBold">
+            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold">
               <Label.Content>
                 <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} "/>
               </Label.Content>

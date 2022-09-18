@@ -244,3 +244,18 @@
 
   </Include.Resources>
 </Include>
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.State}"
+                Color="{ThemeResource TextColor}"/>
+    
+            <Label x:Name="CityLabel" Grid.Row="10" Grid.Column="0"
+                Content="[Media.ImageCityLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="City" Grid.Row="10" Grid.Column="1"
+                Content="{Binding Source={StaticResource Model},Path=PlayerUIContributor.City}"
+                Color="{ThemeResource TextColor}"/>
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

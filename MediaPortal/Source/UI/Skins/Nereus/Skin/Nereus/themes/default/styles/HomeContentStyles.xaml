@@ -106,7 +106,7 @@
 
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding SimpleTitle}"
-             FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,10" ScrollDelay="0" FontFamily="SegoeUIBold">
+             FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,10" ScrollDelay="0" FontFamily="Noto-Bold">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -343,7 +343,7 @@
 
       <!-- Item label -->
       <Label Grid.Row="1" Grid.Column="0" x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding SimpleTitle}"
-             FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,10" ScrollDelay="0" FontFamily="SegoeUIBold">
+             FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Margin="5,0,5,10" ScrollDelay="0" FontFamily="Noto-Bold">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -448,7 +448,7 @@
       
       <Label x:Name="StartTimeLabel" VerticalAlignment="Center" Margin="20,10,10,10"
              Content="{Binding Path=Program.StartTime, Converter={StaticResource DateFormatConverter}}"
-             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" />
+             Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" />
 
       <Image x:Name="ItemTypeImage" Grid.Column="1" Stretch="Uniform" Margin="0,5,10,0" Height="60">
         <Image.Source>
@@ -689,7 +689,7 @@
               <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
               <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="" 
                      FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
-                     ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+                     ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold"/>
             </Grid>
           </Grid>
 
@@ -1723,7 +1723,7 @@
           <DockPanel x:Name="MediaGridPanel" Margin="{ThemeResource TileGroupMargin}" VerticalAlignment="Stretch"
                      Height="{ThemeResource TileGroupHeight}">
 
-            <Label x:Name="MediaListLabel" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
+            <Label x:Name="MediaListLabel" FontFamily="Noto-Bold" DockPanel.Dock="Top" HorizontalAlignment="Left"
                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
                    Content="{Binding [Name]}"/>
 
@@ -2166,7 +2166,7 @@
 
       <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallerFontSize}" Grid.Row="1" ScrollDelay="0"
              Color="{ThemeResource TextColor}" Content="{Binding Title}" Margin="5,0,5,5"
-             VerticalAlignment="Center" HorizontalAlignment="Stretch" FontFamily="SegoeUIBold">
+             VerticalAlignment="Center" HorizontalAlignment="Stretch" FontFamily="Noto-Bold">
         <Label.Scroll>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -2222,7 +2222,7 @@
       <Image Stretch="Uniform" Margin="10,6,8,10" Height="40" VerticalAlignment="Top" HorizontalAlignment="Right" 
              Grid.Column="2" Source="News.png"/>
 
-      <Label Content="{Binding PublishDate}" Color="{ThemeResource TextColor}" Margin="10,10,-50,10" FontFamily="SegoeUIBold"
+      <Label Content="{Binding PublishDate}" Color="{ThemeResource TextColor}" Margin="10,10,-50,10" FontFamily="Noto-Bold"
              IsVisible="{Binding ElementName=thumb, Path=!HasImage}" FontSize="{ThemeResource SmallFontSize}" />
 
       <Label Grid.Row="1" Grid.ColumnSpan="2" x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" 
@@ -2389,7 +2389,7 @@
     <DockPanel x:Name="MediaGridPanel" Margin="{ThemeResource TileGroupMargin}"
                Height="{ThemeResource TileGroupHeight}">
 
-      <Label x:Name="Label" FontFamily="SegoeUIBold" DockPanel.Dock="Top" HorizontalAlignment="Left"
+      <Label x:Name="Label" FontFamily="Noto-Bold" DockPanel.Dock="Top" HorizontalAlignment="Left"
              Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
              Content="[Nereus.Home.CurrentWeather]"/>
 
@@ -2512,7 +2512,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
-               ScrollDelay="0" FontFamily="SegoeUIBold">
+               ScrollDelay="0" FontFamily="Noto-Bold">
           <Label.Scroll>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -2604,7 +2604,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
-               ScrollDelay="0" FontFamily="SegoeUIBold">
+               ScrollDelay="0" FontFamily="Noto-Bold">
           <Label.Scroll>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -2675,7 +2675,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
-               ScrollDelay="0" FontFamily="SegoeUIBold">
+               ScrollDelay="0" FontFamily="Noto-Bold">
           <Label.Scroll>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -2834,7 +2834,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
-               ScrollDelay="0" FontFamily="SegoeUIBold">
+               ScrollDelay="0" FontFamily="Noto-Bold">
           <Label.Scroll>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -2905,7 +2905,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,0,5,5"
-               ScrollDelay="0" FontFamily="SegoeUIBold">
+               ScrollDelay="0" FontFamily="Noto-Bold">
           <Label.Scroll>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -3337,7 +3337,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
-               ScrollDelay="0" FontFamily="SegoeUIBold">
+               ScrollDelay="0" FontFamily="Noto-Bold">
           <Label.Scroll>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
               <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>

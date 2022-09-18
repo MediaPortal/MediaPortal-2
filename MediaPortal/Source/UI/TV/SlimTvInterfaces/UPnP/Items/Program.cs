@@ -24,6 +24,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Xml;
 using System.Xml.Serialization;
@@ -31,6 +32,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
 {
+  [DebuggerDisplay("[{StartTime}]: {Title}")]
   public class Program : IProgramRecordingStatus, IProgramSeries
   {
     private static XmlSerializer _xmlSerializer;

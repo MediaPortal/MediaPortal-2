@@ -77,9 +77,14 @@
   <!--for example "Focus video player"-->
   <string name="Players.ChooseAudioStream">Выбрать аудиопоток</string>
   <!--for example "Audio menu for Lammbock"-->
+  <string name="Players.Mute">Выключить звук </string>
+  <string name="Players.MuteOff">Отключить звук </string>
   <string name="Players.ClosePlayerContext">Закрыть {0}</string>
   <!--for example "Close video player"-->
+  <string name="Players.ChoosePlayerGeometry">Режим масштабирования </string>
+  <string name="Players.ChoosePlayerEffect">Эффект</string>
   <string name="Players.ChoosePlayerSubtitle">Субтитры</string>
+  <string name="Settings.Appearance">Появление </string>
   <string name="Settings.Appearance.Skin">Оболочка</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">Формат даты</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">Формат времени</string>
@@ -90,8 +95,11 @@
   <string name="Settings.General.Connectivity">Подключения</string>
   <string name="Settings.General.Connectivity.HomeServer">Основной сервер</string>
   <string name="Settings.General.Connectivity.ClientName">Имя клиента</string>
+  <string name="Settings.General.Connectivity.ClientName.Help">Установите имя этого клиента MP2 </string>
+  <string name="Settings.General.Connectivity.HttpServerPort">Порт HTTP-сервера</string>
   <string name="Settings.General.Connectivity.UseIPv4">Использовать IPv4</string>
   <string name="Settings.General.Connectivity.UseIPv6">Использовать IPv6</string>
+  <string name="Settings.General.Connectivity.IPAddressBindings">Привязки IP-адреса </string>
   <string name="Settings.Regional">Регион</string>
   <string name="Settings.Regional.Language">Язык</string>
   <string name="Settings.Regional.Language.Main">Язык</string>
@@ -108,13 +116,16 @@
   <string name="Settings.Shares.Overview.SharesOverview">Обзор источников медиа</string>
   <!--Setting-->
   <string name="Settings.Shares.Overview.SharesOverview.Help">Общий обзор медиа-источников</string>
+  <string name="Settings.Shares.Imports.ReImportAllShares">Повторно импортировать все медиа-источники</string>
   <string name="Settings.Plugins">Плагины</string>
   <string name="SharesOverview.OverviewWorkflowNavigationContextDisplayLabel">Обзор источников медиа</string>
   <string name="SharesOverview.Title">Обзор источников медиа</string>
+  <string name="SharesOverview.ReImportAllShares">Повторно импортировать все медиа-источники</string>
   <string name="Shares.InvalidPath">Неверный путь: \'{0}\'</string>
   <!--For example: INVALID PATH: 'C:\XXX\YYY'-->
   <string name="Shares.Online">Онлайн</string>
   <string name="Shares.Offline">Офлайн</string>
+  <string name="Shares.ReImport">Реимпорт</string>
   <string name="Shares.Importing">Импорт...</string>
   <!--Shares configuration workflow-->
   <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">Настройка источников медиа</string>
@@ -134,6 +145,7 @@
   <string name="SharesConfig.SharePathInfo">Путь:</string>
   <string name="SharesConfig.ShareResourcePathInfo">Технический путь:</string>
   <string name="SharesConfig.ShareMediaCategoriesInfo">Категории медиа:</string>
+  <string name="SharesConfig.ReImportShare">Повторно импортировать медиа-источник </string>
   <string name="SharesConfig.RemoveShares">Удалить источники медиа</string>
   <string name="SharesConfig.EditShare">Изменить источник медиа</string>
   <string name="SharesConfig.ChooseSystem">Выбрать систему</string>
@@ -149,6 +161,7 @@
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <!--Must fit for both multiseat and singleseat, that's why we don't write "server share"-->
   <string name="SharesConfig.UpdateShareRelocateItemsQueryDialogHeader">Обновить источник медиа</string>
+  <string name="SharesConfig.ReImport">Реимпорт</string>
   <string name="SharesConfig.ManualPathInput">Ручной ввод</string>
   <string name="UPnPFrontendServer.Manufacturer">Команда Mediaportal</string>
   <string name="UPnPFrontendServer.ManufacturerUrl">www.team-mediaportal.com</string>
