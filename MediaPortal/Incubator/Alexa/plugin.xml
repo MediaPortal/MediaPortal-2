@@ -1,0 +1,63 @@
+﻿<Plugin
+    DescriptorVersion="1.0"
+    Name="Alexa"
+    PluginId="{D17E2C21-009A-48BF-B756-8E4B1D5F719B}"
+    AutoActivate="True"
+    Author="offbyone"
+    Copyright="GPL"
+    Description="Alexa Plugin">
+
+  <Version
+    PluginVersion="1.0.0"
+    ReleaseDate="2021-09-19 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="3" />
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/><!-- ConfigurationManager -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/><!-- Configuration plugin -->
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="MediaPortal2.Alexa.dll"/>
+    <PluginStateTracker ClassName="MediaPortal2.Alexa.AlexaPlugin"/>
+  </Runtime>
+
+  <Register Location="/Models">
+    <Model Id="EA7A41D6-53C2-4BED-A85E-6C1B49D9E403" Name="AlexaSettingsWorkflowModel" ClassName="MediaPortal2.Alexa.Configuration.AlexaSettingsWorkflowModel"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <DialogState Id="7CC4E52F-A5AF-41A9-BEE8-E08AC4995919"
+                 Name="AlexaSettingsLoginDialogState"
+                 DialogScreen="AlexaLoginDialog"
+                 DisplayLabel="Login"
+                 WorkflowModel="EA7A41D6-53C2-4BED-A85E-6C1B49D9E403"/>
+  </Register>
+
+  <!-- Registration of our configuration section -->
+  <Register Location="/Configuration/Settings/Plugins">
+    <ConfigSection Id="Alexa" Redundant="true" Text="Alexa"/>
+  </Register>
+
+  <!-- Contents of '/Plugins/Alexa' section -->
+  <Register Location="/Configuration/Settings/Plugins/Alexa">
+    <CustomConfigSetting
+        Id="AlexaAccountLink"
+        Text="Link Account"
+        HelpText="Login to your Amazon account to link Alexa with this MediaPortal instance."
+        ClassName="MediaPortal2.Alexa.Configuration.AlexaConfigSetting"
+        AdditionalData="WorkflowState=7CC4E52F-A5AF-41A9-BEE8-E08AC4995919,ConfAppPanel=..."/>
+  </Register>
+
+  <!-- Registration of our skin directory -->
+  <Register Location="/Resources/Skin">
+    <!-- This registration is necessary to declare the skin directory. You can use an arbitrary directory name or
+         relative path; the path must be the relative to directory of the plugin.
+         The id of the plugin can be arbitrary but must be unique in the MP 2 system. It is not referenced directly
+         in any place. -->
+    <Resource Id="AlexaSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+</Plugin>

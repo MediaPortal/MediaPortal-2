@@ -1,0 +1,54 @@
+<?xml version='1.0' encoding='utf-8'?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <ProjectType>local</ProjectType>
+    <ProjectVersion>7.10.377</ProjectVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>98ab7b02-0aed-474d-95ed-608b3833c6e9</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <AssemblyName>MediaPortal2.Alexa</AssemblyName>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="MediaPortal.Common" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="MediaPortal.UI" />
+    <Reference Include="SlimTv.Interfaces" />
+    <Reference Include="SlimTv.Client" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Compile Include="Global.cs" />
+    <Compile Include="MediaPortal2\Alexa\AlexaPlugin.cs" />
+    <Compile Include="MediaPortal2\Alexa\MediaPortalDeviceControllerCallback.cs" />
+    <Compile Include="MediaPortal2\Alexa\TvChannelHelper.cs" />
+    <Compile Include="MediaPortal2\Alexa\Configuration\AlexaConfigSetting.cs" />
+    <Compile Include="MediaPortal2\Alexa\Configuration\AlexaSettings.cs" />
+    <Compile Include="MediaPortal2\Alexa\Configuration\AlexaSettingsWorkflowModel.cs" />
+    <Compile Include="MediaPortal2\Alexa\Configuration\LoginForm.cs" />
+    <Compile Include="MediaPortal2\Alexa\Configuration\WebBrowserProxy.cs" />
+    <Compile Include="MediaPortal\Alexa\Contracts\IMediaPortalDeviceController.cs" />
+    <Compile Include="MediaPortal\Alexa\Contracts\IMediaPortalDeviceControllerCallback.cs" />
+  </ItemGroup>
+</Project>
