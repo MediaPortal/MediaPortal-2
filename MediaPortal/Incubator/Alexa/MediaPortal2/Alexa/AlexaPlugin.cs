@@ -5,6 +5,7 @@
     using MediaPortal.Common.Logging;
     using MediaPortal.Common.PluginManager;
     using MediaPortal.UI.Presentation.Players;
+    using MediaPortal2.Alexa.Configuration;
     using System;
     using System.ServiceModel;
 
@@ -30,7 +31,7 @@
 
         public void Connect()
         {
-            if (!Guid.TryParse(ServiceRegistration.Get<ISettingsManager>().Load<AlexaSettings>().RegistrationId, out this.registrationId))
+            if (!Guid.TryParse(ServiceRegistration.Get<MediaPortal.Common.Settings.ISettingsManager>().Load<AlexaSettings>().RegistrationId, out this.registrationId))
             {
                 this.log.Info("Alexa found no registration id - please use the plugin configuration to register!", Array.Empty<object>());
             }
