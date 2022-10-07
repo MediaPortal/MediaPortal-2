@@ -1,0 +1,105 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="12.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectVersion>7.10.377</ProjectVersion>
+    <ProjectGuid>{1461760A-E8E3-4C38-B716-D25D110CD713}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MediaPortal.Plugins.Alexa</RootNamespace>
+    <AssemblyName>MediaPortal2.Alexa</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <OutputPath>bin\x86\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\x86\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ECF060E7-CAA1-4466-851F-F80B857641EA}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj">
+      <Project>{52E587D0-A274-44DA-8846-8EEAF5414923}</Project>
+      <Name>MediaPortal.UI</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvClient\SlimTv.Client.csproj">
+      <Project>{6EB21E54-9984-41A4-922C-7AF27CFE56BA}</Project>
+      <Name>MediaPortal.Plugins.SlimTv.Client</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj">
+      <Project>{F31C71FA-4A24-4D33-B0EE-52CF667DCEF4}</Project>
+      <Name>MediaPortal.Plugins.SlimTv.Interfaces</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="MediaPortal.Common" />
+    <Reference Include="System.ServiceModel" />
+    <Reference Include="MediaPortal.UI" />
+    <Reference Include="SlimTv.Interfaces" />
+    <Reference Include="SlimTv.Client" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Compile Include="Global.cs" />
+    <Compile Include="MediaPortal2\Alexa\AlexaPlugin.cs" />
+    <Compile Include="MediaPortal2\Alexa\MediaPortalDeviceControllerCallback.cs" />
+    <Compile Include="MediaPortal2\Alexa\TvChannelHelper.cs" />
+    <Compile Include="MediaPortal2\Alexa\Configuration\AlexaConfigSetting.cs" />
+    <Compile Include="MediaPortal2\Alexa\Configuration\AlexaSettings.cs" />
+    <Compile Include="MediaPortal2\Alexa\Configuration\AlexaSettingsWorkflowModel.cs" />
+    <Compile Include="MediaPortal2\Alexa\Configuration\LoginForm.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="MediaPortal2\Alexa\Configuration\WebBrowserProxy.cs" />
+    <Compile Include="MediaPortal\Alexa\Contracts\IMediaPortalDeviceController.cs" />
+    <Compile Include="MediaPortal\Alexa\Contracts\IMediaPortalDeviceControllerCallback.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="plugin.xml" />
+    <Content Include="Skin\default\screens\AlexaLoginDialog.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="build.targets" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
+</Project>

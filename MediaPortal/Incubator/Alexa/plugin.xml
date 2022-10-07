@@ -3,7 +3,7 @@
     Name="Alexa"
     PluginId="{D17E2C21-009A-48BF-B756-8E4B1D5F719B}"
     AutoActivate="True"
-    Author="N.N."
+    Author="offbyone"
     Copyright="GPL"
     Description="Alexa Plugin">
 
@@ -20,12 +20,12 @@
   </DependsOn>
 
   <Runtime>
-    <Assembly FileName="Alexa.dll"/>
-    <PluginStateTracker ClassName="AlexaPlugin"/>
+    <Assembly FileName="MediaPortal2.Alexa.dll"/>
+    <PluginStateTracker ClassName="MediaPortal2.Alexa.AlexaPlugin"/>
   </Runtime>
 
   <Register Location="/Models">
-    <Model Id="EA7A41D6-53C2-4BED-A85E-6C1B49D9E403" Name="AlexaSettingsWorkflowModel" ClassName="Configuration.AlexaSettingsWorkflowModel"/>
+    <Model Id="EA7A41D6-53C2-4BED-A85E-6C1B49D9E403" Name="AlexaSettingsWorkflowModel" ClassName="MediaPortal2.Alexa.Configuration.AlexaSettingsWorkflowModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -47,12 +47,16 @@
         Id="AlexaAccountLink"
         Text="Link Account"
         HelpText="Login to your Amazon account to link Alexa with this MediaPortal instance."
-        ClassName="/Configuration.AlexaConfigSetting"
+        ClassName="MediaPortal2.Alexa.Configuration.AlexaConfigSetting"
         AdditionalData="WorkflowState=7CC4E52F-A5AF-41A9-BEE8-E08AC4995919,ConfAppPanel=..."/>
   </Register>
 
   <!-- Registration of our skin directory -->
   <Register Location="/Resources/Skin">
+    <!-- This registration is necessary to declare the skin directory. You can use an arbitrary directory name or
+         relative path; the path must be the relative to directory of the plugin.
+         The id of the plugin can be arbitrary but must be unique in the MP 2 system. It is not referenced directly
+         in any place. -->
     <Resource Id="AlexaSkin" Directory="Skin" Type="Skin"/>
   </Register>
 
