@@ -37,7 +37,7 @@ namespace MediaPortal.UiComponents.Media.MediaItemActions
     public override Task<bool> IsAvailableAsync(MediaItem mediaItem)
     {
       // We only add all items to playlist for Image and Audio. Other media types are using single item only.
-      var result = mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID);
+      var result = mediaItem.Aspects.ContainsKey(ImageAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(AudioAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(MovieAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(EpisodeAspect.ASPECT_ID) || mediaItem.Aspects.ContainsKey(VideoAspect.ASPECT_ID);
       return Task.FromResult(result);
     }
 
