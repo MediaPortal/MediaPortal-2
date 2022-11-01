@@ -35,8 +35,7 @@
         <Label Grid.Row="0" Content="[SharesConfig.EditShareName]" Color="{ThemeResource TextColor}" Wrap="True" Grid.ColumnSpan="2"/>
         <TextBox Grid.Row="2" Margin="0,10,0,0"
             Text="{Binding Path=ShareProxy.ShareName,Mode=TwoWay}" PreferredTextLength="30" Grid.ColumnSpan="2"/>
-        <Label Content="{Binding ShareProxy.InvalidShareHint}" Color="{ThemeResource ErrorTextColor}" Wrap="True"
-            Grid.Row="3"
+        <Label Content="{Binding ShareProxy.InvalidShareHint}" Color="{ThemeResource ErrorTextColor}" Wrap="True" Grid.Row="3"
             IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter},Path=ShareProxy.InvalidShareHint}" Grid.ColumnSpan="2"/>
 
         <!-- Share watcher -->

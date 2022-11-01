@@ -2,7 +2,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_bare.xaml"
+    Source="screens\master_dialog_bare.xaml"
     >
   <Include.Resources>
 
@@ -10,19 +10,19 @@
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" EnableBindings="True"
+    <ResourceWrapper x:Key="Dialog_Header_Text" EnableBindings="True"
         Resource="{Binding Source={StaticResource Model},Path=ShareProxy.ConfigShareTitle,Mode=OneTime}"/>
 
     <ResourceWrapper x:Key="EditShareNameStateId" Resource="ACDD705B-E60B-454a-9671-1A12A3A3985A"/>
 
     <!-- Contents -->
-    <ControlTemplate x:Key="Client_Template">
-      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}">
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource Model}}" MaxWidth="1600">
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
-          <RowDefinition Height="120"/>
+          <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -31,14 +31,17 @@
         </Grid.ColumnDefinitions>
         <Label Grid.Row="0" Content="[SharesConfig.EditResourceProviderPathForShare]" Color="{ThemeResource TextColor}" Wrap="True"/>
         <TextBox Grid.Row="2" Margin="0,10,0,0" SetFocusPrio="DefaultLow"
-            Text="{Binding Path=ShareProxy.ChoosenResourcePathStr,Mode=TwoWay}" PreferredTextLength="40"/>
-        <Grid Grid.Row="3" Margin="20" IsVisible="{Binding !ShareProxy.IsChoosenPathValid}">
-          <Label Grid.Row="3" Content="[SharesConfig.ResourceProviderPathIsNotValid]" Color="{ThemeResource ErrorTextColor}" Wrap="True"
-              IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter},Path=!ShareProxy.InvalidShareHint}"/>
-          <Label Grid.Row="3" Content="{Binding ShareProxy.InvalidShareHint}" Color="{ThemeResource ErrorTextColor}" Wrap="True"
-              IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter},Path=ShareProxy.InvalidShareHint}"/>
+                 Text="{Binding Path=ShareProxy.ChoosenResourcePathStr,Mode=TwoWay}" PreferredTextLength="40"/>
+        <Grid Grid.Row="3" Margin="0,10,0,10" IsVisible="{Binding !ShareProxy.IsChoosenPathValid}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Label Content="[SharesConfig.ResourceProviderPathIsNotValid]" Color="{ThemeResource TextColor}" Wrap="True"
+                 IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter},Path=!ShareProxy.InvalidShareHint}"/>
+          <Label Content="{Binding ShareProxy.InvalidShareHint}" Color="{ThemeResource TextColor}" Wrap="True"
+                 IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter},Path=ShareProxy.InvalidShareHint}"/>
         </Grid>
-        <Grid Grid.Row="5" Margin="10,10,10,0">
+        <Grid Grid.Row="5" Margin="0,10,0,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
@@ -48,11 +51,11 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Button x:Name="BackButton" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Back]"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                  Content="[System.Back]"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="ContinueButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsChoosenPathValid}"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
+                  Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsChoosenPathValid}"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
         </Grid>
       </Grid>
     </ControlTemplate>

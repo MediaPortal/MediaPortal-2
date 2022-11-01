@@ -103,10 +103,10 @@
 
     <!-- Edit the media provider path of a share,
          if the base media provider is no filesystem media provider -->
-    <WorkflowState Id="652C5A9F-EA50-4076-886B-B28FD167AD66"
+    <DialogState Id="652C5A9F-EA50-4076-886B-B28FD167AD66"
         Name="SharesEditEditPath"
         DisplayLabel="[SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel]"
-        MainScreen="shares_config_edit_path"
+        DialogScreen="shares_config_edit_path"
         HideGroups="Global"
         WorkflowModel="1768FC91-86B9-4f78-8A4C-E204F0D51502"/> <!-- Shares config model -->
 
