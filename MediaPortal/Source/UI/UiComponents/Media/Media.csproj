@@ -789,16 +789,6 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Skin\Nereus\screens\RemovePlaylists.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Skin\Nereus\screens\PlaylistInfo.xaml">
-      <SubType>Designer</SubType>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Skin\default\screens\MediaInfoVideo.xaml">
       <SubType>Designer</SubType>
     </Content>
@@ -820,6 +810,16 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\default\screens\SeriesFilterByYear.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\EditPlaylist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\RemovePlaylists.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

@@ -2,7 +2,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_configuration_menu.xaml"
+    Source="screens\master_mediamenu.xaml"
     >
   <Include.Resources>
 
@@ -16,7 +16,40 @@
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel LastChildFill="True" DataContext="{Binding Source={StaticResource Model}}">
         <DockPanel Margin="0,0,0,10" DockPanel.Dock="Center" LastChildFill="True">
-          <ListView Margin="0,10,10,10" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+          <Grid DockPanel.Dock="Top" Margin="20,0,20,0" HorizontalAlignment="Stretch">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0" 
+                   Content="[Media.PlaylistsOverviewHeader]"/>
+            <StackPanel HorizontalAlignment="Right" Margin="0,20,0,0" Orientation="Horizontal">
+              <StackPanel.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="playlist" Path="ItemsCount" />
+                </MultiBinding>
+              </StackPanel.IsVisible>
+              <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                    <Binding ElementName="playlist" Path="CurrentItem"/>
+                    <Binding ElementName="playlist" Path="ItemsSource"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+              <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
+                <Label.Content>
+                  <Binding ElementName="playlist" Path="ItemsCount" />
+                </Label.Content>
+              </Label>
+            </StackPanel>
+            <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,5,0,10" Background="White" BorderThickness="0" Height="4"/>
+          </Grid>
+          <ListView x:Name="playlist" Margin="15,10,15,10" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                     Style="{ThemeResource PlaylistsListViewStyle}"
                     IsVisible="{Binding IsHomeServerConnected}"
                     ItemsSource="{Binding Path=Playlists,Mode=OneTime}">
