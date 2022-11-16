@@ -11,7 +11,11 @@
 
     <Model x:Key="InputMappingModel" Id="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
 
-    <!--<ControlTemplate x:Key="Contents_Template">
-    </ControlTemplate>-->
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel HorizontalAlignment="Stretch">
+        <Image DockPanel.Dock="Center" Source="press.png" Height="200" Stretch="Uniform" Margin="0,30,0,30"/>
+      </DockPanel>
+    </ControlTemplate>
   </Include.Resources>
 </Include>

@@ -13,6 +13,12 @@
     <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj" />
     <ProjectReference Include="..\InputDevices.Common\InputDevices.Common.csproj" />
   </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Skin\Nereus\styles\InputDevices-Styles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
   
   <Import Project="build.targets" />
 </Project>

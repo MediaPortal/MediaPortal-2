@@ -15,7 +15,7 @@
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel Context="{Binding Source={StaticResource Model}}">
 
-        <ListView Grid.Column="1" Style="{StaticResource InputDevicesListViewStyle}"
+        <ListView Style="{StaticResource InputDevicesListViewStyle}"
                   SetFocus="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   ItemsSource="{Binding Source={Binding ActionsProxy},Path=Items,Mode=OneTime}">
           <ListView.Resources>
