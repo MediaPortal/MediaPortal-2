@@ -14,6 +14,8 @@
     <ControlTemplate x:Key="Contents_Template">
       <DockPanel MinHeight="50" HorizontalAlignment="Stretch" LastChildFill="False"
                  DataContext="{Binding Source={StaticResource InputMappingModel}, Path=ActionsProxy}">
+        <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" Margin="0,15,0,0"
+               Content="[InputDevices.Dialog.AddInput.Help]" Wrap="True"/>
         <Image DockPanel.Dock="Center" Source="press.png" Height="200" Stretch="Uniform" Margin="0,30,0,0"/>
         <Label DockPanel.Dock="Bottom" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" Margin="0,15,0,15"
                Content="{Binding Source={Binding MappingProxy}, Path=InputsDisplayName}"/>
