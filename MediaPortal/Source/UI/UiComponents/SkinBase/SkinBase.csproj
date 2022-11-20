@@ -189,8 +189,11 @@
     <Content Include="Skin\default\images\SettingsMenu\Appearance_SkinSettings.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\General.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\General_Connectivity.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\General_Connectivity_DLNA.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\General_Regional.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\General_System.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\General_System_Diagnostics.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\General_System_Transcoding.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Appearance.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Appearance_General.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Appearance_Skin.png" />
@@ -232,6 +235,7 @@
     <Content Include="Skin\default\images\SettingsMenu\Icon_TV.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Users.png" />
     <Content Include="Skin\default\images\SettingsMenu\InputDevices.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\InputDevices_WifiRemote.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Media.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Media_AudioMDESettings.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Media_Certifications.jpg" />
@@ -262,6 +266,8 @@
     <Content Include="Skin\default\images\SettingsMenu\Plugins_WebRadio.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Shares.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\TV.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\TV_EPGGenreColors.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\TV_Notifications.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Users.jpg" />
     <Content Include="Skin\default\images\sound.png" />
     <Content Include="Skin\default\images\sound_off.png" />
