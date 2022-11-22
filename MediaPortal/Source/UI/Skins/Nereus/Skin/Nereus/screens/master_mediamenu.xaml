@@ -297,9 +297,16 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Image Source="LeftMenuIndicator.PNG" HorizontalAlignment="Right" Stretch="Fill" Width="25" Height="45" 
                  Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,200"/>
 
-          <ListView x:Name="MainListMenu" Style="{ThemeResource MediaMenuListViewStyle}" Margin="10,0,0,0"
+          <ListView x:Name="MainListMenu" Style="{ThemeResource MediaMenuListViewStyle}"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RestoreFocus="True"
                     ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
+            <ListView.Margin>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCircleMenuImages"/>
+                <Binding Source="10,0,0,0"/>
+                <Binding Source="0,0,0,0"/>
+              </MultiBinding>
+            </ListView.Margin>
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
