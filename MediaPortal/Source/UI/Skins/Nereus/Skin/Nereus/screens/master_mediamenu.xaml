@@ -297,7 +297,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Image Source="LeftMenuIndicator.PNG" HorizontalAlignment="Right" Stretch="Fill" Width="25" Height="45" 
                  Opacity="0.9" VerticalAlignment="Center" Margin="0,0,-25,200"/>
 
-          <ListView x:Name="MainListMenu" Style="{ThemeResource MediaMenuListViewStyle}"
+          <ListView x:Name="MainListMenu" Style="{ThemeResource MediaMenuListViewStyle}" Margin="10,0,0,0"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RestoreFocus="True"
                     ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Resources>

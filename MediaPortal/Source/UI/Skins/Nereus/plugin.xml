@@ -120,6 +120,12 @@
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableTouchDisplayConfiguration"/>
 
     <ConfigSetting
+        Id="NereusEnableCircleMenuImages"
+        Text="[Nereus.Configuration.EnableCircleMenuImages]"
+        HelpText="[Nereus.Configuration.EnableCircleMenuImages.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableCircleMenuImagesConfiguration"/>
+
+    <ConfigSetting
         Id="NereusEnableMenuSelection"
         Text="[Nereus.Configuration.EnableMenuSelection]"
         HelpText="[Nereus.Configuration.EnableMenuSelection.Help]"

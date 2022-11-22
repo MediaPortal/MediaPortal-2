@@ -38,6 +38,8 @@
   <string name="Nereus.Configuration.EnableMediaItemDetailsView.Help">Whether to show media item details instead of playing media item directly.</string>
   <string name="Nereus.Configuration.EnableTouchDisplay">Enable touch display support</string>
   <string name="Nereus.Configuration.EnableTouchDisplay.Help">Whether to deactivate the automatic slide menues and force displaying navigation buttons for better touch display support.</string>
+  <string name="Nereus.Configuration.EnableCircleMenuImages">Enable round menu tiles</string>
+  <string name="Nereus.Configuration.EnableCircleMenuImages.Help">Whether to change the square menu tiles with round tiles</string>
   <string name="Nereus.Configuration.EnableMenuSelection">Show home menu content on selection rather than on focus</string>
   <string name="Nereus.Configuration.EnableMenuSelection.Help">Whether to show home content for a menu item after the item is selected, rather than when it is focused. Selecting the same menu item again will open the corresponding library.</string>
 

@@ -46,6 +46,9 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     public bool EnableTouchDisplay { get; set; }
 
     [Setting(SettingScope.User, false)]
+    public bool EnableCircleMenuImages { get; set; }
+
+    [Setting(SettingScope.User, false)]
     public bool EnableMenuSelection { get; set; }
 
     [Setting(SettingScope.User, 1.0)]

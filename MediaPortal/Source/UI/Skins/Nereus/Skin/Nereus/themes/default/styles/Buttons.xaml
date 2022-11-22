@@ -34,10 +34,6 @@
   </Storyboard>
 
   <Storyboard x:Key="FocusedNereusStoryboard" FillBehavior="HoldEnd">
-    <!--DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemFrame" Storyboard.TargetProperty="Opacity">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1"/>
-    </-->
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemImage" Storyboard.TargetProperty="Opacity">
         <SplineDoubleKeyFrame KeyTime="00:00:00" Value="0.6"/>
         <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="1.2"/>
@@ -50,13 +46,18 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="1.16"/>
     </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimation Storyboard.TargetName="ItemImage" Storyboard.TargetProperty="RenderTransform.Children[0].Angle" From="0" Duration="00:00:00.3">
+      <DoubleAnimation.To>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCircleMenuImages"/>
+          <Binding Source="-15"/>
+          <Binding Source="0"/>
+        </MultiBinding>
+      </DoubleAnimation.To>
+    </DoubleAnimation>
   </Storyboard>
 
   <Storyboard x:Key="NotFocusedNereusStoryboard" FillBehavior="HoldEnd">
-    <!--DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemFrame" Storyboard.TargetProperty="Opacity">
-      <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1"/>
-      <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0"/>
-    </-->
     <DoubleAnimationUsingKeyFrames BeginTime="00:00:00" FillBehavior="HoldEnd" Storyboard.TargetName="ItemImage" Storyboard.TargetProperty="Opacity">
         <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.2"/>
         <SplineDoubleKeyFrame KeyTime="00:00:00.4" Value="0.6"/>
@@ -69,6 +70,15 @@
       <SplineDoubleKeyFrame KeyTime="00:00:00" Value="1.16"/>
       <SplineDoubleKeyFrame KeyTime="00:00:00.3" Value="1"/>
     </DoubleAnimationUsingKeyFrames>
+    <DoubleAnimation Storyboard.TargetName="ItemImage" Storyboard.TargetProperty="RenderTransform.Children[0].Angle" To="0" Duration="00:00:00.3">
+      <DoubleAnimation.From>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCircleMenuImages"/>
+          <Binding Source="-15"/>
+          <Binding Source="0"/>
+        </MultiBinding>
+      </DoubleAnimation.From>
+    </DoubleAnimation>
   </Storyboard>
 
   <Storyboard x:Key="FocusedButtonWideStoryboard_Poster" FillBehavior="HoldEnd">
@@ -607,9 +617,17 @@
       <Setter.Value>
         <ControlTemplate>
           <Grid x:Name="GrowControl" RenderTransformOrigin="0.5,0.5">
+            <Grid.Margin>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableCircleMenuImages"/>
+                <Binding Source="-10,0"/>
+                <Binding Source="0,0"/>
+              </MultiBinding>
+            </Grid.Margin>
             <Grid.RenderTransform>
               <TransformGroup>
                 <ScaleTransform ScaleX="1" ScaleY="1"/>
+                <RotateTransform Angle="0"/>
               </TransformGroup>
             </Grid.RenderTransform>
             <Grid.ColumnDefinitions>
@@ -618,7 +636,15 @@
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1">
+              <ContentPresenter.Margin>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableCircleMenuImages"/>
+                  <Binding Source="20,0"/>
+                  <Binding Source="0,0"/>
+                </MultiBinding>
+              </ContentPresenter.Margin>
+            </ContentPresenter>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">
