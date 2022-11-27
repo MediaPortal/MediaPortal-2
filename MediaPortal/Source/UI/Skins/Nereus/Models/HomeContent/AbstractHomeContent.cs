@@ -84,7 +84,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
         // else they will be updated when init is called later
         if (!updated || !_isInit)
           return;
-        RecreateBackingList();
+        RecreateBackingList(false);
       }
       // Outside lock as it fires events
       UpdateAvailableItems();
@@ -127,7 +127,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
           return;
         _isInit = true;
 
-        RecreateBackingList();
+        RecreateBackingList(true);
       }
 
       // In some situations the backing list will stay hidden if initially being empty and then 
@@ -155,14 +155,22 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     /// <summary>
     /// Recreates the backing list, including and ordering the lists as per the media list keys in <see cref="_mediaListsToDisplay"/>.
     /// </summary>
-    protected void RecreateBackingList()
+    /// <param name="isInitializing">Whether this is the first time the list is being initialized.</param>
+    protected void RecreateBackingList(bool isInitializing)
     {
       if (_mediaListsToDisplay == null)
         _mediaListsToDisplay = _availableMediaLists.Select(l => l.MediaListKey).ToList();
 
-      IList<MediaListItemsListWrapper> currentMediaLists = _backingList.OfType<MediaListItemsListWrapper>().ToList();
-      if (_mediaListsToDisplay.SequenceEqual(currentMediaLists.Select(l => l.MediaListKey)))
-        return;
+      // This method is called to initially create the backing list and when the order of the media lists might have changed.
+      // The check below is to short circuit when the order of the media lists hasn't changed, however for home content that
+      // does not define any media lists it will always evaluate to true, so the backing list is never populated with any
+      // shortcut items, so skip the check on the initial creation of the list to ensure shortcut items are always added.
+      if (!isInitializing)
+      {
+        IList<MediaListItemsListWrapper> currentMediaLists = _backingList.OfType<MediaListItemsListWrapper>().ToList();
+        if (_mediaListsToDisplay.SequenceEqual(currentMediaLists.Select(l => l.MediaListKey)))
+          return;
+      }
 
       //Remove all lists and add them in the right order
       DetachItemsListWrappers();
