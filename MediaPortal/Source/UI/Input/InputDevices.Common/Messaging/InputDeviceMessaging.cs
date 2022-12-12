@@ -22,6 +22,7 @@
 
 #endregion
 
+using InputDevices.Common.Devices;
 using InputDevices.Common.Inputs;
 using InputDevices.Common.Mapping;
 using MediaPortal.Common;
@@ -66,22 +67,16 @@ namespace InputDevices.Common.Messaging
     }
 
     /// <summary>
-    /// Key for the device id <see cref="string"/> contained in the <see cref="SystemMessage.MessageData"/>
+    /// Key for the <see cref="DeviceMetadata"/> contained in the <see cref="SystemMessage.MessageData"/>
     /// of a message with type <see cref="MessageType.InputPressed"/>.
     /// </summary>
-    public const string DEVICE_ID = "DeviceId";
+    public const string DEVICE_METADATA = "DeviceMetadata";
 
     /// <summary>
     /// Key for the <see cref="IList{Input}"/> contained in the <see cref="SystemMessage.MessageData"/>
     /// of a message with type <see cref="MessageType.InputPressed"/>.
     /// </summary>
     public const string PRESSED_INPUTS = "PressedInputs";
-
-    /// <summary>
-    /// Key for the default <see cref="InputDeviceMapping"/> contained in the <see cref="SystemMessage.MessageData"/>
-    /// of a message with type <see cref="MessageType.InputPressed"/>.
-    /// </summary>
-    public const string DEFAULT_MAPPING = "DefaultMapping";
 
     /// <summary>
     /// Key for the <see cref="bool"/> indicating whether a message has been handled contained in the <see cref="SystemMessage.MessageData"/>
@@ -92,17 +87,15 @@ namespace InputDevices.Common.Messaging
     /// <summary>
     /// Broadcasts an <see cref="MessageType.InputPressed"/> message.
     /// </summary>
-    /// <param name="deviceId">The id of the device that orginated the inputs.</param>
+    /// <param name="deviceMetadata">The metadata of the device that orginated the inputs.</param>
     /// <param name="pressedInputs">All currently pressed inputs on the device.</param>
-    /// <param name="defaultMapping">The default input mapping for the device that originated the inputs.</param>
     /// <param name="additionalData">Additional device specific data to include in the message.</param>
     /// <returns><c>true</c> if the message was handled; else <c>false</c>.</returns>
-    public static bool BroadcastInputPressedMessage(string deviceId, IList<Input> pressedInputs, InputDeviceMapping defaultMapping, IDictionary<string, object> additionalData = null)
+    public static bool BroadcastInputPressedMessage(DeviceMetadata deviceMetadata, IList<Input> pressedInputs, IDictionary<string, object> additionalData = null)
     {
       SystemMessage msg = new SystemMessage(MessageType.InputPressed);
-      msg.MessageData[DEVICE_ID] = deviceId;
+      msg.MessageData[DEVICE_METADATA] = deviceMetadata;
       msg.MessageData[PRESSED_INPUTS] = pressedInputs;
-      msg.MessageData[DEFAULT_MAPPING] = defaultMapping;
       msg.MessageData[HANDLED] = false;
       if (additionalData != null)
         foreach (KeyValuePair<string, object> keyValuePair in additionalData)

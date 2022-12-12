@@ -22,6 +22,7 @@
 
 #endregion
 
+using InputDevices.Common.Devices;
 using InputDevices.Common.Inputs;
 using InputDevices.Common.Mapping;
 using InputDevices.Common.Messaging;
@@ -98,8 +99,9 @@ namespace InputDevices.Models
     protected SynchronousMessageQueue _messageQueue;
 
     protected Guid _currentState;
+
+    protected DeviceMetadata _device;
     protected InputDeviceMapping _deviceMapping;
-    protected InputDeviceMapping _defaultMapping;
 
     protected AbstractProperty _actionsProxyProperty = new WProperty(typeof(IMappableActionsProxy), null);
 
@@ -166,7 +168,7 @@ namespace InputDevices.Models
 
     public void RestoreDefaultMappings()
     {
-      InputDeviceMapping defaultMapping = _defaultMapping;
+      InputDeviceMapping defaultMapping = _device?.DefaultMapping;
       if (defaultMapping == null)
         return;
       IMappableActionsProxy proxy = ActionsProxy;
@@ -251,7 +253,7 @@ namespace InputDevices.Models
         // All other states require a device, so see if one was provided in the navigation context
         string deviceId = newContext.GetContextVariable(DEVICE_TO_MAP_CONTEXT_VARIABLE, false) as string;
         if (deviceId != null && _deviceMapping?.DeviceId != deviceId)
-          SetDeviceMapping(deviceId, null);
+          SetDeviceMapping(new DeviceMetadata(deviceId, null));
       }
 
       // No device currently available, switch to the select device state
@@ -287,13 +289,13 @@ namespace InputDevices.Models
     {
       IMappableActionsProxy actionsProxy = null;
 
-      string deviceId = message.MessageData[InputDeviceMessaging.DEVICE_ID] as string;
+      DeviceMetadata device = message.MessageData[InputDeviceMessaging.DEVICE_METADATA] as DeviceMetadata;
       lock (_syncObj)
       {
         if (_currentState == SELECT_DEVICE_STATE)
         {
           // Select the device that provided the input for mapping
-          SetDeviceMapping(deviceId, message.MessageData[InputDeviceMessaging.DEFAULT_MAPPING] as InputDeviceMapping);
+          SetDeviceMapping(device);
           // and pop the select device state from the navigation stack
           WorkflowManager.NavigatePopToStateAsync(SELECT_DEVICE_STATE, true);
           return true;
@@ -305,7 +307,7 @@ namespace InputDevices.Models
       }
 
       // See if the current action mapping proxy can handle the input, i.e. is it currently mapping input to an action
-      if (actionsProxy == null || !actionsProxy.HandleDeviceInput(deviceId, message.MessageData[InputDeviceMessaging.PRESSED_INPUTS] as IList<Input>, out bool isMappingComplete))
+      if (actionsProxy == null || !actionsProxy.HandleDeviceInput(device?.Id, message.MessageData[InputDeviceMessaging.PRESSED_INPUTS] as IList<Input>, out bool isMappingComplete))
         return false;
 
       // If the mapping is considered complete, save the mapping and pop the mapping state from the navigation stack
@@ -317,11 +319,12 @@ namespace InputDevices.Models
       return true;
     }
 
-    protected void SetDeviceMapping(string deviceId, InputDeviceMapping defaultMapping)
+    protected void SetDeviceMapping(DeviceMetadata device)
     {
-      _defaultMapping = defaultMapping;
-      if (!_deviceMappingWatcher.TryGetMapping(deviceId, out _deviceMapping))
-        _deviceMapping = new InputDeviceMapping(deviceId, defaultMapping?.MappedActions);
+      Logger.Debug($"{GetType().Name}: Mapping device '{device?.Id}' ({device?.FriendlyName})");
+      _device = device;
+      if (!_deviceMappingWatcher.TryGetMapping(device?.Id, out _deviceMapping))
+        _deviceMapping = new InputDeviceMapping(device?.Id, device?.DefaultMapping?.MappedActions);
     }
 
     protected void UpdateMappingProxyForWorkflowState(Guid currentState, bool push)
@@ -338,13 +341,13 @@ namespace InputDevices.Models
       if (!_itemProviders.TryGetValue(currentState, out IMappableItemProvider itemProvider))
         return;
 
-      ActionsProxy = new MappableActionsProxy(currentState, _deviceMapping, itemProvider);
+      ActionsProxy = new MappableActionsProxy(currentState, _device, _deviceMapping, itemProvider);
     }
 
     protected void UpdateMenuItemVisibility(NavigationContext context)
     {
       if (context.MenuActions.TryGetValue(RESTORE_DEFAULT_MAPPING_ACTION_ID, out WorkflowAction workflowAction) && workflowAction is MethodDelegateAction restoreDefaultMappingAction)
-        restoreDefaultMappingAction.SetVisible(_defaultMapping != null);
+        restoreDefaultMappingAction.SetVisible(_device?.DefaultMapping != null);
     }
 
     protected void ShowYesNoDialog(string headerText, string text, Action yesResultHandler)
@@ -399,7 +402,7 @@ namespace InputDevices.Models
       DeinitModel();
       ActionsProxy = null;
       _deviceMapping = null;
-      _defaultMapping = null;
+      _device = null;
     }
 
     public void Reactivate(NavigationContext oldContext, NavigationContext newContext)
@@ -424,7 +427,7 @@ namespace InputDevices.Models
 
       MethodDelegateAction restoreDefaultMapping = new MethodDelegateAction(RESTORE_DEFAULT_MAPPING_ACTION_ID, "InputMappingModel->RestoreDefaultMapping",
         null, LocalizationHelper.CreateResourceString("[InputDevices.Mapping.RestoreDefaultMapping]"), RestoreDefaultMappings);
-      restoreDefaultMapping.SetVisible(_defaultMapping != null);
+      restoreDefaultMapping.SetVisible(_device?.DefaultMapping != null);
       actions[RESTORE_DEFAULT_MAPPING_ACTION_ID] = restoreDefaultMapping;
     }
 

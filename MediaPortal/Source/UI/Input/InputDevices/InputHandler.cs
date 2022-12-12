@@ -22,6 +22,7 @@
 
 #endregion
 
+using InputDevices.Common.Devices;
 using InputDevices.Common.Inputs;
 using InputDevices.Common.Mapping;
 using InputDevices.Common.Messaging;
@@ -71,8 +72,8 @@ namespace InputDevices
       if (message.MessageData[InputDeviceMessaging.HANDLED] as bool? == true)
         return true;
 
-      string deviceId = message.MessageData[InputDeviceMessaging.DEVICE_ID] as string;
-      if (!_mappingWatcher.TryGetMapping(deviceId, out InputDeviceMapping mapping) && (mapping = message.MessageData[InputDeviceMessaging.DEFAULT_MAPPING] as InputDeviceMapping) == null)
+      DeviceMetadata device = message.MessageData[InputDeviceMessaging.DEVICE_METADATA] as DeviceMetadata;
+      if (!_mappingWatcher.TryGetMapping(device?.Id, out InputDeviceMapping mapping) && device?.DefaultMapping == null)
         return false;
 
       IEnumerable<Input> inputs = message.MessageData[InputDeviceMessaging.PRESSED_INPUTS] as IEnumerable<Input>;

@@ -23,6 +23,7 @@
 #endregion
 
 using HidInput.Inputs;
+using InputDevices.Common.Devices;
 using InputDevices.Common.Inputs;
 using System.Collections.Generic;
 using System.Windows.Forms;
@@ -31,10 +32,11 @@ namespace HidInput.Devices
 {
   public class LegacyKeyboardDevice : AbstractInputDevice
   {
-    public const string LEGACY_KEYBOARD_DEVICE_ID = "LegacyKeyboardDevice";
+    const string DEVICE_ID = "LegacyKeyboardDevice";
+    const string FRIENDLY_NAME = "Keyboard";
 
     public LegacyKeyboardDevice()
-      : base(LEGACY_KEYBOARD_DEVICE_ID)
+      : base(new DeviceMetadata(DEVICE_ID, FRIENDLY_NAME))
     { }
 
     public bool HandleKeyEvent(ref Message message)

@@ -13,7 +13,8 @@
     <Model x:Key="Model" Id="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
     
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Context="{Binding Source={StaticResource Model}}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,90">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,90"
+            DataContext="{Binding Source={StaticResource Model},Path=ActionsProxy}">
         <Grid.RowDefinitions>
           <RowDefinition Height="40"/>
           <RowDefinition Height="*"/>
@@ -22,12 +23,13 @@
           <ColumnDefinition Width="90"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Image Source="input.png" Margin="20,7,0,3" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"/>
-        <Label Grid.Column="1" Content="Input Device" VerticalAlignment="Center" HorizontalAlignment="Left" 
+        <Image Source="input.png" Margin="20,7,0,3" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+        <Label x:Name="DeviceNameLabel" Grid.Column="1" Content="{Binding Path=Device.FriendlyName}" VerticalAlignment="Center" HorizontalAlignment="Left" 
                FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
         <ListView Style="{StaticResource InputDevicesListViewStyle}" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,30,0,0"
                   SetFocus="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                  ItemsSource="{Binding Source={Binding ActionsProxy},Path=Items,Mode=OneTime}">
+                  ItemsSource="{Binding Path=Items,Mode=OneTime}">
           <ListView.Resources>
             <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
               <TranslateTransform X="40" />

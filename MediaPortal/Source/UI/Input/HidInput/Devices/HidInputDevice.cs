@@ -23,6 +23,7 @@
 #endregion
 
 using HidInput.Inputs;
+using InputDevices.Common.Devices;
 using InputDevices.Common.Inputs;
 using InputDevices.Common.Mapping;
 using SharpLib.Hid;
@@ -49,11 +50,11 @@ namespace HidInput.Devices
     protected HashSet<Keys> _expectedKeyUps = new HashSet<Keys>();
 
     public HidInputDevice(Device device, IEnumerable<MappedAction> defaultMapping = null)
-      : this(GetDeviceId(device), defaultMapping)
+      : this(GetDeviceId(device), device.FriendlyName, defaultMapping)
     { }
 
-    public HidInputDevice(string deviceId, IEnumerable<MappedAction> defaultMapping = null)
-    : base(deviceId, defaultMapping)
+    public HidInputDevice(string deviceId, string friendlyName, IEnumerable<MappedAction> defaultMapping = null)
+    : base(new DeviceMetadata(deviceId, friendlyName, defaultMapping))
     { }
 
     /// <summary>
@@ -63,7 +64,7 @@ namespace HidInput.Devices
     /// <returns><c>true</c> if the usages were handled; else <c>false</c>.</returns>
     public bool HandleHidEvent(Event hidEvent)
     {
-      if (GetDeviceId(hidEvent.Device) != _deviceId)
+      if (GetDeviceId(hidEvent.Device) != _metadata.Id)
         return false;
 
       bool hasInputChanged = false;
@@ -111,7 +112,7 @@ namespace HidInput.Devices
       // events (key downs may get repeated and will only be removed when the associated consumer usage is released).
       // If the key is not expected but the device id matches this device then it is a keyboard event generated directly by the device (rather than by Windows in response to a Consumer Control usage)
       // so it should also be handled.
-      if ((hidEvent.IsButtonDown && _expectedKeyDowns.Contains(hidEvent.VirtualKey)) || (hidEvent.IsButtonUp && _expectedKeyUps.Remove(hidEvent.VirtualKey)) || GetDeviceId(hidEvent.Device) == _deviceId)
+      if ((hidEvent.IsButtonDown && _expectedKeyDowns.Contains(hidEvent.VirtualKey)) || (hidEvent.IsButtonUp && _expectedKeyUps.Remove(hidEvent.VirtualKey)) || GetDeviceId(hidEvent.Device) == _metadata.Id)
         KeyboardInput.TryDecodeEvent(hidEvent, _inputCollection);
       else
         return false;
