@@ -22,6 +22,7 @@
 
 #endregion
 
+using InputDevices.Common.Devices;
 using InputDevices.Common.Inputs;
 using InputDevices.Common.Mapping;
 using InputDevices.Models.MappableItemProviders;
@@ -42,6 +43,7 @@ namespace InputDevices.Models
     public const string KEY_INPUT = "Input";
 
     protected Guid _mainWorkflowStateId;
+    protected DeviceMetadata _device;
     protected InputDeviceMapping _mapping;
     protected IMappableItemProvider _mappableItemProvider;
     protected ItemsList _items;
@@ -49,9 +51,10 @@ namespace InputDevices.Models
 
     protected AbstractProperty _mappingProxyProperty = new WProperty(typeof(MappingProxy), null);
 
-    public MappableActionsProxy(Guid mainWorkflowStateId, InputDeviceMapping deviceMapping, IMappableItemProvider mappableItemProvider)
+    public MappableActionsProxy(Guid mainWorkflowStateId, DeviceMetadata device, InputDeviceMapping deviceMapping, IMappableItemProvider mappableItemProvider)
     {
       _mainWorkflowStateId = mainWorkflowStateId;
+      _device = device;
       _mapping = deviceMapping;
       _mappableItemProvider = mappableItemProvider;
       _items = new ItemsList();
@@ -60,6 +63,11 @@ namespace InputDevices.Models
     public Guid MainWorkflowStateId
     {
       get { return _mainWorkflowStateId; }
+    }
+
+    public DeviceMetadata Device
+    {
+      get { return _device; }
     }
 
     public InputDeviceMapping DeviceMapping

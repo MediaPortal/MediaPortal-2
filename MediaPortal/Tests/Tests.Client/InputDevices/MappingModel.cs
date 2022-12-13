@@ -55,7 +55,7 @@ namespace Tests.Client.InputDevices
         new MappedAction(InputAction.CreateKeyAction(Key.Escape), new[] { new Input("inputIdModifierEsc", "inputNameModifierEsc", true), new Input("inputIdEsc", "inputNameEsc") })
       });
 
-      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, mapping, new KeyItemProvider());
+      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, null, mapping, new KeyItemProvider());
 
       // Assert that the item labels have been correctly set from the mapping
       Assert.AreEqual("inputNameModifierEnter, inputNameEnter", GetItemInputLabelForAction(InputAction.CreateKeyAction(Key.Enter), mappableActionsProxy.Items));
@@ -70,7 +70,7 @@ namespace Tests.Client.InputDevices
         new MappedAction(InputAction.CreateKeyAction(Key.Enter), new[] { new Input("inputIdModifierEnter", "inputNameModifierEnter", true), new Input("inputIdEnter", "inputNameEnter") }),
         new MappedAction(InputAction.CreateKeyAction(Key.Escape), new[] { new Input("inputIdModifierEsc", "inputNameModifierEsc", true), new Input("inputIdEsc", "inputNameEsc") })
       });
-      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, mapping, new KeyItemProvider());
+      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, null, mapping, new KeyItemProvider());
       ItemsList items = mappableActionsProxy.Items;
 
       mappableActionsProxy.ResetMappings(null);
@@ -88,7 +88,7 @@ namespace Tests.Client.InputDevices
         new MappedAction(InputAction.CreateKeyAction(Key.Enter), new[] { new Input("inputIdModifierEnter", "inputNameModifierEnter", true), new Input("inputIdEnter", "inputNameEnter") }),
         new MappedAction(InputAction.CreateKeyAction(Key.Escape), new[] { new Input("inputIdModifierEsc", "inputNameModifierEsc", true), new Input("inputIdEsc", "inputNameEsc") })
       });
-      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, mapping, new KeyItemProvider());
+      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, null, mapping, new KeyItemProvider());
       ItemsList items = mappableActionsProxy.Items;
 
       mappableActionsProxy.BeginMapping(InputAction.CreateKeyAction(Key.Enter));
@@ -103,7 +103,7 @@ namespace Tests.Client.InputDevices
     public void ShouldAddMappingForSingleInput()
     {
       InputDeviceMapping mapping = new InputDeviceMapping("deviceId");
-      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, mapping, new KeyItemProvider());
+      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, null, mapping, new KeyItemProvider());
       Input[] inputs = new[] { new Input("inputId", "inputName") };
 
       mappableActionsProxy.BeginMapping(InputAction.CreateKeyAction(Key.Enter));
@@ -121,7 +121,7 @@ namespace Tests.Client.InputDevices
     public void ShouldAddMappingForMultipleInputsWithModifier()
     {
       InputDeviceMapping mapping = new InputDeviceMapping("deviceId");
-      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, mapping, new KeyItemProvider());
+      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, null, mapping, new KeyItemProvider());
       Input[] inputs = new[] { new Input("inputIdModifier", "inputNameModifier", true), new Input("inputId", "inputName") };
 
       mappableActionsProxy.BeginMapping(InputAction.CreateKeyAction(Key.Enter));
@@ -139,7 +139,7 @@ namespace Tests.Client.InputDevices
     public void ShouldNotAddMappingForSingleModifierInput()
     {
       InputDeviceMapping mapping = new InputDeviceMapping("deviceId");
-      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, mapping, new KeyItemProvider());
+      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, null, mapping, new KeyItemProvider());
       Input[] inputs = new[] { new Input("inputIdModifier", "inputNameModifier", true) };
 
       mappableActionsProxy.BeginMapping(InputAction.CreateKeyAction(Key.Enter));
@@ -156,7 +156,7 @@ namespace Tests.Client.InputDevices
     public void ShouldNotHandleOtherDeviceInput()
     {
       InputDeviceMapping mapping = new InputDeviceMapping("deviceId");
-      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, mapping, new KeyItemProvider());
+      IMappableActionsProxy mappableActionsProxy = new MappableActionsProxy(Guid.Empty, null, mapping, new KeyItemProvider());
       Input[] inputs = new[] { new Input("inputId", "inputName") };
 
       mappableActionsProxy.BeginMapping(InputAction.CreateKeyAction(Key.Enter));

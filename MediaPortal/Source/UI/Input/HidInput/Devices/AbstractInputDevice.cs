@@ -23,31 +23,30 @@
 #endregion
 
 using HidInput.Inputs;
+using InputDevices.Common.Devices;
 using InputDevices.Common.Inputs;
 using InputDevices.Common.Mapping;
 using InputDevices.Common.Messaging;
+using System;
 using System.Collections.Generic;
 
 namespace HidInput.Devices
 {
   public abstract class AbstractInputDevice
   {
-    protected string _deviceId;
+    protected DeviceMetadata _metadata;
     protected InputCollection _inputCollection;
     protected InputDeviceMapping _defaultMapping;
 
-    public AbstractInputDevice(string deviceId, IEnumerable<MappedAction> defaultMapping = null)
+    public AbstractInputDevice(DeviceMetadata metadata)
     {
-      _deviceId = deviceId;
+      _metadata = metadata ?? throw new ArgumentNullException(nameof(metadata));
       _inputCollection = new InputCollection();
-
-      if (defaultMapping != null)
-        _defaultMapping = new InputDeviceMapping(deviceId, defaultMapping);
     }
 
-    public string DeviceId 
-    { 
-      get { return _deviceId; } 
+    public DeviceMetadata Metadata
+    {
+      get { return _metadata; }
     }
 
     public void ResetInput()
@@ -57,7 +56,7 @@ namespace HidInput.Devices
 
     protected virtual bool BroadcastInputPressed(IList<Input> pressedInputs, IDictionary<string, object> additionalData = null)
     {
-      return InputDeviceMessaging.BroadcastInputPressedMessage(_deviceId, pressedInputs, _defaultMapping, additionalData);
+      return InputDeviceMessaging.BroadcastInputPressedMessage(_metadata, pressedInputs, additionalData);
     }
   }
 }
