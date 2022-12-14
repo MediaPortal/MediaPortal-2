@@ -35,7 +35,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label Grid.Row="0" Content="[SharesConfig.ChooseSharesToBeRemoved]" Color="{ThemeResource TextColor}" Wrap="True"/>
+          
           <UniformGrid Grid.Row="1" Columns="1">
             <Grid x:Name="GlobalSharesPanel" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   IsVisible="{Binding IsHomeServerConnected}" Margin="0,0,0,10">
@@ -224,6 +224,7 @@
               <ColumnDefinition Width="10"/>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
+            <Label Grid.Row="0" Content="[SharesConfig.ChooseSharesToBeRemoved]" Color="{ThemeResource MainColorForeground}" Wrap="True"/>
             <Button x:Name="RemoveButton" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
                     Content="[System.Finish]" IsEnabled="{Binding IsSharesSelected}"
                     Command="{Command Source={StaticResource Model},Path=RemoveSelectedSharesAndFinish}"/>
