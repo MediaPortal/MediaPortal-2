@@ -45,7 +45,8 @@
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
 
-        <Border Background="Black" Opacity="0.2" BorderThickness="0" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Grid.RowSpan="9" Margin="40,-10,40,0"></Border>
+        <Border Background="Black" Opacity="0.2" BorderThickness="0" Grid.Column="1" Grid.ColumnSpan="3" Grid.Row="1" Grid.RowSpan="9"
+                CornerRadius="20" Margin="30,-20,30,-10"/>
 
         <Image Grid.RowSpan="11" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" 
                HorizontalAlignment="Right" Margin="0,-92,-20,-230" RenderTransformOrigin="0.5,0.5">

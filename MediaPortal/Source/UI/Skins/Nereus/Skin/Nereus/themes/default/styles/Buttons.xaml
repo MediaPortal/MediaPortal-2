@@ -288,6 +288,48 @@
     <GradientStop Color="#B2272727" Offset="1"/>
   </LinearGradientBrush>
 
+  <LinearGradientBrush x:Key="DialogButtonBaseBrush"  EndPoint="0" StartPoint="1">
+    <GradientStop Color="{ThemeResource NereusColorLight}" Offset="0"/>
+    <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="DialogButtonFrameBrush"  EndPoint="0" StartPoint="1">
+    <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="0"/>
+    <GradientStop Color="{ThemeResource NereusColorLight}" Offset="1"/>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="DialogButtonBaseNofocusBrush" EndPoint="0" StartPoint="1">
+    <GradientStop Color="#26FFFFFF" Offset="0"/>
+    <GradientStop Color="#1AFFFFFF" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="DialogButtonFrameNofocusBrush" EndPoint="0" StartPoint="1">
+    <GradientStop Color="#1AFFFFFF" Offset="0"/>
+    <GradientStop Color="#26FFFFFF" Offset="1"/>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="ButtonBaseNofocusBrush" EndPoint="0" StartPoint="1">
+    <GradientStop Color="{ThemeResource NereusColorDark}" Offset="0"/>
+    <GradientStop Color="{ThemeResource NereusColorDark}" Offset="1"/>
+  </LinearGradientBrush>
+  
+  <LinearGradientBrush x:Key="ButtonFrameNofocusBrush" EndPoint="0" StartPoint="1">
+    <GradientStop Color="{ThemeResource NereusColorDark}" Offset="0"/>
+    <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="1"/>
+  </LinearGradientBrush>
+  
+  <LinearGradientBrush x:Key="ButtonFrameNofocusOverlay" EndPoint="0" StartPoint="1">
+    <GradientStop Color="#26000000" Offset="0"/>
+    <GradientStop Color="#00000000" Offset="1"/>
+  </LinearGradientBrush>
+
+  <LinearGradientBrush x:Key="ButtonBaseInactiveBrush" EndPoint="0" StartPoint="1">
+    <GradientStop Color="#26000000" Offset="0"/>
+    <GradientStop Color="#1A000000" Offset="1"/>
+  </LinearGradientBrush>
+  <LinearGradientBrush x:Key="ButtonFrameInactiveBrush" EndPoint="0" StartPoint="1">
+    <GradientStop Color="#1A000000" Offset="0"/>
+    <GradientStop Color="#26000000" Offset="1"/>
+  </LinearGradientBrush>
+
   <Style x:Key="EmptyButtonControlStyle" TargetType="{x:Type Control}">
   </Style>
 
@@ -947,31 +989,99 @@
   </Style>
 
   <Style x:Key="WizardButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
-    <Setter Property="HorizontalAlignment" Value="Stretch"/>
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate>
-          <Grid Margin="2" Background="{ThemeResource NereusColorDark}">
+          <Grid x:Name="GrowControl" Margin="2">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            
-            <Control x:Name="GrowControl" Style="{ThemeResource ButtonControlStyle}"
-                     VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Grid.ZIndex="1">
-            </Control>
-            <ContentPresenter x:Name="ContentPresenter" Margin="10,0,10,2" Grid.ZIndex="2"
-                              HorizontalContentAlignment="Center" VerticalContentAlignment="Center"
-                              HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <Border x:Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="4" 
+                    Background="{ThemeResource ButtonBaseNofocusBrush}" BorderBrush="{ThemeResource ButtonFrameNofocusBrush}">
+              <Border.CornerRadius>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
+                  <Binding ElementName="ButtonBase" Path="ActualHeight"/>
+                </MultiBinding>
+              </Border.CornerRadius>
+            </Border>
+            <Border x:Name="FrameOverlay" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="4" BorderBrush="{ThemeResource ButtonFrameNofocusOverlay}"
+                    IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}">
+              <Border.CornerRadius>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
+                  <Binding ElementName="ButtonBase" Path="ActualHeight"/>
+                </MultiBinding>
+              </Border.CornerRadius>
+            </Border>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,1,10,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1" Opacity="0.8"/>
           </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="ButtonBase" Property="Background" Value="{ThemeResource DialogButtonBaseBrush}"/>
+              <Setter TargetName="ButtonBase" Property="BorderBrush" Value="{ThemeResource DialogButtonFrameBrush}"/>
+              <Setter TargetName="ButtonContentPresenter" Property="Opacity" Value="1"/>
+              <Trigger.EnterActions>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+            </Trigger>
+            <Trigger Property="IsEnabled" Value="False">
+              <Setter TargetName="ButtonBase" Property="Background" Value="{ThemeResource ButtonBaseInactiveBrush}"/>
+              <Setter TargetName="ButtonBase" Property="BorderBrush" Value="{ThemeResource ButtonFrameInactiveBrush}"/>
+              <Setter TargetName="ButtonContentPresenter" Property="Opacity" Value="0.4"/>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
+    <Setter Property="HorizontalContentAlignment" Value="Center"/>
   </Style>
 
   <Style x:Key="DialogButtonStyle" BasedOn="{ThemeResource ButtonWideStyle}" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <Grid x:Name="GrowControl" Margin="4,2,4,2">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Border x:Name="ButtonBase" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="4"
+                    Background="{ThemeResource DialogButtonBaseNofocusBrush}" BorderBrush="{ThemeResource DialogButtonFrameNofocusBrush}">
+              <Border.CornerRadius>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}/2">
+                  <Binding ElementName="ButtonBase" Path="ActualHeight"/>
+                </MultiBinding>
+              </Border.CornerRadius>
+            </Border>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+          </Grid>
+          <ControlTemplate.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Setter TargetName="ButtonBase" Property="Background" Value="{ThemeResource DialogButtonBaseBrush}"/>
+              <Setter TargetName="ButtonBase" Property="BorderBrush" Value="{ThemeResource DialogButtonFrameBrush}"/>
+              <Setter TargetName="ButtonContentPresenter" Property="Opacity" Value="1"/>
+              <Trigger.EnterActions>
+                <SoundPlayerAction Source="navigate.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+            </Trigger>
+            <Trigger Property="IsPressed" Value="True">
+              <Trigger.EnterActions>
+                <SoundPlayerAction Source="click.wav" DisableOnAudioOutput="True"/>
+              </Trigger.EnterActions>
+            </Trigger>
+          </ControlTemplate.Triggers>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="MinWidth" Value="{ThemeResource DialogButtonMinWidth}"/>
     <Setter Property="HorizontalContentAlignment" Value="Center"/>
   </Style>

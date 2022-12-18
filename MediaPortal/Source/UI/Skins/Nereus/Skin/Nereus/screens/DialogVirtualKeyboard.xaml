@@ -7,5 +7,6 @@ Virtual keyboard dialog
 <Screen 
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
-  <VirtualKeyboardControl Style="{ThemeResource VirtualKeyboardControlStyle}" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+  <VirtualKeyboardControl Style="{ThemeResource VirtualKeyboardControlStyle}" HorizontalAlignment="Center" VerticalAlignment="Bottom" 
+                          HorizontalContentAlignment="Center" Margin="50,80,30,50"/>
 </Screen>
