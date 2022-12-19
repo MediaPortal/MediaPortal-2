@@ -89,7 +89,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </Grid.RowDefinitions>
 
     <Border x:Name="DialogBorder" Margin="45" VerticalAlignment="Center" HorizontalAlignment="Center" RenderTransformOrigin="0.5,0.5"
-            BorderThickness="5" Background="{ThemeResource DialogBorderBackgroundColor}" BorderBrush="{ThemeResource DialogBorderColor}">
+            BorderThickness="0" Background="{ThemeResource DialogBorderBackgroundColor}" BorderBrush="{ThemeResource DialogBorderColor}">
       <Border.RenderTransform>
         <TransformGroup>
           <ScaleTransform ScaleX="1" ScaleY="1"/>

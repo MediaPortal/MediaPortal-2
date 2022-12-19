@@ -216,6 +216,7 @@
   <!-- White -->
   <ResourceWrapper x:Key="TextBoxBackgroundColor" Resource="White"/>
   <ResourceWrapper x:Key="TextBoxDisabledBackgroundColor" Resource="DarkGray"/>
+  <ResourceWrapper x:Key="TextBoxBackgroundFocusColor" Resource="White"/>
 
   <!-- Black -->
   <ResourceWrapper x:Key="TextBoxBorderColor" Resource="Black"/>
