@@ -75,6 +75,9 @@
     <Compile Include="Common\TestMediaItemQuery.cs" />
     <Compile Include="Common\TestRelationshipExtraction.cs" />
     <Compile Include="Common\Thumbnailer.cs" />
+    <Compile Include="InputDevices\Mapping.cs" />
+    <Compile Include="InputDevices\MappingModel.cs" />
+    <Compile Include="InputDevices\MappingTestUtils.cs" />
     <Compile Include="Media\TestMediaViews.cs" />
     <Compile Include="PluginManager\PluginItemInstantiationTests.cs" />
     <Compile Include="SkinEngine\ConfigurationConverters.cs" />
@@ -136,6 +139,14 @@
       <Project>{33721bc7-193a-4b80-9cff-dc8a50700443}</Project>
       <Name>ZipResourceProvider</Name>
     </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\Input\InputDevices.Common\InputDevices.Common.csproj">
+      <Project>{4dd1a1cc-523f-4398-bee0-50fd548f2a1d}</Project>
+      <Name>InputDevices.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\UI\Input\InputDevices\InputDevices.csproj">
+      <Project>{B629680F-088F-4234-AF95-3AEE67A2941B}</Project>
+      <Name>InputDevices</Name>
+    </ProjectReference>
     <ProjectReference Include="..\..\Source\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj">
       <Project>{c4a45fa7-bcd1-4b14-b6d5-051a780eb83b}</Project>
       <Name>DirectShowWrapper</Name>
@@ -166,6 +177,9 @@
     </PackageReference>
     <PackageReference Include="NUnit">
       <Version>3.12.0</Version>
+    </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter">
+      <Version>4.3.0-alpha-net7.4</Version>
     </PackageReference>
   </ItemGroup>
   <ItemGroup />
