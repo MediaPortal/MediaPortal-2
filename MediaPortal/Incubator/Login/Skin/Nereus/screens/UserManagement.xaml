@@ -55,7 +55,7 @@
           </Image.RenderTransform>
         </Image>
         <Border Grid.RowSpan="11" Margin="0,-92,0,-230" Background="Black" Opacity="1"/>
-
+        
         <!-- Top Gradient Overlay-->
         <Border Grid.RowSpan="3"  HorizontalAlignment="Stretch" VerticalAlignment="Top" 
                 Grid.ColumnSpan="4" BorderThickness="0" Height="100" Margin="0,-92,0,0">
@@ -77,6 +77,19 @@
             </LinearGradientBrush>
           </Border.Background>
         </Border>
+
+        <Grid x:Name="IconPanel" Grid.Row="8" Grid.RowSpan="3"  HorizontalAlignment="Left" Margin="30,0,0,-205" VerticalAlignment="Bottom">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Image x:Name="ItemImage" Width="240" Height="240" Stretch="Fill" Opacity="0.8" HorizontalAlignment="Left" Source="SettingsMenu\Users.jpg"/>
+          <Label Grid.Row="1" MaxWidth="1400" Margin="0,10,10,10" VerticalAlignment="Bottom" Wrap="True" HorizontalAlignment="Left"
+                 Content="[UserConfig.UserConfiguration.Title]" Color="White" Opacity="0.2" FontSize="{ThemeResource NormalFontSize}"/>
+        </Grid>
 
         <Label Grid.Row="0" Margin="13,30,10,5" Content="[UserConfig.Users]" Color="{ThemeResource TextColor}" Opacity="0.5"/>
         
