@@ -24,6 +24,7 @@
 
 using InputDevices.Common.Mapping;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Control.InputManager;
 using System;
 
@@ -57,6 +58,9 @@ namespace InputDevices.Mapping.ActionExecutors
 
     public void Execute()
     {
+#if EXTENDED_INPUT_LOGGING
+      ServiceRegistration.Get<ILogger>().Debug($"{nameof(KeyActionExecutor)}: Executing key press for key {_key}");
+#endif
       ServiceRegistration.Get<IInputManager>().KeyPress(_key);
     }
   }

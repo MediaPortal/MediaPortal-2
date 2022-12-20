@@ -26,6 +26,7 @@ using InputDevices.Common.Devices;
 using InputDevices.Common.Inputs;
 using InputDevices.Common.Mapping;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using System.Collections.Generic;
 
@@ -93,6 +94,12 @@ namespace InputDevices.Common.Messaging
     /// <returns><c>true</c> if the message was handled; else <c>false</c>.</returns>
     public static bool BroadcastInputPressedMessage(DeviceMetadata deviceMetadata, IList<Input> pressedInputs, IDictionary<string, object> additionalData = null)
     {
+#if EXTENDED_INPUT_LOGGING
+      ServiceRegistration.Get<ILogger>().Debug($"{nameof(InputDeviceMessaging)}: Sending input pressed message:");
+      ServiceRegistration.Get<ILogger>().Debug($"{nameof(InputDeviceMessaging)}: Device: {deviceMetadata?.Id} ({deviceMetadata?.FriendlyName})");
+      ServiceRegistration.Get<ILogger>().Debug($"{nameof(InputDeviceMessaging)}: Inputs: {Input.GetInputString(pressedInputs)}");
+#endif
+
       SystemMessage msg = new SystemMessage(MessageType.InputPressed);
       msg.MessageData[DEVICE_METADATA] = deviceMetadata;
       msg.MessageData[PRESSED_INPUTS] = pressedInputs;
