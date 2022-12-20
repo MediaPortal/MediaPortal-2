@@ -235,6 +235,7 @@
     <Content Include="Skin\default\images\SettingsMenu\Icon_TV.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Users.png" />
     <Content Include="Skin\default\images\SettingsMenu\InputDevices.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\InputDevices_InputDevicesConfKeys.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\InputDevices_WifiRemote.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Media.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Media_AudioMDESettings.jpg" />
@@ -259,12 +260,15 @@
     <Content Include="Skin\default\images\SettingsMenu\Plugins.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_Alexa.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_AppLauncher.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_AppLauncher_AppLauncherSettingsAdd.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_Emulators.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_News.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_OnlineVideos.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_Weather.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_WebRadio.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Shares.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Shares_SharesConfiguration.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Shares_SharesOverview.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\TV.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\TV_EPGGenreColors.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\TV_Notifications.jpg" />

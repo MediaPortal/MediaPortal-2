@@ -505,9 +505,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="Selection" Margin="2,1,0,1"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
-              Content="{Binding}">
+          <RadioButton x:Name="Selection" Margin="2,1,0,1" Content="{Binding}"
+                       IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup">
             <RadioButton.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ResourceProviderName" Property="Scroll" Value="Auto"/>
@@ -659,11 +658,10 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Label x:Name="ResourceProviderName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
-          Color="{ThemeResource TextColor}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,0,0"/>
       <Label x:Name="ResourceProviderDescription" Grid.Column="1" Content="{Binding AdditionalProperties[ResourceProviderMetadata].Description}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
-          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
     </Grid>
   </DataTemplate>
 

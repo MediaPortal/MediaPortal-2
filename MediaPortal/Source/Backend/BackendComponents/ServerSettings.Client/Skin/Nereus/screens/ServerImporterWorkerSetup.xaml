@@ -41,7 +41,7 @@
 
           <Label Grid.Row="1" Grid.Column="0" Content="[Settings.ServerSettings.ImporterWorker.EnableClientAutoRefresh]" Color="{ThemeResource TextColor}" Margin="5"
                  IsVisible="{Binding Path=EnableAutoRefresh}"/>
-          
+
           <CheckBox Grid.Row="1" Grid.Column="1" x:Name="EnableClientAutoRefresh" Margin="5" Style="{ThemeResource DefaultCheckBoxStyle}"
               IsChecked="{Binding Path=EnableClientAutoRefresh,Mode=TwoWay}"
               Content="{Binding}" IsVisible="{Binding Path=EnableAutoRefresh}"/>
@@ -49,8 +49,22 @@
           <Label Grid.Row="2" Grid.Column="0" Content="[Settings.ServerSettings.ImporterWorker.RunAtHour]" Color="{ThemeResource TextColor}" Margin="5"
                  IsVisible="{Binding Path=EnableAutoRefresh}" />
 
-          <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=RunAtHour,Mode=TwoWay}" Margin="5" Style="{ThemeResource DefaultTextBoxStyle}" 
-                 IsVisible="{Binding Path=EnableAutoRefresh}" />
+          <Grid Grid.Row="2" Grid.Column="1" Margin="5" IsVisible="{Binding Path=EnableAutoRefresh}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding Path=RunAtHour,Mode=TwoWay}" PreferredTextLength="4"/>
+            <Image x:Name="editsymbol" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
+            <Grid.Triggers>
+              <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter TargetName="editsymbol" Property="Opacity" Value="1"/>
+              </Trigger>
+            </Grid.Triggers>
+          </Grid>
 
         </Grid>
 
