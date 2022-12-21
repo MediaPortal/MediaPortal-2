@@ -127,8 +127,8 @@
     </Grid>
 
     <Label IsVisible="{Binding ShowListHint}"
-       HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
-       Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
+           HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
+           Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
 
   </Grid>
   <Label IsVisible="{Binding !IsItemsValid}"

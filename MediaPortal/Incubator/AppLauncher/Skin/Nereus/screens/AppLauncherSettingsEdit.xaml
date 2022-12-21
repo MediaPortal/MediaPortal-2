@@ -21,7 +21,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource AppLauncherContentListViewStyle}"
+          <ListView x:Name="applist" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource AppLauncherContentListViewStyle}"
                     ItemsSource="{Binding Path=Items, Mode=TwoWay}">
             <ListView.Resources>
               <CommandList x:Key="Menu_Command">
@@ -33,6 +33,16 @@
               </CommandList>
             </ListView.Resources>
           </ListView>
+
+          <Label Content="[Media.ViewEmpty]" VerticalAlignment="Center" HorizontalAlignment="Center"
+                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
+            <Label.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {1}">
+                <Binding ElementName="applist" Path="ItemsCount" />
+                <Binding Source="0" />
+              </MultiBinding>
+            </Label.IsVisible>
+          </Label>
 
         </Grid>
       </DockPanel>

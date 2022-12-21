@@ -15,20 +15,30 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Margin="30,10,30,130" DataContext="{Binding Source={StaticResource Model}}">
+      <Grid Margin="30,0,30,130" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="44"/>
+          <RowDefinition Height="4"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Content="[SharesConfig.ChooseShareCategories]" Color="{ThemeResource TextColor}" Wrap="True"/>
-        <TreeView Grid.Row="1" Margin="0,10,0,0" SetFocusPrio="DefaultLow"
+
+        <StackPanel Orientation="Horizontal">
+          <Image Source="HomeContentIcons\category.png" Margin="0,8,5,6" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}" Width="40"/>
+          <Label Content="[SharesConfig.ChooseShareCategories]" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5,0,0,0" Background="White" BorderThickness="0"/>
+
+        <TreeView Grid.Row="2" Margin="0,30,0,0" SetFocusPrio="DefaultLow"
                   Style="{ThemeResource MultiMarkableExpandedTreeViewStyle}"
                   ItemsSource="{Binding Path=ShareProxy.AllMediaCategories,Mode=OneTime}"/>
-        <Grid Grid.Row="2" Margin="10,10,10,0">
+        <Grid Grid.Row="3" Margin="10,10,10,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>

@@ -1062,7 +1062,7 @@
                 </MultiBinding>
               </Border.CornerRadius>
             </Border>
-            <ContentPresenter x:Name="ButtonContentPresenter" Margin="10,0,10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
+            <ContentPresenter x:Name="ButtonContentPresenter" Margin="20,0,20,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.ZIndex="1"/>
           </Grid>
           <ControlTemplate.Triggers>
             <Trigger Property="HasFocus" Value="True">

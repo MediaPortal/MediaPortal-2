@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\configuration-section.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[InputDevices.Config.Section]"/>
+
+    <!-- InputMappingModel -->
+    <Model x:Key="Model" Id="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
+    
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,90"
+            DataContext="{Binding Source={StaticResource Model},Path=ActionsProxy}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="44"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="90"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Image Source="input.png" Margin="20,7,0,5" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+        <Label x:Name="DeviceNameLabel" Grid.Column="1" Content="{Binding Path=Device.FriendlyName}" VerticalAlignment="Center" HorizontalAlignment="Left" 
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="0,0,0,0"/>
+
+        <Grid x:Name="IndexLabel" Grid.Column="1" HorizontalAlignment="Right" Margin="10,5,25,0" VerticalAlignment="Center" Panel.ZIndex="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="KeyList" Path="ItemsCount" />
+            </MultiBinding>
+          </Grid.IsVisible>
+          <Label Grid.Column="0" Margin="0,0,10,0" Color="Black" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding ElementName="KeyList" Path="CurrentItem"/>
+                <Binding ElementName="KeyList" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Grid.Column="1" Color="Black" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+          <Label Grid.Column="2" Color="Black" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <Binding ElementName="KeyList" Path="ItemsCount" />
+            </Label.Content>
+          </Label>
+        </Grid>
+
+        <Rectangle Grid.Column="1" HorizontalAlignment="Right" RadiusX="17" RadiusY="17" VerticalAlignment="Stretch" Fill="White" Margin="0,6,20,0" Panel.ZIndex="0">
+          <Rectangle.Width>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+20">
+              <Binding ElementName="IndexLabel" Path="ActualWidth" />
+            </MultiBinding>
+          </Rectangle.Width>
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="KeyList" Path="ItemsCount" />
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="1" HorizontalAlignment="Right" RadiusY="0" VerticalAlignment="Stretch" Fill="White" Margin="0,6,20,0">
+          <Rectangle.Width>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}-18">
+              <Binding ElementName="IndexLabel" Path="ActualWidth" />
+            </MultiBinding>
+          </Rectangle.Width>
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="KeyList" Path="ItemsCount" />
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="1" HorizontalAlignment="Right" RadiusY="0" VerticalAlignment="Stretch" Fill="White" Margin="0,19,20,0">
+          <Rectangle.Width>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+20">
+              <Binding ElementName="IndexLabel" Path="ActualWidth" />
+            </MultiBinding>
+          </Rectangle.Width>
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="KeyList" Path="ItemsCount" />
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+
+        <Border Grid.ColumnSpan="2" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="35,0,20,0" Background="White" BorderThickness="0" Height="4">
+          <Border.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}=={VisibilityEnum}.{Visible}">
+              <Binding ElementName="IndexLabel" Path="Visibility" />
+            </MultiBinding>
+          </Border.IsVisible>
+        </Border>
+
+        <ListView x:Name="KeyList" Style="{StaticResource InputDevicesListViewStyle}" Grid.Row="2" Grid.ColumnSpan="2" Margin="0,30,0,0"
+                  SetFocus="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  ItemsSource="{Binding Path=Items,Mode=OneTime}">
+          <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="40" />
+            </ResourceWrapper>
+            <Command x:Key="BeginMapping_Command" Source="{StaticResource Model}" Path="BeginMapping" Parameters="{LateBoundValue BindingValue={Binding AdditionalProperties[MappedAction]}}"/>
+            <Command x:Key="DeleteMapping_Command" Source="{StaticResource Model}" Path="DeleteMapping" Parameters="{LateBoundValue BindingValue={Binding AdditionalProperties[MappedAction]}}"/>
+          </ListView.Resources>
+        </ListView>
+        
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>
