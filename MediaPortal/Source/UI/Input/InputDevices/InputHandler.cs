@@ -74,7 +74,10 @@ namespace InputDevices
         return true;
 
       DeviceMetadata device = message.MessageData[InputDeviceMessaging.DEVICE_METADATA] as DeviceMetadata;
-      if (!_mappingWatcher.TryGetMapping(device?.Id, out InputDeviceMapping mapping) && device?.DefaultMapping == null)
+      if (!_mappingWatcher.TryGetMapping(device?.Id, out InputDeviceMapping mapping))
+        mapping = device?.DefaultMapping;
+
+      if (mapping == null)
         return false;
 
       IEnumerable<Input> inputs = message.MessageData[InputDeviceMessaging.PRESSED_INPUTS] as IEnumerable<Input>;
