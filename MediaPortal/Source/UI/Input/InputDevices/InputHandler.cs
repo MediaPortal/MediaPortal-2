@@ -28,6 +28,7 @@ using InputDevices.Common.Mapping;
 using InputDevices.Common.Messaging;
 using InputDevices.Mapping;
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Control.InputManager;
 using System.Collections.Generic;
@@ -73,12 +74,19 @@ namespace InputDevices
         return true;
 
       DeviceMetadata device = message.MessageData[InputDeviceMessaging.DEVICE_METADATA] as DeviceMetadata;
-      if (!_mappingWatcher.TryGetMapping(device?.Id, out InputDeviceMapping mapping) && device?.DefaultMapping == null)
+      if (!_mappingWatcher.TryGetMapping(device?.Id, out InputDeviceMapping mapping))
+        mapping = device?.DefaultMapping;
+
+      if (mapping == null)
         return false;
 
       IEnumerable<Input> inputs = message.MessageData[InputDeviceMessaging.PRESSED_INPUTS] as IEnumerable<Input>;
       if (!mapping.TryGetMappedAction(inputs, out InputAction inputAction))
         return false;
+
+#if EXTENDED_INPUT_LOGGING
+      ServiceRegistration.Get<ILogger>().Debug($"{nameof(InputHandler)}: Handling input action {inputAction} for inputs {Input.GetInputString(inputs)}");
+#endif
 
       return HandleInputAction(inputAction);
     }
