@@ -26,23 +26,23 @@
           <Label Content="[PartyMusicPlayer.Playlist]" Color="{ThemeResource TextColor}" Margin="10,10,10,0"/>
           <DockPanel LastChildFill="True">
             <Button Content="[PartyMusicPlayer.ChoosePlaylist]" Margin="0,10,10,10" DockPanel.Dock="Right"
-                Command="{Command ChoosePlaylist}"/>
+                    Command="{Command ChoosePlaylist}" Style="{ThemeResource ButtonWideStyle}"/>
             <Label Content="{Binding PlaylistName}" Color="{ThemeResource TextColor}" Margin="10"
-                DockPanel.Dock="Center"/>
+                   DockPanel.Dock="Center"/>
           </DockPanel>
   
           <CheckBox x:Name="UseEscapePasswordCheckBox" Content="[PartyMusicPlayer.UseEscapePassword]"
-              Margin="10,10,10,0" IsChecked="{Binding Path=UseEscapePassword,Mode=TwoWay}"/>
+                    Margin="10,10,10,0" IsChecked="{Binding Path=UseEscapePassword,Mode=TwoWay}"/>
           <TextBox Text="{Binding Path=EscapePassword,Mode=TwoWay}" Margin="10"
-              IsEnabled="{Binding UseEscapePassword}" Style="{ThemeResource PasswordTextBoxStyle}"/>
+                   IsEnabled="{Binding UseEscapePassword}" Style="{ThemeResource PasswordTextBoxStyle}"/>
   
           <CheckBox x:Name="DisableScreenSaverCheckBox" Content="[PartyMusicPlayer.DisableScreenSaver]"
-              Margin="10,10,10,0" IsChecked="{Binding Path=DisableScreenSaver,Mode=TwoWay}"/>
+                    Margin="10,10,10,0" IsChecked="{Binding Path=DisableScreenSaver,Mode=TwoWay}"/>
         </StackPanel>
 
         <Button x:Name="StartPartyMode" Content="[PartyMusicPlayer.StartPartyMode]" Grid.Row="1" Grid.Column="0"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            Command="{Command StartPartyMode}"/>
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Command="{Command StartPartyMode}" Style="{ThemeResource ButtonWideStyle}"/>
       </Grid>
     </ControlTemplate>
   </Include.Resources>
