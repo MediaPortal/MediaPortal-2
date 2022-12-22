@@ -16,10 +16,10 @@
 
   <ItemGroup>
     <None Update="Skin\Nereus\screens\InputDevices-SelectAction.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
     </None>
     <None Update="Skin\Nereus\styles\InputDevices-Styles.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
     </None>
   </ItemGroup>
   

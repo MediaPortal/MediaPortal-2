@@ -863,6 +863,7 @@
     <Content Include="Skin\Nereus\images\Right_Menu_Focus.PNG" />
     <Content Include="Skin\Nereus\images\search.png" />
     <Content Include="Skin\Nereus\images\search_background.jpg" />
+    <Content Include="Skin\Nereus\images\treeview.png" />
     <Content Include="Skin\Nereus\images\Vertical_gradient.png" />
     <Content Include="Skin\Nereus\images\Square_large.png" />
     <Content Include="Skin\Nereus\images\square_shadow.png" />

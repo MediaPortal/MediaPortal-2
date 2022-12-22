@@ -39,7 +39,7 @@
             <Label.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {1}">
                 <Binding ElementName="applist" Path="ItemsCount" />
-                <Binding Source="0" />
+                <Binding Source="{x:Null}" />
               </MultiBinding>
             </Label.IsVisible>
           </Label>
