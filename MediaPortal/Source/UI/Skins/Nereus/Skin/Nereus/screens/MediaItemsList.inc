@@ -126,10 +126,11 @@
       </Grid.IsVisible>
     </Grid>
 
-    <Label IsVisible="{Binding ShowListHint}"
-           HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
-           Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
-
+    <StackPanel Orientation="Vertical" IsVisible="{Binding ShowListHint}" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Image Source="empty.png" Height="100" Stretch="Uniform" IsVisible="{Binding IsItemsEmpty}"/>
+      <Label  Wrap="true" Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
+    </StackPanel>
+    
   </Grid>
   <Label IsVisible="{Binding !IsItemsValid}"
          HorizontalAlignment="Center" VerticalAlignment="Center"
