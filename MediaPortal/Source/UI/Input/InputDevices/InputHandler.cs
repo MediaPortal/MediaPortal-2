@@ -31,6 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using MediaPortal.UI.Control.InputManager;
+using System;
 using System.Collections.Generic;
 
 namespace InputDevices
@@ -62,8 +63,17 @@ namespace InputDevices
       SystemMessage message;
       while ((message = queue.Dequeue()) != null)
       {
-        if (message.MessageType as InputDeviceMessaging.MessageType? == InputDeviceMessaging.MessageType.InputPressed)
-          message.MessageData[InputDeviceMessaging.HANDLED] = HandleInputMessage(message);
+        try
+        {
+          if (message.MessageType as InputDeviceMessaging.MessageType? == InputDeviceMessaging.MessageType.InputPressed)
+            message.MessageData[InputDeviceMessaging.HANDLED] = HandleInputMessage(message);
+        }
+        catch (Exception ex)
+        {
+          // In theory this should never be reached, but this message queue runs on the main thread and any uncaught exceptions
+          // in the message loop will bring down the whole 
+          ServiceRegistration.Get<ILogger>().Error($"{nameof(InputHandler)}: Error processing InputPressed message", ex);
+        }
       }
     }
 

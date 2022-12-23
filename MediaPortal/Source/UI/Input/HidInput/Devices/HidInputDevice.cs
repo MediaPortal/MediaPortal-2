@@ -46,16 +46,24 @@ namespace HidInput.Devices
       return "HidDevice:" + (vendorId?.ToString() ?? string.Empty) + ":" + (productId?.ToString() ?? string.Empty);
     }
 
+    protected string _deviceName;
     protected HashSet<Keys> _expectedKeyDowns = new HashSet<Keys>();
     protected HashSet<Keys> _expectedKeyUps = new HashSet<Keys>();
 
     public HidInputDevice(Device device, IEnumerable<MappedAction> defaultMapping = null)
-      : this(GetDeviceId(device), device.FriendlyName, defaultMapping)
+      : this(GetDeviceId(device), device.Name, device.FriendlyName, defaultMapping)
     { }
 
-    public HidInputDevice(string deviceId, string friendlyName, IEnumerable<MappedAction> defaultMapping = null)
+    public HidInputDevice(string deviceId, string deviceName, string friendlyName, IEnumerable<MappedAction> defaultMapping = null)
     : base(new DeviceMetadata(deviceId, friendlyName, defaultMapping))
-    { }
+    {
+      _deviceName = deviceName;
+    }
+
+    public string DeviceName
+    { 
+      get { return _deviceName; } 
+    }
 
     /// <summary>
     /// Tries to handle the usages contained in the <paramref name="hidEvent"/>.

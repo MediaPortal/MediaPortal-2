@@ -178,6 +178,10 @@ namespace HidInput
           message.MessageData[HidMessaging.HANDLED] = true;
         }
       }
+      else if (messageType == HidMessaging.MessageType.DeviceArrived || messageType == HidMessaging.MessageType.DeviceRemoved)
+      {
+        HandleDeviceRemoval((string)message.MessageData[HidMessaging.DEVICE_NAME]);
+      }
       // If the window was [de]activated some input messages may have been missed, particularly
       // key up messages, so reset all input to get back to a known state
       else if (messageType == HidMessaging.MessageType.Deactivated || messageType == HidMessaging.MessageType.Activated)
@@ -208,6 +212,13 @@ namespace HidInput
       if (!_hidDevices.TryGetValue(deviceId, out HidInputDevice device))
         device = _hidDevices[deviceId] = CreateDevice(e.Device);
       return device.HandleHidEvent(e);
+    }
+
+    protected void HandleDeviceRemoval(string deviceName)
+    {
+      var devicesToRemove = _hidDevices.Values.Where(d => d.DeviceName == deviceName).ToArray();
+      foreach (var device in devicesToRemove)
+        _hidDevices.Remove(device.Metadata.Id);
     }
 
     protected HidInputDevice CreateDevice(Device device)

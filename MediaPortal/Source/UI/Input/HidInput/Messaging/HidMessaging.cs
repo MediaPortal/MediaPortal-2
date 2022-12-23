@@ -23,6 +23,7 @@
 #endregion
 
 using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.Common.Messaging;
 using SharpLib.Hid;
 
@@ -39,6 +40,8 @@ namespace HidInput.Messaging
     public enum MessageType
     {
       HidEvent,
+      DeviceArrived,
+      DeviceRemoved,
       Activated,
       Deactivated
     }
@@ -46,15 +49,39 @@ namespace HidInput.Messaging
     public const string EVENT = "Event";
     public const string HANDLED = "Handled";
 
+    public const string DEVICE_NAME = "DeviceName";
+
     public static bool BroadcastHidEventMessage(Event hidEvent)
     {
       SystemMessage message = new SystemMessage(MessageType.HidEvent);
       message.MessageData[EVENT] = hidEvent;
       message.MessageData[HANDLED] = false;
 
-      BroadcastMessage(message);
+      BroadcastMessage(message, true);
 
       return message.MessageData[HANDLED] as bool? == true;
+    }
+
+    public static void BroadcastDeviceArrivedMessage(string deviceName)
+    {
+#if EXTENDED_INPUT_LOGGING
+      ServiceRegistration.Get<ILogger>().Debug($"{nameof(HidMessaging)}: Sending device arrived message for device {{0}}", deviceName);
+#endif
+
+      SystemMessage message = new SystemMessage(MessageType.DeviceArrived);
+      message.MessageData[DEVICE_NAME] = deviceName;
+      BroadcastMessage(message);
+    }
+
+    public static void BroadcastDeviceRemovedMessage(string deviceName)
+    {
+#if EXTENDED_INPUT_LOGGING
+      ServiceRegistration.Get<ILogger>().Debug($"{nameof(HidMessaging)}: Sending device removed message for device {{0}}", deviceName);
+#endif
+
+      SystemMessage message = new SystemMessage(MessageType.DeviceRemoved);
+      message.MessageData[DEVICE_NAME] = deviceName;
+      BroadcastMessage(message);
     }
 
     public static void BroadcastActivatedMessage()
@@ -67,10 +94,11 @@ namespace HidInput.Messaging
       BroadcastMessage(new SystemMessage(MessageType.Deactivated));
     }
 
-    static void BroadcastMessage(SystemMessage message)
+    static void BroadcastMessage(SystemMessage message, bool sendPreviewMessage = false)
     {
       IMessageBroker messageBroker = ServiceRegistration.Get<IMessageBroker>();
-      messageBroker.Send(PREVIEW_CHANNEL, message);
+      if (sendPreviewMessage)
+        messageBroker.Send(PREVIEW_CHANNEL, message);
       messageBroker.Send(CHANNEL, message);
     }
   }

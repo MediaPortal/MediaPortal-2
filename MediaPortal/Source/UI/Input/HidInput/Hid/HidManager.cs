@@ -83,10 +83,15 @@ namespace HidInput.Hid
       _watcher.RegisterInputDevices(inputDevices);
     }
 
-    private void WatcherDeviceChange(object sender, EventArgs e)
+    private void WatcherDeviceChange(object sender, DeviceChangeEventArgs e)
     {
       // Force recreation of device list the next time it is requested
       _connectedDevices = null;
+
+      if (e.ChangeType == DeviceChangeType.Arrived)
+        HidMessaging.BroadcastDeviceArrivedMessage(e.DeviceName);
+      else if (e.ChangeType == DeviceChangeType.Removed)
+        HidMessaging.BroadcastDeviceRemovedMessage(e.DeviceName);
     }
 
     private void WatcherHidEvent(object sender, Event hidEvent)

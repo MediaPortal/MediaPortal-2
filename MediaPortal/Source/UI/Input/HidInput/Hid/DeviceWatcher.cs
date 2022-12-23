@@ -28,6 +28,24 @@ using System.Windows.Forms;
 
 namespace HidInput.Hid
 {
+  public enum DeviceChangeType
+  {
+    Arrived,
+    Removed
+  }
+
+  public class DeviceChangeEventArgs : EventArgs
+  {
+    public DeviceChangeEventArgs(DeviceChangeType changeType, string deviceName)
+    {
+      ChangeType = changeType;
+      DeviceName = deviceName;
+    }
+
+    public DeviceChangeType ChangeType { get; }
+    public string DeviceName { get; }
+  }
+
   /// <summary>
   /// Handles <see cref="WM_DEVICECHANGE"/> windows messages passed to <see cref="HandleMessage(ref Message)"/>
   /// and triggers the <see cref="DeviceChange"/> event when a USB device is added or removed.
@@ -43,21 +61,22 @@ namespace HidInput.Hid
     static extern bool UnregisterDeviceNotification(IntPtr Handle);
 
     public const int DEVICE_NOTIFY_WINDOW_HANDLE = 0x0000;
+    public const int DEVICE_NOTIFY_ALL_INTERFACE_CLASSES = 0x0004;
     public const int DBT_DEVTYP_DEVICEINTERFACE = 0x00000005;
     public static readonly Guid GUID_DEVINTERFACE_USB_DEVICE = new Guid("A5DCBF10-6530-11D2-901F-00C04FB951ED");
 
     public const int WM_DEVICECHANGE = 0x0219;
-    public const int DBT_DEVICEARRIVAL = 0x8000;
-    public const int DBT_DEVICEREMOVECOMPLETE = 0x8004;
+    public static readonly IntPtr DBT_DEVICEARRIVAL = (IntPtr)0x8000;
+    public static readonly IntPtr DBT_DEVICEREMOVECOMPLETE = (IntPtr)0x8004;
 
     [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Auto)]
     public struct DEV_BROADCAST_DEVICEINTERFACE
     {
-      public uint dbcc_size;
-      public uint dbcc_devicetype;
-      public uint dbcc_reserved;
+      public int dbcc_size;
+      public int dbcc_devicetype;
+      public int dbcc_reserved;
       public Guid dbcc_classguid;
-      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 1)]
+      [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 255)]
       public string dbcc_name;
     }
 
@@ -72,14 +91,14 @@ namespace HidInput.Hid
 
       DEV_BROADCAST_DEVICEINTERFACE dbdi = new DEV_BROADCAST_DEVICEINTERFACE
       {
-        dbcc_size = (uint)Marshal.SizeOf(new DEV_BROADCAST_DEVICEINTERFACE()),
         dbcc_devicetype = DBT_DEVTYP_DEVICEINTERFACE,
-        dbcc_classguid = GUID_DEVINTERFACE_USB_DEVICE
       };
-      IntPtr diBuffer = Marshal.AllocHGlobal((int)dbdi.dbcc_size);
+      dbdi.dbcc_size = Marshal.SizeOf(dbdi);
+      IntPtr diBuffer = Marshal.AllocHGlobal(dbdi.dbcc_size);
       try
       {
-        _deviceNotifyHandle = RegisterDeviceNotification(hWnd, diBuffer, DEVICE_NOTIFY_WINDOW_HANDLE);
+        Marshal.StructureToPtr(dbdi, diBuffer, true);
+        _deviceNotifyHandle = RegisterDeviceNotification(hWnd, diBuffer, DEVICE_NOTIFY_ALL_INTERFACE_CLASSES);
       }
       finally
       {
@@ -99,10 +118,16 @@ namespace HidInput.Hid
     public void HandleMessage(ref Message message)
     {
       if (message.Msg == WM_DEVICECHANGE)
-        DeviceChange?.Invoke(this, EventArgs.Empty);
+      {
+        if (message.WParam == DBT_DEVICEARRIVAL || message.WParam == DBT_DEVICEREMOVECOMPLETE)
+        {
+          DEV_BROADCAST_DEVICEINTERFACE dbdi = Marshal.PtrToStructure<DEV_BROADCAST_DEVICEINTERFACE>(message.LParam);
+          DeviceChange?.Invoke(this, new DeviceChangeEventArgs(message.WParam == DBT_DEVICEARRIVAL ? DeviceChangeType.Arrived : DeviceChangeType.Removed, dbdi.dbcc_name));
+        }
+      }
     }
 
-    public event EventHandler DeviceChange;
+    public event EventHandler<DeviceChangeEventArgs> DeviceChange;
 
     public void Dispose()
     {
