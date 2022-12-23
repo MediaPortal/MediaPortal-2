@@ -112,19 +112,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
     public void SetItemProvider(IItemProvider itemProvider)
     {
-      if (_elementState == ElementState.Running)
-        lock (Children.SyncRoot)
-        {
-          if (_newItemProvider == itemProvider)
-            return;
-          if (_newItemProvider != null)
-            MPF.TryCleanupAndDispose(_newItemProvider);
-          _newItemProvider = null;
-          if (_itemProvider == itemProvider)
-            return;
-          _newItemProvider = itemProvider;
-        }
-      else
+      lock (Children.SyncRoot)
       {
         if (_newItemProvider == itemProvider)
           return;
@@ -133,9 +121,14 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
         _newItemProvider = null;
         if (_itemProvider == itemProvider)
           return;
-        if (_itemProvider != null)
-          MPF.TryCleanupAndDispose(_itemProvider);
-        _itemProvider = itemProvider;
+        if (_elementState == ElementState.Running)
+          _newItemProvider = itemProvider;
+        else
+        {
+          if (_itemProvider != null)
+            MPF.TryCleanupAndDispose(_itemProvider);
+          _itemProvider = itemProvider;
+        }
       }
       InvalidateLayout(true, true);
     }
