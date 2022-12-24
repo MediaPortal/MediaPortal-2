@@ -14,55 +14,114 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <DockPanel LastChildFill="True" DataContext="{Binding Source={StaticResource Model}}">
-        <DockPanel Margin="0,0,0,10" DockPanel.Dock="Center" LastChildFill="True">
-          <Grid DockPanel.Dock="Top" Margin="20,0,20,0" HorizontalAlignment="Stretch">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="Auto"/>
-              <RowDefinition Height="Auto"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Label Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" Margin="0,20,0,0" 
-                   Content="[Media.PlaylistsOverviewHeader]"/>
-            <StackPanel HorizontalAlignment="Right" Margin="0,20,0,0" Orientation="Horizontal">
-              <StackPanel.IsVisible>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
-                  <Binding ElementName="playlist" Path="ItemsCount" />
-                </MultiBinding>
-              </StackPanel.IsVisible>
-              <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
-                <Label.Content>
-                  <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
-                    <Binding ElementName="playlist" Path="CurrentItem"/>
-                    <Binding ElementName="playlist" Path="ItemsSource"/>
-                  </MultiBinding>
-                </Label.Content>
-              </Label>
-              <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
-              <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
-                <Label.Content>
-                  <Binding ElementName="playlist" Path="ItemsCount" />
-                </Label.Content>
-              </Label>
-            </StackPanel>
-            <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,5,0,10" Background="White" BorderThickness="0" Height="4"/>
-          </Grid>
-          <ListView x:Name="playlist" Margin="15,10,15,10" DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                    Style="{ThemeResource PlaylistsListViewStyle}"
+      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="30">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="44"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <StackPanel Orientation="Horizontal">
+          <Image Source="playlist.png" Margin="0,8,5,3" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}" Width="40"/>
+          <Label Content="[Media.PlaylistsOverviewHeader]" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+        </StackPanel>
+
+        <!-- ListIndex header -->
+        <Grid x:Name="IndexLabel" Grid.Column="1" HorizontalAlignment="Right" Margin="10,5,15,0" VerticalAlignment="Center" Panel.ZIndex="1">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="playlist" Path="ItemsCount" />
+            </MultiBinding>
+          </Grid.IsVisible>
+          <Label Grid.Column="0" Margin="0,0,10,0" Color="Black" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding ElementName="playlist" Path="CurrentItem"/>
+                <Binding ElementName="playlist" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+          <Label Grid.Column="1" Color="Black" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+          <Label Grid.Column="2" Color="Black" FontSize="{ThemeResource SmallerFontSize}">
+            <Label.Content>
+              <Binding ElementName="playlist" Path="ItemsCount" />
+            </Label.Content>
+          </Label>
+        </Grid>
+
+        <!-- ListIndex header background -->
+        <Rectangle Grid.Column="1" HorizontalAlignment="Right" RadiusX="17" RadiusY="17" VerticalAlignment="Stretch" Fill="White" Margin="0,6,10,0" Panel.ZIndex="0">
+          <Rectangle.Width>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+20">
+              <Binding ElementName="IndexLabel" Path="ActualWidth" />
+            </MultiBinding>
+          </Rectangle.Width>
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="playlist" Path="ItemsCount" />
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="1" HorizontalAlignment="Right" RadiusY="0" VerticalAlignment="Stretch" Fill="White" Margin="0,6,10,0">
+          <Rectangle.Width>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}-18">
+              <Binding ElementName="IndexLabel" Path="ActualWidth" />
+            </MultiBinding>
+          </Rectangle.Width>
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="playlist" Path="ItemsCount" />
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Column="1" HorizontalAlignment="Right" RadiusY="0" VerticalAlignment="Stretch" Fill="White" Margin="0,19,10,0">
+          <Rectangle.Width>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+20">
+              <Binding ElementName="IndexLabel" Path="ActualWidth" />
+            </MultiBinding>
+          </Rectangle.Width>
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+              <Binding ElementName="playlist" Path="ItemsCount" />
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+
+        <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="White" BorderThickness="0" Height="4" Margin="5,0,10,0"/>
+
+        <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,30,10,20">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <ListView x:Name="playlist" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Style="{ThemeResource PlaylistsList1ViewStyle}"
                     IsVisible="{Binding IsHomeServerConnected}"
                     ItemsSource="{Binding Path=Playlists,Mode=OneTime}">
             <ListView.Resources>
               <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
             </ListView.Resources>
           </ListView>
+
           <Label Margin="10" DockPanel.Dock="Center" IsVisible="{Binding !IsHomeServerConnected}"
                  Content="[Media.NoConfigPlaylistsHomeServerNotConnectedText]" Wrap="true"
                  Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
-        </DockPanel>
-      </DockPanel>
-    </ControlTemplate>
+        </Grid>
+        
+      </Grid>
 
+    </ControlTemplate>
   </Include.Resources>
 </Include>

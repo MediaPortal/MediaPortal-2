@@ -116,8 +116,8 @@
 
         <!---Search field for Coverview-->
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Height="55" Width="300"
-                    VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,-170,20,5">
-          <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100" 
+              VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,-60,20,5">
+          <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="40" 
                    HorizontalAlignment="Stretch"/>
           <Image x:Name="searchsymbol" Source="search_dark.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
                  Stretch="Uniform" Height="40" Margin="0,0,8,0"/>
@@ -134,8 +134,8 @@
 
         <!---Search field for Grid- and Listview-->
         <Grid Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Grid.RowSpan="2" Height="55" Width="300"
-                    VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,-20,20,5">
-          <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="100" 
+              VerticalAlignment="Top" HorizontalAlignment="Right" Margin="10,10,20,5">
+          <TextBox Text="{Binding Path=SimpleSearchText,Mode=TwoWay}" PreferredTextLength="40" 
                    HorizontalAlignment="Stretch"/>
           <Image x:Name="searchsymbol2" Source="search_dark.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
                  Stretch="Uniform" Height="40" Margin="0,0,8,0"/>
@@ -149,7 +149,6 @@
             </Trigger>
           </Grid.Triggers>
         </Grid>
-
 
       </Grid>
     </ControlTemplate>

@@ -232,6 +232,7 @@
     <Content Include="Skin\Nereus\images\folder.png" />
     <Content Include="Skin\Nereus\images\full_install.png" />
     <Content Include="Skin\Nereus\images\game.png" />
+    <Content Include="Skin\Nereus\images\game_icon.png" />
     <Content Include="Skin\Nereus\images\genre.png" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\album.png" />
     <Content Include="Skin\Nereus\images\HomeContentIcons\audiogenre.png" />
@@ -842,6 +843,7 @@
     <Content Include="Skin\Nereus\images\PlayerControl\Up.small.nofocus.png" />
     <Content Include="Skin\Nereus\images\PlayerControl\UP_FOCUS.png" />
     <Content Include="Skin\Nereus\images\PlayerControl\UP_NOFOCUS.png" />
+    <Content Include="Skin\Nereus\images\playlist.png" />
     <Content Include="Skin\Nereus\images\Poster_large.png" />
     <Content Include="Skin\Nereus\images\Poster_medium.png" />
     <Content Include="Skin\Nereus\images\Poster_small.png" />

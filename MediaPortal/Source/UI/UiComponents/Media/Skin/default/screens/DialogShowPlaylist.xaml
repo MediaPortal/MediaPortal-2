@@ -54,7 +54,7 @@
         <Button Style="{ThemeResource DialogButtonStyle}" Grid.Row="2" Grid.Column="0" Margin="0,15,0,0"
                 Content="[Media.EditPlaylistButton]" IsVisible="{Binding !DisableEditMode}"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource WF_STATE_ID_EDIT_PLAYLIST}}"/>
-        <Grid Grid.Row="3" Grid.Column="0">
+        <Grid Grid.Row="3" Grid.Column="0" Margin="0,20,0,0">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
