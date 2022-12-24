@@ -449,9 +449,11 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               _actualFirstVisibleChildIndex = _actualLastVisibleChildIndex + 1;
               int ct = MAX_NUM_VISIBLE_ITEMS;
               float lastHeaderItemSpace = 0f;
-              while (_actualFirstVisibleChildIndex > 0)
+              int potentialFirstVisibleChildIndex = _actualFirstVisibleChildIndex;
+              while (potentialFirstVisibleChildIndex > 0)
               {
-                FrameworkElement item = GetItem(_actualFirstVisibleChildIndex - 1, itemProvider, true);
+                potentialFirstVisibleChildIndex--;
+                FrameworkElement item = GetItem(potentialFirstVisibleChildIndex, itemProvider, true);
                 if (item == null || !item.IsVisible)
                   continue;
                 if (ct-- == 0)
@@ -459,13 +461,10 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 spaceLeft -= GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
 
                 if (spaceLeft + DELTA_DOUBLE < 0)
-                {
-
                   break; // Found item which is not visible any more
-                }
 
                 spaceLeft += lastHeaderItemSpace;
-                var groupHeaderItem = GetGroupHeader(_actualFirstVisibleChildIndex - 1, false, groupingItemProvider, false);
+                var groupHeaderItem = GetGroupHeader(potentialFirstVisibleChildIndex, false, groupingItemProvider, false);
                 if (groupHeaderItem != null)
                 {
                   lastHeaderItemSpace = 0f;
@@ -473,7 +472,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                 }
                 else
                 {
-                  groupHeaderItem = GetGroupHeader(_actualFirstVisibleChildIndex - 1, true, groupingItemProvider, false);
+                  groupHeaderItem = GetGroupHeader(potentialFirstVisibleChildIndex, true, groupingItemProvider, false);
                   if (groupHeaderItem != null)
                   {
                     lastHeaderItemSpace = GetExtendsInOrientationDirection(Orientation, groupHeaderItem.DesiredSize);
@@ -487,23 +486,25 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   spaceLeft += GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
                   break; // Found item which is not visible any more
                 }
-                _actualFirstVisibleChildIndex--;
+                _actualFirstVisibleChildIndex = potentialFirstVisibleChildIndex;
               }
               if (_actualFirstVisibleChildIndex > _actualLastVisibleChildIndex)
                 // Happens if the item at _actualFirstVisibleChildIndex is bigger than the available space
                 _actualFirstVisibleChildIndex = _actualLastVisibleChildIndex;
               if (spaceLeft > 0)
               { // Correct the last scroll index to fill the available space
-                while (_actualLastVisibleChildIndex < numItems - 1)
+                int potentialLastVisibleChildIndex = _actualLastVisibleChildIndex;
+                while (potentialLastVisibleChildIndex < numItems - 1)
                 {
-                  FrameworkElement item = GetItem(_actualLastVisibleChildIndex + 1, itemProvider, true);
+                  potentialLastVisibleChildIndex++;
+                  FrameworkElement item = GetItem(potentialLastVisibleChildIndex, itemProvider, true);
                   if (item == null || !item.IsVisible)
                     continue;
                   if (ct-- == 0)
                     break;
                   spaceLeft -= GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
 
-                  var groupHeaderItem = GetGroupHeader(_actualLastVisibleChildIndex + 1, false, groupingItemProvider, false);
+                  var groupHeaderItem = GetGroupHeader(potentialLastVisibleChildIndex, false, groupingItemProvider, false);
                   if (groupHeaderItem != null)
                   {
                     spaceLeft -= GetExtendsInOrientationDirection(Orientation, groupHeaderItem.DesiredSize);
@@ -511,7 +512,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
 
                   if (spaceLeft + DELTA_DOUBLE < 0)
                     break; // Found item which is not visible any more
-                  _actualLastVisibleChildIndex++;
+                  _actualLastVisibleChildIndex = potentialLastVisibleChildIndex;
                 }
               }
             }
@@ -521,15 +522,17 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               _actualLastVisibleChildIndex = _actualFirstVisibleChildIndex - 1;
               int ct = MAX_NUM_VISIBLE_ITEMS;
               bool first = true;
-              while (_actualLastVisibleChildIndex < numItems - 1)
+              int potentialLastVisibleChildIndex = _actualLastVisibleChildIndex;
+              while (potentialLastVisibleChildIndex < numItems - 1)
               {
-                FrameworkElement item = GetItem(_actualLastVisibleChildIndex + 1, itemProvider, true);
+                potentialLastVisibleChildIndex++;
+                FrameworkElement item = GetItem(potentialLastVisibleChildIndex, itemProvider, true);
                 if (item == null || !item.IsVisible)
                   continue;
                 if (ct-- == 0)
                   break;
 
-                var groupHeaderItem = GetGroupHeader(_actualLastVisibleChildIndex + 1, first, groupingItemProvider, false);
+                var groupHeaderItem = GetGroupHeader(potentialLastVisibleChildIndex, first, groupingItemProvider, false);
                 if (groupHeaderItem != null)
                 {
                   spaceLeft -= GetExtendsInOrientationDirection(Orientation, groupHeaderItem.DesiredSize);
@@ -545,7 +548,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   _addOneMoreGroupHeader = true;
                   break; // Found item which is not visible any more
                 }
-                _actualLastVisibleChildIndex++;
+                _actualLastVisibleChildIndex = potentialLastVisibleChildIndex;
               }
               if (_actualLastVisibleChildIndex < _actualFirstVisibleChildIndex)
                 // Happens if the item at _actualFirstVisibleChildIndex is bigger than the available space
@@ -553,16 +556,18 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
               if (spaceLeft > 0)
               { // Correct the first scroll index to fill the available space
                 float lastHeaderItemSpace = 0f;
-                while (_actualFirstVisibleChildIndex > 0)
+                int potentialFirstVisibleChildIndex = _actualFirstVisibleChildIndex;
+                while (potentialFirstVisibleChildIndex > 0)
                 {
-                  FrameworkElement item = GetItem(_actualFirstVisibleChildIndex - 1, itemProvider, true);
+                  potentialFirstVisibleChildIndex--;
+                  FrameworkElement item = GetItem(potentialFirstVisibleChildIndex, itemProvider, true);
                   if (item == null || !item.IsVisible)
                     continue;
                   if (ct-- == 0)
                     break;
 
                   spaceLeft += lastHeaderItemSpace;
-                  var groupHeaderItem = GetGroupHeader(_actualFirstVisibleChildIndex - 1, false, groupingItemProvider, false);
+                  var groupHeaderItem = GetGroupHeader(potentialFirstVisibleChildIndex, false, groupingItemProvider, false);
                   if (groupHeaderItem != null)
                   {
                     lastHeaderItemSpace = 0f;
@@ -570,7 +575,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   }
                   else
                   {
-                    groupHeaderItem = GetGroupHeader(_actualFirstVisibleChildIndex - 1, true, groupingItemProvider, false);
+                    groupHeaderItem = GetGroupHeader(potentialFirstVisibleChildIndex, true, groupingItemProvider, false);
                     if (groupHeaderItem != null)
                     {
                       lastHeaderItemSpace = GetExtendsInOrientationDirection(Orientation, groupHeaderItem.DesiredSize);
@@ -581,7 +586,7 @@ namespace MediaPortal.UI.SkinEngine.Controls.Panels
                   spaceLeft -= GetExtendsInOrientationDirection(Orientation, item.DesiredSize);
                   if (spaceLeft + DELTA_DOUBLE < 0)
                     break; // Found item which is not visible any more
-                  _actualFirstVisibleChildIndex--;
+                  _actualFirstVisibleChildIndex = potentialFirstVisibleChildIndex;
                 }
               }
             }
