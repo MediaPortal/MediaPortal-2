@@ -216,6 +216,7 @@
     <Content Include="Skin\Nereus\images\configure.focus.png" />
     <Content Include="Skin\Nereus\images\configure.nofocus.png" />
     <Content Include="Skin\Nereus\images\ContentGlow.png" />
+    <Content Include="Skin\Nereus\images\disconnected.png" />
     <Content Include="Skin\Nereus\images\Effects\Layer1.png" />
     <Content Include="Skin\Nereus\images\Effects\Layer2.png" />
     <Content Include="Skin\Nereus\images\Effects\Layer3.png" />

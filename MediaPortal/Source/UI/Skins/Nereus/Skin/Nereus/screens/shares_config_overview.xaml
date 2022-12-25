@@ -103,9 +103,12 @@
                     Style="{ThemeResource SharesConfigList1ViewStyle}"
                     IsVisible="{Binding IsHomeServerConnected}"
                     ItemsSource="{Binding Path=ServerSharesList,Mode=OneTime}"/>
-          <Label Margin="10" Grid.Row="1" IsVisible="{Binding !IsHomeServerConnected}"
-                 Content="[SharesConfig.NoConfigGlobalSharesHomeServerNotConnected]" Wrap="true"
-                 Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+          <StackPanel Orientation="Vertical" IsVisible="{Binding !IsHomeServerConnected}"
+                      Margin="10" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Image Source="disconnected.png" Height="100" Stretch="Uniform" IsVisible="{Binding IsItemsEmpty}"/>
+            <Label Content="[SharesConfig.NoConfigGlobalSharesHomeServerNotConnected]" Color="{ThemeResource HintTextColor}"/>
+          </StackPanel>
+
         </Grid>
         <Grid>
           <Grid.RowDefinitions>
