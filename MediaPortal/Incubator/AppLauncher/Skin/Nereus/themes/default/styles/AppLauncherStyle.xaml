@@ -163,13 +163,27 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
-          <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
-            <ScrollViewer.Style>
-              <Binding Source="{ThemeResource VerticalMediaScrollViewerStyle}"/>
-            </ScrollViewer.Style>
-            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
-          </ScrollViewer>
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" Margin="5" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled">
+              <ScrollViewer.Style>
+                <Binding Source="{ThemeResource VerticalMediaScrollViewerStyle}"/>
+              </ScrollViewer.Style>
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image Source="empty.png" Height="100" Stretch="Uniform" IsVisible="{Binding IsItemsEmpty}"/>
+              <Label Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
+          </Grid>
+
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -263,6 +277,28 @@
   </Style>
 
   <Style x:Key="AppLauncherContentListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image Source="empty.png" Height="100" Stretch="Uniform" IsVisible="{Binding IsItemsEmpty}"/>
+              <Label Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource AppLauncherContentItemDataTemplate}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MainMenuItemContainerStyle}"/>
   </Style>
