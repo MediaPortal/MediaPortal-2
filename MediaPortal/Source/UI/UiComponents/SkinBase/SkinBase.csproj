@@ -229,6 +229,7 @@
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_Emulators.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_News.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_OnlineVideos.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_Trakt.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_Weather.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_WebRadio.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Shares.png" />
@@ -267,6 +268,7 @@
     <Content Include="Skin\default\images\SettingsMenu\Plugins_Emulators_LibRetro.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_News.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_OnlineVideos.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_Trakt.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_Weather.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_WebRadio.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Shares.jpg" />
