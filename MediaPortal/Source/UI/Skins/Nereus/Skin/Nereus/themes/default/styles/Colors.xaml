@@ -167,9 +167,9 @@
   <ResourceWrapper x:Key="DialogBorderColor" Resource="#33FFFFFF"/>
 
   <ResourceWrapper x:Key="ScrollBarStrokeColor" Resource="#00000000"/>
-  <ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#D8000000"/>
+  <ResourceWrapper x:Key="ScrollBarBackgroundColor" Resource="#1AFFFFFF"/>
   <ResourceWrapper x:Key="ScrollBarKnobStrokeColor" Resource="00000000"/>
-  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="White"/>
+  <ResourceWrapper x:Key="ScrollBarKnobBackgroundColor" Resource="#FF000000"/>
 
   <ResourceWrapper x:Key="PassiveFocusBackgroundColor" Resource="{ThemeResource NereusColorMedium}"/>
 
