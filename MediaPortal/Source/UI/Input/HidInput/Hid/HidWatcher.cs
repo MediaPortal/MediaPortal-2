@@ -85,9 +85,9 @@ namespace HidInput.Hid
       }
     }
 
-    public event EventHandler DeviceChange;
+    public event EventHandler<DeviceChangeEventArgs> DeviceChange;
 
-    private void OnDeviceChange(object sender, EventArgs e)
+    private void OnDeviceChange(object sender, DeviceChangeEventArgs e)
     {
       DeviceChange?.Invoke(this, e);
     }
@@ -102,8 +102,15 @@ namespace HidInput.Hid
 
     protected override void WndProc(ref Message m)
     {
-      _handler?.ProcessInput(ref m);
-      _deviceWatcher.HandleMessage(ref m);
+      try
+      {
+        _handler?.ProcessInput(ref m);
+        _deviceWatcher.HandleMessage(ref m);
+      }
+      catch (Exception ex)
+      {
+        ServiceRegistration.Get<ILogger>().Warn($"{nameof(HidWatcher)}: Exception processing windows message", ex);
+      }
       base.WndProc(ref m);
     }
 
