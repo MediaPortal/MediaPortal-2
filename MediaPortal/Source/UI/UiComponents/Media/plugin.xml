@@ -247,9 +247,9 @@
         MainScreen="SavePlaylistChooseLocation"
         DisplayLabel="[Media.SavePlaylistChooseLocationWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
-    <WorkflowState Id="A967AEC6-C470-4ef6-B034-F192983AA02E"
+    <DialogState Id="A967AEC6-C470-4ef6-B034-F192983AA02E"
         Name="SavePlaylistEditName"
-        MainScreen="SavePlaylistEditName"
+        DialogScreen="SavePlaylistEditName"
         DisplayLabel="[Media.SavePlaylistEditNameWorkflowStateNavigationContextDisplayLabel]"
         WorkflowModel="039151B6-800B-4279-A1BE-7F421EEA8C9A"/> <!-- Workflow model = ManagePlaylists model -->
     <DialogState Id="D9DB81D6-CD4E-47a3-9E3A-BD388BD1297E"
