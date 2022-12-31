@@ -29,7 +29,7 @@
           </StackPanel>
         </DockPanel>
         <Grid Grid.Column="0" Grid.Row="1"
-            HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
@@ -37,19 +37,19 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <ListView Grid.Column="0" Grid.Row="0" Style="{ThemeResource EditPlaylistListViewStyle}"
-              ItemsSource="{Binding Items}">
+                    ItemsSource="{Binding Items}">
             <ListView.Resources>
               <Command x:Key="MoveUp_Command" Source="{StaticResource EditPlaylistModel}" Path="MoveUp"
-                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+                       Parameters="{LateBoundValue BindingValue={Binding}}"/>
               <Command x:Key="MoveDown_Command" Source="{StaticResource EditPlaylistModel}" Path="MoveDown"
-                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+                       Parameters="{LateBoundValue BindingValue={Binding}}"/>
               <Command x:Key="Remove_Command" Source="{StaticResource EditPlaylistModel}" Path="Remove"
-                  Parameters="{LateBoundValue BindingValue={Binding}}"/>
+                       Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </ListView.Resources>
           </ListView>
           <Label Grid.Column="0" Grid.Row="0" IsVisible="{Binding IsPlaylistEmpty}"
-              HorizontalAlignment="Center" VerticalAlignment="Center"
-              Content="[Media.PlaylistEmpty]" Color="{ThemeResource HintTextColor}"/>
+                 HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Content="[Media.PlaylistEmpty]" Color="{ThemeResource HintTextColor}"/>
         </Grid>
       </Grid>
     </ControlTemplate>
