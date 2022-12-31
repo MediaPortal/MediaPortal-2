@@ -2,23 +2,104 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_configuration_menu.xaml"
+    Source="screens\master_bare.xaml"
     >
   <Include.Resources>
 
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="[Utilities.MainScreenTitle]"/>
-
     <ResourceWrapper x:Key="WfStatePlaylistImport" Resource="FC8CB306-6EFD-476C-BFF1-DAD0254451A5"/>
 
+    <!-- Screen background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Image Stretch="Fill" Source="Background.png"/>
+      </Grid>
+    </ControlTemplate>
+
+    <Style x:Key="ShareLocationsListViewStyle" BasedOn="{ThemeResource SingleMarkableListViewStyle}">
+      <Setter Property="Template">
+        <Setter.Value>
+          <ControlTemplate TargetType="{x:Type ListView}">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+          </ControlTemplate>
+        </Setter.Value>
+      </Setter>
+    </Style>
+
     <!-- Contents -->
-    <ControlTemplate x:Key="Contents_Template">
-      <DockPanel LastChildFill="True" Height="55">
-        <Button Style="{StaticResource ButtonWideStyle}" Content="[Utilities.PlaylistImport]"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DockPanel.Dock="Top"
+    <ControlTemplate x:Key="Client_Template">
+
+      <Grid Margin="0,-100,0,-50">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="480"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <Image Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" 
+               HorizontalAlignment="Right" Margin="0,-92,-20,-230" RenderTransformOrigin="0.5,0.5">
+          <Image.RenderTransform>
+            <RotateTransform Angle="180"/>
+          </Image.RenderTransform>
+        </Image>
+        <Border Grid.RowSpan="4" Margin="0,-92,0,-230" Background="Black" Opacity="1"/>
+
+        <!-- Top Gradient Overlay-->
+        <Border HorizontalAlignment="Stretch" VerticalAlignment="Top" 
+                Grid.ColumnSpan="2" BorderThickness="0" Height="100" Margin="0,0,0,0">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Color="#E6000000" Offset="0" />
+              <GradientStop Color="#78000000" Offset="0.3" />
+              <GradientStop Color="#46000000" Offset="0.45" />
+              <GradientStop Color="#21000000" Offset="0.6" />
+              <GradientStop Color="#0C000000" Offset="0.75" />
+              <GradientStop Color="#01000000" Offset="0.87" />
+              <GradientStop Color="#00000000" Offset="1" />
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+
+        <!-- Bottom Gradient Overlay-->
+        <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" 
+                Grid.ColumnSpan="2" BorderThickness="0" Height="100" Margin="0,0,0,-220">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Color="#E6000000" Offset="1" />
+              <GradientStop Color="#78000000" Offset="0.87" />
+              <GradientStop Color="#46000000" Offset="0.75" />
+              <GradientStop Color="#21000000" Offset="0.6" />
+              <GradientStop Color="#0C000000" Offset="0.45" />
+              <GradientStop Color="#01000000" Offset="0.3" />
+              <GradientStop Color="#00000000" Offset="0" />
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+
+        <Grid x:Name="IconPanel" Grid.Row="1" Grid.RowSpan="3"  HorizontalAlignment="Left" Margin="30,0,0,-205" VerticalAlignment="Bottom">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Image x:Name="ItemImage" Width="240" Height="240" Stretch="Fill" Opacity="0.8" HorizontalAlignment="Left" Source="HomeMenu\02992BEC-1E6D-4C29-8D79-F95F59E3F625.png"/>
+          <Label Grid.Row="1" MaxWidth="1400" Margin="0,10,10,10" VerticalAlignment="Bottom" Wrap="True" HorizontalAlignment="Left"
+                 Content="[Utilities.MainScreenTitle]" Color="White" Opacity="0.2" FontSize="{ThemeResource NormalFontSize}"/>
+        </Grid>
+
+        <DockPanel LastChildFill="True" Grid.Column="1">
+          <Button Style="{StaticResource WizardButtonStyle}" Content="[Utilities.PlaylistImport]" Margin="30,110,0,0"
+                HorizontalAlignment="Center" VerticalAlignment="Top" Height="55"
                 Command="{Command Source={Service WorkflowManager},Path=NavigatePushAsync,Parameters={StaticResource WfStatePlaylistImport}}"/>
-        <Grid DockPanel.Dock="Bottom"/>
-      </DockPanel>
+          <Grid DockPanel.Dock="Bottom"/>
+        </DockPanel>
+
+      </Grid>
     </ControlTemplate>
 
   </Include.Resources>

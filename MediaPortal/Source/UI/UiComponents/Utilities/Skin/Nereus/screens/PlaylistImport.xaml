@@ -4,12 +4,19 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
-    Source="screens\master_configuration_menu.xaml"
+    Source="screens\master_bare.xaml"
     >
   <Include.Resources>
+    <ResourceWrapper x:Key="Client_Margin" Resource="40,0,40,0"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[Utilities.PlaylistImportScreenTitle]"/>
     <Model x:Key="PlaylistImportModel" Id="D8E1EF69-1372-430D-9F36-3F163E0D12A8"/>
 
-    <ResourceWrapper x:Key="Header_Text" Resource="[Utilities.PlaylistImportScreenTitle]"/>
+    <!-- Screen background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Image Stretch="Fill" Source="Background.png"/>
+      </Grid>
+    </ControlTemplate>
 
     <Style x:Key="ShareLocationsListViewStyle" BasedOn="{ThemeResource SingleMarkableListViewStyle}">
       <Setter Property="Template">
@@ -22,9 +29,10 @@
     </Style>
 
     <!-- Contents -->
-    <ControlTemplate x:Key="Contents_Template">
-      <Grid DataContext="{Binding Source={StaticResource PlaylistImportModel}}" Margin="20,0,20,0">
+    <ControlTemplate x:Key="Client_Template">
+      <Grid DataContext="{Binding Source={StaticResource PlaylistImportModel}}" Margin="0,0,0,-50">
         <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="480"/>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
@@ -34,26 +42,80 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Horizontal">
-          <Image Source="HomeContentIcons\page.png" Margin="0,8,5,6" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"
+        <Image Grid.RowSpan="4" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" 
+               HorizontalAlignment="Right" Margin="0,-122,-20,-230" RenderTransformOrigin="0.5,0.5">
+          <Image.RenderTransform>
+            <RotateTransform Angle="180"/>
+          </Image.RenderTransform>
+        </Image>
+        <Border Grid.RowSpan="4" Margin="0,-92,0,-230" Background="Black" Opacity="1"/>
+
+        <!-- Top Gradient Overlay-->
+        <Border Grid.RowSpan="3"  HorizontalAlignment="Stretch" VerticalAlignment="Top" 
+                Grid.ColumnSpan="2" BorderThickness="0" Height="100" Margin="0,-112,0,0">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Color="#E6000000" Offset="0" />
+              <GradientStop Color="#78000000" Offset="0.3" />
+              <GradientStop Color="#46000000" Offset="0.45" />
+              <GradientStop Color="#21000000" Offset="0.6" />
+              <GradientStop Color="#0C000000" Offset="0.75" />
+              <GradientStop Color="#01000000" Offset="0.87" />
+              <GradientStop Color="#00000000" Offset="1" />
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+
+        <!-- Bottom Gradient Overlay-->
+        <Border Grid.Row="3" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" 
+                Grid.ColumnSpan="2" BorderThickness="0" Height="100" Margin="0,0,0,-220">
+          <Border.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Color="#E6000000" Offset="1" />
+              <GradientStop Color="#78000000" Offset="0.87" />
+              <GradientStop Color="#46000000" Offset="0.75" />
+              <GradientStop Color="#21000000" Offset="0.6" />
+              <GradientStop Color="#0C000000" Offset="0.45" />
+              <GradientStop Color="#01000000" Offset="0.3" />
+              <GradientStop Color="#00000000" Offset="0" />
+            </LinearGradientBrush>
+          </Border.Background>
+        </Border>
+
+        <!-- Category Icon -->
+        <Grid x:Name="IconPanel" Grid.Row="1" Grid.RowSpan="3"  HorizontalAlignment="Left" Margin="30,0,0,-205" VerticalAlignment="Bottom">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Image x:Name="ItemImage" Width="240" Height="240" Stretch="Fill" Opacity="0.8" HorizontalAlignment="Left" Source="HomeMenu\09eae702-d9ec-4325-82d9-4843502c966b.png"/>
+          <Label Grid.Row="1" MaxWidth="1400" Margin="0,10,10,10" VerticalAlignment="Bottom" Wrap="True" HorizontalAlignment="Left" Width="420"
+                 Content="[Utilities.PlaylistImportScreenTitle]" Color="White" Opacity="0.2" FontSize="{ThemeResource NormalFontSize}"/>
+        </Grid>
+
+        <!-- Contents Area-->
+        <StackPanel Orientation="Horizontal" Grid.Column="1">
+          <Image Source="playlist.png" Margin="30,8,5,6" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"
                  IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}" Width="40"/>
           <Label Content="[Utilities.ImportPlaylistFile]" VerticalAlignment="Center" HorizontalAlignment="Left" 
                  FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
         </StackPanel>
 
-        <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5,0,10,0" Background="White" BorderThickness="0"/>
-        
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Grid.Row="2" Grid.Column="0">
+        <Border Grid.Row="1" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="35,0,30,0" Background="White" BorderThickness="0"/>
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Grid.Row="2" Grid.Column="1" Margin="30,0,10,0">
           <DockPanel LastChildFill="True">
             <Button Content="[Utilities.ChoosePlaylistFile]" Margin="0,30,10,10" DockPanel.Dock="Left"
                     Command="{Command ChooseImportFile}" SetFocusPrio="Default" Style="{ThemeResource WizardButtonStyle}"/>
-            <Label Content="{Binding ImportFile}" Color="{ThemeResource TextColor}" Margin="10"
-                   DockPanel.Dock="Center"/>
+            <Label Content="{Binding ImportFile}" Color="{ThemeResource TextColor}" Margin="10" DockPanel.Dock="Center"/>
           </DockPanel>
 
-          <Label Content="[Utilities.EditPlaylistName]" Color="{ThemeResource TextColor}" Margin="10,10,10,0"/>
+          <Label Grid.Column="1" Content="[Utilities.EditPlaylistName]" Color="{ThemeResource TextColor}" Margin="0,10,10,0"/>
 
-          <Grid Margin="10">
+          <Grid Margin="0,20,20,10" Grid.Column="1">
             <Grid.RowDefinitions>
               <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
@@ -70,15 +132,15 @@
             </Grid.Triggers>
           </Grid>
 
-          <Label Content="[Utilities.LocationOfShareContainingItems]" Color="{ThemeResource TextColor}" Margin="10,10,10,0"/>
+          <Label Content="[Utilities.LocationOfShareContainingItems]" Color="{ThemeResource TextColor}" Margin="0,20,30,0"/>
           <ListView x:Name="ShareLocations" Style="{ThemeResource ShareLocationsListViewStyle}"
                     ItemsSource="{Binding ShareLocations}" HorizontalAlignment="Stretch"/>
         </StackPanel>
 
-        <Label Content="{Binding ErrorHint}" Color="{ThemeResource ErrorTextColor}" Margin="10"
-               Grid.Row="3" Grid.Column="0"/>
+        <Label Content="{Binding ErrorHint}" Color="{ThemeResource ErrorTextColor}" Margin="30,10,10,0"
+               Grid.Row="3" Grid.Column="1"/>
 
-        <Button x:Name="StartImport" Content="[Utilities.StartPlaylistImport]" Grid.Row="3" Grid.Column="0"
+        <Button x:Name="StartImport" Content="[Utilities.StartPlaylistImport]" Grid.Row="3" Grid.Column="1"
                 HorizontalAlignment="Center" VerticalAlignment="Center" Style="{ThemeResource WizardButtonStyle}"
                 Command="{Command ImportPlaylist}" IsEnabled="{Binding IsDataValid}"/>
       </Grid>
