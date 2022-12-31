@@ -38,12 +38,14 @@
     <!-- Party music player main -->
 
     <WorkflowState Id="53278FDC-C3B1-4AE5-B767-9C6864D0E84C"
+        HideGroups="Global"
         Name="PartyMusicConfig"
         MainScreen="PartyMusicConfig"
         DisplayLabel="[PartyMusicPlayer.ConfigWorkflowNavigationContextDisplayLabel]"
         WorkflowModel="6B3B9024-5B7A-44C0-9B9A-C83FB49FB8D6"/> <!-- Workflow model = PartyMusicPlayer model -->
 
     <WorkflowState Id="6D81BA15-25FA-4D15-9780-6C84CC4551A6"
+        HideGroups="Global"
         Name="PartyMusicPlayer"
         MainScreen="PartyMusicPlayer"
         DisplayLabel="[PartyMusicPlayer.PlayerWorkflowNavigationContextDisplayLabel]"
