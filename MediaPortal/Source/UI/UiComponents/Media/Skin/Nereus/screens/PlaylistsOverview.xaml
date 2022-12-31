@@ -12,9 +12,51 @@
     <!-- Manage playlists model -->
     <Model x:Key="Model" Id="039151B6-800B-4279-A1BE-7F421EEA8C9A"/>
 
+    <!-- Background -->
+    <ControlTemplate x:Key="FanArtBackground_Template">
+      <Image Stretch="Fill" Opacity="1">
+        <Image.Source>
+          <Binding Source="Background_GridView.png"/>
+        </Image.Source>
+      </Image>
+    </ControlTemplate>
+
+    <!-- Top and Bottom Fades -->
+    <ControlTemplate x:Key="TopGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#E6000000" Offset="0" />
+            <GradientStop Color="#78000000" Offset="0.3" />
+            <GradientStop Color="#46000000" Offset="0.45" />
+            <GradientStop Color="#21000000" Offset="0.6" />
+            <GradientStop Color="#0C000000" Offset="0.75" />
+            <GradientStop Color="#01000000" Offset="0.87" />
+            <GradientStop Color="#00000000" Offset="1" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="BottomGradient_Template">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100" Panel.ZIndex="1000">
+        <Border.Background>
+          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+            <GradientStop Color="#E6000000" Offset="1" />
+            <GradientStop Color="#78000000" Offset="0.87" />
+            <GradientStop Color="#46000000" Offset="0.75" />
+            <GradientStop Color="#21000000" Offset="0.6" />
+            <GradientStop Color="#0C000000" Offset="0.45" />
+            <GradientStop Color="#01000000" Offset="0.3" />
+            <GradientStop Color="#00000000" Offset="0" />
+          </LinearGradientBrush>
+        </Border.Background>
+      </Border>
+    </ControlTemplate>
+
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="30">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="0,-90,0,-270">
         <Grid.RowDefinitions>
           <RowDefinition Height="44"/>
           <RowDefinition Height="4"/>
@@ -22,84 +64,39 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="740"/>
         </Grid.ColumnDefinitions>
 
-        <StackPanel Orientation="Horizontal">
-          <Image Source="playlist.png" Margin="0,8,5,3" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"
-                 IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}" Width="40"/>
-          <Label Content="[Media.PlaylistsOverviewHeader]" VerticalAlignment="Center" HorizontalAlignment="Left" 
-                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
-        </StackPanel>
-
-        <!-- ListIndex header -->
-        <Grid x:Name="IndexLabel" Grid.Column="1" HorizontalAlignment="Right" Margin="10,5,15,0" VerticalAlignment="Center" Panel.ZIndex="1">
+        <Grid Grid.Column="1" Grid.RowSpan="3"  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,-20,0" Height="1200">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Grid.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
-              <Binding ElementName="playlist" Path="ItemsCount" />
-            </MultiBinding>
-          </Grid.IsVisible>
-          <Label Grid.Column="0" Margin="0,0,10,0" Color="Black" FontSize="{ThemeResource SmallerFontSize}">
-            <Label.Content>
-              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
-                <Binding ElementName="playlist" Path="CurrentItem"/>
-                <Binding ElementName="playlist" Path="ItemsSource"/>
-              </MultiBinding>
-            </Label.Content>
-          </Label>
-          <Label Grid.Column="1" Color="Black" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
-          <Label Grid.Column="2" Color="Black" FontSize="{ThemeResource SmallerFontSize}">
-            <Label.Content>
-              <Binding ElementName="playlist" Path="ItemsCount" />
-            </Label.Content>
-          </Label>
+
+          <Grid.Resources>
+            <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+            <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+          </Grid.Resources>
+
+          <Image x:Name="FanArtImageBackground" Stretch="Fill" VerticalAlignment="Top" Source="playlist_background.jpg" HorizontalAlignment="Stretch" Height="600"
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}"/>
+          <Image Grid.RowSpan="2" Stretch="Fill" Source="List_overlay.png"/>
+          <Image Grid.RowSpan="2" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="-20,0,0,0"/>
+
+          <Border Grid.RowSpan="2" BorderThickness="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Border.Background>
+              <LinearGradientBrush StartPoint="1,0.3" EndPoint="0,1">
+                <GradientStop Color="#44000000" Offset="0.0"/>
+                <GradientStop Color="#77000000" Offset="1"/>
+              </LinearGradientBrush>
+            </Border.Background>
+          </Border>
         </Grid>
 
-        <!-- ListIndex header background -->
-        <Rectangle Grid.Column="1" HorizontalAlignment="Right" RadiusX="17" RadiusY="17" VerticalAlignment="Stretch" Fill="White" Margin="0,6,10,0" Panel.ZIndex="0">
-          <Rectangle.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+20">
-              <Binding ElementName="IndexLabel" Path="ActualWidth" />
-            </MultiBinding>
-          </Rectangle.Width>
-          <Rectangle.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
-              <Binding ElementName="playlist" Path="ItemsCount" />
-            </MultiBinding>
-          </Rectangle.IsVisible>
-        </Rectangle>
-        <Rectangle Grid.Column="1" HorizontalAlignment="Right" RadiusY="0" VerticalAlignment="Stretch" Fill="White" Margin="0,6,10,0">
-          <Rectangle.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}-18">
-              <Binding ElementName="IndexLabel" Path="ActualWidth" />
-            </MultiBinding>
-          </Rectangle.Width>
-          <Rectangle.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
-              <Binding ElementName="playlist" Path="ItemsCount" />
-            </MultiBinding>
-          </Rectangle.IsVisible>
-        </Rectangle>
-        <Rectangle Grid.Column="1" HorizontalAlignment="Right" RadiusY="0" VerticalAlignment="Stretch" Fill="White" Margin="0,19,10,0">
-          <Rectangle.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+20">
-              <Binding ElementName="IndexLabel" Path="ActualWidth" />
-            </MultiBinding>
-          </Rectangle.Width>
-          <Rectangle.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
-              <Binding ElementName="playlist" Path="ItemsCount" />
-            </MultiBinding>
-          </Rectangle.IsVisible>
-        </Rectangle>
-
-        <Border Grid.Row="1" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Background="White" BorderThickness="0" Height="4" Margin="5,0,10,0"/>
-
-        <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="5,30,10,20">
+        <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-10,40,0,40">
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
@@ -119,7 +116,72 @@
                  Content="[Media.NoConfigPlaylistsHomeServerNotConnectedText]" Wrap="true"
                  Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </Grid>
-        
+
+        <Grid Grid.Row="2" Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+              Margin="30,160,0,0" DataContext="{Binding ElementName=playlist,Path=CurrentItem}">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+
+          <Label Content="[Media.PlaylistsOverviewHeader]" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                 FontFamily="Noto-Bold" FontSize="{ThemeResource NormalFontSize}" Color="{ThemeResource TextColor}"/>
+
+          <Grid Grid.Row="1" IsVisible="{Binding ElementName=PlaylistNameLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\brand.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="PlaylistNameLabel" Content="Name" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+          </Grid>
+
+          <Grid Grid.Row="2" IsVisible="{Binding ElementName=PlaylistTypeLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="PlaylistTypeLabel" Content="PlaylistType" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+          </Grid>
+
+          <Grid Grid.Row="3" IsVisible="{Binding ElementName=PlaylistNumItemsLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\num.png" Height="28" Width="28" Stretch="Uniform" Margin="0,0,5,0" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="PlaylistNumItemsLabel" Content="PlaylistNumItems" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+          </Grid>
+
+          <Grid Grid.Row="4" IsVisible="{Binding ElementName=PlaylistIdLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
+            <Image Source="HomeContentIcons\settings.png" Height="29" Width="29" Stretch="Uniform" Margin="0,0,5,0" 
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="PlaylistIdLabel" Content="PlaylistId" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+          </Grid>
+
+        </Grid>
+
+        <!-- Actual Item / Total items -->
+        <DockPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false">
+          <Grid DockPanel.Dock="Right" Margin="160,-20,-165,70" Width="100">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+              <Label x:Name="Index" Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold">
+                <Label.Content>
+                  <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                    <Binding ElementName="playlist" Path="CurrentItem"/>
+                    <Binding ElementName="playlist" Path="ItemsSource"/>
+                  </MultiBinding>
+                </Label.Content>
+              </Label>
+              <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold"/>
+              <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold">
+                <Label.Content>
+                  <Binding ElementName="playlist" Path="ItemsCount" />
+                </Label.Content>
+              </Label>
+            </StackPanel>
+          </Grid>
+        </DockPanel>
+
       </Grid>
 
     </ControlTemplate>
