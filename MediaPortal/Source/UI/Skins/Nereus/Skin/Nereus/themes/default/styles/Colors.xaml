@@ -221,11 +221,11 @@
 
   <ResourceWrapper x:Key="ProgressBarBorderColor" Resource="#80000000"/>
   <ResourceWrapper x:Key="ProgressBarBackgroundColor" Resource="#FFc1c1c1"/>
-  
 
 
-  <ResourceWrapper x:Key="ErrorTextColor" Resource="Orange"/>
-  <ResourceWrapper x:Key="WatchedTextColor" Resource="Orange"/>
+
+  <ResourceWrapper x:Key="ErrorTextColor" Resource="{ThemeResource NereusColorLight}"/>
+  <ResourceWrapper x:Key="WatchedTextColor" Resource="{ThemeResource NereusColorLight}"/>
 
   <ResourceWrapper x:Key="ButtonStrokeColor" Resource="#B0E0E0E0"/>
   <ResourceWrapper x:Key="ButtonGradientLightColor" Resource="#FF505050"/>

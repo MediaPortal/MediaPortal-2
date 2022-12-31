@@ -845,6 +845,7 @@
     <Content Include="Skin\Nereus\images\PlayerControl\UP_FOCUS.png" />
     <Content Include="Skin\Nereus\images\PlayerControl\UP_NOFOCUS.png" />
     <Content Include="Skin\Nereus\images\playlist.png" />
+    <Content Include="Skin\Nereus\images\playlist_background.jpg" />
     <Content Include="Skin\Nereus\images\Poster_large.png" />
     <Content Include="Skin\Nereus\images\Poster_medium.png" />
     <Content Include="Skin\Nereus\images\Poster_small.png" />

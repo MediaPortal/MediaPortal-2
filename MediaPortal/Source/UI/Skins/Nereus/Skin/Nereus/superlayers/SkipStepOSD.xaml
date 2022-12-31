@@ -8,7 +8,7 @@
     <!-- DataContext model = ExtendedVideoSkip -->
 
     <Border x:Name="DialogBorder" DockPanel.Dock="Center" Width="350" Height="100"
-            HorizontalAlignment="Center" Margin="5" CornerRadius="4" BorderThickness="3">
+            HorizontalAlignment="Center" Margin="5" CornerRadius="0" BorderThickness="3">
       <Border.BorderBrush>
         <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
           <GradientStop Color="#8CFFFFFF" Offset="0"/>
@@ -18,8 +18,8 @@
       </Border.BorderBrush>
       <Border.Background>
         <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-          <GradientStop Color="#F2447da7" Offset="0"/>
-          <GradientStop Color="#F2124273" Offset="1"/>
+          <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="0"/>
+          <GradientStop Color="{ThemeResource NereusColorMedium}" Offset="1"/>
         </LinearGradientBrush>
       </Border.Background>
             <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
@@ -30,7 +30,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Label x:Name="SkipStepLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Margin="5"
-            Content="{Binding SkipStep}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+               Content="{Binding SkipStep}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
       </Grid>
     </Border>
   </DockPanel>
