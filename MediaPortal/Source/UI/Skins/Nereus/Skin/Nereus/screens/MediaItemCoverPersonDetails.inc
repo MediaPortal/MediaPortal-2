@@ -34,8 +34,16 @@
                              Grid.Column="1" Margin="10,0,10,0" >
     <media:PersonAspectWrapper.Template>
       <ControlTemplate>
-        <StackPanel DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" VerticalAlignment="Top" Orientation="Vertical">
+        <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" >
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
 
+          <StackPanel VerticalAlignment="Top" Orientation="Vertical">
             <Label VerticalAlignment="Stretch" Content="{Binding PersonName}" TextTrimming="WordEllipsis"
                    Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold" Wrap="True"/>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
@@ -54,8 +62,15 @@
                        Content="{Binding Path=DeathDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>
               </StackPanel>
             </Grid>
-
-            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
+            <!--Grid Margin="0,0,20,0">
+              <Image Source="HomeContentIcons\founding.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                     IsVisible="{Binding Path=DeathDate,Converter={StaticResource ReferenceToBoolConverter}}"
+                     VerticalAlignment="Center" HorizontalAlignment="Left"/>
+              <Label Content="{Binding Path=DeathDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}" FontSize="{ThemeResource SmallFontSize}" Margin="40,0,0,0"
+                     IsVisible="{Binding Path=DeathDate,Converter={StaticResource ReferenceToBoolConverter}}"
+                     Color="{ThemeResource TextColorForeground}" TextTrimming="WordEllipsis"/>
+            </Grid-->
+            <Grid Margin="0,0,20,0">
               <Image Source="HomeContentIcons\place.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
                      IsVisible="{Binding Path=Origin,Converter={StaticResource ReferenceToBoolConverter}}"
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
@@ -63,8 +78,18 @@
                      IsVisible="{Binding Path=Origin,Converter={StaticResource ReferenceToBoolConverter}}"
                      Color="{ThemeResource TextColorForeground}" TextTrimming="WordEllipsis"/>
             </Grid>
-
-        </StackPanel>
+          </StackPanel>
+        <Image x:Name="ClearLogo" Grid.Column="1" VerticalAlignment="Center" Stretch="Uniform" Margin="30,30,0,30">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Logo;140;240}"/>
+          </Image.Source>
+        </Image>
+        <Image Grid.Column="1" VerticalAlignment="Center" Stretch="Uniform" Margin="30,30,0,30" IsVisible="{Binding ElementName=ClearLogo, Path=!HasImage}">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;140;240}"/>
+          </Image.Source>
+        </Image>
+        </Grid>
       </ControlTemplate>
     </media:PersonAspectWrapper.Template>
   </media:PersonAspectWrapper>

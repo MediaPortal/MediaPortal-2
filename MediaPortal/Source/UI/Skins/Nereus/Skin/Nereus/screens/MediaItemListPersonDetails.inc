@@ -76,11 +76,21 @@
               <Label Content="{Binding Origin}" FontSize="{ThemeResource SmallFontSize}" Margin="40,0,0,0"
                      Color="{ThemeResource TextColorForeground}" TextTrimming="WordEllipsis"/>
             </Grid>
-            <Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-40,-380,-40">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+            <Image x:Name="ClearLogo" HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Uniform" Height="140" Margin="60,-40,-380,-40">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Logo;140;240}"/>
+              </Image.Source>
+            </Image>
+            <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Uniform" Height="140" Margin="60,-40,-380,-40" IsVisible="{Binding ElementName=ClearLogo, Path=!HasImage}">
               <Image.Source>
                 <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;140;240}"/>
               </Image.Source>
             </Image>
+            </Grid>
           </StackPanel>
 
         </Grid>
