@@ -6,7 +6,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Settings.Title]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Title]"/>
 
     <Model x:Key="Model" Id="873EB147-C998-4632-8F86-D5E24062BE2E"/>
 
@@ -33,16 +33,6 @@
               </CommandList>
             </ListView.Resources>
           </ListView>
-
-          <Label Content="[Media.ViewEmpty]" VerticalAlignment="Center" HorizontalAlignment="Center"
-                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
-            <Label.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != {1}">
-                <Binding ElementName="applist" Path="ItemsCount" />
-                <Binding Source="{x:Null}" />
-              </MultiBinding>
-            </Label.IsVisible>
-          </Label>
 
         </Grid>
       </DockPanel>
