@@ -178,6 +178,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
                   <Binding Source="{ThemeResource HeaderFontSize}" />
                 </MultiBinding>
               </Label.FontSize>
+              <!--Label.Content>
+                <Binding Source="{StaticResource Model}" Path="CurrentLocation" Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}{0}"/>
+              </Label.Content-->
             </Label>
           </Grid>
         </Grid>
