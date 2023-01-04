@@ -156,12 +156,6 @@
         HelpText="[Nereus.Configuration.SelectSkinColor.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SkinColorConfiguration"
         AdditionalData="WorkflowState=F07881D8-FCB4-4327-A8D0-C20FF5DA3E6A,ConfAppPanel=..."/>
-
-    <!--ConfigSetting
-        Id="NereusEnableWatchedFlags"
-        Text="[Nereus.Configuration.EnableWatchedFlags]"
-        HelpText="[Nereus.Configuration.EnableWatchedFlags.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableWatchedFlagsConfiguration"/-->
     
     <ConfigSetting
         Id="NereusEnableAgeCertificationLogos"
@@ -169,29 +163,6 @@
         HelpText="[Nereus.Configuration.EnableAgeCertificationLogos.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAgeCertificationLogosConfiguration"/>
 
-    <!--ConfigSetting
-        Id="NereusMovieGridViewType"
-        Text="[Nereus.Configuration.MovieGridViewType]"
-        HelpText="[Nereus.Configuration.MovieGridViewType.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.MovieGridViewTypeConfiguration"/>
-
-    <ConfigSetting
-        Id="NereusSeriesGridViewType"
-        Text="[Nereus.Configuration.SeriesGridViewType]"
-        HelpText="[Nereus.Configuration.SeriesGridViewType.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeriesGridViewTypeConfiguration"/>
-
-    <ConfigSetting
-        Id="NereusSeasonGridViewType"
-        Text="[Nereus.Configuration.SeasonGridViewType]"
-        HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
-
-    <ConfigSetting
-        Id="NereusEnableMediaItemDetailsView"
-        Text="[Nereus.Configuration.EnableMediaItemDetailsView]"
-        HelpText="[Nereus.Configuration.EnableMediaItemDetailsView.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/-->
   </Register>
 
 </Plugin>

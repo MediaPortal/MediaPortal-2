@@ -42,22 +42,7 @@
 
         <Border Grid.ColumnSpan="2" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5,0,0,0" Background="White" BorderThickness="0"/>
 
-        <Grid Grid.Row="2" Grid.ColumnSpan="2" Margin="0,30,0,0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <TextBox Text="{Binding Path=ShareProxy.ShareName,Mode=TwoWay}" PreferredTextLength="30"/>
-          <Image x:Name="editsymbol" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                 Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-          <Grid.Triggers>
-            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-              <Setter TargetName="editsymbol" Property="Opacity" Value="1"/>
-            </Trigger>
-          </Grid.Triggers>
-        </Grid>
+        <TextBox Text="{Binding Path=ShareProxy.ShareName,Mode=TwoWay}" PreferredTextLength="30" Grid.Row="2" Grid.ColumnSpan="2" Margin="0,30,0,0" Style="{ThemeResource SymbolTextBoxStyle}"/>
 
         <Label Content="{Binding ShareProxy.InvalidShareHint}" Color="{ThemeResource ErrorTextColor}" Wrap="True"
             Grid.Row="3"

@@ -38,150 +38,49 @@
 
           <!--Shortname-->
           <Label Grid.Row="0" Grid.ColumnSpan="4" Content="[AppLauncher.Settings.Add.Shortname]"
-                 VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
-          <Grid Grid.Row="1" Grid.ColumnSpan="2">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding Path=ShortName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreferredTextLength="30" FontSize="{ThemeResource SmallFontSize}"/>
-            <Image x:Name="editsymbol" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-            <Grid.Triggers>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="editsymbol" Property="Opacity" Value="1"/>
-              </Trigger>
-            </Grid.Triggers>
-          </Grid>
-
+                 VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+          <TextBox Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Path=ShortName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PreferredTextLength="30" FontSize="{ThemeResource SmallFontSize}" Style="{ThemeResource SymbolTextBoxStyle}"/>
           <Button Grid.Row="1" Grid.Column="2" Margin="10,1,10,-3" Content="[AppLauncher.Settings.Add.Select]" Style="{ThemeResource WizardButtonStyle}"
-                  Command="{Command SelectApp}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" />
+                  Command="{Command SelectApp}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
           <Button Grid.Row="1" Grid.Column="3" Margin="10,1,0,-3" Content="[AppLauncher.Settings.Add.Search]" Style="{ThemeResource WizardButtonStyle}"
-			            Command="{Command SearchApp}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" />
+			            Command="{Command SearchApp}" HorizontalContentAlignment="Center" VerticalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}"/>
 
           <!--Arguments-->
           <Label Grid.Row="2" Grid.ColumnSpan="4" Content="[AppLauncher.Settings.Add.Arguments]"
-                 VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
-          
-          <Grid Grid.Row="3" Grid.ColumnSpan="2" Margin="0,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding Path=Arguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreferredTextLength="40" FontSize="{ThemeResource SmallFontSize}"/>
-            <Image x:Name="editsymbol2" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-            <Grid.Triggers>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="editsymbol2" Property="Opacity" Value="1"/>
-              </Trigger>
-            </Grid.Triggers>
-          </Grid>
+                 VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+          <TextBox Grid.Row="3" Grid.ColumnSpan="2" Text="{Binding Path=Arguments, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PreferredTextLength="40" FontSize="{ThemeResource SmallFontSize}" Style="{ThemeResource SymbolTextBoxStyle}"/>
 
           <!--Path-->
           <Label Grid.Row="4" Grid.ColumnSpan="4" Content="[AppLauncher.Settings.Add.Path]"
-                 VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
-          <Grid Grid.Row="5" Grid.ColumnSpan="2" Margin="0,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding Path=AppPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreferredTextLength="60" FontSize="{ThemeResource SmallFontSize}"/>
-            <Image x:Name="editsymbol3" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-            <Grid.Triggers>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="editsymbol3" Property="Opacity" Value="1"/>
-              </Trigger>
-            </Grid.Triggers>
-          </Grid>
+                 VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+          <TextBox Grid.Row="5" Grid.ColumnSpan="2" Text="{Binding Path=AppPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PreferredTextLength="60" FontSize="{ThemeResource SmallFontSize}" Style="{ThemeResource SymbolTextBoxStyle}"/>
 
           <!--Infotext-->
           <Label Grid.Row="6" Grid.Column="0" Grid.ColumnSpan="2" Content="[AppLauncher.Settings.Add.Description]"
-				         VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
-          <Grid Grid.Row="7" Grid.ColumnSpan="2" Margin="0,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding Path=Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreferredTextLength="40" FontSize="{ThemeResource SmallFontSize}"/>
-            <Image x:Name="editsymbol4" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-            <Grid.Triggers>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="editsymbol4" Property="Opacity" Value="1"/>
-              </Trigger>
-            </Grid.Triggers>
-          </Grid>
-          
+				         VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+          <TextBox Grid.Row="7" Grid.ColumnSpan="2" Text="{Binding Path=Description, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PreferredTextLength="40" FontSize="{ThemeResource SmallFontSize}" Style="{ThemeResource SymbolTextBoxStyle}"/>
+
           <!--Group-->
-          <Grid Grid.Row="7" Grid.Column="2" Margin="10,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding Path=Group, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreferredTextLength="20" FontSize="{ThemeResource SmallFontSize}"/>
-            <Image x:Name="editsymbol5" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-            <Grid.Triggers>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="editsymbol5" Property="Opacity" Value="1"/>
-              </Trigger>
-            </Grid.Triggers>
-          </Grid>
+          <TextBox Grid.Row="7" Grid.Column="2" Text="{Binding Path=Group, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="10,0,0,0"
+                   PreferredTextLength="20" FontSize="{ThemeResource SmallFontSize}" Style="{ThemeResource SymbolTextBoxStyle}"/>
           <Button Grid.Row="7" Grid.Column="3" Margin="10,1,0,-3" Content="[AppLauncher.Group]" Style="{ThemeResource WizardButtonStyle}"
-                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command SelectGroup}" FontSize="{ThemeResource SmallFontSize}" />
+                  HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command SelectGroup}" FontSize="{ThemeResource SmallFontSize}"/>
 
           <!--Username-->
-          <Label Grid.Row="8" Grid.Column="0" Content="[AppLauncher.Settings.Add.Username]"
-				         VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
-          <Grid Grid.Row="9" Margin="0,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding Path=Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreferredTextLength="20" FontSize="{ThemeResource SmallFontSize}"/>
-            <Image x:Name="editsymbol6" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-            <Grid.Triggers>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="editsymbol6" Property="Opacity" Value="1"/>
-              </Trigger>
-            </Grid.Triggers>
-          </Grid>
-          
+          <Label Grid.Row="8" Content="[AppLauncher.Settings.Add.Username]"
+				         VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+          <TextBox Grid.Row="9" Text="{Binding Path=Username, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PreferredTextLength="20" FontSize="{ThemeResource SmallFontSize}" Style="{ThemeResource SymbolTextBoxStyle}"/>
+               
           <!--Password-->
           <Label Grid.Row="8" Grid.Column="1" Content="[AppLauncher.Settings.Add.Password]" Margin="10,0,0,0"
-				         VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
-          <Grid Grid.Row="9" Grid.Column="1" Margin="10,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding Path=Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreferredTextLength="20" 
-                     Style="{ThemeResource PasswordTextBoxStyle}" FontSize="{ThemeResource SmallFontSize}"/>
-            <Image x:Name="editsymbol7" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-            <Grid.Triggers>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="editsymbol7" Property="Opacity" Value="1"/>
-              </Trigger>
-            </Grid.Triggers>
-          </Grid>
+				         VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+          <TextBox Grid.Row="9" Grid.Column="1" Margin="10,0,0,0" Text="{Binding Path=Password, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PreferredTextLength="20" FontSize="{ThemeResource SmallFontSize}" Style="{ThemeResource SymbolPasswordTextBoxStyle}"/>
           
           <!--Run as Admin-->
           <CheckBox Grid.Row="9" Grid.Column="3" Margin="10,0,0,0" Content="[AppLauncher.Settings.Add.AsAdmin]" Style="{ThemeResource DefaultCheckBoxStyle}"
@@ -189,23 +88,10 @@
 
           <!--Iconpath-->
           <Label Grid.Row="10" Grid.Column="0" Grid.ColumnSpan="2" Content="[AppLauncher.Settings.Add.Icon]"
-				         VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" />
-          <Grid Grid.Row="11" Grid.ColumnSpan="2" Margin="0,0,0,0">
-            <Grid.RowDefinitions>
-              <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <TextBox Text="{Binding Path=IconPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" PreferredTextLength="40" FontSize="{ThemeResource SmallFontSize}"/>
-            <Image x:Name="editsymbol8" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-            <Grid.Triggers>
-              <Trigger Property="IsKeyboardFocusWithin" Value="True">
-                <Setter TargetName="editsymbol8" Property="Opacity" Value="1"/>
-              </Trigger>
-            </Grid.Triggers>
-          </Grid>
+				         VerticalAlignment="Bottom" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+          <TextBox Grid.Row="11" Grid.ColumnSpan="2" Text="{Binding Path=IconPath, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   PreferredTextLength="40" FontSize="{ThemeResource SmallFontSize}" Style="{ThemeResource SymbolTextBoxStyle}"/>
+ 
           <Button Grid.Row="11" Grid.Column="4" Margin="10,1,0,-3" Content="[AppLauncher.Settings.Add.Search]" Style="{ThemeResource WizardButtonStyle}"
 			            HorizontalContentAlignment="Center" VerticalContentAlignment="Center" Command="{Command SearchIcon}" FontSize="{ThemeResource SmallFontSize}" />
           <Image Grid.Row="9" Grid.Column="2" Grid.RowSpan="3" Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" Source="{Binding Path=IconPath}" FallbackSource="no-icon.png"/>
