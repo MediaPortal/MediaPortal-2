@@ -127,7 +127,6 @@
     <Content Include="Skin\BlueVision\images\9AD4076C-8F1F-4353-AF60-4F6C4238DCB7.png" />
     <Content Include="Skin\BlueVision\images\A298DFBE-9DA8-4C16-A3EA-A9B354F3910C.jpg" />
     <Content Include="Skin\BlueVision\images\A4DF2DF6-8D66-479a-9930-D7106525EB07.jpg" />
-    <Content Include="Skin\BlueVision\images\Audio_square.png" />
     <Content Include="Skin\BlueVision\images\B4A9199F-6DD4-4bda-A077-DE9C081F7703.jpg" />
     <Content Include="Skin\BlueVision\images\B78F4A38-D719-4FE3-BE56-D24F8C568400.jpg" />
     <Content Include="Skin\BlueVision\images\Background.jpg" />
@@ -202,7 +201,6 @@
     <Content Include="Skin\BlueVision\images\PlayerControls.Small\StopButton.png" />
     <Content Include="Skin\BlueVision\images\power_blur.png" />
     <Content Include="Skin\BlueVision\images\Power_button.png" />
-    <Content Include="Skin\BlueVision\images\Recording_Active.png" />
     <Content Include="Skin\BlueVision\images\settings.png" />
     <Content Include="Skin\BlueVision\images\shadow_00.png" />
     <Content Include="Skin\BlueVision\images\shadow_01.png" />
@@ -220,14 +218,12 @@
     <Content Include="Skin\BlueVision\images\TV.png" />
     <Content Include="Skin\BlueVision\images\UnheardTab_small.png" />
     <Content Include="Skin\BlueVision\images\unheard_icon.png" />
-    <Content Include="Skin\BlueVision\images\UnwatchedTab_small.png" />
     <Content Include="Skin\BlueVision\images\unwatched_icon.png" />
     <Content Include="Skin\BlueVision\images\User.png" />
     <Content Include="Skin\BlueVision\images\video-icon.png" />
     <Content Include="Skin\BlueVision\images\VideoLarge.png" />
     <Content Include="Skin\BlueVision\images\VideoNormal.png" />
     <Content Include="Skin\BlueVision\images\VideoWide.png" />
-    <Content Include="Skin\BlueVision\images\watched_icon.png" />
     <Content Include="Skin\BlueVision\screens\CP_MediaInfo.inc" />
     <Content Include="Skin\BlueVision\screens\CP_MovieCastCrew.inc" />
     <Content Include="Skin\BlueVision\screens\CP_MovieGeneral.inc" />

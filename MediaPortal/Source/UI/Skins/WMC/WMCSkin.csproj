@@ -109,28 +109,6 @@
     <Content Include="Skin\WMCSkin\fonts\default-font.xml">
       <SubType>Designer</SubType>
     </Content>
-    <Content Include="Skin\WMCSkin\images\Certification\AU_G.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\AU_M.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\AU_MA.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\AU_PG.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\AU_R.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK0.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK12.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK16.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK18.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\DE_FSK6.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_G.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_NC17.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_PG.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_PG13.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_R.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_TV14.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_TVG.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_TVMA.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_TVPG.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_TVY.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_TVY7.png" />
-    <Content Include="Skin\WMCSkin\images\Certification\US_TVY7FV.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer1.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer2.png" />
     <Content Include="Skin\WMCSkin\images\Effects\Layer3.png" />
