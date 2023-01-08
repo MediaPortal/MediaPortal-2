@@ -96,6 +96,9 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, true)]
     public bool EnableLoopScrolling { get; set; }
 
+    [Setting(SettingScope.User, false)]
+    public bool EnableWhiteGlowColor { get; set; }
+
     [Setting(SettingScope.User, true)]
     public bool UseTorquoise { get; set; }
 

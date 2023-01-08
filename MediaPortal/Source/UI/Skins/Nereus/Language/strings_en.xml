@@ -16,6 +16,8 @@
   <string name="Nereus.Configuration.ManualAutoScrolling">Manual scrolling</string>
   <string name="Nereus.Configuration.AutoScrollSpeed">Scroll Speed</string>
   <string name="Nereus.Configuration.AutoScrollDelay">Scroll Delay</string>
+  <string name="Nereus.Configuration.EnableWhiteGlowColor">Dialog glow effect color</string>
+  <string name="Nereus.Configuration.EnableWhiteGlowColor.Help">Whether a glow effect around dialogs is shown with white instead of the skin focus color.</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity">Fanart Visibility</string>
   <string name="Nereus.Configuration.FanartOverlayOpacity.Help">Adjust the opacity of the background fanart overlay. A lower value increases the visibility of fanart (default is 1.0).</string>
   <string name="Nereus.Configuration.EnableWatchedFlags">Enable Watched Flags</string>

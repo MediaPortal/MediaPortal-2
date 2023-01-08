@@ -149,6 +149,12 @@
         HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"
         AdditionalData="WorkflowState=E3DABC33-4339-446B-A495-AE1A8C630B2B,ConfAppPanel=..."/>
+
+    <ConfigSetting
+        Id="NereusEnableWhiteGlowColor"
+        Text="[Nereus.Configuration.EnableWhiteGlowColor]"
+        HelpText="[Nereus.Configuration.EnableWhiteGlowColor.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableWhiteGlowColorConfiguration"/>
     
     <CustomConfigSetting
         Id="NereusSkinColorSelectionDialog"
