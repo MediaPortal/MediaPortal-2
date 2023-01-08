@@ -113,54 +113,79 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#2EFFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-4"/>
         <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#40FFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-2"/-->
 
-      <!-- Effect around dialog with rounded corners and white glow -->
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="3" BorderBrush="#0AFFFFFF"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-15" CornerRadius="19"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#0FFFFFFF"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-12" CornerRadius="16"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#14FFFFFF"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-10" CornerRadius="14"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#1AFFFFFF"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-8" CornerRadius="12"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#23FFFFFF"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-6" CornerRadius="10"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#2EFFFFFF"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-4" CornerRadius="8"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="{ThemeResource DialogBackgroundColor}" BorderThickness="2" BorderBrush="#40FFFFFF"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-2" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableWhiteGlowColor}"/>
-
-      <!-- Effect around dialog with rounded corners and focus color glow -->
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="3" BorderBrush="{ThemeResource NereusColorLight}" Opacity="0.04"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-15" CornerRadius="19"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="{ThemeResource NereusColorLight}" Opacity="0.06"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-12" CornerRadius="16"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="{ThemeResource NereusColorLight}" Opacity="0.08"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-10" CornerRadius="14"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="{ThemeResource NereusColorLight}" Opacity="0.1"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-8" CornerRadius="12"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="{ThemeResource NereusColorLight}" Opacity="0.13"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-6" CornerRadius="10"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="{ThemeResource NereusColorLight}" Opacity="0.18"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-4" CornerRadius="8"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" Background="{ThemeResource DialogBackgroundColor}" BorderBrush="Transparent" BorderThickness="2" VerticalAlignment="Stretch" Opacity="0.8"
-              HorizontalAlignment="Stretch" Margin="-2" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableWhiteGlowColor}"/>
-      <Border DockPanel.Dock="Center" BorderThickness="2" BorderBrush="{ThemeResource NereusColorLight}" Opacity="0.25"
-              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-2" CornerRadius="{ThemeResource DialogBorderCornerRadius}"
-              IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableWhiteGlowColor}"/>
+      <!-- Effect around dialog with rounded corners and glow -->
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="3" Opacity="0.04"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-15" CornerRadius="19">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableWhiteGlowColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.06"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-12" CornerRadius="16">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableWhiteGlowColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.08"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-10" CornerRadius="14">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableWhiteGlowColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.1"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-8" CornerRadius="12">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableWhiteGlowColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.13"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-6" CornerRadius="10">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableWhiteGlowColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.18"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-4" CornerRadius="8">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableWhiteGlowColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="{ThemeResource DialogBackgroundColor}" BorderBrush="Transparent" BorderThickness="2" VerticalAlignment="Stretch" Opacity="0.85"
+              HorizontalAlignment="Stretch" Margin="-2" CornerRadius="{ThemeResource DialogBorderCornerRadius}"/>
+      <Border DockPanel.Dock="Center" BorderThickness="2" Opacity="0.25"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-2" CornerRadius="{ThemeResource DialogBorderCornerRadius}">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableWhiteGlowColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+      </Border>
 
       <Grid x:Name="DialogHeaderGrid" DockPanel.Dock="Top"
             VerticalAlignment="Top" HorizontalAlignment="Stretch">
