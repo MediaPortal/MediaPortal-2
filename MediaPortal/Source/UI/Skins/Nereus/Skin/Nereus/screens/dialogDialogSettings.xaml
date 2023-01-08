@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.Dialog]"/>
+
+    <!-- AutoScrollConfigurationModel -->
+    <Model x:Key="DialogConfigurationModel"
+           Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0" />
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel DataContext="{Binding Source={StaticResource DialogConfigurationModel}}" Margin="10">
+
+        <CheckBox Margin="0,1,25,30" VerticalAlignment="Center" IsChecked="{Binding Path=UseRoundedDialogCorners,Mode=TwoWay}" Content="[Nereus.Configuration.UseRoundesCorners]"/>
+
+        <!--Glow Color Selection-->
+        <Label Content="[Nereus.Configuration.SelectGlowColor]" Color="{ThemeResource TextColor}" Margin="5,0,0,10"/>
+        
+        <RadioButton x:Name="NoColor" Margin="55,1,0,1" VerticalAlignment="Center"
+                     IsChecked="{Binding Path=UseNoColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.NoColor]"/>
+        <RadioButton x:Name="WhiteColor" Margin="55,1,0,1" VerticalAlignment="Center"
+                     IsChecked="{Binding Path=UseWhiteColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.WhiteColor]"/>
+        <RadioButton x:Name="FocusColor" Margin="55,1,0,1" VerticalAlignment="Center"
+                     IsChecked="{Binding Path=UseFocusColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.FocusColor]"/>
+
+        <!-- Dialog Background Settings-->
+        <Grid Margin="0,30,0,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <CheckBox Margin="0,1,25,10" VerticalAlignment="Center" IsChecked="{Binding Path=UseTransparency,Mode=TwoWay}" Content="[Nereus.Configuration.DialogTransparency]">
+            <CheckBox.Triggers>
+              <Trigger Property="IsChecked" Value="False">
+                <Setter TargetName="OpacityLabel" Property="Opacity" Value="0.4"/>
+              </Trigger>
+            </CheckBox.Triggers>
+          </CheckBox>
+          <Label x:Name="OpacityLabel" Grid.Row="1" Content="[Nereus.Configuration.DialogBackgroundOpacity]" Color="{ThemeResource TextColor}" 
+                 VerticalAlignment="Center" Margin="55,0,0,10" Opacity="1"/>
+          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=DialogBackgroundOpacity,Mode=TwoWay}" Margin="5,0,5,10" Width="160"
+                   VerticalAlignment="Center" IsEnabled="{Binding Path=UseTransparency}" Style="{ThemeResource SymbolTextBoxStyle}"/>
+        </Grid>
+
+        <!-- OK & Cancel button -->
+        <Grid Height="10"/>
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Button Name="ButtonOk" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings" />
+                <Command Source="{Service ScreenManager}"
+                         Path="CloseTopmostDialog" />
+              </CommandList>
+            </Button.Command>
+          </Button>
+
+          <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+        </Grid>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

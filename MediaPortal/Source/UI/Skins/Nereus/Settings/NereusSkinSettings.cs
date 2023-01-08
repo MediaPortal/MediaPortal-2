@@ -96,8 +96,23 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, true)]
     public bool EnableLoopScrolling { get; set; }
 
+    [Setting(SettingScope.User, true)]
+    public bool UseTransparency { get; set; }
+
     [Setting(SettingScope.User, false)]
-    public bool EnableWhiteGlowColor { get; set; }
+    public bool UseNoColor { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseWhiteColor { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseFocusColor { get; set; }
+
+    [Setting(SettingScope.User, 0.85)]
+    public double DialogBackgroundOpacity { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseRoundedDialogCorners { get; set; }
 
     [Setting(SettingScope.User, true)]
     public bool UseTorquoise { get; set; }

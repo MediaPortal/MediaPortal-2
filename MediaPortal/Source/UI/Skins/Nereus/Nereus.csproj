@@ -85,6 +85,7 @@
     <Compile Include="Converters\ListToGridConverter.cs" />
     <Compile Include="Converters\ItemsListActionFilter.cs" />
     <Compile Include="Converters\RoundingFormatConverter.cs" />
+    <Compile Include="Models\DialogConfigurationModel.cs" />
     <Compile Include="Models\SkinColorConfigurationModel.cs" />
     <Compile Include="Models\HomeContent\AbstractHomeContent.cs" />
     <Compile Include="Models\HomeContent\MediaListItemsListWrapper.cs" />
@@ -111,7 +112,7 @@
     <Compile Include="Models\AutoScrollConfigurationModel.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Settings\Configuration\BaseGridViewTypeConfiguration.cs" />
-    <Compile Include="Settings\Configuration\EnableWhiteGlowColorConfiguration.cs" />
+    <Compile Include="Settings\Configuration\DialogConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableMenuSelectionConfiguration.cs" />
     <Compile Include="Settings\Configuration\EnableCircleMenuImagesConfiguration.cs" />
     <Compile Include="Settings\Configuration\SkinColorConfiguration.cs" />
@@ -1020,6 +1021,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\Nereus\screens\shares_config_choose_categories.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\Nereus\screens\dialogDialogSettings.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>
