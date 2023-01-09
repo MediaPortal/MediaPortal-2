@@ -22,13 +22,31 @@
 
         <!--Glow Color Selection-->
         <Label Content="[Nereus.Configuration.SelectGlowColor]" Color="{ThemeResource TextColor}" Margin="5,0,0,10"/>
-        
-        <RadioButton x:Name="NoColor" Margin="55,1,0,1" VerticalAlignment="Center"
-                     IsChecked="{Binding Path=UseNoColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.NoColor]"/>
-        <RadioButton x:Name="WhiteColor" Margin="55,1,0,1" VerticalAlignment="Center"
-                     IsChecked="{Binding Path=UseWhiteColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.WhiteColor]"/>
-        <RadioButton x:Name="FocusColor" Margin="55,1,0,1" VerticalAlignment="Center"
-                     IsChecked="{Binding Path=UseFocusColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.FocusColor]"/>
+        <Grid Margin="55,0,0,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+
+          <RadioButton x:Name="NoColor" Margin="0,1,0,1" VerticalAlignment="Center"
+                       IsChecked="{Binding Path=UseNoColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.NoColor]"/>
+          <RadioButton x:Name="WhiteColor" Grid.Row="1" Margin="0,1,0,1" VerticalAlignment="Center"
+                       IsChecked="{Binding Path=UseWhiteColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.WhiteColor]"/>
+          <RadioButton x:Name="FocusColor" Grid.Row="2" Margin="0,1,0,1" VerticalAlignment="Center"
+                       IsChecked="{Binding Path=UseFocusColor,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.FocusColor]"/>
+
+          <Border Grid.Row="0" Grid.Column="1" Width="60" Height="30" BorderBrush="{ThemeResource NereusGreyMedium}" 
+                  BorderThickness="1" Margin="15,0,0,0" HorizontalAlignment="Left"/>
+          <Border Grid.Row="1" Grid.Column="1" Width="60" Height="30" Background="White" 
+                  BorderThickness="0" Margin="15,0,0,0" HorizontalAlignment="Left"/>
+          <Border Grid.Row="2" Grid.Column="1" Width="60" Height="30" Background="{ThemeResource NereusColorLight}" 
+                  BorderThickness="0" Margin="15,0,0,0" HorizontalAlignment="Left"/>
+        </Grid>
 
         <!-- Dialog Background Settings-->
         <Grid Margin="0,30,0,0">

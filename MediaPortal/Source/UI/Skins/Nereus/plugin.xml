@@ -163,7 +163,7 @@
     <CustomConfigSetting
         Id="NereusDialogDialog"
         Text="[Nereus.Configuration.Dialog]"
-        HelpText="[Nereus.Configuration.Test.Help]"
+        HelpText="[Nereus.Configuration.Dialog.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogConfiguration"
         AdditionalData="WorkflowState=C364F2E3-346E-4861-B9EE-CF5A74487244,ConfAppPanel=..."/>
     
