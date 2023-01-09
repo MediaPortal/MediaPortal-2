@@ -158,6 +158,12 @@ namespace MediaPortal.UiComponents.Nereus.Models
       settingsManager.Save(settings);
     }
 
+    public void Refresh()
+    {
+      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
+      screenManager.Reload();
+    }
+
     #endregion
 
     #region IWorkflowModel implementation

@@ -11,8 +11,7 @@
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.Dialog]"/>
 
     <!-- AutoScrollConfigurationModel -->
-    <Model x:Key="DialogConfigurationModel"
-           Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0" />
+    <Model x:Key="DialogConfigurationModel" Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
@@ -77,23 +76,33 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
 
-          <Button Name="ButtonOk" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
+          <Button Name="ButtonRefresh" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}" Content="Refresh">
             <Button.Command>
               <CommandList>
                 <Command Path="SaveSettings" />
-                <Command Source="{Service ScreenManager}"
-                         Path="CloseTopmostDialog" />
+                <Command Path="Refresh" />
               </CommandList>
             </Button.Command>
           </Button>
 
-          <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
+          <Button Name="ButtonOk" Grid.Column="1" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings" />
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog" />
+              </CommandList>
+            </Button.Command>
+          </Button>
+
+          <Button Name="ButtonCancel" Grid.Column="2" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
                   Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+
         </Grid>
       </StackPanel>
     </ControlTemplate>

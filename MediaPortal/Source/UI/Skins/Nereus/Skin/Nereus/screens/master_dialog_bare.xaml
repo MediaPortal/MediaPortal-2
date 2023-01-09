@@ -231,7 +231,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
       <Border DockPanel.Dock="Center" Background="{ThemeResource DialogBackgroundColor}" BorderBrush="Transparent" BorderThickness="2" VerticalAlignment="Stretch"
               HorizontalAlignment="Stretch" Margin="-2">
         <Border.Opacity>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : {1}">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseTransparency"/>
             <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].DialogBackgroundOpacity"/>
             <Binding Source="1"/>
