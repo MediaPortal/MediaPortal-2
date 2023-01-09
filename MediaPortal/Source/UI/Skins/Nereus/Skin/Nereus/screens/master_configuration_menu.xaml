@@ -130,7 +130,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
               </MultiBinding>
             </Image.IsVisible>
           </Image>
-          <Border Grid.RowSpan="3" Margin="0,0,-1,0" Background="Black" Opacity="1" HorizontalAlignment="Stretch">
+          <Border Grid.RowSpan="3" Margin="-1,0,-1,0" Background="Black" Opacity="1" HorizontalAlignment="Stretch">
             <Border.IsVisible>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
                 <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
