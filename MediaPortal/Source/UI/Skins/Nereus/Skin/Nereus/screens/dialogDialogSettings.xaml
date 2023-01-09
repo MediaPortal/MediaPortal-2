@@ -26,6 +26,7 @@
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
             <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
@@ -70,11 +71,19 @@
                    VerticalAlignment="Center" IsEnabled="{Binding Path=UseTransparency}" Style="{ThemeResource SymbolTextBoxStyle}"/>
         </Grid>
 
+        <Button Name="ButtonRefresh" SetFocusPrio="Default" Style="{ThemeResource WizardButtonStyle}" Content="[Nereus.Configuration.Refresh]" Margin="10,10,10,30" HorizontalAlignment="Left">
+          <Button.Command>
+            <CommandList>
+              <Command Path="SaveSettings" />
+              <Command Path="Refresh" />
+            </CommandList>
+          </Button.Command>
+        </Button>
+
         <!-- OK & Cancel button -->
         <Grid Height="10"/>
         <Grid HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
           </Grid.ColumnDefinitions>
@@ -82,16 +91,7 @@
             <RowDefinition Height="Auto" />
           </Grid.RowDefinitions>
 
-          <Button Name="ButtonRefresh" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}" Content="Refresh">
-            <Button.Command>
-              <CommandList>
-                <Command Path="SaveSettings" />
-                <Command Path="Refresh" />
-              </CommandList>
-            </Button.Command>
-          </Button>
-
-          <Button Name="ButtonOk" Grid.Column="1" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
+          <Button Name="ButtonOk" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
             <Button.Command>
               <CommandList>
                 <Command Path="SaveSettings" />
@@ -100,7 +100,7 @@
             </Button.Command>
           </Button>
 
-          <Button Name="ButtonCancel" Grid.Column="2" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
+          <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
                   Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
 
         </Grid>

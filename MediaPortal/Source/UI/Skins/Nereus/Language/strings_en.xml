@@ -51,6 +51,7 @@
   <string name="Nereus.Configuration.DialogTransparency">Enable transparency of dialog background</string>
   <string name="Nereus.Configuration.DialogBackgroundOpacity">Select an opacity value between 0.7 and 1.0</string>
   <string name="Nereus.Configuration.UseRoundesCorners">Whether to use rounded dialog corners</string>
+  <string name="Nereus.Configuration.Refresh">Refresh view</string>
 
   <string name="Nereus.Home.LatestAdded">Latest Added</string>
   <string name="Nereus.Home.LatestPlayed">Latest Played</string>
