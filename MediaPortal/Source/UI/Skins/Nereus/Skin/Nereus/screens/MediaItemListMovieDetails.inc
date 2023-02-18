@@ -64,7 +64,7 @@
     </media:MovieAspectWrapper.Template>
   </media:MovieAspectWrapper>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"  TextTrimming="WordEllipsis" Opacity="0.4"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1" TextTrimming="WordEllipsis" Opacity="0.4"
          HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
          Margin="0,40,10,90"/>

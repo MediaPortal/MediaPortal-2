@@ -83,6 +83,8 @@
     <WorkflowStateViewModes Skin="Nereus" Id="{F2461E2D-D6EF-4b08-B8CC-A0662BFABDD1}" StateId="380B17A6-010E-4BB2-B79C-965CC3F8EFDD" ViewModes="ListLayout,GridLayout"/>
     <!-- WebRadio -->
     <WorkflowStateViewModes Skin="Nereus" Id="{E23F342D-13B8-4f26-9FF6-EAFF3653A7BB}" StateId="263FADFE-87BE-4563-83F0-E62707891E1B" ViewModes="ListLayout,GridLayout"/>
+    <!-- Cinema -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{8B9C1014-FB0B-4480-BBF0-4C279CE91418}" StateId="5074508B-F6EE-4150-8FCD-7D8BD0A183F8" ViewModes="ListLayout,GridLayout"/>
     <!-- OnlineVideos SiteGroup -->
     <WorkflowStateViewModes Skin="Nereus" Id="{5E1097BA-A671-4627-8756-BD3CBD1F5990}" StateId="629FD4EB-1EB5-4ADA-BA69-0977274C2FB0" ViewModes="ListLayout,GridLayout"/>
     <!-- OnlineVideos Sites -->
