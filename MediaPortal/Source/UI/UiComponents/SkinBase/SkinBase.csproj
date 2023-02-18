@@ -683,6 +683,7 @@
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_Alexa.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_AppLauncher.png" />
+    <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_Cinema.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_Emulators.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_News.png" />
     <Content Include="Skin\default\images\SettingsMenu\Icon_Plugins_OnlineVideos.png" />
@@ -722,6 +723,7 @@
     <Content Include="Skin\default\images\SettingsMenu\Plugins_AppLauncher_AppLauncherSettingsDelete.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_AppLauncher_AppLauncherSettingsEdit.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_AppLauncher_AppLauncherSettingsMenu.jpg" />
+    <Content Include="Skin\default\images\SettingsMenu\Plugins_Cinema.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_Emulators.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_Emulators_EmulatorsConfiguration.jpg" />
     <Content Include="Skin\default\images\SettingsMenu\Plugins_Emulators_Goodmerge.jpg" />
