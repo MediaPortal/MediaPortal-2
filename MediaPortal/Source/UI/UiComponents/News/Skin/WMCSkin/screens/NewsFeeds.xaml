@@ -15,11 +15,20 @@
     <Model x:Key="Model" Id="D5B308C1-4585-4051-AB78-E10D17C3CC2D"/>
 
     <ControlTemplate x:Key="FanArtBackground_Template">
-      <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}">
-        <Image.Source>
-          <Binding Source="Background_ListView.png"/>
-        </Image.Source>
-      </Image>
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <Image Stretch="Fill" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].FanartOverlayOpacity}">
+          <Image.Source>
+            <Binding Source="Background.png"/>
+          </Image.Source>
+        </Image>
+        <Image Stretch="Fill" Width="1200" Height="{SkinHeight}" Source="Background_ListView.png" HorizontalAlignment="Right"/>
+      </Grid>
     </ControlTemplate>
 
     <ControlTemplate x:Key="Client_Template">
@@ -28,7 +37,7 @@
         <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
-            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="1000"/>
           </Grid.ColumnDefinitions>
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
@@ -42,6 +51,7 @@
                        Parameters="{LateBoundValue BindingValue={Binding}}"/>
             </ListView.Resources>
           </ListView>
+
           <Grid Grid.Column="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="40,0,40,20">
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>

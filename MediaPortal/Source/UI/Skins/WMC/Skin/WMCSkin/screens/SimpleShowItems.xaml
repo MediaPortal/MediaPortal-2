@@ -57,11 +57,6 @@
             </Control.TemplateControl>
           </Control>
           
-          <!--Control Grid.Column="0" Grid.Row="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
-            <Control.TemplateControl>
-              <Include Source="screens\MultiListDetails.inc"/>
-            </Control.TemplateControl>
-          </-->
         </Grid>
       </Grid>
     </ControlTemplate>
