@@ -52,8 +52,13 @@
       </Grid.ColumnDefinitions>
 
       <Image Source="Thumbnail_small.png" Stretch="Fill" Margin="-6,-6,-7,-6"/>
-      <Border Background="{ThemeResource NereusColorMedium}" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-      <Border Background="{ThemeResource NereusColorLight}" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+      <Grid x:Name="Grid" Background="{ThemeResource NereusColorMedium}" Margin="0,1,0,0">
+        <Grid.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="Grid" Property="Background" Value="{ThemeResource NereusColorLight}"/>
+          </DataTrigger>
+        </Grid.Triggers>
+      </Grid>
       <Control Style="{ThemeResource ButtonBaseControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
 
@@ -128,8 +133,13 @@
       </Grid.ColumnDefinitions>
 
       <Image Source="Thumbnail_small.png" Stretch="Fill" Margin="-6,-6,-7,-6"/>
-      <Border Background="{ThemeResource NereusColorMedium}" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-      <Border Background="{ThemeResource NereusColorLight}" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+      <Grid x:Name="Grid" Background="{ThemeResource NereusColorMedium}" Margin="0,1,0,0">
+        <Grid.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="Grid" Property="Background" Value="{ThemeResource NereusColorLight}"/>
+          </DataTrigger>
+        </Grid.Triggers>
+      </Grid>
       <Control Style="{ThemeResource ButtonBaseControlStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
 
@@ -195,8 +205,14 @@
             </Grid.ColumnDefinitions>
 
             <Image Source="Square_small.png" Stretch="Fill" Margin="-6,-6,-5,-6"/>
-            <Border Background="{ThemeResource NereusColorMedium}" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-            <Border Background="{ThemeResource NereusColorLight}" IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+            <Grid x:Name="Grid" Background="{ThemeResource NereusColorMedium}" Margin="0,1,0,0">
+              <Grid.Triggers>
+                <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                  <Setter TargetName="Grid" Property="Background" Value="{ThemeResource NereusColorLight}"/>
+                </DataTrigger>
+              </Grid.Triggers>
+            </Grid>
+      
             <Image Source="Person.png" Stretch="Fill" IsVisible="{Binding ElementName=thumb, Path=!HasImage}" Margin="10"/>
             
             <Image x:Name="thumb" Stretch="Fill">
