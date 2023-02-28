@@ -37,10 +37,22 @@ namespace TvMosaic.API
     [DataMember(Name = "force_add", EmitDefaultValue = false, IsRequired = false, Order = 2)]
     public bool IsForceAdd { get; set; }
 
-    [DataMember(Name = "by_epg", EmitDefaultValue = false, IsRequired = false, Order = 3)]
+    // int optional, margin value in seconds, if -1 then default margin is used
+    [DataMember(Name = "margine_before", EmitDefaultValue = false, IsRequired = false, Order = 3)]
+    public int MarginBefore { get; set; } = -1;
+
+    // int optional, margin value in seconds, if -1 then default margin is used
+    [DataMember(Name = "margine_after", EmitDefaultValue = false, IsRequired = false, Order = 4)]
+    public int MarginAfter { get; set; } = -1;
+
+    // int, schedule priority: -1 (low), 0 (normal), 1 (high)
+    [DataMember(Name = "priority", EmitDefaultValue = false, IsRequired = false, Order = 5)]
+    public int Priority { get; set; }
+
+    [DataMember(Name = "by_epg", EmitDefaultValue = false, IsRequired = false, Order = 6)]
     public ByEpgSchedule ByEpg { get; set; }
 
-    [DataMember(Name = "manual", EmitDefaultValue = false, IsRequired = false, Order = 4)]
+    [DataMember(Name = "manual", EmitDefaultValue = false, IsRequired = false, Order = 7)]
     public ManualSchedule Manual { get; set; }
 
     public Schedule()
