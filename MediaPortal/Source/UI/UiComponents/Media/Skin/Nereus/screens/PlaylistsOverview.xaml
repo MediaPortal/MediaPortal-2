@@ -137,19 +137,19 @@
           <Grid Grid.Row="1" IsVisible="{Binding ElementName=PlaylistNameLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image Source="HomeContentIcons\brand.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Label x:Name="PlaylistNameLabel" Content="Name" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+            <Label x:Name="PlaylistNameLabel" Content="{Binding [Name]}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
           </Grid>
 
           <Grid Grid.Row="2" IsVisible="{Binding ElementName=PlaylistTypeLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image Source="HomeContentIcons\category.png" Height="27" Width="27" Stretch="Uniform" Margin="0,0,5,0" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Label x:Name="PlaylistTypeLabel" Content="PlaylistType" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+            <Label x:Name="PlaylistTypeLabel" Content="{Binding AdditionalProperties[PlaylistAVType]}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
           </Grid>
 
           <Grid Grid.Row="3" IsVisible="{Binding ElementName=PlaylistNumItemsLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image Source="HomeContentIcons\num.png" Height="28" Width="28" Stretch="Uniform" Margin="0,0,5,0" 
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
-            <Label x:Name="PlaylistNumItemsLabel" Content="PlaylistNumItems" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
+            <Label x:Name="PlaylistNumItemsLabel" Content="{Binding AdditionalProperties[PlaylistNumItems]}" Color="{ThemeResource TextColorForeground}" Margin="40,0,0,0" />
           </Grid>
 
           <Grid Grid.Row="4" IsVisible="{Binding ElementName=PlaylistIdLabel, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}">
