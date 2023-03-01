@@ -62,6 +62,12 @@ Parameters which have to be accessible by a DynamicResource lookup:
         <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
       </ControlTemplate.Resources>
       <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
         <Image x:Name="FanArtImageBackground" Stretch="UniformToFill"
                IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[WMC].EnableFanart}">
           <Image.Source>
