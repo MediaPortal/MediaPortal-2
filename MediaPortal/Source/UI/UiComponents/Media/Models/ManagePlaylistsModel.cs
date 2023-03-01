@@ -497,6 +497,8 @@ namespace MediaPortal.UiComponents.Media.Models
           continue;
         ListItem playlistItem = new ListItem(Consts.KEY_NAME, playlistData.Name);
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_AV_TYPE] = avType.Value;
+        playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_TYPES] = playlistData.PlaylistType;
+        playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_ID] = playlistData.PlaylistId;
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_NUM_ITEMS] = playlistData.NumItems;
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_DATA] = playlistData;
         PlaylistBase plCopy = playlistData;

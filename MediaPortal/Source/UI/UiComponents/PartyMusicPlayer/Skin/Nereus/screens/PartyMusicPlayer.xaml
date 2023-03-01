@@ -273,6 +273,17 @@
                 Margin="0,0,80,60" HorizontalAlignment="Right" VerticalAlignment="Center" 
                 Command="{Command ShowPlaylist}" DataContext="{Binding Source={StaticResource PartyMusicPlayerModel}}"/>
 
+        <Image Grid.Row="2" Grid.Column="2" x:Name="ClearLogo" HorizontalAlignment="Left" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-40,0,-40">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Logo;140;240}"/>
+          </Image.Source>
+        </Image>
+        <!--Image HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Uniform" Height="140" Margin="60,-40,-380,-40" IsVisible="{Binding ElementName=ClearLogo, Path!=HasImage}">
+          <Image.Source>
+            <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;140;240}"/>
+          </Image.Source>
+        </Image-->
+
         <KeyBinding Key="Escape" Command="{Command QueryLeavePartyMode}" DataContext="{Binding Source={StaticResource PartyMusicPlayerModel}}"/>
         <KeyBinding Key="Back" Command="{Command QueryLeavePartyMode}" DataContext="{Binding Source={StaticResource PartyMusicPlayerModel}}"/>
         

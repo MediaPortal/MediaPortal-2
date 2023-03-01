@@ -564,6 +564,7 @@ namespace MediaPortal.UiComponents.Media.General
 
     public const string KEY_PLAYLIST_TYPES = "PlaylistsType";
     public const string KEY_PLAYLIST_LOCATION = "PlaylistLocation";
+    public const string KEY_PLAYLIST_ID = "PlaylistId";
     public const string KEY_PLAYLIST_AV_TYPE = "PlaylistAVType";
     public const string KEY_PLAYLIST_NUM_ITEMS = "PlaylistNumItems";
     public const string KEY_PLAYLIST_DATA = "PlaylistData";

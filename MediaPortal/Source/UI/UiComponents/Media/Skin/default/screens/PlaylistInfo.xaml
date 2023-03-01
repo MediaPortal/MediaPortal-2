@@ -50,8 +50,8 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Button x:Name="LoadButton" Grid.Row="0" Grid.Column="1" Style="{ThemeResource WizardButtonStyle}"
-              Content="[Media.LoadPlaylistButton]" IsEnabled="{Binding IsHomeServerConnected}"
-              Command="{Command LoadPlaylist}"/>
+                  Content="[Media.LoadPlaylistButton]" IsEnabled="{Binding IsHomeServerConnected}"
+                  Command="{Command LoadPlaylist}"/>
         </Grid>
       </Grid>
     </ControlTemplate>
