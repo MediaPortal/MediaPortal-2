@@ -1,191 +1,375 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Screen
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
   <DockPanel LastChildFill="False">
-    <Border x:Name="DialogBorder" DockPanel.Dock="Right" Margin="0,100,50,0" 
-            Width="80" Height="180" VerticalAlignment="Top" BorderThickness="5" 
-            Background="{ThemeResource DialogBorderBackgroundColor}" BorderBrush="{ThemeResource DialogBorderColor}">
 
-      <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True" Background="{ThemeResource DialogBackgroundColor}" Margin="5">
+    <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True" Background="{ThemeResource DialogBackgroundColor}" Margin="0,100,50,0"
+                 Width="80" MaxHeight="180" VerticalAlignment="Top" DockPanel.Dock="Right">
 
-        <Grid Context="{Model A2F24149-B44C-498b-AE93-288213B87A1A}" Margin="10">
-          <!-- Model = GeneralPlayerModel -->
-          <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-            <RowDefinition Height="3*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
+     <!-- Effect around dialog with rounded corners and glow -->
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="3" Opacity="0.04"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-15">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+      <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+      <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+      <Binding Source="White"/>
+      <Binding Source="{ThemeResource NereusColorLight}"/>
+      <Binding Source="Transparent"/>
+      </MultiBinding>
+      </Border.BorderBrush>
+      <Border.CornerRadius>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+          <Binding Source="19"/>
+          <Binding Source="0"/>
+        </MultiBinding>
+      </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.06"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-12">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="16"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.08"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-10">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="14"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.1"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-8">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="12"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.13"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-6">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="10"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.18"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-4">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="8"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="{ThemeResource DialogBackgroundColor}" BorderBrush="Transparent" BorderThickness="2" VerticalAlignment="Stretch"
+              HorizontalAlignment="Stretch" Margin="-2">
+        <Border.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseTransparency"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].DialogBackgroundOpacity"/>
+            <Binding Source="1"/>
+          </MultiBinding>
+        </Border.Opacity>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="{ThemeResource DialogBorderCornerRadius}"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" BorderThickness="2" Opacity="0.25"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-2">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="{ThemeResource DialogBorderCornerRadius}"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
 
-          <Label Content="{Binding Volume}" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,5"
+      <Grid Context="{Model A2F24149-B44C-498b-AE93-288213B87A1A}" Margin="10">
+        <!-- Model = GeneralPlayerModel -->
+        <Grid.RowDefinitions>
+          <RowDefinition Height="30"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="4"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Label Content="{Binding Volume}" Grid.Row="0" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,5"
                  Color="{ThemeResource DialogHeaderColor}" FontSize="24"/>
 
-          <Rectangle Grid.Row="20" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 0">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="19" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 5">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="18" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 10">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="17" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 15">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="16" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 20">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="15" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 25">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="14" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 30">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="13" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 35">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="12" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 40">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="11" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 45">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="10" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 50">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="9" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 55">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="8" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 60">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="7" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 65">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="6" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 70">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="5" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 75">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="4" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 80">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="3" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 85">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="2" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 90">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-          <Rectangle Grid.Row="1" Fill="{ThemeResource PlayControlsFillBrush}">
-            <Rectangle.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 95">
-                <Binding Path="Volume"/>
-              </MultiBinding>
-            </Rectangle.IsVisible>
-          </Rectangle>
-        </Grid>
+        <Rectangle Grid.Row="20" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 0">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="19" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 5">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="18" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 10">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="17" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 15">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="16" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 20">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="15" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 25">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="14" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 30">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="13" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 35">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="12" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 40">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="11" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 45">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="10" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 50">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="9" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 55">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="8" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 60">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="7" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 65">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="6" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 70">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="5" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 75">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="4" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 80">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="3" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 85">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="2" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 90">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
+        <Rectangle Grid.Row="1" Fill="{ThemeResource PlayControlsFillBrush}">
+          <Rectangle.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} > 95">
+              <Binding Path="Volume"/>
+            </MultiBinding>
+          </Rectangle.IsVisible>
+        </Rectangle>
 
-      </DockPanel>
+        <mp_special_controls:PlayerControl Grid.Row="22" AutoVisibility="True" PlayerContext="PrimaryPlayer" HorizontalAlignment="Center" VerticalAlignment="Center">
+          <mp_special_controls:PlayerControl.TemplateControl>
+            <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Image Source="PlayerControl\MUTE.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="-5"
+                     VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Image.IsVisible>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                    <Binding Path="IsAudio"/>
+                    <Binding Path="!IsMuted"/>
+                  </MultiBinding>
+                </Image.IsVisible>
+              </Image>
+              <Image Source="PlayerControl\MUTEON.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="-5"
+                     VerticalAlignment="Center" HorizontalAlignment="Center">
+                <Image.IsVisible>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                    <Binding Path="IsAudio"/>
+                    <Binding Path="IsMuted"/>
+                  </MultiBinding>
+                </Image.IsVisible>
+              </Image>
+              <Image Source="PlayerControl\MUTEON.NOFOCUS.PNG" Stretch="Uniform" Height="40" Width="40" Margin="-5"
+                     VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding !IsAudio}"/>              
+            </Grid>
 
-    </Border>
+            </mp_special_controls:PlayerControl.TemplateControl>
+        </mp_special_controls:PlayerControl>
+      </Grid>
+
+    </DockPanel>
   </DockPanel>
 </Screen>

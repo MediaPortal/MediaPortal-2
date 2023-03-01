@@ -183,7 +183,6 @@
               <Label Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
             </StackPanel>
           </Grid>
-
         </ControlTemplate>
       </Setter.Value>
     </Setter>
@@ -264,6 +263,28 @@
   </DataTemplate>
 
   <Style x:Key="AppLauncherSelectListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image Source="empty.png" Height="100" Stretch="Uniform" IsVisible="{Binding IsItemsEmpty}"/>
+              <Label Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource AppLauncherSelectItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>

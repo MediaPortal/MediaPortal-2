@@ -33,6 +33,7 @@
     <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
     <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="AutoScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.AutoScrollConfigurationModel"/>
     <Model Id="03C73355-E01C-4d30-AE69-14408ADB2174" Name="SkinColorConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.SkinColorConfigurationModel"/>
+    <Model Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0" Name="DialogConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.DialogConfigurationModel"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -51,6 +52,15 @@
                  DialogScreen="dialogSkinColorSettings"
                  DisplayLabel="[Nereus.Configuration.SelectSkinColor]"
                  WorkflowModel="03C73355-E01C-4d30-AE69-14408ADB2174"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- DialogConfiguration Dialog -->
+    <DialogState Id="C364F2E3-346E-4861-B9EE-CF5A74487244"
+                 Name="dialogDialogSettings"
+                 DialogScreen="dialogDialogSettings"
+                 DisplayLabel="[Nereus.Configuration.Dialog]"
+                 WorkflowModel="5C314F18-6A81-47b7-91DB-02DBCF5176F0"/>
   </Register>
   
   <!-- Language resources -->
@@ -73,6 +83,8 @@
     <WorkflowStateViewModes Skin="Nereus" Id="{F2461E2D-D6EF-4b08-B8CC-A0662BFABDD1}" StateId="380B17A6-010E-4BB2-B79C-965CC3F8EFDD" ViewModes="ListLayout,GridLayout"/>
     <!-- WebRadio -->
     <WorkflowStateViewModes Skin="Nereus" Id="{E23F342D-13B8-4f26-9FF6-EAFF3653A7BB}" StateId="263FADFE-87BE-4563-83F0-E62707891E1B" ViewModes="ListLayout,GridLayout"/>
+    <!-- Cinema -->
+    <WorkflowStateViewModes Skin="Nereus" Id="{8B9C1014-FB0B-4480-BBF0-4C279CE91418}" StateId="5074508B-F6EE-4150-8FCD-7D8BD0A183F8" ViewModes="ListLayout,GridLayout"/>
     <!-- OnlineVideos SiteGroup -->
     <WorkflowStateViewModes Skin="Nereus" Id="{5E1097BA-A671-4627-8756-BD3CBD1F5990}" StateId="629FD4EB-1EB5-4ADA-BA69-0977274C2FB0" ViewModes="ListLayout,GridLayout"/>
     <!-- OnlineVideos Sites -->
@@ -149,6 +161,13 @@
         HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"
         AdditionalData="WorkflowState=E3DABC33-4339-446B-A495-AE1A8C630B2B,ConfAppPanel=..."/>
+
+    <CustomConfigSetting
+        Id="NereusDialogDialog"
+        Text="[Nereus.Configuration.Dialog]"
+        HelpText="[Nereus.Configuration.Dialog.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogConfiguration"
+        AdditionalData="WorkflowState=C364F2E3-346E-4861-B9EE-CF5A74487244,ConfAppPanel=..."/>
     
     <CustomConfigSetting
         Id="NereusSkinColorSelectionDialog"
@@ -156,12 +175,6 @@
         HelpText="[Nereus.Configuration.SelectSkinColor.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SkinColorConfiguration"
         AdditionalData="WorkflowState=F07881D8-FCB4-4327-A8D0-C20FF5DA3E6A,ConfAppPanel=..."/>
-
-    <!--ConfigSetting
-        Id="NereusEnableWatchedFlags"
-        Text="[Nereus.Configuration.EnableWatchedFlags]"
-        HelpText="[Nereus.Configuration.EnableWatchedFlags.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableWatchedFlagsConfiguration"/-->
     
     <ConfigSetting
         Id="NereusEnableAgeCertificationLogos"
@@ -169,29 +182,6 @@
         HelpText="[Nereus.Configuration.EnableAgeCertificationLogos.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAgeCertificationLogosConfiguration"/>
 
-    <!--ConfigSetting
-        Id="NereusMovieGridViewType"
-        Text="[Nereus.Configuration.MovieGridViewType]"
-        HelpText="[Nereus.Configuration.MovieGridViewType.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.MovieGridViewTypeConfiguration"/>
-
-    <ConfigSetting
-        Id="NereusSeriesGridViewType"
-        Text="[Nereus.Configuration.SeriesGridViewType]"
-        HelpText="[Nereus.Configuration.SeriesGridViewType.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeriesGridViewTypeConfiguration"/>
-
-    <ConfigSetting
-        Id="NereusSeasonGridViewType"
-        Text="[Nereus.Configuration.SeasonGridViewType]"
-        HelpText="[Nereus.Configuration.SeasonGridViewType.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SeasonGridViewTypeConfiguration"/>
-
-    <ConfigSetting
-        Id="NereusEnableMediaItemDetailsView"
-        Text="[Nereus.Configuration.EnableMediaItemDetailsView]"
-        HelpText="[Nereus.Configuration.EnableMediaItemDetailsView.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMediaItemDetailsViewConfiguration"/-->
   </Register>
 
 </Plugin>

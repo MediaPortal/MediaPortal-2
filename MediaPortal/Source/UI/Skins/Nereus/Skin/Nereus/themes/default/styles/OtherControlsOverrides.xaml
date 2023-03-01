@@ -497,6 +497,28 @@
   </DataTemplate>
 
   <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                      HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image Source="empty.png" Height="100" Stretch="Uniform"/>
+              <Label Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MenuItemContainerStyleWide}"/>
@@ -1985,6 +2007,76 @@
         <ItemsPanelTemplate>
           <WrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="0" MaxWidth="1100" MaxHeight="500"/>
         </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- *********************************** TextBox style ********************************* -->
+
+  <Style x:Key="SymbolTextBoxStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
+                  BorderThickness="{ThemeResource TextBoxBorderThickness}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
+            <Grid Margin="10,0,10,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextControl x:Name="TextControl" PreferredTextLength="{TemplateBinding Path=PreferredTextLength}"
+                           CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
+                           Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}"
+                           IsEnabled="{TemplateBinding IsEnabled}" />
+              <Image x:Name="editsymbol" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                     Stretch="Uniform" Height="30"/>
+            </Grid>
+            <Border.Triggers>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=HasFocus}" Value="True">
+                <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderFocusColor}"/>
+                <Setter TargetName="editsymbol" Property="Opacity" Value="1"/>
+                <Setter Property="Background" Value="{ThemeResource TextBoxBackgroundFocusColor}"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=IsEnabled}" Value="False">
+                <Setter Property="Background" Value="{ThemeResource TextBoxDisabledBackgroundColor}"/>
+              </DataTrigger>
+            </Border.Triggers>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SymbolPasswordTextBoxStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
+                  BorderThickness="{ThemeResource TextBoxBorderThickness}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
+            <Grid Margin="10,0,10,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextControl x:Name="TextControl" PreferredTextLength="{TemplateBinding Path=PreferredTextLength}" IsPassword="True"
+                           CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
+                           Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}"
+                           IsEnabled="{TemplateBinding IsEnabled}" />
+              <Image x:Name="editsymbol" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                     Stretch="Uniform" Height="30"/>
+            </Grid>
+            <Border.Triggers>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=HasFocus}" Value="True">
+                <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderFocusColor}"/>
+                <Setter TargetName="editsymbol" Property="Opacity" Value="1"/>
+                <Setter Property="Background" Value="{ThemeResource TextBoxBackgroundFocusColor}"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=IsEnabled}" Value="False">
+                <Setter Property="Background" Value="{ThemeResource TextBoxDisabledBackgroundColor}"/>
+              </DataTrigger>
+            </Border.Triggers>
+          </Border>
+        </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>

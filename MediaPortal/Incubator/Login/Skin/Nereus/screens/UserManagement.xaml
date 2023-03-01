@@ -115,51 +115,22 @@
         <Label Grid.Row="1" Grid.Column="1" Margin="50,5,5,5"
                Content="[UserConfig.UserName]" Color="{ThemeResource TextColor}"/>
 
-        <Grid Grid.Row="1" Grid.Column="3" Margin="0,2,50,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding !IsRestrictedToOwn}">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <TextBox Text="{Binding Path=UserProxy.Name,Mode=TwoWay}" PreferredTextLength="40" TextAlign="Center" HorizontalContentAlignment="Center" 
-                   IsEnabled="{Binding Path=!IsSystemUserSelected}"/>
-          <Image x:Name="editsymbol3" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                 Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-          <Grid.Triggers>
-            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-              <Setter TargetName="editsymbol3" Property="Opacity" Value="1"/>
-            </Trigger>
-          </Grid.Triggers>
-        </Grid>
+        <TextBox Grid.Row="1" Grid.Column="3" Margin="0,2,50,2" IsVisible="{Binding !IsRestrictedToOwn}" Text="{Binding Path=UserProxy.Name,Mode=TwoWay}" 
+                 PreferredTextLength="40" TextAlign="Center" HorizontalContentAlignment="Center" 
+                 IsEnabled="{Binding Path=!IsSystemUserSelected}"  Style="{ThemeResource SymbolTextBoxStyle}"/>
 
         <Label Grid.Row="2" Grid.Column="1" Margin="50,5,5,5"
                Content="[UserConfig.Password]" Color="{ThemeResource TextColor}"/>
 
-        <Grid Grid.Row="2" Grid.Column="3" Margin="0,2,50,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <TextBox Text="{Binding Path=UserProxy.Password,Mode=TwoWay}" PreferredTextLength="40" TextAlign="Center" HorizontalContentAlignment="Center" 
-                   Style="{ThemeResource PasswordTextBoxStyle}">
-            <TextBox.IsEnabled>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                <Binding Path="IsUserSelected"/>
-                <Binding Path="!IsSystemUserSelected"/>
-              </MultiBinding>
-            </TextBox.IsEnabled>
-          </TextBox>
-          <Image x:Name="editsymbol2" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                 Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-          <Grid.Triggers>
-            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-              <Setter TargetName="editsymbol2" Property="Opacity" Value="1"/>
-            </Trigger>
-          </Grid.Triggers>
-        </Grid>
+        <TextBox Grid.Row="2" Grid.Column="3" Margin="0,2,50,2" Text="{Binding Path=UserProxy.Password,Mode=TwoWay}" PreferredTextLength="40" 
+                   TextAlign="Center" HorizontalContentAlignment="Center" Style="{ThemeResource SymbolPasswordTextBoxStyle}">
+          <TextBox.IsEnabled>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+              <Binding Path="IsUserSelected"/>
+              <Binding Path="!IsSystemUserSelected"/>
+            </MultiBinding>
+          </TextBox.IsEnabled>
+        </TextBox>
 
         <Label Grid.Row="3" Grid.Column="1" Margin="50,5,5,5"
                Content="[UserConfig.ProfileType]" Color="{ThemeResource TextColor}"/>
@@ -204,23 +175,10 @@
           <Label Margin="5" Content="[UserConfig.AgeFilter]" Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
         </StackPanel>
 
-        <Grid Grid.Row="6" Grid.Column="3" Margin="0,2,50,2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" IsVisible="{Binding !IsRestrictedToOwn}">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <TextBox Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40" TextAlign="Center" HorizontalContentAlignment="Center" 
-                   IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}"/>
-          <Image x:Name="editsymbol" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
-                 Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
-          <Grid.Triggers>
-            <Trigger Property="IsKeyboardFocusWithin" Value="True">
-              <Setter TargetName="editsymbol" Property="Opacity" Value="1"/>
-            </Trigger>
-          </Grid.Triggers>
-        </Grid>
+        <TextBox Grid.Row="6" Grid.Column="3" Margin="0,2,50,2" Text="{Binding Path=UserProxy.AllowedAge,Mode=TwoWay}" PreferredTextLength="40" 
+                 TextAlign="Center" HorizontalContentAlignment="Center" 
+                 IsEnabled="{Binding ElementName=CheckAgeFilter, Path=IsChecked}" IsVisible="{Binding !IsRestrictedToOwn}"/>
+
 
         <StackPanel Orientation="Horizontal" Grid.Row="7" Grid.Column="1" Margin="100,0,50,0" IsVisible="{Binding !IsRestrictedToOwn}">
           <CheckBox x:Name="CheckIncludeParentFilter" HorizontalAlignment="Center" VerticalAlignment="Center"

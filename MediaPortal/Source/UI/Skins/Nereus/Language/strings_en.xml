@@ -42,6 +42,16 @@
   <string name="Nereus.Configuration.EnableCircleMenuImages.Help">Whether to change the square menu tiles with round tiles</string>
   <string name="Nereus.Configuration.EnableMenuSelection">Show home menu content on selection rather than on focus</string>
   <string name="Nereus.Configuration.EnableMenuSelection.Help">Whether to show home content for a menu item after the item is selected, rather than when it is focused. Selecting the same menu item again will open the corresponding library.</string>
+  <string name="Nereus.Configuration.Dialog">Configure dialog appearance</string>
+  <string name="Nereus.Configuration.Dialog.Help">Modify the dialog glow effect and background opacity</string>
+  <string name="Nereus.Configuration.SelectGlowColor">Select the color of the glow effect around the dialog</string>
+  <string name="Nereus.Configuration.NoColor">None</string>
+  <string name="Nereus.Configuration.WhiteColor">White</string>
+  <string name="Nereus.Configuration.FocusColor">Focus color</string>
+  <string name="Nereus.Configuration.DialogTransparency">Enable transparency of dialog background</string>
+  <string name="Nereus.Configuration.DialogBackgroundOpacity">Select an opacity value between 0.7 and 1.0</string>
+  <string name="Nereus.Configuration.UseRoundesCorners">Whether to use rounded dialog corners</string>
+  <string name="Nereus.Configuration.Refresh">Refresh view</string>
 
   <string name="Nereus.Home.LatestAdded">Latest Added</string>
   <string name="Nereus.Home.LatestPlayed">Latest Played</string>

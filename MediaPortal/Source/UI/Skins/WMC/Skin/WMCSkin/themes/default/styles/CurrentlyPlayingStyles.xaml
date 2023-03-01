@@ -151,7 +151,7 @@
             <ColumnDefinition Width="65*"/>
             <ColumnDefinition Width="35*"/>
           </Grid.ColumnDefinitions>
-          <Image Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5,5,0,5"
+          <Image Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5,10,0,10"
                  IsVisible="{Binding Path=SubtitleLanguage,Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image.Source>
               <Binding Path="SubtitleLanguage" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>

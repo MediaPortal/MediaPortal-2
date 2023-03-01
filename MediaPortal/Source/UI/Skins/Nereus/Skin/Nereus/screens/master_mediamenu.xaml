@@ -109,9 +109,9 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <Image.Source>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} == {LayoutType}.{ListLayout} &amp;&amp; {4} == &quot;True&quot;) ? {1} : ((({0} == {LayoutType}.{ListLayout} &amp;&amp; {4} != &quot;True&quot;) || {0} == {LayoutType}.{GridLayout}) ? {2} : {3})">
               <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"/>
-              <Binding Source="Background_ListView.png"/>
+              <Binding Source="Background.png"/>
               <!--Grid-->
-              <Binding Source="Background_GridView.png"/>
+              <Binding Source="Background.png"/>
               <!--List-->
               <Binding Source="Background_CoverView.png"/>
               <!--Cover-->
