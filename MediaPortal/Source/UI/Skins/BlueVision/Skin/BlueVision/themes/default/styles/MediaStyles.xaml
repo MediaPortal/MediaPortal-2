@@ -2513,7 +2513,7 @@
               <ControlTemplate x:Key="OSD_Background_Template">
                 <Grid HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
                   <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                   </Grid.ColumnDefinitions>
                   <Grid.RowDefinitions>
                     <RowDefinition Height="*"/>
