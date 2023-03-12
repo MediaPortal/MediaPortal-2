@@ -184,9 +184,9 @@
 
     <!-- Notification states -->
 
-    <WorkflowState Id="9B1EADDC-C5CD-4a3a-B26A-91B943F680AD"
+    <DialogState Id="9B1EADDC-C5CD-4a3a-B26A-91B943F680AD"
         Name="WatchSystemNotifications" DisplayLabel="[Notifications.WatchNotificationsWorkflowStateLabel]"
-        MainScreen="WatchSystemNotifications"
+        DialogScreen="WatchSystemNotifications"
         Temporary="true"
         WorkflowModel="843F373D-0B4B-47ba-8DD1-0D18F00FAAD3"/> <!-- Workflow model = Notifications model -->
 

@@ -2,12 +2,12 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_menu.xaml"
+    Source="screens\master_dialog_bare.xaml"
     >
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[Notifications.Title]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Notifications.Title]"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
