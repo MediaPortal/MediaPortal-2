@@ -48,12 +48,12 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Button x:Name="BackButton" Grid.Row="0" Grid.Column="0" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Back]"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                  Content="[System.Back]"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="FinishButton" Grid.Row="0" Grid.Column="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Finish]" IsEnabled="{Binding ShareProxy.IsMediaCategoriesSelected}"
-              SetFocusPrio="{Binding Path=ShareProxy.IsMediaCategoriesSelected, Converter={StaticResource BoolToFocusPriorityConverter}}"
-              Command="{Command Source={StaticResource Model},Path=FinishShareConfiguration}"/>
+                  Content="[System.Finish]" IsEnabled="{Binding ShareProxy.IsMediaCategoriesSelected}"
+                  SetFocusPrio="{Binding Path=ShareProxy.IsMediaCategoriesSelected, Converter={StaticResource BoolToFocusPriorityConverter}}"
+                  Command="{Command Source={StaticResource Model},Path=FinishShareConfiguration}"/>
         </Grid>
       </Grid>
     </ControlTemplate>
