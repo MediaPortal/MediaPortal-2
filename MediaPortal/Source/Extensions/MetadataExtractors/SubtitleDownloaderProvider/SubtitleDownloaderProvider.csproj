@@ -1,10 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
     <TargetFramework>net6.0-windows</TargetFramework>
-        <OutputType>Library</OutputType>
+    <OutputType>Library</OutputType>
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors.SubtitleDownloaderProvider</RootNamespace>
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
     <OutputPath>bin\x86\Debug\</OutputPath>
@@ -35,9 +36,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="SubtitleDownloader" GeneratePathProperty="true">
-      <Version>3.0.20.3</Version>
-    </PackageReference>
+    <PackageReference Include="SubtitleDownloader" Version="3.1.0" />
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
   <Import Project="build.targets" />

@@ -152,5 +152,8 @@
       <Version>1.0.0.3</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <Reference Include="System.Device" />
+  </ItemGroup>
   <Import Project="build.targets" />
 </Project>

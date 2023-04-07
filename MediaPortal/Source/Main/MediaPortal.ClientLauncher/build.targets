@@ -7,9 +7,11 @@
 
     <ItemGroup>
       <PluginFiles Include="$(TargetPath)" />
+      <PluginFiles Include="$(TargetPath).config" />
+    </ItemGroup>
+    <ItemGroup Condition=" '$(TargetFramework)' != 'net48' ">
       <PluginFiles Include="$(TargetDir)$(TargetName).exe" />
       <PluginFiles Include="$(TargetDir)$(TargetName).runtimeconfig.json" />
-      <PluginFiles Include="$(TargetPath).config" />
     </ItemGroup>
 
     <ItemGroup>

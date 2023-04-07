@@ -49,6 +49,10 @@
     <ProjectReference Include="..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
   <ItemGroup>
     <Resource Include="Resources\Images\AddSmall.png" />
     <Resource Include="Resources\Images\QuitSmall.png" />

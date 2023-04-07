@@ -1,7 +1,6 @@
 ﻿using MediaPortal.Utilities.SystemAPI;
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using System.Windows.Forms;
 using System.Windows.Input;
 using Application = System.Windows.Application;
 
@@ -123,7 +122,11 @@ namespace MediaPortal.Client.Launcher
 
     #endregion
 
+#if NET5_0_OR_GREATER
     public event PropertyChangedEventHandler? PropertyChanged;
+#else
+    public event PropertyChangedEventHandler PropertyChanged;
+#endif
 
     protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
     {
