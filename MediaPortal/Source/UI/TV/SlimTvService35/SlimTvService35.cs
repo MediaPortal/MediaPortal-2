@@ -111,9 +111,13 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (!NativeMethods.SetRuntimeIdentifierSearchDirectories(out absolutePlatformDir))
         throw new Exception("Error adding dll probe path");
 
+#if NET5_0_OR_GREATER
       var dbPath = ServiceRegistration.Get<MediaPortal.Common.PathManager.IPathManager>().GetPath("<DATABASE>\\" + TVDB_NAME + ".s3db");
       ConnectionStringSettings connectionString = new ConnectionStringSettings("TvEngineDb", "Data Source=" + dbPath, "SQLite");
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0], connectionString);
+#else
+      _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
+#endif
       _tvServiceThread.Start();
       if (!_tvServiceThread.InitializedEvent.WaitOne(MAX_WAIT_MS))
       {
@@ -138,7 +142,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
-    #endregion
+#endregion
 
     #region Server state
 
@@ -410,8 +414,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
         ServiceRegistration.Get<ILogger>().Debug("Editing schedule {0} on channel {1} for {2}, {3} till {4}, type {5}", schedule.ScheduleId, channel.ChannelId, title, from, to, recordingType);
         IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
         Schedule tvSchedule = scheduleService.GetSchedule(schedule.ScheduleId);
-
+#if NET5_0_OR_GREATER
         tvSchedule.ChannelId = channel.ChannelId;
+#else
+        tvSchedule.IdChannel = channel.ChannelId;
+#endif
         if (title != null)
         {
           tvSchedule.ProgramName = title;
@@ -474,7 +481,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
         {
           case (int)ScheduleRecordingType.Once:
             StopRecording(schedule);
+#if NET5_0_OR_GREATER
             scheduleService.DeleteSchedule(schedule.ScheduleId);
+#else
+            scheduleService.DeleteSchedule(schedule.IdSchedule);
+#endif
             break;
           default:
             // If only single program should be canceled
@@ -510,12 +521,19 @@ namespace MediaPortal.Plugins.SlimTv.Service
       var tvProgram = programService.GetProgram(program.ProgramId);
       try
       {
+#if NET5_0_OR_GREATER
         ServiceRegistration.Get<ILogger>().Debug("Uncancelling schedule for programId {0}", tvProgram.ProgramId);
         foreach (Schedule schedule in scheduleService.ListAllSchedules().Where(schedule => schedule.StartTime == program.StartTime && schedule.ChannelId == tvProgram.ChannelId))
         {
           scheduleService.UnCancelSerie(schedule, program.StartTime, tvProgram.ChannelId);
         }
-
+#else
+        ServiceRegistration.Get<ILogger>().Debug("Uncancelling schedule for programId {0}", tvProgram.IdProgram);
+        foreach (Schedule schedule in scheduleService.ListAllSchedules().Where(schedule => schedule.StartTime == program.StartTime && schedule.IdChannel == tvProgram.IdChannel))
+        {
+          scheduleService.UnCancelSerie(schedule, program.StartTime, tvProgram.IdChannel);
+        }
+#endif
         return Task.FromResult(true);
       }
       catch (Exception ex)
@@ -529,7 +547,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       ICanceledScheduleService canceledScheduleService = GlobalServiceProvider.Instance.Get<ICanceledScheduleService>();
 
+#if NET5_0_OR_GREATER
       CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.ScheduleId, canceledProgram.ChannelId, canceledProgram.StartTime);
+#else
+      CanceledSchedule canceledSchedule = CanceledScheduleFactory.CreateCanceledSchedule(schedule.IdSchedule, canceledProgram.IdChannel, canceledProgram.StartTime);
+#endif
       canceledScheduleService.SaveCanceledSchedule(canceledSchedule);
       StopRecording(schedule);
     }
@@ -550,7 +572,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return;
 
       parentSchedule = schedule;
+#if NET5_0_OR_GREATER
       Schedule spawn = ServiceAgents.Instance.ScheduleServiceAgent.RetrieveSpawnedSchedule(parentSchedule.ScheduleId, parentSchedule.StartTime);
+#else
+      Schedule spawn = ServiceAgents.Instance.ScheduleServiceAgent.RetrieveSpawnedSchedule(parentSchedule.IdSchedule, parentSchedule.StartTime);
+#endif
       if (spawn != null)
         schedule = spawn;
     }
@@ -558,12 +584,21 @@ namespace MediaPortal.Plugins.SlimTv.Service
     private static bool StopRecording(Schedule schedule)
     {
       bool stoppedRec = false;
+#if NET5_0_OR_GREATER
       bool isRec = ServiceAgents.Instance.ScheduleServiceAgent.IsScheduleRecording(schedule.ScheduleId);
       if (isRec)
       {
         ServiceAgents.Instance.ControllerServiceAgent.StopRecordingSchedule(schedule.ScheduleId);
         stoppedRec = true;
       }
+#else
+      bool isRec = ServiceAgents.Instance.ScheduleServiceAgent.IsScheduleRecording(schedule.IdSchedule);
+      if (isRec)
+      {
+        ServiceAgents.Instance.ControllerServiceAgent.StopRecordingSchedule(schedule.IdSchedule);
+        stoppedRec = true;
+      }
+#endif
       return stoppedRec;
     }
 
@@ -573,6 +608,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       bool wasDeleted = false;
       foreach (var currentSchedule in new List<Schedule> { schedule, parentSchedule })
       {
+#if NET5_0_OR_GREATER
         try
         {
           if (currentSchedule != null)
@@ -583,6 +619,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
           ServiceRegistration.Get<ILogger>().Error("Error deleting schedule with ID '{0}'", ex,
             currentSchedule != null ? currentSchedule.ScheduleId.ToString() : "<null>");
         }
+#else
+        try
+        {
+          if (currentSchedule != null)
+            wasDeleted |= DeleteSchedule(currentSchedule.IdSchedule);
+        }
+        catch (Exception ex)
+        {
+          ServiceRegistration.Get<ILogger>().Error("Error deleting schedule with ID '{0}'", ex,
+            currentSchedule != null ? currentSchedule.IdSchedule.ToString() : "<null>");
+        }
+#endif
       }
       return wasDeleted;
     }
@@ -593,7 +641,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (schedule == null)
         return false;
 
+#if NET5_0_OR_GREATER
       ServiceAgents.Instance.ScheduleServiceAgent.DeleteSchedule(schedule.ScheduleId);
+#else
+      ServiceAgents.Instance.ScheduleServiceAgent.DeleteSchedule(schedule.IdSchedule);
+#endif
       return true;
     }
 
@@ -691,7 +743,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
       List<SlimTvIVirtualCard> cards = new List<SlimTvIVirtualCard>();
       foreach (var card in ServiceAgents.Instance.CardServiceAgent.ListAllCards())
       {
+#if NET5_0_OR_GREATER
         IDictionary<string, IUser> usersForCard = ServiceAgents.Instance.ControllerServiceAgent.GetUsersForCard(card.CardId);
+#else
+        IDictionary<string, IUser> usersForCard = ServiceAgents.Instance.ControllerServiceAgent.GetUsersForCard(card.IdCard);
+#endif
 
         foreach (IUser user1 in usersForCard.Values)
         {
@@ -743,7 +799,11 @@ namespace MediaPortal.Plugins.SlimTv.Service
                   FailedCardId = vcard.User.FailedCardId,
                   HeartBeat = DateTime.Now, // TVE 3.5 doesn't have a heart beat
                   History = vcard.User.History,
+#if NET5_0_OR_GREATER
                   IdChannel = subchannel.ChannelId,
+#else
+                  IdChannel = subchannel.IdChannel,
+#endif
                   //IsAdmin = vcard.User.IsAdmin,
                   SubChannel = subchannel.Id,
                   TvStoppedReason = (SlimTvStoppedReason)Enum.Parse(typeof(SlimTvStoppedReason), vcard.User.TvStoppedReason.ToString()),
@@ -757,6 +817,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<List<SlimTvIVirtualCard>>(cards.Count > 0, cards));
     }
 
-    #endregion
+#endregion
   }
 }

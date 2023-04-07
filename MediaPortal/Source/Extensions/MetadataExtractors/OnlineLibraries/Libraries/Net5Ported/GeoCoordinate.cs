@@ -18,6 +18,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace System.Device.Location
 {
+#if NET5_0_OR_GREATER
   public class GeoCoordinate : IEquatable<GeoCoordinate>
   {
     private double m_latitude = double.NaN;
@@ -302,4 +303,5 @@ namespace System.Device.Location
     }
     #endregion
   }
+#endif
 }

@@ -24,12 +24,19 @@
 
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
+#if NET5_0_OR_GREATER
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
+#else
+using System.Net.Http;
+using System.Web.Http;
+using System.Web.Http.Controllers;
+#endif
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
+#if NET5_0_OR_GREATER
   public class MediaPortalAuthorizeAttribute : AuthorizeAttribute, IAuthorizationFilter
   {
     private bool? _webAutorizationEnabled = null;
@@ -55,4 +62,28 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
   }
+#else
+  public class MediaPortalAuthorizeAttribute : AuthorizeAttribute
+  {
+    private bool? _webAutorizationEnabled = null;
+
+    protected override bool IsAuthorized(HttpActionContext actionContext)
+    {
+      var owinContext = actionContext.Request.GetOwinContext();
+      var authenticated = owinContext.Authentication.User?.Identity?.IsAuthenticated ?? false;
+
+      if (!_webAutorizationEnabled.HasValue)
+      {
+        ServerSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<ServerSettings>();
+        _webAutorizationEnabled = settings.WebAutorizationEnabled;
+      }
+      if (!_webAutorizationEnabled.Value)
+        authenticated = true;
+      else
+        authenticated &= owinContext.Authentication.User?.Identity?.AuthenticationType == ResourceServer.MEDIAPORTAL_AUTHENTICATION_TYPE;
+
+      return authenticated;
+    }
+  }
+#endif
 }

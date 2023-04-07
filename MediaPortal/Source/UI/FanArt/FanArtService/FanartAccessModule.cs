@@ -26,37 +26,53 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Network;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using UPnP.Infrastructure.Http;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace MediaPortal.Extensions.UserServices.FanArtService
 {
+#if NET5_0_OR_GREATER
   public class FanartAccessModule
   {
-    protected RequestDelegate _next;
+    protected RequestDelegate Next { get; }
 
     public FanartAccessModule(RequestDelegate next)
     {
-      _next = next;
+      Next = next;
     }
+#else
+  public class FanartAccessModule : OwinMiddleware
+  {
+    public FanartAccessModule(OwinMiddleware next) : base(next)
+    {
+    }
+#endif
 
     /// <summary>
     /// Method that process the url
     /// </summary>
+#if NET5_0_OR_GREATER
     public async Task Invoke(HttpContext context)
+#else
+    public override async Task Invoke(IOwinContext context)
+#endif
     {
       var request = context.Request;
       var response = context.Response;
-      Uri uri = new Uri(request.GetEncodedUrl());
+      Uri uri = request.GetUri();
       if (!uri.AbsolutePath.Contains("/FanartService"))
       {
-        await _next.Invoke(context);
+        await Next.Invoke(context);
         return;
       }
 
@@ -92,7 +108,11 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
         await SendWholeStream(response, memoryStream, false);
     }
 
+#if NET5_0_OR_GREATER
     protected async Task SendWholeStream(HttpResponse response, Stream resourceStream, bool onlyHeaders)
+#else
+    protected async Task SendWholeStream(IOwinResponse response, Stream resourceStream, bool onlyHeaders)
+#endif
     {
       var length = resourceStream.Length;
       response.StatusCode = (int)HttpStatusCode.OK;

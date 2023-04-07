@@ -46,7 +46,8 @@ namespace MediaPortal.Plugins.MP2Extended
       Logger.Debug("MP2Extended: Registering HTTP resource access module");
       ServiceRegistration.Get<IResourceServer>().AddHttpModule((typeof(WebResourceAccessModule)));
 
-#if !NET6_0
+#if NET5_0_OR_GREATER
+#else
       if (Settings.OnlineVideosEnabled)
         OnlineVideosManager = new OnlineVideosManager(); // must be loaded after the settings are loaded
 #endif

@@ -26,19 +26,28 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Threading;
 using MediaPortal.Utilities.SystemAPI;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Http.Features;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
+using UPnP.Infrastructure.Http;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http.Features;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
+#if NET5_0_OR_GREATER
   public class ResourceAccessModule : IDisposable
+#else
+  public class ResourceAccessModule : OwinMiddleware, IDisposable
+#endif
   {
     public const string DEFAULT_MIME_TYPE = "application/octet-stream";
 
@@ -77,16 +86,22 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-    protected RequestDelegate _next;
     protected readonly IDictionary<string, string> _defaultMimeTypes = new Dictionary<string, string>();
     protected readonly IDictionary<string, CachedResource> _resourceAccessorCache = new Dictionary<string, CachedResource>(10);
     protected IntervalWork _tidyUpCacheWork;
     protected readonly object _syncObj = new object();
 
+#if NET5_0_OR_GREATER
+    protected RequestDelegate Next { get; }
+
     public ResourceAccessModule(RequestDelegate next)
     {
-      _next = next;
-      AddDefaultMimeTypes();
+      Next = next;
+#else
+    public ResourceAccessModule(OwinMiddleware next) : base(next)
+    {
+#endif
+    AddDefaultMimeTypes();
       IThreadPool threadPool = ServiceRegistration.Get<IThreadPool>();
       _tidyUpCacheWork = new IntervalWork(TidyUpResourceAccessorCache, CACHE_CLEANUP_INTERVAL);
       threadPool.AddIntervalWork(_tidyUpCacheWork, false);
@@ -279,7 +294,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
       return result;
     }
 
+#if NET5_0_OR_GREATER
     protected async Task SendRange(HttpResponse response, Stream resourceStream, Range range, bool onlyHeaders, CancellationToken ct)
+#else
+    protected async Task SendRange(IOwinResponse response, Stream resourceStream, Range range, bool onlyHeaders, CancellationToken ct)
+#endif
     {
       if (range.From > resourceStream.Length)
       {
@@ -296,7 +315,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
       await Send(response, resourceStream, range.Length, ct);
     }
 
+#if NET5_0_OR_GREATER
     protected async Task SendWholeFile(HttpResponse response, Stream resourceStream, bool onlyHeaders, CancellationToken ct)
+#else
+    protected async Task SendWholeFile(IOwinResponse response, Stream resourceStream, bool onlyHeaders, CancellationToken ct)
+#endif
     {
       response.StatusCode = (int)HttpStatusCode.OK;
       response.ContentLength = resourceStream.Length;
@@ -307,7 +330,11 @@ namespace MediaPortal.Common.Services.ResourceAccess
       await Send(response, resourceStream, resourceStream.Length, ct);
     }
 
+#if NET5_0_OR_GREATER
     protected async Task Send(HttpResponse response, Stream resourceStream, long length, CancellationToken ct)
+#else
+    protected async Task Send(IOwinResponse response, Stream resourceStream, long length, CancellationToken ct)
+#endif
     {
       const int BUF_LEN = 8192;
       byte[] buffer = new byte[BUF_LEN];
@@ -342,28 +369,33 @@ namespace MediaPortal.Common.Services.ResourceAccess
     /// <summary>
     /// Method that processes the Uri.
     /// </summary>
+
+#if NET5_0_OR_GREATER
     public async Task Invoke(HttpContext context)
+#else
+    public override async Task Invoke(IOwinContext context)
+#endif
     {
       var request = context.Request;
       var response = context.Response;
       ResourcePath resourcePath;
-      Uri uri = new Uri(request.GetEncodedUrl());
+      Uri uri = request.GetUri();
       if (!uri.AbsolutePath.StartsWith(ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH) || !uri.AbsolutePath.Contains(ResourceHttpAccessUrlUtils.RESOURCE_ACCESS_PATH))
       {
-        await _next.Invoke(context);
+        await Next.Invoke(context);
         return;
       }
       if (!ResourceHttpAccessUrlUtils.ParseResourceURI(uri, out resourcePath))
       {
         response.StatusCode = (int)HttpStatusCode.BadRequest;
-        context.Features.Get<IHttpResponseFeature>().ReasonPhrase = string.Format("Illegal request syntax. Correct syntax is '{0}'", ResourceHttpAccessUrlUtils.SYNTAX);
+        context.SetReasonPhrase(string.Format("Illegal request syntax. Correct syntax is '{0}'", ResourceHttpAccessUrlUtils.SYNTAX));
         return;
       }
       if (!IsAllowedToAccess(resourcePath))
       {
         ServiceRegistration.Get<ILogger>().Warn("ResourceAccessModule: Client tries to access forbidden resource '{0}'", resourcePath);
         response.StatusCode = (int)HttpStatusCode.Forbidden;
-        context.Features.Get<IHttpResponseFeature>().ReasonPhrase = string.Format("Access of resource '{0}' not allowed", resourcePath);
+        context.SetReasonPhrase(string.Format("Access of resource '{0}' not allowed", resourcePath));
         return;
       }
 
@@ -398,7 +430,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       catch (FileNotFoundException ex)
       {
         response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Features.Get<IHttpResponseFeature>().ReasonPhrase = string.Format("Failed to proccess resource '{0}': {1}", resourcePath, ex.Message);
+        context.SetReasonPhrase(string.Format("Failed to proccess resource '{0}': {1}", resourcePath, ex.Message));
       }
     }
 

@@ -24,7 +24,6 @@
 
 using MediaPortal.Utilities.Exceptions;
 using MediaPortal.Utilities.Network;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -44,6 +43,11 @@ using UPnP.Infrastructure.CP.SSDP;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Utils;
 using UPnP.Infrastructure.Utils.HTTP;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace UPnP.Infrastructure.CP.GENA
 {
@@ -473,7 +477,11 @@ namespace UPnP.Infrastructure.CP.GENA
       return request;
     }
 
+#if NET5_0_OR_GREATER
     public HttpStatusCode HandleUnicastEventNotification(HttpRequest request)
+#else
+    public HttpStatusCode HandleUnicastEventNotification(IOwinRequest request)
+#endif
     {
       string nt = request.Headers["NT"];
       string nts = request.Headers["NTS"];

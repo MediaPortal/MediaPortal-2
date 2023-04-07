@@ -148,7 +148,7 @@ namespace MediaPortal.Utilities.Process
           new SecurityIdentifier(WellKnownSidType.AuthenticatedUserSid, null),
           PipeAccessRights.ReadWrite | PipeAccessRights.CreateNewInstance, AccessControlType.Allow));
 
-#if NET6_0
+#if NET5_0_OR_GREATER
       var pipe = NamedPipeServerStreamConstructors.New(PipeName,
         PipeDirection.InOut, NamedPipeServerStream.MaxAllowedServerInstances,
         PipeTransmissionMode.Message, PipeOptions.Asynchronous, 1024, 1024, pipeSecurity);

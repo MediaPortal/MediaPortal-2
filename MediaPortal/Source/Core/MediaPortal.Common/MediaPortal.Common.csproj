@@ -26,9 +26,6 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <FrameworkReference Include="Microsoft.AspNetCore.App" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
     <ProjectReference Include="..\UPnP\UPnP.csproj" />
   </ItemGroup>
@@ -49,6 +46,17 @@
     <PackageReference Include="System.Runtime.Caching" Version="6.0.0" />
     <PackageReference Include="System.ServiceProcess.ServiceController" Version="6.0.0" />
     <PackageReference Include="System.Threading.Tasks.Dataflow" Version="6.0.0" />
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <PackageReference Include="Microsoft.AspNet.WebApi.Owin">
+      <Version>5.2.7</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Owin.Security.OAuth">
+      <Version>4.0.1</Version>
+    </PackageReference>
+    <PackageReference Include="Microsoft.Owin">
+      <Version>4.1.0</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="MediaManagement\MLQueries\CertificationAgeFilter.cs" />

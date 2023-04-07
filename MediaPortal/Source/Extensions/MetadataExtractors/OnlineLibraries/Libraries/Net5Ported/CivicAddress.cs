@@ -19,6 +19,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace System.Device.Location
 {
+#if NET5_0_OR_GREATER
   public class CivicAddress
   {
     public static readonly CivicAddress Unknown = new CivicAddress();
@@ -119,6 +120,5 @@ namespace System.Device.Location
 
     public CivicAddress Address { get; private set; }
   }
-
-
+#endif
 }

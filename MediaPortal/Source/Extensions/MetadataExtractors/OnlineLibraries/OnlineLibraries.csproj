@@ -40,5 +40,8 @@
     <Compile Remove="Matches\BaseMatcher.cs" />
     <Compile Remove="Wrappers\ApiWrapper.cs" />
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <Reference Include="System.Device" />
+  </ItemGroup>
   <Import Project="build.targets" />
 </Project>

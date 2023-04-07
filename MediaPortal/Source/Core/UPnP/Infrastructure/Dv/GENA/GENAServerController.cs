@@ -23,9 +23,6 @@
 #endregion
 
 using MediaPortal.Utilities;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Http.Features;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -36,6 +33,13 @@ using System.Web;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Utils;
 using UPnP.Infrastructure.Utils.HTTP;
+using UPnP.Infrastructure.Http;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace UPnP.Infrastructure.Dv.GENA
 {
@@ -303,7 +307,11 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// <param name="context">The HTTP client context of the specified <paramref name="request"/>.</param>
     /// <param name="config">The UPnP endpoint over that the HTTP request was received.</param>
     /// <returns><c>true</c> if the request could be handled and a HTTP response was sent, else <c>false</c>.</returns>
+#if NET5_0_OR_GREATER
     public bool HandleHTTPRequest(HttpRequest request, HttpContext context, EndpointConfiguration config)
+#else
+    public bool HandleHTTPRequest(IOwinRequest request, IOwinContext context, EndpointConfiguration config)
+#endif
     {
       var response = context.Response;
       if (request.Method == "SUBSCRIBE")
@@ -331,13 +339,13 @@ namespace UPnP.Infrastructure.Dv.GENA
           if (!string.IsNullOrEmpty(sid) && (callbackURLs != null || !string.IsNullOrEmpty(nt)))
           {
             response.StatusCode = (int)HttpStatusCode.BadRequest;
-            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Incompatible Header Fields";
+            context.SetReasonPhrase("Incompatible Header Fields");
             return true;
           }
           if (callbackURLs != null && !CheckValidCallbackUrls(callbackURLs))
           {
             response.StatusCode = (int)HttpStatusCode.BadRequest;
-            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Invalid callback urls: " + string.Join("; ", callbackURLs.ToArray());
+            context.SetReasonPhrase("Invalid callback urls: " + string.Join("; ", callbackURLs.ToArray()));
             return true;
           }
           if (callbackURLs != null && !string.IsNullOrEmpty(nt))
@@ -373,7 +381,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             if (nt != "upnp:event" || !validURLs)
             {
               response.StatusCode = (int)HttpStatusCode.PreconditionFailed;
-              context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Precondition Failed";
+              context.SetReasonPhrase("Precondition Failed");
               return true;
             }
             DateTime date;
@@ -390,7 +398,7 @@ namespace UPnP.Infrastructure.Dv.GENA
               return true;
             }
             response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Unable to accept renewal"; // See (DevArch), table 4-4
+            context.SetReasonPhrase("Unable to accept renewal"); // See (DevArch), table 4-4
             return true;
           }
           if (!string.IsNullOrEmpty(sid))
@@ -407,7 +415,7 @@ namespace UPnP.Infrastructure.Dv.GENA
               return true;
             }
             response.StatusCode = (int)HttpStatusCode.ServiceUnavailable;
-            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Unable to accept renewal";
+            context.SetReasonPhrase("Unable to accept renewal");
             return true;
           }
         }
@@ -424,7 +432,7 @@ namespace UPnP.Infrastructure.Dv.GENA
           if (string.IsNullOrEmpty(sid) || !string.IsNullOrEmpty(callbackURL) || !string.IsNullOrEmpty(nt))
           {
             response.StatusCode = (int)HttpStatusCode.BadRequest;
-            context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Incompatible Header Fields";
+            context.SetReasonPhrase("Incompatible Header Fields");
             return true;
           }
           if (Unsubscribe(config, sid))
@@ -433,7 +441,7 @@ namespace UPnP.Infrastructure.Dv.GENA
             return true;
           }
           response.StatusCode = (int)HttpStatusCode.PreconditionFailed;
-          context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Precondition Failed";
+          context.SetReasonPhrase("Precondition Failed");
           return true;
         }
       }

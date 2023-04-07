@@ -33,6 +33,7 @@ using System.Threading.Tasks;
 using System.Xml.XPath;
 using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.SSDP;
+using UPnP.Infrastructure.Http;
 
 namespace UPnP.Infrastructure.CP
 {
@@ -539,9 +540,9 @@ namespace UPnP.Infrastructure.CP
 
     private static LocalEndPointHttpClient CreateHttpClient()
     {
-      LocalEndPointHttpClient client = LocalEndPointHttpClient.Create(handler =>
+      LocalEndPointHttpClient client = LocalEndPointHttpClient.Create(new LocalEndPointHttpClientOptions
       {
-        handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
       });
       client.Timeout = TimeSpan.FromSeconds(PENDING_REQUEST_TIMEOUT);
       client.DefaultRequestHeaders.UserAgent.TryParseAdd(UPnPConfiguration.UPnPMachineInfoHeader);

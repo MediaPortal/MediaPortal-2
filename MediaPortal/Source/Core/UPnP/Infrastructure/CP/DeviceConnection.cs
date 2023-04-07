@@ -27,7 +27,6 @@ using MediaPortal.Utilities.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Net.Http.Headers;
@@ -39,6 +38,7 @@ using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.CP.GENA;
 using UPnP.Infrastructure.CP.SOAP;
 using UPnP.Infrastructure.CP.SSDP;
+using UPnP.Infrastructure.Http;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP
@@ -280,9 +280,9 @@ namespace UPnP.Infrastructure.CP
 
     protected LocalEndPointHttpClient CreateActionCallClient()
     {
-      LocalEndPointHttpClient client = LocalEndPointHttpClient.Create(handler =>
+      LocalEndPointHttpClient client = LocalEndPointHttpClient.Create(new LocalEndPointHttpClientOptions
       {
-        handler.AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate;
+        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
       });
       client.Timeout = TimeSpan.FromSeconds(PENDING_ACTION_CALL_TIMEOUT);
       client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue() { NoCache = true, NoStore = true };

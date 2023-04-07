@@ -22,7 +22,6 @@
 
 #endregion
 
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -30,6 +29,11 @@ using System.Linq;
 using System.Text;
 using System.Xml;
 using UPnP.Infrastructure.Utils;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -288,7 +292,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
         return BuildRootDeviceDescription(null, serverData, config, culture);
     }
 
+#if NET5_0_OR_GREATER
     public string BuildRootDeviceDescription(HttpRequest request, ServerData serverData, EndpointConfiguration config, CultureInfo culture)
+#else
+    public string BuildRootDeviceDescription(IOwinRequest request, ServerData serverData, EndpointConfiguration config, CultureInfo culture)
+#endif
     {
       StringBuilder result = new StringBuilder(10000);
       using (StringWriterWithEncoding stringWriter = new StringWriterWithEncoding(result, UPnPConsts.UTF8_NO_BOM))
@@ -329,7 +337,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
         AddDeviceDescriptionsRecursive(null, writer, config, culture);
     }
 
+#if NET5_0_OR_GREATER
     internal void AddDeviceDescriptionsRecursive(HttpRequest request, XmlWriter writer, EndpointConfiguration config, CultureInfo culture)
+#else
+    internal void AddDeviceDescriptionsRecursive(IOwinRequest request, XmlWriter writer, EndpointConfiguration config, CultureInfo culture)
+#endif
     {
       GenerateDescriptionDlgt dgh = DescriptionGenerateHook;
       GetDeviceInfoForEndpointDlgt dih = DeviceInfoHook;
@@ -417,6 +429,6 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       writer.WriteEndElement(); // device
     }
 
-    #endregion
+#endregion
   }
 }

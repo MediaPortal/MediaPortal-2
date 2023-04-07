@@ -25,8 +25,10 @@
 using System;
 using System.Diagnostics;
 using System.IO;
+#if NET5_0_OR_GREATER
 using System.Threading;
 using System.Threading.Tasks;
+#endif
 
 namespace MediaPortal.Utilities.Process
 {
@@ -148,11 +150,13 @@ namespace MediaPortal.Utilities.Process
     /// <returns><c>true</c> if the associated process has exited; otherwise, <c>false</c>.</returns>
     bool WaitForExit(int milliseconds);
 
+#if NET5_0_OR_GREATER
     /// <summary>
     /// Instructs the process component to wait for the associated process to exit, or for the cancellationToken to be cancelled.
     /// </summary>
     /// <param name="cancellationToken">An optional token to cancel the asynchronous operation.</param>
     /// <returns>A task that will complete when the process has exited, cancellation has been requested, or an error occurs.</returns>
     Task WaitForExitAsync(CancellationToken cancellationToken = default);
+#endif
   }
 }

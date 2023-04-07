@@ -26,28 +26,29 @@ using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
-using System.Security.Claims;
-using System.Text;
-using System.Text.Encodings.Web;
-using System.Threading.Tasks;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
-using MediaPortal.Common.UserManagement;
-using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Utilities.Network;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authentication.OAuth;
+using UPnP.Infrastructure.Dv;
+#if NET5_0_OR_GREATER
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Options;
-#if !NET6_0
+using UPnP.Infrastructure.Http;
+#else
+using MediaPortal.Common.UserManagement;
+using MediaPortal.Common.UserProfileDataManagement;
+using Microsoft.Owin;
+using Microsoft.Owin.Hosting;
 using Microsoft.Owin.Security.OAuth;
+using Owin;
+using System.Security.Claims;
+using System.Text;
+using System.Threading.Tasks;
+using System.Web.Http;
+using HttpServer = UPnP.Infrastructure.Http.HttpServer;
 #endif
-using UPnP.Infrastructure.Dv;
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
@@ -56,7 +57,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     public const string MEDIAPORTAL_AUTHENTICATION_TYPE = "MediaPortal";
 
     protected readonly List<Type> _middleWares = new List<Type>();
-    protected IWebHost _httpServer;
+    protected IDisposable _httpServer;
     protected int _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
     protected readonly object _syncObj = new object();
     protected string _servicePrefix;
@@ -73,14 +74,15 @@ namespace MediaPortal.Common.Services.ResourceAccess
       List<string> filters = settings.IPAddressBindingsList;
       _serverPort = UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER;
       _servicePrefix = ResourceHttpAccessUrlUtils.RESOURCE_SERVER_BASE_PATH;
-      var urls = UPnPServer.BuildUrls(_servicePrefix, filters, _serverPort);
 
       lock (_syncObj)
       {
         if (_httpServer != null) //Already started
           return;
 
-        _httpServer = UPnPServer.CreateWebHostBuilder(urls)
+#if NET5_0_OR_GREATER
+        var urls = HttpServer.BuildUrls(_servicePrefix, filters, _serverPort);
+        IWebHost host = HttpServer.CreateWebHostBuilder(urls)
           .ConfigureServices(services=>
           {
             //ToDo
@@ -116,9 +118,10 @@ namespace MediaPortal.Common.Services.ResourceAccess
             }
           })
           .Build();
-        _httpServer.Start();
-
-#if !NET6_0
+        host.Start();
+        _httpServer = host;
+#else
+        var startOptions = HttpServer.BuildStartOptions(_servicePrefix, filters, _serverPort);
         _httpServer = WebApp.Start(startOptions, builder =>
         {
           // Configure OAuth Authorization Server
@@ -171,7 +174,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
       }
     }
 
-#if !NET6_0
+#if NET5_0_OR_GREATER
+#else
     private Task ValidateClientAuthentication(OAuthValidateClientAuthenticationContext context)
     {
       context.Validated();
@@ -218,13 +222,13 @@ namespace MediaPortal.Common.Services.ResourceAccess
       context.Rejected();
       context.SetError("invalid_grant", "User management not available.");
     }
-#endif
 
     private string GetPassword(string encoded)
     {
       byte[] converted = Convert.FromBase64String(encoded);
       return Encoding.UTF8.GetString(converted);
     }
+#endif
 
     public void Dispose()
     {

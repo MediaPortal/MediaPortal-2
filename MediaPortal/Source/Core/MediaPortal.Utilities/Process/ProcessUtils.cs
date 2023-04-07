@@ -236,7 +236,8 @@ namespace MediaPortal.Utilities.Process
       return tcs.Task;
     }
 
-#if !NET6_0
+#if NET5_0_OR_GREATER
+#else
     /// <summary>
     /// Executes the <paramref name="executable"/> and waits a maximum time of <paramref name="maxWaitMs"/> for completion. If the process doesn't end in 
     /// this time, it gets aborted.

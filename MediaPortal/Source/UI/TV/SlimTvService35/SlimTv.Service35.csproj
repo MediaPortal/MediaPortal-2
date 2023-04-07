@@ -60,12 +60,19 @@
     <ProjectReference Include="..\SlimTvIntegration\SlimTv.Integration.csproj" />
     <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
   </ItemGroup>
-  <ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' != 'net48' ">
     <PackageReference Include="MediaPortal.TvEngine.Core">
       <Version>6.0.0.3</Version>
       <GeneratePathProperty>True</GeneratePathProperty>
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+    <PackageReference Include="MediaPortal.TvEngine.Core">
+      <Version>1.0.5</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Interfaces">
       <Version>1.0.6</Version>
     </PackageReference>

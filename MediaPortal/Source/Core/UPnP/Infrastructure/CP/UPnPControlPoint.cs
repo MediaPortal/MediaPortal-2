@@ -23,11 +23,6 @@
 #endregion
 
 using MediaPortal.Utilities.Exceptions;
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Net;
@@ -36,7 +31,17 @@ using System.Threading.Tasks;
 using System.Web;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.Dv;
+using UPnP.Infrastructure.Http;
 using UPnP.Infrastructure.Utils;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace UPnP.Infrastructure.CP
 {
@@ -177,17 +182,12 @@ namespace UPnP.Infrastructure.CP
 
         var servicePrefix = "/MediaPortal/UPnPControlPoint_" + Guid.NewGuid().GetHashCode().ToString("X");
         _cpData.ServicePrefix = servicePrefix;
-        var urls = UPnPServer.BuildUrls(servicePrefix);
-
-        IWebHost server = null;
+        IDisposable server = null;
         try
         {
           try
           {
-            server = UPnPServer.CreateWebHostBuilder(urls)
-              .Configure(app => { app.Run(HandleHTTPRequest); })
-              .Build();
-            server.Start();
+            server = HttpServer.BuildAndStartServer(servicePrefix, HandleHTTPRequest, out var urls);
             UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", urls));
             _httpListeners.Add(server);
           }
@@ -199,12 +199,7 @@ namespace UPnP.Infrastructure.CP
               throw;
 
             server?.Dispose();
-
-            urls = UPnPServer.BuildUrls(servicePrefix, new List<string>(), UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER);
-            server = UPnPServer.CreateWebHostBuilder(urls)
-              .Configure(appBuilder => { appBuilder.Run(HandleHTTPRequest); })
-              .Build();
-            server.Start();
+            server = HttpServer.BuildAndStartServer(servicePrefix, new List<string>(), UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER, HandleHTTPRequest, out var urls);
             UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", urls));
             _httpListeners.Add(server);
           }
@@ -336,11 +331,15 @@ namespace UPnP.Infrastructure.CP
       }
     }
 
+#if NET5_0_OR_GREATER
     protected Task HandleHTTPRequest(HttpContext context)
+#else
+    protected Task HandleHTTPRequest(IOwinContext context)
+#endif
     {
       var request = context.Request;
       var response = context.Response;
-      Uri uri = new Uri(request.GetEncodedUrl());
+      Uri uri = request.GetUri();
       string hostName = uri.Host;
       string pathAndQuery = HttpUtility.UrlDecode(uri.PathAndQuery);
       try
@@ -375,6 +374,6 @@ namespace UPnP.Infrastructure.CP
       return Task.CompletedTask;
     }
 
-    #endregion
+#endregion
   }
 }

@@ -17,6 +17,7 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace System.Device.Location
 {
+#if NET5_0_OR_GREATER
   public class GeoLocation
   {
     public static readonly GeoLocation Unknown = new GeoLocation(GeoCoordinate.Unknown);
@@ -79,4 +80,5 @@ namespace System.Device.Location
 
     #endregion
   }
+#endif
 }

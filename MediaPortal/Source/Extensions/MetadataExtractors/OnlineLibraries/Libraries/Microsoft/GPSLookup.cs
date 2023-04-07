@@ -22,17 +22,19 @@
 
 #endregion
 
+using MediaPortal.Common.Async;
 using System;
-using System.Device.Location;
-using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using MediaPortal.Common.Async;
-using MediaPortal.Common.Services.ServerCommunication;
+#if NET5_0_OR_GREATER
+#else
+using System.Device.Location;
+#endif
 
 namespace MediaPortal.Extensions.OnlineLibraries.Libraries.Microsoft
 {
-#if !NET6_0
+#if NET5_0_OR_GREATER
+#else
   /// <summary>
   /// Uses Microsofts GeoCoordinateWatcher to resolve the location of the device and lookup the address of the specified coordinates.
   /// </summary>

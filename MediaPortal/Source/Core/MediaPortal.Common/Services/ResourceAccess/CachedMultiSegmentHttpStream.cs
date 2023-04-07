@@ -33,6 +33,10 @@ using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Threading;
 using System.Threading.Tasks;
+#if NET5_0_OR_GREATER
+#else
+using UPnP.Infrastructure.Http;
+#endif
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
