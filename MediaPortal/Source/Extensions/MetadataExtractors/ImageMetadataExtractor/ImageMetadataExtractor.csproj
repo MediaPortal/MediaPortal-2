@@ -44,7 +44,7 @@
   <ItemGroup>
     <PackageReference Include="FreeImage-dotnet-core" Version="4.3.6" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFramework)' == 'net48' ">
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <Reference Include="System.Device" />
   </ItemGroup>
   <Import Project="build.targets" />
