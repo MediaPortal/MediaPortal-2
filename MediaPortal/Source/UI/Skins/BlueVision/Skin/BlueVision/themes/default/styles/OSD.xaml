@@ -27,7 +27,7 @@
               <RowDefinition Height="70"/>
             </Grid.RowDefinitions>
 
-            <Control x:Name="OSDBackgroundPresenter" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="-85,-35,-85,-25" HorizontalAlignment="Stretch" VerticalAlignment="Top"
+            <Control x:Name="OSDBackgroundPresenter" Grid.ColumnSpan="2" Grid.RowSpan="2" Margin="-85,-35,-85,-25" HorizontalAlignment="Center" VerticalAlignment="Top"
                      Template="{DynamicResource ResourceKey=OSD_Background_Template}"/>
 
             <Control Grid.Column="0" Grid.Row="0" x:Name="OSDCoverPresenter" HorizontalAlignment="Center" VerticalAlignment="Center"

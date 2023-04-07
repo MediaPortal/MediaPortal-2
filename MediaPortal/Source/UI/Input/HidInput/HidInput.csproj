@@ -1,0 +1,34 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);EXTENDED_INPUT_LOGGING</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);EXTENDED_INPUT_LOGGING</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\InputDevices.Common\InputDevices.Common.csproj" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+  
+  <ItemGroup>
+    <PackageReference Include="SharpLibHid">
+      <Version>1.5.1</Version>
+    </PackageReference>
+  </ItemGroup>
+
+  <Import Project="build.targets" />
+</Project>

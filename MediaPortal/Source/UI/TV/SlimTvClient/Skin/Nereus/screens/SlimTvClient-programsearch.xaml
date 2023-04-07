@@ -159,7 +159,7 @@
             </Image.Source>
           </Image>
 
-          <Label x:Name="Program" Grid.Row="2" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+          <Label x:Name="Program" Grid.Row="2" FontFamily="Noto-Bold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                  Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
 
           <Grid Grid.Row="3" DataContext="{Binding Path=CurrentProgram}"

@@ -6,5 +6,5 @@
     VerticalAlignment="Center" HorizontalAlignment="Stretch" LastChildFill="false"
     IsVisible="{Binding IsItemsValid}"> <!-- Model = MediaNavigationModel -->
   <Label Color="{ThemeResource TextColor}" Content="{Binding NumItemsStr}" FontSize="{ThemeResource SmallFontSize}"
-          DockPanel.Dock="Left" FontFamily="DefaultBold"/>
+          DockPanel.Dock="Left" FontFamily="Noto-Bold"/>
 </DockPanel>

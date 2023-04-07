@@ -82,7 +82,7 @@
           </Image>
           <Image Grid.Column="0" HorizontalAlignment="Center" VerticalAlignment="Stretch" Stretch="Uniform" 
                  Margin="5,8,0,8" Source="Medialogos\flags\Unknown.png" IsVisible="{Binding Path=!AudioLanguage,Converter={StaticResource EmptyStringToFalseConverter}}"/>
-          <Label Grid.Column="1" Margin="-5,5,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+          <Label Grid.Column="1" Margin="-5,5,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                  HorizontalAlignment="Center" VerticalAlignment="Center"
                  Content="{Binding AudioLanguage}"/>
         </Grid>
@@ -96,13 +96,13 @@
 
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center" 
                       IsVisible="{Binding Path=AudioBitRate,Converter={StaticResource ReferenceToBoolConverter}}">
-            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold" 
+            <Label Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold" 
                    HorizontalAlignment="Center" VerticalAlignment="Center">
               <Label.Content>
                 <Binding Path="AudioBitRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0} kbps"/>
               </Label.Content>
             </Label>
-            <Label Margin="5,0,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+            <Label Margin="5,0,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                    HorizontalAlignment="Center" VerticalAlignment="Center">
               <Label.Content>
                 <Binding Path="AudioSampleRate" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0} Hz"/>
@@ -151,7 +151,7 @@
             <ColumnDefinition Width="65*"/>
             <ColumnDefinition Width="35*"/>
           </Grid.ColumnDefinitions>
-          <Image Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5,5,0,5"
+          <Image Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" Margin="5,10,0,10"
                  IsVisible="{Binding Path=SubtitleLanguage,Converter={StaticResource EmptyStringToFalseConverter}}">
             <Image.Source>
               <Binding Path="SubtitleLanguage" Converter="{StaticResource SafeFilenameConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
@@ -159,12 +159,12 @@
           </Image>
           <Image Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Stretch" Stretch="Uniform" 
                  Margin="5,5,0,5" Source="Medialogos\flags\Unknown.png" IsVisible="{Binding Path=!SubtitleLanguage,Converter={StaticResource EmptyStringToFalseConverter}}"/>
-          <Label Grid.Column="1" Margin="0,5,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+          <Label Grid.Column="1" Margin="0,5,5,5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                  HorizontalAlignment="Left" VerticalAlignment="Center"
                  Content="{Binding SubtitleLanguage}"/>
         </Grid>
 
-        <Label Grid.Row="1" Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+        <Label Grid.Row="1" Margin="5" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                HorizontalAlignment="Center" VerticalAlignment="Center"
                Content="{Binding SubtitleFormat}"/>
 
@@ -185,7 +185,7 @@
           <Image Grid.Column="1" Stretch="Uniform" HorizontalAlignment="Right" VerticalAlignment="Center"
                  Margin="0,0,15,0" Source="Medialogos\Subtitle\External.png" IsVisible="{Binding !IsInternal}"/>
           <Label Grid.Column="0" Margin="20,0,0,0" Color="{ThemeResource TextColor}" 
-                 FontSize="{ThemeResource SmallerFontSize}" FontFamily="SegoeUIBold"
+                 FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold"
                  HorizontalAlignment="Center" VerticalAlignment="Center"
                  Content="Forced" IsVisible="{Binding IsForced}"/>
         </Grid>

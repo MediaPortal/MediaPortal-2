@@ -7,22 +7,162 @@
   <DockPanel x:Name="SkipStepOSDPanel" Context="{Model Id=8573DBD8-A257-426a-9875-9DB155D32D47}" LastChildFill="false">
     <!-- DataContext model = ExtendedVideoSkip -->
 
-    <Border x:Name="DialogBorder" DockPanel.Dock="Center" Width="350" Height="100"
-            HorizontalAlignment="Center" Margin="5" CornerRadius="4" BorderThickness="3">
-      <Border.BorderBrush>
-        <LinearGradientBrush StartPoint="0,0" EndPoint="0.02,1.4">
-          <GradientStop Color="#8CFFFFFF" Offset="0"/>
-          <GradientStop Color="#8CFFFFFF" Offset="0.7"/>
-          <GradientStop Color="#8CFFFFFF" Offset="1"/>
-        </LinearGradientBrush>
-      </Border.BorderBrush>
-      <Border.Background>
-        <LinearGradientBrush StartPoint="0,1" EndPoint="1,0">
-          <GradientStop Color="#F2447da7" Offset="0"/>
-          <GradientStop Color="#F2124273" Offset="1"/>
-        </LinearGradientBrush>
-      </Border.Background>
-            <Grid HorizontalAlignment="Center" VerticalAlignment="Center">
+    <DockPanel x:Name="DialogBackgroundPanel" LastChildFill="True" Background="{ThemeResource DialogBackgroundColor}" Margin="0,100,50,0"
+               Width="350" Height="100" VerticalAlignment="Center" HorizontalAlignment="Center" DockPanel.Dock="Center">
+
+      <!-- Effect around dialog with rounded corners and glow -->
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="3" Opacity="0.04"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-15">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="19"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.06"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-12">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="16"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.08"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-10">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="14"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.1"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-8">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="12"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.13"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-6">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="10"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" Opacity="0.18"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-4">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="8"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" Background="{ThemeResource DialogBackgroundColor}" BorderBrush="Transparent" BorderThickness="2" VerticalAlignment="Stretch"
+              HorizontalAlignment="Stretch" Margin="-2">
+        <Border.Opacity>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseTransparency"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].DialogBackgroundOpacity"/>
+            <Binding Source="1"/>
+          </MultiBinding>
+        </Border.Opacity>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="{ThemeResource DialogBorderCornerRadius}"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+      <Border DockPanel.Dock="Center" BorderThickness="2" Opacity="0.25"
+              VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-2">
+        <Border.BorderBrush>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseWhiteColor"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseFocusColor"/>
+            <Binding Source="White"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="Transparent"/>
+          </MultiBinding>
+        </Border.BorderBrush>
+        <Border.CornerRadius>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].UseRoundedDialogCorners"/>
+            <Binding Source="{ThemeResource DialogBorderCornerRadius}"/>
+            <Binding Source="0"/>
+          </MultiBinding>
+        </Border.CornerRadius>
+      </Border>
+
+      <Grid HorizontalAlignment="Center" VerticalAlignment="Center" Margin="10">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -30,8 +170,8 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Label x:Name="SkipStepLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Center" Margin="5"
-            Content="{Binding SkipStep}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+               Content="{Binding SkipStep}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
       </Grid>
-    </Border>
+    </DockPanel>
   </DockPanel>
 </Screen>

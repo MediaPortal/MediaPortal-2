@@ -31,7 +31,7 @@
         </StackPanel>
 
         <!--PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigController.DisplayLength}"-->
-        <TextBox x:Name="EntryContent" DockPanel.Dock="Bottom" Margin="0,4,0,0"
+        <TextBox x:Name="EntryContent" DockPanel.Dock="Bottom" Margin="0,4,0,0" Style="{ThemeResource SymbolTextBoxStyle}"
                  IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsEntrySelected}"
                  Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
                  HorizontalAlignment="Stretch" VerticalAlignment="Center"/>

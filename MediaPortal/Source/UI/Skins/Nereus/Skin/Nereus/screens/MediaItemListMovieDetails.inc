@@ -64,7 +64,7 @@
     </media:MovieAspectWrapper.Template>
   </media:MovieAspectWrapper>
 
-  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1"  TextTrimming="WordEllipsis" Opacity="0.4"
+  <Label x:Name="MediaItemDescription" Wrap="True" Grid.Column="0" Grid.Row="1" TextTrimming="WordEllipsis" Opacity="0.4"
          HorizontalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
          Content="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ItemDescription}"
          Margin="0,40,10,90"/>
@@ -76,7 +76,7 @@
         <ControlTemplate>
           <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Label x:Name="MediaItemName" Wrap="True" TextTrimming="WordEllipsis"
-                   VerticalAlignment="Stretch" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold"
+                   VerticalAlignment="Stretch" FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold"
                    Content="{Binding MovieName}" Color="{ThemeResource TextColor}"/>
           </Grid>
         </ControlTemplate>
@@ -304,7 +304,7 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
+                <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="Noto-Bold"
                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                   <Label.Content>
                     <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>

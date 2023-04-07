@@ -144,7 +144,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="0.5"/>
+          <ColumnDefinition Width="1"/>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="1"/>
           <ColumnDefinition Width="*"/>
@@ -186,7 +186,7 @@
               </RadioButton.SetFocus>
             </RadioButton>
             <Label Grid.Column="1" Content="[Media.List]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
-                   FontFamily="SegoeUIBold" VerticalAlignment="Center">
+                   FontFamily="Noto-Bold" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="List" Path="HasFocus"/>
@@ -467,7 +467,7 @@
             </RadioButton>
 
             <Label Grid.Column="1" Content="[Media.LargeGrid]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" 
-                   FontFamily="SegoeUIBold" VerticalAlignment="Center">
+                   FontFamily="Noto-Bold" VerticalAlignment="Center">
               <Label.Opacity>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding ElementName="Grid" Path="HasFocus"/>
@@ -761,7 +761,7 @@
           </RadioButton>
 
           <Label Grid.Column="1" Content="[Media.CoverLayout]" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}"
-                 FontFamily="SegoeUIBold" VerticalAlignment="Center">
+                 FontFamily="Noto-Bold" VerticalAlignment="Center">
             <Label.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
                 <Binding ElementName="Coverflow" Path="HasFocus"/>
@@ -774,7 +774,7 @@
           </Label>
           <UniformGrid Grid.Row="1" Grid.Column="1" Columns="5" Height="70" Width="210" HorizontalAlignment="Left" Margin="0,60,0,0">
             <UniformGrid.Opacity>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {4} : {3})">
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : ({1} ? {3} : {4})">
                 <Binding ElementName="Coverflow" Path="HasFocus"/>
                 <Binding ElementName="Coverflow" Path="IsChecked"/>
                 <Binding Source="1.0"/>
@@ -1111,7 +1111,7 @@
             </Label.Opacity>
           </Label>
 
-          <Image Grid.Row="1" Grid.Column="1" Height="80" Width="150" Stretch="Uniform" HorizontalAlignment="Center" Margin="10,0,0,0" Source="ViewMode\watched.flag.png">
+          <Image Grid.Row="1" Grid.Column="1" Height="80" Width="149" Stretch="Uniform" HorizontalAlignment="Right" Margin="10,0,61,0" Source="ViewMode\watched.flag.png">
             <Image.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="GridWatchedFlags" Path="HasFocus"/>
@@ -1121,7 +1121,7 @@
             </Image.Opacity>
           </Image>
 
-          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,54,0" Template="{StaticResource WatchedFlag_Template}"
+          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,53,0" Template="{StaticResource WatchedFlag_Template}"
                    IsVisible="{Binding ElementName=GridWatchedFlags, Path=IsChecked}">
             <Control.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1178,7 +1178,7 @@
               </MultiBinding>
             </Label.Opacity>
           </Label>
-          <Image Grid.Row="1" Grid.Column="1" Height="80" Width="150" Stretch="Uniform" HorizontalAlignment="Center" Margin="10,0,0,0" Source="ViewMode\watched.flag.png">
+          <Image Grid.Row="1" Grid.Column="1" Height="80" Width="149" Stretch="Uniform" HorizontalAlignment="Right" Margin="10,0,61,0" Source="ViewMode\watched.flag.png">
             <Image.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                 <Binding ElementName="CoverflowWatchedFlags" Path="HasFocus"/>
@@ -1188,7 +1188,7 @@
             </Image.Opacity>
           </Image>
 
-          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,51,0" Template="{StaticResource WatchedFlag_Template}"
+          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,53,0" Template="{StaticResource WatchedFlag_Template}"
                    IsVisible="{Binding ElementName=CoverflowWatchedFlags, Path=IsChecked}">
             <Control.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1198,7 +1198,7 @@
               </MultiBinding>
             </Control.Opacity>
           </Control>
-          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,108,0" Template="{StaticResource WatchedFlag_Template}"
+          <Control HorizontalAlignment="Right" VerticalAlignment="Top" Grid.Row="1" Grid.Column="1" Margin="0,0,110,0" Template="{StaticResource WatchedFlag_Template}"
                    IsVisible="{Binding ElementName=CoverflowWatchedFlags, Path=IsChecked}">
             <Control.Opacity>
               <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">

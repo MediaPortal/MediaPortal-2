@@ -6,7 +6,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Settings.Title]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Settings.Delete]"/>
 
     <Model x:Key="Model" Id="3C19B13A-D64C-4918-9AD6-17EC2D9AAE29"/>
 

@@ -616,7 +616,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.5"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Opacity="0.6" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="76,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold">
           <!--Label.Content>
             <Binding Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}{0}.jpg"/>
           </-->
@@ -706,7 +706,7 @@
               </Button.Triggers>
             </Button>
             <Label x:Name="ItemLabel" Content="{Binding [Name]}" DockPanel.Dock="Right" TextTrimming="CharacterEllipsis"
-                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" FontFamily="SegoeUIBold"
+                   HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,0" FontFamily="Noto-Bold"
                    Color="{ThemeResource MenuTextBackground}" FontSize="{ThemeResource SmallFontSize}"/>
           </DockPanel>
         </ControlTemplate>
@@ -956,10 +956,19 @@
                                                 Command="{Command Previous}"/>
                   <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="0" IsVisible="{Binding CanSeekBackward}"
                                                 Command="{Command SeekBackward}"/>
-                  <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
-                                                Command="{Command Play}"/>
-                  <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
-                                                Command="{Command Pause}"/>
+                  <Button x:Name="PlayPauseButton" Margin="3,0,3,0" Style="{ThemeResource PlayPauseButtonStyle}" Command="{Command Play}">
+                    <Button.IsVisible>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                        <Binding Path="CanPlay"/>
+                        <Binding Path="CanPause"/>
+                      </MultiBinding>
+                    </Button.IsVisible>
+                    <Button.Triggers>
+                      <DataTrigger Binding="{Binding CanPause}" Value="True">
+                        <Setter Property="Command" Value="{Command Pause}"/>
+                      </DataTrigger>
+                    </Button.Triggers>
+                  </Button>
                   <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSeekForward}"
                                                 Command="{Command SeekForward}"/>
                   <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="0" IsVisible="{Binding CanSkipForward}"
@@ -1021,7 +1030,7 @@
               <Grid VerticalAlignment="Center" HorizontalAlignment="Right" Margin="-100,-85,-95,0" Height="114">
                 <Image Source="PlayerControl\Time.Indicator.png" Height="114" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Center" Opacity="0.9"/>
                 <Label x:Name="CurrentTimeLabel" Grid.Column="0" Grid.Row="0" Content="{Binding CurrentTime}" Opacity="0.9"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,24" FontFamily="SegoeUIBold"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,24" FontFamily="Noto-Bold"
                        Color="Black" FontSize="{ThemeResource SmallFontSize}"/>
               </Grid>
               <Rectangle Width="{TemplateBinding PartIndicatorWidth}" HorizontalAlignment="Left" VerticalAlignment="Center"

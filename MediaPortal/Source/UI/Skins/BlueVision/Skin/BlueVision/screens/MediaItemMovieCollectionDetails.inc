@@ -26,7 +26,7 @@
     <media:MovieCollectionAspectWrapper.Template>
       <ControlTemplate>
         <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-          <Label x:Name="MediaItemName" FontFamily="DefaultBold"
+          <Label x:Name="MediaItemName" FontFamily="Noto-Bold"
                  Content="{Binding CollectionName}" Color="{ThemeResource TextColor}" TextTrimming="WordEllipsis"/>
         </Grid>
       </ControlTemplate>

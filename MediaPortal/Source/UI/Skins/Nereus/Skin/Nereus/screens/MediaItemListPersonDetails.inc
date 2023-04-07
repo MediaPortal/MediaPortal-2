@@ -51,7 +51,7 @@
 
           <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" Margin="0,0,20,0">
             <Label VerticalAlignment="Stretch" Content="{Binding PersonName}" TextTrimming="WordEllipsis" Margin="0,0,-200,0"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="SegoeUIBold" Wrap="True"/>
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold" Wrap="True"/>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,20,0">
               <Image Source="HomeContentIcons\year.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
                      IsVisible="{Binding Path=BornDate,Converter={StaticResource ReferenceToBoolConverter}}"
@@ -75,6 +75,21 @@
                      VerticalAlignment="Center" HorizontalAlignment="Left"/>
               <Label Content="{Binding Origin}" FontSize="{ThemeResource SmallFontSize}" Margin="40,0,0,0"
                      Color="{ThemeResource TextColorForeground}" TextTrimming="WordEllipsis"/>
+            </Grid>
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+            <Image x:Name="ClearLogo" HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Uniform" Height="140" Margin="60,-40,-380,-40">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=Logo;140;240}"/>
+              </Image.Source>
+            </Image>
+            <Image HorizontalAlignment="Right" VerticalAlignment="Top" Stretch="Uniform" Height="140" Margin="60,-40,-380,-40" IsVisible="{Binding ElementName=ClearLogo, Path=!HasImage}">
+              <Image.Source>
+                <ImageSourceWrapper Delay="0.5" Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=ClearArt;140;240}"/>
+              </Image.Source>
+            </Image>
             </Grid>
           </StackPanel>
 

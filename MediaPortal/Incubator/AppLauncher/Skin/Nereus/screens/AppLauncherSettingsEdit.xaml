@@ -6,7 +6,7 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Settings.Title]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[AppLauncher.Settings.Edit]"/>
 
     <Model x:Key="Model" Id="873EB147-C998-4632-8F86-D5E24062BE2E"/>
 
@@ -21,7 +21,7 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <ListView HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource AppLauncherContentListViewStyle}"
+          <ListView x:Name="applist" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource AppLauncherContentListViewStyle}"
                     ItemsSource="{Binding Path=Items, Mode=TwoWay}">
             <ListView.Resources>
               <CommandList x:Key="Menu_Command">

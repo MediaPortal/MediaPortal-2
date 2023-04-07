@@ -12,7 +12,7 @@
     <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]"/>
 
     <ControlTemplate x:Key="Header_Text_Template">
-      <Label x:Name="HeaderLabel" FontFamily="DefaultBold" FontSize="32"
+      <Label x:Name="HeaderLabel" FontFamily="Noto-Bold" FontSize="32"
              VerticalAlignment="Center" HorizontalAlignment="Left" Color="{ThemeResource TextColor}"
              Content="{Binding Source={DynamicResource Header_Text},Path=Resource}">
       </Label>
@@ -88,8 +88,8 @@
             </Rectangle>
 
             <StackPanel Margin="-50,70,0,0">
-              <Label x:Name="TrackName" Scroll="Auto" Content="{Binding AudioTrackName}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
-              <Label x:Name="Artists" Scroll="Auto" Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}" FontFamily="DefaultBold"/>
+              <Label x:Name="TrackName" Scroll="Auto" Content="{Binding AudioTrackName}" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
+              <Label x:Name="Artists" Scroll="Auto" Content="{Binding AudioArtists}" Color="{ThemeResource TextColor}" FontFamily="Noto-Bold"/>
               <Label x:Name="AlbumName" Scroll="Auto" Content="{Binding AudioAlbumName}" Color="{ThemeResource TextColor}"/>
               <Label x:Name="TrackNumber" Color="{ThemeResource TextColor}">
                 <Label.Content>

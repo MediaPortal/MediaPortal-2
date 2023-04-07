@@ -184,14 +184,15 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type TextBox}">
           <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
-              BorderThickness="{ThemeResource TextBoxBorderThickness}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
+                  BorderThickness="{ThemeResource TextBoxBorderThickness}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
             <TextControl x:Name="TextControl" PreferredTextLength="{TemplateBinding Path=PreferredTextLength}"
-                CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
-                Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}"
-                IsEnabled="{TemplateBinding IsEnabled}"/>
+                         CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
+                         Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}"
+                         IsEnabled="{TemplateBinding IsEnabled}" Margin="8,0,8,0"/>
             <Border.Triggers>
               <DataTrigger Binding="{Binding ElementName=TextControl,Path=HasFocus}" Value="True">
                 <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderFocusColor}"/>
+                <Setter Property="Background" Value="{ThemeResource TextBoxBackgroundFocusColor}"/>
               </DataTrigger>
               <DataTrigger Binding="{Binding ElementName=TextControl,Path=IsEnabled}" Value="False">
                 <Setter Property="Background" Value="{ThemeResource TextBoxDisabledBackgroundColor}"/>
@@ -210,12 +211,13 @@
           <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
               BorderThickness="{ThemeResource TextBoxBorderThickness}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
             <TextControl x:Name="TextControl" PreferredTextLength="{TemplateBinding Path=PreferredTextLength}"
-                CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
-                Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}"
-                IsEnabled="{TemplateBinding IsEnabled}" IsPassword="True"/>
+                         CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
+                         Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}"
+                         IsEnabled="{TemplateBinding IsEnabled}" IsPassword="True" Margin="8,0,8,0"/>
             <Border.Triggers>
               <DataTrigger Binding="{Binding ElementName=TextControl,Path=HasFocus}" Value="True">
                 <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderFocusColor}"/>
+                <Setter Property="Background" Value="{ThemeResource TextBoxBackgroundFocusColor}"/>
               </DataTrigger>
               <DataTrigger Binding="{Binding ElementName=TextControl,Path=IsEnabled}" Value="False">
                 <Setter Property="Background" Value="{ThemeResource TextBoxDisabledBackgroundColor}"/>
@@ -354,8 +356,7 @@
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <CheckBox x:Name="NameMarker" Margin="2,1,0,1" Style="{ThemeResource DefaultCheckBoxStyle}"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}"
-              Content="{Binding}">
+                    IsChecked="{Binding Path=Selected,Mode=TwoWay}" Content="{Binding}">
             <CheckBox.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
@@ -390,6 +391,7 @@
                   </Setter.Value>
                 </Setter>
                 <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+                <Setter TargetName="ItemLabel" Property="Margin" Value="5,0,5,0"/>
               </Trigger>
             </RadioButton.Triggers>
           </RadioButton>
@@ -502,9 +504,8 @@
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListViewItem}">
-          <RadioButton x:Name="Selection" Margin="2,1,0,1"
-              IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup"
-              Content="{Binding}">
+          <RadioButton x:Name="Selection" Margin="2,1,0,1" Content="{Binding}"
+                       IsChecked="{Binding Path=Selected,Mode=TwoWay}" GroupName="RadioButtonGroup">
             <RadioButton.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ResourceProviderName" Property="Scroll" Value="Auto"/>
@@ -529,8 +530,8 @@
   <DataTemplate x:Key="DefaultItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel x:Name="ItemControl" LastChildFill="False">
       <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
-          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center" Margin="10,0,0,0"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
     </DockPanel>
   </DataTemplate>
 
@@ -656,11 +657,10 @@
         <ColumnDefinition Width="*"/>
       </Grid.ColumnDefinitions>
       <Label x:Name="ResourceProviderName" Grid.Column="0" Content="{Binding [Name]}" FontSize="{ThemeResource SmallFontSize}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
-          Color="{ThemeResource TextColor}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center" Color="{ThemeResource TextColor}" Margin="10,0,0,0"/>
       <Label x:Name="ResourceProviderDescription" Grid.Column="1" Content="{Binding AdditionalProperties[ResourceProviderMetadata].Description}"
-          HorizontalAlignment="Left" VerticalAlignment="Center"
-          FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center" Opacity="0.6"
+             FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource HintTextColor}"/>
     </Grid>
   </DataTemplate>
 
@@ -924,8 +924,8 @@
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
-                HorizontalAlignment="Center" VerticalAlignment="Center"
-                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                   HorizontalAlignment="Center" VerticalAlignment="Center"
+                   Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -948,7 +948,7 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+                          Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
           </Grid>
@@ -1198,11 +1198,13 @@
                     </Setter.Value>
                   </Setter>
                 </Trigger>
+                <Trigger Property="IsVisible" Value="True">
+                  <Setter TargetName="ItemLabel" Property="Margin" Value="10,0,0,0"/>
+                </Trigger>
               </CheckBox.Triggers>
             </CheckBox>
             <Control x:Name="Filler" Margin="2,0,2,0" Grid.Column="0" Grid.Row="1" Width="{ThemeResource CheckBoxControlWidth}"/>
-            <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1"
-                VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
+            <StackPanel x:Name="SubItemsHost" Grid.Column="1" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch">
               <ItemsPresenter HorizontalAlignment="Stretch" VerticalAlignment="Top"/>
             </StackPanel>
           </Grid>

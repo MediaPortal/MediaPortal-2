@@ -38,6 +38,8 @@
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\OnlineLibraries\OnlineLibraries.csproj" />
     <ProjectReference Include="..\..\Source\Extensions\MetadataExtractors\WICThumbnailProvider\WICThumbnailProvider.csproj" />
     <ProjectReference Include="..\..\Source\Extensions\ResourceProviders\ZipResourceProvider\ZipResourceProvider.csproj" />
+    <ProjectReference Include="..\..\Source\UI\Input\InputDevices.Common\InputDevices.Common.csproj" />
+    <ProjectReference Include="..\..\Source\UI\Input\InputDevices\InputDevices.csproj" />
     <ProjectReference Include="..\..\Source\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj" />
     <ProjectReference Include="..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj" />
     <ProjectReference Include="..\..\Source\UI\SkinEngine\SkinEngine.csproj" />

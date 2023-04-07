@@ -78,7 +78,9 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("NL_6", "NL", "6", 6, 6, "6" ),
         new CertificationMapping("NL_9", "NL", "9", 9, 9, "9" ),
         new CertificationMapping("NL_12", "NL", "12", 12, 12, "12" ),
+        new CertificationMapping("NL_14", "NL", "14", 14, 14, "14" ),
         new CertificationMapping("NL_16", "NL", "16", 16, 16, "16" ),
+        new CertificationMapping("NL_18", "NL", "18", 18, 18, "18" ),
 
         //JP
         new CertificationMapping("JP_G", "JP", "G", 0, 0, "G" ),
@@ -215,10 +217,8 @@ namespace MediaPortal.Common.Certifications
         //NO
         new CertificationMapping("NO_A", "NO", "A", 0, 0, "A" ),
         new CertificationMapping("NO_6", "NO", "6", 6, 0, "6" ),
-        new CertificationMapping("NO_7", "NO", "7", 7, 6, "7" ),
         new CertificationMapping("NO_9", "NO", "9", 9, 6, "9" ),
-        new CertificationMapping("NO_11", "NO", "11", 11, 9, "11" ),
-        new CertificationMapping("NO_11", "NO", "12", 12, 9, "12" ),
+        new CertificationMapping("NO_12", "NO", "12", 12, 9, "12" ),
         new CertificationMapping("NO_15", "NO", "15", 15, 12, "15" ),
         new CertificationMapping("NO_18", "NO", "18", 18, 18, "18" ),
 
@@ -346,7 +346,9 @@ namespace MediaPortal.Common.Certifications
         new CertificationMapping("NL_6", "NL", "6", 6, 6, "6" ),
         new CertificationMapping("NL_9", "NL", "9", 9, 9, "9" ),
         new CertificationMapping("NL_12", "NL", "12", 12, 12, "12" ),
+        new CertificationMapping("NL_14", "NL", "14", 14, 14, "14" ),
         new CertificationMapping("NL_16", "NL", "16", 16, 16, "16" ),
+        new CertificationMapping("NL_18", "NL", "18", 18, 18, "18" ),
 
         //IN
         new CertificationMapping("IN_U", "IN", "U", 0, 0, "U" ),
@@ -419,7 +421,9 @@ namespace MediaPortal.Common.Certifications
 
         //NO
         new CertificationMapping("NO_A", "NO", "A", 0, 0, "A" ),
-        new CertificationMapping("NO_11", "NO", "12", 12, 9, "12" ),
+        new CertificationMapping("NO_6", "NO", "6", 6, 0, "6" ),
+        new CertificationMapping("NO_9", "NO", "9", 9, 6, "9" ),
+        new CertificationMapping("NO_12", "NO", "12", 12, 9, "12" ),
         new CertificationMapping("NO_15", "NO", "15", 15, 12, "15" ),
         new CertificationMapping("NO_18", "NO", "18", 18, 18, "18" ),
 

@@ -45,6 +45,12 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, false)]
     public bool EnableTouchDisplay { get; set; }
 
+    [Setting(SettingScope.User, false)]
+    public bool EnableCircleMenuImages { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool EnableMenuSelection { get; set; }
+
     [Setting(SettingScope.User, 1.0)]
     public double FanartOverlayOpacity { get; set; }
 
@@ -89,6 +95,24 @@ namespace MediaPortal.UiComponents.Nereus.Settings
 
     [Setting(SettingScope.User, true)]
     public bool EnableLoopScrolling { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseTransparency { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseNoColor { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseWhiteColor { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool UseFocusColor { get; set; }
+
+    [Setting(SettingScope.User, 0.85)]
+    public double DialogBackgroundOpacity { get; set; }
+
+    [Setting(SettingScope.User, false)]
+    public bool UseRoundedDialogCorners { get; set; }
 
     [Setting(SettingScope.User, true)]
     public bool UseTorquoise { get; set; }

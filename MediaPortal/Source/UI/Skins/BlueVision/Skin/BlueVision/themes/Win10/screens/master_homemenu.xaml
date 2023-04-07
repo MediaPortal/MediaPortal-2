@@ -13,7 +13,7 @@
     <ControlTemplate x:Key="Header_Text_Template">
       <Label x:Name="SelectedItem"
              Content="{Binding Source={StaticResource MenuModel}, Path=LastSelectedItemName}"
-             VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="32" FontFamily="DefaultBold"
+             VerticalAlignment="Center" HorizontalAlignment="Left" FontSize="32" FontFamily="Noto-Bold"
              Color="{ThemeResource TextColor}">
       </Label>
     </ControlTemplate>

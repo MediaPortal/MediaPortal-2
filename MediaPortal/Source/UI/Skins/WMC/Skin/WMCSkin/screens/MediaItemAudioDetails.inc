@@ -28,7 +28,7 @@
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
-          <Label x:Name="Title" TextTrimming="WordEllipsis" FontFamily="SegoeUIBold"
+          <Label x:Name="Title" TextTrimming="WordEllipsis" FontFamily="Noto-Bold"
               Content="{Binding TrackName}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
         </Grid>
       </ControlTemplate>

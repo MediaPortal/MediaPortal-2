@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\configuration-section.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[InputDevices.Config.Section]"/>
+
+    <!-- InputMappingModel -->
+    <Model x:Key="Model" Id="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel Context="{Binding Source={StaticResource Model}}">
+
+        <ListView Style="{StaticResource InputDevicesListViewStyle}"
+                  SetFocus="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  ItemsSource="{Binding Source={Binding ActionsProxy},Path=Items,Mode=OneTime}">
+          <ListView.Resources>
+            <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+              <TranslateTransform X="40" />
+            </ResourceWrapper>
+            <Command x:Key="BeginMapping_Command" Source="{StaticResource Model}" Path="BeginMapping" Parameters="{LateBoundValue BindingValue={Binding AdditionalProperties[MappedAction]}}"/>
+            <Command x:Key="DeleteMapping_Command" Source="{StaticResource Model}" Path="DeleteMapping" Parameters="{LateBoundValue BindingValue={Binding AdditionalProperties[MappedAction]}}"/>
+          </ListView.Resources>
+        </ListView>
+
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

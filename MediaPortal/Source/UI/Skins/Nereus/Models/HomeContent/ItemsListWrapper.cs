@@ -26,7 +26,6 @@ using MediaPortal.Common.General;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UiComponents.SkinBase.General;
 using System.Collections.Generic;
-using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -90,11 +89,12 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     {
       DetachFromItemsList();
 
-      IObservable observable = AdditionalProperties["SubItems"] as IObservable;
+      object subItems = AdditionalProperties["SubItems"];
+      IObservable observable = subItems as IObservable;
       if (observable != null)
         observable.ObjectChanged += OnAttachedItemsChanged;
 
-      UpdateHasItemsProperty(observable as IList<ListItem>);
+      UpdateHasItemsProperty(subItems as IList<ListItem>);
     }
 
     public void DetachFromItemsList()

@@ -19,7 +19,7 @@
           </Grid.RowDefinitions>
 
           <ListView x:Name="lvFavorites" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10"
-                    Style="{ThemeResource AppLauncherSelectListViewStyle}" ItemsSource="{Binding Path=items}" >
+                    Style="{ThemeResource AppLauncherSelectListViewStyle}" ItemsSource="{Binding Path=Items}" >
             <ListView.Resources>
               <CommandList x:Key="Menu_Command">
                 <Command Source="{StaticResource Model}" Path="Select">
@@ -31,7 +31,7 @@
             </ListView.Resources>
           </ListView>
 
-          <Button Grid.Row="1" Margin="-10,0,-10,0" Content="[AppLauncher.RemoveGroup]" 
+          <Button Grid.Row="1" Margin="10" Content="[AppLauncher.RemoveGroup]" Style="{ThemeResource WizardButtonStyle}"
                   Command="{Command Delete}" FontSize="{ThemeResource SmallFontSize}"/>
 
         </Grid>

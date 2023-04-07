@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="InputDevices.Config.Section">Input Devices</string>
+  <string name="InputDevices.Config.FunctionShortcuts">Function Shortcuts</string>
+  <string name="InputDevices.Config.FunctionShortcuts.Help">This allows you to map MediaPortal functions to keys/buttons on your input devices. You could for example assign VolumeUp/Down to '+' and '-' on your keyboard if you don't have volume keys on your keyboard.</string>
+  <string name="InputDevices.Config.ActionShortcuts">Action Shortcuts</string>
+  <string name="InputDevices.Config.ActionShortcuts.Help">This allows you to map MediaPortal global actions to keys/buttons of your input device for quick access.</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts">Configuration Shortcuts</string>
+  <string name="InputDevices.Config.ConfigurationShortcuts.Help">This allows you to map MediaPortal configuration and setup screens to keys/buttons of your input device for quick access.</string>
+  <string name="InputDevices.Config.ScreenShortcuts">Screen Shortcuts</string>
+  <string name="InputDevices.Config.ScreenShortcuts.Help">This allows you to map MediaPortal menu screens to keys/buttons on your input device for quick access. For example you could define 'F2' on your keyboard to open the 'News' screen.</string>
+
+  <string name="InputDevices.Dialog.SelectDevice.Header">Select Device</string>
+  <string name="InputDevices.Dialog.AddInput.Header">Map Key/Button</string>
+  <string name="InputDevices.Dialog.SelectDevice.Help">Press a key/button on the input device you would like to configure</string>
+  <string name="InputDevices.Dialog.AddInput.Help">Press the desired key/button combination on the input device!</string>
+  
+  <string name="InputDevices.Mapping.Key">Key/Button</string>
+  <string name="InputDevices.Mapping.ClearMapping">Clear</string>
+  <string name="InputDevices.Mapping.ClearAllMappings">Clear all</string>
+  <string name="InputDevices.Mapping.RestoreDefaultMapping">Restore defaults</string>
+  <string name="InputDevices.Mapping.MappingsWillBeOverwrittenWarning">All existing mappings will be overwritten. Do you want to continue?</string>
+  
+</resources>

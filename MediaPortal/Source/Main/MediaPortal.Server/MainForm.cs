@@ -150,6 +150,7 @@ namespace MediaPortal.Server
         {
           ListViewItem lvi = CreateClientItem(attachedClientData.LastClientName,
               attachedClientData.LastSystem == null ? null : attachedClientData.LastSystem.HostName,
+              attachedClientData.LastClientVersion, 
               connectedClientSystemIDs.Contains(attachedClientData.SystemId));
           lvClients.Items.Add(lvi);
         }
@@ -162,9 +163,9 @@ namespace MediaPortal.Server
       }
     }
 
-    protected ListViewItem CreateClientItem(string clientName, string clientSystem, bool isConnected)
+    protected ListViewItem CreateClientItem(string clientName, string clientSystem, string softwareVersion, bool isConnected)
     {
-      return new ListViewItem(new string[] { clientName, clientSystem, LocalizationHelper.Translate(isConnected ? CONNECTED_RES : DISCONNECTED_RES) });
+      return new ListViewItem(new string[] { clientName, clientSystem, softwareVersion, LocalizationHelper.Translate(isConnected ? CONNECTED_RES : DISCONNECTED_RES) });
     }
 
     protected void InitializeLocalizedControls()

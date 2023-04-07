@@ -72,6 +72,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     protected AbstractProperty _timeIndicatorTemplateProperty;
     protected bool _childrenCreated = false;
     protected int _channelViewOffset;
+    protected int _arrangedChannels;
     protected double _actualWidth = 0.0d;
     protected double _actualHeight = 0.0d;
     protected int _groupIndex = -1;
@@ -84,7 +85,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     // This is the program time to set focus to when restoring focus
     protected DateTime _focusTime;
 
-#endregion
+    #endregion
 
     #region Constructor / Dispose
 
@@ -505,6 +506,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
           if (!CreateOrUpdateRow(updateOnly, ref channelIndex, rowIndex++))
             break;
         }
+        _arrangedChannels = rowIndex;
       }
     }
 
@@ -773,9 +775,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       return Children.OfType<Control>().Where(el => el.Context is ProgramListItem);
     }
 
-#endregion
+    #endregion
 
-#region Focus handling
+    #region Focus handling
 
     protected override void OnKeyPress(KeyEventArgs e)
     {
@@ -853,14 +855,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       }
     }
 
-    private bool OnDown()
+    private bool OnDown(bool isPageMove = false)
     {
-      return ScrollVertical(-1);
+      return ScrollVertical(-1, isPageMove);
     }
 
-    private bool OnUp()
+    private bool OnUp(bool isPageMove = false)
     {
-      return ScrollVertical(+1);
+      return ScrollVertical(+1, isPageMove);
     }
 
     private bool OnHome()
@@ -890,7 +892,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         _channelViewOffset = lastDataIndex;
         RecreateAndArrangeChildren(true);
         RestoreFocusPosition(true);
-      } else
+      }
+      else
       {
         var lastViewIndex = Math.Min(ChannelsPrograms.Count, _numberOfRows) - 1;
         FocusLastProgramInRow(lastViewIndex);
@@ -900,28 +903,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
 
     private bool OnPageDown()
     {
-      MoveDown(_numberOfRows);
-      return true;
+      MoveDown(_numberOfRows, true);
+      return true; // To skip key event handling
     }
 
     private bool OnPageUp()
     {
-      MoveUp(_numberOfRows);
-      return true;
+      MoveUp(_numberOfRows, true);
+      return true; // To skip key event handling
     }
 
-    private bool MoveDown(int moveRows)
+    private bool MoveDown(int moveRows, bool isPageMove = false)
     {
       for (int i = 0; i < moveRows - 1; i++)
-        if (!OnDown())
+        if (!OnDown(isPageMove))
           return false;
       return true;
     }
 
-    private bool MoveUp(int moveRows)
+    private bool MoveUp(int moveRows, bool isPageMove = false)
     {
       for (int i = 0; i < moveRows - 1; i++)
-        if (!OnUp())
+        if (!OnUp(isPageMove))
           return false;
       return true;
     }
@@ -968,7 +971,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         if (program != null)
         {
           // We are on the right hand end program
-          if(program.Program.EndTime < model.GuideEndTime.AddMinutes(30))
+          if (program.Program.EndTime < model.GuideEndTime.AddMinutes(30))
           {
             // And this program ends during the section we are about to reveal
             // so set the focus time to the next program (less 30 mins as Scroll message will move it forward 30 mins)
@@ -1005,51 +1008,58 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
           _lastFocusedRow = 0;
           _channelViewOffset = channelIndex;
           RecreateAndArrangeChildren(true);
-        } else if (row >= _numberOfRows)
+        }
+        else if (row >= _numberOfRows)
         {
           // Required channel is off bottom of screen
           _lastFocusedRow = _numberOfRows - 1;
           _channelViewOffset = channelIndex - _numberOfRows + 1;
-          if(_channelViewOffset < 0)
+          if (_channelViewOffset < 0)
           {
             // Unlikely case - there are more rows displayed than there are channels in the guide
             _lastFocusedRow += _channelViewOffset;
             _channelViewOffset = 0;
           }
           RecreateAndArrangeChildren(true);
-        } else
+        }
+        else
         {
           _lastFocusedRow = row;
           pageIndexChanged = false;
         }
-      } finally
+      }
+      finally
       {
         RestoreFocusPosition(pageIndexChanged);
       }
     }
 
-    private bool ScrollVertical(int scrollDirection)
+    private bool ScrollVertical(int scrollDirection, bool isPageMove = false)
     {
-      if(!SaveFocusPosition(out _))
+      if (!SaveFocusPosition(out _))
         return false;
       int row = (int)_lastFocusedRow;
       if (scrollDirection < 0)
       {
-        if (row == _numberOfRows - 1)
+        // _arrangedChannels can be less than the _numberOfChannels
+        if (row == _arrangedChannels - 1)
         {
           if (IsViewPortAtBottom)
           {
             if (LoopScroll)
             {
-              OnHome();
-              FocusFirstProgramInRow(_channelViewOffset);
+              if (!isPageMove)
+              {
+                OnHome();
+                _lastFocusedRow = 0;
+                RestoreFocusPosition(true);
+              }
+              return !isPageMove; // Stop further scrolling for multiple steps
             }
-            else
-              return false;
           }
           else
-          // Scroll down
-          UpdateViewportVertical(scrollDirection);
+            // Scroll down
+            UpdateViewportVertical(scrollDirection);
         }
         else
           row++;
@@ -1062,15 +1072,18 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
           {
             if (LoopScroll)
             {
-              OnEnd();
-              FocusLastProgramInRow(_channelViewOffset);
+              if (!isPageMove)
+              {
+                OnEnd();
+                _lastFocusedRow = _numberOfRows - 1;
+                RestoreFocusPosition(true);
+              }
+              return !isPageMove; // Stop further scrolling for multiple steps
             }
-            else
-              return false;
           }
           else
-          // Scroll up
-          UpdateViewportVertical(scrollDirection);
+            // Scroll up
+            UpdateViewportVertical(scrollDirection);
         }
         else
           row--;
@@ -1100,7 +1113,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
           _lastFocusedRow = row;
           _focusTime = DateTime.MinValue;
           return true;
-        } else if (program != null)
+        }
+        else if (program != null)
         {
           _lastFocusedRow = row;
           // Focus on program. If existing _focusTime is covered by program, leave it unchanged, otherwise set to program start time
@@ -1123,7 +1137,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       {
         int colIndex = GroupButtonEnabled ? 1 : 0;
         control = Children.FirstOrDefault(c => GetRow(c) == _lastFocusedRow && GetColumn(c) == colIndex);
-      } else if (_lastFocusedRow != null && _focusTime != DateTime.MinValue)
+      }
+      else if (_lastFocusedRow != null && _focusTime != DateTime.MinValue)
       {
         // Try to find "nearest" program in new row.
         FindNearestProgram(_focusTime, (int)_lastFocusedRow, out control);
@@ -1207,7 +1222,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
           continue;
 
         var programStartTime = pi.Program.StartTime;
-        if(programStartTime <= time && pi.Program.EndTime > time)
+        if (programStartTime <= time && pi.Program.EndTime > time)
         {
           // This program includes the required time, so it's the one we want
           programControl = program;
@@ -1221,7 +1236,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         {
           minDiff = diff;
           programControl = program;
-      }
+        }
       }
       return programControl != null;
     }
@@ -1279,6 +1294,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
       _focusTime = time;
     }
 
-#endregion
+    #endregion
   }
 }

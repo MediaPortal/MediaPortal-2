@@ -172,14 +172,15 @@ namespace MediaPortal.Common.Services.ServerCommunication
           return;
         deviceUuid = backendServerDescriptor.DeviceUUID;
         string friendlyName = backendServerDescriptor.FriendlyName;
+        string softwareVersion = backendServerDescriptor.SoftwareVersion;
         SystemName system = new SystemName(new Uri(rootDescriptor.SSDPRootEntry.PreferredLink.DescriptionLocation).Host);
         if (deviceUuid == _homeServerSystemId)
-          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found MP2 home server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}')",
-              friendlyName, deviceUuid, system.HostName, system.Address);
+          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found MP2 home server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}', Version: {4})",
+              friendlyName, deviceUuid, system.HostName, system.Address, softwareVersion);
         else
         {
-          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found foreign MP2 server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}')",
-              friendlyName, deviceUuid, system.HostName, system.Address);
+          ServiceRegistration.Get<ILogger>().Debug("UPnPClientControlPoint: Found foreign MP2 server '{0}' (system ID '{1}') at host '{2}' (IP address: '{3}', Version: {4})",
+              friendlyName, deviceUuid, system.HostName, system.Address, softwareVersion);
           return;
         }
 

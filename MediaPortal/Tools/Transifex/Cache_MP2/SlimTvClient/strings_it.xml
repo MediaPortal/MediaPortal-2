@@ -30,6 +30,10 @@
   <string name="SlimTvClient.CreateSchedule">Programma la registrazione</string>
   <string name="SlimTvClient.CreateManualSchedule">Programma la registrazione manualmente</string>
   <string name="SlimTvClient.DeleteRecording.Confirmation">Sei sicuro di voler annullare ed eliminare la registrazione? Non sarà possibile tornare indietro.</string>
+  <string name="SlimTvClient.DeleteAllRecordings.Text">Elimina queste registrazioni dalla memoria</string>
+  <string name="SlimTvClient.DeleteAllRecordings.Confirmation">Sei sicuro di voler eliminare {0} registrazioni? Questa operazione non può essere annullata.</string>
+  <string name="SlimTvClient.UseContainsQuery">Usa \"contiene\"</string>
+  <string name="SlimTvClient.UseStartsWithQuery">Usa \"inizia con\"</string>
   <string name="SlimTvClient.ProgramSearch">Ricerca programmi</string>
   <string name="SlimTvClient.ProgramSearch.Help">Ricerca i titoli dei programmi nella guida e trova i tuoi show preferiti</string>
   <!--Extended recording features-->
@@ -91,6 +95,8 @@
   <string name="SlimTvClient.HideAllChannelsGroup.Help">Se abilitato, il gruppo tutti i canali verrà nascosto</string>
   <string name="SlimTvClient.ChannelLogoStyle">Stile del logo canale</string>
   <string name="SlimTvClient.ChannelLogoStyle.Help">Scegli lo stile del logo canale. Server e client dovranno essere riavviati per ottenere i cambiamenti.</string>
+  <string name="SlimTvClient.ChannelLogoAutoUpdate">Aggiornamento automatico del logo del canale</string>
+  <string name="SlimTvClient.ChannelLogoAutoUpdate.Help">Configurazione dell\' aggiornamento automatico dei loghi del canale</string>
   <string name="SlimTvClient.RecordingNotificationDuration">Tempo scaduto per la notifica di registrazione.</string>
   <string name="SlimTvClient.RecordingNotificationDuration.Help">Configura il numero di secondi per mostrare la notifica di registrazione.</string>
   <string name="SlimTvClient.Notifications">Notifiche</string>

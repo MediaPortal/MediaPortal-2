@@ -52,7 +52,7 @@
 
           <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="30,300,30,0">
             <Label Color="{ThemeResource TextColor}" Wrap="True" FontSize="{ThemeResource NormalFontSize}" 
-                   FontFamily="SegoeUIBold" DataContext="{Binding ElementName=Apps,Path=CurrentItem}" Content="{Binding Path=[Name]}" />
+                   FontFamily="Noto-Bold" DataContext="{Binding ElementName=Apps,Path=CurrentItem}" Content="{Binding Path=[Name]}" />
 
             <Grid IsVisible="{Binding ElementName=Group, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
                   DataContext="{Binding Source={StaticResource Model}}">

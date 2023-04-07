@@ -24,12 +24,10 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Logging;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.Models;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -42,16 +40,31 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   /// </summary>
   public abstract class AbstractHomeContent
   {
-    // All known ItemsListWrappers
+    private readonly object _syncObj = new object();
+
+    /// <summary>
+    /// Shortcut lists that are always displayed as the first item in the home content, should be populated in derived classes.
+    /// </summary>
+    protected IList<ItemsListWrapper> _shortcutLists = new List<ItemsListWrapper>();
+
+    /// <summary>
+    /// All MediaItemsListWrappers that this home content can display, should be populated by derived classes.
+    /// The default order and lists to display will be the same as this list, but may be overridden by a call to <see cref="UpdateListsToDisplay(IEnumerable{string})"/>.
+    /// </summary>
+    protected IList<MediaListItemsListWrapper> _availableMediaLists = new List<MediaListItemsListWrapper>();
+
+    /// <summary>
+    /// Specifies the available media lists to display and their order.
+    /// </summary>
+    protected IList<string> _mediaListsToDisplay = null;
+
+    // Contains the configured and ordered list wrappers
     protected IList<ItemsListWrapper> _backingList = new List<ItemsListWrapper>();
 
     // All ItemsListWrappers that currently have items
     protected ItemsList _availableItems = new ItemsList();
-    protected IList<MediaListItemsListWrapper> _availableLists = new List<MediaListItemsListWrapper>();
 
     protected bool _isInit = false;
-    protected IList<string> _listKeys = null;
-    protected IList<string> _currentListKeys = null;
 
     public ItemsList Items
     {
@@ -62,130 +75,45 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       }
     }
 
-    public void UpdateLists(IEnumerable<string> listKeys)
+    public void UpdateListsToDisplay(IEnumerable<string> listKeys)
     {
-      _listKeys = new List<string>(listKeys);
-      if (!_isInit)
-        Init();
-      else
-        UpdateListsFromAvailableLists();
-    }
-
-    protected void PopulateList()
-    {
-      PopulateBackingList();
+      lock (_syncObj)
+      {
+        bool updated = TryUpdateMediaListsToDisplay(listKeys);
+        // Only update the lists to display if this home content has already been initialized,
+        // else they will be updated when init is called later
+        if (!updated || !_isInit)
+          return;
+        RecreateBackingList(false);
+      }
+      // Outside lock as it fires events
+      UpdateAvailableItems();
     }
 
     public void ForceUpdateList()
     {
-      if (_isInit)
-        ForceUpdateBackingList();
+      IContentListModel model = GetMediaListModel();
+      if (model == null)
+        return;
+
+      List<string> listsToUpdate;
+      lock (_syncObj)
+      {
+        if (!_isInit)
+          return;
+        listsToUpdate = new List<string>(_mediaListsToDisplay);
+      }
+
+      foreach (string listToUpdate in listsToUpdate)
+        if (!string.IsNullOrEmpty(listToUpdate))
+          model.ForceUpdate(listToUpdate);
     }
 
     public IList<MediaListItemsListWrapper> Lists
     {
       get
       {
-        return _availableLists;
-      }
-    }
-
-    protected async void UpdateListsFromAvailableLists(bool initialUpdate = false)
-    {
-        try
-        {
-            bool updated = false;
-            var model = GetContentListModel();
-            if (_availableLists.Count > 0 && model != null)
-            {
-                if (_listKeys == null)
-                {
-                    _listKeys = _availableLists.Select(l => l.MediaListKey).ToList();
-                    updated = true;
-                }
-                else if (_currentListKeys == null)
-                {
-                    updated = true;
-                }
-                else
-                {
-                    updated = !_currentListKeys.SequenceEqual(_listKeys);
-                }
-
-                if (updated)
-                {
-                    //Remove all lists and add them in the right order
-                    DetachItemsListWrappers();
-                    foreach (var list in _backingList.Where(l => l is MediaListItemsListWrapper).ToList())
-                    {
-                        list.DetachFromItemsList();
-                        _backingList.Remove(list);
-                    }
-
-                    _currentListKeys = _listKeys.ToList();
-                    foreach (var listKey in _currentListKeys)
-                    {
-                        var list = _availableLists.FirstOrDefault(l => l is MediaListItemsListWrapper mlw && mlw.MediaListKey == listKey);
-                        if (list != null && model.Lists.ContainsKey(listKey))
-                        {
-                            if (!list.Initialized)
-                                list.Initialize(model.Lists[listKey].AllItems);
-
-                            _backingList.Add(list);
-                        }
-                    }
-
-                    AttachItemsListWrappers();
-                }
-            }
-
-            if (updated || initialUpdate)
-            {
-                if (initialUpdate)
-                {
-                    // In some situations the backing list will stay hidden if initially being empty and then 
-                    // almost immediately after being filled with items.
-                    // TODO: This delay seems to fix it but should be removed when a better solution is found.
-                    await Task.Delay(500);
-                }
-
-                UpdateAvailableItems();
-            }
-        }
-        catch (Exception ex)
-        {
-            ServiceRegistration.Get<ILogger>().Error("HomeContent: Error updating available media lists", ex);
-        }
-    }
-
-    protected virtual IContentListModel GetContentListModel()
-    {
-      return null;
-    }
-
-    /// <summary>
-    /// Implementations of this method should populate <see cref="_backingList"/>
-    /// with the <see cref="ItemsListWrapper"/>s to show.
-    /// </summary>
-    protected virtual void PopulateBackingList()
-    { }
-
-    /// <summary>
-    /// Implementations of this method should force a refresh of the <see cref="_backingList"/>
-    /// with the <see cref="ItemsListWrapper"/>s to show.
-    /// </summary>
-    protected void ForceUpdateBackingList()
-    {
-      UpdateListsFromAvailableLists();
-
-      var model = GetContentListModel();
-      if (model == null)
-        return;
-
-      foreach (var list in _backingList.OfType<MediaListItemsListWrapper>())
-      {
-        if (!string.IsNullOrEmpty(list.MediaListKey))
-          model.ForceUpdate(list.MediaListKey);
+        return _availableMediaLists;
       }
     }
 
@@ -193,12 +121,94 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     // usually by the screen showing this content.
     protected void Init()
     {
-      if (_isInit)
-        return;
-      _isInit = true;
+      lock (_syncObj)
+      {
+        if (_isInit)
+          return;
+        _isInit = true;
 
-      PopulateList();
-      UpdateListsFromAvailableLists(true);
+        RecreateBackingList(true);
+      }
+
+      // In some situations the backing list will stay hidden if initially being empty and then 
+      // almost immediately after being filled with items.
+      // TODO: This delay seems to fix it but should be removed when a better solution is found.
+      Task.Delay(500).ContinueWith(t => UpdateAvailableItems());
+    }
+
+    /// <summary>
+    /// Updates the media lists to display and the order to display them. If this returns <c>true</c>
+    /// then <see cref="RecreateBackingList"/> should be called to actually update the backing list.
+    /// </summary>
+    /// <param name="mediaListKeys">Enumeration of media list keys that should be displayed.</param>
+    /// <returns><c>true</c> if the lists to display was changed; else <c>false</c>.</returns>
+    protected bool TryUpdateMediaListsToDisplay(IEnumerable<string> mediaListKeys)
+    {
+      if (mediaListKeys == null)
+        return false;
+      if (_mediaListsToDisplay != null && _mediaListsToDisplay.SequenceEqual(mediaListKeys))
+        return false;
+      _mediaListsToDisplay = new List<string>(mediaListKeys);
+      return true;        
+    }
+
+    /// <summary>
+    /// Recreates the backing list, including and ordering the lists as per the media list keys in <see cref="_mediaListsToDisplay"/>.
+    /// </summary>
+    /// <param name="isInitializing">Whether this is the first time the list is being initialized.</param>
+    protected void RecreateBackingList(bool isInitializing)
+    {
+      if (_mediaListsToDisplay == null)
+        _mediaListsToDisplay = _availableMediaLists.Select(l => l.MediaListKey).ToList();
+
+      // This method is called to initially create the backing list and when the order of the media lists might have changed.
+      // The check below is to short circuit when the order of the media lists hasn't changed, however for home content that
+      // does not define any media lists it will always evaluate to true, so the backing list is never populated with any
+      // shortcut items, so skip the check on the initial creation of the list to ensure shortcut items are always added.
+      if (!isInitializing)
+      {
+        IList<MediaListItemsListWrapper> currentMediaLists = _backingList.OfType<MediaListItemsListWrapper>().ToList();
+        if (_mediaListsToDisplay.SequenceEqual(currentMediaLists.Select(l => l.MediaListKey)))
+          return;
+      }
+
+      //Remove all lists and add them in the right order
+      DetachItemsListWrappers();
+      foreach (ItemsListWrapper itemsList in _backingList)
+        itemsList.DetachFromItemsList();
+
+      _backingList.Clear();
+
+      // Add any shortcuts first
+      foreach (ItemsListWrapper shortcutList in _shortcutLists)
+      {
+        shortcutList.AttachToItemsList();
+        _backingList.Add(shortcutList);
+      }
+
+      // Then add media lists in the configured order
+      var model = GetContentListModel();
+      if (model != null)
+      {
+        foreach (string mediaListKey in _mediaListsToDisplay.Where(k => model.Lists.ContainsKey(k)))
+        {
+          MediaListItemsListWrapper mediaList = _availableMediaLists.FirstOrDefault(l => l.MediaListKey == mediaListKey);
+          if (mediaList != null)
+          {
+            if (!mediaList.Initialized)
+              mediaList.Initialize(model.Lists[mediaListKey].AllItems);
+            else
+              mediaList.AttachToItemsList();
+            _backingList.Add(mediaList);
+          }
+        }
+      }
+      AttachItemsListWrappers();
+    }
+
+    protected virtual IContentListModel GetContentListModel()
+    {
+      return null;
     }
 
     protected void AttachItemsListWrappers()
@@ -221,18 +231,23 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     }
 
     /// <summary>
-    /// Adds a;; <see cref="ItemsListWrapper"/>s that
+    /// Adds all <see cref="ItemsListWrapper"/>s that
     /// have items to the list of available items.
     /// </summary>
     protected void UpdateAvailableItems()
     {
+      // We need a double lock here, _availableItems.SyncRoot ensures that the SkinEngine isn't currently accessing
+      // _availableItems and _syncObj ensures that _backingList doesn't change. This is potentially a risk for
+      // deadlocks, however _syncObj is private so callers into this class can only potentially be holding
+      // _availableItems.SyncRoot, so this should be safe as long as _syncObj is only ever held after _availableItems.SyncRoot. 
       lock (_availableItems.SyncRoot)
-      {
-        _availableItems.Clear();
-        foreach (ItemsListWrapper wrapper in _backingList)
-          if (wrapper.HasItems)
-            _availableItems.Add(wrapper);
-      }
+        lock (_syncObj)
+        {
+          _availableItems.Clear();
+          foreach (ItemsListWrapper wrapper in _backingList)
+            if (wrapper.HasItems)
+              _availableItems.Add(wrapper);
+        }
       _availableItems.FireChange();
     }
 

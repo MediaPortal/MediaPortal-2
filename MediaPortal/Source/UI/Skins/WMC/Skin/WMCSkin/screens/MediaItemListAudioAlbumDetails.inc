@@ -53,7 +53,7 @@
             </Grid.RowDefinitions>
 
             <Label Grid.Row="0" Content="{Binding Path=Album}" Wrap="True" Margin="0,0,0,0" Color="{ThemeResource TextColor}" 
-                   FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
+                   FontFamily="Noto-Bold" FontSize="{ThemeResource SmallFontSize}" TextTrimming="WordEllipsis"
                    IsVisible="{Binding Path=Album,Converter={StaticResource ReferenceToBoolConverter}}"/>
             
             <Label Grid.Row="1" Content="{Binding Path=Artists}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"

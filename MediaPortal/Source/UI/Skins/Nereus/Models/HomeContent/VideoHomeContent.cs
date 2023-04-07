@@ -23,11 +23,10 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
-using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -35,21 +34,12 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public VideoHomeContent()
     {
-      _availableLists.Add(new LatestVideoList());
-      _availableLists.Add(new ContinuePlayVideoList());
-      _availableLists.Add(new FavoriteVideoList());
-      _availableLists.Add(new FavoriteVideoList());
-    }
+      _availableMediaLists.Add(new LatestVideoList());
+      _availableMediaLists.Add(new ContinuePlayVideoList());
+      _availableMediaLists.Add(new FavoriteVideoList());
+      _availableMediaLists.Add(new FavoriteVideoList());
 
-    protected override void PopulateBackingList()
-    {
-      // Wrap each group of tiles to show in an ItemsListWrapper and add
-      // the wrapper to the backing list.
-      // For the media home content, the firat item is a list of shortcuts
-      // to media filters, followed by a group of tiles for each media list.
-
-      // Add the video media filters as the first tile group
-      _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
+      _shortcutLists.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new VideoYearShortcut(),
         new VideoLocationShortcut(),

@@ -28,6 +28,7 @@
   <string name="AppLauncher.Settings.Edit">Modifica applicazione</string>
   <string name="AppLauncher.Settings.Delete">Elimina applicazione</string>
   <string name="AppLauncher.Settings.Menu">Menu applicazione</string>
+  <string name="AppLauncher.Settings.Menu.ClearMapping">Azzera le assegnazioni</string>
   <string name="AppLauncher.Settings.Test">Applicazione di prova</string>
   <string name="AppLauncher.Settings.Add.Helptext">Nuova applicazione aggiunta</string>
   <string name="AppLauncher.Settings.Edit.Helptext">Modifica una applicazione esistente</string>

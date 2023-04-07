@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_menu.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Settings.General.System.Version.Help]"/>
+
+    <!-- HomeServerModel -->
+    <Model x:Key="Model" Id="5D2EE1D6-BE95-4E21-B34C-C1F204B565D7"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <Grid.Resources>
+          <DataTemplate x:Key="ItemDataTemplate">
+            <Grid>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="250"/>
+                <ColumnDefinition Width="50"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+              </Grid.RowDefinitions>
+              <Image Grid.Column="0" Grid.RowSpan="2" Height="70" VerticalAlignment="Center" Stretch="Uniform" Source="{Binding [Icon]}" Margin="10">
+                <Image.Opacity>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {1} ? {2} : {3}">
+                    <Binding Source="{Binding [OwnHomeServer]}"/>
+                    <Binding Source="True"/>
+                    <Binding Source="1.0"/>
+                    <Binding Source="0.4"/>
+                  </MultiBinding>
+                </Image.Opacity>
+              </Image>
+              <Label Grid.Column="1" x:Name="DeviceNameLabel" Content="{Binding [FriendlyName]}" Color="{ThemeResource TextColor}" />
+              <Label Grid.Column="2" x:Name="VersionLabel" Content="{Binding [SoftwareVersion]}" Color="{ThemeResource TextColor}" />
+              <Label Grid.Column="3" x:Name="SelfSystemLabel" Content="{Binding [SelfSystem]}" Color="{ThemeResource TextColor}" />
+              <Label Grid.Column="1" Grid.Row="1" x:Name="HostNameLabel" Content="{Binding [HostNameWithAddress]}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+            </Grid>
+          </DataTemplate>
+          <Style x:Key="VersionsListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+            <Setter Property="ItemTemplate" Value="{ThemeResource ItemDataTemplate}"/>
+            <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+          </Style>
+        </Grid.Resources>
+
+        <ListView Grid.Column="0" Grid.ColumnSpan="2" ItemsSource="{Binding Path=Devices,Mode=OneTime}" Style="{ThemeResource VersionsListViewStyle}">
+
+        </ListView>
+
+        <Button x:Name="RefreshButton" Grid.Row="1" Grid.Column="0"  Margin="10,10,10,0" Style="{ThemeResource DialogButtonStyle}" HorizontalAlignment="Center"
+                Content="Refresh" Command="{Command Refresh}"/>
+
+        <Button x:Name="OkButton" Grid.Row="1" Grid.Column="1" Margin="10,10,10,0" Style="{ThemeResource DialogButtonStyle}" HorizontalAlignment="Center"
+                Content="[System.Ok]" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}"/>
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

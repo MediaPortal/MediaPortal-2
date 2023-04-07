@@ -21,6 +21,7 @@
     <Assembly FileName="SlimTv.Interfaces.dll"/>
     <Assembly FileName="SlimTv.Resources.dll"/>
     <Assembly FileName="FanArtService.Interfaces.dll"/>
+    <PluginStateTracker ClassName="MediaPortal.Plugins.SlimTv.SlimTvResources.SlimTvFanartPlugin"/>
   </Runtime>
 
   <!-- We use our own local name here to avoid circular references to FanArtService -->

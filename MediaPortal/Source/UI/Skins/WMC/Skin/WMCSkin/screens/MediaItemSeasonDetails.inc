@@ -26,7 +26,7 @@
     <media:SeasonAspectWrapper.Template>
       <ControlTemplate> 
           <StackPanel Orientation="Vertical">
-            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+            <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
                    DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <Label.Content>
                 <Binding Path="SeriesName"/>

@@ -1,0 +1,119 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="InputDevices"
+    PluginId="{3A4A147F-A731-47AD-A01C-FC9F163B56B8}"
+    Author="FreakyJ, Henso, Brownard"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Plugin to map input from various device types to MediaPortal 2 input">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2022-08-23 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <!-- SkinEngine -->
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/>
+    <!-- SkinBase -->
+    <PluginReference PluginId="{5D239050-02B8-4f58-8301-7630A1C4CF85}" CompatibleAPI="1"/>
+    <!-- ConfigurationManager -->
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/>
+    <!-- Configuration plugin -->
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/>
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="InputDevices.dll"/>
+    <Assembly FileName="InputDevices.Common.dll"/>
+  </Runtime>
+
+  <Register Location="/Resources/Language">
+    <Resource Id="InputDevicesLanguage" Directory="Language" Type="Language"/>
+  </Register>
+
+  <Register Location="/Models">
+    <Model Id="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A" Name="InputMappingModel" ClassName="InputDevices.Models.InputMappingModel"/>
+  </Register>
+
+  <Register Location="/Services">
+    <Service Id="InputDevices.InputHandler" RegistrationClassName="InputDevices.InputHandler" ServiceClassName="InputDevices.InputHandler"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="InputDevicesSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <DialogState Id="67C43652-6880-4CFC-86D4-34230BFADCC7"
+        Name="InputDevicesDialogSelectDevice"
+        DialogScreen="InputDevices-DialogSelectDevice"
+        Temporary="True"
+        DisplayLabel="Select Device"
+        WorkflowModel="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
+    <DialogState Id="D647288E-46C2-48C1-B330-2F0D05DFA80F"
+        Name="InputDevicesDialogMapAction"
+        DialogScreen="InputDevices-DialogMapAction"
+        Temporary="True"
+        DisplayLabel="Map Action"
+        WorkflowModel="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
+    <WorkflowState Id="299EB653-8C8A-4320-A0BD-A47A4F1576D0"
+       Name="InputDevicesSelectKeyAction"
+       MainScreen="InputDevices-SelectAction"
+       DisplayLabel="[InputDevices.Config.FunctionShortcuts]"
+       WorkflowModel="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
+    <WorkflowState Id="947121B7-A2C9-4D76-8424-B3747F09C3A6"
+       Name="InputDevicesSelectGlobalAction"
+       MainScreen="InputDevices-SelectAction"
+       DisplayLabel="[InputDevices.Config.ActionShortcuts]"
+       WorkflowModel="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
+    <WorkflowState Id="79FECE05-B72F-4CD8-AE76-690F931A96E8"
+       Name="InputDevicesSelectScreenAction"
+       MainScreen="InputDevices-SelectAction"
+       DisplayLabel="[InputDevices.Config.ScreenShortcuts]"
+       WorkflowModel="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
+    <WorkflowState Id="4E16A73A-7895-4CF6-879A-BD9668223FCA"
+       Name="InputDevicesSelectConfigAction"
+       MainScreen="InputDevices-SelectAction"
+       DisplayLabel="[InputDevices.Config.ConfigurationShortcuts]"
+       WorkflowModel="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
+  </Register>
+
+  <!-- Root configuration sections -->
+  <Register Location="/Configuration/Settings">
+    <ConfigSection
+        Id="InputDevices"
+        Redundant="true"
+        Text="[InputDevices.Config.Section]"/>
+  </Register>
+
+  <!-- Contents of '/InputDevices' section -->
+  <Register Location="/Configuration/Settings/InputDevices">
+    <CustomConfigSetting
+        Id="InputDevicesConfigSelectKeyAction"
+        Text="[InputDevices.Config.FunctionShortcuts]"
+        HelpText="[InputDevices.Config.FunctionShortcuts.Help]"
+        ClassName="InputDevices.Settings.Config.ConfigScreenKeys"
+        AdditionalData="WorkflowState=299EB653-8C8A-4320-A0BD-A47A4F1576D0,ConfAppPanel=..."/>
+    <CustomConfigSetting
+        Id="InputDevicesConfigSelectGlobalAction"
+        Text="[InputDevices.Config.ActionShortcuts]"
+        HelpText="[InputDevices.Config.ActionShortcuts.Help]"
+        ClassName="InputDevices.Settings.Config.ConfigScreenActions"
+        AdditionalData="WorkflowState=947121B7-A2C9-4D76-8424-B3747F09C3A6,ConfAppPanel=..."/>
+    <CustomConfigSetting
+        Id="InputDevicesConfigSelectScreenAction"
+        Text="[InputDevices.Config.ScreenShortcuts]"
+        HelpText="[InputDevices.Config.ScreenShortcuts.Help]"
+        ClassName="InputDevices.Settings.Config.ConfigScreenScreens"
+        AdditionalData="WorkflowState=79FECE05-B72F-4CD8-AE76-690F931A96E8,ConfAppPanel=..."/>
+    <CustomConfigSetting
+        Id="InputDevicesConfigSelectConfigAction"
+        Text="[InputDevices.Config.ConfigurationShortcuts]"
+        HelpText="[InputDevices.Config.ConfigurationShortcuts.Help]"
+        ClassName="InputDevices.Settings.Config.ConfigScreenConfigScreens"
+        AdditionalData="WorkflowState=4E16A73A-7895-4CF6-879A-BD9668223FCA,ConfAppPanel=..."/>
+  </Register>
+</Plugin>

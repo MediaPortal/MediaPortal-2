@@ -19,7 +19,7 @@
         <media:MediaAspectWrapper.Template>
           <ControlTemplate>
             <StackPanel Orientation="Vertical">
-              <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold"
+              <Label x:Name="MediaItemName" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
                      Content="{Binding Title}" DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,-200,0"
                      IsVisible="{Binding Source={StaticResource FanArtBackgroundModel},Path=MediaItem,Converter={StaticResource ReferenceToBoolConverter}}"/>
               <Label x:Name="Year" HorizontalAlignment="Left" FontSize="{ThemeResource SmallFontSize}"

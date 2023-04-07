@@ -347,6 +347,7 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       GetDeviceInfoForEndpointDlgt dih = DeviceInfoHook;
       ILocalizedDeviceInformation deviceInformation = null;
       ILocalizedDeviceInformation overriddenDeviceInformation = null;
+      IAdditionalLocalizedDeviceInformation additionalInformation = null;
 
       if (dih != null)
         dih(request, _deviceInformation, ref overriddenDeviceInformation);
@@ -358,6 +359,9 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       {
         deviceInformation = overriddenDeviceInformation;
       }
+
+      additionalInformation = deviceInformation as IAdditionalLocalizedDeviceInformation;
+
       writer.WriteStartElement("device");
       if (dgh != null)
         dgh(request, writer, this, GenerationPosition.DeviceStart, config, culture);
@@ -377,6 +381,9 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
       string modelURL = deviceInformation.GetModelURL(culture);
       if (!string.IsNullOrEmpty(modelURL))
         writer.WriteElementString("modelURL", modelURL);
+      string softwareVersion = additionalInformation?.GetSoftwareVersion(culture);
+      if (!string.IsNullOrEmpty(softwareVersion))
+        writer.WriteElementString("softwareVersion", softwareVersion);
       string serialNumber = deviceInformation.GetSerialNumber(culture);
       if (!string.IsNullOrEmpty(serialNumber))
         writer.WriteElementString("serialNumber", serialNumber);

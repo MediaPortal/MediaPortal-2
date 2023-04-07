@@ -126,10 +126,13 @@
       </Grid.IsVisible>
     </Grid>
 
-    <Label IsVisible="{Binding ShowListHint}"
-       HorizontalAlignment="Center" VerticalAlignment="Center" Wrap="true"
-       Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}"/>
-
+    <StackPanel Orientation="Vertical" IsVisible="{Binding ShowListHint}" HorizontalAlignment="Center" VerticalAlignment="Center">
+      <Image Source="empty.png" Height="100" Stretch="Uniform" IsVisible="{Binding IsItemsEmpty}" HorizontalAlignment="Center"/>
+      <Label Wrap="true" Content="{Binding ListHint}" Color="{ThemeResource HintTextColor}" HorizontalAlignment="Center"/>
+      <Button x:Name="AddShareLabel" Style="{ThemeResource WizardButtonStyle}" HorizontalAlignment="Center" VerticalAlignment="Center" Content="[SharesConfig.MenuAddShare]"
+              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=6F7EB06A-2AC6-4bcb-9003-F5DA44E03C26}" Margin="10"/>
+    </StackPanel>
+    
   </Grid>
   <Label IsVisible="{Binding !IsItemsValid}"
          HorizontalAlignment="Center" VerticalAlignment="Center"

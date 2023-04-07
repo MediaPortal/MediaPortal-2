@@ -15,11 +15,11 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <StackPanel Width="650" DataContext="{Binding Source={StaticResource Model}}">
+      <StackPanel DataContext="{Binding Source={StaticResource Model}}">
 
         <Label Margin="10,0,0,0" Content="[WeatherSetup.ConfiguredCities]" Color="{ThemeResource TextColor}"/>
         <StackPanel Margin="10" HorizontalAlignment="Center">
-          <ListView Name="CitiesList" Height="300" Width="700" Style="{ThemeResource WeatherDisplayLocationsListViewStyle}"
+          <ListView Name="CitiesList" Style="{ThemeResource WeatherDisplayLocationsListViewStyle}" Margin="20,10,20,30"
                     ItemsSource="{Binding SetupLocations}"/>
           <StackPanel HorizontalAlignment="Right" Orientation="Horizontal">
             <Button Margin="5" Style="{ThemeResource WizardButtonStyle}" Content="[System.Add]" SetFocusPrio="DefaultHigh"

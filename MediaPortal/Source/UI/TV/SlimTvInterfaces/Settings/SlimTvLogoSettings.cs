@@ -22,6 +22,7 @@
 
 #endregion
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using MediaPortal.Common;
@@ -65,5 +66,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Settings
 
     [Setting(SettingScope.Global, true)]
     public bool EnableAutoUpdate { get; set; }
+
+    [Setting(SettingScope.Global)]
+    public Guid UpdateJobId { get; set; }
   }
 }

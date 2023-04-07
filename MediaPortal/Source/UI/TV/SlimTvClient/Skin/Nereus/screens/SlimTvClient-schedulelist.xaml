@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+v<?xml version="1.0" encoding="utf-8"?>
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
@@ -119,7 +119,7 @@
               <Label Content="[SlimTvClient.ScheduleModeSeries]" Color="{ThemeResource TextColor}" Margin="7,10,10,10" VerticalAlignment="Center" />
             </StackPanel>
 
-            <Button x:Name="NewScheduleButton" Style="{ThemeResource ButtonWideStyle}" Margin="50,0,10,10"
+            <Button x:Name="NewScheduleButton" Style="{ThemeResource WizardButtonStyle}" Margin="50,0,10,10"
                     HorizontalAlignment="Left" VerticalAlignment="Top" Content="[SlimTvClient.NewSchedule]"
                     Command="{Command Source={StaticResource SlimTvManualSchedule}, Path=Show}" />
           </StackPanel>
@@ -159,10 +159,10 @@
               </Image.IsVisible>
             </Image>
 
-            <Label x:Name="Program" Grid.Row="1" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+            <Label x:Name="Program" Grid.Row="1" FontFamily="Noto-Bold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                    IsVisible="{Binding ElementName=EnableSeriesModeCheckbox, Path=!IsChecked}"
                    Content="{Binding Path=CurrentProgram.Title}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
-            <Label x:Name="Schedule" Grid.Row="1" FontFamily="SegoeUIBold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
+            <Label x:Name="Schedule" Grid.Row="1" FontFamily="Noto-Bold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
                    IsVisible="{Binding ElementName=EnableSeriesModeCheckbox, Path=IsChecked}"
                    Content="{Binding Path=ScheduleName}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
 
@@ -258,7 +258,7 @@
         <DockPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" LastChildFill="false" IsVisible="{Binding IsItemsValid}">
           <Grid DockPanel.Dock="Right" Margin="160,-20,-165,70" Width="100">
             <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
-              <Label x:Name="Index" Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="DefaultBold">
+              <Label x:Name="Index" Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" FontFamily="Noto-Bold">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
                     <Binding ElementName="ScheduleList" Path="CurrentItem"/>
@@ -266,8 +266,8 @@
                   </MultiBinding>
                 </Label.Content>
               </Label>
-              <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold"/>
-              <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="DefaultBold">
+              <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold"/>
+              <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}" VerticalAlignment="Top" FontFamily="Noto-Bold">
                 <Label.Content>
                   <Binding ElementName="ScheduleList" Path="ItemsCount" />
                 </Label.Content>

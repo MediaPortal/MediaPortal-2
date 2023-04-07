@@ -1,7 +1,12 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
   <!--Headlines for HomeContent-->
+  <string name="Media.LatestPlayed">最近播放</string>
+  <string name="Media.LatestAdded">最新添加</string>
   <string name="Media.Favorites">收藏夹</string>
+  <string name="Media.Unplayed">未播放</string>
+  <string name="Media.CurrentPrograms"> 当前计划</string>
+  <string name="Media.CurrentSchedules">当前时间表</string>
   <!--Menu items for the five Media navigation parts-->
   <string name="Media.BrowseMediaMenuItem">浏览媒体</string>
   <string name="Media.LocalMediaMenuItem">本地媒体</string>
@@ -15,6 +20,7 @@
   <string name="Media.TitleMenuItem">标题</string>
   <string name="Media.ArtistMenuItem">艺术家</string>
   <string name="Media.GenreMenuItem">流派</string>
+  <string name="Media.YearMenuItem">年</string>
   <string name="Media.SizeMenuItem">大小</string>
   <string name="Media.SystemMenuItem">系统</string>
   <string name="Media.EpisodeMenuItem">集</string>
@@ -40,6 +46,7 @@
   <!--For example: "R.E.M."-->
   <string name="Media.FilterArtistNavbarDisplayLabel">艺术家: {0}</string>
   <!--For example: "Artist: R.E.M."-->
+  <string name="Media.FilterAlbumArtistNavbarDisplayLabel">专辑艺术家：{0}</string>
   <string name="Media.FilterAlbumNavbarDisplayLabel">专辑: {0}</string>
   <string name="Media.FilterAudioGenreNavbarDisplayLabel">流派: {0}</string>
   <string name="Media.FilterDecadeNavbarDisplayLabel">年代: {0}</string>
@@ -94,12 +101,18 @@
   <string name="Media.ChooseDirectorHeader">导演</string>
   <string name="Media.ChooseMovieHeader">电影</string>
   <string name="Media.ChooseWriterHeader">编剧</string>
+  <string name="Media.ChooseVideoGenreHeader">流派</string>
   <string name="Media.ChooseImageHeader">图片</string>
   <string name="Media.ChooseSeriesHeader">系列</string>
   <string name="Media.ChooseSeasonHeader">季剧</string>
   <string name="Media.ChooseEpisodeHeader">集</string>
+  <string name="Media.ChooseAlbumHeader">相册</string>
   <string name="Media.ChooseAudioHeader">音频项</string>
+  <string name="Media.ChooseArtistHeader">艺术家</string>
+  <string name="Media.ChooseAlbumArtistHeader"> 专辑艺术家</string>
+  <string name="Media.ChooseAudioGenreHeader">流派</string>
   <string name="Media.ChooseVideoHeader">视频</string>
+  <string name="Media.ChooseVideoLanguageHeader">语言</string>
   <string name="Media.PlaylistsOverviewHeader">播放列表</string>
   <string name="Media.SavePlaylistEditNameHeader">保存播放列表</string>
   <string name="Media.SavePlaylistFailedHeader">保存播放列表</string>
@@ -140,6 +153,7 @@
   <string name="Media.MoreThanMaxItemsSearchResultHint">此视图包含多于 {0} 项。 请缩小搜索范围。</string>
   <string name="Media.ListIsBeingBuiltHint">正在建立项的列表...</string>
   <string name="Media.SearchResultIsBeingBuiltHint">搜索中...</string>
+  <string name="Media.Eject">喷射</string>
   <!--Playlists-->
   <string name="Media.ManagePlaylists">播放列表</string>
   <string name="Media.AddAllToPlaylist">将所有加入到播放列表</string>
@@ -208,6 +222,7 @@
   <string name="Media.SeriesTitleLabel">系列：</string>
   <string name="Media.SeriesSeasonLabel">季：</string>
   <string name="Media.SeriesEpisodeLabel">集：</string>
+  <string name="Media.FirstAiredLabel">首播：</string>
   <string name="Media.SeriesEpisodeNameLabel">集标题：</string>
   <!--Image currently playing-->
   <string name="Media.ImageCurrentlyPlayingHeader">当前图片信息</string>
@@ -277,9 +292,17 @@
   <string name="Media.SmallList">小列表</string>
   <string name="Media.MediumList">中列表</string>
   <string name="Media.LargeList">大列表</string>
+  <string name="Media.List">列表</string>
   <string name="Media.LargeGrid">格</string>
+  <string name="Media.CoverLayout">覆盖</string>
   <string name="Media.ListSmall">小</string>
   <string name="Media.ListMedium">中等</string>
+  <string name="Media.ListLarge">大的</string>
+  <string name="Media.PosterLayout">海报</string>
+  <string name="Media.ThumbnailLayout">缩略图</string>
+  <string name="Media.BannerLayout">横幅</string>
+  <string name="Media.ExtendedMediaDetails">显示媒体详细信息</string>
+  <string name="Media.ShowWatchedFlags">显示观看的标志</string>
   <string name="Media.Watched">已观看</string>
   <string name="Media.Unwatched">未观看</string>
   <string name="Media.SwitchSortingMenuItem">排序</string>
@@ -293,6 +316,10 @@
   <string name="Settings.Players.ClosePlayersWhenFinished.Help">启用自动关闭播放器</string>
   <string name="Settings.Players.InstantSkipPercent">瞬时跳过百分比</string>
   <string name="Settings.Players.InstantSkipPercent.Help">选择视频中瞬时跳过的百分比</string>
+  <string name="Settings.Players.InstantSkipSeconds">瞬间跳秒</string>
+  <string name="Settings.Players.InstantSkipSeconds.Help">选择您想立即跳过多少秒</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds">更喜欢即时跳过秒</string>
+  <string name="Settings.Players.PreferInstantSkipSeconds.Help">选择是否更喜欢使用绝对秒数而不是相对百分比来立即跳过</string>
   <string name="Settings.Players.SkipStepTimeout">跳过步骤的超时时间(秒)</string>
   <string name="Settings.Players.SkipStepTimeout.Help">调整 跳过步骤 完成前的用户输入超时时间</string>
   <string name="Settings.Players.SkipStepList">播放器跳过步骤</string>
@@ -300,4 +327,6 @@
   <string name="Settings.Players.OpenPlayerStrategy">打开播放器策略</string>
   <string name="Settings.Players.OpenPlayerStrategy.Help">策略，how newly opened players will be positioned among already open players</string>
   <!--Secondary filters-->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
 </resources>

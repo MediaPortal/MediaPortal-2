@@ -23,11 +23,10 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
-using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -35,14 +34,11 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public ImageHomeContent()
     {
-      _availableLists.Add(new LatestImageList());
-      _availableLists.Add(new FavoriteImageList());
-      _availableLists.Add(new UnplayedImageList());
-    }
+      _availableMediaLists.Add(new LatestImageList());
+      _availableMediaLists.Add(new FavoriteImageList());
+      _availableMediaLists.Add(new UnplayedImageList());
 
-    protected override void PopulateBackingList()
-    {
-      _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
+      _shortcutLists.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new ImageYearShortcut(),
         new ImageLocationShortcut(),

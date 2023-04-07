@@ -41,8 +41,8 @@
             <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
           </ControlTemplate.Resources>
           <Border x:Name="OSD_Background" BorderBrush="{ThemeResource OSDPlayControlBorderColor}"
-              CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
-              DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+                  CornerRadius="{ThemeResource OSDPlayControlCornerRadius}" BorderThickness="{ThemeResource OSDPlayControlBorderThickness}"
+                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
             <Border.Background>
               <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
                 <GradientStop Offset="0" Color="{ThemeResource OSDPlayerControlBackgroundColor1}"/>
@@ -51,7 +51,7 @@
               </LinearGradientBrush >
             </Border.Background>
             <Grid x:Name="PlayerGrid" Margin="10,0,10,0"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
               <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
               </Grid.ColumnDefinitions>
@@ -64,7 +64,7 @@
               <DockPanel Grid.Column="0" Grid.Row="0" LastChildFill="true" Margin="3">
                 <Grid x:Name="AudioPanel" DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="4,0,0,0">
                   <Grid x:Name="Audio_NoMouse" IsVisible="{Binding !ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
+                        VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_Mouse -->
                     <Control x:Name="AudioSimple" IsVisible="{Binding IsAudio}" Template="{ThemeResource AudioActiveControlTemplate}"/>
                     <Control x:Name="MuteOnOffSimple" Template="{ThemeResource MuteOnOffControlTemplate}">
                       <Control.IsVisible>
@@ -76,11 +76,11 @@
                     </Control>
                   </Grid>
                   <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_NoMouse -->
+                        VerticalAlignment="Center" HorizontalAlignment="Center"> <!-- Must be located the same as Audio_NoMouse -->
                     <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
+                            Command="{Command AudioButtonPressed}"/>
                     <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
+                            Command="{Command AudioButtonPressed}"/>
                   </Grid>
                 </Grid>
                 <Grid DockPanel.Dock="Center">
@@ -91,12 +91,12 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                         HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </Grid>
               </DockPanel>
               <Border x:Name="BgProgressbar" Grid.Row="1" Grid.Column="0"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                  BorderBrush="Black" CornerRadius="3" BorderThickness="1">
+                      HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                      BorderBrush="Black" CornerRadius="3" BorderThickness="1">
                 <Border.Background>
                   <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
                     <GradientStop Offset="0" Color="{ThemeResource OSDProgressBarBackgroundGradient1Color}"/>
@@ -115,45 +115,45 @@
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
-                    Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+                       Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" Margin="10,0,0,0" HorizontalAlignment="Right"
-                    IsVisible="{Binding IsPlayerPresent}">
+                            IsVisible="{Binding IsPlayerPresent}">
                   <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}" Color="{ThemeResource TextColor}"/>
                   <Label Content="/" Margin="4,0,4,0" Color="{ThemeResource TextColor}"/>
                   <Label x:Name="VideoDurationLabel" Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
                 </StackPanel>
               </Grid> <!-- StatusLineGrid -->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
-                  VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                          VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
-                    Command="{Command Previous}"/>
+                        Command="{Command Previous}"/>
                 <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
-                    Command="{Command SeekBackward}"/>
+                        Command="{Command SeekBackward}"/>
                 <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
-                    Command="{Command Play}"/>
+                        Command="{Command Play}"/>
                 <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
-                    Command="{Command Pause}"/>
+                        Command="{Command Pause}"/>
                 <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
-                    Command="{Command Stop}"/>
+                        Command="{Command Stop}"/>
                 <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
-                    Command="{Command SeekForward}"/>
+                        Command="{Command SeekForward}"/>
                 <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
-                    Command="{Command Next}"/>
+                        Command="{Command Next}"/>
                 <Button x:Name="SelectTitleButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="5,0,5,0"
-                    IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
-                    Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
+                        IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.TitlesAvailable}"
+                        Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseTitleDialog}"/>
                 <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="5,0,5,0"
-                    IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                    Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
+                        IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                        Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.PrevChapter}"/>
                   <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="5,0,5,0"
-                    IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                    Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
+                        IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                        Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseChapterDialog}"/>
                   <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="5,0,5,0"
-                    IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
-                    Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
+                        IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.ChaptersAvailable}"
+                        Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.NextChapter}"/>
                 <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0"
-                    IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
-                    Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
+                        IsVisible="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.SubtitlesAvailable}"
+                        Command="{Command Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor.OpenChooseSubtitleDialog}"/>
 
               </StackPanel> <!-- PlayControlsPanel -->
             </Grid> <!-- PlayerGrid -->
@@ -218,12 +218,12 @@
                     </Control>
                   </Grid>
                   <Grid x:Name="Audio_Mouse" IsVisible="{Binding ShowMouseControls}"
-                      VerticalAlignment="Center" HorizontalAlignment="Center">
+                        VerticalAlignment="Center" HorizontalAlignment="Center">
                     <!-- Must be located the same as Audio_NoMouse -->
                     <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
+                            Command="{Command AudioButtonPressed}"/>
                     <Button x:Name="AudioInactiveButton" IsVisible="{Binding !IsAudio}" Style="{ThemeResource AudioInactiveButtonStyle}"
-                        Command="{Command AudioButtonPressed}"/>
+                            Command="{Command AudioButtonPressed}"/>
                   </Grid>
                 </Grid>
                 <Grid DockPanel.Dock="Center">
@@ -234,12 +234,12 @@
                     <RowDefinition Height="*"/>
                   </Grid.RowDefinitions>
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
-                      HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                         HorizontalAlignment="Left" VerticalAlignment="Center"/>
                 </Grid>
               </DockPanel>
               <Border x:Name="BgProgressbar" Grid.Row="1" Grid.Column="0"
-                  HorizontalAlignment="Stretch" VerticalAlignment="Top"
-                  BorderBrush="Black" CornerRadius="3" BorderThickness="1">
+                      HorizontalAlignment="Stretch" VerticalAlignment="Top"
+                      BorderBrush="Black" CornerRadius="3" BorderThickness="1">
                 <Border.Background>
                   <RadialGradientBrush Center="0.5,-0" GradientOrigin="0.5,0" RadiusX="0.9" RadiusY="0.5">
                     <GradientStop Offset="0" Color="{ThemeResource OSDProgressBarBackgroundGradient1Color}"/>
@@ -247,7 +247,7 @@
                   </RadialGradientBrush>
                 </Border.Background>
                 <ProgressBar x:Name="ProgressBar" Height="10" HorizontalAlignment="Stretch" VerticalAlignment="Center"
-                    Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
+                             Value="{Binding Path=PercentPlayed, Mode=TwoWay}"/>
               </Border>
               <Grid x:Name="StatusLineGrid" Grid.Column="0" Grid.Row="2">
                 <Grid.ColumnDefinitions>
@@ -258,9 +258,9 @@
                   <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
                 <Label x:Name="PlayerStateLabel" Grid.Column="0" Grid.Row="0" HorizontalAlignment="Left"
-                    Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
+                       Content="{Binding PlayerStateText}" Color="{ThemeResource TextColor}" Scroll="Auto"/>
                 <StackPanel Orientation="Horizontal" Grid.Column="1" Grid.Row="0" Margin="10,0,0,0" HorizontalAlignment="Right"
-                    IsVisible="{Binding IsPlayerPresent}">
+                            IsVisible="{Binding IsPlayerPresent}">
                   <Label x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}" Color="{ThemeResource TextColor}"/>
                   <Label Content="/" Margin="4,0,4,0" Color="{ThemeResource TextColor}"/>
                   <Label x:Name="VideoLengthLabel" Content="{Binding Duration}" Color="{ThemeResource TextColor}"/>
@@ -268,42 +268,37 @@
               </Grid>
               <!-- StatusLineGrid -->
               <StackPanel x:Name="PlayControlsPanel" Orientation="Horizontal" Grid.Column="0" Grid.Row="3" Margin="10,10,10,0"
-                  VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
+                          VerticalAlignment="Center" HorizontalAlignment="Center" IsVisible="{Binding ShowMouseControls}" >
                 <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipBack}"
-                    Command="{Command Previous}"/>
+                        Command="{Command Previous}"/>
                 <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekBackward}"
-                    Command="{Command SeekBackward}"/>
+                        Command="{Command SeekBackward}"/>
                 <Button x:Name="PlayButton" Style="{ThemeResource PlayButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPlay}"
-                    Command="{Command Play}"/>
+                        Command="{Command Play}"/>
                 <Button x:Name="PauseButton" Style="{ThemeResource PauseButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanPause}"
-                    Command="{Command Pause}"/>
+                        Command="{Command Pause}"/>
                 <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanStop}"
-                    Command="{Command Stop}"/>
+                        Command="{Command Stop}"/>
                 <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSeekForward}"
-                    Command="{Command SeekForward}"/>
+                        Command="{Command SeekForward}"/>
                 <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="5,0,5,0" IsVisible="{Binding CanSkipForward}"
-                    Command="{Command Next}"/>
+                        Command="{Command Next}"/>
 
                 <!-- DVD specific feature buttons -->
                 <StackPanel x:Name="DvdButtons" Orientation="Horizontal" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-                    DataContext="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor}">
+                            DataContext="{Binding Source={StaticResource VideoPlayerModel},Path=PlayerUIContributor}">
                   <Button x:Name="ShowDvdMenuButton" Style="{ThemeResource ShowDvdMenuButtonStyle}" Margin="5,0,5,0" 
-                      Command="{Command ShowDvdMenu}"/>
+                          Command="{Command ShowDvdMenu}"/>
                   <Button x:Name="PreviousChapterButton" Style="{ThemeResource PreviousChapterButtonStyle}" Margin="5,0,5,0" 
-                      IsVisible="{Binding ChaptersAvailable}"
-                      Command="{Command PrevChapter}"/>
+                          IsVisible="{Binding ChaptersAvailable}" Command="{Command PrevChapter}"/>
                   <Button x:Name="SelectChapterButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="5,0,5,0" 
-                      IsVisible="{Binding ChaptersAvailable}"
-                      Command="{Command OpenChooseChapterDialog}"/>
+                          IsVisible="{Binding ChaptersAvailable}" Command="{Command OpenChooseChapterDialog}"/>
                   <Button x:Name="NextChapterButton" Style="{ThemeResource NextChapterButtonStyle}" Margin="5,0,5,0" 
-                      IsVisible="{Binding ChaptersAvailable}"
-                      Command="{Command NextChapter}"/>
+                          IsVisible="{Binding ChaptersAvailable}" Command="{Command NextChapter}"/>
                   <Button x:Name="SelectSubtitleButton" Style="{ThemeResource SelectSubtitleButtonStyle}" Margin="5,0,5,0" 
-                      IsVisible="{Binding SubtitlesAvailable}"
-                      Command="{Command OpenChooseSubtitleDialog}"/>
+                          IsVisible="{Binding SubtitlesAvailable}" Command="{Command OpenChooseSubtitleDialog}"/>
                   <Button x:Name="SelectTitleButton" Style="{ThemeResource SelectChapterButtonStyle}" Margin="5,0,5,0" 
-                      IsVisible="{Binding TitlesAvailable}"
-                      Command="{Command OpenChooseTitleDialog}"/>
+                          IsVisible="{Binding TitlesAvailable}" Command="{Command OpenChooseTitleDialog}"/>
                 </StackPanel> <!-- DvdButtons -->
               </StackPanel> <!-- PlayControlsPanel -->
               <!-- PlayControlsPanel -->
@@ -675,9 +670,9 @@
         <ColumnDefinition Width="100"/>
       </Grid.ColumnDefinitions>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="0" Content="{Binding [Name]}"
-          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
       <Label Grid.Row="0" Grid.Column="1" Content="{Binding AdditionalProperties[PlaylistNumItems]}"
-          HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
     </Grid>
   </DataTemplate>
 
@@ -734,7 +729,26 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource EditPlaylistItemContainerStyle}"/>
   </Style>
 
-  <Style x:Key="PlaylistsListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+  <Style x:Key="PlaylistsListItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle}"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PlaylistsList1ViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
     <Setter Property="Template">
       <Setter.Value>
         <ControlTemplate TargetType="{x:Type ListView}">
@@ -745,18 +759,18 @@
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <ScrollViewer CanContentScroll="true"
-                HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}">
+            <ScrollViewer CanContentScroll="true" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=!IsEmpty}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
             <Label Content="[Media.NoPlaylistsAvailable]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
-                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+                   Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource PlaylistsListItemDataTemplate}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource PlaylistsListItemContainerStyle}"/>
   </Style>
 
   <Style x:Key="MultiMarkablePlaylistsListViewStyle" BasedOn="{ThemeResource MarkableListViewStyle}">

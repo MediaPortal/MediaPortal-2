@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[InputDevices.Dialog.AddInput.Header]"/>
+
+    <Model x:Key="InputMappingModel" Id="5ADEEAF0-ED14-4590-8A71-BFEA13D7908A"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel MinHeight="50" HorizontalAlignment="Stretch" LastChildFill="False"
+                 DataContext="{Binding Source={StaticResource InputMappingModel}, Path=ActionsProxy}">
+        <Label DockPanel.Dock="Top" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" Margin="0,15,0,0"
+               Content="[InputDevices.Dialog.AddInput.Help]" Wrap="True"/>
+        <Image DockPanel.Dock="Center" Source="press.png" Height="200" Stretch="Uniform" Margin="0,30,0,0"/>
+        <Label DockPanel.Dock="Bottom" HorizontalAlignment="Center" Color="{ThemeResource TextColor}" Margin="0,15,0,15"
+               Content="{Binding Source={Binding MappingProxy}, Path=InputsDisplayName}"/>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

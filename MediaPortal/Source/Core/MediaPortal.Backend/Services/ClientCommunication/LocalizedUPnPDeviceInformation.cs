@@ -23,6 +23,7 @@
 #endregion
 
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using MediaPortal.Backend.BackendServer.Settings;
 using MediaPortal.Common;
@@ -33,7 +34,7 @@ using UPnP.Infrastructure.Dv.DeviceTree;
 
 namespace MediaPortal.Backend.Services.ClientCommunication
 {
-  public class LocalizedUPnPDeviceInformation : ILocalizedDeviceInformation
+  public class LocalizedUPnPDeviceInformation : ILocalizedDeviceInformation, IAdditionalLocalizedDeviceInformation
   {
     public const string RES_DEFAULT_FRIENDLY_NAME = "[UPnPBackendServer.DefaultFriendlyName]";
     public const string RES_MANUFACTURER = "[UPnPBackendServer.Manufacturer]";
@@ -101,6 +102,12 @@ namespace MediaPortal.Backend.Services.ClientCommunication
     public ICollection<IconDescriptor> GetIcons(CultureInfo culture)
     {
       return new List<IconDescriptor>();
+    }
+
+    public string GetSoftwareVersion(CultureInfo culture)
+    {
+      FileVersionInfo fileVersionInfo = FileVersionInfo.GetVersionInfo(System.Reflection.Assembly.GetCallingAssembly().Location);
+      return fileVersionInfo.FileVersion;
     }
   }
 }

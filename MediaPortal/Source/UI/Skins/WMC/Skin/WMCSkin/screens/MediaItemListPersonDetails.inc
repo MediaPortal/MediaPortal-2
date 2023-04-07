@@ -44,7 +44,7 @@
 
           <StackPanel Orientation="Vertical" Grid.Row="0" Grid.Column="0" Margin="0,0,20,0">
             <Label VerticalAlignment="Stretch" Content="{Binding PersonName}" TextTrimming="WordEllipsis"
-                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="SegoeUIBold" Wrap="True"/>
+                   Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Wrap="True"/>
             <StackPanel Orientation="Horizontal">
               <Label FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                      Content="{Binding Path=BornDate, Converter={StaticResource DateFormatConverter}, ConverterParameter=yyyy}"/>

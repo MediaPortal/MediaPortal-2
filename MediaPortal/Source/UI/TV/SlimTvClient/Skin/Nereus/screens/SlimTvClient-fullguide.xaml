@@ -53,7 +53,7 @@
         <Image Source="BottomGlow.png" Grid.ColumnSpan="4" Grid.Row="1" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
                Height="20" Margin="0,0,0,-20"/>
 
-        <Label x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="20,2,10,0" FontFamily="SegoeUIBold"
+        <Label x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="20,2,10,0" FontFamily="Noto-Bold"
                Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" Grid.ColumnSpan="2">
           <Label.Resources>
             <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>

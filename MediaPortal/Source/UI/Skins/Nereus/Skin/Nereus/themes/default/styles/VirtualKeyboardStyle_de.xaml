@@ -12,7 +12,7 @@
        VirtualKeyboardStyle_XX.xaml, where XX is the two-letter code for the language, like
        de for german. Then change your copied control to build the desired layout. -->
   <ControlTemplate x:Key="VirtualKeyboardLayout">
-    <Grid x:Name="FullKeyboardLayout">
+    <Grid x:Name="FullKeyboardLayout" HorizontalAlignment="Center">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/> <!-- Control buttons -->
         <ColumnDefinition Width="*"/> <!-- Actual keyboard -->

@@ -101,7 +101,7 @@
       </Grid.RowDefinitions>
 
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" Margin="0,0,5,0"
-             FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold">
+             FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -163,7 +163,7 @@
             </DataTrigger>
           </Label.Triggers>
         </Label>
-        <Label x:Name="NumItems" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+        <Label x:Name="NumItems" Content="{Binding NumItems}" FontFamily="Noto-Bold" HorizontalAlignment="Left" VerticalAlignment="Top"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" Margin="15,3,25,25" Opacity="0.6"/>
       </Grid>
     </Grid>
@@ -196,7 +196,7 @@
         </Image>
         <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
            FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25"/>
-        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="Noto-Bold" HorizontalAlignment="Left" VerticalAlignment="Top"
                Color="Black" FontSize="{ThemeResource TinyFontSize}" Margin="15,5,25,25" />
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
@@ -225,7 +225,7 @@
       </Grid.RowDefinitions>
 
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             FontFamily="DefaultBold" Margin="0,0,10,0">
+             FontFamily="Noto-Bold" Margin="0,0,10,0">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -312,7 +312,7 @@
             </DataTrigger>
           </Label.Triggers>
         </Label>
-        <Label x:Name="NumItems" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+        <Label x:Name="NumItems" Content="{Binding NumItems}" FontFamily="Noto-Bold" HorizontalAlignment="Left" VerticalAlignment="Top"
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource TinyFontSize}" Margin="15,3,25,25" Opacity="0.6"/>
       </Grid>
     </Grid>
@@ -345,7 +345,7 @@
         </Image>
         <Label x:Name="ItemLabel" Grid.Row="0" Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}"
            FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Center" VerticalAlignment="Bottom" Margin="10,25,10,25"/>
-        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Top"
+        <Label x:Name="NumItems" Grid.Row="0" Grid.Column="0" Content="{Binding NumItems}" FontFamily="Noto-Bold" HorizontalAlignment="Left" VerticalAlignment="Top"
                Color="Black" FontSize="{ThemeResource TinyFontSize}" Margin="15,5,25,25" />
         <Border BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
@@ -400,7 +400,7 @@
         <media:SeriesAspectWrapper.Template>
           <ControlTemplate>
             <Label x:Name="ItemLabel" Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=SeriesName}" FontSize="{ThemeResource SmallFontSize}"
-             FontFamily="DefaultBold" Margin="0,0,10,0">
+             FontFamily="Noto-Bold" Margin="0,0,10,0">
               <Label.Color>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                   <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -480,7 +480,7 @@
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
               <StackPanel Orientation="Horizontal">
-                <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold" Margin="0,0,7,0"
+                <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Margin="0,0,7,0"
                      Content="[Media.SeasonRootViewName]">
                   <Label.Color>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -490,7 +490,7 @@
                     </MultiBinding>
                   </Label.Color>
                 </Label>
-                <Label x:Name="NumberLabel" Content="{Binding Season}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold">
+                <Label x:Name="NumberLabel" Content="{Binding Season}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold">
                   <Label.Color>
                     <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
                       <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -621,7 +621,7 @@
       </DockPanel>
       
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" FontSize="{ThemeResource SmallFontSize}" 
-             FontFamily="DefaultBold" Margin="10,0,4,0">
+             FontFamily="Noto-Bold" Margin="10,0,4,0">
         <Label.Content>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
             <Binding Path="EpisodeNumber"/>
@@ -779,7 +779,7 @@
         </Image.IsVisible>
       </Image>
 
-      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0"
+      <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Grid.Row="0" Grid.Column="1" Margin="0,0,10,0"
              Content="{Binding SimpleTitle}" HorizontalAlignment="Stretch" TextTrimming="WordEllipsis" Wrap="False" >
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -896,7 +896,7 @@
         <media:MovieAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
-              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold" TextTrimming="WordEllipsis" Wrap="False"
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" TextTrimming="WordEllipsis" Wrap="False"
                        Content="{Binding MovieName}" HorizontalAlignment="Stretch">
                 <Label.Color>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -989,7 +989,7 @@
       </Grid.RowDefinitions>
 
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             FontFamily="DefaultBold" Margin="0,0,10,0">
+             FontFamily="Noto-Bold" Margin="0,0,10,0">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -1056,7 +1056,7 @@
         <media:AudioAspectWrapper.Template>
           <ControlTemplate>
             <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" Margin="0,0,10,0">
-              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold">
+              <Label x:Name="ItemLabel" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold">
                 <Label.Content>
                   <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} + {1} + {2}">
                     <Binding Path="Track"/>
@@ -1161,7 +1161,7 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             FontFamily="DefaultBold" Margin="0,0,10,0">
+             FontFamily="Noto-Bold" Margin="0,0,10,0">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -1298,7 +1298,7 @@
       </Control>
 
       <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}"
-             FontFamily="DefaultBold" Margin="0,0,10,0">
+             FontFamily="Noto-Bold" Margin="0,0,10,0">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
             <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
@@ -1424,7 +1424,7 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="DefaultBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontFamily="Noto-Bold"
              FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
         <Label.Color>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1498,7 +1498,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis"
-               Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"/>
+               Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1532,7 +1532,7 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
              Color="{ThemeResource TextColor}">
         <Label.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1572,7 +1572,7 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis"
-                 Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5" FontFamily="DefaultBold"/>
+                 Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5" FontFamily="Noto-Bold"/>
         </Grid>
         <Border Grid.Row="1" BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
               IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
@@ -1604,7 +1604,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis"
-               Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold" Margin="3,0,3,5"/>
+               Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Margin="3,0,3,5"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1638,7 +1638,7 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
              Color="{ThemeResource TextColor}">
         <Label.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1677,7 +1677,7 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
-          <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis" FontFamily="DefaultBold"
+          <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis" FontFamily="Noto-Bold"
                  Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5"/>
         </Grid>
         <Border Grid.Row="1" BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
@@ -1710,7 +1710,7 @@
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis"
-               Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold" Margin="3,0,3,5"/>
+               Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold" Margin="3,0,3,5"/>
       </Grid>
     </Grid>
   </ControlTemplate>
@@ -1744,7 +1744,7 @@
           </Image.IsVisible>
         </Image>
       </DockPanel>
-      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" FontFamily="DefaultBold"
+      <Label x:Name="ItemLabel" Grid.Row="0" Grid.Column="1" Content="{Binding SimpleTitle}" FontSize="{ThemeResource SmallFontSize}" FontFamily="Noto-Bold"
              Color="{ThemeResource TextColor}">
         <Label.Opacity>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1784,7 +1784,7 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Bottom" TextTrimming="CharacterEllipsis"
-                 Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5" FontFamily="DefaultBold"/>
+                 Content="{Binding SimpleTitle}" Color="{ThemeResource TextColor}" Margin="3,0,3,5" FontFamily="Noto-Bold"/>
         </Grid>
         <Border Grid.Row="1" BorderBrush="White" BorderThickness="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-2"
                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
@@ -2351,9 +2351,9 @@
                   Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
           <DockPanel LastChildFill="False">
             <Label DockPanel.Dock="Top" x:Name="DurationLabel" Content="{Binding Duration}" Margin="10,10,20,0"
-                   Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold"/>
+                   Color="{ThemeResource TextColor}" FontSize="28" FontFamily="Noto-Bold"/>
             <Label DockPanel.Dock="Bottom" x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}" Margin="10,0,20,10"
-                   Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="DefaultBold"/>
+                   Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="Noto-Bold"/>
           </DockPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
@@ -2424,9 +2424,9 @@
                   Command="{Command Source={Service WorkflowManager},Path=TryExecuteAction,Parameters=9EE2C4A6-70FD-4947-9418-A40012925DA6}"/>
           <DockPanel LastChildFill="False">
             <Label DockPanel.Dock="Top" x:Name="DurationLabel" Content="{Binding Duration}" Margin="10,10,20,0"
-                   Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold"/>
+                   Color="{ThemeResource TextColor}" FontSize="28" FontFamily="Noto-Bold"/>
             <Label DockPanel.Dock="Bottom" x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}" Margin="10,0,20,10"
-                   Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="DefaultBold"/>
+                   Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="Noto-Bold"/>
           </DockPanel>
         </StackPanel>
         <StackPanel Orientation="Horizontal" VerticalAlignment="Top" DockPanel.Dock="Right" Margin="40,0,0,0">
@@ -2498,9 +2498,9 @@
                   Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
           <DockPanel LastChildFill="False">
             <Label DockPanel.Dock="Top" x:Name="DurationLabel" Content="{Binding Duration}" Margin="10,10,20,0"
-                   Color="{ThemeResource TextColor}" FontSize="28" FontFamily="DefaultBold"/>
+                   Color="{ThemeResource TextColor}" FontSize="28" FontFamily="Noto-Bold"/>
             <Label DockPanel.Dock="Bottom" x:Name="CurrentTimeLabel" Content="{Binding CurrentTime}" Margin="10,0,20,10"
-                   Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="DefaultBold"/>
+                   Color="{ThemeResource OSDProgressBarFillColor}" FontSize="28" FontFamily="Noto-Bold"/>
           </DockPanel>
         </StackPanel>
       </DockPanel>
@@ -2542,7 +2542,7 @@
                     Command="{Command Stop}" IsEnabled="{Binding IsEnabled}"/>
           <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSkipForward}"
                     Command="{Command Next}" IsEnabled="{Binding IsEnabled}"/>
-          <Label x:Name="ImageName" Margin="10,0,20,10" FontFamily="DefaultBold" FontSize="28"
+          <Label x:Name="ImageName" Margin="10,0,20,10" FontFamily="Noto-Bold" FontSize="28"
                  Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Scroll="Auto"
                  HorizontalAlignment="Left" VerticalAlignment="Top"/>
         </StackPanel>
@@ -2612,7 +2612,7 @@
                   </Grid.RowDefinitions>
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Margin="0,10,0,0"
-                         FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
+                         FontFamily="Noto-Bold" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
 
                   <media:MediaAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Column="1" Margin="10,10,0,0">
                     <media:MediaAspectWrapper.Template>
@@ -2675,7 +2675,7 @@
                   </Grid.RowDefinitions>
 
                   <Label x:Name="VideoName" Content="{Binding Path=MediaItemTitle}" Color="{ThemeResource TextColor}" Margin="0,10,0,0"
-                         FontFamily="DefaultBold" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
+                         FontFamily="Noto-Bold" HorizontalAlignment="Left" VerticalAlignment="Center" TextTrimming="WordEllipsis"/>
 
                   <media:VideoAspectWrapper MediaItem="{Binding Path=MediaItem}" Grid.Row="1" Grid.ColumnSpan="2" Margin="0,0,0,0"
                                             HorizontalAlignment="Stretch" VerticalAlignment="Stretch">

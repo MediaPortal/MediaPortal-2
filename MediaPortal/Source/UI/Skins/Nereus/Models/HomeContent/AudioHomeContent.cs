@@ -23,13 +23,10 @@
 #endregion
 
 using MediaPortal.UI.Presentation.DataObjects;
+using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UiComponents.Media.General;
-using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using System.Collections.Generic;
-using System.Linq;
-using System.Windows.Forms;
-using MediaPortal.UI.Presentation.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
@@ -37,15 +34,12 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public AudioHomeContent()
     {
-      _availableLists.Add(new LatestAudioList());
-      _availableLists.Add(new ContinueAlbumList());
-      _availableLists.Add(new FavoriteAudioList());
-      _availableLists.Add(new UnplayedAlbumList());
-    }
+      _availableMediaLists.Add(new LatestAudioList());
+      _availableMediaLists.Add(new ContinueAlbumList());
+      _availableMediaLists.Add(new FavoriteAudioList());
+      _availableMediaLists.Add(new UnplayedAlbumList());
 
-    protected override void PopulateBackingList()
-    {
-      _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
+      _shortcutLists.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new AudioGenreShortcut(),
         new AudioTrackShortcut(),

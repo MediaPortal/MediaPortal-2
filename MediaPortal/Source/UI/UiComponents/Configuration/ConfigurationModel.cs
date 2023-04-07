@@ -158,6 +158,15 @@ namespace MediaPortal.UiComponents.Configuration
       get { return _currentConfigController; }
     }
 
+    /// <summary>
+    /// Returns a string representing the location of the current node in the tree. The location is the
+    /// concatenation of the ids of all parents on the path from root to this node.
+    /// </summary>
+    public string CurrentLocation
+    {
+      get { return _currentLocation; }
+    }
+
     public AbstractProperty HeaderTextProperty
     {
       get { return _headerTextProperty; }

@@ -4,4 +4,7 @@
   <string name="WhatsNew.WhatsNewText">Nova Skin Nereus com um design intuitivo, inovador e moderno. Experimente! Pode facilmente voltar para a sua skin corrente e não perder nenhuma configuração.</string>
   <string name="WhatsNew.ButtonText">Alterar para Nereus</string>
 
-  </resources>
+  <string name="WhatsNew.ScreenTitle_2.4">Novidaddes no MediaPortal 2.4</string>
+  <string name="WhatsNew.WhatsNewText_2.4">O nosso tema predefinido Nereus foi adicionalmente melhorado para ter o melhor aspeto em mais resoluções de ecrã.  Pode alterar facilmente as configurações dentro das configurações de ecrã.</string>
+  <string name="WhatsNew.ButtonText_2.4">Aplicar novas predefinições</string>
+</resources>

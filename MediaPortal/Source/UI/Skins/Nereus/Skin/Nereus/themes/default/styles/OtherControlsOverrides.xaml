@@ -321,7 +321,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.5"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Opacity="0.6" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold">
 
         </Label>
       </Grid>
@@ -497,6 +497,28 @@
   </DataTemplate>
 
   <Style x:Key="MenuListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                      HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image Source="empty.png" Height="100" Stretch="Uniform"/>
+              <Label Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
     <Setter Property="ItemTemplate" Value="{ThemeResource DefaultItemDataTemplate}"/>
     <Setter Property="DataStringProvider" Value="{ThemeResource DefaultItemDataStringProvider}"/>
     <Setter Property="ItemContainerStyle" Value="{ThemeResource MenuItemContainerStyleWide}"/>
@@ -520,16 +542,40 @@
         <RowDefinition Height="Auto"/>
       </Grid.RowDefinitions>
 
-      <Rectangle Fill="#222222" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
-      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" Opacity="0.7">
+      <Rectangle Fill="#222222" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableCircleMenuImages}"/>
+      <Image x:Name="ItemImage" Grid.RowSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill"
+             Opacity="0.8" RenderTransformOrigin="0.5,0.5">
+          <Image.RenderTransform>
+            <TransformGroup>
+              <RotateTransform Angle="0"/>
+            </TransformGroup>
+          </Image.RenderTransform>
+          <Image.Width>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCircleMenuImages"/>
+            <Binding Source="150"/>
+            <Binding Source="170"/>
+          </MultiBinding>
+        </Image.Width>
+        <Image.Height>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCircleMenuImages"/>
+            <Binding Source="150"/>
+            <Binding Source="170"/>
+          </MultiBinding>
+        </Image.Height>
+
         <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1}+{3} : {2}+{3}">
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableCircleMenuImages"/>
             <Binding Source="HomeMenu\"/>
+            <Binding Source="HomeMenuRound\"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}"/>
           </MultiBinding>
         </Image.Source>
       </Image>
-      
+
       <Grid x:Name="ItemBandGrid" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" RenderTransformOrigin="0.5,1">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -545,12 +591,38 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold"/>
       </Grid>
+      
+      <!-- Indicator segment for round menu tiles -->
+      <Image HorizontalAlignment="Left" Grid.RowSpan="2" Source="focus.png" Opacity="1" Height="93" Width="25" Margin="10,13,10,10"
+             VerticalAlignment="Stretch" Stretch="Fill">
+        <Image.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding Path="Selected"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCircleMenuImages"/>
+          </MultiBinding>
+        </Image.IsVisible>
+      </Image>
+      
+      <!-- Indicator bar for square menu tiles -->
       <Image Width="15" HorizontalAlignment="Left" Grid.RowSpan="2" Source="Horizontal_gradient.png" Opacity="0.8"
-             VerticalAlignment="Stretch" IsVisible="{Binding Path=Selected}" Stretch="Fill"/>
-      <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch"
-                 IsVisible="{Binding Path=Selected}"/>
+             VerticalAlignment="Stretch" IsVisible="{Binding Path=Selected}" Stretch="Fill">
+        <Image.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding Path="Selected"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableCircleMenuImages"/>
+          </MultiBinding>
+        </Image.IsVisible>
+      </Image>
+      <Rectangle Fill="#FFFFFF" Width="5" Grid.RowSpan="2" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+        <Rectangle.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding Path="Selected"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableCircleMenuImages"/>
+          </MultiBinding>
+        </Rectangle.IsVisible>
+      </Rectangle>
     </Grid>
   </DataTemplate>
 
@@ -586,7 +658,7 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.5"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Left" VerticalAlignment="Center" Opacity="0.6" Content="{Binding [Name]}"
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="76,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold">
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold">
           <!--Label.Content>
             <Binding Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}{0}.jpg"/>
           </-->
@@ -605,15 +677,36 @@
   <!--++++++++++++++++++++++++ MEDIAMENU BUTTON STYLE ++++++++++++++++++++++++-->
 
   <DataTemplate x:Key="MediaMenuCoverItemDataTemplate">
-    <Grid x:Name="ItemControl" Margin="6" Background="{ThemeResource NereusColorLight}">
+    <Grid x:Name="ItemControl">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="170"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
         <RowDefinition Height="170"/>
       </Grid.RowDefinitions>
+      <Grid.Margin>
+        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {2} : {1}">
+          <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCircleMenuImages"/>
+          <Binding Source="-3,6,-3,6"/>
+          <Binding Source="6"/>
+        </MultiBinding>
+      </Grid.Margin>
 
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="BackgroundOverlay">
+      <Rectangle VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0"
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableCircleMenuImages}"/>
+
+      <Image x:Name="ItemBackground" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="150" Height="150" Opacity="0.6"
+             Source="MediaMenu\tile_background_focus.png"
+             Stretch="Fill" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCircleMenuImages}">
+        <Image.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="ItemBackground" Property="Opacity" Value="1"/>
+          </DataTrigger>
+        </Image.Triggers>
+      </Image>
+
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="BackgroundOverlay"
+            IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableCircleMenuImages}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -628,23 +721,24 @@
           </MultiBinding>
         </Grid.Background>
       </Grid>
-      <!--Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="tile_background_focus.jpg"/>
-            <Binding Source="tile_background_nofocus.jpg"/>
-            <Binding Source="MediaMenu\"/>
-          </MultiBinding>
-        </Image.Source>
-      </Image-->
-      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
+
+      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png" RenderTransformOrigin="0.5,0.5" Opacity="0.6">
+        <Image.RenderTransform>
+          <TransformGroup>
+            <RotateTransform Angle="0"/>
+          </TransformGroup>
+        </Image.RenderTransform>
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
             <Binding Source="MediaMenu\"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}"/>
           </MultiBinding>
         </Image.Source>
+        <Image.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="ItemImage" Property="Opacity" Value="1"/>
+          </DataTrigger>
+        </Image.Triggers>
       </Image>
 
       <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
@@ -662,16 +756,22 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,5"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold"/>
       </Grid>
 
-      <Rectangle Fill="#FFFFFF" Height="5" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+      <Rectangle Fill="#FFFFFF" Height="5" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+        <Rectangle.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableCircleMenuImages"/>
+          </MultiBinding>
+        </Rectangle.IsVisible>
+      </Rectangle>
     </Grid>
   </DataTemplate>
 
   <DataTemplate x:Key="MediaMenuItemDataTemplate">
-    <Grid x:Name="ItemControl" Margin="6" Background="{ThemeResource NereusColorLight}">
+    <Grid x:Name="ItemControl" Margin="6">
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="170"/>
       </Grid.ColumnDefinitions>
@@ -679,7 +779,21 @@
         <RowDefinition Height="170"/>
       </Grid.RowDefinitions>
 
-      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="BackgroundOverlay">
+      <Rectangle VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Fill="{ThemeResource NereusColorLight}" StrokeThickness="0"
+                 IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableCircleMenuImages}"/>
+
+      <Image x:Name="ItemBackground" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Width="150" Height="150" Opacity="0.6"
+             Source="MediaMenu\tile_background_focus.png"
+             Stretch="Fill" IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableCircleMenuImages}">
+        <Image.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="ItemBackground" Property="Opacity" Value="1"/>
+          </DataTrigger>
+        </Image.Triggers>
+      </Image>
+
+      <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" x:Name="BackgroundOverlay"
+            IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=![Nereus].EnableCircleMenuImages}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
@@ -692,26 +806,26 @@
             <Binding Source="{ThemeResource NereusOverlayFocus}"/>
             <Binding Source="{ThemeResource NereusOverlayNoFocus}"/>
           </MultiBinding>
-        </Grid.Background>        
+        </Grid.Background>
       </Grid>
 
-      <!--Image x:Name="ItemBackground" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill">
-        <Image.Source>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? ({3}+{1}) : ({3}+{2})">
-            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
-            <Binding Source="tile_background_focus.jpg"/>
-            <Binding Source="tile_background_nofocus.jpg"/>
-            <Binding Source="MediaMenu\"/>
-          </MultiBinding>
-        </Image.Source>
-      </Image-->
-      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png">
+      <Image x:Name="ItemImage" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Stretch="Fill" FallbackSource="MediaMenu\Search.png" RenderTransformOrigin="0.5,0.5" Opacity="0.6">
+        <Image.RenderTransform>
+          <TransformGroup>
+            <RotateTransform Angle="0"/>
+          </TransformGroup>
+        </Image.RenderTransform>
         <Image.Source>
           <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+{1}">
             <Binding Source="MediaMenu\"/>
             <Binding Source="{Binding Converter={StaticResource ListItemActionIdConverter}, ConverterParameter=.png}"/>
           </MultiBinding>
         </Image.Source>
+        <Image.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="ItemImage" Property="Opacity" Value="1"/>
+          </DataTrigger>
+        </Image.Triggers>
       </Image>
 
       <Grid x:Name="ItemBandGrid" HorizontalAlignment="Stretch" VerticalAlignment="Bottom" RenderTransformOrigin="0.5,1">
@@ -729,13 +843,38 @@
         <Rectangle x:Name="ItemBand" Fill="Black" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Opacity="0.4"/>
         <Label x:Name="ItemLabel" HorizontalAlignment="Center" VerticalAlignment="Center" Content="{Binding [Name]}" 
                FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource MenuTextForeground}" Margin="5,-5,5,1"
-               ScrollDelay="0" Scroll="None" FontFamily="SegoeUIBold"/>
+               ScrollDelay="0" Scroll="None" FontFamily="Noto-Bold"/>
       </Grid>
+      
+      <!-- Indicator bar for square menu tiles -->
       <Image HorizontalAlignment="Left" Source="Horizontal_gradient.png"
-             VerticalAlignment="Stretch" Stretch="Fill" Width="15" Opacity="0.8"
-             IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
-      <Rectangle Fill="#FFFFFF" Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch" 
-                 IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
+             VerticalAlignment="Stretch" Stretch="Fill" Width="15" Opacity="0.8">
+        <Image.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableCircleMenuImages"/>
+          </MultiBinding>
+        </Image.IsVisible>
+      </Image>
+      <Rectangle Fill="#FFFFFF" Width="5" HorizontalAlignment="Left" VerticalAlignment="Stretch">
+        <Rectangle.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="![Nereus].EnableCircleMenuImages"/>
+          </MultiBinding>
+        </Rectangle.IsVisible>
+      </Rectangle>
+
+      <!-- Indicator segment for round menu tiles -->
+      <Image HorizontalAlignment="Left" Grid.RowSpan="2" Source="focus.png" Opacity="1" Height="93" Width="25" Margin="10,13,10,10"
+             VerticalAlignment="Stretch" Stretch="Fill">
+        <Image.IsVisible>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+            <Binding Path="Selected"/>
+            <Binding Source="{StaticResource SkinSettingsModel}" Path="[Nereus].EnableCircleMenuImages"/>
+          </MultiBinding>
+        </Image.IsVisible>
+      </Image>
     </Grid>
   </DataTemplate>
 
@@ -785,8 +924,8 @@
         </ControlTemplate>
       </Setter.Value>
     </Setter>
-    <Setter TargetName="GrowControl" Property="Margin" Value="-10,0"/>
-    <Setter TargetName="ButtonContentPresenter" Property="Margin" Value="20,0"/>
+    <!--Setter TargetName="GrowControl" Property="Margin" Value="-10,0"/-->
+    <!--Setter TargetName="ButtonContentPresenter" Property="Margin" Value="20,0"/-->
   </Style>
 
   <Style x:Key="OtherItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
@@ -1148,14 +1287,18 @@
                   <Image Source="PlayerControl\DIVIDER.PNG" Height="35" Stretch="Uniform" VerticalAlignment="Center" Margin="3,0,3,0"/>
                   <Button x:Name="SkipBackButton" Style="{ThemeResource SkipBackButtonStyle}" IsVisible="{Binding CanSkipBack}" Command="{Command Previous}" />
                   <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" IsVisible="{Binding CanSeekBackward}" Command="{Command SeekBackward}" />
-                  <Button x:Name="PlayPauseButton" Margin="{ThemeResource PlayerControlButtonMargins}" Style="{ThemeResource PlayPauseButtonStyle}" 
-                            Command="{Command TogglePause}">
+                  <Button x:Name="PlayPauseButton" Margin="{ThemeResource PlayerControlButtonMargins}" Style="{ThemeResource PlayPauseButtonStyle}" Command="{Command Play}">
                     <Button.IsVisible>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
                         <Binding Path="CanPlay"/>
                         <Binding Path="CanPause"/>
                       </MultiBinding>
                     </Button.IsVisible>
+                    <Button.Triggers>
+                      <DataTrigger Binding="{Binding CanPause}" Value="True">
+                        <Setter Property="Command" Value="{Command Pause}"/>
+                      </DataTrigger>
+                    </Button.Triggers>
                   </Button>
                   <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" IsVisible="{Binding CanSeekForward}" Command="{Command SeekForward}" />
                   <Button x:Name="SkipForwardButton" Style="{ThemeResource SkipForwardButtonStyle}" IsVisible="{Binding CanSkipForward}" Command="{Command Next}"/>
@@ -1239,7 +1382,7 @@
                        VerticalAlignment="Top" HorizontalAlignment="Center" Opacity="0.9"/>
                 
                 <Label x:Name="CurrentTimeLabel" Grid.Row="0" Content="{Binding CurrentTime}" Opacity="0.9"
-                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="SegoeUIBold"
+                       HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,0,12" FontFamily="Noto-Bold"
                        Color="Black" FontSize="{ThemeResource SmallerFontSize}"/>
                 </Grid>
               </Grid>
@@ -1267,9 +1410,9 @@
              same internal property for all panel types -->
         <Setter Property="StackPanel.ZIndex" Value="100.0"/>
         <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-        <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+        <Setter TargetName="ShareName" Property="FontFamily" Value="Noto-Bold"/>
         <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
-        <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+        <Setter TargetName="Categories" Property="FontFamily" Value="Noto-Bold"/>
         <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
         <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
         <Setter TargetName="Grid3" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1282,18 +1425,18 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ShareName" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="ShareName" Property="Opacity" Value="1"/>
                 <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="Categories" Property="Opacity" Value="1"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="SharePath" Property="Opacity" Value="1"/>
-                <Setter TargetName="OnlineState_1" Property="FontFamily" Value="SegoeUIBold"/>
-                <Setter TargetName="OnlineState_2" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="OnlineState_1" Property="FontFamily" Value="Noto-Bold"/>
+                <Setter TargetName="OnlineState_2" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="OnlineState" Property="Opacity" Value="1"/>
-                <Setter TargetName="ReImportLabel" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ReImportLabel" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="ReImportLabel" Property="Opacity" Value="1"/>
                 <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1374,10 +1517,53 @@
     <Setter Property="ItemContainerStyle" Value="{ThemeResource ShareOverview1ContainerStyle}"/>
   </Style>
 
+  <!-- Data template for a system entry including subview for resource providers -->
+  <DataTemplate x:Key="SystemItemData1Template" DataType="{x:Type collections:ListItem}">
+    <Grid x:Name="ItemControl">
+      <Grid.RowDefinitions>
+        <RowDefinition Height="Auto"/>
+      </Grid.RowDefinitions>
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+
+      <!-- Subitems of systems: resourceproviders -->
+      <ListView Style="{ThemeResource SingleMarkableResourceProvidersListViewStyle}"
+                ItemsSource="{Binding Path=AdditionalProperties[SharesProxy].AllBaseResourceProviders,Mode=OneTime}"/>
+    </Grid>
+  </DataTemplate>
+
+  <!-- ListView style to be used for the nested systems/shares list -->
+  <Style x:Key="SingleMarkableSubItemList1ViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                          Background="{ThemeResource ItemsControlShadowBackgroundColor}">
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+            </ScrollViewer>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource SystemItemData1Template}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ShareItemDataStringProvider}"/>
+    <!--Setter Property="ItemContainerStyle" Value="{ThemeResource SingleMarkableShareContainerStyle}"/-->
+  </Style>
+
   <DataTemplate x:Key="SystemShares1ItemDataTemplate" DataType="{x:Type collections:ListItem}">
     <DockPanel Margin="5" LastChildFill="True">
       <DockPanel DockPanel.Dock="Top" LastChildFill="False">
-        <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,-20,10,10" Background="White" BorderThickness="0" Height="4"/>
+        <Border DockPanel.Dock="Bottom" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" Margin="0,-15,10,10" Background="White" BorderThickness="0" Height="4"/>
+        <Image DockPanel.Dock="Left" Source="full_install.png" Margin="0,5,10,5" Stretch="Uniform" VerticalAlignment="Top" Height="40"
+               IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
         <Label x:Name="SystemName" DockPanel.Dock="Left" Content="{Binding [Name]}">
           <Label.Color>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
@@ -1439,27 +1625,79 @@
             </MultiBinding>
           </Label.Color>
         </Label>
-        <StackPanel DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0,10,10,20" Orientation="Horizontal">
-          <StackPanel.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
-              <Binding ElementName="SystemSharesList" Path="ItemsCount" />
-            </MultiBinding>
-          </StackPanel.IsVisible>
-          <Label Margin="0,0,10,0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
-            <Label.Content>
-              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
-                <Binding ElementName="SystemSharesList" Path="CurrentItem"/>
-                <Binding ElementName="SystemSharesList" Path="ItemsSource"/>
+
+        <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" Margin="0,5,0,-5">
+          <!-- ListIndex header -->
+          <Grid x:Name="IndexLabelServer" HorizontalAlignment="Right" Margin="0,5,15,20" VerticalAlignment="Center" Panel.ZIndex="1">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                <Binding ElementName="SystemSharesList" Path="ItemsCount" />
               </MultiBinding>
-            </Label.Content>
-          </Label>
-          <Label Color="{ThemeResource TextColorForeground}" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
-          <Label Color="{ThemeResource TextColorForeground}" FontSize="{ThemeResource SmallerFontSize}">
-            <Label.Content>
-              <Binding ElementName="SystemSharesList" Path="ItemsCount" />
-            </Label.Content>
-          </Label>
-        </StackPanel>
+            </Grid.IsVisible>
+            <Label Grid.Column="0" Margin="0,0,10,0" Color="Black" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                  <Binding ElementName="SystemSharesList" Path="CurrentItem"/>
+                  <Binding ElementName="SystemSharesList" Path="ItemsSource"/>
+                </MultiBinding>
+              </Label.Content>
+            </Label>
+            <Label Grid.Column="1" Color="Black" Content="| " FontSize="{ThemeResource SmallerFontSize}"/>
+            <Label Grid.Column="2" Color="Black" FontSize="{ThemeResource SmallerFontSize}">
+              <Label.Content>
+                <Binding ElementName="SystemSharesList" Path="ItemsCount" />
+              </Label.Content>
+            </Label>
+          </Grid>
+          <!-- ListIndex header background -->
+          <Grid DockPanel.Dock="Right" HorizontalAlignment="Right" Panel.ZIndex="0">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="44"/>
+            </Grid.RowDefinitions>
+            <Rectangle HorizontalAlignment="Right" RadiusX="17" RadiusY="17" VerticalAlignment="Stretch" Fill="White" Margin="0,6,10,0">
+              <Rectangle.Width>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+20">
+                  <Binding ElementName="IndexLabelServer" Path="ActualWidth" />
+                </MultiBinding>
+              </Rectangle.Width>
+              <Rectangle.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="ServerSharesList" Path="ItemsCount" />
+                </MultiBinding>
+              </Rectangle.IsVisible>
+            </Rectangle>
+            <Rectangle HorizontalAlignment="Right" RadiusY="0" VerticalAlignment="Stretch" Fill="White" Margin="0,6,10,0">
+              <Rectangle.Width>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}-18">
+                  <Binding ElementName="IndexLabelServer" Path="ActualWidth" />
+                </MultiBinding>
+              </Rectangle.Width>
+              <Rectangle.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="ServerSharesList" Path="ItemsCount" />
+                </MultiBinding>
+              </Rectangle.IsVisible>
+            </Rectangle>
+            <Rectangle HorizontalAlignment="Right" RadiusY="0" VerticalAlignment="Stretch" Fill="White" Margin="0,19,10,0">
+              <Rectangle.Width>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+20">
+                  <Binding ElementName="IndexLabelServer" Path="ActualWidth" />
+                </MultiBinding>
+              </Rectangle.Width>
+              <Rectangle.IsVisible>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                  <Binding ElementName="ServerSharesList" Path="ItemsCount" />
+                </MultiBinding>
+              </Rectangle.IsVisible>
+            </Rectangle>
+          </Grid>
+        </Grid>
+
       </DockPanel>
       <ListView x:Name="SystemSharesList" Margin="0,10,10,10" HorizontalAlignment="Stretch" VerticalAlignment="Top"
                 DockPanel.Dock="Top" Style="{ThemeResource SystemShares1ListViewStyle}"
@@ -1486,9 +1724,11 @@
               <ItemsPresenter x:Name="OverviewPresenter" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
             </ScrollViewer>
             <!--ItemsPresenter  VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/-->
-            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image Source="empty.png" Height="100" Stretch="Uniform" IsVisible="{Binding IsItemsEmpty}"/>
+              <Label Content="[Shares.NoSharesInThisView]" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -1558,13 +1798,13 @@
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ShareName" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="ShareName" Property="Opacity" Value="1"/>
                 <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="Categories" Property="Opacity" Value="1"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="SharePath" Property="Opacity" Value="1"/>
                 <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1595,9 +1835,11 @@
                           Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
-                HorizontalAlignment="Center" VerticalAlignment="Center"
-                Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image Source="empty.png" Height="100" Stretch="Uniform" IsVisible="{Binding IsItemsEmpty}"/>
+              <Label Content="[Shares.NoSharesInThisView]" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -1647,13 +1889,13 @@
             <CheckBox.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Setter TargetName="ShareName" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="ShareName" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="ShareName" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="ShareName" Property="Opacity" Value="1"/>
                 <Setter TargetName="Categories" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="Categories" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="Categories" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="Categories" Property="Opacity" Value="1"/>
                 <Setter TargetName="SharePath" Property="Scroll" Value="Auto"/>
-                <Setter TargetName="SharePath" Property="FontFamily" Value="SegoeUIBold"/>
+                <Setter TargetName="SharePath" Property="FontFamily" Value="Noto-Bold"/>
                 <Setter TargetName="SharePath" Property="Opacity" Value="1"/>
                 <Setter TargetName="Grid1" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
                 <Setter TargetName="Grid2" Property="Fill" Value="{ThemeResource NereusColorLight}"/>
@@ -1689,9 +1931,11 @@
                           Background="{ThemeResource ItemsControlShadowBackgroundColor}">
               <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
             </ScrollViewer>
-            <Label Content="[Shares.NoSharesInThisView]" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
-                   HorizontalAlignment="Center" VerticalAlignment="Center"
-                   Color="{ThemeResource HintTextColor}" FontSize="{ThemeResource SmallFontSize}"/>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                        HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image Source="empty.png" Height="100" Stretch="Uniform" IsVisible="{Binding IsItemsEmpty}"/>
+              <Label Content="[Shares.NoSharesInThisView]" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
           </Grid>
         </ControlTemplate>
       </Setter.Value>
@@ -1749,7 +1993,7 @@
         </Rectangle.Fill>
       </Rectangle>
       <Label x:Name="ItemLabel" Margin="10,5,10,0" Content="{Binding [Name]}"
-             Color="{ThemeResource TextColor}" FontFamily="SegoeUIBold" FontSize="{ThemeResource SmallerFontSize}"
+             Color="{ThemeResource TextColor}" FontFamily="Noto-Bold" FontSize="{ThemeResource SmallerFontSize}"
              HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
     </Grid>
   </DataTemplate>
@@ -1763,6 +2007,76 @@
         <ItemsPanelTemplate>
           <WrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" Margin="0" MaxWidth="1100" MaxHeight="500"/>
         </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- *********************************** TextBox style ********************************* -->
+
+  <Style x:Key="SymbolTextBoxStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
+                  BorderThickness="{ThemeResource TextBoxBorderThickness}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
+            <Grid Margin="10,0,10,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextControl x:Name="TextControl" PreferredTextLength="{TemplateBinding Path=PreferredTextLength}"
+                           CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
+                           Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}"
+                           IsEnabled="{TemplateBinding IsEnabled}" />
+              <Image x:Name="editsymbol" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                     Stretch="Uniform" Height="30"/>
+            </Grid>
+            <Border.Triggers>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=HasFocus}" Value="True">
+                <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderFocusColor}"/>
+                <Setter TargetName="editsymbol" Property="Opacity" Value="1"/>
+                <Setter Property="Background" Value="{ThemeResource TextBoxBackgroundFocusColor}"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=IsEnabled}" Value="False">
+                <Setter Property="Background" Value="{ThemeResource TextBoxDisabledBackgroundColor}"/>
+              </DataTrigger>
+            </Border.Triggers>
+          </Border>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="SymbolPasswordTextBoxStyle" TargetType="{x:Type TextBox}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type TextBox}">
+          <Border Background="{ThemeResource TextBoxBackgroundColor}" BorderBrush="{ThemeResource TextBoxBorderColor}"
+                  BorderThickness="{ThemeResource TextBoxBorderThickness}" CornerRadius="{ThemeResource TextBoxCornerRadius}">
+            <Grid Margin="10,0,10,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+              </Grid.ColumnDefinitions>
+              <TextControl x:Name="TextControl" PreferredTextLength="{TemplateBinding Path=PreferredTextLength}" IsPassword="True"
+                           CaretIndex="{TemplateBinding Path=CaretIndex,Mode=TwoWay}" Text="{TemplateBinding Path=Text,Mode=TwoWay}"
+                           Color="{TemplateBinding Color}" TextAlign="{TemplateBinding TextAlign}"
+                           IsEnabled="{TemplateBinding IsEnabled}" />
+              <Image x:Name="editsymbol" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                     Stretch="Uniform" Height="30"/>
+            </Grid>
+            <Border.Triggers>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=HasFocus}" Value="True">
+                <Setter Property="BorderBrush" Value="{ThemeResource TextBoxBorderFocusColor}"/>
+                <Setter TargetName="editsymbol" Property="Opacity" Value="1"/>
+                <Setter Property="Background" Value="{ThemeResource TextBoxBackgroundFocusColor}"/>
+              </DataTrigger>
+              <DataTrigger Binding="{Binding ElementName=TextControl,Path=IsEnabled}" Value="False">
+                <Setter Property="Background" Value="{ThemeResource TextBoxDisabledBackgroundColor}"/>
+              </DataTrigger>
+            </Border.Triggers>
+          </Border>
+        </ControlTemplate>
       </Setter.Value>
     </Setter>
   </Style>

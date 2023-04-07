@@ -17,9 +17,10 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Margin="30,10,10,60" DataContext="{Binding Source={StaticResource Model}}">
+      <Grid Margin="30,0,10,60" DataContext="{Binding Source={StaticResource Model}}">
         <Grid.RowDefinitions>
-          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="44"/>
+          <RowDefinition Height="4"/>
           <RowDefinition Height="*"/>
           <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -27,9 +28,26 @@
           <ColumnDefinition Width="0.65*"/>
           <ColumnDefinition Width="0.35*"/>
         </Grid.ColumnDefinitions>
-        <Label Grid.Row="0" Content="[SharesConfig.ChooseResourceProviderPathForShare]" Color="{ThemeResource TextColor}" Wrap="True"/>
-        <TreeView Grid.Row="1" Style="{ThemeResource SingleMarkableTreeViewStyle}" SetFocusPrio="DefaultLow"
-                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ForceExpander="True"
+
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="45"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Image Source="Treeview.png" Margin="5,5,10,3" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}"/>
+          <Label Grid.Column="1" Content="[SharesConfig.ChooseResourceProviderPathForShare]" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+        </Grid>
+
+        <Border Grid.ColumnSpan="2" Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5,0,20,0" Background="White" BorderThickness="0"/>
+
+        <TreeView Grid.Row="2" Style="{ThemeResource SingleMarkableTreeViewStyle}" SetFocusPrio="DefaultLow"
+                  VerticalAlignment="Stretch" HorizontalAlignment="Stretch" ForceExpander="True" Margin="0,20,0,20"
                   ItemsSource="{Binding Path=ShareProxy.ResourceProviderPathsTree,Mode=OneTime}">
           <TreeView.Resources>
             <BindingWrapper x:Key="Expander_Binding" Binding="{Binding Path=AdditionalProperties[Expansion].IsExpanded,Mode=OneWayToSource}"/>
@@ -43,13 +61,13 @@
             <ResourceWrapper x:Key="Checker_Command"/>
           </TreeView.Resources>
         </TreeView>
-        <DockPanel Grid.Row="2" Margin="10,5,10,0">
+        <DockPanel Grid.Row="3" Margin="10,5,10,30">
           <Label Content="{Binding ShareProxy.ChoosenResourcePathDisplayName}" Color="{ThemeResource TextColor}"
                  DockPanel.Dock="Center" IsVisible="{Binding ShareProxy.IsChoosenPathValid}" Scroll="Auto"/>
           <Label Content="{Binding ShareProxy.InvalidShareHint}" Color="{ThemeResource ErrorTextColor}" Wrap="True"
                  DockPanel.Dock="Center" IsVisible="{Binding Converter={StaticResource EmptyStringToFalseConverter},Path=ShareProxy.InvalidShareHint}"/>
         </DockPanel>
-        <Grid Grid.Column="1" Grid.Row="1" Margin="20,10,20,10">
+        <Grid Grid.Column="1" Grid.Row="2" Grid.RowSpan="2" Margin="20,10,20,50" VerticalAlignment="Bottom">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="10"/>
@@ -61,15 +79,15 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
           <Button x:Name="ManualInputButton" Grid.Row="0" Style="{ThemeResource WizardButtonStyle}"
-              Content="[SharesConfig.ManualPathInput]"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=652C5A9F-EA50-4076-886B-B28FD167AD66}"/>
+                  Content="[SharesConfig.ManualPathInput]"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=652C5A9F-EA50-4076-886B-B28FD167AD66}"/>
           <Button x:Name="BackButton" Grid.Row="2" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Back]"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                  Content="[System.Back]"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
           <Button x:Name="ContinueButton" Grid.Row="4" Style="{ThemeResource WizardButtonStyle}"
-              Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsChoosenPathValid}"
-              SetFocusPrio="{Binding Path=ShareProxy.IsChoosenPathValid, Converter={StaticResource BoolToFocusPriorityConverter}}"
-              Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
+                  Content="[System.Continue]" IsEnabled="{Binding ShareProxy.IsChoosenPathValid}"
+                  SetFocusPrio="{Binding Path=ShareProxy.IsChoosenPathValid, Converter={StaticResource BoolToFocusPriorityConverter}}"
+                  Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters={StaticResource EditShareNameStateId}}"/>
         </Grid>
       </Grid>
     </ControlTemplate>

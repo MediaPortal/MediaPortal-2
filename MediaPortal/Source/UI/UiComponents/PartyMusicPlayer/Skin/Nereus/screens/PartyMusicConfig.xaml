@@ -13,36 +13,61 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid DataContext="{Binding Source={StaticResource PartyMusicPlayerModel}}">
+      <Grid DataContext="{Binding Source={StaticResource PartyMusicPlayerModel}}" Margin="20,0,20,0">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
+          <RowDefinition Height="44"/>
+          <RowDefinition Height="4"/>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Grid.Row="0" Grid.Column="0">
-          <Label Content="[PartyMusicPlayer.Playlist]" Color="{ThemeResource TextColor}" Margin="10,10,10,0"/>
+        <StackPanel Orientation="Horizontal">
+          <Image Source="playlist.png" Margin="0,8,5,3" Stretch="Uniform" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 IsVisible="{Binding Converter={StaticResource ReferenceToBoolConverter}}" Width="40"/>
+          <Label Content="[PartyMusicPlayer.Playlist]" VerticalAlignment="Center" HorizontalAlignment="Left" 
+                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+        </StackPanel>
+
+        <Border Grid.Row="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="5,0,10,0" Background="White" BorderThickness="0"/>
+
+        <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" Grid.Row="2" Grid.Column="0">
           <DockPanel LastChildFill="True">
-            <Button Content="[PartyMusicPlayer.ChoosePlaylist]" Margin="0,10,10,10" DockPanel.Dock="Right"
-                Command="{Command ChoosePlaylist}"/>
+            <Button Content="[PartyMusicPlayer.ChoosePlaylist]" Margin="0,30,10,10" DockPanel.Dock="Left"
+                    Command="{Command ChoosePlaylist}" Style="{ThemeResource WizardButtonStyle}"/>
             <Label Content="{Binding PlaylistName}" Color="{ThemeResource TextColor}" Margin="10"
-                DockPanel.Dock="Center"/>
+                   DockPanel.Dock="Center"/>
           </DockPanel>
   
           <CheckBox x:Name="UseEscapePasswordCheckBox" Content="[PartyMusicPlayer.UseEscapePassword]"
-              Margin="10,10,10,0" IsChecked="{Binding Path=UseEscapePassword,Mode=TwoWay}"/>
-          <TextBox Text="{Binding Path=EscapePassword,Mode=TwoWay}" Margin="10"
-              IsEnabled="{Binding UseEscapePassword}" Style="{ThemeResource PasswordTextBoxStyle}"/>
+                    Margin="10,10,10,0" IsChecked="{Binding Path=UseEscapePassword,Mode=TwoWay}"/>
+
+          <Grid Margin="60,10,10,10">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <TextBox Text="{Binding Path=EscapePassword,Mode=TwoWay}" PreferredTextLength="40" IsEnabled="{Binding UseEscapePassword}"/>
+            <Image x:Name="editsymbol" Source="keyboard.png" VerticalAlignment="Center" HorizontalAlignment="Right" Opacity="0.5"
+                   Stretch="Uniform" Height="30" Margin="0,0,15,0"/>
+            <Grid.Triggers>
+              <Trigger Property="IsKeyboardFocusWithin" Value="True">
+                <Setter TargetName="editsymbol" Property="Opacity" Value="1"/>
+              </Trigger>
+            </Grid.Triggers>
+          </Grid>
   
           <CheckBox x:Name="DisableScreenSaverCheckBox" Content="[PartyMusicPlayer.DisableScreenSaver]"
-              Margin="10,10,10,0" IsChecked="{Binding Path=DisableScreenSaver,Mode=TwoWay}"/>
+                    Margin="10,10,10,0" IsChecked="{Binding Path=DisableScreenSaver,Mode=TwoWay}"/>
         </StackPanel>
 
-        <Button x:Name="StartPartyMode" Content="[PartyMusicPlayer.StartPartyMode]" Grid.Row="1" Grid.Column="0"
-            HorizontalAlignment="Center" VerticalAlignment="Center"
-            Command="{Command StartPartyMode}"/>
+        <Button x:Name="StartPartyMode" Content="[PartyMusicPlayer.StartPartyMode]" Grid.Row="3" Grid.Column="0"
+                HorizontalAlignment="Center" VerticalAlignment="Center"
+                Command="{Command StartPartyMode}" Style="{ThemeResource WizardButtonStyle}"/>
       </Grid>
     </ControlTemplate>
   </Include.Resources>

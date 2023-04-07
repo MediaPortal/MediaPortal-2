@@ -46,17 +46,19 @@ namespace MediaPortal.Common.SystemCommunication
     protected string _systemId;
     protected SystemName _lastSystem;
     protected string _lastClientName;
+    protected string _lastClientVersion;
 
     #endregion
 
     // We could use some cache for this instance, if we would have one...
     protected static XmlSerializer _xmlSerializer = null; // Lazy initialized
 
-    public MPClientMetadata(string systemId, SystemName lastHostName, string lastClientName)
+    public MPClientMetadata(string systemId, SystemName lastHostName, string lastClientName, string lastClientVersion)
     {
       _systemId = systemId;
       _lastSystem = lastHostName;
       _lastClientName = lastClientName;
+      _lastClientVersion = lastClientVersion;
     }
 
     /// <summary>
@@ -84,6 +86,15 @@ namespace MediaPortal.Common.SystemCommunication
     public string LastClientName
     {
       get { return _lastClientName; }
+    }
+
+    /// <summary>
+    /// Last known client version.
+    /// </summary>
+    [XmlIgnore]
+    public string LastClientVersion
+    {
+      get { return _lastClientVersion; }
     }
 
     /// <summary>
@@ -169,6 +180,16 @@ namespace MediaPortal.Common.SystemCommunication
     {
       get { return _lastClientName; }
       set { _lastClientName = value; }
+    }
+
+    /// <summary>
+    /// For internal use of the XML serialization system only.
+    /// </summary>
+    [XmlElement("LastClientVersion")]
+    public string XML_LastClientVersion
+    {
+      get { return _lastClientVersion; }
+      set { _lastClientVersion = value; }
     }
 
     #endregion

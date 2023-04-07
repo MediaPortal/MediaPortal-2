@@ -42,7 +42,7 @@
     <media:EpisodeAspectWrapper.Template>
       <ControlTemplate>
         <StackPanel Orientation="Vertical" HorizontalAlignment="Stretch" VerticalAlignment="Bottom">
-          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" Wrap="True" FontFamily="SegoeUIBold"
+          <Label x:Name="SeriesNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" Wrap="True" FontFamily="Noto-Bold"
                  DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}" TextTrimming="WordEllipsis">
             <Label.Content>
               <Binding Path="SeriesName" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0}"/>
@@ -286,7 +286,7 @@
                 <Grid.ColumnDefinitions>
                   <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
-                <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="SegoeUIBold"
+                <Label VerticalAlignment="Center" HorizontalAlignment="Center" FontSize="28" Color="White" FontFamily="Noto-Bold"
                        HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
                   <Label.Content>
                     <Binding Path="PlayPercentage" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>

@@ -22,25 +22,17 @@
 
 #endregion
 
+using MediaPortal.UI.Presentation.DataObjects;
 using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using MediaPortal.Common;
-using MediaPortal.Common.Commands;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Media.Models;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
   public class NewsHomeContent : AbstractHomeContent
   {
-    protected override void PopulateBackingList()
+    public NewsHomeContent()
     {
-      _backingList.Add(new MediaShortcutListWrapper(new List<ListItem>
+      _shortcutLists.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
         new NewsSetupShortcut(),
         new NewsRefreshShortcut(),

@@ -1,0 +1,36 @@
+image: Visual Studio 2022
+clone_folder: c:\project\mediaportal-2
+
+cache:
+- '%USERPROFILE%\.nuget\packages -> appveyor.yml' # global-packages
+- '%LocalAppData%\NuGet\v3-cache -> appveyor.yml' # http-cache
+
+install:
+- cmd: >-
+    git -C %APPVEYOR_BUILD_FOLDER% submodule update --init --recursive
+    
+    echo [https://www.transifex.com]>%USERPROFILE%\.transifexrc
+    
+    echo api_hostname = https://api.transifex.com>>%USERPROFILE%\.transifexrc
+    
+    echo hostname = https://www.transifex.com>>%USERPROFILE%\.transifexrc
+    
+    echo password = %TX_TOKEN%>>%USERPROFILE%\.transifexrc
+    
+    echo username = api>>%USERPROFILE%\.transifexrc
+    
+build_script:
+- cmd: >-
+    cd %APPVEYOR_BUILD_FOLDER%\MediaPortal\build\
+    
+    @echo | call MSBUILD_Create_Release_Full_Installer.bat
+    
+    7z a ..\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip ..\Bin\MP2-Setup\Release\en-us\MP2-Setup.exe ..\Bin\MP2-Setup\Release\en-us\MP2-Setup-Logging.bat
+    
+artifacts:
+- path: MediaPortal\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip
+  name: Installer
+- path: MediaPortal\Build\msbuild.binlog
+  name: Build log (binary)
+  
+test: off

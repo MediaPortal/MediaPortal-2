@@ -110,4 +110,17 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
     /// <returns>Collection of icon descriptors or <c>null</c>.</returns>
     ICollection<IconDescriptor> GetIcons(CultureInfo culture);
   }
+
+  /// <summary>
+  /// Callback interface to retrieve optional additional about a UPnP device.
+  /// </summary>
+  public interface IAdditionalLocalizedDeviceInformation
+  {
+    /// <summary>
+    /// Gets the used software version of the UPnP device.
+    /// </summary>
+    /// <param name="culture">The culture to localize the returned data.</param>
+    /// <returns>Localized string or <c>null</c>.</returns>
+    string GetSoftwareVersion(CultureInfo culture);
+  }
 }

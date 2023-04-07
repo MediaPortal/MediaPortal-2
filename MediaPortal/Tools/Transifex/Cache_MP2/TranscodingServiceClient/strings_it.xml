@@ -1,6 +1,27 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
+  <!--Client Settings-->
+  <string name="Settings.Transcode.Title">Transcodifica in corso</string> <!-- Section name -->
+  <string name="Settings.Transcode.HWAcceleration">Accelerazione hardware</string> <!-- Setting -->
+  <string name="Settings.Transcode.HWAcceleration.Help">Attivare l\'accelerazione hardware durante la transcodifica se supportata.</string>
+  <string name="Settings.Transcode.Cache">Cache</string> <!-- Setting -->
+  <string name="Settings.Transcode.Cache.Help">Attivare la cache delle transcodifiche per poterle riutilizzare più tardi</string>
+  <string name="Settings.Transcode.CacheAge">Conserva la cache per (giorni)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheAge.Help">Il massimo numero di giorni in cui la cache delle transcodifiche deve essere mantenuta. 0 se deve essere mantenuta per sempre.</string>
+  <string name="Settings.Transcode.CacheSize">Dimensione massima cache (GB)</string> <!-- Setting -->
+  <string name="Settings.Transcode.CacheSize.Help">La dimensione massima della cache in GB. Le transcodifiche verranno eliminate se la cache è piena. 0 se non ci deve essere limite di dimensioni.</string>
+  <string name="Settings.Transcode.SubtitleForce">Forzare sottotitoli codificati</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleForce.Help">Forzare sottotitoli codificati se non ci sono altri sottotitoli supportati.</string>
+  <string name="Settings.Transcode.SubtitleBox">Mostrare riquadro sottotitoli</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleBox.Help">Mostrare un riquadro intorno ai sottotitoli codificati</string>
+  <string name="Settings.Transcode.SubtitleFont">Carattere sottotitolo</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFont.Help">Usare questo carattere per sottotitoli i codificati.</string>
+  <string name="Settings.Transcode.SubtitleFontSize">Dimensione carattere sottotitoli</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontSize.Help">Usare questa dimensione per i sottotitoli codificati.</string>
+  <string name="Settings.Transcode.SubtitleFontColor">Colore sottotitoli</string>  <!-- Setting -->
+  <string name="Settings.Transcode.SubtitleFontColor.Help">Usare questo colore per i sottotitoli codificati.</string>
+
   <string name="Settings.Transcode.None">Nessuna</string>
   <string name="Settings.Transcode.Auto">Automaticamente</string>
   <string name="Settings.Transcode.Default">Predefinito</string>

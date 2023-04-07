@@ -33,6 +33,7 @@ namespace MediaPortal.Server
       this.lvClients = new System.Windows.Forms.ListView();
       this.colClient = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.colSystem = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
+      this.colVersion = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.colConnectionState = ((System.Windows.Forms.ColumnHeader)(new System.Windows.Forms.ColumnHeader()));
       this.lbAttachedClients = new System.Windows.Forms.Label();
       this.SuspendLayout();
@@ -53,13 +54,14 @@ namespace MediaPortal.Server
       this.lvClients.Columns.AddRange(new System.Windows.Forms.ColumnHeader[] {
             this.colClient,
             this.colSystem,
+            this.colVersion,
             this.colConnectionState});
       this.lvClients.FullRowSelect = true;
       this.lvClients.HideSelection = false;
       this.lvClients.Location = new System.Drawing.Point(0, 32);
       this.lvClients.Margin = new System.Windows.Forms.Padding(2, 3, 2, 3);
       this.lvClients.Name = "lvClients";
-      this.lvClients.Size = new System.Drawing.Size(538, 177);
+      this.lvClients.Size = new System.Drawing.Size(641, 187);
       this.lvClients.TabIndex = 2;
       this.lvClients.UseCompatibleStateImageBehavior = false;
       this.lvClients.View = System.Windows.Forms.View.Details;
@@ -74,10 +76,15 @@ namespace MediaPortal.Server
       this.colSystem.Text = "System";
       this.colSystem.Width = 200;
       // 
+      // colVersion
+      // 
+      this.colVersion.Text = "Version";
+      this.colVersion.Width = 100;
+      // 
       // colConnectionState
       // 
       this.colConnectionState.Text = "Connection state";
-      this.colConnectionState.Width = 100;
+      this.colConnectionState.Width = 200;
       // 
       // lbAttachedClients
       // 
@@ -93,7 +100,7 @@ namespace MediaPortal.Server
       // 
       this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
       this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-      this.ClientSize = new System.Drawing.Size(538, 209);
+      this.ClientSize = new System.Drawing.Size(641, 219);
       this.Controls.Add(this.lbAttachedClients);
       this.Controls.Add(this.lvClients);
       this.Font = new System.Drawing.Font("Microsoft Sans Serif", 11F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Pixel, ((byte)(0)));
@@ -115,5 +122,6 @@ namespace MediaPortal.Server
     private System.Windows.Forms.ColumnHeader colSystem;
     private System.Windows.Forms.ColumnHeader colConnectionState;
     private System.Windows.Forms.Label lbAttachedClients;
+    private System.Windows.Forms.ColumnHeader colVersion;
   }
 }

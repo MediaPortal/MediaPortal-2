@@ -1,0 +1,35 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0-windows</TargetFramework>
+    <OutputType>Library</OutputType>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
+    <DefineConstants>$(DefineConstants);EXTENDED_INPUT_LOGGING</DefineConstants>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|AnyCPU'">
+    <DefineConstants>$(DefineConstants);EXTENDED_INPUT_LOGGING</DefineConstants>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\..\UiComponents\Configuration\Configuration.csproj" />
+    <ProjectReference Include="..\..\UiComponents\SkinBase\SkinBase.csproj" />
+    <ProjectReference Include="..\InputDevices.Common\InputDevices.Common.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="Skin\Nereus\screens\InputDevices-SelectAction.xaml">
+      <Generator></Generator>
+    </None>
+    <None Update="Skin\Nereus\styles\InputDevices-Styles.xaml">
+      <Generator></Generator>
+    </None>
+  </ItemGroup>
+  
+  <Import Project="build.targets" />
+</Project>

@@ -1,0 +1,27 @@
+<Plugin
+    DescriptorVersion="1.0"
+    Name="HidInput"
+    PluginId="{41198398-AB2A-44CD-8F6E-2BB92C4A084D}"
+    Author="Brownard"
+    Copyright="GPL"
+    AutoActivate="true"
+    Description="Plugin to provide input from HID devices">
+
+  <Version
+    PluginVersion="1.0"
+    ReleaseDate="2022-08-23 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+  </DependsOn>
+
+  <Runtime>
+    <Assembly FileName="HidInput.dll"/>
+    <Assembly FileName="InputDevices.Common.dll"/>
+    <Assembly FileName="SharpLib.Hid.dll"/>
+    <Assembly FileName="SharpLibWin32.dll"/>
+    <PluginStateTracker ClassName="HidInput.HidInputPlugin"/>
+  </Runtime>
+  
+</Plugin>

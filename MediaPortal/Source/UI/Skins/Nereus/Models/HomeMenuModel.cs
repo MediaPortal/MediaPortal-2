@@ -154,15 +154,14 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     private void OnSettingsChanged(object sender, EventArgs e)
     {
-      // Check whether the configured settings have changed,
-      var currentIds = _currentActionIdSettings;
+      // Check whether the configured settings have changed
       var currentMediaLists = _currentActionMediaListSettings;
-      if ((currentIds == null || currentIds.SequenceEqual(_settingsWatcher.Settings.HomeMenuActionIds)) &&
-          (currentMediaLists == null || currentMediaLists.SequenceEqual(_settingsWatcher.Settings.HomeMenuActionMediaLists)))
-        return;
+      if (currentMediaLists != null && !currentMediaLists.SequenceEqual(_settingsWatcher.Settings.HomeMenuActionMediaLists))
+        UpdateHomeContentLists();
 
-      // If so, rebuild the items
-      OnHomeMenuItemsChanged(_allHomeMenuItems);
+      var currentIds = _currentActionIdSettings;
+      if (currentIds != null && !currentIds.SequenceEqual(_settingsWatcher.Settings.HomeMenuActionIds))
+        OnHomeMenuItemsChanged(_allHomeMenuItems);
     }
 
     private IDictionary<Guid, IList<string>> GetActionMediaListDictionary(IEnumerable<string> settings)
@@ -206,10 +205,11 @@ namespace MediaPortal.UiComponents.Nereus.Models
           {
             if (context.WorkflowState.StateId == HOME_STATE_ID)
             {
+              // Update the home content 
+              UpdateHomeContentLists();
               // If we are returning to the home state then we need to manually
               // attach and refresh the items, as we detached and missed any changes when leaving.
               AttachAndRefreshHomeMenuItems();
-              UpdateHomeContentLists();
             }
             else
             {
@@ -311,11 +311,25 @@ namespace MediaPortal.UiComponents.Nereus.Models
       set { _menuEditModelProperty.SetValue(value); }
     }
 
-    public void SetSelectedItem(object sender, SelectionChangedEventArgs e)
+    public void SetFocusedItem(object sender, SelectionChangedEventArgs e)
     {
       ListItem item = e.FirstAddedItem as ListItem;
       IsMenuSelected = item != null;
-      if (item != null)
+      // If touch display is not enabled then the focused item should be set as the selected item,
+      // if touch display is enabled then the selected item is set explicitly when clicked in SelectItem below.
+      // The exception is if item.Selected is true, which is the case when selection is being restored during
+      // startup/navigation, so the item should always be set as the selected item.
+      if (item != null && (item.Selected || (!_settingsWatcher.Settings.EnableTouchDisplay && !_settingsWatcher.Settings.EnableMenuSelection)))
+        SelectedItem = item;
+    }
+
+    public void SelectItem(ListItem item)
+    {
+      // If touch display is not enabled just execute the item's command, else only execute it if the item was previously selected
+      if ((!_settingsWatcher.Settings.EnableTouchDisplay && !_settingsWatcher.Settings.EnableMenuSelection) || (SelectedItem != null && GetAction(SelectedItem)?.ActionId == GetAction(item)?.ActionId))
+        item.Command.Execute();
+      // Touch display is enabled and the item was not previously selected, select it now
+      else
         SelectedItem = item;
     }
 
@@ -407,6 +421,22 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     private void UpdateHomeContentLists()
     {
+      // Get any user customized media lists to show for each home content
+      IEnumerable<string> customMediaLists = _settingsWatcher.Settings.HomeMenuActionMediaLists;
+      // See if the lists have actually changed
+      if (_currentActionMediaListSettings != null)
+        customMediaLists = customMediaLists.Except(_currentActionMediaListSettings);
+
+      // For each customized set of lists update the relevant home content to use the customized lists
+      IDictionary<Guid, IList<string>> changedActionMediaLists = GetActionMediaListDictionary(customMediaLists);
+      foreach (var changedMediaList in changedActionMediaLists)
+        if (_homeContent.TryGetValue(changedMediaList.Key, out object homeContentObj) && homeContentObj is AbstractHomeContent homeContent)
+          homeContent.UpdateListsToDisplay(changedMediaList.Value);
+
+      // Store the changes to compare with the next time the lists might have changed
+      _currentActionMediaListSettings = new List<string>(_settingsWatcher.Settings.HomeMenuActionMediaLists);
+
+      // Force an update of the currently displayed home content
       if (ContentIndex < _contentProperties.Length)
       {
         var content = _contentProperties[ContentIndex].GetValue();
@@ -444,20 +474,6 @@ namespace MediaPortal.UiComponents.Nereus.Models
       var items = observable as ItemsList;
       if (items == null)
         return;
-
-      //Update backing list if changed
-      IDictionary<Guid, IList<string>> changedActionMediaLists;
-      if (_currentActionMediaListSettings == null)
-        changedActionMediaLists = GetActionMediaListDictionary(_settingsWatcher.Settings.HomeMenuActionMediaLists);
-      else
-        changedActionMediaLists = GetActionMediaListDictionary(_settingsWatcher.Settings.HomeMenuActionMediaLists.Except(_currentActionMediaListSettings));
-      foreach (var content in _homeContent)
-      {
-        if (changedActionMediaLists?.ContainsKey(content.Key) ?? false)
-          if (content.Value is AbstractHomeContent ahc)
-            ahc.UpdateLists(changedActionMediaLists[content.Key]);
-      }
-      _currentActionMediaListSettings = new List<string>(_settingsWatcher.Settings.HomeMenuActionMediaLists);
 
       // Get the action ids that will be visible in the main menu.
       // All other actions will be placed under 'Other'.
@@ -606,7 +622,14 @@ namespace MediaPortal.UiComponents.Nereus.Models
       item.Selected = true;
 
       WorkflowAction action = GetAction(item);
-      EnqueueUpdate(action);
+      // If touch display is enabled then the item was explicitly selected
+      // with a click so update the content immediately
+      if (_settingsWatcher.Settings.EnableTouchDisplay || _settingsWatcher.Settings.EnableMenuSelection)
+        UpdateContent(action);
+      // Else the item was selected on focus, maybe when scrolling past, so only update
+      // after a delay if no other item was focused in the meantime.
+      else
+        EnqueueUpdate(action);
     }
 
     private void SaveLastSelectedAction(ListItem item)

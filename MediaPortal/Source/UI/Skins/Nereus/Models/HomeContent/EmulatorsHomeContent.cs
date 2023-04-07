@@ -30,10 +30,10 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
   {
     public EmulatorsHomeContent()
     {
-      _availableLists.Add(new LastPlayedGameList());
-      _availableLists.Add(new FavoritedGameList());
-      _availableLists.Add(new LatestGameList());
-      _availableLists.Add(new UnplayedGameList());
+      _availableMediaLists.Add(new LastPlayedGameList());
+      _availableMediaLists.Add(new FavoritedGameList());
+      _availableMediaLists.Add(new LatestGameList());
+      _availableMediaLists.Add(new UnplayedGameList());
     }
 
     protected override IContentListModel GetContentListModel()
