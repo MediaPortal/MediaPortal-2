@@ -1,10 +1,9 @@
 <Project>
 
-  <PropertyGroup>
-    <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\net6.0-windows\</AppDestination>
-  </PropertyGroup>
-
   <Target Name="CopyToOutput" AfterTargets="Build">
+    <PropertyGroup>
+      <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(OutDir)</AppDestination>
+    </PropertyGroup>
     <ItemGroup>
       <BaseFiles Include="$(SolutionDir)Base\ServiceMonitor\**\*.*" />
     </ItemGroup>

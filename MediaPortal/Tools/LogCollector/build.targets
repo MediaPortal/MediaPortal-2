@@ -3,7 +3,7 @@
   <Target Name="CopyToOutput" AfterTargets="Build">
 
     <PropertyGroup>
-      <PluginDestination>$(SolutionDir)..\Bin\$(TargetName)\bin\$(ConfigurationName)\</PluginDestination>
+      <PluginDestination>$(SolutionDir)..\Bin\$(TargetName)\$(OutDir)</PluginDestination>
     </PropertyGroup>
 
     <ItemGroup>
