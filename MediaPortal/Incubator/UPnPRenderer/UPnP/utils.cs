@@ -22,19 +22,18 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.UPnPRenderer.MediaItems;
+using Microsoft.Win32;
+using MimeMapping;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Web;
 using System.Xml;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.UPnPRenderer.MediaItems;
-using Microsoft.Win32;
-using MimeMapping;
 
 namespace MediaPortal.UPnPRenderer.UPnP
 {

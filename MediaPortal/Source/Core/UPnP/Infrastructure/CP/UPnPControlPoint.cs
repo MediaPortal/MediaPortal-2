@@ -34,11 +34,7 @@ using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Http;
 using UPnP.Infrastructure.Utils;
 #if NET5_0_OR_GREATER
-using Microsoft.AspNetCore;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 #else
 using Microsoft.Owin;
 #endif
