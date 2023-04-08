@@ -234,11 +234,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OCVVideoThumbnailer", "Exte
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "TvMosaic", "TvMosaic", "{DD0733A6-D42A-4648-9210-DB98646BDCF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "SlimTv.TvMosaicProvider", "UI\TV\TvMosaic\SlimTv.TvMosaicProvider\SlimTv.TvMosaicProvider.csproj", "{1976DE17-3729-4F01-BA45-DF359F005297}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SlimTv.TvMosaicProvider", "UI\TV\TvMosaic\SlimTv.TvMosaicProvider\SlimTv.TvMosaicProvider.csproj", "{1976DE17-3729-4F01-BA45-DF359F005297}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvMosaic.API", "UI\TV\TvMosaic\TvMosaic.API\TvMosaic.API.csproj", "{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TvMosaic.API", "UI\TV\TvMosaic\TvMosaic.API\TvMosaic.API.csproj", "{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests.TVMosaic", "..\Tests\Tests.TVMosaic\Tests.TVMosaic.csproj", "{B84F2140-48EB-4751-A170-F36276EE74DA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests.TVMosaic", "..\Tests\Tests.TVMosaic\Tests.TVMosaic.csproj", "{B84F2140-48EB-4751-A170-F36276EE74DA}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Nereus", "UI\Skins\Nereus\Nereus.csproj", "{B3152567-81EE-42F5-BC32-986E0D5A3B25}"
 EndProject
@@ -262,9 +262,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "OpenCvLib", "Extensions\Met
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WhatsNew", "..\Incubator\WhatsNew\WhatsNew.csproj", "{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvMosaicMetadataExtractor", "Extensions\MetadataExtractors\TvMosaicMetadataExtractor\TvMosaicMetadataExtractor.csproj", "{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TvMosaicMetadataExtractor", "Extensions\MetadataExtractors\TvMosaicMetadataExtractor\TvMosaicMetadataExtractor.csproj", "{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TvMosaic.Shared", "UI\TV\TvMosaic\TvMosaic.Shared\TvMosaic.Shared.csproj", "{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TvMosaic.Shared", "UI\TV\TvMosaic\TvMosaic.Shared\TvMosaic.Shared.csproj", "{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "InputDevices.Common", "UI\Input\InputDevices.Common\InputDevices.Common.csproj", "{4DD1A1CC-523F-4398-BEE0-50FD548F2A1D}"
 EndProject
@@ -609,11 +609,17 @@ Global
 		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{9049F675-1A23-46A1-B0A9-BBA94C492AAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1976DE17-3729-4F01-BA45-DF359F005297}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1976DE17-3729-4F01-BA45-DF359F005297}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1976DE17-3729-4F01-BA45-DF359F005297}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1976DE17-3729-4F01-BA45-DF359F005297}.Release|Any CPU.Build.0 = Release|Any CPU
 		{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AC9BC0CF-5AC0-4FD8-A786-EE4CA295E724}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B84F2140-48EB-4751-A170-F36276EE74DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B84F2140-48EB-4751-A170-F36276EE74DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B84F2140-48EB-4751-A170-F36276EE74DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B84F2140-48EB-4751-A170-F36276EE74DA}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B3152567-81EE-42F5-BC32-986E0D5A3B25}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{B3152567-81EE-42F5-BC32-986E0D5A3B25}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B3152567-81EE-42F5-BC32-986E0D5A3B25}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -651,15 +657,25 @@ Global
 		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A7FEF9F9-87F3-4BEC-A455-E03446DD4FD2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{CA8B6710-6816-46E2-99EA-FAE1BDF1E3F5}.Release|Any CPU.Build.0 = Release|Any CPU
 		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{05FD1725-E6E9-41F2-94CC-B762ADDF5B80}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4DD1A1CC-523F-4398-BEE0-50FD548F2A1D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4DD1A1CC-523F-4398-BEE0-50FD548F2A1D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4DD1A1CC-523F-4398-BEE0-50FD548F2A1D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4DD1A1CC-523F-4398-BEE0-50FD548F2A1D}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E4459E50-E19F-4F5B-B723-8BEE9D1243ED}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E4459E50-E19F-4F5B-B723-8BEE9D1243ED}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E4459E50-E19F-4F5B-B723-8BEE9D1243ED}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E4459E50-E19F-4F5B-B723-8BEE9D1243ED}.Release|Any CPU.Build.0 = Release|Any CPU
 		{B629680F-088F-4234-AF95-3AEE67A2941B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B629680F-088F-4234-AF95-3AEE67A2941B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{B629680F-088F-4234-AF95-3AEE67A2941B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B629680F-088F-4234-AF95-3AEE67A2941B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
