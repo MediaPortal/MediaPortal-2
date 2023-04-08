@@ -30,14 +30,14 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetTVEpisodeCount
   {
-    public static Task<WebIntResult> ProcessAsync(HttpContext context)
+    public static Task<WebIntResult> ProcessAsync(RequestContext context)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

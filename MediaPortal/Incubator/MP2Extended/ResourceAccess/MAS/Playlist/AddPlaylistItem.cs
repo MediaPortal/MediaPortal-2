@@ -30,7 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "position", Type = typeof(int), Nullable = true)]
   internal class AddPlaylistItem
   {
-    public static Task<WebBoolResult> ProcessAsync(HttpContext context, string playlistId, WebMediaType type, string id, int? position)
+    public static Task<WebBoolResult> ProcessAsync(RequestContext context, string playlistId, WebMediaType type, string id, int? position)
     {
       // get the playlist
       PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(Guid.Parse(playlistId));

@@ -29,8 +29,8 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using System.Threading.Tasks;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
-using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "identifier", Type = typeof(string), Nullable = false)]
   internal class GetTranscodingInfo
   {
-    public static async Task<WebTranscodingInfo> ProcessAsync(HttpContext context, string identifier, long? playerPosition)
+    public static async Task<WebTranscodingInfo> ProcessAsync(RequestContext context, string identifier, long? playerPosition)
     {
       if (identifier == null)
         throw new BadRequestException("GetTranscodingInfo: identifier is null");

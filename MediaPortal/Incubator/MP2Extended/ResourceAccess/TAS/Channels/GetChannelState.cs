@@ -30,7 +30,7 @@ using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
 {
@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class GetChannelState
   {
-    public static async Task<WebChannelState> ProcessAsync(HttpContext context, string channelId, string userName)
+    public static async Task<WebChannelState> ProcessAsync(RequestContext context, string channelId, string userName)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelState: ITvProvider not found");

@@ -30,7 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "playlistName", Type = typeof(string), Nullable = false)]
   internal class CreatePlaylist
   {
-    public static Task<WebStringResult> ProcessAsync(HttpContext context, string playlistName)
+    public static Task<WebStringResult> ProcessAsync(RequestContext context, string playlistName)
     {
       Guid playListGuid = Guid.NewGuid();
 

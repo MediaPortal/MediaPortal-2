@@ -36,8 +36,8 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MP2Extended.Extensions;
-using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetPicturesDetailedByRange : BasePictureDetailed
   {
-    public static async Task<IList<WebPictureDetailed>> ProcessAsync(HttpContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebPictureDetailed>> ProcessAsync(RequestContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       IList<WebPictureDetailed> output = await GetPicturesDetailed.ProcessAsync(context, filter, sort, order);
 

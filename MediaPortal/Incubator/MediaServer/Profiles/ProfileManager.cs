@@ -35,7 +35,6 @@ using MediaPortal.Extensions.MediaServer.Interfaces.Settings;
 using MediaPortal.Extensions.MediaServer.Protocols;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
 using MediaPortal.Utilities.FileSystem;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -45,6 +44,11 @@ using System.Net;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Xml;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace MediaPortal.Extensions.MediaServer.Profiles
 {
@@ -104,7 +108,11 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       return IPAddress.Parse(address);
     }
 
+#if NET5_0_OR_GREATER
     public static async Task<EndPointSettings> DetectProfileAsync(HttpRequest request)
+#else
+    public static async Task<EndPointSettings> DetectProfileAsync(IOwinRequest request)
+#endif
     {
       //Lazy load profiles. Needed because of localized strings in profiles
       if(Profiles.Count == 0)
@@ -124,13 +132,14 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           return idLink.Value;
       }
 
-      if (request?.HttpContext?.Connection?.RemoteIpAddress == null)
+      string remoteIpAddress = request?.GetRemoteAddress();
+      if (remoteIpAddress == null)
       {
         Logger.Error("DetectProfile: Couldn't find remote address!");
         return null;
       }
 
-      IPAddress ip = ResolveIpAddress(request.HttpContext.Connection.RemoteIpAddress.ToString());
+      IPAddress ip = ResolveIpAddress(remoteIpAddress);
       string clientName = EndPointSettings.GetClientName(ip);
 
       // Check links

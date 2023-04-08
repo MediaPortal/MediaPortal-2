@@ -33,7 +33,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.Utils;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   {
     [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebIntResult), Summary = "")]
     [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
-    public static Task<WebIntResult> ProcessAsync(HttpContext context, string id)
+    public static Task<WebIntResult> ProcessAsync(RequestContext context, string id)
     {
       List<WebFileBasic> output = new List<WebFileBasic>();
       string path = Base64.Decode(id);

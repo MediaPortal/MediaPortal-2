@@ -25,8 +25,8 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 
@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal static class GetServiceDescription
   {
-    public static Task<WebMediaServiceDescription> ProcessAsync(HttpContext context)
+    public static Task<WebMediaServiceDescription> ProcessAsync(RequestContext context)
     {
       WebMediaServiceDescription webMediaServiceDescription = new WebMediaServiceDescription();
       webMediaServiceDescription.ApiVersion = GlobalVersion.API_VERSION;

@@ -26,10 +26,10 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Movie;
-using Microsoft.AspNetCore.Http;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetMoviesDetailedByRange
   {
-    public static async Task<IList<WebMovieDetailed>> ProcessAsync(HttpContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebMovieDetailed>> ProcessAsync(RequestContext context, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       IEnumerable<WebMovieDetailed> output = await GetMoviesDetailed.ProcessAsync(context, filter, sort, order);
 

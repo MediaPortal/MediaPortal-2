@@ -30,7 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
 {
@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   internal class GetFilterValuesByRange
   {
-    public static async Task<IList<string>> ProcessAsync(HttpContext context, int start, int end, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
+    public static async Task<IList<string>> ProcessAsync(RequestContext context, int start, int end, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
     {
      IList<string> output = await GetFilterValues.ProcessAsync(context, mediaType, filterField, op, limit, order);
 

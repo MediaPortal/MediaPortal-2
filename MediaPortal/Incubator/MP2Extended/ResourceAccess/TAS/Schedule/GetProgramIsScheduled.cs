@@ -30,7 +30,7 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionParam(Name = "programId", Type = typeof(string), Nullable = false)]
   internal class GetProgramIsScheduled
   {
-    public static async Task<WebBoolResult> ProcessAsync(HttpContext context, string programId)
+    public static async Task<WebBoolResult> ProcessAsync(RequestContext context, string programId)
     {
       if (programId == null)
         throw new BadRequestException("GetProgramIsScheduled: programId is null");

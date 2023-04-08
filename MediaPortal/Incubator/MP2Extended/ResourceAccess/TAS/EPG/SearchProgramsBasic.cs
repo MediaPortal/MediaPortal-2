@@ -35,7 +35,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "searchTerm", Type = typeof(string), Nullable = false)]
   internal class SearchProgramsBasic : BaseProgramBasic
   {
-    public static async Task<IList<WebProgramBasic>> ProcessAsync(HttpContext context, string searchTerm)
+    public static async Task<IList<WebProgramBasic>> ProcessAsync(RequestContext context, string searchTerm)
     {
       if (searchTerm == null)
         throw new BadRequestException("SearchProgramsBasic: searchTerm is null");

@@ -25,8 +25,12 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.MediaServer.DLNA;
-using Microsoft.AspNetCore.Http;
 using System.IO;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace MediaPortal.Extensions.MediaServer.Protocols
 {
@@ -51,17 +55,29 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
       return new GenericAccessProtocol();
     }
 
+#if NET5_0_OR_GREATER
     public virtual bool HandleRequest(HttpContext context, DlnaMediaItem item)
+#else
+    public virtual bool HandleRequest(IOwinContext context, DlnaMediaItem item)
+#endif
     {
       return false;
     }
 
+#if NET5_0_OR_GREATER
     public virtual bool CanHandleRequest(HttpRequest request)
+#else
+    public virtual bool CanHandleRequest(IOwinRequest request)
+#endif
     {
       return false;
     }
 
+#if NET5_0_OR_GREATER
     public virtual Stream HandleResourceRequest(HttpContext context, DlnaMediaItem item)
+#else
+    public virtual Stream HandleResourceRequest(IOwinContext context, DlnaMediaItem item)
+#endif
     {
       return null;
     }

@@ -5,13 +5,17 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Extensions.MediaServer;
 using MediaPortal.Extensions.MediaServer.Profiles;
-using Microsoft.AspNetCore.Http;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.Dv;
 using UPnP.Infrastructure.Dv.DeviceTree;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace Tests.Server.MediaServer
 {
@@ -40,10 +44,16 @@ namespace Tests.Server.MediaServer
 
     private CallContext CreateContext()
     {
+#if NET5_0_OR_GREATER
       HttpContext httpContext = new DefaultHttpContext();
       CallContext context = new CallContext(httpContext.Request, new DefaultHttpContext(), null);
       context.HttpContext.Connection.RemoteIpAddress = System.Net.IPAddress.Parse("127.0.0.1");
       context.HttpContext.Connection.RemotePort = 1000;
+#else
+      CallContext context = new CallContext(new OwinRequest(), new OwinContext(), null);
+      context.Request.RemoteIpAddress = "127.0.0.1";
+      context.Request.RemotePort = 1000;
+#endif
       return context;
     }
 

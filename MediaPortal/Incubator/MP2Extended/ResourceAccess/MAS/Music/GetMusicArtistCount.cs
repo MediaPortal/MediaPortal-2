@@ -29,7 +29,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetMusicArtistCount
   {
-    public static async Task<WebIntResult> ProcessAsync(HttpContext context, string filter)
+    public static async Task<WebIntResult> ProcessAsync(RequestContext context, string filter)
     {
       IList<WebMusicArtistBasic> output = await GetMusicArtistsBasic.ProcessAsync(context, filter, null, null);
 

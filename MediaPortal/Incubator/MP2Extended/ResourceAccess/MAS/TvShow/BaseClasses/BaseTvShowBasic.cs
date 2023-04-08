@@ -31,11 +31,11 @@ using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
-using Microsoft.AspNetCore.Http;
 using MP2Extended.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 {
@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
       ExternalIdentifierAspect.ASPECT_ID
     };
 
-    internal static WebTVShowBasic TVShowBasic(HttpContext context, MediaItem item)
+    internal static WebTVShowBasic TVShowBasic(RequestContext context, MediaItem item)
     {
       ISet<Guid> necessaryMIATypespisodes = new HashSet<Guid>();
       necessaryMIATypespisodes.Add(MediaAspect.ASPECT_ID);

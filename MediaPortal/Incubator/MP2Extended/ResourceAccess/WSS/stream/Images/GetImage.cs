@@ -31,11 +31,11 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetImage : BaseSendData
   {
-    public static async Task<bool> ProcessAsync(HttpContext context, WebMediaType type, string id)
+    public static async Task<bool> ProcessAsync(RequestContext context, WebMediaType type, string id)
     {
       if (id == null)
         throw new BadRequestException("GetImage: id is null");

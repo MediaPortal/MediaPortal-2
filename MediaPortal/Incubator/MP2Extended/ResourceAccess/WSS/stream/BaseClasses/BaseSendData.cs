@@ -22,22 +22,20 @@
 
 #endregion
 
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Threading;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.Threading;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using Microsoft.AspNetCore.Http;
 using System.Net;
+using System.Threading;
 using System.Threading.Tasks;
-using MediaPortal.Backend.MediaLibrary;
-using System.Collections.Concurrent;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 {
@@ -71,7 +69,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
 
     #region send
 
-    protected static async Task SendRangeAsync(HttpContext context, Stream resourceStream, Range range, bool onlyHeaders)
+    protected static async Task SendRangeAsync(RequestContext context, Stream resourceStream, Range range, bool onlyHeaders)
     {
       if (range.From > resourceStream.Length)
       {
@@ -100,7 +98,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       await SendAsync(context, resourceStream, range.Length);
     }
 
-    protected static async Task SendWholeFileAsync(HttpContext context, Stream resourceStream, bool onlyHeaders)
+    protected static async Task SendWholeFileAsync(RequestContext context, Stream resourceStream, bool onlyHeaders)
     {
       if (context.Response.StatusCode != (int)HttpStatusCode.NotModified) // respect the If-Modified-Since Header
         context.Response.StatusCode = (int)HttpStatusCode.OK;
@@ -112,7 +110,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       await SendAsync(context, resourceStream, resourceStream.Length);
     }
 
-    protected static async Task SendWholeFileAsync(HttpContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+    protected static async Task SendWholeFileAsync(RequestContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
     {
       if (await WaitForMinimumFileSizeAsync(resourceStream, 1) == false)
       {
@@ -144,7 +142,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       await SendAsync(context, resourceStream, item, profile, onlyHeaders, partialResource, byteRange);
     }
 
-    protected static async Task SendAsync(HttpContext context, Stream resourceStream, long length)
+    protected static async Task SendAsync(RequestContext context, Stream resourceStream, long length)
     {
       context.Response.StatusCode = (int)HttpStatusCode.OK;
       context.Response.ContentLength = resourceStream.Length;
@@ -165,7 +163,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       Logger.Debug("Sending data complete");
     }
 
-    protected static async Task SendAsync(HttpContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, Range byteRange)
+    protected static async Task SendAsync(RequestContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, bool onlyHeaders, bool partialResource, Range byteRange)
     {
       if (onlyHeaders)
         return;
@@ -185,7 +183,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
           context.Response.ContentLength = null;
         }
         Logger.Debug("BaseSendData: Sending chunked: {0}", context.Response.ContentLength == null);
-        string clientID = context.Connection?.RemoteIpAddress?.ToString();
+        string clientID = context.GetRemoteIpAddress();
         int bufferSize = profile.Settings.Communication.DefaultBufferSize;
         if (bufferSize <= 0)
         {
@@ -305,7 +303,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses
       }
     }
 
-    protected static async Task SendByteRangeAsync(HttpContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+    protected static async Task SendByteRangeAsync(RequestContext context, Stream resourceStream, ProfileMediaItem item, EndPointProfile profile, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
     {
       if (range.From > 0 && range.From == range.To)
       {

@@ -25,8 +25,8 @@
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
-using Microsoft.AspNetCore.Http;
 using MP2Extended.Extensions;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
 {
@@ -34,7 +34,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses
   // TODO: Add more detailes
   class BaseTvShowDetailed : BaseTvShowBasic
   {
-    internal static WebTVShowDetailed TVShowDetailed(HttpContext context, MediaItem item, MediaItem showItem = null)
+    internal static WebTVShowDetailed TVShowDetailed(RequestContext context, MediaItem item, MediaItem showItem = null)
     {
       var seriesAspect = item.GetAspect(SeriesAspect.Metadata);
       var tvShowBasic = TVShowBasic(context, item);

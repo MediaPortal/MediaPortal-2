@@ -29,7 +29,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "playlistId", Type = typeof(string), Nullable = false)]
   internal class DeletePlaylist
   {
-    public static Task<WebBoolResult> ProcessAsync(HttpContext context, string playlistId)
+    public static Task<WebBoolResult> ProcessAsync(RequestContext context, string playlistId)
     {
       bool result = ServiceRegistration.Get<IMediaLibrary>().DeletePlaylist(Guid.Parse(playlistId));
 

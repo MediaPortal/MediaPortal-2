@@ -35,13 +35,13 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
   internal class GetMusicAlbumsBasicForArtist : BaseMusicAlbumBasic
   {
-    public static Task<IList<WebMusicAlbumBasic>> ProcessAsync(HttpContext context, string id, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebMusicAlbumBasic>> ProcessAsync(RequestContext context, string id, string filter, WebSortField? sort, WebSortOrder? order)
     {
       var items = MediaLibraryAccess.GetMediaItemsByGroup(context, AudioAlbumAspect.ROLE_ALBUM, PersonAspect.ROLE_ALBUMARTIST, Guid.Parse(id), BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (items.Count == 0)

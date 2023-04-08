@@ -35,14 +35,14 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetSchedules : BaseScheduleBasic
   {
-    public static async Task<IList<WebScheduleBasic>> ProcessAsync(HttpContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebScheduleBasic>> ProcessAsync(RequestContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetSchedules: ITvProvider not found");

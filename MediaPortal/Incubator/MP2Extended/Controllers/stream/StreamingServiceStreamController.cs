@@ -26,19 +26,36 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos;
+using System;
+using System.Net.Http;
+using System.Threading.Tasks;
+#if NET5_0_OR_GREATER
 using Microsoft.AspNetCore.Http.Extensions;
 using Microsoft.AspNetCore.Mvc;
-using System;
-using System.Threading.Tasks;
+#else
+using System.Web.Http;
+using System.Web.Http.Description;
+#endif
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
 {
+#if NET5_0_OR_GREATER
   [ApiController]
   [Route("MPExtended/StreamingService/stream/[action]")]
   [MediaPortalAuthorize]
   public class StreamingServiceStreamController : Controller
   {
+    protected RequestContext Context => ControllerContext.HttpContext.ToRequestContext();
+#else
+  [RoutePrefix("MPExtended/StreamingService/stream")]
+  [Route("{action}")]
+  [MediaPortalAuthorize]
+  public class StreamingServiceStreamController : ApiController
+  {
+    protected RequestContext Context => Request.GetOwinContext().ToRequestContext();
+#endif
     #region General
 
     [HttpGet]
@@ -46,7 +63,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task GetMediaItem(Guid itemId, long? startPosition)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.General.GetMediaItem.ProcessAsync(ControllerContext.HttpContext, itemId);
+      await ResourceAccess.WSS.stream.General.GetMediaItem.ProcessAsync(Context, itemId);
     }
 
     [HttpGet]
@@ -54,7 +71,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task GetHTMLResource(string path)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.General.GetHtmlResource.ProcessAsync(ControllerContext.HttpContext, path);
+      await ResourceAccess.WSS.stream.General.GetHtmlResource.ProcessAsync(Context, path);
     }
 
     #endregion
@@ -66,7 +83,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task RetrieveStream(string identifier, string file = null, string hls = null)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.Control.RetrieveStream.ProcessAsync(ControllerContext.HttpContext, identifier, file, hls);
+      await ResourceAccess.WSS.stream.Control.RetrieveStream.ProcessAsync(Context, identifier, file, hls);
     }
 
     [HttpGet]
@@ -75,9 +92,9 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
       string identifier = Guid.NewGuid().ToString();
-      var result = await ResourceAccess.WSS.json.Control.InitStream.ProcessAsync(ControllerContext.HttpContext, itemId, clientDescription, identifier, type, idleTimeout);
+      var result = await ResourceAccess.WSS.json.Control.InitStream.ProcessAsync(Context, itemId, clientDescription, identifier, type, idleTimeout);
       if (result.Result)
-        await ResourceAccess.WSS.json.Control.StartStream.ProcessAsync(ControllerContext.HttpContext, identifier, profileName, startPosition);
+        await ResourceAccess.WSS.json.Control.StartStream.ProcessAsync(Context, identifier, profileName, startPosition);
     }
 
     //[HttpGet]
@@ -97,7 +114,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task ExtractImage(WebMediaType type, string itemId)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.Images.ExtractImage.ProcessAsync(ControllerContext.HttpContext, type, itemId);
+      await ResourceAccess.WSS.stream.Images.ExtractImage.ProcessAsync(Context, type, itemId);
     }
 
     [HttpGet]
@@ -105,7 +122,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task ExtractImageResized(WebMediaType type, string itemId, int maxWidth, int maxHeight, string borders = null)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.Images.ExtractImageResized.ProcessAsync(ControllerContext.HttpContext, type, itemId, maxWidth, maxHeight, borders);
+      await ResourceAccess.WSS.stream.Images.ExtractImageResized.ProcessAsync(Context, type, itemId, maxWidth, maxHeight, borders);
     }
 
     [HttpGet]
@@ -113,7 +130,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task GetImage(WebMediaType type, string id)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.Images.GetImage.ProcessAsync(ControllerContext.HttpContext, type, id);
+      await ResourceAccess.WSS.stream.Images.GetImage.ProcessAsync(Context, type, id);
     }
 
     [HttpGet]
@@ -121,7 +138,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task GetImageResized(WebMediaType type, string id, int maxWidth, int maxHeight, string borders = null)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.Images.GetImageResized.ProcessAsync(ControllerContext.HttpContext, type, id, maxWidth, maxHeight, borders);
+      await ResourceAccess.WSS.stream.Images.GetImageResized.ProcessAsync(Context, type, id, maxWidth, maxHeight, borders);
     }
 
     [HttpGet]
@@ -129,7 +146,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task GetArtwork(WebMediaType mediatype, string id, WebFileType artworktype, int offset = 0)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.Images.GetArtwork.ProcessAsync(ControllerContext.HttpContext, mediatype, id, artworktype, offset);
+      await ResourceAccess.WSS.stream.Images.GetArtwork.ProcessAsync(Context, mediatype, id, artworktype, offset);
     }
 
     [HttpGet]
@@ -137,7 +154,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task GetArtworkResized(WebMediaType mediatype, string id, WebFileType artworktype, int maxWidth, int maxHeight, int offset = 0, string borders = null)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.Images.GetArtworkResized.ProcessAsync(ControllerContext.HttpContext, mediatype, id, artworktype, offset, maxWidth, maxHeight, borders);
+      await ResourceAccess.WSS.stream.Images.GetArtworkResized.ProcessAsync(Context, mediatype, id, artworktype, offset, maxWidth, maxHeight, borders);
     }
 
     [HttpGet]
@@ -145,7 +162,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task GetOnlineVideosArtwork(WebOnlineVideosMediaType mediatype, string id)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.Images.GetOnlineVideosArtwork.ProcessAsync(ControllerContext.HttpContext, mediatype, id);
+      await ResourceAccess.WSS.stream.Images.GetOnlineVideosArtwork.ProcessAsync(Context, mediatype, id);
     }
 
     [HttpGet]
@@ -153,7 +170,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.stream
     public async Task GetOnlineVideosArtworkResized(WebOnlineVideosMediaType mediatype, string id, int maxWidth, int maxHeight, string borders = null)
     {
       Logger.Debug("WSS Request: {0}", Request.GetDisplayUrl());
-      await ResourceAccess.WSS.stream.Images.GetOnlineVideosArtworkResized.ProcessAsync(ControllerContext.HttpContext, mediatype, id, maxWidth, maxHeight, borders);
+      await ResourceAccess.WSS.stream.Images.GetOnlineVideosArtworkResized.ProcessAsync(Context, mediatype, id, maxWidth, maxHeight, borders);
     }
 
     #endregion

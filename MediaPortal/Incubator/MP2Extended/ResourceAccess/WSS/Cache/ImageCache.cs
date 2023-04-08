@@ -31,7 +31,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.PathManager;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MP2Extended.Extensions;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
@@ -85,7 +85,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// <param name="height">height of the final image</param>
     /// <param name="borders">borders of the final image</param>
     /// <returns>Returns true if the image was added to the cache, false if the image is already in the cache</returns>
-    internal static bool AddImageToCache(HttpContext context, byte[] data, CacheIdentifier identifier)
+    internal static bool AddImageToCache(RequestContext context, byte[] data, CacheIdentifier identifier)
     {
       lock (_lockObject)
       {
@@ -98,7 +98,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
       }
     }
 
-    internal static bool TryGetImageFromCache(HttpContext context, CacheIdentifier identifier, out byte[] data)
+    internal static bool TryGetImageFromCache(RequestContext context, CacheIdentifier identifier, out byte[] data)
     {
       lock (_lockObject)
       {
@@ -125,7 +125,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Cache
     /// <param name="borders">borders of the final image</param>
     /// <returns>Returns true if the image was added to the cache, false if the image is already in the cache</returns>
     /// <returns>true if the image is in the cache, otherwise false</returns>
-    internal static bool IsInCache(HttpContext context, CacheIdentifier identifier)
+    internal static bool IsInCache(RequestContext context, CacheIdentifier identifier)
     {
       lock (_lockObject)
       {

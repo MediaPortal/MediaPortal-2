@@ -34,7 +34,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "endTime", Type = typeof(DateTime), Nullable = false)]
   internal class GetProgramsBasicForChannel : BaseProgramBasic
   {
-    public static async Task<IList<WebProgramBasic>> ProcessAsync(HttpContext context, string channelId, DateTime startTime, DateTime endTime)
+    public static async Task<IList<WebProgramBasic>> ProcessAsync(RequestContext context, string channelId, DateTime startTime, DateTime endTime)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetProgramsBasicForChannel: ITvProvider not found");

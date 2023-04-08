@@ -26,26 +26,43 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.Controllers.Interfaces;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading.Tasks;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Mvc;
+#else
+using System.Net.Http;
+using System.Web.Http;
+using System.Web.Http.Description;
+#endif
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.json
 {
+#if NET5_0_OR_GREATER
   [ApiController]
   [Route("MPExtended/TVAccessService/json/[action]")]
   [MediaPortalAuthorize]
   public class TVAccessServiceController : Controller, ITVAccessServiceController
   {
+    protected RequestContext Context => ControllerContext.HttpContext.ToRequestContext();
+#else
+  [RoutePrefix("MPExtended/TVAccessService/json")]
+  [Route("{action}")]
+  [MediaPortalAuthorize]
+  public class TVAccessServiceController : ApiController, ITVAccessServiceController
+  {
+    protected RequestContext Context => Request.GetOwinContext().ToRequestContext();
+#endif
     #region Misc
 
     [HttpGet]
@@ -54,7 +71,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebTVServiceDescription> GetServiceDescription()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Misc.GetServiceDescription.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Misc.GetServiceDescription.ProcessAsync(Context);
     }
 
     [HttpGet]
@@ -63,7 +80,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> TestConnectionToTVService()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Misc.TestConnectionToTVService.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Misc.TestConnectionToTVService.ProcessAsync(Context);
     }
 
     [HttpGet]
@@ -71,7 +88,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebStringResult> ReadSettingFromDatabase(string tagName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Misc.ReadSettingFromDatabase.ProcessAsync(ControllerContext.HttpContext, tagName);
+      return ResourceAccess.TAS.Misc.ReadSettingFromDatabase.ProcessAsync(Context, tagName);
     }
 
     [HttpGet]
@@ -79,7 +96,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> WriteSettingToDatabase(string tagName, string value)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Misc.WriteSettingToDatabase.ProcessAsync(ControllerContext.HttpContext, tagName, value);
+      return ResourceAccess.TAS.Misc.WriteSettingToDatabase.ProcessAsync(Context, tagName, value);
     }
 
     [HttpGet]
@@ -87,7 +104,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebDiskSpaceInformation>> GetLocalDiskInformation()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Misc.GetLocalDiskInformation.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Misc.GetLocalDiskInformation.ProcessAsync(Context);
     }
 
     //[HttpGet]
@@ -119,7 +136,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebCard>> GetCards()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Misc.GetCards.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Misc.GetCards.ProcessAsync(Context);
     }
 
     [HttpGet]
@@ -127,7 +144,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebVirtualCard>> GetActiveCards()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Misc.GetActiveCards.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Misc.GetActiveCards.ProcessAsync(Context);
     }
 
     [HttpGet]
@@ -135,7 +152,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebUser>> GetActiveUsers()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Misc.GetActiveUsers.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Misc.GetActiveUsers.ProcessAsync(Context);
     }
 
     //[HttpGet]
@@ -155,7 +172,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> AddSchedule(string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.AddSchedule.ProcessAsync(ControllerContext.HttpContext, channelId, title, startTime, endTime, scheduleType);
+      return ResourceAccess.TAS.Schedule.AddSchedule.ProcessAsync(Context, channelId, title, startTime, endTime, scheduleType);
     }
 
     [HttpGet]
@@ -163,7 +180,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> AddScheduleDetailed(string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.AddScheduleDetailed.ProcessAsync(ControllerContext.HttpContext, channelId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
+      return ResourceAccess.TAS.Schedule.AddScheduleDetailed.ProcessAsync(Context, channelId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
     }
 
     [HttpGet]
@@ -171,7 +188,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebIntResult> GetScheduleCount()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.GetScheduleCount.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Schedule.GetScheduleCount.ProcessAsync(Context);
     }
 
     [HttpGet]
@@ -179,7 +196,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebScheduleBasic>> GetSchedules(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.GetSchedules.ProcessAsync(ControllerContext.HttpContext, filter, sort, order);
+      return ResourceAccess.TAS.Schedule.GetSchedules.ProcessAsync(Context, filter, sort, order);
     }
 
     [HttpGet]
@@ -187,7 +204,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebScheduleBasic>> GetSchedulesByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.GetSchedulesByRange.ProcessAsync(ControllerContext.HttpContext, start, end, filter, sort, order);
+      return ResourceAccess.TAS.Schedule.GetSchedulesByRange.ProcessAsync(Context, start, end, filter, sort, order);
     }
 
     [HttpGet]
@@ -195,7 +212,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebScheduleBasic> GetScheduleById(string scheduleId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.GetScheduleById.ProcessAsync(ControllerContext.HttpContext, scheduleId);
+      return ResourceAccess.TAS.Schedule.GetScheduleById.ProcessAsync(Context, scheduleId);
     }
 
     [HttpGet]
@@ -203,7 +220,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> CancelSchedule(string programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.CancelSchedule.ProcessAsync(ControllerContext.HttpContext, programId);
+      return ResourceAccess.TAS.Schedule.CancelSchedule.ProcessAsync(Context, programId);
     }
 
     [HttpGet]
@@ -211,7 +228,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> UnCancelSchedule(string programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.UnCancelSchedule.ProcessAsync(ControllerContext.HttpContext, programId);
+      return ResourceAccess.TAS.Schedule.UnCancelSchedule.ProcessAsync(Context, programId);
     }
 
     [HttpGet]
@@ -219,7 +236,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> EditSchedule(string scheduleId, string channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.EditSchedule.ProcessAsync(ControllerContext.HttpContext, scheduleId, scheduleId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
+      return ResourceAccess.TAS.Schedule.EditSchedule.ProcessAsync(Context, scheduleId, scheduleId, title, startTime, endTime, scheduleType, preRecordInterval, postRecordInterval, directory, priority);
     }
 
     [HttpGet]
@@ -227,7 +244,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> DeleteSchedule(string scheduleId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.DeleteSchedule.ProcessAsync(ControllerContext.HttpContext, scheduleId);
+      return ResourceAccess.TAS.Schedule.DeleteSchedule.ProcessAsync(Context, scheduleId);
     }
 
     [HttpGet]
@@ -235,7 +252,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> StopRecording(string scheduleId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.DeleteSchedule.ProcessAsync(ControllerContext.HttpContext, scheduleId);
+      return ResourceAccess.TAS.Schedule.DeleteSchedule.ProcessAsync(Context, scheduleId);
     }
 
     [HttpGet]
@@ -243,7 +260,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebScheduledRecording>> GetScheduledRecordingsForDate(DateTime date, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.GetScheduledRecordingsForDate.ProcessAsync(ControllerContext.HttpContext, date, sort, order, filter);
+      return ResourceAccess.TAS.Schedule.GetScheduledRecordingsForDate.ProcessAsync(Context, date, sort, order, filter);
     }
 
     [HttpGet]
@@ -251,7 +268,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebScheduledRecording>> GetScheduledRecordingsForToday(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.GetScheduledRecordingsForToday.ProcessAsync(ControllerContext.HttpContext, sort, order, filter);
+      return ResourceAccess.TAS.Schedule.GetScheduledRecordingsForToday.ProcessAsync(Context, sort, order, filter);
     }
 
     #endregion
@@ -263,7 +280,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebDiskSpaceInformation>> GetAllRecordingDiskInformation()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Recording.GetAllRecordingDiskInformation.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Recording.GetAllRecordingDiskInformation.ProcessAsync(Context);
     }
 
     [HttpGet]
@@ -271,7 +288,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebDiskSpaceInformation> GetRecordingDiskInformationForCard(string id)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Recording.GetRecordingDiskInformationForCard.ProcessAsync(ControllerContext.HttpContext, id);
+      return ResourceAccess.TAS.Recording.GetRecordingDiskInformationForCard.ProcessAsync(Context, id);
     }
 
 
@@ -280,7 +297,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> StartRecordingManual(string userName, string channelId, string title)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.AddSchedule.ProcessAsync(ControllerContext.HttpContext, channelId, title, DateTime.Now, DateTime.Now.AddDays(1),  WebScheduleType.Once);
+      return ResourceAccess.TAS.Schedule.AddSchedule.ProcessAsync(Context, channelId, title, DateTime.Now, DateTime.Now.AddDays(1),  WebScheduleType.Once);
     }
 
     [HttpGet]
@@ -288,7 +305,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebIntResult> GetRecordingCount()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Recording.GetRecordingCount.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Recording.GetRecordingCount.ProcessAsync(Context);
     }
 
     [HttpGet]
@@ -296,7 +313,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebRecordingBasic>> GetRecordings(WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Recording.GetRecordings.ProcessAsync(ControllerContext.HttpContext, sort, order, filter);
+      return ResourceAccess.TAS.Recording.GetRecordings.ProcessAsync(Context, sort, order, filter);
     }
 
     [HttpGet]
@@ -304,7 +321,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebRecordingBasic>> GetRecordingsByRange(int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Recording.GetRecordingsByRange.ProcessAsync(ControllerContext.HttpContext, start, end, sort, order, filter);
+      return ResourceAccess.TAS.Recording.GetRecordingsByRange.ProcessAsync(Context, start, end, sort, order, filter);
     }
 
     [HttpGet]
@@ -312,7 +329,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebRecordingBasic> GetRecordingById(string id)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Recording.GetRecordingById.ProcessAsync(ControllerContext.HttpContext, id);
+      return ResourceAccess.TAS.Recording.GetRecordingById.ProcessAsync(Context, id);
     }
 
     [HttpGet]
@@ -320,7 +337,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> DeleteRecording(string id)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Recording.DeleteRecording.ProcessAsync(ControllerContext.HttpContext, id);
+      return ResourceAccess.TAS.Recording.DeleteRecording.ProcessAsync(Context, id);
     }
 
     [HttpGet]
@@ -328,7 +345,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebRecordingFileInfo> GetRecordingFileInfo(string id)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Recording.GetRecordingFileInfo.ProcessAsync(ControllerContext.HttpContext, id);
+      return ResourceAccess.TAS.Recording.GetRecordingFileInfo.ProcessAsync(Context, id);
     }
 
     [HttpGet]
@@ -336,7 +353,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<Stream> ReadRecordingFile(string id)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Recording.ReadRecordingFile.ProcessAsync(ControllerContext.HttpContext, id);
+      return ResourceAccess.TAS.Recording.ReadRecordingFile.ProcessAsync(Context, id);
     }
 
     #endregion
@@ -348,7 +365,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebChannelBasic> GetChannelBasicById(string channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetChannelBasicById.ProcessAsync(ControllerContext.HttpContext, channelId);
+      return ResourceAccess.TAS.Tv.GetChannelBasicById.ProcessAsync(Context, channelId);
     }
 
     [HttpGet]
@@ -356,7 +373,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebChannelDetailed> GetChannelDetailedById(string channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetChannelDetailedById.ProcessAsync(ControllerContext.HttpContext, channelId);
+      return ResourceAccess.TAS.Tv.GetChannelDetailedById.ProcessAsync(Context, channelId);
     }
 
     [HttpGet]
@@ -364,7 +381,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebIntResult> GetGroupCount()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetGroupCount.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Tv.GetGroupCount.ProcessAsync(Context);
     }
 
     [HttpGet]
@@ -372,7 +389,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelGroup>> GetGroups(WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetGroups.ProcessAsync(ControllerContext.HttpContext, sort, order);
+      return ResourceAccess.TAS.Tv.GetGroups.ProcessAsync(Context, sort, order);
     }
 
     [HttpGet]
@@ -380,7 +397,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelGroup>> GetGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetGroupsByRange.ProcessAsync(ControllerContext.HttpContext, start, end, sort, order);
+      return ResourceAccess.TAS.Tv.GetGroupsByRange.ProcessAsync(Context, start, end, sort, order);
     }
 
     [HttpGet]
@@ -388,7 +405,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebChannelGroup> GetGroupById(string groupId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetGroupById.ProcessAsync(ControllerContext.HttpContext, groupId);
+      return ResourceAccess.TAS.Tv.GetGroupById.ProcessAsync(Context, groupId);
     }
 
     [HttpGet]
@@ -396,7 +413,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebIntResult> GetChannelCount(string groupId = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetChannelCount.ProcessAsync(ControllerContext.HttpContext, groupId);
+      return ResourceAccess.TAS.Tv.GetChannelCount.ProcessAsync(Context, groupId);
     }
 
     [HttpGet]
@@ -404,7 +421,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelBasic>> GetChannelsBasic(string groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetChannelsBasic.ProcessAsync(ControllerContext.HttpContext, sort, order, groupId);
+      return ResourceAccess.TAS.Tv.GetChannelsBasic.ProcessAsync(Context, sort, order, groupId);
     }
 
     [HttpGet]
@@ -412,7 +429,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelBasic>> GetChannelsBasicByRange(int start, int end, string groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetChannelsBasicByRange.ProcessAsync(ControllerContext.HttpContext, start, end, sort, order, groupId);
+      return ResourceAccess.TAS.Tv.GetChannelsBasicByRange.ProcessAsync(Context, start, end, sort, order, groupId);
     }
 
     [HttpGet]
@@ -420,7 +437,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelDetailed>> GetChannelsDetailed(string groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetChannelsDetailed.ProcessAsync(ControllerContext.HttpContext, groupId, sort, order);
+      return ResourceAccess.TAS.Tv.GetChannelsDetailed.ProcessAsync(Context, groupId, sort, order);
     }
 
     [HttpGet]
@@ -428,7 +445,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelDetailed>> GetChannelsDetailedByRange(int start, int end, string groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Tv.GetChannelsDetailedByRange.ProcessAsync(ControllerContext.HttpContext, start, end, groupId, sort, order);
+      return ResourceAccess.TAS.Tv.GetChannelsDetailedByRange.ProcessAsync(Context, start, end, groupId, sort, order);
     }
 
     #endregion
@@ -440,7 +457,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebIntResult> GetRadioGroupCount()
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetRadioGroupCount.ProcessAsync(ControllerContext.HttpContext);
+      return ResourceAccess.TAS.Radio.GetRadioGroupCount.ProcessAsync(Context);
     }
 
     [HttpGet]
@@ -448,7 +465,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelGroup>> GetRadioGroups(WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetRadioGroups.ProcessAsync(ControllerContext.HttpContext, sort, order);
+      return ResourceAccess.TAS.Radio.GetRadioGroups.ProcessAsync(Context, sort, order);
     }
 
     [HttpGet]
@@ -456,7 +473,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelGroup>> GetRadioGroupsByRange(int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetRadioGroupsByRange.ProcessAsync(ControllerContext.HttpContext, start, end, sort, order);
+      return ResourceAccess.TAS.Radio.GetRadioGroupsByRange.ProcessAsync(Context, start, end, sort, order);
     }
 
     [HttpGet]
@@ -464,7 +481,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebChannelGroup> GetRadioGroupById(string groupId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetRadioGroupById.ProcessAsync(ControllerContext.HttpContext, groupId);
+      return ResourceAccess.TAS.Radio.GetRadioGroupById.ProcessAsync(Context, groupId);
     }
 
     [HttpGet]
@@ -472,7 +489,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebIntResult> GetRadioChannelCount(string groupId = null)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetRadioChannelCount.ProcessAsync(ControllerContext.HttpContext, groupId);
+      return ResourceAccess.TAS.Radio.GetRadioChannelCount.ProcessAsync(Context, groupId);
     }
 
     [HttpGet]
@@ -480,7 +497,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelBasic>> GetRadioChannelsBasic(string groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetRadioChannelsBasic.ProcessAsync(ControllerContext.HttpContext, groupId, sort, order);
+      return ResourceAccess.TAS.Radio.GetRadioChannelsBasic.ProcessAsync(Context, groupId, sort, order);
     }
 
     [HttpGet]
@@ -488,7 +505,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelBasic>> GetRadioChannelsBasicByRange(int start, int end, string groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetRadioChannelsBasicByRange.ProcessAsync(ControllerContext.HttpContext, start, end, groupId, sort, order);
+      return ResourceAccess.TAS.Radio.GetRadioChannelsBasicByRange.ProcessAsync(Context, start, end, groupId, sort, order);
     }
 
     [HttpGet]
@@ -496,7 +513,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelDetailed>> GetRadioChannelsDetailed(string groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetRadioChannelsDetailed.ProcessAsync(ControllerContext.HttpContext, groupId, sort, order);
+      return ResourceAccess.TAS.Radio.GetRadioChannelsDetailed.ProcessAsync(Context, groupId, sort, order);
     }
 
     [HttpGet]
@@ -504,7 +521,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelDetailed>> GetRadioChannelsDetailedByRange(int start, int end, string groupId, WebSortField? sort, WebSortOrder? order)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetRadioChannelsDetailedByRange.ProcessAsync(ControllerContext.HttpContext, start, end, groupId, sort, order);
+      return ResourceAccess.TAS.Radio.GetRadioChannelsDetailedByRange.ProcessAsync(Context, start, end, groupId, sort, order);
     }
 
     [HttpGet]
@@ -512,7 +529,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelState>> GetAllRadioChannelStatesForGroup(string groupId, string userName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Radio.GetAllRadioChannelStatesForGroup.ProcessAsync(ControllerContext.HttpContext, groupId, userName);
+      return ResourceAccess.TAS.Radio.GetAllRadioChannelStatesForGroup.ProcessAsync(Context, groupId, userName);
     }
 
     #endregion
@@ -524,7 +541,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebChannelState> GetChannelState(string channelId, string userName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Channels.GetChannelState.ProcessAsync(ControllerContext.HttpContext, channelId, userName);
+      return ResourceAccess.TAS.Channels.GetChannelState.ProcessAsync(Context, channelId, userName);
     }
 
     [HttpGet]
@@ -532,7 +549,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelState>> GetAllChannelStatesForGroup(string groupId, string userName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Channels.GetAllChannelStatesForGroup.ProcessAsync(ControllerContext.HttpContext, groupId, userName);
+      return ResourceAccess.TAS.Channels.GetAllChannelStatesForGroup.ProcessAsync(Context, groupId, userName);
     }
 
     #endregion
@@ -552,7 +569,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebStringResult> SwitchTVServerToChannelAndGetStreamingUrl(string userName, string channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Timeshiftings.SwitchTVServerToChannelAndGetStreamingUrl.ProcessAsync(ControllerContext.HttpContext, userName, channelId);
+      return ResourceAccess.TAS.Timeshiftings.SwitchTVServerToChannelAndGetStreamingUrl.ProcessAsync(Context, userName, channelId);
     }
 
     [HttpGet]
@@ -560,7 +577,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebStringResult> SwitchTVServerToChannelAndGetTimeshiftFilename(string userName, string channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Timeshiftings.SwitchTVServerToChannelAndGetTimeshiftFilename.ProcessAsync(ControllerContext.HttpContext, userName, channelId);
+      return ResourceAccess.TAS.Timeshiftings.SwitchTVServerToChannelAndGetTimeshiftFilename.ProcessAsync(Context, userName, channelId);
     }
 
     [HttpGet]
@@ -576,7 +593,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> CancelCurrentTimeShifting(string userName)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Timeshiftings.CancelCurrentTimeShifting.ProcessAsync(ControllerContext.HttpContext, userName);
+      return ResourceAccess.TAS.Timeshiftings.CancelCurrentTimeShifting.ProcessAsync(Context, userName);
     }
 
     #endregion
@@ -588,7 +605,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebProgramBasic>> GetProgramsBasicForChannel(string channelId, DateTime startTime, DateTime endTime)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetProgramsBasicForChannel.ProcessAsync(ControllerContext.HttpContext, channelId, startTime, endTime);
+      return ResourceAccess.TAS.EPG.GetProgramsBasicForChannel.ProcessAsync(Context, channelId, startTime, endTime);
     }
 
     [HttpGet]
@@ -596,7 +613,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebProgramDetailed>> GetProgramsDetailedForChannel(string channelId, DateTime startTime, DateTime endTime)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetProgramsDetailedForChannel.ProcessAsync(ControllerContext.HttpContext, channelId, startTime, endTime);
+      return ResourceAccess.TAS.EPG.GetProgramsDetailedForChannel.ProcessAsync(Context, channelId, startTime, endTime);
     }
 
     [HttpGet]
@@ -604,7 +621,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelPrograms<WebProgramBasic>>> GetProgramsBasicForGroup(string groupId, DateTime startTime, DateTime endTime)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetProgramsBasicForGroup.ProcessAsync(ControllerContext.HttpContext, groupId, startTime, endTime);
+      return ResourceAccess.TAS.EPG.GetProgramsBasicForGroup.ProcessAsync(Context, groupId, startTime, endTime);
     }
 
     [HttpGet]
@@ -612,7 +629,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebChannelPrograms<WebProgramDetailed>>> GetProgramsDetailedForGroup(string groupId, DateTime startTime, DateTime endTime)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetProgramsDetailedForGroup.ProcessAsync(ControllerContext.HttpContext, groupId, startTime, endTime);
+      return ResourceAccess.TAS.EPG.GetProgramsDetailedForGroup.ProcessAsync(Context, groupId, startTime, endTime);
     }
 
     [HttpGet]
@@ -620,7 +637,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebProgramDetailed> GetCurrentProgramOnChannel(string channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetCurrentProgramOnChannel.ProcessAsync(ControllerContext.HttpContext, channelId);
+      return ResourceAccess.TAS.EPG.GetCurrentProgramOnChannel.ProcessAsync(Context, channelId);
     }
 
     [HttpGet]
@@ -628,7 +645,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebProgramDetailed> GetNextProgramOnChannel(string channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetNextProgramOnChannel.ProcessAsync(ControllerContext.HttpContext, channelId);
+      return ResourceAccess.TAS.EPG.GetNextProgramOnChannel.ProcessAsync(Context, channelId);
     }
 
     [HttpGet]
@@ -636,7 +653,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebIntResult> SearchProgramsCount(string searchTerm)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.SearchProgramsCount.ProcessAsync(ControllerContext.HttpContext, searchTerm);
+      return ResourceAccess.TAS.EPG.SearchProgramsCount.ProcessAsync(Context, searchTerm);
     }
 
     [HttpGet]
@@ -644,7 +661,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebProgramBasic>> SearchProgramsBasic(string searchTerm)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.SearchProgramsBasic.ProcessAsync(ControllerContext.HttpContext, searchTerm);
+      return ResourceAccess.TAS.EPG.SearchProgramsBasic.ProcessAsync(Context, searchTerm);
     }
 
     [HttpGet]
@@ -652,7 +669,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebProgramBasic>> SearchProgramsBasicByRange(string searchTerm, int start, int end)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.SearchProgramsBasicByRange.ProcessAsync(ControllerContext.HttpContext, searchTerm, start, end);
+      return ResourceAccess.TAS.EPG.SearchProgramsBasicByRange.ProcessAsync(Context, searchTerm, start, end);
     }
 
     [HttpGet]
@@ -660,7 +677,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebProgramDetailed>> SearchProgramsDetailed(string searchTerm)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.SearchProgramsDetailed.ProcessAsync(ControllerContext.HttpContext, searchTerm);
+      return ResourceAccess.TAS.EPG.SearchProgramsDetailed.ProcessAsync(Context, searchTerm);
     }
 
     [HttpGet]
@@ -668,7 +685,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebProgramDetailed>> SearchProgramsDetailedByRange(string searchTerm, int start, int end)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.SearchProgramsDetailedByRange.ProcessAsync(ControllerContext.HttpContext, searchTerm, start, end);
+      return ResourceAccess.TAS.EPG.SearchProgramsDetailedByRange.ProcessAsync(Context, searchTerm, start, end);
     }
 
     [HttpGet]
@@ -676,7 +693,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebProgramBasic>> GetNowNextWebProgramBasicForChannel(string channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetNowNextWebProgramBasicForChannel.ProcessAsync(ControllerContext.HttpContext, channelId);
+      return ResourceAccess.TAS.EPG.GetNowNextWebProgramBasicForChannel.ProcessAsync(Context, channelId);
     }
 
     [HttpGet]
@@ -684,7 +701,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<IList<WebProgramDetailed>> GetNowNextWebProgramDetailedForChannel(string channelId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetNowNextWebProgramDetailedForChannel.ProcessAsync(ControllerContext.HttpContext, channelId);
+      return ResourceAccess.TAS.EPG.GetNowNextWebProgramDetailedForChannel.ProcessAsync(Context, channelId);
     }
 
     [HttpGet]
@@ -692,7 +709,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebProgramBasic> GetProgramBasicById(string programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetProgramBasicById.ProcessAsync(ControllerContext.HttpContext, programId);
+      return ResourceAccess.TAS.EPG.GetProgramBasicById.ProcessAsync(Context, programId);
     }
 
     [HttpGet]
@@ -700,7 +717,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebProgramDetailed> GetProgramDetailedById(string programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetProgramDetailedById.ProcessAsync(ControllerContext.HttpContext, programId);
+      return ResourceAccess.TAS.EPG.GetProgramDetailedById.ProcessAsync(Context, programId);
     }
 
     [HttpGet]
@@ -708,7 +725,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> GetProgramIsScheduledOnChannel(string channelId, string programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.EPG.GetProgramIsScheduledOnChannel.ProcessAsync(ControllerContext.HttpContext, channelId, programId);
+      return ResourceAccess.TAS.EPG.GetProgramIsScheduledOnChannel.ProcessAsync(Context, channelId, programId);
     }
 
     [HttpGet]
@@ -716,7 +733,7 @@ namespace MediaPortal.Plugins.MP2Extended.Controllers.json
     public Task<WebBoolResult> GetProgramIsScheduled(string programId)
     {
       Logger.Debug("TAS Request: {0}", Request.GetDisplayUrl());
-      return ResourceAccess.TAS.Schedule.GetProgramIsScheduled.ProcessAsync(ControllerContext.HttpContext, programId);
+      return ResourceAccess.TAS.Schedule.GetProgramIsScheduled.ProcessAsync(Context, programId);
     }
 
     #endregion

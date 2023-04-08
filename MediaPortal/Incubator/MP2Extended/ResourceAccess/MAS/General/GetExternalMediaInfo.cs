@@ -29,7 +29,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetExternalMediaInfo
   {
-    public static Task<WebDictionary<string>> ProcessAsync(HttpContext context, string id)
+    public static Task<WebDictionary<string>> ProcessAsync(RequestContext context, string id)
     {
       if (id == null)
         throw new BadRequestException("GetExternalMediaInfo: id is null");

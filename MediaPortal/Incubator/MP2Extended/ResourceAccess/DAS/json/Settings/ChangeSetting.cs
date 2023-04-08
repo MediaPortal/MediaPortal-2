@@ -22,15 +22,15 @@
 
 #endregion
 
-using System.Linq;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Utils;
-using Microsoft.AspNetCore.Http;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.json.Settings
 {
@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.DAS.json.Settings
   [ApiFunctionParam(Name = "value", Type = typeof(string), Nullable = false)]
   internal static class ChangeSetting
   {
-    public static Task<WebBoolResult> ProcessAsync(HttpContext context, string name, string value)
+    public static Task<WebBoolResult> ProcessAsync(RequestContext context, string name, string value)
     {
       // Security
       if (!(context?.User?.Identity?.IsAuthenticated ?? false))

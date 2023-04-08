@@ -28,9 +28,9 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Common.Settings;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
   [ApiFunctionParam(Name = "value", Type = typeof(string), Nullable = false)]
   internal class WriteSettingToDatabase
   {
-    public static Task<WebBoolResult> ProcessAsync(HttpContext context, string tagName, string value)
+    public static Task<WebBoolResult> ProcessAsync(RequestContext context, string tagName, string value)
     {
       if (tagName == null)
         throw new BadRequestException("WriteSettingToDatabase: tagName is null");

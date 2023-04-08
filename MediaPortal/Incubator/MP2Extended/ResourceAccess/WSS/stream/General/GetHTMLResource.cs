@@ -26,11 +26,10 @@ using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MediaPortal.Utilities.SystemAPI;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using System;
 using System.IO;
 using System.Linq;
@@ -53,11 +52,11 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
       _appDataPath = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Web\");
     }
 
-    public static async Task<bool> ProcessAsync(HttpContext context, string path)
+    public static async Task<bool> ProcessAsync(RequestContext context, string path)
     {
       if (path == null)
       {
-        Uri uri = new Uri(context.Request.GetEncodedUrl());
+        Uri uri = context.Request.GetUri();
         if (uri.Segments.Length >= 3)
           path = string.Join("", uri.Segments.Skip(2));
       }

@@ -35,7 +35,7 @@ using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
 {
@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Radio
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetRadioChannelsBasic : BaseChannelBasic
   {
-    public static async Task<IList<WebChannelBasic>> ProcessAsync(HttpContext context, string groupId, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebChannelBasic>> ProcessAsync(RequestContext context, string groupId, WebSortField? sort, WebSortOrder? order)
     {
       List<WebChannelBasic> output = new List<WebChannelBasic>();
 

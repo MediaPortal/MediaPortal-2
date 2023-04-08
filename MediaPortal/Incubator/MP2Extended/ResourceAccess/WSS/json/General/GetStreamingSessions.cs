@@ -30,7 +30,7 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
 {
@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetStreamingSessions
   {
-    public static Task<IList<WebStreamingSession>> ProcessAsync(HttpContext context, string filter = null)
+    public static Task<IList<WebStreamingSession>> ProcessAsync(RequestContext context, string filter = null)
     {
       return Task.FromResult<IList<WebStreamingSession>>(StreamControl.GetStreamItems().Select(streamItem => new WebStreamingSession
       {

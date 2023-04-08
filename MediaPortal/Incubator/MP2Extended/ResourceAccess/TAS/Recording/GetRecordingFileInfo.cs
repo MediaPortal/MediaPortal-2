@@ -37,9 +37,9 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MP2Extended.Extensions;
-using Microsoft.AspNetCore.Http;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
@@ -47,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetRecordingFileInfo : BaseSendData
   {
-    public static Task<WebRecordingFileInfo> ProcessAsync(HttpContext context, string id)
+    public static Task<WebRecordingFileInfo> ProcessAsync(RequestContext context, string id)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

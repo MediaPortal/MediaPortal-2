@@ -34,7 +34,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetTVEpisodesDetailed : BaseEpisodeDetailed
   {
-    public static Task<IList<WebTVEpisodeDetailed>> ProcessAsync(HttpContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebTVEpisodeDetailed>> ProcessAsync(RequestContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds, null);
 

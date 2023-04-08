@@ -37,7 +37,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Movie;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
 {
@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
   // TODO: add the missing functions once these are implemented
   internal class GetFilterValues
   {
-    public static async Task<IList<string>> ProcessAsync(HttpContext context, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
+    public static async Task<IList<string>> ProcessAsync(RequestContext context, WebMediaType mediaType, string filterField, string op, int? limit, WebSortOrder? order)
     {
       switch (mediaType)
       {

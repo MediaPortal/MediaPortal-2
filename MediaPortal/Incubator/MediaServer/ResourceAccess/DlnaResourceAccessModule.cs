@@ -33,9 +33,6 @@ using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
 using MediaPortal.Utilities.FileSystem;
 using MediaPortal.Utilities.SystemAPI;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
-using Microsoft.AspNetCore.Http.Features;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -46,11 +43,36 @@ using System.Net;
 using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+using Microsoft.AspNetCore.Http.Features;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 {
+#if NET5_0_OR_GREATER
   public class DlnaResourceAccessModule : IDisposable
   {
+    protected RequestDelegate Next { get; }
+
+    public DlnaResourceAccessModule(RequestDelegate next)
+    {
+      Next = next;
+#else
+  public class DlnaResourceAccessModule : OwinMiddleware, IDisposable
+  {
+    public DlnaResourceAccessModule(OwinMiddleware next) : base(next)
+    {
+#endif
+      _clientManager = new MediaServerClientManager();
+      _serverOsVersion = WindowsAPI.GetOsVersionString();
+      Assembly assembly = Assembly.GetExecutingAssembly();
+      _product = "MediaPortal 2 DLNA Server/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
+    }
+
     public const long TRANSCODED_VIDEO_STREAM_MAX = 50000000000L;
     public const long TRANSCODED_AUDIO_STREAM_MAX = 900000000L;
     public const long TRANSCODED_IMAGE_STREAM_MAX = 9000000L;
@@ -60,8 +82,6 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
     private string _product = null;
     private MediaServerClientManager _clientManager = null;
     private static CancellationTokenSource _serverCancellation = new CancellationTokenSource();
-
-    protected RequestDelegate _next;
 
     protected enum StreamMode
     {
@@ -77,15 +97,6 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       Streaming,
       Interactive,
       Background
-    }
-
-    public DlnaResourceAccessModule(RequestDelegate next)
-    {
-      _next = next;
-      _clientManager = new MediaServerClientManager();
-      _serverOsVersion = WindowsAPI.GetOsVersionString();
-      Assembly assembly = Assembly.GetExecutingAssembly();
-      _product = "MediaPortal 2 DLNA Server/" + AssemblyName.GetAssemblyName(assembly.Location).Version.ToString(2);
     }
 
     protected class Range
@@ -329,12 +340,16 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
     /// <summary>
     /// Method that process the url
     /// </summary>
+#if NET5_0_OR_GREATER
     public async Task Invoke(HttpContext context)
+#else
+    public override async Task Invoke(IOwinContext context)
+#endif
     {
-      var uri = new Uri(context.Request.GetEncodedUrl());
+      var uri = context.Request.GetUri();
       if (!uri.ToString().Contains(DlnaResourceAccessUtils.RESOURCE_ACCESS_PATH))
       {
-        await _next.Invoke(context);
+        await Next.Invoke(context);
         return;
       }
 
@@ -373,7 +388,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         #region Determine profile
 
         EndPointSettings deviceClient = null;
-        string clientIp = context.Connection.RemoteIpAddress?.ToString();
+        string clientIp = context.Request.GetRemoteAddress();
         if (clientIp == null)
         {
           clientIp = "noip";
@@ -497,7 +512,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
               Logger.Error("DlnaResourceAccessModule: Media item has bad mime type, re-import media item");
 
               context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-              context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Media item has bad mime type, re-import media item";
+              context.Response.SetReasonPhrase("Media item has bad mime type, re-import media item");
               context.Response.ContentLength = 0;
               context.Response.ContentType = null;
               return;
@@ -578,7 +593,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
                 Logger.Error("DlnaResourceAccessModule: Stream no longer active for segment file {0}", hlsFileRequest);
 
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Stream no longer active for segment file";
+                context.Response.SetReasonPhrase("Stream no longer active for segment file");
                 context.Response.ContentLength = 0;
                 context.Response.ContentType = null;
                 return;
@@ -713,7 +728,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
                   Logger.Error("DlnaResourceAccessModule: Unable to find segment file {0}", hlsFileRequest);
 
                   context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                  context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "DlnaResourceAccessModule: Unable to find segment file";
+                  context.Response.SetReasonPhrase("DlnaResourceAccessModule: Unable to find segment file");
                   context.Response.ContentLength = 0;
                   context.Response.ContentType = null;
                   return;
@@ -738,7 +753,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
               Logger.Error("DlnaResourceAccessModule: Resource stream was null");
 
               context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-              context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Resource stream was null";
+              context.Response.SetReasonPhrase("Resource stream was null");
               context.Response.ContentLength = 0;
               context.Response.ContentType = null;
               return;
@@ -770,7 +785,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
 
                 // DLNA Requirement [7.4.26.5]
                 context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-                context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Illegal value for getcontentFeatures.dlna.org";
+                context.Response.SetReasonPhrase("Illegal value for getcontentFeatures.dlna.org");
                 context.Response.ContentLength = 0;
                 context.Response.ContentType = null;
                 return;
@@ -830,13 +845,17 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
         Logger.Error("DlnaResourceAccessModule: Failed to process '{0}'", ex, uri);
 
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Features.Get<IHttpResponseFeature>().ReasonPhrase = "Failed to process request";
+        context.Response.SetReasonPhrase("Failed to process request");
         context.Response.ContentLength = 0;
         context.Response.ContentType = null;
       }
     }
 
+#if NET5_0_OR_GREATER
     private async Task<Stream> GetSegmentAsync(HttpContext context, string fileName, StreamItem streamContext)
+#else
+    private async Task<Stream> GetSegmentAsync(IOwinContext context, string fileName, StreamItem streamContext)
+#endif
     {
       if (!string.IsNullOrEmpty(fileName) && streamContext.StreamContext is TranscodeContext tc)
       {
@@ -873,7 +892,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       return null;
     }
 
+#if NET5_0_OR_GREATER
     protected async Task SendTimeRangeAsync(HttpContext context, Stream resourceStream, StreamItem streamContext, Profiles.EndPointSettings client, Range timeRange, Range byteRange, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+#else
+    protected async Task SendTimeRangeAsync(IOwinContext context, Stream resourceStream, StreamItem streamContext, Profiles.EndPointSettings client, Range timeRange, Range byteRange, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+#endif
     {
       var dlnaItem = streamContext.TranscoderObject;
       if (dlnaItem.IsTranscoding)
@@ -928,7 +951,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       await SendAsync(context, resourceStream, streamContext, client, onlyHeaders, partialResource, fileRange);
     }
 
+#if NET5_0_OR_GREATER
     protected async Task SendByteRangeAsync(HttpContext context, Stream resourceStream, StreamItem streamContext, EndPointSettings client, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+#else
+    protected async Task SendByteRangeAsync(IOwinContext context, Stream resourceStream, StreamItem streamContext, EndPointSettings client, Range range, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+#endif
     {
       var dlnaItem = streamContext.TranscoderObject;
       if (range.From > 0 && range.From == range.To)
@@ -994,7 +1021,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       await SendAsync(context, resourceStream, streamContext, client, onlyHeaders, partialResource, fileRange);
     }
 
+#if NET5_0_OR_GREATER
     protected async Task SendWholeFileAsync(HttpContext context, Stream resourceStream, StreamItem streamContext, Profiles.EndPointSettings client, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+#else
+    protected async Task SendWholeFileAsync(IOwinContext context, Stream resourceStream, StreamItem streamContext, Profiles.EndPointSettings client, bool onlyHeaders, bool partialResource, TransferMode mediaTransferMode)
+#endif
     {
       var item = streamContext.TranscoderObject;
       if (await WaitForMinimumFileSizeAsync(resourceStream, 1) == false)
@@ -1026,7 +1057,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       await SendAsync(context, resourceStream, streamContext, client, onlyHeaders, partialResource, byteRange);
     }
 
+#if NET5_0_OR_GREATER
     protected async Task SendResourceFileAsync(HttpContext context, Stream resourceStream, bool onlyHeaders)
+#else
+    protected async Task SendResourceFileAsync(IOwinContext context, Stream resourceStream, bool onlyHeaders)
+#endif
     {
       context.Response.StatusCode = (int)HttpStatusCode.OK;
       context.Response.ContentLength = resourceStream.Length;
@@ -1069,7 +1104,11 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       return true;
     }
 
+#if NET5_0_OR_GREATER
     protected async Task SendAsync(HttpContext context, Stream resourceStream, StreamItem streamContext, EndPointSettings client, bool onlyHeaders, bool partialResource, Range byteRange)
+#else
+    protected async Task SendAsync(IOwinContext context, Stream resourceStream, StreamItem streamContext, EndPointSettings client, bool onlyHeaders, bool partialResource, Range byteRange)
+#endif
     {
       if (onlyHeaders)
         return;
@@ -1085,7 +1124,7 @@ namespace MediaPortal.Extensions.MediaServer.ResourceAccess
       try
       {
         Logger.Debug("DlnaResourceAccessModule: Sending chunked: {0}", context.Response.ContentLength == null);
-        string clientID = context.Connection.RemoteIpAddress?.ToString();
+        string clientID = context.Request.GetRemoteAddress();
         int bufferSize = client.Profile.Settings.Communication.DefaultBufferSize;
         if (bufferSize <= 0)
         {

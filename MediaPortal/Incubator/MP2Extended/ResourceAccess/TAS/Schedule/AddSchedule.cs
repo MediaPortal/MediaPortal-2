@@ -31,7 +31,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.SlimTv.Interfaces;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionParam(Name = "scheduleType", Type = typeof(WebScheduleType), Nullable = false)]
   internal class AddSchedule
   {
-    public static async Task<WebBoolResult> ProcessAsync(HttpContext context, string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
+    public static async Task<WebBoolResult> ProcessAsync(RequestContext context, string channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("AddSchedule: ITvProvider not found");

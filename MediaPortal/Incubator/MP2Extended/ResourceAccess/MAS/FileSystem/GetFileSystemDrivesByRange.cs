@@ -32,7 +32,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClasses;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "end", Type = typeof(int), Nullable = false)]
   internal class GetFileSystemDrivesByRange : BaseDriveBasic
   {
-    public static Task<IList<WebDriveBasic>> ProcessAsync(HttpContext context, int start, int end, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebDriveBasic>> ProcessAsync(RequestContext context, int start, int end, WebSortField? sort, WebSortOrder? order)
     {
       List<WebDriveBasic> output = DriveBasic();
 

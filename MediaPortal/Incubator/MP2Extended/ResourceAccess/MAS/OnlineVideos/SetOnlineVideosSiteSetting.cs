@@ -29,7 +29,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.OnlineVideos;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
 {
@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
   [ApiFunctionParam(Name = "value", Type = typeof(string), Nullable = false)]
   internal class SetOnlineVideosSiteSetting
   {
-    public static Task<WebBoolResult> ProcessAsync(HttpContext context, string siteId, string property, string value)
+    public static Task<WebBoolResult> ProcessAsync(RequestContext context, string siteId, string property, string value)
     {
       if (siteId == null)
         throw new BadRequestException("SetOnlineVideosSiteSetting: siteId is null");

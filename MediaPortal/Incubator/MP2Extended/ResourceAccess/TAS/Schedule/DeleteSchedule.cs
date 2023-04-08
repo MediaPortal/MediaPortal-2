@@ -32,7 +32,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Microsoft.AspNetCore.Http;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
 {
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Schedule
   [ApiFunctionParam(Name = "scheduleId", Type = typeof(string), Nullable = false)]
   internal class DeleteSchedule
   {
-    public static async Task<WebBoolResult> ProcessAsync(HttpContext context, string scheduleId)
+    public static async Task<WebBoolResult> ProcessAsync(RequestContext context, string scheduleId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("DeleteSchedule: ITvProvider not found");

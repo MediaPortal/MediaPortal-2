@@ -24,23 +24,31 @@
 
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.ResourceAccess;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Http.Extensions;
 using System;
 using System.IO;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace MediaPortal.Extensions.MediaServer.Protocols
 {
   public class SamsungProtocolHandler : GenericAccessProtocol
   {
+#if NET5_0_OR_GREATER
     public override bool HandleRequest(HttpContext context, DlnaMediaItem item)
+#else
+    public override bool HandleRequest(IOwinContext context, DlnaMediaItem item)
+#endif
     {
       bool bHandled = false;
       if (!string.IsNullOrEmpty(context.Request.Headers["getCaptionInfo.sec"]))
       {
         if (context.Request.Headers["getCaptionInfo.sec"] == "1")
         {
-          Uri uri = new Uri(context.Request.GetEncodedUrl());
+          Uri uri = context.Request.GetUri();
           if (uri.ToString().ToUpperInvariant().Contains("LOCALHOST"))
           {
             bHandled = true;
@@ -65,7 +73,11 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
       return bHandled;
     }
 
+#if NET5_0_OR_GREATER
     public override bool CanHandleRequest(HttpRequest request)
+#else
+    public override bool CanHandleRequest(IOwinRequest request)
+#endif
     {
       if (!string.IsNullOrEmpty(request.Headers["getCaptionInfo.sec"]))
       {
@@ -84,7 +96,11 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
       return false;
     }
 
+#if NET5_0_OR_GREATER
     public override Stream HandleResourceRequest(HttpContext context, DlnaMediaItem item)
+#else
+    public override Stream HandleResourceRequest(IOwinContext context, DlnaMediaItem item)
+#endif
     {
       //if (item.DlnaProfile == "JPEG_SM")
       //{

@@ -29,13 +29,13 @@ using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
   [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
   internal class GetMediaItem : BaseSendData
   {
-    public static async Task ProcessAsync(HttpContext context, Guid itemId)
+    public static async Task ProcessAsync(RequestContext context, Guid itemId)
     {
       // Grab the media item given in the request.
       try
