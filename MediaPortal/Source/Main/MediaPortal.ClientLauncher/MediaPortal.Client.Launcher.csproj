@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>WinExe</OutputType>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
     <AssemblyName>MP2-ClientLauncher</AssemblyName>
     <UseWPF>true</UseWPF>
     <RootNamespace>MediaPortal.Client.Launcher</RootNamespace>

@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
     <OutputType>WinExe</OutputType>
     <RootNamespace>MediaPortal.Server</RootNamespace>
     <AssemblyName>MP2-Server</AssemblyName>
@@ -56,7 +56,7 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
-    <AutoGenerateBindingRedirects>false</AutoGenerateBindingRedirects>
+    <AutoGenerateBindingRedirects>False</AutoGenerateBindingRedirects>
   </PropertyGroup>
   <PropertyGroup>
     <LargeAddressAware>true</LargeAddressAware>

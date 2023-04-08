@@ -1,6 +1,6 @@
 <Project>
 
-  <Target Name="CopyToOutput" AfterTargets="Build">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
     <!-- Groups must be defined inside target, so they are evaluated at execution time, not parsing time (where the files are not yet copied!) -->
     <PropertyGroup>
       <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>

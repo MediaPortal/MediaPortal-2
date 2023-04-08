@@ -1,6 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
   <PropertyGroup>
-    <TargetFramework>net6.0-windows</TargetFramework>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
     <OutputType>WinExe</OutputType>
     <AssemblyName>MP2-Client</AssemblyName>
     <ApplicationIcon>MP2.ico</ApplicationIcon>

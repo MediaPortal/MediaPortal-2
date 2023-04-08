@@ -24,7 +24,7 @@
     <Fonts Include="$(SolutionDir)Extensions\MetadataExtractors\FFMpegLib\$(OutDir)fonts\**\*.*" />
   </ItemGroup>
 
-  <Target Name="CopyToOutput" AfterTargets="Build">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
     <Copy SourceFiles="@(ReferencesX86)" DestinationFolder="$(ReferencesX86Destination)" />
     <Copy SourceFiles="@(ReferencesX64)" DestinationFolder="$(ReferencesX64Destination)" />
     <Copy SourceFiles="@(Fonts)" DestinationFiles="@(Fonts->'$(ReferencesX86Destination)\fonts\%(RecursiveDir)%(Filename)%(Extension)')" />

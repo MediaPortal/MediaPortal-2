@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Project>
 
-  <Target Name="CopyToOutput" AfterTargets="Build">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
 
     <PropertyGroup>
       <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
