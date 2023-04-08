@@ -17,7 +17,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="MediaPortal.LogoManager" Version="1.0.0.5" />
+    <PackageReference Include="MediaPortal.LogoManager" Version="1.0.0.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
