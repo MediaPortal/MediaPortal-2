@@ -28,5 +28,9 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <Reference Include="System.Windows.Forms" />
+  </ItemGroup>
+
   <Import Project="build.targets" />
 </Project>
