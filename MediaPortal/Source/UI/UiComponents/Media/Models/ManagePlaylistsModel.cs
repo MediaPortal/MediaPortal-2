@@ -511,7 +511,7 @@ namespace MediaPortal.UiComponents.Media.Models
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_NUM_ITEMS] = playlistData.NumItems;
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_DATA] = playlistData;
         PlaylistBase plCopy = playlistData;
-        playlistItem.Command = new MethodDelegateCommand(() => LoadPlaylist(plCopy));
+        playlistItem.Command = new AsyncMethodDelegateCommand(() => LoadPlaylist(plCopy));
         if (selectPlaylist)
         {
           selectPlaylist = false;
