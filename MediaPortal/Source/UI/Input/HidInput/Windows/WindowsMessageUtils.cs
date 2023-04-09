@@ -59,17 +59,17 @@ namespace HidInput.Windows
 
     public static int GetRepeatCount(ref Message message)
     {
-      return message.LParam.ToInt32() & 0xFFFF;
+      return (int)(message.LParam.ToInt64() & 0xFFFF);
     }
 
     public static void SetRepeatCount(ref Message message, int repeatCount)
     {
-      message.LParam = new IntPtr((int)(message.LParam.ToInt32() & 0xFFFF0000) | (repeatCount & 0xFFFF));
+      message.LParam = new IntPtr((int)(message.LParam.ToInt64() & 0xFFFF0000) | (repeatCount & 0xFFFF));
     }
 
     public static AppCommand GetAppCommand(ref Message message)
     {
-      return (AppCommand)((message.LParam.ToInt32() >> 16) & 0xFFFF);
+      return (AppCommand)((message.LParam.ToInt64() >> 16) & 0xFFFF);
     }
   }
 }
