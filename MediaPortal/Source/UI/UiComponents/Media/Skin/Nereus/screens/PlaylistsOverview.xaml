@@ -64,7 +64,7 @@
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
-          <ColumnDefinition Width="740"/>
+          <ColumnDefinition Width="840"/>
         </Grid.ColumnDefinitions>
 
         <Grid Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-10,40,0,40">

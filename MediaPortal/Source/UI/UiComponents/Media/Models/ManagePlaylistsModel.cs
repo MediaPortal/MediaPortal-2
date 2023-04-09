@@ -291,16 +291,25 @@ namespace MediaPortal.UiComponents.Media.Models
       }
     }
 
-    public async Task LoadPlaylist()
+    // Public parameterless version kept to keep the existing behaviour if required,
+    // it now just calls the new method below with the _playlist field
+    public Task LoadPlaylist()
+    {
+      return LoadPlaylist(_playlist);
+    }
+
+    // Protected version for use internally by the model, takes a playlist as argument
+    // and no longer references the _playlist field of the model
+    protected async Task LoadPlaylist(PlaylistBase playlist)
     {
       IDialogManager dialogManager = ServiceRegistration.Get<IDialogManager>();
-      if (_playlist == null)
+      if (playlist == null)
       {
         dialogManager.ShowDialog(SkinBase.General.Consts.RES_SYSTEM_ERROR, Consts.RES_PLAYLIST_LOAD_NO_PLAYLIST, DialogType.OkDialog, false, null);
         return;
       }
       IContentDirectory cd = ServiceRegistration.Get<IServerConnectionManager>().ContentDirectory;
-      AVType? avType = ConvertPlaylistTypeToAVType(_playlist.PlaylistType);
+      AVType? avType = ConvertPlaylistTypeToAVType(playlist.PlaylistType);
       if (cd == null || !avType.HasValue)
       {
         dialogManager.ShowDialog(SkinBase.General.Consts.RES_SYSTEM_ERROR, Consts.RES_PLAYLIST_LOAD_ERROR_LOADING, DialogType.OkDialog, false, null);
@@ -325,7 +334,7 @@ namespace MediaPortal.UiComponents.Media.Models
       // For that reason, we load the playlist in two steps:
       // 1) Load media item ids in the playlist
       // 2) Load media items in clusters - for each cluster, an own query will be executed at the content directory
-      PlaylistRawData playlistData = await cd.ExportPlaylistAsync(_playlist.PlaylistId);
+      PlaylistRawData playlistData = await cd.ExportPlaylistAsync(playlist.PlaylistId);
       PlayItemsModel.CheckQueryPlayAction(() => CollectionUtils.Cluster(playlistData.MediaItemIds, 500).SelectMany(itemIds =>
             cd.LoadCustomPlaylistAsync(itemIds, necessaryMIATypes, optionalMIATypes).Result), avType.Value);
     }
@@ -502,7 +511,7 @@ namespace MediaPortal.UiComponents.Media.Models
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_NUM_ITEMS] = playlistData.NumItems;
         playlistItem.AdditionalProperties[Consts.KEY_PLAYLIST_DATA] = playlistData;
         PlaylistBase plCopy = playlistData;
-        playlistItem.Command = new MethodDelegateCommand(() => ShowPlaylistInfo(plCopy));
+        playlistItem.Command = new MethodDelegateCommand(() => LoadPlaylist(plCopy));
         if (selectPlaylist)
         {
           selectPlaylist = false;
