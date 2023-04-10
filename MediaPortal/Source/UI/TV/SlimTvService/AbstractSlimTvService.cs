@@ -22,38 +22,36 @@
 
 #endregion
 
+using MediaPortal.Backend.ClientCommunication;
+using MediaPortal.Backend.Database;
+using MediaPortal.Backend.MediaLibrary;
+using MediaPortal.Common;
+using MediaPortal.Common.Async;
+using MediaPortal.Common.MediaManagement;
+using MediaPortal.Common.Messaging;
+using MediaPortal.Common.ResourceAccess;
+using MediaPortal.Common.Runtime;
+using MediaPortal.Common.Services.GenreConverter;
+using MediaPortal.Common.Services.Settings;
+using MediaPortal.Common.SystemResolver;
+using MediaPortal.Plugins.SlimTv.Interfaces;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
+using MediaPortal.Plugins.SlimTv.Interfaces.Settings;
+using MediaPortal.Utilities.FileSystem;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data.Common;
 using System.IO;
 using System.IO.Compression;
 using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.Backend.ClientCommunication;
-using MediaPortal.Backend.Database;
-using MediaPortal.Backend.MediaLibrary;
-using MediaPortal.Common;
-using MediaPortal.Common.Async;
-using MediaPortal.Common.General;
-using MediaPortal.Common.MediaManagement;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Common.SystemResolver;
-using MediaPortal.Plugins.SlimTv.Interfaces;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
-using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
-using MediaPortal.Utilities.FileSystem;
 using IChannel = MediaPortal.Plugins.SlimTv.Interfaces.Items.IChannel;
 using ILogger = MediaPortal.Common.Logging.ILogger;
 using IPathManager = MediaPortal.Common.PathManager.IPathManager;
 using ScheduleRecordingType = MediaPortal.Plugins.SlimTv.Interfaces.ScheduleRecordingType;
-using MediaPortal.Common.Runtime;
-using MediaPortal.Common.Messaging;
-using MediaPortal.Common.SystemCommunication;
-using MediaPortal.Common.Services.Settings;
-using MediaPortal.Plugins.SlimTv.Interfaces.Settings;
-using System.Collections.Concurrent;
-using MediaPortal.Common.Services.GenreConverter;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
