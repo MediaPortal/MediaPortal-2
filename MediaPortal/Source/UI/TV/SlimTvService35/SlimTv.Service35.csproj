@@ -71,6 +71,9 @@
     <PackageReference Include="MediaPortal.TvEngine.Core">
       <Version>1.0.5</Version>
     </PackageReference>
+    <PackageReference Include="MediaPortal.TvEngine.SetupTv">
+      <Version>1.0.5</Version>
+    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Interfaces">

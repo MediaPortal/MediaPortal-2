@@ -71,6 +71,12 @@ using System.Threading.Tasks;
 using MediaPortal.Common.Reflection;
 using MediaPortal.Utilities.FileSystem;
 using NativeMethods = MediaPortal.Utilities.SystemAPI.NativeMethods;
+using System.Data.Common;
+#if NET5_0_OR_GREATER
+#else
+using MediaPortal.Plugins.SlimTv.Service.Helpers;
+using Mediaportal.TV.Server.TVDatabase.EntityModel.ObjContext;
+#endif
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -88,14 +94,44 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override void PrepareIntegrationProvider()
     {
-      IntegrationProviderHelper.Register(FileUtils.BuildExecutingAssemblyRelativePath(@"Plugins\" + _serviceName));
+      string searchPath = FileUtils.BuildExecutingAssemblyRelativePath(@"Plugins\" + _serviceName);
+#if NET5_0_OR_GREATER
+      IntegrationProviderHelper.Register(searchPath);
+#else
+      IntegrationProviderHelper.Register(searchPath, searchPath + "\\castle.config");
+#endif
       // This access is intended to force an initialization of PathManager service!
       var pm = GlobalServiceProvider.Instance.Get<IIntegrationProvider>().PathManager;
     }
 
+#if NET5_0_OR_GREATER
     protected override void PrepareConnection(ITransaction transaction)
     {
     }
+#else
+    protected override void PrepareConnection(ITransaction transaction)
+    {
+      if (transaction.Connection.GetCloneFactory(TVDB_NAME, out _dbProviderFactory, out _cloneConnection))
+      {
+        EntityFrameworkHelper.AssureKnownFactory(_dbProviderFactory);
+        // Register our factory to create new cloned connections
+        ObjectContextManager.SetDbConnectionCreator(ClonedConnectionFactory);
+      }
+    }
+
+    /// <summary>
+    /// Creates a new <see cref="DbConnection"/> on each request. This is used by the Tve35 EF model handling.
+    /// </summary>
+    /// <returns>Connection, still closed</returns>
+    private DbConnection ClonedConnectionFactory()
+    {
+      DbConnection connection = _dbProviderFactory.CreateConnection();
+      if (connection == null)
+        return null;
+      connection.ConnectionString = _cloneConnection;
+      return connection;
+    }
+#endif
 
     protected override void PrepareFilterRegistrations()
     {
@@ -106,12 +142,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       // Load assemblies via file name without version check
       AssemblyResolver.RedirectAllAssemblies();
+#if NET5_0_OR_GREATER
 
       string absolutePlatformDir;
       if (!NativeMethods.SetRuntimeIdentifierSearchDirectories(out absolutePlatformDir))
         throw new Exception("Error adding dll probe path");
 
-#if NET5_0_OR_GREATER
       var dbPath = ServiceRegistration.Get<MediaPortal.Common.PathManager.IPathManager>().GetPath("<DATABASE>\\" + TVDB_NAME + ".s3db");
       ConnectionStringSettings connectionString = new ConnectionStringSettings("TvEngineDb", "Data Source=" + dbPath, "SQLite");
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0], connectionString);

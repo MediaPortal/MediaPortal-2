@@ -36,6 +36,16 @@
       <!-- TODO: Can be replaced by package variable -->
       <References Include="$(TvEngine35References)\**\*.*" />
     </ItemGroup>
+    
+    <!--.net Framework builds only-->
+    <PropertyGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+      <DatabaseDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\Database\</DatabaseDestination>
+    </PropertyGroup>
+    <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+      <SetupTvIntegration Include="$(ProjectDir)References\SetupTv\Defaults\**\*.*" />
+      <DatabaseFiles Include="$(ProjectDir)Database\MP2TVE.s3db" />
+      <References Include="$(TvEngine35SetupReferences)\**\*.*" />
+    </ItemGroup>
 
     <ItemGroup>
       <SetupIcon Include="$(ProjectDir)*.ico" />
@@ -46,8 +56,14 @@
     <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)Integration\%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)SetupTv\Integration\%(Filename)%(Extension)')" />
-    <Copy SourceFiles="@(SetupTvIntegrationDefaults)" DestinationFolder="$(PluginDestination)SetupTv\Defaults\" />
     <Copy SourceFiles="@(SetupIcon)" DestinationFolder="$(PluginDestination)SetupTv" />
+      
+    <!--.net Core builds only-->    
+    <Copy Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' " SourceFiles="@(SetupTvIntegrationDefaults)" DestinationFolder="$(PluginDestination)SetupTv\Defaults\" />
+    
+    <!--.net Framework builds only-->    
+    <Copy Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' " SourceFiles="@(DatabaseFiles)" DestinationFolder="$(DatabaseDestination)" />
+  
   </Target>
 
 </Project>
