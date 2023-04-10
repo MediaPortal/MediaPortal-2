@@ -26,6 +26,7 @@
     <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
       <SQLiteInterop64 Include="$(TargetDir)\x64\SQLite.Interop.dll" />
       <SQLiteInterop86 Include="$(TargetDir)\x86\SQLite.Interop.dll" />
+      <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />

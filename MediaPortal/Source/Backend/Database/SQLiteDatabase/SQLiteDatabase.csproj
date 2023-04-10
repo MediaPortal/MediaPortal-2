@@ -42,6 +42,7 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.116" />
     <Reference Include="System.Web" />
   </ItemGroup>
   <Import Project="build.targets" />
