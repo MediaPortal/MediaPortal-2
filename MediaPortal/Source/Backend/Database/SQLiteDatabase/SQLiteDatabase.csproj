@@ -41,5 +41,8 @@
       <Version>1.0.116</Version>
     </PackageReference>
   </ItemGroup>
+  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <Reference Include="System.Web" />
+  </ItemGroup>
   <Import Project="build.targets" />
 </Project>

@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
     <Reference Include="System.Device" />
+    <Reference Include="System.Web" />
   </ItemGroup>
   <Import Project="build.targets" />
 </Project>
