@@ -59,6 +59,7 @@
     <ProjectReference Include="..\..\..\Core\UPnP\UPnP.csproj" />
     <ProjectReference Include="..\SlimTvIntegration\SlimTv.Integration.csproj" />
     <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
+    <Content Include="SetupTV.ico" />
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
     <PackageReference Include="MediaPortal.TvEngine.Core">

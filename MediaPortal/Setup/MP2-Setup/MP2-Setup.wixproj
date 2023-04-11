@@ -27,8 +27,8 @@
     </LinkerAdditionalOptions>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="..\VersionInfo.wxi">
-      <Link>VersionInfo.wxi</Link>
+    <Content Include="..\Includes.wxi">
+      <Link>Includes.wxi</Link>
     </Content>
     <Compile Include="Features\Client.Heat.wxs" />
     <Compile Include="Features\Client.wxs" />
@@ -38,7 +38,17 @@
     <Compile Include="Features\Server.wxs" />
     <Compile Include="Features\ServiceMonitor.Heat.wxs" />
     <Compile Include="Features\ServiceMonitor.wxs" />
+    <Compile Include="Features\TV\SlimTv.TvMosaicClient.wxs" />
+    <Compile Include="Features\TV\SlimTv.Service35.Heat.wxs" />
+    <Compile Include="Features\TV\SlimTv.Service35.wxs" />
+    <Compile Include="Features\TV\SlimTv.Client.Heat.wxs" />
+    <Compile Include="Features\TV\SlimTv.NativeProvider.Heat.wxs" />
+    <Compile Include="Features\TV\SlimTv.ServiceClient.wxs" />
+    <Compile Include="Features\TV\SlimTv.Service3.Heat.wxs" />
+    <Compile Include="Features\TV\SlimTv.Service3.wxs" />
+    <Compile Include="Features\TV\SlimTv.TvMosaicProvider.Heat.wxs" />
     <Compile Include="Fragments\AddRemoveProperties.wxs" />
+    <Compile Include="Fragments\ShortcutProperties.wxs" />
     <Compile Include="Fragments\Upgrades.wxs" />
     <Compile Include="Fragments\LaunchConditions.wxs" />
     <Compile Include="Fragments\Properties.wxs" />
@@ -46,7 +56,6 @@
     <Compile Include="MediaPortal2.wxs" />
     <Compile Include="UI\MP2_Setup_UI_FeatureTree.wxs" />
     <Compile Include="UI\MP2_Setup_UI_SelectInstallType.wxs" />
-    <Content Include="Includes.wxi" />
     <None Include="MP2-Setup-Logging.bat" />
     <None Include="Resources\MP2_Icon_General.ico" />
     <None Include="Resources\MPBanner.jpg" />
@@ -57,6 +66,7 @@
     <Content Include="xslt\ServiceMonitor.Heat.xslt" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Features\TV" />
     <Folder Include="Fragments" />
     <Folder Include="Language" />
     <Folder Include="Features" />

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+
+  <!--Include all language files in the Language directory as embedded resources-->
+  <Target Name="BeforeBuild">
+    <CreateItem Include="Language\**\*.xml">
+      <Output ItemName="EmbeddedResource" TaskParameter="Include" />
+    </CreateItem>
+  </Target>
+  
+</Project>

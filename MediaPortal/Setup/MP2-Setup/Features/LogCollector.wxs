@@ -5,13 +5,13 @@
 
   <Fragment>
 
-    <?include ..\Includes.wxi ?>
+    <?include $(var.SolutionDir)\Includes.wxi?>
 
     <!-- Icon -->
     <Icon Id="LogCollector" SourceFile="$(var.MediaPortal.LogCollector.TargetPath)" />
 
     <!-- Directory definition -->
-    <DirectoryRef Id="TeamMediaPortal.Folder">
+    <DirectoryRef Id="INSTALLDIR">
       <Directory Id="INSTALLDIR_LOG_COLLECTOR" Name="MP2-LogCollector" />
     </DirectoryRef>
 
@@ -20,7 +20,7 @@
 
       <Component Id="LogCollector.Registry.InstallDir" Guid="6C95EC1B-D25C-4CB7-8649-282415B34F4F">
         <RegistryKey Root="HKLM"
-                     Key="Software\[Manufacturer]\[ProductName]">
+                     Key="$(var.RegKeyRoot)">
           <RegistryValue Type="string" Name="INSTALLDIR_LOG_COLLECTOR" Value="[INSTALLDIR_LOG_COLLECTOR]"/>
         </RegistryKey>
         <CreateFolder />
@@ -35,6 +35,7 @@
     <!-- Shortcuts -->
     <DirectoryRef Id="MP2.StartMenu">
       <Component Id="LogCollector.StartMenu.Shortcut" Guid="C68C3BCF-C432-4FBF-8EFD-32BC8966073B">
+        <Condition>STARTMENUSHORTCUTS = 1</Condition>
         <Shortcut Id="LogCollector.StartMenu.Shortcut"
                   Name="!(loc.SC_LogCollector)"
                   Description="!(loc.SC_LogCollector_Desc)"
@@ -55,6 +56,7 @@
     </DirectoryRef>
     <DirectoryRef Id="DesktopFolder">
       <Component Id="LogCollector.Desktop.Shortcut" Guid="15D952D0-15EB-48BC-A86F-A02CAF1A8AE2">
+        <Condition>DESKTOPSHORTCUTS = 1</Condition>
         <Shortcut Id="LogCollector.Desktop.Shortcut"
                   Name="!(loc.SC_LogCollector)"
                   Description="!(loc.SC_LogCollector_Desc)"

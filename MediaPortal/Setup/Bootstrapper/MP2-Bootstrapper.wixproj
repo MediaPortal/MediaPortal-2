@@ -25,8 +25,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Bundle.wxs" />
+    <Compile Include="Fragments\NetFx48Web.wxs" />
+    <Compile Include="Fragments\MediaPortal2.wxs" />
     <Compile Include="Fragments\Dokan.wxs" />
-    <Compile Include="Fragments\NetFx471Web.wxs" />
+    <Compile Include="Fragments\LAVFilters.wxs" />
     <Compile Include="Fragments\VCRedists.wxs" />
   </ItemGroup>
   <ItemGroup>
@@ -49,15 +51,35 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Fragments" />
+    <Folder Include="Resources" />
     <Folder Include="Theme" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.targets" />
+    <Content Include="Resources\Setup.ico" />
     <Content Include="Theme\CustomTheme.xml" />
     <None Include="MP2-Setup-Logging.bat" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Theme\CustomTheme.wxl" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MP2-Setup\MP2-Setup.wixproj">
+      <Name>MP2-Setup</Name>
+      <Project>{49ff3ae9-b5b2-4eb1-9205-4ee4fc4fa0df}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
+    <ProjectReference Include="..\MP2BootstrapperApp\MP2BootstrapperApp.csproj">
+      <Name>MP2BootstrapperApp</Name>
+      <Project>{690c4618-718b-4d07-916d-456b5c211a7a}</Project>
+      <Private>True</Private>
+      <DoNotHarvest>True</DoNotHarvest>
+      <RefProjectOutputGroups>Binaries;Content;Satellites</RefProjectOutputGroups>
+      <RefTargetDir>INSTALLFOLDER</RefTargetDir>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />

@@ -1,0 +1,451 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{690C4618-718B-4D07-916D-456B5C211A7A}</ProjectGuid>
+    <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>MP2BootstrapperApp</RootNamespace>
+    <AssemblyName>MP2BootstrapperApp</AssemblyName>
+    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+    <RestoreProjectStyle>PackageReference</RestoreProjectStyle>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>TRACE;DEBUG</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <PlatformTarget>x86</PlatformTarget>
+    <OutputPath>bin\x86\Release\</OutputPath>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="BootstrapperCore, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ce35f76fcda82bad, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\WiX Toolset v3.11\SDK\BootstrapperCore.dll</HintPath>
+    </Reference>
+    <Reference Include="Microsoft.Deployment.WindowsInstaller, Version=3.0.0.0, Culture=neutral, PublicKeyToken=ce35f76fcda82bad, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\..\..\Program Files (x86)\WiX Toolset v3.11\SDK\Microsoft.Deployment.WindowsInstaller.dll</HintPath>
+    </Reference>
+    <Reference Include="PresentationCore" />
+    <Reference Include="PresentationFramework" />
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceProcess" />
+    <Reference Include="System.Xaml" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Net.Http" />
+    <Reference Include="System.Xml" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="ActionPlans\SimplePlan.cs" />
+    <Compile Include="ActionPlans\ModifyPlan.cs" />
+    <Compile Include="BootstrapperWrapper\Hresult.cs" />
+    <Compile Include="BootstrapperWrapper\IVariables.cs" />
+    <Compile Include="BootstrapperWrapper\Variables.cs" />
+    <Compile Include="BundlePackages\Features\AbstractFeatureMetadata.cs" />
+    <Compile Include="BundlePackages\Features\Metadata\TvMosaicClient.cs" />
+    <Compile Include="BundlePackages\Features\Metadata\TvServiceClient.cs" />
+    <Compile Include="BundlePackages\Features\Metadata\TvService35.cs" />
+    <Compile Include="BundlePackages\Features\Metadata\TvService3.cs" />
+    <Compile Include="BundlePackages\Features\IFeatureMetadata.cs" />
+    <Compile Include="BundlePackages\Features\AssemblyFeatureMetadataProvider.cs" />
+    <Compile Include="BundlePackages\Features\IFeatureMetadataProvider.cs" />
+    <Compile Include="BundlePackages\Features\FeatureUtils.cs" />
+    <Compile Include="BundlePackages\FeatureId.cs" />
+    <Compile Include="Converters\ReferenceToVisibilityConverter.cs" />
+    <Compile Include="Converters\FileSizeUnitConverter .cs" />
+    <Compile Include="Models\DetectionState.cs" />
+    <Compile Include="Localization\ILanguageChanged.cs" />
+    <Compile Include="MarkupExtensions\DisposableValueProvider.cs" />
+    <Compile Include="MarkupExtensions\LocalizeExtension.cs" />
+    <Compile Include="Extensions\ExternalHyperlink.cs" />
+    <Compile Include="ActionPlans\IPlan.cs" />
+    <Compile Include="ActionPlans\IPlanContext.cs" />
+    <Compile Include="ActionPlans\InstallPlan.cs" />
+    <Compile Include="ActionPlans\PlanContext.cs" />
+    <Compile Include="ActionPlans\RepairPlan.cs" />
+    <Compile Include="Models\InstallState.cs" />
+    <Compile Include="Localization\StringManager.cs" />
+    <Compile Include="Localization\LocalizationStrings.cs" />
+    <Compile Include="Logging\Logger.cs" />
+    <Compile Include="MarkupExtensions\LocalizeValueProvider.cs" />
+    <Compile Include="MarkupExtensions\UpdatableMarkupExtension.cs" />
+    <Compile Include="BundlePackages\BundleMsiPackage.cs" />
+    <Compile Include="BundlePackages\BundlePackageFactory.cs" />
+    <Compile Include="BundlePackages\BundlePackageFeature.cs" />
+    <Compile Include="BundlePackages\IBundleMsiPackage.cs" />
+    <Compile Include="BundlePackages\IBundlePackage.cs" />
+    <Compile Include="BundlePackages\IBundlePackageFeature.cs" />
+    <Compile Include="Converters\PackageStateToVisibilityConverter.cs" />
+    <Compile Include="BootstrapperWrapper\BootstrapperApplicationWrapper.cs" />
+    <Compile Include="BundlePackages\PackageId.cs" />
+    <Compile Include="Converters\EnumToBooleanConverter.cs" />
+    <Compile Include="BootstrapperWrapper\IBootstrapperApp.cs" />
+    <Compile Include="BootstrapperWrapper\IDispatcher.cs" />
+    <Compile Include="BootstrapperWrapper\DispatcherWrapper.cs" />
+    <Compile Include="Models\IBootstrapperApplicationModel.cs" />
+    <Compile Include="Models\PackageExtensions.cs" />
+    <Compile Include="Models\Package.cs" />
+    <Compile Include="Utils\PathUtils.cs" />
+    <Compile Include="ViewModels\AbstractPackageSelectionViewModel.cs" />
+    <Compile Include="ViewModels\AbstractSelectionViewModel.cs" />
+    <Compile Include="ViewModels\InstallPluginsPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallCustomPropertiesPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallErrorPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallCancelledPageViewModel.cs" />
+    <Compile Include="ViewModels\DowngradePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallCustomPageViewModel.cs" />
+    <Compile Include="ViewModels\ListItems\ISelectable.cs" />
+    <Compile Include="ViewModels\PageViewModelBase.cs" />
+    <Compile Include="ViewModels\IPageViewModel.cs" />
+    <Compile Include="ViewModels\ModifyFinishPageViewModel.cs" />
+    <Compile Include="ViewModels\PropertyValidationViewModel.cs" />
+    <Compile Include="ViewModels\ListItems\SelectableListItem.cs" />
+    <Compile Include="ViewModels\UninstallFinishPageViewModel.cs" />
+    <Compile Include="ViewModels\RepairFinishPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallInitializingPageViewModel.cs" />
+    <Compile Include="ViewModels\ModifyPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallationInProgressPageViewModel.cs" />
+    <Compile Include="ViewModels\RepairPageViewModel.cs" />
+    <Compile Include="ViewModels\ListItems\FeatureListItem.cs" />
+    <Compile Include="ViewModels\ListItems\PackageListItem.cs" />
+    <Compile Include="ViewModels\UninstallPageViewModel.cs" />
+    <Compile Include="ViewModels\ViewModelBuilders\WizardStepViewModelBuilder.cs" />
+    <Compile Include="Views\InstallCustomPageView.xaml.cs">
+      <DependentUpon>InstallCustomPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\DowngradePageView.xaml.cs">
+      <DependentUpon>DowngradePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallationInProgressPageView.xaml.cs">
+      <DependentUpon>InstallationInProgressPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallCancelledPageView.xaml.cs">
+      <DependentUpon>InstallCancelledPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallPluginsPageView.xaml.cs">
+      <DependentUpon>InstallPluginsPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallCustomPropertiesPageView.xaml.cs">
+      <DependentUpon>InstallCustomPropertiesPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallErrorPageView.xaml.cs">
+      <DependentUpon>InstallErrorPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallInitializingPageView.xaml.cs">
+      <DependentUpon>InstallInitializingPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ModifyFinishPageView.xaml.cs">
+      <DependentUpon>ModifyFinishPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\ModifyPageView.xaml.cs">
+      <DependentUpon>ModifyPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RepairFinishPageView.xaml.cs">
+      <DependentUpon>RepairFinishPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RepairPageView.xaml.cs">
+      <DependentUpon>RepairPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UninstallFinishPageView.xaml.cs">
+      <DependentUpon>UninstallFinishPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UninstallView.xaml.cs">
+      <DependentUpon>UninstallView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WizardSteps\AbstractInstallStep.cs" />
+    <Compile Include="WizardSteps\InstallationInProgressStep.cs" />
+    <Compile Include="WizardSteps\AbstractPackageSelectionStep.cs" />
+    <Compile Include="WizardSteps\InstallCustomPropertiesStep.cs" />
+    <Compile Include="WizardSteps\InstallPluginsStep.cs" />
+    <Compile Include="WizardSteps\InstallExistInstallStep.cs" />
+    <Compile Include="WizardSteps\InstallErrorStep.cs" />
+    <Compile Include="WizardSteps\InstallCancelledStep.cs" />
+    <Compile Include="WizardSteps\DowngradeStep.cs" />
+    <Compile Include="WizardSteps\RepairFinishStep.cs" />
+    <Compile Include="WizardSteps\ModifyFinishStep.cs" />
+    <Compile Include="WizardSteps\UninstallFinishStep.cs" />
+    <Compile Include="WizardSteps\InstallFinishStep.cs" />
+    <Compile Include="WizardSteps\InstallInitializingStep.cs" />
+    <Compile Include="WizardSteps\InstallCustomStep.cs" />
+    <Compile Include="WizardSteps\ModifyStep.cs" />
+    <Compile Include="WizardSteps\RepairStep.cs" />
+    <Compile Include="WizardSteps\UninstallStep.cs" />
+    <Compile Include="WizardSteps\Wizard.cs" />
+    <Compile Include="WizardSteps\InstallOverviewStep.cs" />
+    <Compile Include="WizardSteps\InstallNewTypeStep.cs" />
+    <Compile Include="BundlePackages\BundlePackage.cs" />
+    <Compile Include="MP2BootstrapperApplication.cs" />
+    <Compile Include="Models\BootstrapperApplicationModel.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="WizardSteps\IStep.cs" />
+    <Compile Include="ViewModels\InstallExistTypePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallNewTypePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallFinishPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallOverviewPageViewModel.cs" />
+    <Compile Include="ViewModels\InstallWelcomePageViewModel.cs" />
+    <Compile Include="ViewModels\InstallWizardPageViewModelBase.cs" />
+    <Compile Include="ViewModels\InstallWizardViewModel.cs" />
+    <Compile Include="Views\InstallExistTypePageView.xaml.cs">
+      <DependentUpon>InstallExistTypePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallFinishPageView.xaml.cs">
+      <DependentUpon>InstallFinishPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallNewTypePageView.xaml.cs">
+      <DependentUpon>InstallNewTypePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallOverviewPageView.xaml.cs">
+      <DependentUpon>InstallOverviewPageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallWelcomePageView.xaml.cs">
+      <DependentUpon>InstallWelcomePageView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\InstallWizardView.xaml.cs">
+      <DependentUpon>InstallWizardView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="WizardSteps\InstallWelcomeStep.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="BootstrapperCore.config">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="build.targets" />
+  </ItemGroup>
+  <ItemGroup>
+    <Page Include="Styles\HeaderDataTemplates.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\ListViewStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\PackageStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\ButtonStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\ScrollBarStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\TextStyles.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Styles\PageDataTemplates.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallCustomPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DowngradePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallationInProgressPageView.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\InstallCancelledPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallPluginsPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallCustomPropertiesPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallErrorPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallExistTypePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallFinishPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallInitializingPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallNewTypePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallOverviewPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallWelcomePageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\InstallWizardView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ModifyFinishPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\ModifyPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RepairFinishPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RepairPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UninstallFinishPageView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UninstallView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\background.jpg" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\banner.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Features\Client.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Features\Server.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Packages\dokan.png" />
+    <Resource Include="Resources\Packages\LAVFilters.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Packages\VC2008SP1_x86.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Packages\VC2010_x86.png" />
+    <Resource Include="Resources\Packages\VC2013_x86.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\InstallTypes\custom_install.png" />
+    <Resource Include="Resources\InstallTypes\full_install.png" />
+    <Resource Include="Resources\InstallTypes\MP2Client.png" />
+    <Resource Include="Resources\InstallTypes\MP2Common.png" />
+    <Resource Include="Resources\InstallTypes\MP2Server.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Packages\VC2019_x86.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\InstallTypes\modify.png" />
+    <Resource Include="Resources\InstallTypes\repair.png" />
+    <Resource Include="Resources\InstallTypes\uninstall.png" />
+    <Resource Include="Resources\InstallTypes\update.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\present.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Previews\1.jpg" />
+    <Resource Include="Resources\Previews\2.jpg" />
+    <Resource Include="Resources\Previews\3.jpg" />
+    <Resource Include="Resources\Previews\4.jpg" />
+    <Resource Include="Resources\Previews\5.jpg" />
+    <Resource Include="Resources\Previews\6.jpg" />
+    <Resource Include="Resources\cancel.png" />
+    <Resource Include="Resources\completed.png" />
+    <Resource Include="Resources\error.png" />
+    <Resource Include="Resources\Features\LogCollector.png" />
+    <Resource Include="Resources\Features\ServiceMonitor.png" />
+    <Resource Include="Resources\update.png" />
+    <Resource Include="Resources\Packages\VC2019_x64.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft-WindowsAPICodePack-ShellExtensions">
+      <Version>1.1.4</Version>
+    </PackageReference>
+    <PackageReference Include="Prism.Wpf">
+      <Version>8.1.97</Version>
+    </PackageReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj">
+      <Project>{ecf060e7-caa1-4466-851f-f80b857641ea}</Project>
+      <Name>MediaPortal.Common</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj">
+      <Project>{4fe7b8ae-1330-424a-91a1-c68d7abf9cb8}</Project>
+      <Name>MediaPortal.Utilities</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Language\strings_en.xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\install.png" />
+    <Resource Include="Resources\uninstall.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\path.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Features\SlimTv.TvMosaicClient.png" />
+    <Resource Include="Resources\Features\SlimTv.Service3.png" />
+    <Resource Include="Resources\Features\SlimTv.Service35.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="Resources\Features\SlimTv.ServiceClient.png" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <Import Project="build.targets" />
+</Project>

@@ -5,13 +5,13 @@
 
   <Fragment>
 
-    <?include ..\Includes.wxi ?>
+    <?include $(var.SolutionDir)\Includes.wxi?>
 
     <!-- Icon -->
     <Icon Id="ServiceMonitor" SourceFile="$(var.MediaPortal.ServiceMonitor.TargetPath)" />
 
     <!-- Directory definition -->
-    <DirectoryRef Id="TeamMediaPortal.Folder">
+    <DirectoryRef Id="INSTALLDIR">
       <Directory Id="INSTALLDIR_SERVICE_MONITOR" Name="MP2-ServiceMonitor" />
     </DirectoryRef>
 
@@ -20,7 +20,7 @@
 
       <Component Id="ServiceMonitor.Registry.InstallDir" Guid="6B87D8D0-1C8E-4A5A-AF9E-AD2E89698660">
         <RegistryKey Root="HKLM"
-                     Key="Software\[Manufacturer]\[ProductName]">
+                     Key="$(var.RegKeyRoot)">
           <RegistryValue Type="string" Name="INSTALLDIR_SERVICE_MONITOR" Value="[INSTALLDIR_SERVICE_MONITOR]"/>
         </RegistryKey>
         <CreateFolder />
@@ -49,6 +49,7 @@
     <!-- Shortcuts -->
     <DirectoryRef Id="MP2.StartMenu">
       <Component Id="ServiceMonitor.StartMenu.Shortcut" Guid="859CAD90-107F-4526-9607-CB340B4D59E8">
+        <Condition>STARTMENUSHORTCUTS = 1</Condition>
         <Shortcut Id="ServiceMonitor.StartMenu.Shortcut"
                   Name="!(loc.SC_ServiceMonitor)"
                   Description="!(loc.SC_ServiceMonitor_Desc)"
@@ -69,6 +70,7 @@
     </DirectoryRef>
     <DirectoryRef Id="DesktopFolder">
       <Component Id="ServiceMonitor.Desktop.Shortcut" Guid="44C19D8A-48F8-4B0A-98B4-5E02C0F2BE2D">
+        <Condition>DESKTOPSHORTCUTS = 1</Condition>
         <Shortcut Id="ServiceMonitor.Desktop.Shortcut"
                   Name="!(loc.SC_ServiceMonitor)"
                   Description="!(loc.SC_ServiceMonitor_Desc)"
@@ -104,9 +106,10 @@
 
       <ComponentGroupRef Id="ServiceMonitor.Heat" />
     </Feature>
-
+    
     <InstallExecuteSequence>
-      <Custom Action="LaunchServiceMonitor" After="InstallFinalize"><![CDATA[&ServiceMonitor=3]]></Custom>
+      <!-- Launch Service Monitor if installing or already installed and not removing -->
+      <Custom Action="LaunchServiceMonitor" After="InstallFinalize"><![CDATA[(&ServiceMonitor=3) OR ((!ServiceMonitor=3) AND (&ServiceMonitor<>2))]]></Custom>
     </InstallExecuteSequence>
 
     <CustomAction Id="LaunchServiceMonitor"

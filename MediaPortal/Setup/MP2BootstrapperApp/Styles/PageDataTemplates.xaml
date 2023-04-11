@@ -1,0 +1,82 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:view="clr-namespace:MP2BootstrapperApp.Views"
+                    xmlns:viewModels="clr-namespace:MP2BootstrapperApp.ViewModels">
+
+  <DataTemplate DataType="{x:Type viewModels:InstallInitializingPageViewModel}">
+    <view:InstallInitializingPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallWelcomePageViewModel}">
+    <view:InstallWelcomePageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallExistTypePageViewModel}">
+    <view:InstallExistTypePageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallNewTypePageViewModel}">
+    <view:InstallNewTypePageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallCustomPageViewModel}">
+    <view:InstallCustomPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallPluginsPageViewModel}">
+    <view:InstallPluginsPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallCustomPropertiesPageViewModel}">
+    <view:InstallCustomPropertiesPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallOverviewPageViewModel}">
+    <view:InstallOverviewPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:ModifyPageViewModel}">
+    <view:ModifyPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:RepairPageViewModel}">
+    <view:RepairPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:UninstallPageViewModel}">
+    <view:UninstallView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallationInProgressPageViewModel}">
+    <view:InstallationInProgressPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallFinishPageViewModel}">
+    <view:InstallFinishPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:ModifyFinishPageViewModel}">
+    <view:ModifyFinishPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:RepairFinishPageViewModel}">
+    <view:RepairFinishPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:UninstallFinishPageViewModel}">
+    <view:UninstallFinishPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallErrorPageViewModel}">
+    <view:InstallErrorPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:InstallCancelledPageViewModel}">
+    <view:InstallCancelledPageView />
+  </DataTemplate>
+
+  <DataTemplate DataType="{x:Type viewModels:DowngradePageViewModel}">
+    <view:DowngradePageView />
+  </DataTemplate>
+
+</ResourceDictionary>

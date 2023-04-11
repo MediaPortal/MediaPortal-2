@@ -5,13 +5,13 @@
 
   <Fragment>
 
-    <?include ..\Includes.wxi ?>
+    <?include $(var.SolutionDir)\Includes.wxi?>
 
     <!-- Icon -->
     <Icon Id="Client" SourceFile="$(var.MediaPortal.Client.TargetPath)" />
 
     <!-- Directory definition -->
-    <DirectoryRef Id="TeamMediaPortal.Folder">
+    <DirectoryRef Id="INSTALLDIR">
       <Directory Id="INSTALLDIR_CLIENT" Name="MP2-Client" />
     </DirectoryRef>
 
@@ -39,7 +39,7 @@
 
       <Component Id="Client.Registry.InstallDir" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
         <RegistryKey Root="HKLM"
-                     Key="Software\[Manufacturer]\[ProductName]">
+                     Key="$(var.RegKeyRoot)">
           <RegistryValue Type="string" Name="INSTALLDIR_CLIENT" Value="[INSTALLDIR_CLIENT]"/>
         </RegistryKey>
         <CreateFolder />
@@ -86,6 +86,7 @@
     <!-- Shortcuts -->
     <DirectoryRef Id="MP2.StartMenu">
       <Component Id="Client.StartMenu.Shortcut" Guid="1F79952A-464C-4E69-9C4F-F8F4488DE83F">
+        <Condition>STARTMENUSHORTCUTS = 1</Condition>
         <Shortcut Id="Client.StartMenu.Shortcut"
                   Name="!(loc.SC_Client)"
                   Description="!(loc.SC_Client_Desc)"
@@ -104,6 +105,7 @@
                        KeyPath="yes" />
       </Component>
       <Component Id="Client.StartMenu.Shortcut_x64" Guid="0FA9B97C-9C9E-41B1-94F0-DC00CDF4F560">
+        <Condition>STARTMENUSHORTCUTS = 1</Condition>
         <Shortcut Id="Client.StartMenu.Shortcut_x64"
                   Name="!(loc.SC_Client_x64)"
                   Description="!(loc.SC_Client_Desc_x64)"
@@ -124,6 +126,7 @@
     </DirectoryRef>
     <DirectoryRef Id="DesktopFolder">
       <Component Id="Client.Desktop.Shortcut" Guid="F005C623-CE3D-4ABD-A6DB-598D3859D58D">
+        <Condition>DESKTOPSHORTCUTS = 1</Condition>
         <Shortcut Id="Client.Desktop.Shortcut"
                   Name="!(loc.SC_Client)"
                   Description="!(loc.SC_Client_Desc)"
@@ -142,6 +145,7 @@
                        KeyPath="yes" />
       </Component>
       <Component Id="Client.Desktop.Shortcut_x64" Guid="EE2BC2E2-B6ED-4F21-AFBA-0571A2AC5D0E">
+        <Condition>DESKTOPSHORTCUTS = 1</Condition>
         <Shortcut Id="Client.Desktop.Shortcut_x64"
                   Name="!(loc.SC_Client_x64)"
                   Description="!(loc.SC_Client_Desc_x64)"
@@ -169,6 +173,9 @@
               Title="!(loc.F_Client)"
               Description="!(loc.F_Client_Desc)">
 
+      <FeatureRef Id="SlimTv.ServiceClient" />
+      <FeatureRef Id="SlimTv.TvMosaicClient" />
+
       <ComponentRef Id="CLIENT_DATA_FOLDER" />
       <ComponentRef Id="CLIENT_CONFIG_FOLDER" />
       <ComponentRef Id="CLIENT_LOG_FOLDER" />
@@ -184,12 +191,9 @@
       <ComponentGroupRef Id="Client.Heat"/>
     </Feature>
 
-    <FeatureRef Id="Client">
-      <Feature Id="LAVFilters" Level="1" Absent="allow" InstallDefault="followParent" AllowAdvertise="no" Title="!(loc.F_LAVFilters)" Description="!(loc.F_LAVFilters_Desc)"/>
-    </FeatureRef>
-
     <InstallExecuteSequence>
-      <Custom Action="LaunchClientLauncher" After="InstallFinalize"><![CDATA[&Client=3]]></Custom>
+      <!-- Launch ClientLauncher if installing or already installed and not uninstalling -->
+      <Custom Action="LaunchClientLauncher" After="InstallFinalize"><![CDATA[(&Client=3) OR ((!Client=3) AND (&Client<>2))]]></Custom>
     </InstallExecuteSequence>
 
     <CustomAction Id="LaunchClientLauncher"

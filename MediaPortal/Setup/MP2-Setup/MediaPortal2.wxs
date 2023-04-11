@@ -3,12 +3,10 @@
 <Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
      xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
 
-  <?include $(var.SolutionDir)\VersionInfo.wxi?>
-  <!-- This should NEVER be changed ! -->
-  <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
+  <?include $(var.SolutionDir)\Includes.wxi?>
 
   <Product Id="*"
-           Name="MediaPortal 2"
+           Name="$(var.Product)"
            Version="$(var.Version)"
            Manufacturer="$(var.Manufacturer)"
            Language="!(loc.ProductLanguage)"
@@ -23,8 +21,6 @@
              Compressed='yes' />
 
     <PropertyRef Id="UpgradesFile" />
-
-    <?Include .\Includes.wxi?>
 
     <PropertyRef Id="PropertiesFile" />
     <PropertyRef Id="AddRemovePropertiesFile" />
@@ -45,15 +41,19 @@
     <Directory Id="TARGETDIR" Name="SourceDir">
 
       <Directory Id="ProgramFilesFolder">
-        <Directory Id="TeamMediaPortal.Folder" Name="Team MediaPortal">
-          <!-- An empty Component needed to avoid a bug in Windows Installer -->
-          <Component Id="EmptyComponent_WindowsInstallerBugWorkaround" KeyPath="yes" Guid="4D1E4904-0FB1-44B3-82E1-CFE5F01E6AC3"/>
+        <Directory Id="INSTALLDIR" Name="$(var.Manufacturer)">
+          <Component Id="Product.Registry.InstallDir" Guid="463A7F64-BFB8-4BE1-85F4-D98724884FAF">
+            <RegistryKey Root="HKLM"
+                         Key="$(var.RegKeyRoot)">
+              <RegistryValue Type="string" Name="INSTALLDIR" Value="[INSTALLDIR]"/>
+            </RegistryKey>
+          </Component>
         </Directory>
 
       </Directory>
 
       <Directory Id="CommonAppDataFolder">
-        <Directory Id="TeamMediaPortal.Data.Folder" Name="Team MediaPortal">
+        <Directory Id="TeamMediaPortal.Data.Folder" Name="$(var.Manufacturer)">
           <Component Id="TeamMediaPortal.Data.Folder" Guid="F681F96B-A41D-435B-A091-C9BF42179FB5">
             <CreateFolder>
               <util:PermissionEx User="Users" GenericAll="yes"/>
@@ -63,8 +63,8 @@
       </Directory>
 
       <Directory Id="ProgramMenuFolder">
-        <Directory Id="TeamMediaPortal.StartMenu" Name="Team MediaPortal">
-          <Directory Id="MP2.StartMenu" Name="MediaPortal 2" />
+        <Directory Id="TeamMediaPortal.StartMenu" Name="$(var.Manufacturer)">
+          <Directory Id="MP2.StartMenu" Name="$(var.Product)" />
         </Directory>
       </Directory>
 
@@ -75,7 +75,7 @@
     <DirectoryRef Id="TeamMediaPortal.StartMenu">
       <Component Id="TeamMediaPortal.StartMenu" Guid="EBCECF2A-3330-11E1-BB19-75D94724019B">
         <RegistryValue Root="HKCU"
-                       Key="Software\Team MediaPortal\MediaPortal 2\Install"
+                       Key="$(var.RegKeyInstall)"
                        Name="TeamMediaPortal.StartMenu"
                        Type="string"
                        Value="1"
@@ -86,18 +86,8 @@
     </DirectoryRef>
     <DirectoryRef Id="MP2.StartMenu">
       <Component Id="MP2.StartMenu" Guid="DB88BD5D-BD35-402E-ABD5-A8EBB1F0FA42">
-        <Shortcut Id="MP2Uninstall.StartMenu.Shortcut"
-                  Name="!(loc.SC_Uninstall)"
-                  Description="!(loc.SC_Uninstall_Desc)"
-                  Target="[System64Folder]msiexec.exe"
-                  Arguments="/x [ProductCode]" />
-        <!--
-        Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
-        http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
-        -->
-        <!-- todo: why is $(var.RegKeyInstall) not working here? -->
         <RegistryValue Root="HKCU"
-                       Key="Software\Team MediaPortal\MediaPortal 2\Install"
+                       Key="$(var.RegKeyInstall)"
                        Name="MP2.StartMenu"
                        Type="string"
                        Value="1"
@@ -113,19 +103,22 @@
              AllowAdvertise="no"
              Display="expand"
              Title="!(loc.F_MediaPortal)"
-             Description="!(loc.F_MediaPortal_Desc)">
+             Description="!(loc.F_MediaPortal_Desc)"
+             Absent="disallow">
       <FeatureRef Id="Client" />
       <FeatureRef Id="Server" />
       <FeatureRef Id="ServiceMonitor" />
       <FeatureRef Id="LogCollector" />
 
-      <ComponentRef Id="EmptyComponent_WindowsInstallerBugWorkaround" />
+      <ComponentRef Id="Product.Registry.InstallDir" />
+      <ComponentRef Id="Product.Registry.PersistedShortcutProperties" />
       <ComponentRef Id="TeamMediaPortal.Data.Folder" />
       <ComponentRef Id="TeamMediaPortal.StartMenu" />
       <ComponentRef Id="MP2.StartMenu" />
     </Feature>
-
+    
     <!-- User Interface -->
+     <!--Remove this when the MP2 bootstrapper app is finished-->
     <WixVariable Id="WixUILicenseRtf"
                  Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\$(var.Configuration)\Docs\MediaPortal License.rtf" />
     <WixVariable Id="WixUIBannerBmp"
@@ -134,8 +127,8 @@
                  Value="Resources\MPDialog.jpg" />
 
     <UIRef Id="MP2_Setup_UI_FeatureTree" />
-    <UIRef Id="WixUI_ErrorProgressText" />
-
+    <UIRef Id="WixUI_ErrorProgressText" /> 
+    
     <InstallUISequence>
 
       <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize">NOT Installed</Custom>
@@ -151,10 +144,6 @@
 
       <Custom Action="PrepareXmlPathVariables" Before="FileCost">NOT Installed</Custom>
       <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
-
-      <Custom Action="InstallLAVFilters" After="InstallFiles">
-        <![CDATA[(REINSTALL OR NOT Installed) AND &LAVFilters>=3]]>
-      </Custom>
 
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>
