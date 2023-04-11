@@ -152,7 +152,7 @@
       <Version>1.0.0.3</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Reference Include="System.Device" />
   </ItemGroup>
   <Import Project="build.targets" />

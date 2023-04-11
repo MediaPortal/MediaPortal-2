@@ -40,7 +40,7 @@
     <Compile Remove="Matches\BaseMatcher.cs" />
     <Compile Remove="Wrappers\ApiWrapper.cs" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Reference Include="System.Device" />
     <Reference Include="System.Web" />
   </ItemGroup>

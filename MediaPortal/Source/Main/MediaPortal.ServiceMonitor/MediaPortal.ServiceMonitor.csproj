@@ -218,7 +218,7 @@
     </PackageReference>
     <PackageReference Include="Hardcodet.NotifyIcon.Wpf.NetCore" Version="1.0.17" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
   <Import Project="build.targets" />

@@ -41,7 +41,7 @@
       <Version>1.0.116</Version>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <PackageReference Include="System.Data.SQLite.Linq" Version="1.0.116" />
     <Reference Include="System.Web" />
   </ItemGroup>

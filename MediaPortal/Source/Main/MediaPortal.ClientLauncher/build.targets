@@ -9,7 +9,7 @@
       <PluginFiles Include="$(TargetPath)" />
       <PluginFiles Include="$(TargetPath).config" />
     </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
       <PluginFiles Include="$(TargetDir)$(TargetName).exe" />
       <PluginFiles Include="$(TargetDir)$(TargetName).runtimeconfig.json" />
     </ItemGroup>

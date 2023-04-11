@@ -60,14 +60,14 @@
     <ProjectReference Include="..\SlimTvIntegration\SlimTv.Integration.csproj" />
     <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
     <PackageReference Include="MediaPortal.TvEngine.Core">
       <Version>6.0.0.3</Version>
       <GeneratePathProperty>True</GeneratePathProperty>
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <PackageReference Include="MediaPortal.TvEngine.Core">
       <Version>1.0.5</Version>
     </PackageReference>

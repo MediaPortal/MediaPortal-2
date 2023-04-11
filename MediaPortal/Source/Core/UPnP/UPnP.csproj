@@ -29,10 +29,10 @@
   <ItemGroup>
     <ProjectReference Include="..\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
     <FrameworkReference Include="Microsoft.AspNetCore.App" />
   </ItemGroup>
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Web" />
     <PackageReference Include="Microsoft.Owin">

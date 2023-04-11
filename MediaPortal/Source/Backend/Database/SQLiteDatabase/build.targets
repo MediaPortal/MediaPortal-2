@@ -19,11 +19,11 @@
       <References Include="$(TargetDir)System.Data.SQLite.dll" />
     </ItemGroup>
 
-    <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' != '.NETFramework' ">
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
       <SQLiteInterop64 Include="$(TargetDir)\runtimes\win-x64\native\SQLite.Interop.dll" />
       <SQLiteInterop86 Include="$(TargetDir)\runtimes\win-x86\native\SQLite.Interop.dll" />
     </ItemGroup>
-    <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
       <SQLiteInterop64 Include="$(TargetDir)\x64\SQLite.Interop.dll" />
       <SQLiteInterop86 Include="$(TargetDir)\x86\SQLite.Interop.dll" />
       <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />

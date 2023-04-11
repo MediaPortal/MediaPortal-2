@@ -28,7 +28,7 @@
     </PackageReference>
   </ItemGroup>
 
-  <ItemGroup Condition=" '$(TargetFrameworkIdentifier)' == '.NETFramework' ">
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
     <Reference Include="System.Windows.Forms" />
   </ItemGroup>
 
