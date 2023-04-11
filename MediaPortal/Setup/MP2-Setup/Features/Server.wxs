@@ -1,7 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:fire="http://wixtoolset.org/schemas/v4/wxs/firewall">
 
   <Fragment>
 
@@ -15,22 +12,22 @@
     <DirectoryRef Id="TeamMediaPortal.Data.Folder">
       <Directory Id="SERVER_DATA_FOLDER" Name="MP2-Server">
         <Component Id="SERVER_DATA_FOLDER" Guid="4C918D8D-9925-49D9-8CC9-0369A32F6221">
-          <CreateFolder/>
+          <CreateFolder />
         </Component>
 
         <Directory Id="SERVER_CONFIG_FOLDER" Name="Config">
           <Component Id="SERVER_CONFIG_FOLDER" Guid="97054EC5-47F1-4072-ADC3-BB4BF26CF35A">
-            <CreateFolder/>
+            <CreateFolder />
           </Component>
         </Directory>
         <Directory Id="SERVER_LOG_FOLDER" Name="Log">
           <Component Id="SERVER_LOG_FOLDER" Guid="4FF03809-8904-43E9-929B-A1397853A77F">
-            <CreateFolder/>
+            <CreateFolder />
           </Component>
         </Directory>
         <Directory Id="SERVER_DATABASE_FOLDER" Name="Database">
           <Component Id="SERVER_DATABASE_FOLDER" Guid="A7ABDEB5-0D3F-48B7-A4EA-92B1B5DE6C2A">
-            <CreateFolder/>
+            <CreateFolder />
           </Component>
         </Directory>
       </Directory>
@@ -40,9 +37,8 @@
     <DirectoryRef Id="INSTALLDIR_SERVER" FileSource="$(var.MediaPortal.Server.TargetDir)">
 
       <Component Id="Server.Registry.InstallDir" Guid="AB85C3C6-423A-484D-93B6-60A24057E683">
-        <RegistryKey Root="HKLM"
-                     Key="$(var.RegKeyRoot)">
-          <RegistryValue Type="string" Name="INSTALLDIR_SERVER" Value="[INSTALLDIR_SERVER]"/>
+        <RegistryKey Root="HKLM" Key="$(var.RegKeyRoot)">
+          <RegistryValue Type="string" Name="INSTALLDIR_SERVER" Value="[INSTALLDIR_SERVER]" />
         </RegistryKey>
         <CreateFolder />
       </Component>
@@ -64,22 +60,14 @@
           <fire:FirewallException Id="MP2ServerExUDPDom" Name="MP2-Server UDP Domain" Profile="domain" Protocol="udp" Scope="any" IgnoreFailure="yes" />
           <fire:FirewallException Id="MP2ServerExUDPPriv" Name="MP2-Server UDP Private" Profile="private" Protocol="udp" Scope="any" IgnoreFailure="yes" />
         </File>
-        <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Vital="yes" Name="MP2-Server"
-            DisplayName="!(loc.Service_DisplayName)"
-            Description="!(loc.Service_Description)"
-            Start="auto" Account="LocalSystem" ErrorControl="ignore" Interactive="no" />
+        <ServiceInstall Id="ServiceInstaller" Type="ownProcess" Vital="yes" Name="MP2-Server" DisplayName="!(loc.Service_DisplayName)" Description="!(loc.Service_Description)" Start="auto" Account="LocalSystem" ErrorControl="ignore" Interactive="no" />
         <ServiceControl Id="StartService" Start="install" Stop="both" Remove="uninstall" Name="MP2-Server" Wait="yes" />
       </Component>
 
     </DirectoryRef>
 
     <!-- Feature -->
-    <Feature Id="Server"
-             Level="1"
-             AllowAdvertise="no"
-             ConfigurableDirectory="INSTALLDIR_SERVER"
-             Title="!(loc.F_Server)"
-             Description="!(loc.F_Server_Desc)">
+    <Feature Id="Server" Level="1" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR_SERVER" Title="!(loc.F_Server)" Description="!(loc.F_Server_Desc)">
       
       <FeatureRef Id="SlimTv.Service3" />
       <FeatureRef Id="SlimTv.Service35" />
@@ -92,24 +80,17 @@
       <ComponentRef Id="Server.exe" />
       <ComponentRef Id="Server.Registry.InstallDir" />
 
-      <ComponentGroupRef Id="Server.Heat"/>
+      <ComponentGroupRef Id="Server.Heat" />
     </Feature>
 
-    <SetProperty Id="RestartService"
-                 Value="&quot;net&quot; start MP2-Server"
-                 Before="RestartService"
-                 Sequence="execute" />
-    <CustomAction Id="RestartService"
-                  BinaryKey="WixCA"
-                  DllEntry="WixQuietExec"
-                  Execute="deferred"
-                  Return="asyncWait" />
+    <SetProperty Id="RestartService" Value="&quot;net&quot; start MP2-Server" Before="RestartService" Sequence="execute" />
+    <CustomAction Id="RestartService" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_X86" />
         
     <InstallExecuteSequence>
       <!-- The ServiceControl element above handles starting/stopping the server on install/uninstall,
            however it also needs to be restarted after a modify or repair install. This action does
            that provided the server feature is already installed and not being uninstalled. -->
-      <Custom Action="RestartService" Before="InstallFinalize"><![CDATA[(!Server=3) AND (&Server<>2)]]></Custom>
+      <Custom Action="RestartService" Before="InstallFinalize" Condition="(!Server=3) AND (&amp;Server&lt;&gt;2)" />
     </InstallExecuteSequence>
 
   </Fragment>

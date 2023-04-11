@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
-
-<Include>
+﻿<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
   <!--
   This file provides common information about company and version number and other install related properties for WiX (Windows Installer Toolkit) projects.

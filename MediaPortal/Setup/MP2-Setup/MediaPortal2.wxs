@@ -1,24 +1,8 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
   <?include $(var.SolutionDir)\Includes.wxi?>
 
-  <Product Id="*"
-           Name="$(var.Product)"
-           Version="$(var.Version)"
-           Manufacturer="$(var.Manufacturer)"
-           Language="!(loc.ProductLanguage)"
-           Codepage="0"
-           UpgradeCode="$(var.UpgradeCode)">
-
-    <Package Id='*'
-             Keywords='Installer'
-             Description='MediaPortal 2 Installer'
-             InstallerVersion='405'
-             SummaryCodepage="!(loc.SummaryCodepage)"
-             Compressed='yes' />
+  <Package Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" Language="!(loc.ProductLanguage)" Codepage="0" UpgradeCode="$(var.UpgradeCode)" InstallerVersion="405"><SummaryInformation Keywords="Installer" Description="MediaPortal 2 Installer" Codepage="!(loc.SummaryCodepage)" />
 
     <PropertyRef Id="UpgradesFile" />
 
@@ -33,78 +17,29 @@
     <Media Id="1" Cabinet="MediaPortal2.cab" EmbedCab="yes" CompressionLevel="high" />
 
     <!-- setting the context to per-machine -->
-    <Property Id="ALLUSERS">1</Property>
+    <Property Id="ALLUSERS" Value="1" />
 
     <Icon Id="MediaPortal2Icon" SourceFile="Resources\MP2_Icon_General.ico" />
 
     <!-- Directories -->
-    <Directory Id="TARGETDIR" Name="SourceDir">
-
-      <Directory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLDIR" Name="$(var.Manufacturer)">
-          <Component Id="Product.Registry.InstallDir" Guid="463A7F64-BFB8-4BE1-85F4-D98724884FAF">
-            <RegistryKey Root="HKLM"
-                         Key="$(var.RegKeyRoot)">
-              <RegistryValue Type="string" Name="INSTALLDIR" Value="[INSTALLDIR]"/>
-            </RegistryKey>
-          </Component>
-        </Directory>
-
-      </Directory>
-
-      <Directory Id="CommonAppDataFolder">
-        <Directory Id="TeamMediaPortal.Data.Folder" Name="$(var.Manufacturer)">
-          <Component Id="TeamMediaPortal.Data.Folder" Guid="F681F96B-A41D-435B-A091-C9BF42179FB5">
-            <CreateFolder>
-              <util:PermissionEx User="Users" GenericAll="yes"/>
-            </CreateFolder>
-          </Component>
-        </Directory>
-      </Directory>
-
-      <Directory Id="ProgramMenuFolder">
-        <Directory Id="TeamMediaPortal.StartMenu" Name="$(var.Manufacturer)">
-          <Directory Id="MP2.StartMenu" Name="$(var.Product)" />
-        </Directory>
-      </Directory>
-
-      <Directory Id="DesktopFolder" />
-    </Directory>
+    
 
     <!-- Shortcuts -->
     <DirectoryRef Id="TeamMediaPortal.StartMenu">
       <Component Id="TeamMediaPortal.StartMenu" Guid="EBCECF2A-3330-11E1-BB19-75D94724019B">
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="TeamMediaPortal.StartMenu"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
-        <RemoveFolder Id="Remove.TeamMediaPortal.StartMenu"
-                      On="uninstall"/>
+        <RegistryValue Root="HKCU" Key="$(var.RegKeyInstall)" Name="TeamMediaPortal.StartMenu" Type="string" Value="1" KeyPath="yes" />
+        <RemoveFolder Id="Remove.TeamMediaPortal.StartMenu" On="uninstall" />
       </Component>
     </DirectoryRef>
     <DirectoryRef Id="MP2.StartMenu">
       <Component Id="MP2.StartMenu" Guid="DB88BD5D-BD35-402E-ABD5-A8EBB1F0FA42">
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="MP2.StartMenu"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
-        <RemoveFolder Id="Remove.MP2.StartMenu"
-                      On="uninstall" />
+        <RegistryValue Root="HKCU" Key="$(var.RegKeyInstall)" Name="MP2.StartMenu" Type="string" Value="1" KeyPath="yes" />
+        <RemoveFolder Id="Remove.MP2.StartMenu" On="uninstall" />
       </Component>
     </DirectoryRef>
 
     <!-- Features -->
-    <Feature Id="MediaPortal_2"
-             Level="1"
-             AllowAdvertise="no"
-             Display="expand"
-             Title="!(loc.F_MediaPortal)"
-             Description="!(loc.F_MediaPortal_Desc)"
-             Absent="disallow">
+    <Feature Id="MediaPortal_2" Level="1" AllowAdvertise="no" Display="expand" Title="!(loc.F_MediaPortal)" Description="!(loc.F_MediaPortal_Desc)" AllowAbsent="no">
       <FeatureRef Id="Client" />
       <FeatureRef Id="Server" />
       <FeatureRef Id="ServiceMonitor" />
@@ -119,36 +54,63 @@
     
     <!-- User Interface -->
      <!--Remove this when the MP2 bootstrapper app is finished-->
-    <WixVariable Id="WixUILicenseRtf"
-                 Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\$(var.Configuration)\Docs\MediaPortal License.rtf" />
-    <WixVariable Id="WixUIBannerBmp"
-                 Value="Resources\MPBanner.jpg" />
-    <WixVariable Id="WixUIDialogBmp"
-                 Value="Resources\MPDialog.jpg" />
+    <WixVariable Id="WixUILicenseRtf" Value="$(var.SolutionDir)..\Bin\MP2-Client\bin\$(var.Configuration)\Docs\MediaPortal License.rtf" />
+    <WixVariable Id="WixUIBannerBmp" Value="Resources\MPBanner.jpg" />
+    <WixVariable Id="WixUIDialogBmp" Value="Resources\MPDialog.jpg" />
 
     <UIRef Id="MP2_Setup_UI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" /> 
     
     <InstallUISequence>
 
-      <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize">NOT Installed</Custom>
+      <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize" Condition="NOT Installed" />
 
     </InstallUISequence>
 
     <InstallExecuteSequence>
       <!-- Stop all MP2 processes -->
-      <Custom Action="StopProcesses" Before="ReadCustomPathsFromExistingPathsFile"/>
+      <Custom Action="StopProcesses" Before="ReadCustomPathsFromExistingPathsFile" />
 
       <!-- Reads custom paths which maybe have been changed by the user in a former installation -->
-      <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="PrepareXmlPathVariables">(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)</Custom>
+      <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="PrepareXmlPathVariables" Condition="(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)" />
 
-      <Custom Action="PrepareXmlPathVariables" Before="FileCost">NOT Installed</Custom>
-      <Custom Action="AttachClientToServer" After="InstallFinalize">NOT Installed</Custom>
+      <Custom Action="PrepareXmlPathVariables" Before="FileCost" Condition="NOT Installed" />
+      <Custom Action="AttachClientToServer" After="InstallFinalize" Condition="NOT Installed" />
 
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>
 
     <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="You cannot downgrade to [ProductName]" Schedule="afterInstallInitialize" />
 
-  </Product>
+  
+
+      <StandardDirectory Id="ProgramFilesFolder">
+        <Directory Id="INSTALLDIR" Name="$(var.Manufacturer)">
+          <Component Id="Product.Registry.InstallDir" Guid="463A7F64-BFB8-4BE1-85F4-D98724884FAF">
+            <RegistryKey Root="HKLM" Key="$(var.RegKeyRoot)">
+              <RegistryValue Type="string" Name="INSTALLDIR" Value="[INSTALLDIR]" />
+            </RegistryKey>
+          </Component>
+        </Directory>
+
+      </StandardDirectory>
+
+      <StandardDirectory Id="CommonAppDataFolder">
+        <Directory Id="TeamMediaPortal.Data.Folder" Name="$(var.Manufacturer)">
+          <Component Id="TeamMediaPortal.Data.Folder" Guid="F681F96B-A41D-435B-A091-C9BF42179FB5">
+            <CreateFolder>
+              <util:PermissionEx User="Users" GenericAll="yes" />
+            </CreateFolder>
+          </Component>
+        </Directory>
+      </StandardDirectory>
+
+      <StandardDirectory Id="ProgramMenuFolder">
+        <Directory Id="TeamMediaPortal.StartMenu" Name="$(var.Manufacturer)">
+          <Directory Id="MP2.StartMenu" Name="$(var.Product)" />
+        </Directory>
+      </StandardDirectory>
+
+      <StandardDirectory Id="DesktopFolder" />
+    </Package>
 </Wix>

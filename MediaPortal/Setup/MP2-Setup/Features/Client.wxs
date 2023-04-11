@@ -1,7 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:fire="http://schemas.microsoft.com/wix/FirewallExtension">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:fire="http://wixtoolset.org/schemas/v4/wxs/firewall">
 
   <Fragment>
 
@@ -18,17 +15,17 @@
     <DirectoryRef Id="TeamMediaPortal.Data.Folder">
       <Directory Id="CLIENT_DATA_FOLDER" Name="MP2-Client">
         <Component Id="CLIENT_DATA_FOLDER" Guid="3DF62027-81C3-4047-815C-4C530E0328EB">
-          <CreateFolder/>
+          <CreateFolder />
         </Component>
 
         <Directory Id="CLIENT_CONFIG_FOLDER" Name="Config">
           <Component Id="CLIENT_CONFIG_FOLDER" Guid="0165F58A-FCC9-460E-A88D-F32B5E0DE112">
-            <CreateFolder/>
+            <CreateFolder />
           </Component>
         </Directory>
         <Directory Id="CLIENT_LOG_FOLDER" Name="Log">
           <Component Id="CLIENT_LOG_FOLDER" Guid="98590791-BDC0-44FD-B348-DF66A110EE70">
-            <CreateFolder/>
+            <CreateFolder />
           </Component>
         </Directory>
       </Directory>
@@ -38,9 +35,8 @@
     <DirectoryRef Id="INSTALLDIR_CLIENT" FileSource="$(var.MediaPortal.Client.TargetDir)">
 
       <Component Id="Client.Registry.InstallDir" Guid="52711D1B-E2EE-4ACD-9993-F5B3FCF87701">
-        <RegistryKey Root="HKLM"
-                     Key="$(var.RegKeyRoot)">
-          <RegistryValue Type="string" Name="INSTALLDIR_CLIENT" Value="[INSTALLDIR_CLIENT]"/>
+        <RegistryKey Root="HKLM" Key="$(var.RegKeyRoot)">
+          <RegistryValue Type="string" Name="INSTALLDIR_CLIENT" Value="[INSTALLDIR_CLIENT]" />
         </RegistryKey>
         <CreateFolder />
       </Component>
@@ -85,93 +81,48 @@
 
     <!-- Shortcuts -->
     <DirectoryRef Id="MP2.StartMenu">
-      <Component Id="Client.StartMenu.Shortcut" Guid="1F79952A-464C-4E69-9C4F-F8F4488DE83F">
-        <Condition>STARTMENUSHORTCUTS = 1</Condition>
-        <Shortcut Id="Client.StartMenu.Shortcut"
-                  Name="!(loc.SC_Client)"
-                  Description="!(loc.SC_Client_Desc)"
-                  Target="[!Client.exe]"
-                  Icon="Client"
-                  WorkingDirectory="INSTALLDIR_CLIENT" />
+      <Component Id="Client.StartMenu.Shortcut" Guid="1F79952A-464C-4E69-9C4F-F8F4488DE83F" Condition="STARTMENUSHORTCUTS = 1">
+        
+        <Shortcut Id="Client.StartMenu.Shortcut" Name="!(loc.SC_Client)" Description="!(loc.SC_Client_Desc)" Target="[!Client.exe]" Icon="Client" WorkingDirectory="INSTALLDIR_CLIENT" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
         -->
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="Client.StartMenu.Shortcut"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
+        <RegistryValue Root="HKCU" Key="$(var.RegKeyInstall)" Name="Client.StartMenu.Shortcut" Type="string" Value="1" KeyPath="yes" />
       </Component>
-      <Component Id="Client.StartMenu.Shortcut_x64" Guid="0FA9B97C-9C9E-41B1-94F0-DC00CDF4F560">
-        <Condition>STARTMENUSHORTCUTS = 1</Condition>
-        <Shortcut Id="Client.StartMenu.Shortcut_x64"
-                  Name="!(loc.SC_Client_x64)"
-                  Description="!(loc.SC_Client_Desc_x64)"
-                  Target="[!Client_x64.exe]"
-                  Icon="Client"
-                  WorkingDirectory="INSTALLDIR_CLIENT" />
+      <Component Id="Client.StartMenu.Shortcut_x64" Guid="0FA9B97C-9C9E-41B1-94F0-DC00CDF4F560" Condition="STARTMENUSHORTCUTS = 1">
+        
+        <Shortcut Id="Client.StartMenu.Shortcut_x64" Name="!(loc.SC_Client_x64)" Description="!(loc.SC_Client_Desc_x64)" Target="[!Client_x64.exe]" Icon="Client" WorkingDirectory="INSTALLDIR_CLIENT" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
         -->
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="Client.StartMenu.Shortcut"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
+        <RegistryValue Root="HKCU" Key="$(var.RegKeyInstall)" Name="Client.StartMenu.Shortcut" Type="string" Value="1" KeyPath="yes" />
       </Component>
     </DirectoryRef>
-    <DirectoryRef Id="DesktopFolder">
-      <Component Id="Client.Desktop.Shortcut" Guid="F005C623-CE3D-4ABD-A6DB-598D3859D58D">
-        <Condition>DESKTOPSHORTCUTS = 1</Condition>
-        <Shortcut Id="Client.Desktop.Shortcut"
-                  Name="!(loc.SC_Client)"
-                  Description="!(loc.SC_Client_Desc)"
-                  Target="[!Client.exe]"
-                  Icon="Client"
-                  WorkingDirectory="INSTALLDIR_CLIENT" />
+    <StandardDirectory Id="DesktopFolder">
+      <Component Id="Client.Desktop.Shortcut" Guid="F005C623-CE3D-4ABD-A6DB-598D3859D58D" Condition="DESKTOPSHORTCUTS = 1">
+        
+        <Shortcut Id="Client.Desktop.Shortcut" Name="!(loc.SC_Client)" Description="!(loc.SC_Client_Desc)" Target="[!Client.exe]" Icon="Client" WorkingDirectory="INSTALLDIR_CLIENT" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
         -->
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="Client.Desktop.Shortcut"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
+        <RegistryValue Root="HKCU" Key="$(var.RegKeyInstall)" Name="Client.Desktop.Shortcut" Type="string" Value="1" KeyPath="yes" />
       </Component>
-      <Component Id="Client.Desktop.Shortcut_x64" Guid="EE2BC2E2-B6ED-4F21-AFBA-0571A2AC5D0E">
-        <Condition>DESKTOPSHORTCUTS = 1</Condition>
-        <Shortcut Id="Client.Desktop.Shortcut_x64"
-                  Name="!(loc.SC_Client_x64)"
-                  Description="!(loc.SC_Client_Desc_x64)"
-                  Target="[!Client_x64.exe]"
-                  Icon="Client"
-                  WorkingDirectory="INSTALLDIR_CLIENT" />
+      <Component Id="Client.Desktop.Shortcut_x64" Guid="EE2BC2E2-B6ED-4F21-AFBA-0571A2AC5D0E" Condition="DESKTOPSHORTCUTS = 1">
+        
+        <Shortcut Id="Client.Desktop.Shortcut_x64" Name="!(loc.SC_Client_x64)" Description="!(loc.SC_Client_Desc_x64)" Target="[!Client_x64.exe]" Icon="Client" WorkingDirectory="INSTALLDIR_CLIENT" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
         -->
-        <RegistryValue Root="HKCU"
-                       Key="$(var.RegKeyInstall)"
-                       Name="Client.Desktop.Shortcut_x64"
-                       Type="string"
-                       Value="1"
-                       KeyPath="yes" />
+        <RegistryValue Root="HKCU" Key="$(var.RegKeyInstall)" Name="Client.Desktop.Shortcut_x64" Type="string" Value="1" KeyPath="yes" />
       </Component>
-    </DirectoryRef>
+    </StandardDirectory>
 
     <!-- Feature -->
-    <Feature Id="Client"
-              Level="1"
-              AllowAdvertise="no"
-              ConfigurableDirectory="INSTALLDIR_CLIENT"
-              Title="!(loc.F_Client)"
-              Description="!(loc.F_Client_Desc)">
+    <Feature Id="Client" Level="1" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR_CLIENT" Title="!(loc.F_Client)" Description="!(loc.F_Client_Desc)">
 
       <FeatureRef Id="SlimTv.ServiceClient" />
       <FeatureRef Id="SlimTv.TvMosaicClient" />
@@ -188,18 +139,15 @@
       <ComponentRef Id="Client.StartMenu.Shortcut_x64" />
       <ComponentRef Id="Client.Registry.InstallDir" />
 
-      <ComponentGroupRef Id="Client.Heat"/>
+      <ComponentGroupRef Id="Client.Heat" />
     </Feature>
 
     <InstallExecuteSequence>
       <!-- Launch ClientLauncher if installing or already installed and not uninstalling -->
-      <Custom Action="LaunchClientLauncher" After="InstallFinalize"><![CDATA[(&Client=3) OR ((!Client=3) AND (&Client<>2))]]></Custom>
+      <Custom Action="LaunchClientLauncher" After="InstallFinalize" Condition="(&amp;Client=3) OR ((!Client=3) AND (&amp;Client&lt;&gt;2))" />
     </InstallExecuteSequence>
 
-    <CustomAction Id="LaunchClientLauncher"
-                  FileKey="ClientLauncher.exe"
-                  ExeCommand=""
-                  Return="asyncNoWait" />
+    <CustomAction Id="LaunchClientLauncher" ExeCommand="" Return="asyncNoWait" FileRef="ClientLauncher.exe" />
 
   </Fragment>
 </Wix>

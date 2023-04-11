@@ -1,33 +1,22 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
 
-    <Property Id="LaunchConditionsFile">1</Property>
+    <Property Id="LaunchConditionsFile" Value="1" />
 
     <Property Id="DOKAN">
       <DirectorySearch Id="SystemFolderDokan" Path="[SystemFolder]">
         <!-- Note: Version number needs to be 1 less then the actual file version !-->
-        <FileSearch Name="DOKAN1.DLL"/>
+        <FileSearch Name="DOKAN1.DLL" />
       </DirectorySearch>
     </Property>
 
-    <Condition Message="!(loc.LC_OS)">
-      <![CDATA[Installed OR VersionNT >= 601]]>
-    </Condition>
+    <Launch Condition="Installed OR VersionNT &gt;= 601" Message="!(loc.LC_OS)" />
 
     <PropertyRef Id="NETFRAMEWORK45" />
-    <Condition Message="!(loc.LC_NET)">
-      <![CDATA[Installed OR (NETFRAMEWORK45 >= "#378675")]]>
-    </Condition>
-    <Condition Message="!(loc.LC_ADMIN)">
-      Privileged
-    </Condition>
+    <Launch Condition="Installed OR (NETFRAMEWORK45 &gt;= &quot;#378675&quot;)" Message="!(loc.LC_NET)" />
+    <Launch Condition="Privileged" Message="!(loc.LC_ADMIN)" />
 
-    <Condition Message="!(loc.LC_DOKAN)">
-      <![CDATA[Installed OR DOKAN]]>
-    </Condition>
+    <Launch Condition="Installed OR DOKAN" Message="!(loc.LC_DOKAN)" />
 
     <!--
     <Condition Message="A later version of [ProductName] is already installed. Setup will now exit.">

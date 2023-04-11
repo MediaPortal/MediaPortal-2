@@ -1,17 +1,11 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+﻿<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+  </PropertyGroup>
+  <PropertyGroup>
     <ProductVersion>3.5</ProductVersion>
-    <ProjectGuid>{49ff3ae9-b5b2-4eb1-9205-4ee4fc4fa0df}</ProjectGuid>
-    <SchemaVersion>2.0</SchemaVersion>
-    <OutputName>MP2-Setup</OutputName>
-    <OutputType>Package</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>Bin\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <DefineConstants>Debug;</DefineConstants>
     <SuppressValidation>False</SuppressValidation>
     <Cultures>
@@ -20,8 +14,6 @@
     <LinkerAdditionalOptions>-sval</LinkerAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>Bin\$(Configuration)\</OutputPath>
-    <IntermediateOutputPath>obj\$(Configuration)\</IntermediateOutputPath>
     <SuppressIces>ICE60;ICE80</SuppressIces>
     <LinkerAdditionalOptions>
     </LinkerAdditionalOptions>
@@ -66,29 +58,15 @@
     <Folder Include="UI" />
   </ItemGroup>
   <ItemGroup>
-    <WixExtension Include="WixUtilExtension">
-      <HintPath>$(WixExtDir)\WixUtilExtension.dll</HintPath>
-      <Name>WixUtilExtension</Name>
-    </WixExtension>
-    <WixExtension Include="WixNetFxExtension">
-      <HintPath>$(WixExtDir)\WixNetFxExtension.dll</HintPath>
-      <Name>WixNetFxExtension</Name>
-    </WixExtension>
-    <WixExtension Include="WixFirewallExtension">
-      <HintPath>$(WixExtDir)\WixFirewallExtension.dll</HintPath>
-      <Name>WixFirewallExtension</Name>
-    </WixExtension>
-    <WixExtension Include="WixUIExtension">
-      <HintPath>$(WixExtDir)\WixUIExtension.dll</HintPath>
-      <Name>WixUIExtension</Name>
-    </WixExtension>
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="Language\en-us.wxl" />
-    <EmbeddedResource Include="Language\WixExt_en-us.wxl" />
+    <PackageReference Include="WixToolset.Heat" Version="4.0.0" />
+    <PackageReference Include="WixToolset.Util.wixext" Version="4.0.0" />
+    <PackageReference Include="WixToolset.NetFx.wixext" Version="4.0.0" />
+    <PackageReference Include="WixToolset.Firewall.wixext" Version="4.0.0" />
+    <PackageReference Include="WixToolset.UI.wixext" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.Client\MediaPortal.Client.csproj">
+      <SetTargetFramework>TargetFramework=net48</SetTargetFramework>
       <Name>MediaPortal.Client</Name>
       <Project>{53efa17b-5f8b-4942-8211-2015ffc2223c}</Project>
       <Private>True</Private>
@@ -97,6 +75,7 @@
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.Server\MediaPortal.Server.csproj">
+      <SetTargetFramework>TargetFramework=net48</SetTargetFramework>
       <Name>MediaPortal.Server</Name>
       <Project>{dbb95772-9a29-443d-a1b1-7a32e27f598b}</Project>
       <Private>True</Private>
@@ -105,6 +84,7 @@
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj">
+      <SetTargetFramework>TargetFramework=net48</SetTargetFramework>
       <Name>MediaPortal.ServiceMonitor</Name>
       <Project>{b554fe2f-b4fc-4d70-87db-bc214ea104e4}</Project>
       <Private>True</Private>
@@ -113,6 +93,7 @@
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\LogCollector\MediaPortal.LogCollector.csproj">
+      <SetTargetFramework>TargetFramework=net48</SetTargetFramework>
       <Name>MediaPortal.LogCollector</Name>
       <Project>{3476bfd3-b634-4bab-8e0f-12921019b7b0}</Project>
       <Private>True</Private>
@@ -132,10 +113,5 @@
   <ItemGroup>
     <None Include="build.targets" />
   </ItemGroup>
-  <Import Project="$(WixTargetsPath)" Condition=" '$(WixTargetsPath)' != '' " />
-  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets" Condition=" '$(WixTargetsPath)' == '' AND Exists('$(MSBuildExtensionsPath32)\Microsoft\WiX\v3.x\Wix.targets') " />
-  <Target Name="EnsureWixToolsetInstalled" Condition=" '$(WixTargetsImported)' != 'true' ">
-    <Error Text="The WiX Toolset v3.11 (or newer) build tools must be installed to build this project. To download the WiX Toolset, see http://wixtoolset.org/releases/" />
-  </Target>
   <Import Project="build.targets" />
 </Project>

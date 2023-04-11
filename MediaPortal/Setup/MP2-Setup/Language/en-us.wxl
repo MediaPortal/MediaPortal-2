@@ -1,85 +1,81 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<WixLocalization Culture="en-us" Codepage="1252" xmlns="http://wixtoolset.org/schemas/v4/wxl">
 
-<WixLocalization Culture="en-us"
-                 Codepage="1252"
-                 xmlns="http://schemas.microsoft.com/wix/2006/localization">
-
-  <String Id="SummaryCodepage">1252</String>
-  <String Id="ProductLanguage">1033</String>
+  <String Id="SummaryCodepage" Value="1252" />
+  <String Id="ProductLanguage" Value="1033" />
 
   <!-- General strings -->
-  <String Id="AR_Comment">MediaPortal 2</String>
+  <String Id="AR_Comment" Value="MediaPortal 2" />
 
-  <String Id="F_MediaPortal">MediaPortal 2</String>
-  <String Id="F_MediaPortal_Desc">MediaPortal 2 - Main programs installations.</String>
+  <String Id="F_MediaPortal" Value="MediaPortal 2" />
+  <String Id="F_MediaPortal_Desc" Value="MediaPortal 2 - Main programs installations." />
 
-  <String Id="SC_Uninstall">Uninstall MediaPortal 2</String>
-  <String Id="SC_Uninstall_Desc">Removes MediaPortal 2 or parts of it from the computer</String>
+  <String Id="SC_Uninstall" Value="Uninstall MediaPortal 2" />
+  <String Id="SC_Uninstall_Desc" Value="Removes MediaPortal 2 or parts of it from the computer" />
 
   <!-- Client related strings -->
-  <String Id="F_Client">Client</String>
-  <String Id="F_Client_Desc">The user interface. Plays media files.</String>
-  <String Id="F_Client_Plugins">Plugins</String>
-  <String Id="F_Client_Plugins_Desc">Plugins for the client.</String>
-  <String Id="F_LAVFilters">LAV Filters</String>
-  <String Id="F_LAVFilters_Desc">Recommended directshow filters for best audio and video playback experience.</String>
+  <String Id="F_Client" Value="Client" />
+  <String Id="F_Client_Desc" Value="The user interface. Plays media files." />
+  <String Id="F_Client_Plugins" Value="Plugins" />
+  <String Id="F_Client_Plugins_Desc" Value="Plugins for the client." />
+  <String Id="F_LAVFilters" Value="LAV Filters" />
+  <String Id="F_LAVFilters_Desc" Value="Recommended directshow filters for best audio and video playback experience." />
 
-  <String Id="SC_Client">MediaPortal 2</String>
-  <String Id="SC_Client_Desc">Start MediaPortal 2</String>
+  <String Id="SC_Client" Value="MediaPortal 2" />
+  <String Id="SC_Client_Desc" Value="Start MediaPortal 2" />
 
-  <String Id="SC_Client_x64">MediaPortal 2 (x64)</String>
-  <String Id="SC_Client_Desc_x64">Start MediaPortal 2 (x64)</String>
+  <String Id="SC_Client_x64" Value="MediaPortal 2 (x64)" />
+  <String Id="SC_Client_Desc_x64" Value="Start MediaPortal 2 (x64)" />
 
   <!-- Server related strings -->
-  <String Id="F_Server">Server</String>
-  <String Id="F_Server_Desc">The server part of MediaPortal 2. Provides the MediaLibrary and other services.</String>
-  <String Id="F_Server_Plugins">Plugins</String>
-  <String Id="F_Server_Plugins_Desc">Plugins for the server.</String>
+  <String Id="F_Server" Value="Server" />
+  <String Id="F_Server_Desc" Value="The server part of MediaPortal 2. Provides the MediaLibrary and other services." />
+  <String Id="F_Server_Plugins" Value="Plugins" />
+  <String Id="F_Server_Plugins_Desc" Value="Plugins for the server." />
 
-  <String Id="Service_DisplayName">MediaPortal 2 Server Service</String>
-  <String Id="Service_Description">This service runs the MediaPortal 2 Server.</String>
+  <String Id="Service_DisplayName" Value="MediaPortal 2 Server Service" />
+  <String Id="Service_Description" Value="This service runs the MediaPortal 2 Server." />
 
   <!-- ServiceMonitor related strings -->
-  <String Id="F_ServiceMonitor">ServiceMonitor</String>
-  <String Id="F_ServiceMonitor_Desc">The GUI for the server part of MediaPortal 2. Provides monitoring and configuration for MP2-Server.</String>
+  <String Id="F_ServiceMonitor" Value="ServiceMonitor" />
+  <String Id="F_ServiceMonitor_Desc" Value="The GUI for the server part of MediaPortal 2. Provides monitoring and configuration for MP2-Server." />
 
-  <String Id="SC_ServiceMonitor">MediaPortal 2 ServiceMonitor</String>
-  <String Id="SC_ServiceMonitor_Desc">Start MediaPortal 2 ServiceMonitor</String>
+  <String Id="SC_ServiceMonitor" Value="MediaPortal 2 ServiceMonitor" />
+  <String Id="SC_ServiceMonitor_Desc" Value="Start MediaPortal 2 ServiceMonitor" />
 
   <!-- LogCollector related strings -->
-  <String Id="F_LogCollector">LogCollector</String>
-  <String Id="F_LogCollector_Desc">LogCollector allows you to easily collect all MediaPortal 2 logfiles for creating bug reports.</String>
+  <String Id="F_LogCollector" Value="LogCollector" />
+  <String Id="F_LogCollector_Desc" Value="LogCollector allows you to easily collect all MediaPortal 2 logfiles for creating bug reports." />
 
-  <String Id="SC_LogCollector">MediaPortal 2 LogCollector</String>
-  <String Id="SC_LogCollector_Desc">Start MediaPortal 2 LogCollector</String>
+  <String Id="SC_LogCollector" Value="MediaPortal 2 LogCollector" />
+  <String Id="SC_LogCollector_Desc" Value="Start MediaPortal 2 LogCollector" />
 
   <!-- TV features related strings -->
-  <String Id="F_SlimTvServiceClient">Tv Service Client</String>
-  <String Id="F_SlimTvServiceClient_Desc">Plugin for the MediaPortal 2 Client that provides access to the TV Server running on the MediaPortal 2 Server.</String>
-  <String Id="F_SlimTvTvMosaicClient">Tv Mosaic Client</String>
-  <String Id="F_SlimTvTvMosaicClient_Desc">Plugin for the MediaPortal 2 Client that provides access to a TvMosaic server.</String>
-  <String Id="F_SlimTvService3">Tv Service 3</String>
-  <String Id="F_SlimTvService3_Desc">MediaPortal Tv Service to allow playback and recording of live Tv.</String>
-  <String Id="F_SlimTvService35">Tv Service 3.5</String>
-  <String Id="F_SlimTvService35_Desc">MediaPortal Tv Service to allow playback and recording of live Tv.</String>
+  <String Id="F_SlimTvServiceClient" Value="Tv Service Client" />
+  <String Id="F_SlimTvServiceClient_Desc" Value="Plugin for the MediaPortal 2 Client that provides access to the TV Server running on the MediaPortal 2 Server." />
+  <String Id="F_SlimTvTvMosaicClient" Value="Tv Mosaic Client" />
+  <String Id="F_SlimTvTvMosaicClient_Desc" Value="Plugin for the MediaPortal 2 Client that provides access to a TvMosaic server." />
+  <String Id="F_SlimTvService3" Value="Tv Service 3" />
+  <String Id="F_SlimTvService3_Desc" Value="MediaPortal Tv Service to allow playback and recording of live Tv." />
+  <String Id="F_SlimTvService35" Value="Tv Service 3.5" />
+  <String Id="F_SlimTvService35_Desc" Value="MediaPortal Tv Service to allow playback and recording of live Tv." />
 
   <!-- Launch Conditions -->
-  <String Id="LC_OS">[ProductName] requires minimum Windows 7 / 2008 R2 as operating system.</String>
-  <String Id="LC_NET">[ProductName] requires .NET Framework 4.5.1 to be installed.</String>
-  <String Id="LC_DOKAN">[ProductName] requires Dokan to be installed.</String>
-  <String Id="LC_ADMIN">You need to be an administrator to install [ProductName].</String>
+  <String Id="LC_OS" Value="[ProductName] requires minimum Windows 7 / 2008 R2 as operating system." />
+  <String Id="LC_NET" Value="[ProductName] requires .NET Framework 4.5.1 to be installed." />
+  <String Id="LC_DOKAN" Value="[ProductName] requires Dokan to be installed." />
+  <String Id="LC_ADMIN" Value="You need to be an administrator to install [ProductName]." />
 
   <!-- User Interfaces -->
-  <String Id="SelectInstallTypeDlg_Title">Select the install type</String>
-  <String Id="SelectInstallTypeDlg_BannerBitmap">WixUI_Bmp_Banner</String>
-  <String Id="SelectInstallTypeDlg_DlgDescription">Please select the install type</String>
-  <String Id="SelectInstallTypeDlg_Client_and_Server">Client and Server</String>
-  <String Id="SelectInstallTypeDlg_Client_and_Server_Desc">Complete single seat or server installation with GUI.</String>
-  <String Id="SelectInstallTypeDlg_Client_only">Client only</String>
-  <String Id="SelectInstallTypeDlg_Client_only_Desc">Install the user interface only. A MediaPortal 2 server is available in the network.</String>
-  <String Id="SelectInstallTypeDlg_Server_only">Server only</String>
-  <String Id="SelectInstallTypeDlg_Server_only_Desc">Install a dedicated server without GUI.</String>
-  <String Id="SelectInstallTypeDlg_Custom">Custom</String>
-  <String Id="SelectInstallTypeDlg_Custom_Desc">Allows you to configure the paths for programs, plugins and other settings.</String>
+  <String Id="SelectInstallTypeDlg_Title" Value="Select the install type" />
+  <String Id="SelectInstallTypeDlg_BannerBitmap" Value="WixUI_Bmp_Banner" />
+  <String Id="SelectInstallTypeDlg_DlgDescription" Value="Please select the install type" />
+  <String Id="SelectInstallTypeDlg_Client_and_Server" Value="Client and Server" />
+  <String Id="SelectInstallTypeDlg_Client_and_Server_Desc" Value="Complete single seat or server installation with GUI." />
+  <String Id="SelectInstallTypeDlg_Client_only" Value="Client only" />
+  <String Id="SelectInstallTypeDlg_Client_only_Desc" Value="Install the user interface only. A MediaPortal 2 server is available in the network." />
+  <String Id="SelectInstallTypeDlg_Server_only" Value="Server only" />
+  <String Id="SelectInstallTypeDlg_Server_only_Desc" Value="Install a dedicated server without GUI." />
+  <String Id="SelectInstallTypeDlg_Custom" Value="Custom" />
+  <String Id="SelectInstallTypeDlg_Custom_Desc" Value="Allows you to configure the paths for programs, plugins and other settings." />
 
 </WixLocalization>
