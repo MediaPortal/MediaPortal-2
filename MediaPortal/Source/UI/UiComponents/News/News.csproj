@@ -47,5 +47,8 @@
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
     <PackageReference Include="System.ServiceModel.Syndication" Version="6.0.0" />
   </ItemGroup>
+  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+    <Reference Include="System.Web" />
+  </ItemGroup>
   <Import Project="build.targets" />
 </Project>
