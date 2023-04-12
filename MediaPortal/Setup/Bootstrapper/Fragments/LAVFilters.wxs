@@ -1,6 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Fragment>
 
     <!-- 
@@ -8,31 +6,12 @@
          as they will be looked up by the Bootstrapper to determine the currently installed version.
     -->
 
-    <util:RegistrySearch Id="LAVFilters_Install_Path"
-                         Win64="no"
-                         Root="HKCR"
-                         Key="CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32"
-                         Variable="LAVFilters_Install_Path" />
-    <util:FileSearch Id="LAVFilters_Version"
-                     After="LAVFilters_Install_Path"
-                     Condition="LAVFilters_Install_Path"
-                     Variable="LAVFilters_Version"
-                     Path="[LAVFilters_Install_Path]"
-                     Result="version"/>
+    <util:RegistrySearch Id="LAVFilters_Install_Path" Root="HKCR" Key="CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32" Variable="LAVFilters_Install_Path" Bitness="always32" />
+    <util:FileSearch Id="LAVFilters_Version" After="LAVFilters_Install_Path" Condition="LAVFilters_Install_Path" Variable="LAVFilters_Version" Path="[LAVFilters_Install_Path]" Result="version" />
 
     <PackageGroup Id="LAVFilters">
-      <ExePackage Id="LAVFilters" Cache="yes" Permanent="yes" Vital="no" Compressed="no"
-                  Name="LAVFilters.exe"
-                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/LAVFilters.exe"
-                  InstallCommand="/VERYSILENT /SP-"
-                  DetectCondition="LAVFilters_Version >= v0.74.1.0">
-        <RemotePayload CertificatePublicKey="13D546F374FB43B26E99D5E16F9CC35FEEE9F890"
-                       CertificateThumbprint="394983FFD62B9BEB9FA2C1B0F4BD50BFA71B088E"
-                       Description="LAV Filters Setup"
-                       Hash="69C0D78971DEA0B466166F6B53B54A21CFE535FA"
-                       ProductName="LAV Filters"
-                       Size="10746592"
-                       Version="0.74.1.0" />
+      <ExePackage Id="LAVFilters" Cache="keep" Permanent="yes" Vital="no" DetectCondition="LAVFilters_Version &gt;= v0.74.1.0" InstallArguments="/VERYSILENT /SP-">
+        <ExePackagePayload CertificatePublicKey="13D546F374FB43B26E99D5E16F9CC35FEEE9F890" CertificateThumbprint="394983FFD62B9BEB9FA2C1B0F4BD50BFA71B088E" Description="LAV Filters Setup" Hash="69C0D78971DEA0B466166F6B53B54A21CFE535FA" ProductName="LAV Filters" Size="10746592" Version="0.74.1.0" Name="LAVFilters.exe" DownloadUrl="http://install.team-mediaportal.com/MP2/install/LAVFilters.exe" />
       </ExePackage>
     </PackageGroup>
   </Fragment>
