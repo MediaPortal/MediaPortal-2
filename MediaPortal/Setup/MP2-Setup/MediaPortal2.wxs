@@ -1,4 +1,6 @@
-﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util"
+     xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
   <?include $(var.SolutionDir)\Includes.wxi?>
 
@@ -58,7 +60,7 @@
     <WixVariable Id="WixUIBannerBmp" Value="Resources\MPBanner.jpg" />
     <WixVariable Id="WixUIDialogBmp" Value="Resources\MPDialog.jpg" />
 
-    <UIRef Id="MP2_Setup_UI_FeatureTree" />
+    <ui:WixUI Id="MP2_Setup_UI_FeatureTree" />
     <UIRef Id="WixUI_ErrorProgressText" /> 
     
     <InstallUISequence>

@@ -1,16 +1,7 @@
-﻿<!--
-    Copyright (c) Microsoft Corporation.  All rights reserved.
-    
-    The use and distribution terms for this software are covered by the
-    Common Public License 1.0 (http://opensource.org/licenses/cpl1.0.php)
-    which can be found in the file CPL.TXT at the root of this distribution.
-    By using this software in any fashion, you are agreeing to be bound by
-    the terms of this license.
-    
-    You must not remove this notice, or any other, from this software.
--->
+﻿<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information. -->
 <!--
-Adapted by Team-MediaPortal for Custop Dialogs insertions
+Adapted by Team-MediaPortal for Custom Dialogs insertions, original version here:
+https://github.com/wixtoolset/wix4/blob/3efe3f3a8682f333741b3c52e10eea2297f43dc9/src/ext/UI/wixlib/WixUI_FeatureTree.wxs
 -->
 <!--
 First-time install dialog sequence:
@@ -32,9 +23,19 @@ Patch dialog sequence:
  - WixUI_VerifyReadyDlg
 -->
 
-<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
+  <?foreach WIXUIARCH in X86;X64;A64 ?>
   <Fragment>
-    <UI Id="MP2_Setup_UI_FeatureTree">
+    <UI Id="MP2_Setup_UI_FeatureTree_$(WIXUIARCH)">
+      <Publish Dialog="LicenseAgreementDlg" Control="Print" Event="DoAction" Value="WixUIPrintEula_$(WIXUIARCH)" />
+    </UI>
+
+    <UIRef Id="MP2_Setup_UI_FeatureTree" />
+  </Fragment>
+  <?endforeach?>
+  
+  <Fragment>
+    <UI Id="file MP2_Setup_UI_FeatureTree">
       <TextStyle Id="WixUI_Font_Normal" FaceName="Tahoma" Size="8" />
       <TextStyle Id="WixUI_Font_Bigger" FaceName="Tahoma" Size="12" />
       <TextStyle Id="WixUI_Font_Title" FaceName="Tahoma" Size="9" Bold="yes" />
@@ -82,7 +83,7 @@ Patch dialog sequence:
       <Publish Dialog="MaintenanceTypeDlg" Control="RemoveButton" Event="NewDialog" Value="VerifyReadyDlg" />
       <Publish Dialog="MaintenanceTypeDlg" Control="Back" Event="NewDialog" Value="MaintenanceWelcomeDlg" />
     </UI>
-
+    
     <UIRef Id="WixUI_Common" />
   </Fragment>
 </Wix>
