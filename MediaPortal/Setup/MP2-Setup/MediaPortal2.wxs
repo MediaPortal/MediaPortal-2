@@ -4,7 +4,7 @@
 
   <?include $(var.SolutionDir)\Includes.wxi?>
 
-  <Package Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" Language="!(loc.ProductLanguage)" Codepage="0" UpgradeCode="$(var.UpgradeCode)" InstallerVersion="405"><SummaryInformation Keywords="Installer" Description="MediaPortal 2 Installer" Codepage="!(loc.SummaryCodepage)" />
+  <Package Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" Language="!(loc.ProductLanguage)" Codepage="0" UpgradeCode="$(var.UpgradeCode)" InstallerVersion="405" Scope="perMachine"><SummaryInformation Keywords="Installer" Description="MediaPortal 2 Installer" Codepage="!(loc.SummaryCodepage)" />
 
     <PropertyRef Id="UpgradesFile" />
 
@@ -17,9 +17,6 @@
     Specifies a single cab file to be embedded in the installer's .msi.
     -->
     <Media Id="1" Cabinet="MediaPortal2.cab" EmbedCab="yes" CompressionLevel="high" />
-
-    <!-- setting the context to per-machine -->
-    <Property Id="ALLUSERS" Value="1" />
 
     <Icon Id="MediaPortal2Icon" SourceFile="Resources\MP2_Icon_General.ico" />
 
