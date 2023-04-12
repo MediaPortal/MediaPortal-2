@@ -9,6 +9,7 @@
     
   <PropertyGroup>
     <DefineConstants>
+      $(DefineConstants);
       SlimTv.Client.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.Client;
       SlimTv.NativeProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.NativeProvider;
       SlimTv.TvMosaicProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.TvMosaicProvider;
@@ -18,16 +19,12 @@
   </PropertyGroup>
   
   <PropertyGroup>
-    <HarvestDirectoryAutogenerateGuids>true</HarvestDirectoryAutogenerateGuids>
+    <HarvestDirectoryAutogenerateGuids>false</HarvestDirectoryAutogenerateGuids>
+    <HarvestDirectoryGenerateGuidsNow>true</HarvestDirectoryGenerateGuidsNow>
     <HarvestDirectorySuppressCom>true</HarvestDirectorySuppressCom>
     <HarvestDirectorySuppressRegistry>true</HarvestDirectorySuppressRegistry>
     <HarvestDirectorySuppressFragments>true</HarvestDirectorySuppressFragments>
 	</PropertyGroup>
-
-  <!--<UsingTask TaskName="HeatDirectory"
-    AssemblyFile="$(WixToolPath)WixUtilExtension.dll" />-->
-
-  <Target Name="BeforeBuild">
     
 	<ItemGroup>
     <HarvestDirectory Include="$(ClientBaseDirectory)">
@@ -99,85 +96,6 @@
       <SuppressRootDirectory>false</SuppressRootDirectory>
     </HarvestDirectory>
 	</ItemGroup>
-    
-    <!--<HeatDirectory
-      Directory="$(ClientBaseDirectory)"
-      PreprocessorVariable="var.MediaPortal.Client.TargetDir"
-      ComponentGroupName="Client.Heat"
-      DirectoryRefId="INSTALLDIR_CLIENT"
-      Transforms="$(ProjectDir)xslt\Client.Heat.xslt"
-      OutputFile="$(ProjectDir)Features\Client.Heat.wxs"
-      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />
-
-    <HeatDirectory
-      Directory="$(ServerBaseDirectory)"
-      PreprocessorVariable="var.MediaPortal.Server.TargetDir"
-      ComponentGroupName="Server.Heat"
-      DirectoryRefId="INSTALLDIR_SERVER"
-      Transforms="$(ProjectDir)xslt\Server.Heat.xslt"
-      OutputFile="$(ProjectDir)Features\Server.Heat.wxs"
-      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />-->
-
-    <!--<HeatDirectory
-      Directory="$(ServiceMonitorBaseDirectory)"
-      PreprocessorVariable="var.MediaPortal.ServiceMonitor.TargetDir"
-      ComponentGroupName="ServiceMonitor.Heat"
-      DirectoryRefId="INSTALLDIR_SERVICE_MONITOR"
-      Transforms="$(ProjectDir)xslt\ServiceMonitor.Heat.xslt"
-      OutputFile="$(ProjectDir)Features\ServiceMonitor.Heat.wxs"
-      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />-->
-
-    <!--<HeatDirectory
-      Directory="$(LogCollectorBaseDirectory)"
-      PreprocessorVariable="var.MediaPortal.LogCollector.TargetDir"
-      ComponentGroupName="LogCollector.Heat"
-      DirectoryRefId="INSTALLDIR_LOG_COLLECTOR"
-      Transforms="$(ProjectDir)xslt\LogCollector.Heat.xslt"
-      OutputFile="$(ProjectDir)Features\LogCollector.Heat.wxs"
-      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="true" ToolPath="$(WixToolPath)" />-->
-
-    <!--TV Plugins features-->
-    
-    <!--<HeatDirectory
-      Directory="$(ClientBaseDirectory)\Plugins\SlimTv.Client"
-      PreprocessorVariable="var.SlimTv.Client.TargetDir"
-      ComponentGroupName="SlimTv.Client.Heat"
-      DirectoryRefId="CLIENT_PLUGINS_FOLDER"
-      OutputFile="$(ProjectDir)Features\TV\SlimTv.Client.Heat.wxs"
-      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="false" ToolPath="$(WixToolPath)" />-->
-    
-    <!--<HeatDirectory
-      Directory="$(ClientBaseDirectory)\Plugins\SlimTv.NativeProvider"
-      PreprocessorVariable="var.SlimTv.NativeProvider.TargetDir"
-      ComponentGroupName="SlimTv.NativeProvider.Heat"
-      DirectoryRefId="CLIENT_PLUGINS_FOLDER"
-      OutputFile="$(ProjectDir)Features\TV\SlimTv.NativeProvider.Heat.wxs"
-      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="false" ToolPath="$(WixToolPath)" />-->
-    
-    <!--<HeatDirectory
-      Directory="$(ClientBaseDirectory)\Plugins\SlimTv.TvMosaicProvider"
-      PreprocessorVariable="var.SlimTv.TvMosaicProvider.TargetDir"
-      ComponentGroupName="SlimTv.TvMosaicProvider.Heat"
-      DirectoryRefId="CLIENT_PLUGINS_FOLDER"
-      OutputFile="$(ProjectDir)Features\TV\SlimTv.TvMosaicProvider.Heat.wxs"
-      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="false" ToolPath="$(WixToolPath)" />-->
-
-    <!--<HeatDirectory
-      Directory="$(ServerBaseDirectory)\Plugins\SlimTv.Service3"
-      PreprocessorVariable="var.SlimTv.Service3.TargetDir"
-      ComponentGroupName="SlimTv.Service3.Heat"
-      DirectoryRefId="SERVER_PLUGINS_FOLDER"
-      OutputFile="$(ProjectDir)Features\TV\SlimTv.Service3.Heat.wxs"
-      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="false" ToolPath="$(WixToolPath)" />-->
-
-    <!--<HeatDirectory
-      Directory="$(ServerBaseDirectory)\Plugins\SlimTv.Service35"
-      PreprocessorVariable="var.SlimTv.Service35.TargetDir"
-      ComponentGroupName="SlimTv.Service35.Heat"
-      DirectoryRefId="SERVER_PLUGINS_FOLDER"
-      OutputFile="$(ProjectDir)Features\TV\SlimTv.Service35.Heat.wxs"
-      GenerateGuidsNow="true" SuppressCom="true" SuppressRegistry="true" SuppressFragments="true" SuppressRootDirectory="false" ToolPath="$(WixToolPath)" />-->
-  </Target>
 
   <ItemGroup>
     <Resources Include="$(ProjectDir)MP2-Setup-Logging.bat"/>

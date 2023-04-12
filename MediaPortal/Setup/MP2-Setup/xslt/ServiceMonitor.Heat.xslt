@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
-                xmlns="http://schemas.microsoft.com/wix/2006/wi"
-                xmlns:wix="http://schemas.microsoft.com/wix/2006/wi"
+                xmlns="http://wixtoolset.org/schemas/v4/wxs"
+                xmlns:wix="http://wixtoolset.org/schemas/v4/wxs"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:key name="ServiceMonitor.exe"
