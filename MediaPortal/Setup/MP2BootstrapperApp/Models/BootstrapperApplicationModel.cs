@@ -118,7 +118,7 @@ namespace MP2BootstrapperApp.Models
 
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
-      if (BootstrapperApplication.Engine.CompareVersions(string.Concat("v", BootstrapperApplication.BundleVersion), e.Version) < 1)
+      if (BootstrapperApplication.Engine.CompareVersions(BootstrapperApplication.BundleVersion, e.Version) < 1)
         IsDowngrade = true;
     }
 
