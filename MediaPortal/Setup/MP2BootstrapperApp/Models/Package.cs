@@ -22,15 +22,12 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using System;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.Models
 {
   public class Package
   {
-    protected static readonly Version ZERO_VERSION = new Version();
-
     public string Id { get; set; }
 
     public string DisplayName { get; set; }
@@ -43,9 +40,9 @@ namespace MP2BootstrapperApp.Models
     
     public string ImagePath { get; set; }
     
-    public Version InstalledVersion { get; set; }
+    public string InstalledVersion { get; set; }
     
-    public Version BundleVersion { get; set; }
+    public string BundleVersion { get; set; }
 
     public RequestState RequestState { get; set; } 
     
@@ -63,7 +60,7 @@ namespace MP2BootstrapperApp.Models
 
     public bool Upgrading
     {
-      get { return RequestState == RequestState.Present && InstalledVersion != ZERO_VERSION; }
+      get { return RequestState == RequestState.Present && !string.IsNullOrEmpty(InstalledVersion); }
     }
 
     public bool Installing

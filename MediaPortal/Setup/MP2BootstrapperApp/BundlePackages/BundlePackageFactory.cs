@@ -41,7 +41,7 @@ namespace MP2BootstrapperApp.BundlePackages
 
     public IList<IBundlePackage> CreatePackagesFromXmlString(string xml)
     {
-      XNamespace manifestNamespace = "http://schemas.microsoft.com/wix/2010/BootstrapperApplicationData";
+      XNamespace manifestNamespace = "http://wixtoolset.org/schemas/v4/BootstrapperApplicationData";
       const string bootstrapperApplicationData = "BootstrapperApplicationData";
 
       XDocument xDoc = XDocument.Parse(xml);

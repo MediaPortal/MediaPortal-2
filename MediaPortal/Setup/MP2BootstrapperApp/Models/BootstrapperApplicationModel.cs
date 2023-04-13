@@ -22,8 +22,6 @@
 
 #endregion
 
-using Microsoft.Deployment.WindowsInstaller;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.BundlePackages;
@@ -34,9 +32,10 @@ using System.Collections.ObjectModel;
 using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Security;
 using System.Windows;
 using System.Windows.Interop;
+using WixToolset.Dtf.WindowsInstaller;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.Models
 {
@@ -105,32 +104,21 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication.Log(logLevel, message);
     }
 
-    protected void SetVariables(IEnumerable<KeyValuePair<string, object>> variables)
+    protected void SetVariables(IEnumerable<KeyValuePair<string, string>> variables)
     {
-      foreach (KeyValuePair<string, object> variable in variables)
-      {
-        if (variable.Value is SecureString secureStringValue)
-          BootstrapperApplication.SecureStringVariables[variable.Key] = secureStringValue;
-        else if (variable.Value is string stringValue)
-          BootstrapperApplication.StringVariables[variable.Key] = stringValue;
-        else if (variable.Value is Version versionValue)
-          BootstrapperApplication.VersionVariables[variable.Key] = versionValue;
-        else if (variable.Value is long numericValue)
-          BootstrapperApplication.NumericVariables[variable.Key] = numericValue;
-        else
-          LogMessage(LogLevel.Error, $"Unable to set variable {variable.Key}, variables of type {variable.Value?.GetType().Name ?? "null"} are not supported");
-      }
+      foreach (KeyValuePair<string, string> variable in variables)
+        BootstrapperApplication.Engine.SetVariableString(variable.Key, variable.Value, false);
     }
 
     private void DetectBegin(object sender, DetectBeginEventArgs e)
     {
       InstallState = InstallState.Detecting;
-      DetectionState = e.Installed ? DetectionState.Present : DetectionState.Absent;
+      DetectionState = e.RegistrationType == RegistrationType.Full ? DetectionState.Present : DetectionState.Absent;
     }
 
     private void DetectRelatedBundle(object sender, DetectRelatedBundleEventArgs e)
     {
-      if (e.Operation == RelatedOperation.Downgrade)
+      if (BootstrapperApplication.Engine.CompareVersions(string.Concat("v", BootstrapperApplication.BundleVersion), e.Version) < 1)
         IsDowngrade = true;
     }
 
@@ -195,7 +183,7 @@ namespace MP2BootstrapperApp.Models
           {
             IBundlePackageFeature bundleFeature = bundledPackage.Features.FirstOrDefault(f => f.Id == feature.FeatureName);
             if (bundleFeature != null)
-              bundleFeature.PreviousVersionInstalled = feature.State == Microsoft.Deployment.WindowsInstaller.InstallState.Local;
+              bundleFeature.PreviousVersionInstalled = feature.State == WixToolset.Dtf.WindowsInstaller.InstallState.Local;
           }
         }        
       }
@@ -271,26 +259,27 @@ namespace MP2BootstrapperApp.Models
       InstallState = Hresult.Succeeded(e.Status) ? InstallState.Applied : InstallState.Failed;
     }
 
-    private void ResolveSource(object sender, ResolveSourceEventArgs e)
-    {
-      if (!string.IsNullOrEmpty(e.DownloadSource))
-      {
-        e.Result = Result.Download;
-      }
-      else
-      {
-        e.Result = Result.Ok;
-      }
-    }
+    //private void ResolveSource(object sender, ResolveSourceEventArgs e)
+    //{
+    //  if (!string.IsNullOrEmpty(e.DownloadSource))
+    //  {
+    //    e.Result = Result.Download;
+    //  }
+    //  else
+    //  {
+    //    e.Result = Result.Ok;
+    //  }
+    //}
 
-    private Version GetCurrentPackageVersionFromVariables(string packageId)
+    private string GetCurrentPackageVersionFromVariables(string packageId)
     {
       string versionVariableName = packageId + "_Version";
-      if (BootstrapperApplication.VersionVariables.Contains(versionVariableName))
-        return BootstrapperApplication.VersionVariables[versionVariableName];
-      else if (BootstrapperApplication.StringVariables.Contains(versionVariableName))
-        return Version.TryParse(BootstrapperApplication.StringVariables[versionVariableName], out Version version) ? version : new Version();
-      return null;
+      if (!BootstrapperApplication.Engine.ContainsVariable(versionVariableName))
+        return null;
+      string versionVariable = BootstrapperApplication.Engine.GetVariableVersion(versionVariableName);
+      if (!string.IsNullOrEmpty(versionVariable))
+        return versionVariable;
+      return BootstrapperApplication.Engine.GetVariableString(versionVariableName);
     }
 
     private void WireUpEventHandlers()
@@ -306,7 +295,7 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication.PlanMsiFeature += PlanMsiFeature;
       BootstrapperApplication.PlanRelatedBundle += PlanRelatedBundle;
       BootstrapperApplication.PlanComplete += PlanComplete;
-      BootstrapperApplication.ResolveSource += ResolveSource;
+      //BootstrapperApplication.ResolveSource += ResolveSource;
     }
 
     private void ComputeBundlePackages()

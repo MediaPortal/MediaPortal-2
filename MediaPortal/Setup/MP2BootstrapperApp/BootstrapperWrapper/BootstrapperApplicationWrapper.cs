@@ -23,41 +23,36 @@
 #endregion
 
 using System;
-using System.Security;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.BootstrapperWrapper
 {
   public abstract class BootstrapperApplicationWrapper : BootstrapperApplication, IBootstrapperApp
   {
-    protected override void OnStartup(StartupEventArgs args)
+    private const string BurnBundleVersionVariable = "WixBundleVersion";
+
+    public BootstrapperApplicationWrapper(IEngine engine, IBootstrapperCommand command)
+      : base(engine)
     {
-      Engine.Log(LogLevel.Debug, $"BootstrapperApplication Startup: Action: {Command.Action}, Display: {Command.Display}, Command Line Args: {string.Join(",", Command.GetCommandLineArgs())}");
-      LaunchAction = Command.Action;
-      Display = Command.Display;
-      CommandLineArguments = Command.GetCommandLineArgs();
-
-      SecureStringVariables = new Variables<SecureString>(Engine.SecureStringVariables);
-      NumericVariables = new Variables<long>(Engine.NumericVariables);
-      VersionVariables = new Variables<Version>(Engine.VersionVariables);
-      StringVariables = new Variables<string>(Engine.StringVariables);
-
-      base.OnStartup(args);
+      Engine.Log(LogLevel.Debug, $"BootstrapperApplication Startup: Action: {command.Action}, Display: {command.Display}, Command Line Args: {command.CommandLine}");
+      Command = command;
+      LaunchAction = command.Action;
+      Display = command.Display;
+      CommandLine = command.ParseCommandLine();
+      BundleVersion = engine.GetVariableVersion(BurnBundleVersionVariable);
     }
+
+    public IEngine Engine { get { return engine; } }
+
+    public IBootstrapperCommand Command { get; }
+
+    public string BundleVersion { get; }
 
     public LaunchAction LaunchAction { get; protected set; }
 
     public Display Display { get; protected set; }
 
-    public string[] CommandLineArguments { get; protected set; }
-
-    public IVariables<SecureString> SecureStringVariables { get; private set; }
-
-    public IVariables<long> NumericVariables { get; private set; }
-
-    public IVariables<Version> VersionVariables { get; private set; }
-
-    public IVariables<string> StringVariables { get; private set; }
+    public IMbaCommand CommandLine { get; protected set; }
 
     public void Detect()
     {

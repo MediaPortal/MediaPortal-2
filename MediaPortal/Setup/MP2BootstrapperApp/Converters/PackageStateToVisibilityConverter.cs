@@ -26,7 +26,7 @@ using System;
 using System.Globalization;
 using System.Windows;
 using System.Windows.Data;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.Converters
 {

@@ -22,11 +22,11 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BundlePackages;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.Models
 {
@@ -43,7 +43,7 @@ namespace MP2BootstrapperApp.Models
       return new Package
       {
         BundleVersion = bundlePackage.Version,
-        InstalledVersion = bundlePackage.InstalledVersion ?? new Version(),
+        InstalledVersion = bundlePackage.InstalledVersion,
         ImagePath = @"..\resources\Packages\" + bundlePackage.PackageId + ".png",
         Id = bundlePackage.Id,
         DisplayName = bundlePackage.DisplayName,
@@ -64,14 +64,14 @@ namespace MP2BootstrapperApp.Models
     /// <param name="featureState">Optional requested install state of the feature.</param>
     /// <param name="allFeaturesToBeInstalled">Enumeration of all features that will be installed if this feature is installed, inclusive of the feature itself, will be used to determine the installed size.</param>
     /// <returns>A <see cref="Package"/> model containing details of the feature.</returns>
-    public static Package CreateFeatureModel(this IBundlePackageFeature feature, Version bundleVersion, Version installedVersion, FeatureState? featureState = null, IEnumerable<IBundlePackageFeature> allFeaturesToBeInstalled = null)
+    public static Package CreateFeatureModel(this IBundlePackageFeature feature, string bundleVersion, string installedVersion, FeatureState? featureState = null, IEnumerable<IBundlePackageFeature> allFeaturesToBeInstalled = null)
     {
       RequestState requestState = GetFeatureRequestState(feature, featureState);
 
       return new Package
       {
         BundleVersion = bundleVersion,
-        InstalledVersion = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? installedVersion : new Version(),
+        InstalledVersion = (feature.PreviousVersionInstalled || feature.CurrentFeatureState == FeatureState.Local) ? installedVersion : null,
         ImagePath = @"..\resources\Features\" + feature.Id + ".png",
         Id = feature.Id,
         DisplayName = feature.Title,

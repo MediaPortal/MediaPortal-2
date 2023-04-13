@@ -22,13 +22,13 @@
 
 #endregion
 
-using Microsoft.Deployment.WindowsInstaller;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BundlePackages.Features;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Xml.Linq;
+using WixToolset.Dtf.WindowsInstaller;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.BundlePackages
 {

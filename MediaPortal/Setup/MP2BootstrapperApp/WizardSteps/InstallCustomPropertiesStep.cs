@@ -97,9 +97,9 @@ namespace MP2BootstrapperApp.WizardSteps
     protected string GetVariable(string variableName)
     {
       IBootstrapperApp bootstrapperApplication = _bootstrapperApplicationModel.BootstrapperApplication;
-      if (!bootstrapperApplication.StringVariables.Contains(variableName))
+      if (!bootstrapperApplication.Engine.ContainsVariable(variableName))
         return null;
-      string variable = bootstrapperApplication.StringVariables[variableName];
+      string variable = bootstrapperApplication.Engine.GetVariableString(variableName);
       return bootstrapperApplication.FormatString(variable);
     }
   }

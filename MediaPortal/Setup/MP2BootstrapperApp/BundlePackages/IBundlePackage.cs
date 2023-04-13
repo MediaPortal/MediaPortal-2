@@ -22,9 +22,7 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.BundlePackages;
-using System;
+using WixToolset.Mba.Core;
 
 /// <summary>
 /// Interface for a package included in the installation bundle.
@@ -41,7 +39,7 @@ namespace MP2BootstrapperApp.BundlePackages
     /// <summary>
     /// Gets the bundled version of the package.
     /// </summary>
-    Version Version { get; }
+    string Version { get; }
 
     /// <summary>
     /// Gets the id of the package as <see cref="string"/>.
@@ -76,7 +74,7 @@ namespace MP2BootstrapperApp.BundlePackages
     /// <summary>
     /// Gets the currently installed version of the package.
     /// </summary>
-    Version InstalledVersion { get; set; }
+    string InstalledVersion { get; set; }
 
     /// <summary>
     /// The evaluated value of the install condition specified for the package, if no install condition was specified this should default to <c>true</c>.

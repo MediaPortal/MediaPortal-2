@@ -22,31 +22,17 @@
 
 #endregion
 
+using MP2BootstrapperApp.BootstrapperWrapper;
+using WixToolset.Mba.Core;
 
+[assembly: BootstrapperApplicationFactory(typeof(BootstrapperApplicationFactory))]
 namespace MP2BootstrapperApp.BootstrapperWrapper
 {
-  /// <summary>
-  /// Implementation of <see cref="IVariables{T}"/> that wraps an instance of <see cref="Engine.Variables{T}"/>.
-  /// </summary>
-  /// <typeparam name="T"></typeparam>
-  //public class Variables<T> : IVariables<T>
-  //{
-  //  protected Engine.Variables<T> _variables;
-
-  //  public Variables(Engine.Variables<T> variables)
-  //  {
-  //    _variables = variables;
-  //  }
-
-  //  public T this[string name]
-  //  {
-  //    get { return _variables[name]; }
-  //    set { _variables[name] = value; }
-  //  }
-
-  //  public bool Contains(string name)
-  //  {
-  //    return _variables.Contains(name);
-  //  }
-  //}
+  public class BootstrapperApplicationFactory : BaseBootstrapperApplicationFactory
+  {
+    protected override IBootstrapperApplication Create(IEngine engine, IBootstrapperCommand bootstrapperCommand)
+    {
+      return new MP2BootstrapperApplication(engine, bootstrapperCommand);
+    }
+  }
 }

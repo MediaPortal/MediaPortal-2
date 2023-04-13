@@ -22,9 +22,9 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BundlePackages;
 using System.Collections.Generic;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.ActionPlans
 {
@@ -57,12 +57,12 @@ namespace MP2BootstrapperApp.ActionPlans
     /// </summary>
     /// <param name="name">The name of the variable.</param>
     /// <param name="value">The value of the variable.</param>
-    void SetVariable(string name, object value);
+    void SetVariable(string name, string value);
 
     /// <summary>
-    /// Gets all variables that have been set by a call to <see cref="SetVariable(string, object)"/>.
+    /// Gets all variables that have been set by a call to <see cref="SetVariable(string, string)"/>.
     /// </summary>
     /// <returns>Enumeration of variables.</returns>
-    IEnumerable<KeyValuePair<string, object>> GetVariables();
+    IEnumerable<KeyValuePair<string, string>> GetVariables();
   }
 }

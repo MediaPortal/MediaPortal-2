@@ -25,7 +25,7 @@
 using MediaPortal.Common.Logging;
 using MP2BootstrapperApp.Models;
 using System;
-using LogLevel = Microsoft.Tools.WindowsInstallerXml.Bootstrapper.LogLevel;
+using LogLevel = WixToolset.Mba.Core.LogLevel;
 
 namespace MP2BootstrapperApp.Logging
 {

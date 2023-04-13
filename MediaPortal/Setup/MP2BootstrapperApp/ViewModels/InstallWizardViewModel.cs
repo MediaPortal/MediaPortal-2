@@ -22,7 +22,6 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.Models;
@@ -32,6 +31,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using System;
 using System.Windows.Input;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.ViewModels
 {
@@ -302,12 +302,7 @@ namespace MP2BootstrapperApp.ViewModels
       }
     }
 
-    /// <summary>
-    /// Event which contains the number of phases in the apply phase.
-    /// </summary>
-    /// <param name="sender"></param>
-    /// <param name="e"></param>
-    private void ApplyPhaseCount(object sender, ApplyPhaseCountArgs e)
+    private void ApplyBegin(object sender, ApplyBeginEventArgs e)
     {
       // For an install this will ususally be 2, cache and execute, but for an
       // uninstall it will only be 1 as there's no cache phase.
@@ -319,7 +314,7 @@ namespace MP2BootstrapperApp.ViewModels
       _cacheProgress = e.OverallPercentage;
       // Total progress given the specified phase count
       Progress = (_cacheProgress + _executeProgress) / _applyPhaseCount;
-      e.Result = _bootstrapperApplicationModel.Cancelled ? Result.Cancel : Result.Ok;
+      e.Cancel = _bootstrapperApplicationModel.Cancelled;
     }
 
     private void ExecuteProgress(object sender, ExecuteProgressEventArgs e)
@@ -327,7 +322,7 @@ namespace MP2BootstrapperApp.ViewModels
       _executeProgress = e.OverallPercentage;
       // Total progress given the specified phase count
       Progress = (_cacheProgress + _executeProgress) / _applyPhaseCount;
-      e.Result = _bootstrapperApplicationModel.Cancelled ? Result.Cancel : Result.Ok;
+      e.Cancel = _bootstrapperApplicationModel.Cancelled;
     }
 
     private void Error(object sender, ErrorEventArgs e)
@@ -368,9 +363,9 @@ namespace MP2BootstrapperApp.ViewModels
     private void WireUpEventHandlers()
     {
       _bootstrapperApplicationModel.BootstrapperApplication.DetectComplete += DetectComplete;
+      _bootstrapperApplicationModel.BootstrapperApplication.ApplyBegin += ApplyBegin;
       _bootstrapperApplicationModel.BootstrapperApplication.ApplyComplete += ApplyComplete;
       _bootstrapperApplicationModel.BootstrapperApplication.PlanComplete += PlanComplete;
-      _bootstrapperApplicationModel.BootstrapperApplication.ApplyPhaseCount += ApplyPhaseCount;
       _bootstrapperApplicationModel.BootstrapperApplication.CacheAcquireProgress += CacheAcquireProgress;
       _bootstrapperApplicationModel.BootstrapperApplication.ExecuteProgress += ExecuteProgress;
       _bootstrapperApplicationModel.BootstrapperApplication.Error += Error;

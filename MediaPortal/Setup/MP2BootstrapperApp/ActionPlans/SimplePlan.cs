@@ -22,10 +22,10 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BundlePackages;
 using System.Collections.Generic;
 using System.Linq;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.ActionPlans
 {
@@ -35,7 +35,7 @@ namespace MP2BootstrapperApp.ActionPlans
   public class SimplePlan : IPlan
   {
     protected LaunchAction _plannedAction;
-    protected IDictionary<string, object> _variables;
+    protected IDictionary<string, string> _variables;
 
     /// <summary>
     /// Creates a new instance of <see cref="SimplePlan"/>.
@@ -44,7 +44,7 @@ namespace MP2BootstrapperApp.ActionPlans
     public SimplePlan(LaunchAction plannedAction)
     {
       _plannedAction = plannedAction;
-      _variables = new Dictionary<string, object>();
+      _variables = new Dictionary<string, string>();
     }
 
     public virtual LaunchAction PlannedAction
@@ -62,12 +62,12 @@ namespace MP2BootstrapperApp.ActionPlans
       return null;
     }
 
-    public virtual void SetVariable(string name, object value)
+    public virtual void SetVariable(string name, string value)
     {
       _variables[name] = value;
     }
 
-    public virtual IEnumerable<KeyValuePair<string, object>> GetVariables()
+    public virtual IEnumerable<KeyValuePair<string, string>> GetVariables()
     {
       return _variables.ToArray();
     }

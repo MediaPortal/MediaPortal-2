@@ -24,7 +24,6 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.Localization;
 using MP2BootstrapperApp.Logging;
@@ -33,7 +32,7 @@ using MP2BootstrapperApp.ViewModels;
 using MP2BootstrapperApp.Views;
 using System;
 using System.Windows;
-using LogLevel = Microsoft.Tools.WindowsInstallerXml.Bootstrapper.LogLevel;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp
 {
@@ -43,6 +42,10 @@ namespace MP2BootstrapperApp
   public class MP2BootstrapperApplication : BootstrapperApplicationWrapper
   {
     private IDispatcher _dispatcher;
+
+    public MP2BootstrapperApplication(IEngine engine, IBootstrapperCommand command)
+      : base(engine, command)
+    { }
 
     protected override void Run()
     {

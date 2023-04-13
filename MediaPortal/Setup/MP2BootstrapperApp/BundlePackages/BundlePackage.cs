@@ -22,11 +22,10 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
-using MP2BootstrapperApp.BundlePackages;
 using System;
 using System.Globalization;
 using System.Xml.Linq;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.BundlePackages
 {
@@ -37,7 +36,7 @@ namespace MP2BootstrapperApp.BundlePackages
   {
     protected string _packageIdString;
     protected PackageId _packageId;
-    protected Version _version;
+    protected string _version;
     protected string _displayName;
     protected string _description;
     protected long _installedSize;
@@ -60,7 +59,7 @@ namespace MP2BootstrapperApp.BundlePackages
       _description = packageElement.Attribute("Description")?.Value;
       _installCondition = packageElement.Attribute("InstallCondition")?.Value;
       _installedSize = long.TryParse(packageElement.Attribute("InstalledSize")?.Value, NumberStyles.Integer, CultureInfo.InvariantCulture, out long installedSize) ? installedSize : 0;
-      _version = Version.TryParse(packageElement.Attribute("Version")?.Value, out Version result) ? result : new Version();
+      _version = packageElement.Attribute("Version")?.Value;
       _vital = !string.Equals(packageElement.Attribute("Vital")?.Value, "no", StringComparison.InvariantCultureIgnoreCase);
     }
 
@@ -83,7 +82,7 @@ namespace MP2BootstrapperApp.BundlePackages
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public Version Version
+    public string Version
     {
       get { return _version; }
     }
@@ -140,7 +139,7 @@ namespace MP2BootstrapperApp.BundlePackages
     /// <summary>
     /// <inheritdoc/>
     /// </summary>
-    public Version InstalledVersion { get; set; }
+    public string InstalledVersion { get; set; }
 
     /// <summary>
     /// <inheritdoc/>

@@ -22,7 +22,6 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.BundlePackages.Features;
@@ -30,6 +29,7 @@ using MP2BootstrapperApp.Models;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.WizardSteps
 {

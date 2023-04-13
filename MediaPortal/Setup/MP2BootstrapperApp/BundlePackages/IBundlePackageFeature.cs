@@ -22,9 +22,9 @@
 
 #endregion
 
-using Microsoft.Deployment.WindowsInstaller;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using System.Collections.Generic;
+using WixToolset.Dtf.WindowsInstaller;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.BundlePackages
 {

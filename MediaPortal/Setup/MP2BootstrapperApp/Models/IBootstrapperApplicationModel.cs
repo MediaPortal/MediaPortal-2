@@ -22,13 +22,13 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.BundlePackages;
 using System;
 using System.Collections.ObjectModel;
 using System.Windows;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.Models
 {

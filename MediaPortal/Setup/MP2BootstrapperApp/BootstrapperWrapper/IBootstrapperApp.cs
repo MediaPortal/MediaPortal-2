@@ -23,42 +23,23 @@
 #endregion
 
 using System;
-using System.Security;
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
+using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp.BootstrapperWrapper
 {
   public interface IBootstrapperApp
   {
+    IEngine Engine { get; }
     LaunchAction LaunchAction { get; }
     Display Display { get; }
-    string[] CommandLineArguments { get; }
+    IMbaCommand CommandLine { get; }
+    string BundleVersion { get; }
 
     void Detect();
     void Plan(LaunchAction action);
     void Apply(IntPtr hwndParent);
     void Log(LogLevel level, string message);
     bool EvaluateCondition(string condition);
-
-    /// <summary>
-    /// Gets or sets string variables using <see cref="SecureString"/>.
-    /// </summary>
-    IVariables<SecureString> SecureStringVariables { get; }
-
-    /// <summary>
-    /// Gets or sets numeric variables.
-    /// </summary>
-    IVariables<long> NumericVariables { get; }
-
-    /// <summary>
-    /// Gets or sets version variables.
-    /// </summary>
-    IVariables<Version> VersionVariables { get; }
-
-    /// <summary>
-    /// Gets or sets string variables.
-    /// </summary>
-    IVariables<string> StringVariables { get; }
 
     /// <summary>
     /// Formats the specified string by expanding any variable references to their values.
@@ -82,8 +63,6 @@ namespace MP2BootstrapperApp.BootstrapperWrapper
     event EventHandler<PlanPackageBeginEventArgs> PlanPackageBegin;
     event EventHandler<PlanMsiFeatureEventArgs> PlanMsiFeature;
     event EventHandler<PlanRelatedBundleEventArgs> PlanRelatedBundle;
-    event EventHandler<ResolveSourceEventArgs> ResolveSource;
-    event EventHandler<ApplyPhaseCountArgs> ApplyPhaseCount;
     event EventHandler<CacheAcquireProgressEventArgs> CacheAcquireProgress;
     event EventHandler<ExecuteProgressEventArgs> ExecuteProgress;
     event EventHandler<ExecuteMsiMessageEventArgs> ExecuteMsiMessage;
