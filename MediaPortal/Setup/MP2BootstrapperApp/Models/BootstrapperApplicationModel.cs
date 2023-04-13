@@ -148,7 +148,7 @@ namespace MP2BootstrapperApp.Models
             // For msi packages that are present the installed version must be the same as the bundled version. This
             // is not necessarily the case for exe packages which use manual version checks and may be detected as present
             // if a higher or lower compatible version is detected on the system.
-            if (bundlePackage is IBundleMsiPackage && detectPackageCompleteEventArgs.State == PackageState.Present)
+            if (bundlePackage is IBundleMsiPackage && bundlePackage.CurrentInstallState == PackageState.Present)
               bundlePackage.InstalledVersion = bundlePackage.Version;
             // Else for exe packages the bundle should have defined a version variable in the form [PackageId]_Version as part
             // of detecting previous installations of the exe package, try and use this as the version.
