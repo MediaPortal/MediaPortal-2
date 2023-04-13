@@ -1,4 +1,4 @@
-﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
     <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
@@ -11,12 +11,9 @@
     <Cultures>
     </Cultures>
     <SuppressIces>ICE60;ICE80</SuppressIces>
-    <LinkerAdditionalOptions>-sval</LinkerAdditionalOptions>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
     <SuppressIces>ICE60;ICE80</SuppressIces>
-    <LinkerAdditionalOptions>
-    </LinkerAdditionalOptions>
   </PropertyGroup>
   <ItemGroup>
     <Content Include="..\Includes.wxi">
