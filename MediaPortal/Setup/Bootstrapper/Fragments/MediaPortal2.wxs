@@ -26,7 +26,7 @@
     <util:RegistrySearch Id="CreateDesktopShortcutsRegistry" After="CreateDesktopShortcutsRegistryExists" Condition="CreateDesktopShortcutsRegistryExists" Root="HKLM" Key="$(var.RegKeyRoot)" Value="DESKTOPSHORTCUTS" Variable="CREATEDESKTOPSHORTCUTS" Bitness="always32" />
 
     <PackageGroup Id="MediaPortal2">
-      <MsiPackage Id="MediaPortal2" SourceFile="..\MP2-Setup\Bin\$(var.Configuration)\en-us\MP2-Setup.msi" EnableFeatureSelection="yes" DisplayInternalUI="no" Compressed="yes" Vital="yes" Visible="no">
+      <MsiPackage Id="MediaPortal2" SourceFile="..\MP2-Setup\Bin\x86\$(var.Configuration)\en-us\MP2-Setup.msi" EnableFeatureSelection="yes" Compressed="yes" Vital="yes" Visible="no">
         <MsiProperty Name="INSTALLDIR" Value="[INSTALLDIR]" />
         <MsiProperty Name="CREATESTARTMENUSHORTCUTS" Value="[CREATESTARTMENUSHORTCUTS]" />
         <MsiProperty Name="CREATEDESKTOPSHORTCUTS" Value="[CREATEDESKTOPSHORTCUTS]" />

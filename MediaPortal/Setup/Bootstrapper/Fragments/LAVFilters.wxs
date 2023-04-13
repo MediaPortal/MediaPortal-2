@@ -11,7 +11,10 @@
 
     <PackageGroup Id="LAVFilters">
       <ExePackage Id="LAVFilters" Cache="keep" Permanent="yes" Vital="no" DetectCondition="LAVFilters_Version &gt;= v0.74.1.0" InstallArguments="/VERYSILENT /SP-">
-        <ExePackagePayload CertificatePublicKey="13D546F374FB43B26E99D5E16F9CC35FEEE9F890" CertificateThumbprint="394983FFD62B9BEB9FA2C1B0F4BD50BFA71B088E" Description="LAV Filters Setup" Hash="69C0D78971DEA0B466166F6B53B54A21CFE535FA" ProductName="LAV Filters" Size="10746592" Version="0.74.1.0" Name="LAVFilters.exe" DownloadUrl="http://install.team-mediaportal.com/MP2/install/LAVFilters.exe" />
+        <ExePackagePayload Name="LAVFilters.exe" ProductName="LAV Filters" Description="LAV Filters Setup"
+                           DownloadUrl="http://install.team-mediaportal.com/MP2/install/LAVFilters.exe"
+                           Hash="CB827C13081E24A6128270EB7D53444076AE412CE51F6CCC72535F013FDDFEE146880A82A52752B610AA332FA0F00698A243333A56224B819913F9A3DF24CB7A"
+                           Size="12560912" Version="0.74.1" />
       </ExePackage>
     </PackageGroup>
   </Fragment>
