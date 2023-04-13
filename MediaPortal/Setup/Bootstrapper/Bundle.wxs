@@ -6,27 +6,28 @@
   <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MediaPortal2)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no" IconSourceFile="Resources\Setup.ico" HelpUrl="http://wiki.team-mediaportal.com/2_MEDIAPORTAL_2" UpdateUrl="http://www.team-mediaportal.com/" AboutUrl="http://www.team-mediaportal.com/about-the-project/behind-the-project">
 
     <BootstrapperApplication>
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\MP2BootstrapperApp.dll" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\BootstrapperCore.config" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Prism.dll" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Prism.Wpf.dll" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.Xaml.Behaviors.dll" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.Deployment.WindowsInstaller.dll" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.WindowsAPICodePack.dll" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.WindowsAPICodePack.Shell.dll" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\Microsoft.WindowsAPICodePack.ShellExtensions.dll" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\MediaPortal.Common.dll" />
-      <Payload SourceFile="..\MP2BootstrapperApp\Bin\$(var.Configuration)\MediaPortal.Utilities.dll" />
-    
-<bal:WixManagedBootstrapperApplicationHost />
-</BootstrapperApplication>
+      <bal:WixManagedBootstrapperApplicationHost />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MP2BootstrapperApp.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)WixToolset.Mba.Host.config" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)WixToolset.Mba.Core.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)mbanative.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)WixToolset.Dtf.WindowsInstaller.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Prism.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Prism.Wpf.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.Xaml.Behaviors.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.WindowsAPICodePack.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.WindowsAPICodePack.Shell.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.WindowsAPICodePack.ShellExtensions.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MediaPortal.Common.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MediaPortal.Utilities.dll" />
+    </BootstrapperApplication>
 
     <!-- Needed for the ManagedBootstrapperApplicationHost-->
     <WixVariable Id="WixMbaPrereqLicenseUrl" Value="" />
 
     <Chain>
 
-      <PackageGroupRef Id="NetFx48Web" />
+      <PackageGroupRef Id="NetFx48WebAsPrereq" />
       <PackageGroupRef Id="redist" />
       <PackageGroupRef Id="dokan" />
       <PackageGroupRef Id="LAVFilters" />

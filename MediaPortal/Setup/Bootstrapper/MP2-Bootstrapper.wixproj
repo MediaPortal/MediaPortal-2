@@ -43,6 +43,7 @@
       <RefTargetDir>INSTALLFOLDER</RefTargetDir>
     </ProjectReference>
     <ProjectReference Include="..\MP2BootstrapperApp\MP2BootstrapperApp.csproj">
+      <SetTargetFramework>TargetFramework=net48</SetTargetFramework>
       <Name>MP2BootstrapperApp</Name>
       <Project>{690c4618-718b-4d07-916d-456b5c211a7a}</Project>
       <Private>True</Private>
