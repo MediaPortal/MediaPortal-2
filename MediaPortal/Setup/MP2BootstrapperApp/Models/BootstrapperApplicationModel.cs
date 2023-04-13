@@ -294,9 +294,6 @@ namespace MP2BootstrapperApp.Models
       string versionVariableName = packageId + "_Version";
       if (!BootstrapperApplication.Engine.ContainsVariable(versionVariableName))
         return null;
-      string versionVariable = BootstrapperApplication.Engine.GetVariableVersion(versionVariableName);
-      if (!string.IsNullOrEmpty(versionVariable))
-        return versionVariable;
       return BootstrapperApplication.Engine.GetVariableString(versionVariableName);
     }
 
