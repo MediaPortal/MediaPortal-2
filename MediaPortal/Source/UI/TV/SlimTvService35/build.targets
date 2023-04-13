@@ -48,7 +48,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <SetupIcon Include="$(ProjectDir)*.ico" />
+      <References Include="$(ProjectDir)*.ico" />
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
@@ -56,7 +56,6 @@
     <Copy SourceFiles="@(References)" DestinationFiles="@(References->'$(PluginDestination)%(RecursiveDir)%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)Integration\%(Filename)%(Extension)')" />
     <Copy SourceFiles="@(SetupTvIntegration)" DestinationFiles="@(SetupTvIntegration->'$(PluginDestination)SetupTv\Integration\%(Filename)%(Extension)')" />
-    <Copy SourceFiles="@(SetupIcon)" DestinationFolder="$(PluginDestination)SetupTv" />
       
     <!--.net Core builds only-->    
     <Copy Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'" SourceFiles="@(SetupTvIntegrationDefaults)" DestinationFolder="$(PluginDestination)SetupTv\Defaults\" />
