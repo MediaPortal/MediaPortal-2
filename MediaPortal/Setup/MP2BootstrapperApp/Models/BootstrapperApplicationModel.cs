@@ -134,7 +134,7 @@ namespace MP2BootstrapperApp.Models
         IBundlePackage bundlePackage = BundlePackages.FirstOrDefault(pkg => pkg.PackageId == detectedPackageId);
         if (bundlePackage != null)
         {
-          bundlePackage.CurrentInstallState = detectPackageCompleteEventArgs.State;
+          bundlePackage.CurrentInstallState = ApplyIncorrectPackageStateWorkaround(detectPackageCompleteEventArgs.State);
           // Installation will fail if trying to install an obsolete version, catch this early and mark this bundle as a downgrade
           if (bundlePackage.PackageId == MainPackage.PackageId && bundlePackage.CurrentInstallState == PackageState.Obsolete)
             IsDowngrade = true;
@@ -157,6 +157,24 @@ namespace MP2BootstrapperApp.Models
           }
         }
       }
+    }
+
+    /// <summary>
+    /// There is possibly a bug in the WixToolset.Mba.Core package where the <see cref="PackageState"/> enums don't align
+    /// with what the burn engine passes on the native side. It appears that <see cref="PackageState.Cached"/> was removed
+    /// on the native side but not on the managed side so the managed side values are one less than the native side for all
+    /// states above and including <see cref="PackageState.Cached"/>. This method manually bumps those enum values up by one
+    /// for now. Issue is open here and awaiting response as of 13/4/23 - https://github.com/wixtoolset/issues/issues/7399
+    /// </summary>
+    /// <param name="packageState"></param>
+    /// <returns></returns>
+    PackageState ApplyIncorrectPackageStateWorkaround(PackageState packageState)
+    {
+      if (packageState == PackageState.Cached)
+        return PackageState.Present;
+      if (packageState == PackageState.Present)
+        return PackageState.Superseded;
+      return packageState;
     }
 
     private void DetectMsiFeature(object sender, DetectMsiFeatureEventArgs e)
