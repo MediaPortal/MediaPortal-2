@@ -22,12 +22,12 @@
 
 #endregion
 
-using Microsoft.Deployment.WindowsInstaller;
 using MP2BootstrapperApp.BundlePackages;
 using System;
 using System.Linq;
 using System.Xml.Linq;
 using Tests.Mocks;
+using WixToolset.Dtf.WindowsInstaller;
 using Xunit;
 
 namespace Tests
@@ -54,7 +54,7 @@ namespace Tests
       Assert.Equal("LAV Filters", bundlePackage.DisplayName);
       Assert.Equal("LAV Filters Setup", bundlePackage.Description);
       Assert.Equal(10746592, bundlePackage.InstalledSize);
-      Assert.Equal(new Version("0.74.1.0"), bundlePackage.Version);
+      Assert.Equal("0.74.1.0", bundlePackage.Version);
       Assert.Equal("(NOT LAVFilters_Version >= v0.74.1.0) OR (NOT LAVFilters_Version)", bundlePackage.InstallCondition);
       Assert.False(bundlePackage.Vital);
     }
@@ -80,7 +80,7 @@ namespace Tests
       Assert.Equal("MediaPortal 2", bundlePackage.DisplayName);
       Assert.Equal("MediaPortal 2", bundlePackage.Description);
       Assert.Equal(791408691, bundlePackage.InstalledSize);
-      Assert.Equal(new Version("2.4.2202.13838"), bundlePackage.Version);
+      Assert.Equal("2.4.2202.13838", bundlePackage.Version);
       Assert.Null(bundlePackage.InstallCondition);
       Assert.True(bundlePackage.Vital);
       Assert.Equal(new Guid("0E70343E-934F-4328-8891-B7BE16F57D78"), bundlePackage.ProductCode);

@@ -22,12 +22,12 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BundlePackages;
 using System.Collections.Generic;
 using System.Linq;
 using Tests.Mocks;
+using WixToolset.Mba.Core;
 using Xunit;
 
 namespace Tests

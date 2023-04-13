@@ -22,7 +22,6 @@
 
 #endregion
 
-using Microsoft.Tools.WindowsInstallerXml.Bootstrapper;
 using MP2BootstrapperApp.BundlePackages;
 using NSubstitute;
 using System;
@@ -31,6 +30,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Xml.Linq;
+using WixToolset.Mba.Core;
 
 namespace Tests.Mocks
 {
@@ -49,7 +49,7 @@ namespace Tests.Mocks
       return testBundlePackageFactory.CreatePackagesFromXmlString(xml);
     }
 
-    public static IList<IBundlePackage> CreatePreviousInstall(Version previousInstalledVersion, IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null)
+    public static IList<IBundlePackage> CreatePreviousInstall(string previousInstalledVersion, IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null)
     {
       string xml = GetTestPackageXml();
       MockBundlePackageFactory testBundlePackageFactory = new MockBundlePackageFactory(installedPackages, installedFeatures, previousInstalledVersion);
@@ -59,9 +59,9 @@ namespace Tests.Mocks
     protected IEnumerable<PackageId> _installedPackages;
     protected IEnumerable<string> _installedFeatures;
     protected IEnumerable<PackageId> _falseInstallConditionPackages;
-    protected Version _previousInstalledVersion;
+    protected string _previousInstalledVersion;
 
-    public MockBundlePackageFactory(IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null, Version previousInstalledVersion = null, IEnumerable<PackageId> falseInstallConditionPackages = null)
+    public MockBundlePackageFactory(IEnumerable<PackageId> installedPackages = null, IEnumerable<string> installedFeatures = null, string previousInstalledVersion = null, IEnumerable<PackageId> falseInstallConditionPackages = null)
       : base(new MockFeatureMetadataProvider())
     {
       _installedPackages = installedPackages ?? new PackageId[0];

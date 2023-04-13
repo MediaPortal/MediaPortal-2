@@ -74,7 +74,7 @@ namespace Tests
     [Fact]
     void Should_SelectInstalledFeaturesInCustomStep_If_PreviousVersionInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall("1.0", new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
       IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
 
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
@@ -91,7 +91,7 @@ namespace Tests
     [Fact]
     void Should_SelectAllFeaturesInCustomStep_If_PreviousVersionNotInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), null, null);
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall("1.0", null, null);
       IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
 
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
@@ -109,7 +109,7 @@ namespace Tests
     [Fact]
     void Should_SelectAllOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), null, null);
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall("1.0", null, null);
       IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
 
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
@@ -127,7 +127,7 @@ namespace Tests
     [Fact]
     void Should_SelectOptionalPackagesInCustomStep_If_PreviousVersionInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2, PackageId.LAVFilters }, new[] { FeatureId.Server });
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall("1.0", new[] { PackageId.MediaPortal2, PackageId.LAVFilters }, new[] { FeatureId.Server });
       IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
 
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
@@ -144,7 +144,7 @@ namespace Tests
     [Fact]
     void Should_Not_SelectOptionalPackagesInCustomStep_If_PreviousVersionNotInstalled()
     {
-      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall(new Version(1, 0), new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
+      IList<IBundlePackage> packages = MockBundlePackageFactory.CreatePreviousInstall("1.0", new[] { PackageId.MediaPortal2 }, new[] { FeatureId.Server });
       IBundleMsiPackage mainPackage = (IBundleMsiPackage)packages.First(p => p.PackageId == PackageId.MediaPortal2);
 
       IBootstrapperApplicationModel applicationModel = Substitute.For<IBootstrapperApplicationModel>();
