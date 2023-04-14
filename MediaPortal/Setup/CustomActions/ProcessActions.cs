@@ -22,9 +22,9 @@
 
 #endregion
 
-using System;
 using MediaPortal.Utilities.Process;
-using Microsoft.Deployment.WindowsInstaller;
+using System;
+using WixToolset.Dtf.WindowsInstaller;
 
 namespace CustomActions
 {
