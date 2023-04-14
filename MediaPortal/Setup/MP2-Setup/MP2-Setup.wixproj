@@ -16,9 +16,7 @@
     <SuppressIces>ICE60;ICE80</SuppressIces>
   </PropertyGroup>
   <ItemGroup>
-    <Content Include="..\Includes.wxi">
-      <Link>Includes.wxi</Link>
-    </Content>
+    <Content Include="Includes.wxi" />
     <Compile Include="Features\Client.wxs" />
     <Compile Include="Features\LogCollector.wxs" />
     <Compile Include="Features\Server.wxs" />

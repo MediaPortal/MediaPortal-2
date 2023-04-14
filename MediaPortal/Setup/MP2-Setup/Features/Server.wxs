@@ -2,7 +2,7 @@
 
   <Fragment>
 
-    <?include $(var.SolutionDir)\Includes.wxi?>
+    <?include ..\Includes.wxi?>
 
     <!-- Directory definition -->
     <DirectoryRef Id="INSTALLDIR">

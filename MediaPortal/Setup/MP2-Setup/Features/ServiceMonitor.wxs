@@ -2,7 +2,7 @@
 
   <Fragment>
 
-    <?include $(var.SolutionDir)\Includes.wxi?>
+    <?include ..\Includes.wxi?>
 
     <!-- Icon -->
     <Icon Id="ServiceMonitor" SourceFile="$(var.MediaPortal.ServiceMonitor.TargetPath)" />

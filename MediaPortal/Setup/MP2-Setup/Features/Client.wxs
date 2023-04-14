@@ -2,7 +2,7 @@
 
   <Fragment>
 
-    <?include $(var.SolutionDir)\Includes.wxi?>
+    <?include ..\Includes.wxi?>
 
     <!-- Icon -->
     <Icon Id="Client" SourceFile="$(var.MediaPortal.Client.TargetPath)" />

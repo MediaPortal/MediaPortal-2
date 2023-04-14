@@ -1,4 +1,4 @@
-<Project Sdk="WixToolset.Sdk/4.0.0">
+﻿<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
     <ProductVersion>3.9</ProductVersion>
     <OutputName>MP2-Setup</OutputName>
@@ -28,6 +28,7 @@
     <Folder Include="Theme" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="..\MP2-Setup\Includes.wxi" Link="Includes.wxi" />
     <Content Include="build.targets" />
     <Content Include="Resources\Setup.ico" />
     <Content Include="Theme\CustomTheme.xml" />

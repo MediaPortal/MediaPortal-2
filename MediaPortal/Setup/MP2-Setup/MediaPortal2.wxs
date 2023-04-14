@@ -2,7 +2,7 @@
      xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util"
      xmlns:ui="http://wixtoolset.org/schemas/v4/wxs/ui">
 
-  <?include $(var.SolutionDir)\Includes.wxi?>
+  <?include Includes.wxi?>
 
   <Package Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" Language="!(loc.ProductLanguage)" Codepage="0" UpgradeCode="$(var.UpgradeCode)" InstallerVersion="405" Scope="perMachine"><SummaryInformation Keywords="Installer" Description="MediaPortal 2 Installer" Codepage="!(loc.SummaryCodepage)" />
 
