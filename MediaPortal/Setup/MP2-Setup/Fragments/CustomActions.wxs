@@ -13,16 +13,16 @@
          in a property with the same id as the WixQuietExec custom action and the path to the exe needs to be quoted.
          A SetProperty action is used to allow the [SystemFolder] reference to be resolved and needs to be scheduled to run before the action.-->
     <SetProperty Id="ListenerServiceAddReservation" Value="&quot;[SystemFolder]netsh.exe&quot; http add urlacl url=http://+:55555/MediaPortal/ sddl=D:(A;;GX;;;S-1-1-0)" Before="ListenerServiceAddReservation" Sequence="execute" />
-    <CustomAction Id="ListenerServiceAddReservation" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_X86" />
+    <CustomAction Id="ListenerServiceAddReservation" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
 
     <SetProperty Id="ListenerServiceDeleteReservation" Value="&quot;[SystemFolder]netsh.exe&quot; http delete urlacl url=http://+:55555/MediaPortal/" Before="ListenerServiceDeleteReservation" Sequence="execute" />
-    <CustomAction Id="ListenerServiceDeleteReservation" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_X86" />
+    <CustomAction Id="ListenerServiceDeleteReservation" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
 
     <SetProperty Id="FirewallPortAdd" Value="&quot;[SystemFolder]netsh.exe&quot; advfirewall firewall add rule name=&quot;MediaPortal UPnP/HttpServer&quot; dir=in action=allow protocol=TCP localport=55555" Before="FirewallPortAdd" Sequence="execute" />
-    <CustomAction Id="FirewallPortAdd" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_X86" />
+    <CustomAction Id="FirewallPortAdd" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
 
     <SetProperty Id="FirewallPortRemove" Value="&quot;[SystemFolder]netsh.exe&quot; advfirewall firewall delete rule name=&quot;MediaPortal UPnP/HttpServer&quot; protocol=TCP localport=55555" Before="FirewallPortRemove" Sequence="execute" />
-    <CustomAction Id="FirewallPortRemove" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_X86" />
+    <CustomAction Id="FirewallPortRemove" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
 
     <InstallExecuteSequence>
       <Custom Action="ListenerServiceDeleteReservation" Before="InstallFinalize" Condition="REMOVE~=&quot;ALL&quot;" />
