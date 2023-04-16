@@ -87,7 +87,7 @@
     </Feature>
 
     <SetProperty Id="RestartService" Value="&quot;net&quot; start MP2-Server" Before="RestartService" Sequence="execute" />
-    <CustomAction Id="RestartService" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_X86" />
+    <CustomAction Id="RestartService" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
         
     <InstallExecuteSequence>
       <!-- The ServiceControl element above handles starting/stopping the server on install/uninstall,
