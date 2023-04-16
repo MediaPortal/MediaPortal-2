@@ -45,7 +45,7 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <PackageReference Include="NamedPipeServerStream.NetFrameworkVersion" Version="1.1.8" />
+    <PackageReference Include="NamedPipeServerStream.NetFrameworkVersion" Version="1.1.11" />
     <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
     <PackageReference Include="System.Management" Version="6.0.0" />
   </ItemGroup>
