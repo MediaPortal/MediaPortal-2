@@ -68,8 +68,11 @@
 
     <!-- Feature -->
     <Feature Id="Server" Level="1" AllowAdvertise="no" ConfigurableDirectory="INSTALLDIR_SERVER" Title="!(loc.F_Server)" Description="!(loc.F_Server_Desc)">
-      
+
+      <?if not $(var.ExcludeTvService3) or not $(var.ExcludeTvService3) ~= "true" ?>
       <FeatureRef Id="SlimTv.Service3" />
+      <?endif?>
+      
       <FeatureRef Id="SlimTv.Service35" />
 
       <ComponentRef Id="SERVER_DATA_FOLDER" />

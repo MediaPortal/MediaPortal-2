@@ -1,15 +1,26 @@
 <Project>
-
   <PropertyGroup>
-    <ClientBaseDirectory>$(SolutionDir)..\Bin\MP2-Client\bin\$(Configuration)\net48</ClientBaseDirectory>
-    <ServerBaseDirectory>$(SolutionDir)..\Bin\MP2-Server\bin\$(Configuration)\net48</ServerBaseDirectory>
-    <ServiceMonitorBaseDirectory>$(SolutionDir)..\Bin\MP2-ServiceMonitor\bin\$(Configuration)\net48</ServiceMonitorBaseDirectory>
-    <LogCollectorBaseDirectory>$(SolutionDir)..\Bin\MP2-LogCollector\bin\$(Configuration)\net48</LogCollectorBaseDirectory>
+    <!-- Whether to exclude TVE3 from the installer -->
+    <ExcludeTvService3 Condition="'$(ExcludeTvService3)' == ''">false</ExcludeTvService3>
+    <!-- Whether to exclude 64 bit MP2-Client (x64).exe from the installer -->
+    <ExcludeMP2Client64 Condition="'$(ExcludeMP2Client64)' == ''">false</ExcludeMP2Client64>
+    <!-- 
+    Base directory for each of the MP2 application outputs, these assume that this project's
+    OutputPath follows the same pattern, including the correct tfm for the framework version
+    to be included in the installer.
+    -->
+    <ClientBaseDirectory>$(SolutionDir)..\Bin\MP2-Client\$(OutputPath)</ClientBaseDirectory>
+    <ServerBaseDirectory>$(SolutionDir)..\Bin\MP2-Server\$(OutputPath)</ServerBaseDirectory>
+    <ServiceMonitorBaseDirectory>$(SolutionDir)..\Bin\MP2-ServiceMonitor\$(OutputPath)</ServiceMonitorBaseDirectory>
+    <LogCollectorBaseDirectory>$(SolutionDir)..\Bin\MP2-LogCollector\$(OutputPath)</LogCollectorBaseDirectory>
   </PropertyGroup>
     
   <PropertyGroup>
+    <!-- Sets the MSBuild properties above as preprocessor variables so they can be referenced in wix project files and tools -->
     <DefineConstants>
       $(DefineConstants);
+      ExcludeTvService3=$(ExcludeTvService3);
+      ExcludeMP2Client64=$(ExcludeMP2Client64);
       SlimTv.Client.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.Client;
       SlimTv.NativeProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.NativeProvider;
       SlimTv.TvMosaicProvider.TargetDir=$(ClientBaseDirectory)\Plugins\SlimTv.TvMosaicProvider;
@@ -18,6 +29,7 @@
     </DefineConstants>
   </PropertyGroup>
   
+  <!-- Harvests the output to be included in the installer -->
   <PropertyGroup>
     <HarvestDirectoryAutogenerateGuids>false</HarvestDirectoryAutogenerateGuids>
     <HarvestDirectoryGenerateGuidsNow>true</HarvestDirectoryGenerateGuidsNow>
@@ -82,13 +94,6 @@
       <SuppressRootDirectory>false</SuppressRootDirectory>
     </HarvestDirectory>
 
-    <HarvestDirectory Include="$(ServerBaseDirectory)\Plugins\SlimTv.Service3">
-      <PreprocessorVariable>var.SlimTv.Service3.TargetDir</PreprocessorVariable>
-      <ComponentGroupName>SlimTv.Service3.Heat</ComponentGroupName>
-      <DirectoryRefId>SERVER_PLUGINS_FOLDER</DirectoryRefId>
-      <SuppressRootDirectory>false</SuppressRootDirectory>
-    </HarvestDirectory>
-
     <HarvestDirectory Include="$(ServerBaseDirectory)\Plugins\SlimTv.Service35">
       <PreprocessorVariable>var.SlimTv.Service35.TargetDir</PreprocessorVariable>
       <ComponentGroupName>SlimTv.Service35.Heat</ComponentGroupName>
@@ -96,6 +101,15 @@
       <SuppressRootDirectory>false</SuppressRootDirectory>
     </HarvestDirectory>
 	</ItemGroup>
+
+  <ItemGroup Condition="'$(ExcludeTvService3)' != 'true'">
+    <HarvestDirectory Include="$(ServerBaseDirectory)\Plugins\SlimTv.Service3">
+      <PreprocessorVariable>var.SlimTv.Service3.TargetDir</PreprocessorVariable>
+      <ComponentGroupName>SlimTv.Service3.Heat</ComponentGroupName>
+      <DirectoryRefId>SERVER_PLUGINS_FOLDER</DirectoryRefId>
+      <SuppressRootDirectory>false</SuppressRootDirectory>
+    </HarvestDirectory>
+  </ItemGroup>
 
   <ItemGroup>
     <Resources Include="$(ProjectDir)MP2-Setup-Logging.bat"/>

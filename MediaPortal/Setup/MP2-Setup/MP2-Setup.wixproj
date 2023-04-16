@@ -1,4 +1,24 @@
 ﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+  <PropertyGroup>
+    <!--
+    Change or override this property to update the versions of the main MP2 applications to build and include
+    in the installer, e.g. changing it to net6.0-windows will build an installer for the net6.0 version of MP2.
+    
+    Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
+    are multi-targeted and wix needs to know which target's output to include in the installer.
+    This custom property is used to specify which target to use, it's additionally used to simulate the same behavior
+    as AppendTargetFrameworkToOutputPath so that the installer is placed in a target framework specific output directory.
+    
+    MP2-Setup-net6.wixproj imports this project and overrides this property to build the net6 version of the installer.
+    -->
+    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net48</ReferencedTargetFramework>
+    <!--
+    Simulates AppendTargetFrameworkToOutputPath behavior, this (specifically the OutputPath) needs
+    to be indentical to the OutputPath of the framework specific MP2 applications as it is used as
+    part of the path to those application's output when harvesting in build.targets. -->
+    <IntermediateOutputPath>obj\$(Configuration)\$(ReferencedTargetFramework)\</IntermediateOutputPath>
+    <OutputPath>bin\$(Configuration)\$(ReferencedTargetFramework)\</OutputPath>
+  </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DefineConstants>Debug;</DefineConstants>
     <SuppressValidation>False</SuppressValidation>
@@ -26,16 +46,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.Client\MediaPortal.Client.csproj">
-      <TargetFrameworks>net48</TargetFrameworks>
+      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.Server\MediaPortal.Server.csproj">
-      <TargetFrameworks>net48</TargetFrameworks>
+      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj">
-      <TargetFrameworks>net48</TargetFrameworks>
+      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\LogCollector\MediaPortal.LogCollector.csproj">
-      <TargetFrameworks>net48</TargetFrameworks>
+      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
     </ProjectReference>
     <ProjectReference Include="..\CustomActions\CustomActions.csproj" />
   </ItemGroup>

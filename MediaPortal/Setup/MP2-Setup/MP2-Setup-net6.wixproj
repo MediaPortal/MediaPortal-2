@@ -1,0 +1,20 @@
+﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+  <!--
+  This project exists to build an installer that includes the net6 version of MP2 in addition to
+  the net48 installer that's built by the base MP2-Setup.wixproj. It should only override the necessary
+  properties, any additional references/files should be included in MP2-Setup.wixproj (they will be
+  automatically imported here when that project is imported below).
+  -->
+  <PropertyGroup>
+    <!--
+    Override the ReferencedTargetFramework to build an installer that includes the net6.0 version of MP2.
+    See the comment for this property in the imported MP2-Setup.wixproj for more information.
+    -->
+    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net6.0-windows</ReferencedTargetFramework>
+    <!-- TVE3 is not supported on .net 6, don't include it in the installer -->
+    <ExcludeTvService3 Condition="'$(ExcludeTvService3)' == ''">true</ExcludeTvService3>
+    <!-- Currently the .net 6 builds are all AnyCPU, so there's no 64 bit specific MP2Client exe -->
+    <ExcludeMP2Client64 Condition="'$(ExcludeMP2Client64)' == ''">true</ExcludeMP2Client64>
+  </PropertyGroup>
+  <Import Project="MP2-Setup.wixproj" />
+</Project>

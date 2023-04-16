@@ -1,41 +1,43 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29911.84
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.33516.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomActions", "CustomActions\CustomActions.csproj", "{461696FB-AB81-4BF8-8907-E648F51CCDF0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CustomActions", "CustomActions\CustomActions.csproj", "{461696FB-AB81-4BF8-8907-E648F51CCDF0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Common", "..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Common", "..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj", "{ECF060E7-CAA1-4466-851F-F80B857641EA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Backend", "..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj", "{5B27EB95-B829-40F4-B445-0225CA206F85}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Backend", "..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj", "{5B27EB95-B829-40F4-B445-0225CA206F85}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UPnP", "..\Source\Core\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UPnP", "..\Source\Core\UPnP\UPnP.csproj", "{455E7D70-1C85-4D7F-9F01-DC801B8B8C34}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HttpServer", "..\Source\Core\HttpServer\HttpServer.csproj", "{B1C97BB7-8E27-4C1B-B086-A1204EF8FB79}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.UI", "..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.UI", "..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj", "{52E587D0-A274-44DA-8846-8EEAF5414923}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Utilities", "..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Utilities", "..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj", "{4FE7B8AE-1330-424A-91A1-C68D7ABF9CB8}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MP2references", "MP2references", "{7E55CAE4-ADE5-4118-BC01-1256ED558E6A}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "MP2applications", "MP2applications", "{678D8AF4-65D2-4605-B622-74A4F59A5B6D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Client", "..\Source\Main\MediaPortal.Client\MediaPortal.Client.csproj", "{53EFA17B-5F8B-4942-8211-2015FFC2223C}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Client", "..\Source\Main\MediaPortal.Client\MediaPortal.Client.csproj", "{53EFA17B-5F8B-4942-8211-2015FFC2223C}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.Server", "..\Source\Main\MediaPortal.Server\MediaPortal.Server.csproj", "{DBB95772-9A29-443D-A1B1-7A32E27F598B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.Server", "..\Source\Main\MediaPortal.Server\MediaPortal.Server.csproj", "{DBB95772-9A29-443D-A1B1-7A32E27F598B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.ServiceMonitor", "..\Source\Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj", "{B554FE2F-B4FC-4D70-87DB-BC214EA104E4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.ServiceMonitor", "..\Source\Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj", "{B554FE2F-B4FC-4D70-87DB-BC214EA104E4}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2-Bootstrapper", "Bootstrapper\MP2-Bootstrapper.wixproj", "{C49F700B-5590-4F71-B322-D65198B501B9}"
+Project("{B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0}") = "MP2-Bootstrapper", "Bootstrapper\MP2-Bootstrapper.wixproj", "{C49F700B-5590-4F71-B322-D65198B501B9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MediaPortal.LogCollector", "..\Tools\LogCollector\MediaPortal.LogCollector.csproj", "{3476BFD3-B634-4BAB-8E0F-12921019B7B0}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MediaPortal.LogCollector", "..\Tools\LogCollector\MediaPortal.LogCollector.csproj", "{3476BFD3-B634-4BAB-8E0F-12921019B7B0}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MP2BootstrapperApp", "MP2BootstrapperApp\MP2BootstrapperApp.csproj", "{690C4618-718B-4D07-916D-456B5C211A7A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MP2BootstrapperApp", "MP2BootstrapperApp\MP2BootstrapperApp.csproj", "{690C4618-718B-4D07-916D-456B5C211A7A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{EB0083EF-7363-4473-BADC-D72A3ECC4156}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Tests", "Tests\Tests.csproj", "{EB0083EF-7363-4473-BADC-D72A3ECC4156}"
 EndProject
-Project("{930C7802-8A8C-48F9-8165-68863BCCD9DD}") = "MP2-Setup", "MP2-Setup\MP2-Setup.wixproj", "{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}"
+Project("{B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0}") = "MP2-Setup", "MP2-Setup\MP2-Setup.wixproj", "{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}"
+EndProject
+Project("{B7DD6F7E-DEF8-4E67-B5B7-07EF123DB6F0}") = "MP2-Setup-net6", "MP2-Setup\MP2-Setup-net6.wixproj", "{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -208,6 +210,17 @@ Global
 		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Test|Any CPU.Build.0 = Debug|x86
 		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Test|x86.ActiveCfg = Debug|x86
 		{49FF3AE9-B5B2-4EB1-9205-4EE4FC4FA0DF}.Test|x86.Build.0 = Debug|x86
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Debug|Any CPU.ActiveCfg = Debug|x86
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Debug|x86.ActiveCfg = Debug|x86
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Debug|x86.Build.0 = Debug|x86
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Release|Any CPU.ActiveCfg = Release|x86
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Release|Any CPU.Build.0 = Release|x86
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Release|x86.ActiveCfg = Release|x86
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Release|x86.Build.0 = Release|x86
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Test|Any CPU.ActiveCfg = Debug|x64
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Test|Any CPU.Build.0 = Debug|x64
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Test|x86.ActiveCfg = Debug|x86
+		{31FE683D-8C54-4BDF-A5A7-B94063CAFDD7}.Test|x86.Build.0 = Debug|x86
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
