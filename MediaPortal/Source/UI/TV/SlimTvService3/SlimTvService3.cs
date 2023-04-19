@@ -62,6 +62,7 @@ using IUser = TvControl.IUser;
 using User = TvControl.User;
 using VirtualCard = TvControl.VirtualCard;
 using MediaPortal.Common.Services.ServerCommunication;
+using MediaPortal.Common.Reflection;
 
 namespace MediaPortal.Plugins.SlimTv.Service
 {
@@ -141,6 +142,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected override void InitTvCore()
     {
+      AssemblyResolver.RedirectAllAssemblies();
       _tvServiceThread = new TvServiceThread(Environment.GetCommandLineArgs()[0]);
       if (!InitializeGentle())
       {
