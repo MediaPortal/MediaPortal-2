@@ -24,6 +24,7 @@
 
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
+using MediaPortal.Common.Logging;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.Localization;
 using MP2BootstrapperApp.Logging;
@@ -31,7 +32,6 @@ using MP2BootstrapperApp.Models;
 using MP2BootstrapperApp.ViewModels;
 using MP2BootstrapperApp.Views;
 using System;
-using System.Windows;
 using WixToolset.Mba.Core;
 
 namespace MP2BootstrapperApp
@@ -59,8 +59,11 @@ namespace MP2BootstrapperApp
 
       IBootstrapperApplicationModel model = new BootstrapperApplicationModel(this);
 
+      ILogger logger = new Logger(model);
+      ServiceRegistration.Set(logger);
+
       // Setup the translations and current language
-      StringManager stringManager = new StringManager(new Logger(model));
+      StringManager stringManager = new StringManager(logger);
       stringManager.Startup();
       var ci = stringManager.GetBestAvailableLanguage();
       if (ci != null)
@@ -86,7 +89,7 @@ namespace MP2BootstrapperApp
     private void UnhandledException(object sender, UnhandledExceptionEventArgs e)
     {
       Exception exception = e.ExceptionObject as Exception;
-      Log(LogLevel.Error, $"MP2BootstrapperApplication: Unhandled exception - {exception?.Message}\r\n{exception?.StackTrace}");
+      Log(WixToolset.Mba.Core.LogLevel.Error, $"MP2BootstrapperApplication: Unhandled exception - {exception?.Message}\r\n{exception?.StackTrace}");
     }
   }
 }

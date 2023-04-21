@@ -26,6 +26,7 @@ using MP2BootstrapperApp.ActionPlans;
 using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.BundlePackages;
 using MP2BootstrapperApp.BundlePackages.Features;
+using MP2BootstrapperApp.Utils;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
@@ -271,6 +272,11 @@ namespace MP2BootstrapperApp.Models
       }
     }
 
+    private void ApplyBegin(object sender, ApplyBeginEventArgs e)
+    {
+      IpcUtils.StopMediaPortalProcesses();
+    }
+
     protected void ApplyComplete(object sender, ApplyCompleteEventArgs e)
     {
       FinalResult = e.Status;
@@ -305,6 +311,7 @@ namespace MP2BootstrapperApp.Models
       BootstrapperApplication.DetectMsiFeature += DetectMsiFeature;
       BootstrapperApplication.DetectRelatedMsiPackage += DetectRelatedMsiPackage;
       BootstrapperApplication.DetectComplete += DetectComplete;
+      BootstrapperApplication.ApplyBegin += ApplyBegin;
       BootstrapperApplication.ApplyComplete += ApplyComplete;
       BootstrapperApplication.PlanPackageBegin += PlanPackageBegin;
       BootstrapperApplication.PlanMsiFeature += PlanMsiFeature;
