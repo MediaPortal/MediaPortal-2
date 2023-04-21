@@ -30,9 +30,16 @@
       </Component>
     </StandardDirectory>
 
+    <!-- Defines the TVE3.5 feature level. If TVE3 is excluded then set to 1 so that TVE3.5 is selected by default, else 2 so that TVE3 is selected by default -->
+    <?if $(var.ExcludeTvService3) ~= "true" ?>
+      <?define Service35FeatureLevel = 1 ?>
+    <?else?>
+      <?define Service35FeatureLevel = 2 ?>
+    <?endif?>
+
     <!-- Feature -->
     <!-- Set install level to 2 to prevent installation by default -->
-    <Feature Id="SlimTv.Service35" Level="2" AllowAdvertise="no" Title="!(loc.F_SlimTvService35)" Description="!(loc.F_SlimTvService35_Desc)">
+    <Feature Id="SlimTv.Service35" Level="$(var.Service35FeatureLevel)" AllowAdvertise="no" Title="!(loc.F_SlimTvService35)" Description="!(loc.F_SlimTvService35_Desc)">
 
       <ComponentRef Id="SetupTV35.StartMenu.Shortcut" />
       <ComponentRef Id="SetupTV35.Desktop.Shortcut" />
