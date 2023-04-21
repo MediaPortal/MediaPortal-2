@@ -361,9 +361,34 @@ namespace MediaPortal.UI.Services.ServerCommunication
       }
     }
 
-    static void OnAvailableBackendServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
+    void OnAvailableBackendServersChanged(ICollection<ServerDescriptor> allAvailableServers, bool serversWereAdded)
     {
+      // If auto-attaching, which is the case if a server has never been attached before, see if a server can be attached now
+      if (serversWereAdded && TryAutoAttachToServer(allAvailableServers))
+        return;
+      // else, broadcast to listeners that servers are available
       ServerConnectionMessaging.SendAvailableServersChangedMessage(allAvailableServers, serversWereAdded);
+    }
+
+    /// <summary>
+    /// Tries to attach to an available server if <see cref="ServerConnectionSettings.AutoAttachToAvailableServer"/> is <c>true</c>.
+    /// </summary>
+    /// <param name="allAvailableServers">Collection of available servers</param>
+    /// <returns><c>true</c> if auto attaching is enabled and a server was attached; else <c>false</c>.</returns>
+    bool TryAutoAttachToServer(ICollection<ServerDescriptor> allAvailableServers)
+    {
+      if (!ServiceRegistration.Get<ISettingsManager>().Load<ServerConnectionSettings>().AutoAttachToAvailableServer)
+        return false;
+
+      // Prefer a server on the local system
+      ServerDescriptor serverDescriptor = allAvailableServers.FirstOrDefault(s => s.GetPreferredLink().IsLocalSystem());
+      // else fallback to the first server in the list
+      if (serverDescriptor == null)
+        serverDescriptor = allAvailableServers.FirstOrDefault();
+      if (serverDescriptor == null)
+        return false;
+      SetNewHomeServer(serverDescriptor.MPBackendServerUUID);
+      return true;
     }
 
     void OnBackendServerConnected(DeviceConnection connection)
@@ -764,6 +789,7 @@ namespace MediaPortal.UI.Services.ServerCommunication
         settings.HomeServerSystemId = null;
         settings.LastHomeServerName = null;
         settings.LastHomeServerSystem = null;
+        settings.AutoAttachToAvailableServer = false;
         settingsManager.Save(settings);
         _controlPoint = null;
       }
