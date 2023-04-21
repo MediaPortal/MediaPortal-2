@@ -4,7 +4,8 @@
 
   <?include Includes.wxi?>
 
-  <Package Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" Language="!(loc.ProductLanguage)" Codepage="0" UpgradeCode="$(var.UpgradeCode)" InstallerVersion="405" Scope="perMachine"><SummaryInformation Keywords="Installer" Description="MediaPortal 2 Installer" Codepage="!(loc.SummaryCodepage)" />
+  <Package Name="$(var.Product)" Version="$(var.Version)" Manufacturer="$(var.Manufacturer)" Language="!(loc.ProductLanguage)" Codepage="0" UpgradeCode="$(var.UpgradeCode)" InstallerVersion="405" Scope="perMachine">
+    <SummaryInformation Keywords="Installer" Description="MediaPortal 2 Installer" Codepage="!(loc.SummaryCodepage)" />
 
     <PropertyRef Id="UpgradesFile" />
 
@@ -21,7 +22,7 @@
     <Icon Id="MediaPortal2Icon" SourceFile="Resources\MP2_Icon_General.ico" />
 
     <!-- Directories -->
-    
+
 
     <!-- Shortcuts -->
     <DirectoryRef Id="TeamMediaPortal.StartMenu">
@@ -50,16 +51,16 @@
       <ComponentRef Id="TeamMediaPortal.StartMenu" />
       <ComponentRef Id="MP2.StartMenu" />
     </Feature>
-    
+
     <!-- User Interface -->
-     <!--Remove this when the MP2 bootstrapper app is finished-->
+    <!--Remove this when the MP2 bootstrapper app is finished-->
     <WixVariable Id="WixUILicenseRtf" Value="$(var.MediaPortal.Client.TargetDir)\Docs\MediaPortal License.rtf" />
     <WixVariable Id="WixUIBannerBmp" Value="Resources\MPBanner.jpg" />
     <WixVariable Id="WixUIDialogBmp" Value="Resources\MPDialog.jpg" />
 
     <ui:WixUI Id="MP2_Setup_UI_FeatureTree" />
-    <UIRef Id="WixUI_ErrorProgressText" /> 
-    
+    <UIRef Id="WixUI_ErrorProgressText" />
+
     <InstallUISequence>
 
       <!--<Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize" Condition="NOT Installed" />-->
@@ -81,35 +82,33 @@
 
     <MajorUpgrade AllowSameVersionUpgrades="yes" DowngradeErrorMessage="You cannot downgrade to [ProductName]" Schedule="afterInstallInitialize" />
 
-  
+    <StandardDirectory Id="ProgramFilesFolder">
+      <Directory Id="INSTALLDIR" Name="$(var.Manufacturer)">
+        <Component Id="Product.Registry.InstallDir" Guid="463A7F64-BFB8-4BE1-85F4-D98724884FAF">
+          <RegistryKey Root="HKLM" Key="$(var.RegKeyRoot)">
+            <RegistryValue Type="string" Name="INSTALLDIR" Value="[INSTALLDIR]" />
+          </RegistryKey>
+        </Component>
+      </Directory>
 
-      <StandardDirectory Id="ProgramFilesFolder">
-        <Directory Id="INSTALLDIR" Name="$(var.Manufacturer)">
-          <Component Id="Product.Registry.InstallDir" Guid="463A7F64-BFB8-4BE1-85F4-D98724884FAF">
-            <RegistryKey Root="HKLM" Key="$(var.RegKeyRoot)">
-              <RegistryValue Type="string" Name="INSTALLDIR" Value="[INSTALLDIR]" />
-            </RegistryKey>
-          </Component>
-        </Directory>
+    </StandardDirectory>
 
-      </StandardDirectory>
+    <StandardDirectory Id="CommonAppDataFolder">
+      <Directory Id="TeamMediaPortal.Data.Folder" Name="$(var.Manufacturer)">
+        <Component Id="TeamMediaPortal.Data.Folder" Guid="F681F96B-A41D-435B-A091-C9BF42179FB5">
+          <CreateFolder>
+            <util:PermissionEx User="Users" GenericAll="yes" />
+          </CreateFolder>
+        </Component>
+      </Directory>
+    </StandardDirectory>
 
-      <StandardDirectory Id="CommonAppDataFolder">
-        <Directory Id="TeamMediaPortal.Data.Folder" Name="$(var.Manufacturer)">
-          <Component Id="TeamMediaPortal.Data.Folder" Guid="F681F96B-A41D-435B-A091-C9BF42179FB5">
-            <CreateFolder>
-              <util:PermissionEx User="Users" GenericAll="yes" />
-            </CreateFolder>
-          </Component>
-        </Directory>
-      </StandardDirectory>
+    <StandardDirectory Id="ProgramMenuFolder">
+      <Directory Id="TeamMediaPortal.StartMenu" Name="$(var.Manufacturer)">
+        <Directory Id="MP2.StartMenu" Name="$(var.Product)" />
+      </Directory>
+    </StandardDirectory>
 
-      <StandardDirectory Id="ProgramMenuFolder">
-        <Directory Id="TeamMediaPortal.StartMenu" Name="$(var.Manufacturer)">
-          <Directory Id="MP2.StartMenu" Name="$(var.Product)" />
-        </Directory>
-      </StandardDirectory>
-
-      <StandardDirectory Id="DesktopFolder" />
-    </Package>
+    <StandardDirectory Id="DesktopFolder" />
+  </Package>
 </Wix>
