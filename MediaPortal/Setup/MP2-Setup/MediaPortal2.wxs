@@ -62,19 +62,19 @@
     
     <InstallUISequence>
 
-      <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize" Condition="NOT Installed" />
+      <!--<Custom Action="ReadCustomPathsFromExistingPathsFile" Before="CostFinalize" Condition="NOT Installed" />-->
 
     </InstallUISequence>
 
     <InstallExecuteSequence>
       <!-- Stop all MP2 processes -->
-      <Custom Action="StopProcesses" Before="ReadCustomPathsFromExistingPathsFile" />
+      <!--<Custom Action="StopProcesses" Before="ReadCustomPathsFromExistingPathsFile" />-->
 
       <!-- Reads custom paths which maybe have been changed by the user in a former installation -->
-      <Custom Action="ReadCustomPathsFromExistingPathsFile" Before="PrepareXmlPathVariables" Condition="(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)" />
+      <!--<Custom Action="ReadCustomPathsFromExistingPathsFile" Before="PrepareXmlPathVariables" Condition="(NOT Installed) AND (INSTALLTYPE_CUSTOM = 0)" />-->
 
-      <Custom Action="PrepareXmlPathVariables" Before="FileCost" Condition="NOT Installed" />
-      <Custom Action="AttachClientToServer" After="InstallFinalize" Condition="NOT Installed" />
+      <!--<Custom Action="PrepareXmlPathVariables" Before="FileCost" Condition="NOT Installed" />-->
+      <!--<Custom Action="AttachClientToServer" After="InstallFinalize" Condition="NOT Installed" />-->
 
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>

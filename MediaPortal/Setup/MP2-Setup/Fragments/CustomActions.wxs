@@ -1,13 +1,13 @@
 ﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
-    <Binary Id="Custom_Action_Dll" SourceFile="$(var.CustomActions.TargetDir)CustomActions.CA.dll" />
+    <!--<Binary Id="Custom_Action_Dll" SourceFile="$(var.CustomActions.TargetDir)CustomActions.CA.dll" />-->
 
-    <CustomAction Id="ReadCustomPathsFromExistingPathsFile" DllEntry="ReadCustomPathsFromExistingPathsFile" Execute="immediate" Return="check" BinaryRef="Custom_Action_Dll" />
-    <CustomAction Id="PrepareXmlPathVariables" DllEntry="PrepareXmlPathVariables" Execute="immediate" Return="check" BinaryRef="Custom_Action_Dll" />
+    <!--<CustomAction Id="ReadCustomPathsFromExistingPathsFile" DllEntry="ReadCustomPathsFromExistingPathsFile" Execute="immediate" Return="check" BinaryRef="Custom_Action_Dll" />-->
+    <!--<CustomAction Id="PrepareXmlPathVariables" DllEntry="PrepareXmlPathVariables" Execute="immediate" Return="check" BinaryRef="Custom_Action_Dll" />-->
 
-    <CustomAction Id="AttachClientToServer" DllEntry="AttachClientToServer" Execute="immediate" Return="check" BinaryRef="Custom_Action_Dll" />
+    <!--<CustomAction Id="AttachClientToServer" DllEntry="AttachClientToServer" Execute="immediate" Return="check" BinaryRef="Custom_Action_Dll" />-->
 
-    <CustomAction Id="StopProcesses" DllEntry="StopProcesses" Impersonate="no" Execute="immediate" Return="ignore" BinaryRef="Custom_Action_Dll" />
+    <!--<CustomAction Id="StopProcesses" DllEntry="StopProcesses" Impersonate="no" Execute="immediate" Return="ignore" BinaryRef="Custom_Action_Dll" />-->
 
     <!-- Use WixQuietExec to run the commands to avoid the command window popping up. The command line to run needs to be stored
          in a property with the same id as the WixQuietExec custom action and the path to the exe needs to be quoted.
