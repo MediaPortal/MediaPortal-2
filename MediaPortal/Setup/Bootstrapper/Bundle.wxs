@@ -4,35 +4,21 @@
 
   <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MediaPortal2)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no" IconSourceFile="Resources\Setup.ico" HelpUrl="http://wiki.team-mediaportal.com/2_MEDIAPORTAL_2" UpdateUrl="http://www.team-mediaportal.com/" AboutUrl="http://www.team-mediaportal.com/about-the-project/behind-the-project">
 
-    <BootstrapperApplication>
-      <bal:WixManagedBootstrapperApplicationHost />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MP2BootstrapperApp.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)WixToolset.Mba.Host.config" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)WixToolset.Mba.Core.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)mbanative.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)WixToolset.Dtf.WindowsInstaller.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Prism.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Prism.Wpf.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.Xaml.Behaviors.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.WindowsAPICodePack.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.WindowsAPICodePack.Shell.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.WindowsAPICodePack.ShellExtensions.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MediaPortal.Common.dll" />
-      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MediaPortal.Utilities.dll" />
-    </BootstrapperApplication>
+    <?if $(BuildDotNetCore) ~= "true" ?>
 
-    <!-- Needed for the ManagedBootstrapperApplicationHost-->
-    <WixVariable Id="WixMbaPrereqLicenseUrl" Value="" />
-
+    <BootstrapperApplicationRef Id="BootstrapperNetCore" />
     <Chain>
-
-      <PackageGroupRef Id="NetFx48WebAsPrereq" />
-      <PackageGroupRef Id="redist" />
-      <PackageGroupRef Id="dokan" />
-      <PackageGroupRef Id="LAVFilters" />
-
-      <RollbackBoundary />
-      <PackageGroupRef Id="MediaPortal2" />
+      <PackageGroupRef Id="BootstrapperNetCorePackages" />
     </Chain>
+    
+    <?else?>
+
+    <BootstrapperApplicationRef Id="BootstrapperNetFx" />
+    <Chain>
+      <PackageGroupRef Id="BootstrapperNetFxPackages" />
+    </Chain>
+    
+    <?endif?>
+
   </Bundle>
 </Wix>

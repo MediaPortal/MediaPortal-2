@@ -1,0 +1,64 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Fragment>
+    <PayloadGroup Id="BootstrapperPayloadCommon">
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)WixToolset.Mba.Core.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)mbanative.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)WixToolset.Dtf.WindowsInstaller.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Prism.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Prism.Wpf.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.Xaml.Behaviors.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.WindowsAPICodePack.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.WindowsAPICodePack.Shell.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)Microsoft.WindowsAPICodePack.ShellExtensions.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MediaPortal.Common.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MediaPortal.Utilities.dll" />
+    </PayloadGroup>
+
+    <PackageGroup Id="BundleChainPackagesCommon">
+      <PackageGroupRef Id="redist" />
+      <PackageGroupRef Id="dokan" />
+      <PackageGroupRef Id="LAVFilters" />
+
+      <RollbackBoundary />
+      <PackageGroupRef Id="MediaPortal2" />
+    </PackageGroup>
+
+  </Fragment>
+  
+  <Fragment>
+    <BootstrapperApplication Id="BootstrapperNetFx">
+      <bal:WixManagedBootstrapperApplicationHost />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MP2BootstrapperApp.dll" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)WixToolset.Mba.Host.config" />
+      <PayloadGroupRef Id="BootstrapperPayloadCommon"/>
+    </BootstrapperApplication>
+
+    <PackageGroup Id="BootstrapperNetFxPackages">
+      <PackageGroupRef Id="NetFx48WebAsPrereq" />
+      <PackageGroupRef Id="BundleChainPackagesCommon"/>
+    </PackageGroup>
+  </Fragment>
+  
+  <Fragment>
+    <WixVariable Id="DesktopNetCoreRuntime6016Redistx86InstallCondition" Value="NOT VersionNT64"  />
+    <WixVariable Id="DesktopNetCoreRuntime6016Redistx64InstallCondition" Value="VersionNT64" />
+    <WixVariable Id="AspNetCoreRuntime6016Redistx86InstallCondition" Value="NOT VersionNT64" />
+    <WixVariable Id="AspNetCoreRuntime6016Redistx64InstallCondition" Value="VersionNT64" />
+    
+    <BootstrapperApplication Id="BootstrapperNetCore">
+      <bal:WixDotNetCoreBootstrapperApplicationHost />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MP2BootstrapperApp.dll" bal:BAFactoryAssembly="true" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MP2BootstrapperApp.deps.json" />
+      <Payload SourceFile="$(MP2BootstrapperApp.TargetDir)MP2BootstrapperApp.runtimeconfig.json" />
+      <PayloadGroupRef Id="BootstrapperPayloadCommon"/>
+    </BootstrapperApplication>
+      
+    <PackageGroup Id="BootstrapperNetCorePackages">
+      <PackageGroupRef Id="DesktopNetCoreRuntime6016Redist_x64AsPrereq" />
+      <PackageGroupRef Id="DesktopNetCoreRuntime6016Redist_x86AsAdditionalPrereq" />
+      <PackageGroupRef Id="AspNetCoreRuntime6016Redist_x64AsAdditionalPrereq" />
+      <PackageGroupRef Id="AspNetCoreRuntime6016Redist_x86AsAdditionalPrereq" />
+      <PackageGroupRef Id="BundleChainPackagesCommon"/>
+    </PackageGroup>
+  </Fragment>
+</Wix>

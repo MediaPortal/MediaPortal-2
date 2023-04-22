@@ -1,14 +1,30 @@
 ﻿<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
+    <!--
+    Change or override this property to update the versions of the main MP2 applications to build and include
+    in the installer, e.g. changing it to net6.0-windows will build an installer for the net6.0 version of MP2.
+    
+    Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
+    are multi-targeted and wix needs to know which target's output to include in the installer.
+    This custom property is used to specify which target to use, it's additionally used to simulate the same behavior
+    as AppendTargetFrameworkToOutputPath so that the installer is placed in a target framework specific output directory.
+    
+    MP2-Bootstrapper-net6.wixproj imports this project and overrides this property to build the net6 version of the installer.
+    -->
+    <ReferencedTargetFramework Condition=" '$(ReferencedTargetFramework)' == '' ">net6.0-windows</ReferencedTargetFramework>
+    <!-- Simulates AppendTargetFrameworkToOutputPath behavior -->
+    <IntermediateOutputPath>obj\$(Configuration)\$(ReferencedTargetFramework)\</IntermediateOutputPath>
+  </PropertyGroup>
+  <PropertyGroup>
     <OutputName>MP2-Setup</OutputName>
     <OutputType>Bundle</OutputType>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\en-us\</OutputPath>
+    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\$(ReferencedTargetFramework)\en-us\</OutputPath>
     <DefineConstants>Debug</DefineConstants>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\en-us\</OutputPath>
+    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\$(ReferencedTargetFramework)\en-us\</OutputPath>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.NetFx.wixext" Version="4.0.0" />
@@ -17,12 +33,12 @@
     <PackageReference Include="WixToolset.Bal.wixext" Version="4.0.0" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Fragments" />
     <Folder Include="Resources" />
     <Folder Include="Theme" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\MP2-Setup\Includes.wxi" Link="Includes.wxi" />
+    <Content Include="fragments\netcore\NetCore6_Platform.wxi" />
     <Content Include="Resources\Setup.ico" />
     <Content Include="Theme\CustomTheme.xml" />
     <None Include="build.targets" />
@@ -30,8 +46,9 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MP2-Setup\MP2-Setup.wixproj" />
+    <ProjectReference Include="..\MP2-Setup\MP2-Setup-net6.wixproj" />
     <ProjectReference Include="..\MP2BootstrapperApp\MP2BootstrapperApp.csproj">
-      <TargetFrameworks>net48</TargetFrameworks>
+      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
     </ProjectReference>
   </ItemGroup>
   <Import Project="build.targets" />
