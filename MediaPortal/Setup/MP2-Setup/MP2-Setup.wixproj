@@ -52,7 +52,6 @@
     <ProjectReference Include="..\..\Tools\LogCollector\MediaPortal.LogCollector.csproj">
       <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
     </ProjectReference>
-    <ProjectReference Include="..\CustomActions\CustomActions.csproj" />
   </ItemGroup>
   <ItemGroup>
     <None Include="build.targets" />
