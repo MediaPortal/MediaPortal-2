@@ -1,30 +1,23 @@
 ﻿<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
-    <!--
-    Change or override this property to update the versions of the main MP2 applications to build and include
-    in the installer, e.g. changing it to net6.0-windows will build an installer for the net6.0 version of MP2.
-    
-    Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
-    are multi-targeted and wix needs to know which target's output to include in the installer.
-    This custom property is used to specify which target to use, it's additionally used to simulate the same behavior
-    as AppendTargetFrameworkToOutputPath so that the installer is placed in a target framework specific output directory.
-    
-    MP2-Bootstrapper-net6.wixproj imports this project and overrides this property to build the net6 version of the installer.
-    -->
-    <ReferencedTargetFramework Condition=" '$(ReferencedTargetFramework)' == '' ">net6.0-windows</ReferencedTargetFramework>
-    <!-- Simulates AppendTargetFrameworkToOutputPath behavior -->
-    <IntermediateOutputPath>obj\$(Configuration)\$(ReferencedTargetFramework)\</IntermediateOutputPath>
-  </PropertyGroup>
-  <PropertyGroup>
     <OutputName>MP2-Setup</OutputName>
     <OutputType>Bundle</OutputType>
+    <Configurations>Debug;Release;DebugNetCore;ReleaseNetCore</Configurations>
+    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\en-us\</OutputPath>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
-    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\$(ReferencedTargetFramework)\en-us\</OutputPath>
+  <PropertyGroup Condition=" '$(Configuration.StartsWith(`Debug`))' ">
     <DefineConstants>Debug</DefineConstants>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
-    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\$(ReferencedTargetFramework)\en-us\</OutputPath>
+  <!--
+    Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
+    are multi-targeted and wix needs to know which target's output to include in the installer.
+    The custom property $(ReferencedTargetFramework) is used to specify which target to use.
+    -->
+  <PropertyGroup Condition=" '$(Configuration.EndsWith(`NetCore`))' == 'true' ">
+    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net6.0-windows</ReferencedTargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration.EndsWith(`NetCore`))' != 'true' ">
+    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net48</ReferencedTargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.NetFx.wixext" Version="4.0.0" />
@@ -46,7 +39,6 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MP2-Setup\MP2-Setup.wixproj" />
-    <ProjectReference Include="..\MP2-Setup\MP2-Setup-net6.wixproj" />
     <ProjectReference Include="..\MP2BootstrapperApp\MP2BootstrapperApp.csproj">
       <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
     </ProjectReference>

@@ -25,14 +25,8 @@
     <util:RegistrySearch Id="CreateDesktopShortcutsRegistryExists" Root="HKLM" Key="$(var.RegKeyRoot)" Value="DESKTOPSHORTCUTS" Variable="CreateDesktopShortcutsRegistryExists" Result="exists" Bitness="always32" />
     <util:RegistrySearch Id="CreateDesktopShortcutsRegistry" After="CreateDesktopShortcutsRegistryExists" Condition="CreateDesktopShortcutsRegistryExists" Root="HKLM" Key="$(var.RegKeyRoot)" Value="DESKTOPSHORTCUTS" Variable="CREATEDESKTOPSHORTCUTS" Bitness="always32" />
 
-    <?if $(BuildDotNetCore) ~= "true" ?>
-    <?define MediaPortalPackagePath = $(MP2_Setup_net6.TargetPath) ?>
-    <?else?>
-    <?define MediaPortalPackagePath = $(MP2_Setup.TargetPath) ?>
-    <?endif?>
-
     <PackageGroup Id="MediaPortal2">
-      <MsiPackage Id="MediaPortal2" SourceFile="$(MediaPortalPackagePath)" EnableFeatureSelection="yes" Compressed="yes" Vital="yes" Visible="no">
+      <MsiPackage Id="MediaPortal2" SourceFile="$(MP2_Setup.TargetPath)" EnableFeatureSelection="yes" Compressed="yes" Vital="yes" Visible="no">
         <MsiProperty Name="INSTALLDIR" Value="[INSTALLDIR]" />
         <MsiProperty Name="CREATESTARTMENUSHORTCUTS" Value="[CREATESTARTMENUSHORTCUTS]" />
         <MsiProperty Name="CREATEDESKTOPSHORTCUTS" Value="[CREATEDESKTOPSHORTCUTS]" />

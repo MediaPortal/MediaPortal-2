@@ -1,37 +1,32 @@
 ﻿<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
-    <!--
-    Change or override this property to update the versions of the main MP2 applications to build and include
-    in the installer, e.g. changing it to net6.0-windows will build an installer for the net6.0 version of MP2.
-    
-    Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
-    are multi-targeted and wix needs to know which target's output to include in the installer.
-    This custom property is used to specify which target to use, it's additionally used to simulate the same behavior
-    as AppendTargetFrameworkToOutputPath so that the installer is placed in a target framework specific output directory.
-    
-    MP2-Setup-net6.wixproj imports this project and overrides this property to build the net6 version of the installer.
-    -->
-    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net48</ReferencedTargetFramework>
-    <!--
-    Simulates AppendTargetFrameworkToOutputPath behavior, this (specifically the OutputPath) needs
-    to be indentical to the OutputPath of the framework specific MP2 applications as it is used as
-    part of the path to those application's output when harvesting in build.targets. -->
-    <IntermediateOutputPath>obj\$(Configuration)\$(ReferencedTargetFramework)\</IntermediateOutputPath>
-    <OutputPath>bin\$(Configuration)\$(ReferencedTargetFramework)\</OutputPath>
+    <Configurations>Debug;Release;DebugNetCore;ReleaseNetCore</Configurations>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+  <PropertyGroup Condition=" '$(Configuration.StartsWith(`Debug`))' ">
     <DefineConstants>Debug;</DefineConstants>
     <SuppressValidation>False</SuppressValidation>
     <SuppressIces>ICE60;ICE80</SuppressIces>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+  <PropertyGroup Condition=" '$(Configuration.StartsWith(`Release`))' ">
     <SuppressIces>ICE60;ICE80</SuppressIces>
+  </PropertyGroup>
+  <!--
+    Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
+    are multi-targeted and wix needs to know which target's output to include in the installer.
+    The custom property $(ReferencedTargetFramework) is used to specify which target to use.
+    -->
+  <PropertyGroup Condition=" '$(Configuration.EndsWith(`NetCore`))' == 'true' ">
+    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net6.0-windows</ReferencedTargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration.EndsWith(`NetCore`))' != 'true' ">
+    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net48</ReferencedTargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <None Include="MP2-Setup-Logging.bat" />
     <None Include="Resources\MP2_Icon_General.ico" />
     <None Include="Resources\MPBanner.jpg" />
     <None Include="Resources\MPDialog.jpg" />
+    <Content Include="Includes.wxi" />
     <Content Include="xslt\Client.Heat.xslt" />
     <Content Include="xslt\LogCollector.Heat.xslt" />
     <Content Include="xslt\Server.Heat.xslt" />

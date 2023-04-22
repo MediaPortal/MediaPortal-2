@@ -31,7 +31,7 @@
     </StandardDirectory>
 
     <!-- Defines the TVE3.5 feature level. If TVE3 is excluded then set to 1 so that TVE3.5 is selected by default, else 2 so that TVE3 is selected by default -->
-    <?if $(var.ExcludeTvService3) ~= "true" ?>
+    <?if $(IsNetCore) ~= "true" ?>
       <?define Service35FeatureLevel = 1 ?>
     <?else?>
       <?define Service35FeatureLevel = 2 ?>

@@ -1,15 +1,5 @@
 <Project>
 
-  <PropertyGroup Condition=" '$(ReferencedTargetFramework.TrimEnd(`0123456789`))' == 'net' ">
-    <BuildDotNetCore Condition=" '$(BuildDotNetCore)' == '' ">false</BuildDotNetCore>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(ReferencedTargetFramework.TrimEnd(`0123456789`))' != 'net' ">
-    <BuildDotNetCore Condition=" '$(BuildDotNetCore)' == '' ">true</BuildDotNetCore>
-  </PropertyGroup>
-  <PropertyGroup>
-    <DefineConstants>$(DefineConstants);BuildDotNetCore=$(BuildDotNetCore)</DefineConstants>
-  </PropertyGroup>  
-  
   <ItemGroup>
     <Resources Include="$(ProjectDir)MP2-Setup-Logging.bat"/>
   </ItemGroup>
