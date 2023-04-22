@@ -22,14 +22,19 @@
 
 #endregion
 
+using MP2BootstrapperApp.BootstrapperWrapper;
 using MP2BootstrapperApp.BundlePackages;
 using System;
 using System.Linq;
 using System.Xml.Linq;
 using Tests.Mocks;
 using WixToolset.Dtf.WindowsInstaller;
+using WixToolset.Mba.Core;
 using Xunit;
 
+// This attribute is required to keep the WixToolset.Dnc.HostGenerator package happy, otherwise it throws
+// an error if a project that references it doesn't define an IBootstrapperApplicationFactory
+[assembly: BootstrapperApplicationFactory(typeof(BootstrapperApplicationFactory))]
 namespace Tests
 {
   public class BootstrapperTests
