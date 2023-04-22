@@ -52,10 +52,10 @@
     </BootstrapperApplication>
       
     <PackageGroup Id="BootstrapperNetCorePackages">
-      <PackageGroupRef Id="DesktopNetCoreRuntime6016Redist_x64AsPrereq" />
-      <PackageGroupRef Id="DesktopNetCoreRuntime6016Redist_x86AsAdditionalPrereq" />
-      <PackageGroupRef Id="AspNetCoreRuntime6016Redist_x64AsAdditionalPrereq" />
+      <PackageGroupRef Id="DesktopNetCoreRuntime6016Redist_x86AsPrereq" />
       <PackageGroupRef Id="AspNetCoreRuntime6016Redist_x86AsAdditionalPrereq" />
+      <PackageGroupRef Id="DesktopNetCoreRuntime6016Redist_x64AsAdditionalPrereq" />
+      <PackageGroupRef Id="AspNetCoreRuntime6016Redist_x64AsAdditionalPrereq" />
       <PackageGroupRef Id="BundleChainPackagesCommon"/>
     </PackageGroup>
   </Fragment>
