@@ -40,9 +40,7 @@
   </Fragment>
   
   <Fragment>
-    <WixVariable Id="DesktopNetCoreRuntime6016Redistx86InstallCondition" Value="NOT VersionNT64"  />
     <WixVariable Id="DesktopNetCoreRuntime6016Redistx64InstallCondition" Value="VersionNT64" />
-    <WixVariable Id="AspNetCoreRuntime6016Redistx86InstallCondition" Value="NOT VersionNT64" />
     <WixVariable Id="AspNetCoreRuntime6016Redistx64InstallCondition" Value="VersionNT64" />
     
     <BootstrapperApplication Id="BootstrapperNetCore">
