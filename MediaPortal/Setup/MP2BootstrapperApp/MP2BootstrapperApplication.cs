@@ -54,7 +54,7 @@ namespace MP2BootstrapperApp
       _dispatcher = new DispatcherWrapper();
 
 #if DEBUG
-      MessageBox.Show("dd");
+      System.Windows.MessageBox.Show("dd");
 #endif
 
       IBootstrapperApplicationModel model = new BootstrapperApplicationModel(this);
