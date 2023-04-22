@@ -227,7 +227,8 @@ namespace MP2BootstrapperApp.Models
       // of issues with the MediaPortal 2 installation.
       if (bundlePackage == null)
       {
-        planPackageBeginEventArgs.State = RequestState.None;
+        if (planPackageBeginEventArgs.State == RequestState.Repair)
+          planPackageBeginEventArgs.State = RequestState.None;
         return;
       }
 
