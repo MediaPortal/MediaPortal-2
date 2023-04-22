@@ -23,12 +23,6 @@
 
     <SetProperty Id="FirewallPortRemove" Value="&quot;[SystemFolder]netsh.exe&quot; advfirewall firewall delete rule name=&quot;MediaPortal UPnP/HttpServer&quot; protocol=TCP localport=55555" Before="FirewallPortRemove" Sequence="execute" />
     <CustomAction Id="FirewallPortRemove" DllEntry="WixQuietExec" Execute="deferred" Return="asyncWait" BinaryRef="Wix4UtilCA_$(sys.BUILDARCHSHORT)" />
-
-    <InstallExecuteSequence>
-      <Custom Action="ListenerServiceDeleteReservation" Before="InstallFinalize" Condition="REMOVE~=&quot;ALL&quot;" />
-      <Custom Action="ListenerServiceAddReservation" Before="InstallFinalize" Condition="NOT Installed" />
-      <Custom Action="FirewallPortRemove" Before="InstallFinalize" Condition="REMOVE~=&quot;ALL&quot;" />
-      <Custom Action="FirewallPortAdd" Before="InstallFinalize" Condition="NOT Installed" />
-    </InstallExecuteSequence>
+    
   </Fragment>
 </Wix>

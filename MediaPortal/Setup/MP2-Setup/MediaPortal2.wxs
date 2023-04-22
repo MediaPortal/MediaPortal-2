@@ -77,6 +77,11 @@
       <!--<Custom Action="PrepareXmlPathVariables" Before="FileCost" Condition="NOT Installed" />-->
       <!--<Custom Action="AttachClientToServer" After="InstallFinalize" Condition="NOT Installed" />-->
 
+      <Custom Action="ListenerServiceDeleteReservation" Before="InstallFinalize" Condition="REMOVE~=&quot;ALL&quot;" />
+      <Custom Action="ListenerServiceAddReservation" Before="InstallFinalize" Condition="NOT Installed" />
+      <Custom Action="FirewallPortRemove" Before="InstallFinalize" Condition="REMOVE~=&quot;ALL&quot;" />
+      <Custom Action="FirewallPortAdd" Before="InstallFinalize" Condition="NOT Installed" />
+      
       <InstallExecute After="RemoveExistingProducts" />
     </InstallExecuteSequence>
 
