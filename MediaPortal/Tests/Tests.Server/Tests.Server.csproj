@@ -8,17 +8,25 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <None Remove="NfoMetadataExtractor\TestData\MovieNfo\movie.nfo" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\Source\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="NfoMetadataExtractor\TestData\MovieNfo\movie.nfo" />
+  </ItemGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.5.0" />
     <PackageReference Include="Moq">
       <Version>4.18.1</Version>
     </PackageReference>
     <PackageReference Include="NUnit">
       <Version>3.13.3</Version>
     </PackageReference>
+    <PackageReference Include="NUnit3TestAdapter" Version="4.4.2" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Core\MediaPortal.Backend\MediaPortal.Backend.csproj" />
@@ -37,5 +45,25 @@
     <ProjectReference Include="..\..\Source\UI\TV\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
     <ProjectReference Include="..\..\Source\UI\TV\SlimTvResources\SlimTv.Resources.csproj" />
     <ProjectReference Include="..\MediaPortal.Mock\MediaPortal.Mock.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Update="Designs\Flat-default.logotheme">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Designs\Flat\background.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Designs\Flat\overlay.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Designs\Original\background.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Designs\Original\overlay.png">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Libraries\MatroskaLib\TestData\Test Media.mkv">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 </Project>
