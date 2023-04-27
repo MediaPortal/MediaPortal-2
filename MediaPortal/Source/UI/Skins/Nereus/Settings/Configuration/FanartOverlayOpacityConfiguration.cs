@@ -43,8 +43,8 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
     {
       base.Load();
       _lowerLimit = 0.7;
-      _upperLimit = 1.1;
-      _step = 0.1;
+      _upperLimit = 1.0;
+      _step = 0.05;
       _type = NumberType.FloatingPoint;
       _value = SettingsManager.Load<NereusSkinSettings>().FanartOverlayOpacity;
     }
