@@ -98,7 +98,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
       settings.EnableFanart = EnableFanart;
 
-      if (double.TryParse(FanartOverlayOpacity, out var opacity) && opacity > 0.7 && opacity < 1.0)
+      if (double.TryParse(FanartOverlayOpacity, out var opacity) && opacity >= 0.7 && opacity <= 1.0)
         settings.FanartOverlayOpacity = opacity;
       else
         settings.FanartOverlayOpacity = DEFAULT_FANART_OVERLAY_OPACITY;
