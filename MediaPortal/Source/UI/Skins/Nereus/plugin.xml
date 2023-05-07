@@ -154,12 +154,6 @@
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMenuSelectionConfiguration"/>
 
     <ConfigSetting
-        Id="NereusFanartOverlayOpacity"
-        Text="[Nereus.Configuration.FanartOverlayOpacity]"
-        HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"/>
-
-    <ConfigSetting
         Id="NereusEnableLoopScrolling"
         Text="[Nereus.Configuration.EnableLoopScrolling]"
         HelpText="[Nereus.Configuration.EnableLoopScrolling.Help]"
@@ -179,12 +173,12 @@
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogConfiguration"
         AdditionalData="WorkflowState=C364F2E3-346E-4861-B9EE-CF5A74487244,ConfAppPanel=..."/>
 
-    <CustomConfigSetting
+    <!-->CustomConfigSetting
         Id="NereusFanartDialog"
         Text="[Nereus.Configuration.FanartOverlayOpacity]"
         HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartConfiguration"
-        AdditionalData="WorkflowState=5C9FACE7-BD16-4965-A08E-B0F6872EB7EF,ConfAppPanel=..."/>
+        AdditionalData="WorkflowState=5C9FACE7-BD16-4965-A08E-B0F6872EB7EF,ConfAppPanel=..."/-->
     
     <CustomConfigSetting
         Id="NereusSkinColorSelectionDialog"
@@ -192,7 +186,14 @@
         HelpText="[Nereus.Configuration.SelectSkinColor.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.SkinColorConfiguration"
         AdditionalData="WorkflowState=F07881D8-FCB4-4327-A8D0-C20FF5DA3E6A,ConfAppPanel=..."/>
-    
+
+    <CustomConfigSetting
+        Id="NereusFanartOverlayOpacity"
+        Text="[Nereus.Configuration.FanartOverlayOpacity]"
+        HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartOverlayOpacityConfiguration"
+        AdditionalTypes="CustomConfigController=MediaPortal.UiComponents.Nereus.Settings.ConfigurationControllers.FanartVisibilityController" />
+
     <ConfigSetting
         Id="NereusEnableAgeCertificationLogos"
         Text="[Nereus.Configuration.EnableAgeCertificationLogos]"
