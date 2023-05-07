@@ -4,11 +4,13 @@
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     Source="screens\master_bare.xaml"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     >
   <Include.Resources>
 
     <!-- Header has to be defined by the includer: "Header_Text" -->
+    
+    <!-- Whether to show the main content area, else the side menu will be stretched to full width, can be overriden in derived screens -->
+    <ResourceWrapper x:Key="Show_Contents" Resource="True"/>
 
     <ControlTemplate x:Key="Client_Template">
       <DockPanel LastChildFill="True" Margin="40,0,40,0">
@@ -21,22 +23,22 @@
         <ListView x:Name="MainMenu" DockPanel.Dock="Left" VerticalAlignment="Stretch" SetFocusPrio="Fallback"
                   ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
           <ListView.Style>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {2} : {1}">
-              <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Source="{DynamicResource Show_Contents}" />
               <Binding Source="{ThemeResource LeftMenuListViewStyle}" />
               <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
             </MultiBinding>
           </ListView.Style>
           <ListView.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : ({2}-80)">
-              <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : ({2}-80)">
+              <Binding Source="{DynamicResource Show_Contents}" />
               <Binding Source="550" />
               <Binding Source="{SkinWidth}" />
             </MultiBinding>
           </ListView.Width>
           <ListView.Margin>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
-              <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Source="{DynamicResource Show_Contents}" />
               <Binding Source="10,30,0,10" />
               <Binding Source="0,30,0,-180" />
             </MultiBinding>

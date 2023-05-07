@@ -11,6 +11,13 @@
 
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" EnableBindings="True" Resource="{Binding Source={StaticResource Model},Path=HeaderText,Mode=OneTime}"/>
+    
+    <!-- Show the contents screen if there are settings, else the side menu will be stretched to full width -->
+    <ResourceWrapper x:Key="Show_Contents" EnableBindings="True">
+      <ResourceWrapper.Resource>
+        <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0" Mode="OneTime"/>
+      </ResourceWrapper.Resource>
+    </ResourceWrapper>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">

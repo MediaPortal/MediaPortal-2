@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <!--
-This is the master template for standard menu screens:
+This is the master template for standard config screens:
 A header text, left the menu, under the menu a small video preview,
 at the right side the content pane and at the bottom the current play control.
 
@@ -25,17 +25,25 @@ Parameters which have to be accessible by a DynamicResource lookup:
  - Header_Text (String): The text to be displayed as header
  - Contents_Template (ConrolTemplate): Template for element to be displayed
    in the content area at the right side
+  
+Optional parameters which can be overriden by a DynamicResource lookup
+  - Show_Contents (Boolean): Whether to show the main content area, if false the
+    side menu will be shown full width with large icons. Default is true.
+  - Menu_Image_Source (ImageSource): The source to use for an image to be displayed
+    at the base of the side menu when Show_Contents is true. Default is empty.
 -->
 
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_bare.xaml"
-    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine">
+    Source="screens\master_bare.xaml">
 
   <Include.Resources>
-    <!-- Configuration model -->
-    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
+
+    <!-- Whether to show the main content area, else the side menu will be stretched to full width, can be overriden in derived screens -->
+    <ResourceWrapper x:Key="Show_Contents" Resource="True"/>
+    <!-- Image to show in the side menu when showing contents, can be overriden in derived screens -->
+    <ResourceWrapper x:Key="Menu_Image_Source" Resource=""/>
 
     <!-- Defines the default margins for the content area -->
     <ResourceWrapper x:Key="DefaultContentMargin" Resource="0" />
@@ -113,36 +121,27 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid.RowDefinitions>
 
           <Grid.Width>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
-              <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Source="{DynamicResource Show_Contents}" />
               <Binding Source="480" />
               <Binding Source="{SkinWidth}" />
             </MultiBinding>
           </Grid.Width>
 
-          <Image Grid.RowSpan="3" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,0,-20,0" RenderTransformOrigin="0.5,0.5">
+          <Image Grid.RowSpan="3" Source="ContentGlow.png" Stretch="Uniform" VerticalAlignment="Stretch" HorizontalAlignment="Right" Margin="0,0,-20,0" RenderTransformOrigin="0.5,0.5"
+                 IsVisible="{DynamicResource Show_Contents}">
             <Image.RenderTransform>
               <RotateTransform Angle="180"/>
             </Image.RenderTransform>
-            <Image.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
-                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
-              </MultiBinding>
-            </Image.IsVisible>
           </Image>
-          <Border Grid.RowSpan="3" Margin="-1,0,-1,0" Background="Black" Opacity="1" HorizontalAlignment="Stretch">
-            <Border.IsVisible>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
-                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
-              </MultiBinding>
-            </Border.IsVisible>
-          </Border>
+          <Border Grid.RowSpan="3" Margin="-1,0,-1,0" Background="Black" Opacity="1" HorizontalAlignment="Stretch"
+                  IsVisible="{DynamicResource Show_Contents}"/>
 
           <ListView x:Name="MainMenu" Grid.Row="1" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" SetFocusPrio="Default"
                     ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
             <ListView.Style>
-              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == 0 ? {2} : {1}">
-                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                <Binding Source="{DynamicResource Show_Contents}" />
                 <Binding Source="{ThemeResource MainMenuListViewStyle}" />
                 <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
               </MultiBinding>
@@ -161,19 +160,13 @@ Parameters which have to be accessible by a DynamicResource lookup:
               <ColumnDefinition Width="Auto"/>
             </Grid.ColumnDefinitions>
 
-            <Image x:Name="ItemImage" Width="240" Height="240" Stretch="Fill" Opacity="0.8" HorizontalAlignment="Left">
-              <Image.Source>
-                <Binding Source="{StaticResource Model}" Path="CurrentLocation" Converter="{StaticResource ConfigurationPathConverter}" ConverterParameter="{}SettingsMenu\{0}.jpg"/>
-              </Image.Source>
-              <Image.IsVisible>
-                <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{}{0} != 0" />
-              </Image.IsVisible>
-            </Image>
+            <Image x:Name="ItemImage" Width="240" Height="240" Stretch="Fill" Opacity="0.8" HorizontalAlignment="Left"
+                   Source="{Binding Source={DynamicResource Menu_Image_Source}, Path=Resource}" IsVisible="{DynamicResource Show_Contents}"/>
             <Label x:Name="HeaderLabel" Grid.Row="1" MaxWidth="1400" Margin="0,10,10,10" VerticalAlignment="Bottom" Wrap="True" HorizontalAlignment="Left"
                    Content="{Binding Source={DynamicResource Header_Text},Path=Resource}" Color="White" Opacity="0.2">
               <Label.FontSize>
-                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0 ? {1} : {2}">
-                  <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding Source="{DynamicResource Show_Contents}" />
                   <Binding Source="{ThemeResource NormalFontSize}" />
                   <Binding Source="{ThemeResource HeaderFontSize}" />
                 </MultiBinding>
@@ -186,12 +179,8 @@ Parameters which have to be accessible by a DynamicResource lookup:
         </Grid>
 
         <!-- Order matters here: The content grid has to be the last control to fill the rest of the space -->
-        <Grid x:Name="ContentPanel" Grid.Column="1" SetFocusPrio="DefaultHigh" Margin="-20,0,0,0" Panel.ZIndex="1">
-          <Grid.IsVisible>
-            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} != 0">
-              <Binding Source="{StaticResource Model}" Path="ConfigSettings.Count" />
-            </MultiBinding>
-          </Grid.IsVisible>
+        <Grid x:Name="ContentPanel" Grid.Column="1" SetFocusPrio="DefaultHigh" Margin="-20,0,0,0" Panel.ZIndex="1"
+              IsVisible="{DynamicResource Show_Contents}">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
