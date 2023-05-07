@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.FanartOverlayOpacity]"/>
+    <ResourceWrapper x:Key="Wrap_Text" Resource="[Nereus.Configuration.FanartOverlayOpacity.Help]"/>
+
+    <!-- AutoScrollConfigurationModel -->
+    <Model x:Key="FanartConfigurationModel" Id="543CFC2F-816D-48ae-BEE3-BB3B85876505"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid Margin="10" DataContext="{Binding Source={StaticResource FanartConfigurationModel}}">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="900" />
+          <ColumnDefinition Width="175" />
+        </Grid.ColumnDefinitions>
+        <CheckBox Margin="0,1,25,10" VerticalAlignment="Center" IsChecked="{Binding Path=EnableFanart,Mode=TwoWay}" Content="[Nereus.Configuration.EnableFanart.Help]">
+          <CheckBox.Triggers>
+            <Trigger Property="IsChecked" Value="False">
+              <Setter TargetName="OpacityLabel" Property="Opacity" Value="0.4"/>
+            </Trigger>
+          </CheckBox.Triggers>
+        </CheckBox>
+        <Label x:Name="OpacityLabel" Grid.Row="1" Content="{ThemeResource Wrap_Text}" Color="{ThemeResource TextColor}" 
+                Margin="55,0,0,10" Opacity="1" Wrap="True" Width="800"/>
+        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=FanartOverlayOpacity,Mode=TwoWay}" Margin="5,0,5,10" VerticalAlignment="Center"
+                 IsEnabled="{Binding Path=EnableFanart}" Style="{ThemeResource SymbolTextBoxStyle}"/>
+
+        <Grid Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
+          <Image Source="Fanart.jpg" Width="700" Stretch="Uniform" HorizontalAlignment="Center"/>
+          <Image Source="background.png" Width="700" Stretch="Uniform" HorizontalAlignment="Center" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].FanartOverlayOpacity}">
+          </Image>
+        </Grid>
+
+        <!--Button Grid.Row="3" Grid.ColumnSpan="2" Name="ButtonRefresh" SetFocusPrio="Default" Style="{ThemeResource WizardButtonStyle}" Content="[Nereus.Configuration.Refresh]" Margin="10,10,10,30" HorizontalAlignment="Left">
+          <Button.Command>
+            <CommandList>
+              <Command Path="SaveSettings" />
+              <Command Path="Refresh" />
+            </CommandList>
+          </Button.Command>
+        </Button-->
+
+        <!-- OK & Cancel button -->
+        <Grid Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="0,10,0,0">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Button Name="ButtonOk" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings" />
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog" />
+              </CommandList>
+            </Button.Command>
+          </Button>
+
+          <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+
+        </Grid>
+
+      </Grid>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

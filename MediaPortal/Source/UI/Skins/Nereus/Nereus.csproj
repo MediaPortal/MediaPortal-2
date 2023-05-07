@@ -19,6 +19,12 @@
     <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Remove="Skin\Nereus\images\Effects\**" />
+    <EmbeddedResource Remove="Skin\Nereus\images\Effects\**" />
+    <None Remove="Skin\Nereus\images\Effects\**" />
+    <Page Remove="Skin\Nereus\images\Effects\**" />
+  </ItemGroup>
+  <ItemGroup>
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
@@ -46,12 +52,6 @@
     <Content Include="Skin\Nereus\images\configure.nofocus.png" />
     <Content Include="Skin\Nereus\images\ContentGlow.png" />
     <Content Include="Skin\Nereus\images\disconnected.png" />
-    <Content Include="Skin\Nereus\images\Effects\Layer1.png" />
-    <Content Include="Skin\Nereus\images\Effects\Layer2.png" />
-    <Content Include="Skin\Nereus\images\Effects\Layer3.png" />
-    <Content Include="Skin\Nereus\images\Effects\Layer4.png" />
-    <Content Include="Skin\Nereus\images\Effects\Layer5.png" />
-    <Content Include="Skin\Nereus\images\Effects\Layer6.png" />
     <Content Include="Skin\Nereus\images\EXIT.FOCUS.PNG" />
     <Content Include="Skin\Nereus\images\Exit.NOFOCUS.PNG" />
     <Content Include="Skin\Nereus\images\f400fbea-6e32-4735-be52-15dfdbb64fcc.png" />
@@ -446,6 +446,9 @@
     <Content Include="Skin\Nereus\screens\dialogAutoScrollSettings.xaml">
       <Generator></Generator>
     </Content>
+    <Content Include="Skin\Nereus\screens\dialogFanartSettings.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <Content Include="Skin\Nereus\screens\MediaInfoVideoDetails.inc" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingVideo.xaml" />
@@ -643,6 +646,7 @@
     <Page Remove="Skin\Nereus\screens\dialogAutoScrollSettings.xaml" />
     <Page Remove="Skin\Nereus\screens\DialogEditMediaListMenu.xaml" />
     <Page Remove="Skin\Nereus\screens\DialogEditMenu.xaml" />
+    <Page Remove="Skin\Nereus\screens\dialogFanArtSettings.xaml" />
     <Page Remove="Skin\Nereus\screens\dialogSkinColorSettings.xaml" />
     <Page Remove="Skin\Nereus\screens\dialogSystemState.xaml" />
     <Page Remove="Skin\Nereus\screens\dialogSystemStateConfiguration.xaml" />
