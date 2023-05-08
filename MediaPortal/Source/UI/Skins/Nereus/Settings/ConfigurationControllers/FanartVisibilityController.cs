@@ -64,12 +64,12 @@ namespace MediaPortal.UiComponents.Nereus.Settings.ConfigurationControllers
     // Called when saving the setting
     protected override void UpdateSetting()
     {
-      // This saves the number related setting in the base class
-      base.UpdateSetting();
       // Get the underlying setting
       FanartOverlayOpacityConfiguration fanartSetting = (FanartOverlayOpacityConfiguration)_setting;
       // and save any changes back to it
       fanartSetting.EnableFanart = EnableFanart;
+      // This saves the number related setting in the base class
+      base.UpdateSetting();
     }
 
     // Use custom dialog
