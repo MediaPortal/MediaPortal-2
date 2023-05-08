@@ -53,7 +53,7 @@
 
         <Grid Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
           <Image Source="Fanart.jpg" Width="700" Stretch="Uniform" HorizontalAlignment="Center"/>
-          <Image Source="background.png" Width="700" Stretch="Uniform" HorizontalAlignment="Center" Opacity="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].FanartOverlayOpacity}">
+          <Image Source="background.png" Width="700" Stretch="Uniform" HorizontalAlignment="Center" Opacity="{Binding Value}">
           </Image>
         </Grid>
 
