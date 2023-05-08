@@ -447,7 +447,7 @@
       <Generator></Generator>
     </Content>
     <Content Include="Skin\Nereus\screens\dialogFanartSettings.xaml">
-      <Generator>MSBuild:Compile</Generator>
+      <Generator></Generator>
     </Content>
     <Content Include="Skin\Nereus\screens\MediaInfoVideoDetails.inc" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingAudio.xaml" />
