@@ -16,7 +16,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid x:Name="ContentsGrid">
+      <Grid x:Name="ContentsGrid" DataContext="{Binding Source={StaticResource Model},Path=CurrentConfigController,Mode=OneTime}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
           <ColumnDefinition Width="Auto"/>
@@ -28,7 +28,7 @@
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        
+
         <CheckBox Margin="0,1,25,10" VerticalAlignment="Center" IsChecked="{Binding Path=EnableFanart,Mode=TwoWay}" Content="[Nereus.Configuration.EnableFanart.Help]">
           <CheckBox.Triggers>
             <Trigger Property="IsChecked" Value="False">
@@ -36,18 +36,18 @@
             </Trigger>
           </CheckBox.Triggers>
         </CheckBox>
-        
+
         <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
-          <TextBox x:Name="NumberSelectContent" Margin="10,0,10,0" PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigController.DisplayLength}"
-                   Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
+          <TextBox x:Name="NumberSelectContent" Margin="10,0,10,0" PreferredTextLength="{Binding DisplayLength}"
+                   Text="{Binding Path=Value,Mode=TwoWay}"
                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
           <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Button Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2"
-                    IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsUpEnabled}"
-                    Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Up}"/>
+                    IsEnabled="{Binding IsUpEnabled}"
+                    Command="{Command Up}"/>
             <Button Style="{ThemeResource ChapterDownButtonStyle}" Height="30"
-                    IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsDownEnabled}"
-                    Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Down}"/>
+                    IsEnabled="{Binding IsDownEnabled}"
+                    Command="{Command Down}"/>
           </StackPanel>
         </StackPanel>
 
@@ -79,7 +79,7 @@
           <Button Name="ButtonOk" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
             <Button.Command>
               <CommandList>
-                <Command Path="SaveSettings" />
+                <Command Path="Save" />
                 <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog" />
               </CommandList>
             </Button.Command>
