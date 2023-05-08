@@ -37,7 +37,7 @@
           </CheckBox.Triggers>
         </CheckBox>
         
-        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1">
+        <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
           <TextBox x:Name="NumberSelectContent" Margin="10,0,10,0" PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigController.DisplayLength}"
                    Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
                    HorizontalAlignment="Center" VerticalAlignment="Center"/>
