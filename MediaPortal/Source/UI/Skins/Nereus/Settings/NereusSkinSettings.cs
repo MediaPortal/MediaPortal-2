@@ -42,9 +42,6 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, true)]
     public bool EnableFanart { get; set; }
 
-    [Setting(SettingScope.User, true)]
-    public bool DisplayFanart { get; set; }
-
     [Setting(SettingScope.User, false)]
     public bool EnableTouchDisplay { get; set; }
 

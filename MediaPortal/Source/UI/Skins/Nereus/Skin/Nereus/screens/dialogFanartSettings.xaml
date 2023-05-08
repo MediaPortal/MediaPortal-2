@@ -12,22 +12,23 @@
     <ResourceWrapper x:Key="Wrap_Text" Resource="[Nereus.Configuration.FanartOverlayOpacity.Help]"/>
 
     <!-- AutoScrollConfigurationModel -->
-    <Model x:Key="FanartConfigurationModel" Id="543CFC2F-816D-48ae-BEE3-BB3B85876505"/>
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid Margin="10" DataContext="{Binding Source={StaticResource FanartConfigurationModel}}">
-        <Grid.RowDefinitions>
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-          <RowDefinition Height="Auto" />
-        </Grid.RowDefinitions>
+      <Grid x:Name="ContentsGrid">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="900" />
-          <ColumnDefinition Width="175" />
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="*"/>
         </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        
         <CheckBox Margin="0,1,25,10" VerticalAlignment="Center" IsChecked="{Binding Path=EnableFanart,Mode=TwoWay}" Content="[Nereus.Configuration.EnableFanart.Help]">
           <CheckBox.Triggers>
             <Trigger Property="IsChecked" Value="False">
@@ -35,10 +36,20 @@
             </Trigger>
           </CheckBox.Triggers>
         </CheckBox>
-        <Label x:Name="OpacityLabel" Grid.Row="1" Content="{ThemeResource Wrap_Text}" Color="{ThemeResource TextColor}" 
-                Margin="55,0,0,10" Opacity="1" Wrap="True" Width="800"/>
-        <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=FanartOverlayOpacity,Mode=TwoWay}" Margin="5,0,5,10" VerticalAlignment="Center"
-                 IsEnabled="{Binding Path=EnableFanart}" Style="{ThemeResource SymbolTextBoxStyle}"/>
+        
+        <StackPanel Grid.Row="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center" Grid.Column="1" Grid.Row="1">
+          <TextBox x:Name="NumberSelectContent" Margin="10,0,10,0" PreferredTextLength="{Binding Source={StaticResource Model},Path=CurrentConfigController.DisplayLength}"
+                   Text="{Binding Source={StaticResource Model},Path=CurrentConfigController.Value,Mode=TwoWay}"
+                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Button Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsUpEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Up}"/>
+            <Button Style="{ThemeResource ChapterDownButtonStyle}" Height="30"
+                    IsEnabled="{Binding Source={StaticResource Model},Path=CurrentConfigController.IsDownEnabled}"
+                    Command="{Command Source={StaticResource Model},Path=CurrentConfigController.Down}"/>
+          </StackPanel>
+        </StackPanel>
 
         <Grid Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center">
           <Image Source="Fanart.jpg" Width="700" Stretch="Uniform" HorizontalAlignment="Center"/>
@@ -56,7 +67,7 @@
         </Button-->
 
         <!-- OK & Cancel button -->
-        <Grid Grid.Row="4" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="0,10,0,0">
+        <Grid Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Margin="0,10,0,0">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
             <ColumnDefinition Width="*" />
@@ -76,7 +87,6 @@
 
           <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
                   Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
-
         </Grid>
 
       </Grid>

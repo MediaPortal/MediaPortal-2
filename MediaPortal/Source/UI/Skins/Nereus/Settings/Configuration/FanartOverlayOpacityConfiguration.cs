@@ -39,6 +39,9 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
       SkinChangeMonitor.Instance.RegisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
     }
 
+    // Accessed and set from FanartVisibilityController
+    public bool EnableFanart { get; set; }
+
     public override void Load()
     {
       base.Load();
@@ -47,6 +50,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
       _step = 0.05;
       _type = NumberType.FloatingPoint;
       _value = SettingsManager.Load<NereusSkinSettings>().FanartOverlayOpacity;
+      EnableFanart = SettingsManager.Load<NereusSkinSettings>().EnableFanart;
     }
 
     public override void Save()
@@ -54,6 +58,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
       base.Save();
       var settings = SettingsManager.Load<NereusSkinSettings>();
       settings.FanartOverlayOpacity = _value;
+      settings.EnableFanart = EnableFanart;
       SettingsManager.Save(settings);
     }
 

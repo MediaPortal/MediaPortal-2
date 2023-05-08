@@ -34,7 +34,7 @@
     <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="AutoScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.AutoScrollConfigurationModel"/>
     <Model Id="03C73355-E01C-4d30-AE69-14408ADB2174" Name="SkinColorConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.SkinColorConfigurationModel"/>
     <Model Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0" Name="DialogConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.DialogConfigurationModel"/>
-    <Model Id="543CFC2F-816D-48ae-BEE3-BB3B85876505" Name="FanartConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.FanartConfigurationModel"/>
+    <!--Model Id="543CFC2F-816D-48ae-BEE3-BB3B85876505" Name="FanartConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.FanartConfigurationModel"/-->
   </Register>
 
   <Register Location="/Workflow/States">
@@ -62,15 +62,6 @@
                  DialogScreen="dialogDialogSettings"
                  DisplayLabel="[Nereus.Configuration.Dialog]"
                  WorkflowModel="5C314F18-6A81-47b7-91DB-02DBCF5176F0"/>
-  </Register>
-
-  <Register Location="/Workflow/States">
-    <!-- FanArtConfiguration Dialog -->
-    <DialogState Id="5C9FACE7-BD16-4965-A08E-B0F6872EB7EF"
-                 Name="dialogFanartSettings"
-                 DialogScreen="dialogFanartSettings"
-                 DisplayLabel="[Nereus.Configuration.Fanart]"
-                 WorkflowModel="543CFC2F-816D-48ae-BEE3-BB3B85876505"/>
   </Register>
   
   <!-- Language resources -->
@@ -129,11 +120,11 @@
         HelpText="[Nereus.Configuration.EnableHelpTexts.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHelpTextConfiguration"/>
 
-    <ConfigSetting
+    <!--ConfigSetting
         Id="NereusEnableFanart"
         Text="[Nereus.Configuration.EnableFanart]"
         HelpText="[Nereus.Configuration.EnableFanart.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/-->
 
     <ConfigSetting
         Id="NereusEnableTouchDisplay"
