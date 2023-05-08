@@ -49,8 +49,9 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
       _upperLimit = 1.0;
       _step = 0.05;
       _type = NumberType.FloatingPoint;
-      _value = SettingsManager.Load<NereusSkinSettings>().FanartOverlayOpacity;
-      EnableFanart = SettingsManager.Load<NereusSkinSettings>().EnableFanart;
+      var settings = SettingsManager.Load<NereusSkinSettings>();
+      _value = settings.FanartOverlayOpacity;
+      EnableFanart = settings.EnableFanart;
     }
 
     public override void Save()
