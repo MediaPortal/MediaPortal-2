@@ -22,15 +22,15 @@
 
 #endregion
 
-using MediaPortal.Common.Configuration.ConfigurationClasses;
 using MediaPortal.Common.General;
 using MediaPortal.UiComponents.Configuration.ConfigurationControllers;
 using MediaPortal.UiComponents.Nereus.Settings.Configuration;
 
-
-public class FanartVisibilityController : NumberSelectController
+namespace MediaPortal.UiComponents.Nereus.Settings.ConfigurationControllers
+{
+  public class FanartVisibilityController : NumberSelectController
   {
-  protected AbstractProperty _enableFanartProperty;
+    protected AbstractProperty _enableFanartProperty;
 
     public FanartVisibilityController()
     {
@@ -39,18 +39,18 @@ public class FanartVisibilityController : NumberSelectController
 
     public AbstractProperty EnableFanartProperty
     {
-        get { return _enableFanartProperty; }
+      get { return _enableFanartProperty; }
     }
 
-// For binding to the checkbox in the screen
+    // For binding to the checkbox in the screen
     public bool EnableFanart
     {
       get { return (bool)_enableFanartProperty.GetValue(); }
       set { _enableFanartProperty.SetValue(value); }
     }
 
-// Called when the setting is going to be displayed, update properties
-// from the underlying setting so they are available to the screen
+    // Called when the setting is going to be displayed, update properties
+    // from the underlying setting so they are available to the screen
     protected override void SettingChanged()
     {
       // This handles all the number related settings in the base class
@@ -61,7 +61,7 @@ public class FanartVisibilityController : NumberSelectController
       EnableFanart = fanartSetting.EnableFanart;
     }
 
-// Called when saving the setting
+    // Called when saving the setting
     protected override void UpdateSetting()
     {
       // This saves the number related setting in the base class
@@ -72,10 +72,11 @@ public class FanartVisibilityController : NumberSelectController
       fanartSetting.EnableFanart = EnableFanart;
     }
 
-  // Use custom dialog
+    // Use custom dialog
     protected override string DialogScreen
     {
       get { return "dialogFanartSettings"; }
     }
   }
+}
 
