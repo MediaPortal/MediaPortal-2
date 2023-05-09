@@ -14,6 +14,8 @@
     <!-- AutoScrollConfigurationModel -->
     <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
+    <LocalizedStringToDoubleConverter x:Key="OpacityConverter"/>
+
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
       <Grid x:Name="ContentsGrid" DataContext="{Binding Source={StaticResource Model},Path=CurrentConfigController,Mode=OneTime}" Margin="10" VerticalAlignment="Stretch">
@@ -66,7 +68,7 @@
         
         <Grid x:Name="VisibilityPreview" Grid.Row="2" Grid.ColumnSpan="2" HorizontalAlignment="Center" VerticalAlignment="Stretch">
           <Image Source="Fanart.jpg" Width="800" Stretch="Uniform" HorizontalAlignment="Center"/>
-          <Image Source="background.png" Width="800" Stretch="Uniform" HorizontalAlignment="Center" Opacity="{Binding Path=Value}">
+          <Image Source="background.png" Width="800" Stretch="Uniform" HorizontalAlignment="Center" Opacity="{Binding Path=Value,Converter={StaticResource OpacityConverter}}">
           </Image>
         </Grid>
 
