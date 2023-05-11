@@ -120,12 +120,6 @@
         HelpText="[Nereus.Configuration.EnableHelpTexts.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableHelpTextConfiguration"/>
 
-    <!--ConfigSetting
-        Id="NereusEnableFanart"
-        Text="[Nereus.Configuration.EnableFanart]"
-        HelpText="[Nereus.Configuration.EnableFanart.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableFanartConfiguration"/-->
-
     <ConfigSetting
         Id="NereusEnableTouchDisplay"
         Text="[Nereus.Configuration.EnableTouchDisplay]"
@@ -163,13 +157,6 @@
         HelpText="[Nereus.Configuration.Dialog.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogConfiguration"
         AdditionalData="WorkflowState=C364F2E3-346E-4861-B9EE-CF5A74487244,ConfAppPanel=..."/>
-
-    <!-->CustomConfigSetting
-        Id="NereusFanartDialog"
-        Text="[Nereus.Configuration.FanartOverlayOpacity]"
-        HelpText="[Nereus.Configuration.FanartOverlayOpacity.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.FanartConfiguration"
-        AdditionalData="WorkflowState=5C9FACE7-BD16-4965-A08E-B0F6872EB7EF,ConfAppPanel=..."/-->
     
     <CustomConfigSetting
         Id="NereusSkinColorSelectionDialog"
