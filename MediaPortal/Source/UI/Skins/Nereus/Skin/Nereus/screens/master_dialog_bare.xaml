@@ -98,11 +98,17 @@ Parameters which have to be accessible by a DynamicResource lookup:
           <ScaleTransform ScaleX="1" ScaleY="1"/>
         </TransformGroup>
       </DockPanel.RenderTransform>
-        
+
       <mp_special_controls:UserInputCapture VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
                MousePositionMode="Relative" Buttons="Left"
-               MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel},Path=CloseTopmostDialog}"
-               IsActive="{Binding ElementName=ContentPanel, Path=!IsKeyboardFocusWithin}"/>
+               MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel},Path=CloseTopmostDialog}">
+        <mp_special_controls:UserInputCapture.IsActive>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp;{1}">
+            <Binding ElementName="ContentPanel" Path="!IsKeyboardFocusWithin"/>
+          <Binding ElementName="ContentPanel" Path="!IsMouseOver"/>
+        </MultiBinding>
+        </mp_special_controls:UserInputCapture.IsActive>
+      </mp_special_controls:UserInputCapture>
 
       <!-- Effect around dialog with rounded corners and glow -->
       <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="3" Opacity="0.04"
