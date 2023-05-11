@@ -152,11 +152,11 @@
         AdditionalData="WorkflowState=E3DABC33-4339-446B-A495-AE1A8C630B2B,ConfAppPanel=..."/>
 
     <CustomConfigSetting
-        Id="NereusDialogDialog"
+        Id="NereusDialogOpacity"
         Text="[Nereus.Configuration.Dialog]"
         HelpText="[Nereus.Configuration.Dialog.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogConfiguration"
-        AdditionalData="WorkflowState=C364F2E3-346E-4861-B9EE-CF5A74487244,ConfAppPanel=..."/>
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogOpacityConfiguration"
+        AdditionalTypes="CustomConfigController=MediaPortal.UiComponents.Nereus.Settings.ConfigurationControllers.DialogSettingController" />
     
     <CustomConfigSetting
         Id="NereusSkinColorSelectionDialog"

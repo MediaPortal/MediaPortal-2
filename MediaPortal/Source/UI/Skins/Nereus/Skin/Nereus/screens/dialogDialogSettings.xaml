@@ -11,11 +11,11 @@
     <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.Dialog]"/>
 
     <!-- AutoScrollConfigurationModel -->
-    <Model x:Key="DialogConfigurationModel" Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0"/>
+    <Model x:Key="Model" Id="545674F1-D92A-4383-B6C1-D758CECDBDF5"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <StackPanel DataContext="{Binding Source={StaticResource DialogConfigurationModel}}" Margin="10">
+      <StackPanel DataContext="{Binding Source={StaticResource Model},Path=CurrentConfigController,Mode=OneTime}" Margin="10">
 
         <CheckBox Margin="0,1,25,30" VerticalAlignment="Center" IsChecked="{Binding Path=UseRoundedDialogCorners,Mode=TwoWay}" Content="[Nereus.Configuration.UseRoundesCorners]"/>
 
@@ -62,13 +62,29 @@
             <CheckBox.Triggers>
               <Trigger Property="IsChecked" Value="False">
                 <Setter TargetName="OpacityLabel" Property="Opacity" Value="0.4"/>
+                <Setter TargetName="NumberSelectContent" Property="IsEnabled" Value="False"/>
+                <Setter TargetName="UpButton" Property="IsEnabled" Value="False"/>
+                <Setter TargetName="DownButton" Property="IsEnabled" Value="False"/>
               </Trigger>
             </CheckBox.Triggers>
           </CheckBox>
           <Label x:Name="OpacityLabel" Grid.Row="1" Content="[Nereus.Configuration.DialogBackgroundOpacity]" Color="{ThemeResource TextColor}" 
                  VerticalAlignment="Center" Margin="55,0,0,10" Opacity="1"/>
-          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=DialogBackgroundOpacity,Mode=TwoWay}" Margin="5,0,5,10" Width="160"
-                   VerticalAlignment="Center" IsEnabled="{Binding Path=UseTransparency}" Style="{ThemeResource SymbolTextBoxStyle}"/>
+          <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <TextBox x:Name="NumberSelectContent" Margin="10,0,10,0" PreferredTextLength="4"
+                     Text="{Binding Path=Value,Mode=TwoWay}"
+                     HorizontalAlignment="Center" VerticalAlignment="Center"/>
+            <StackPanel Orientation="Vertical" HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Button x:Name="UpButton" Style="{ThemeResource ChapterUpButtonStyle}" Height="30" Margin="0,0,0,2"
+                      IsEnabled="{Binding IsUpEnabled}"
+                      Command="{Command Up}"/>
+              <Button x:Name="DownButton" Style="{ThemeResource ChapterDownButtonStyle}" Height="30"
+                      IsEnabled="{Binding IsDownEnabled}"
+                      Command="{Command Down}"/>
+            </StackPanel>
+          </StackPanel>
+          <!--TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=DialogBackgroundOpacity,Mode=TwoWay}" Margin="5,0,5,10" Width="160"
+                   VerticalAlignment="Center" IsEnabled="{Binding Path=UseTransparency}" Style="{ThemeResource SymbolTextBoxStyle}"/-->
         </Grid>
 
         <Button Name="ButtonRefresh" SetFocusPrio="Default" Style="{ThemeResource WizardButtonStyle}" Content="[Nereus.Configuration.Refresh]" Margin="10,10,10,30" HorizontalAlignment="Left">
