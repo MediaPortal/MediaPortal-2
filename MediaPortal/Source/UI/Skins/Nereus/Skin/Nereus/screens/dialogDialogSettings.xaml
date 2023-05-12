@@ -345,7 +345,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
           </Grid>
 
           <!-- Dialog Background Settings-->
-          <Grid Margin="0,30,0,0">
+          <Grid Margin="0,30,0,20">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto" />
               <RowDefinition Height="*" />

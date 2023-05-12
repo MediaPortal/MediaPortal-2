@@ -77,12 +77,6 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
       SettingsManager.Save(settings);
     }
 
-    public void Refresh()
-    {
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.Reload();
-    }
-
     public void Dispose()
     {
       SkinChangeMonitor.Instance.UnregisterConfiguration(NereusSkinSettings.SKIN_NAME, this);
