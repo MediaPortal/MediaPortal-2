@@ -1,8 +1,0 @@
-{
-  "profiles": {
-    "MediaPortal.Server": {
-      "commandName": "Project",
-      "commandLineArgs": "-c"
-    }
-  }
-}
