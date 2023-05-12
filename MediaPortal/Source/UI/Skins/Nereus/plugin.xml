@@ -33,8 +33,6 @@
     <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
     <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="AutoScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.AutoScrollConfigurationModel"/>
     <Model Id="03C73355-E01C-4d30-AE69-14408ADB2174" Name="SkinColorConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.SkinColorConfigurationModel"/>
-    <Model Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0" Name="DialogConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.DialogConfigurationModel"/>
-    <!--Model Id="543CFC2F-816D-48ae-BEE3-BB3B85876505" Name="FanartConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.FanartConfigurationModel"/-->
   </Register>
 
   <Register Location="/Workflow/States">
@@ -54,16 +52,7 @@
                  DisplayLabel="[Nereus.Configuration.SelectSkinColor]"
                  WorkflowModel="03C73355-E01C-4d30-AE69-14408ADB2174"/>
   </Register>
-
-  <Register Location="/Workflow/States">
-    <!-- DialogConfiguration Dialog -->
-    <DialogState Id="C364F2E3-346E-4861-B9EE-CF5A74487244"
-                 Name="dialogDialogSettings"
-                 DialogScreen="dialogDialogSettings"
-                 DisplayLabel="[Nereus.Configuration.Dialog]"
-                 WorkflowModel="5C314F18-6A81-47b7-91DB-02DBCF5176F0"/>
-  </Register>
-  
+ 
   <!-- Language resources -->
   <Register Location="/Resources/Language">
     <Resource Id="NereusLanguage" Directory="Language" Type="Language"/>

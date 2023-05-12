@@ -28,12 +28,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.Common;
-using MediaPortal.Common.Settings;
 using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
@@ -75,11 +69,11 @@ namespace MediaPortal.UiComponents.Nereus.Settings.Configuration
       base.Save();
       var settings = SettingsManager.Load<NereusSkinSettings>();
       settings.DialogBackgroundOpacity = _value;
-      settings.EnableFanart = UseRoundedDialogCorners;
-      settings.EnableFanart = UseNoColor;
-      settings.EnableFanart = UseWhiteColor;
-      settings.EnableFanart = UseFocusColor;
-      settings.EnableFanart = UseTransparency;
+      settings.UseRoundedDialogCorners = UseRoundedDialogCorners;
+      settings.UseNoColor = UseNoColor;
+      settings.UseWhiteColor = UseWhiteColor;
+      settings.UseFocusColor = UseFocusColor;
+      settings.UseTransparency = UseTransparency;
       SettingsManager.Save(settings);
     }
 

@@ -25,16 +25,6 @@
 using MediaPortal.Common.General;
 using MediaPortal.UiComponents.Configuration.ConfigurationControllers;
 using MediaPortal.UiComponents.Nereus.Settings.Configuration;
-using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Screens;
-using MediaPortal.UI.Presentation.Workflow;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using MediaPortal.Common;
-using MediaPortal.Common.Settings;
-using System.Threading.Tasks;
 
 namespace MediaPortal.UiComponents.Nereus.Settings.ConfigurationControllers
 {
@@ -137,11 +127,6 @@ namespace MediaPortal.UiComponents.Nereus.Settings.ConfigurationControllers
       dialogSetting.UseTransparency = UseTransparency;
       // This saves the number related setting in the base class
       base.UpdateSetting();
-    }
-    public void Refresh()
-    {
-      IScreenManager screenManager = ServiceRegistration.Get<IScreenManager>();
-      screenManager.Reload();
     }
 
     // Use custom dialog
