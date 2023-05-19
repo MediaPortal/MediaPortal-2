@@ -35,11 +35,11 @@ using MediaPortal.UiComponents.Nereus.Settings;
 namespace MediaPortal.UiComponents.Nereus.Models
 {
   /// <summary>
-  /// Workflow model for the auto scroll configuration.
+  /// Workflow model for the  scroll configuration.
   /// </summary>
-  public class AutoScrollConfigurationModel : IWorkflowModel
+  public class ScrollConfigurationModel : IWorkflowModel
   {
-    public const string AUTO_SCROLL_CONFIGURATION_MODEL_ID_STR = "AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925";
+    public const string SCROLL_CONFIGURATION_MODEL_ID_STR = "AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925";
     public const double DEFAULT_SCROLL_SPEED = 20.0;
     public const double DEFAULT_SCROLL_DELAY = 2.0;
 
@@ -49,6 +49,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
     protected AbstractProperty _scrollDelayProperty = new WProperty(typeof(string), string.Empty);
     protected AbstractProperty _autoScrollProperty = new WProperty(typeof(bool), true);
     protected AbstractProperty _manualScrollProperty = new WProperty(typeof(bool), true);
+    protected AbstractProperty _enableLoopScrollingProperty = new WProperty(typeof(bool), true);
 
     #endregion
 
@@ -94,16 +95,24 @@ namespace MediaPortal.UiComponents.Nereus.Models
       set { _scrollDelayProperty.SetValue(value); }
     }
 
+    public AbstractProperty EnableLoopScrollingProperty
+    {
+      get { return _enableLoopScrollingProperty; }
+    }
+    public bool EnableLoopScrolling
+    {
+      get { return (bool)_enableLoopScrollingProperty.GetValue(); }
+      set { _enableLoopScrollingProperty.SetValue(value); }
+    }
+
     #endregion
 
     #region Private methods
 
-    /// <summary>
-    /// Loads SleepTimer-related configuration from the settings.
-    /// </summary>
     private void GetConfigFromSettings()
     {
       NereusSkinSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NereusSkinSettings>();
+      EnableLoopScrolling = settings.EnableLoopScrolling;
       UseAutoScroll = settings.EnableAutoScrolling;
       UseManualScroll = !settings.EnableAutoScrolling;
       ScrollSpeed = Convert.ToInt32(settings.AutoScrollSpeed).ToString();
@@ -123,6 +132,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       NereusSkinSettings settings = settingsManager.Load<NereusSkinSettings>();
 
       settings.EnableAutoScrolling = UseAutoScroll;
+      settings.EnableLoopScrolling = EnableLoopScrolling;
 
       if (int.TryParse(ScrollSpeed, out var speed) && speed > 0)
         settings.AutoScrollSpeed = speed;
@@ -143,7 +153,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
 
     public Guid ModelId
     {
-      get { return new Guid(AUTO_SCROLL_CONFIGURATION_MODEL_ID_STR); }
+      get { return new Guid(SCROLL_CONFIGURATION_MODEL_ID_STR); }
     }
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)

@@ -31,7 +31,7 @@
     <Model Id="CED34107-565C-48D9-BEC8-195F7969F90F" Name="NereusHomeMenuModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HomeMenuModel"/>
     <Model Id="6A232D95-9BDE-4005-905E-69CB092B012B" Name="ScreenModeModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScreenModeModel"/>
     <Model Id="E06B2C11-AB3F-41DA-8E91-33D83EA30A9A" Name="SkinSettingsActionContributor" ClassName="MediaPortal.UiComponents.Nereus.Actions.SkinSettingsAction"/>
-    <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="AutoScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.AutoScrollConfigurationModel"/>
+    <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="ScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.ScrollConfigurationModel"/>
     <Model Id="03C73355-E01C-4d30-AE69-14408ADB2174" Name="SkinColorConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.SkinColorConfigurationModel"/>
   </Register>
 
@@ -127,17 +127,11 @@
         HelpText="[Nereus.Configuration.EnableMenuSelection.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableMenuSelectionConfiguration"/>
 
-    <ConfigSetting
-        Id="NereusEnableLoopScrolling"
-        Text="[Nereus.Configuration.EnableLoopScrolling]"
-        HelpText="[Nereus.Configuration.EnableLoopScrolling.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableLoopScrollingConfiguration"/>
-
     <CustomConfigSetting
-        Id="NereusEnableAutoScrollingDialog"
-        Text="[Nereus.Configuration.EnableAutoScrolling]"
-        HelpText="[Nereus.Configuration.EnableAutoScrolling.Help]"
-        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.EnableAutoScrollingConfiguration"
+        Id="NereusScrollingDialog"
+        Text="[Nereus.Configuration.ScrollConfiguration]"
+        HelpText="[Nereus.Configuration.ScrollConfiguration.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogScrollingConfiguration"
         AdditionalData="WorkflowState=E3DABC33-4339-446B-A495-AE1A8C630B2B,ConfAppPanel=..."/>
 
     <CustomConfigSetting

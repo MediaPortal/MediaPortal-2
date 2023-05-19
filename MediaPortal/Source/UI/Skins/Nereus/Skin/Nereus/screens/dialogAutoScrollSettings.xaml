@@ -8,55 +8,169 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.EnableAutoScrolling]"/>
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.ScrollConfiguration]"/>
 
     <!-- AutoScrollConfigurationModel -->
-    <Model x:Key="AutoScrollConfigurationModel"
+    <Model x:Key="ScrollConfigurationModel"
            Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" />
-
+    
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <StackPanel DataContext="{Binding Source={StaticResource AutoScrollConfigurationModel}}">
+      <StackPanel DataContext="{Binding Source={StaticResource ScrollConfigurationModel}}">
+        
+        <StackPanel.Resources>
 
-        <!--Auto Scrolling-->
-        <RadioButton Grid.Row="0" Grid.Column="0" x:Name="ManualScroll" Margin="10,1,0,1" VerticalAlignment="Center"
+          <Style x:Key="DummyScrollViewerStyle" TargetType="{x:Type ScrollViewer}">
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ScrollViewer}">
+                  <Grid x:Name="ScrollViewerGridHorizontal">
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <ScrollContentPresenter Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"/>
+                  </Grid>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+
+          <Style x:Key="DummyButtonStyle" TargetType="{x:Type Button}">
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="{x:Type Button}">
+                  <Grid x:Name="ItemBackground" Background="White" Width="50" Height="50" Margin="5"/>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+
+          <DataTemplate x:Key="DummyItemDataTemplate">
+            <Grid x:Name="ItemControl">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="*"/>
+              </Grid.RowDefinitions>
+
+            </Grid>
+          </DataTemplate>
+
+          <Style x:Key="DummyItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListViewItem}">
+                  <Button Style="{ThemeResource DummyButtonStyle}">
+                    <Button.Triggers>
+                      <Trigger Property="HasFocus" Value="True">
+                        <Setter TargetName="ItemBackground" Property="Background" Value="{ThemeResource NereusColorLight}"/>
+                      </Trigger>
+                    </Button.Triggers>
+                  </Button>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+          </Style>
+
+          <Style x:Key="DummyListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+            <Setter Property="Template">
+              <Setter.Value>
+                <ControlTemplate TargetType="{x:Type ListView}">
+                  <ScrollViewer CanContentScroll="True" Style="{ThemeResource DummyScrollViewerStyle}"
+                                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" 
+                                VerticalScrollBarVisibility="Disabled" >
+                    <ItemsPresenter VerticalAlignment="Center" HorizontalAlignment="Center" />
+                  </ScrollViewer>
+                </ControlTemplate>
+              </Setter.Value>
+            </Setter>
+            <Setter Property="ItemsPanel">
+              <Setter.Value>
+                <ItemsPanelTemplate>
+                  <StackPanel x:Name="ListItemsHost" IsItemsHost="True" Orientation="Horizontal" LoopScroll="{Binding Path=EnableLoopScrolling}"/>
+                </ItemsPanelTemplate>
+              </Setter.Value>
+            </Setter>
+            <Setter Property="ItemTemplate" Value="{ThemeResource DummyItemDataTemplate}"/>
+            <Setter Property="ItemContainerStyle" Value="{ThemeResource DummyItemContainerStyle}"/>
+          </Style>
+
+        </StackPanel.Resources>
+
+        <CheckBox x:Name="LoopScroll" Margin="10,1,0,1" VerticalAlignment="Center"
+                  IsChecked="{Binding Path=EnableLoopScrolling,Mode=TwoWay}" Content="[Nereus.Configuration.EnableLoopScrolling.Help]"/>
+
+        <ListView Style="{ThemeResource DummyListViewStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Left" Margin="55,0,0,30">
+          <ListViewItem/>
+          <ListViewItem/>
+          <ListViewItem/>
+          <ListViewItem/>
+          <ListViewItem/>
+        </ListView>
+
+        <!--Auto Scrolling ItemContainerStyle-->
+        <RadioButton x:Name="ManualScroll" Margin="10,1,0,1" VerticalAlignment="Center"
                      IsChecked="{Binding Path=UseManualScroll,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.ManualAutoScrolling]"/>
-        <RadioButton Grid.Row="1" Grid.Column="0" x:Name="AutoScroll" Margin="10,1,0,1" VerticalAlignment="Center"
-                     IsChecked="{Binding Path=UseAutoScroll,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.AutoScrolling]"/>
 
+        <RadioButton x:Name="AutoScroll" Margin="10,1,0,1" VerticalAlignment="Center"
+                     IsChecked="{Binding Path=UseAutoScroll,Mode=TwoWay}" GroupName="RadioButtonGroup" Content="[Nereus.Configuration.AutoScrolling]"/>
 
         <!-- Scroll Speed -->
         <Grid Height="10"/>
-        <Grid>
+        <Grid Margin="10,0,0,10">
           <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
             <RowDefinition Height="*" />
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="Auto" />
             <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="Auto" />
           </Grid.ColumnDefinitions>
-          <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollSpeed]" Color="{ThemeResource TextColor}" Margin="5,0,25,0"/>
+
+          <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollSpeed]" Color="{ThemeResource TextColor}" Margin="50,0,25,0"/>
           <TextBox x:Name="AutoScrollSpeed" Text="{Binding Path=ScrollSpeed,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140"
                    HorizontalAlignment="Right" IsEnabled="{Binding Path=UseAutoScroll}"/>
-        </Grid>
 
-        <!-- Scroll Delay -->
-        <Grid Height="10"/>
-        <Grid>
-          <Grid.RowDefinitions>
-            <RowDefinition Height="*" />
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto" />
-            <ColumnDefinition Width="*" />
-          </Grid.ColumnDefinitions>
-          <Label Grid.Column="0" Content="[Nereus.Configuration.AutoScrollDelay]" Color="{ThemeResource TextColor}" Margin="5,0,25,0"/>
-          <TextBox x:Name="AutoScrollDelay" Text="{Binding Path=ScrollDelay,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140"
+          <Label Grid.Row="1" Content="[Nereus.Configuration.AutoScrollDelay]" Color="{ThemeResource TextColor}" Margin="50,0,25,0"/>
+          <TextBox Grid.Row="1" x:Name="AutoScrollDelay" Text="{Binding Path=ScrollDelay,Mode=TwoWay}" Margin="5,0,5,0" Grid.Column="1" Width="140"
                    HorizontalAlignment="Right" IsEnabled="{Binding Path=UseAutoScroll}"/>
+
+          <ScrollViewer Grid.Column="3" Grid.RowSpan="2" CanContentScroll="True" HorizontalScrollBarVisibility="Disabled" Focusable="True" 
+                        Margin="50,0,10,0" VerticalAlignment="Top" Height="100" Width="200" HorizontalAlignment="Right"
+                        IsVisible="{Binding Path=UseManualScroll}">
+            <ScrollViewer.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+                <Setter Property="Opacity" Value="1"/>
+              </Trigger>
+              <Trigger Property="HasFocus" Value="False">
+                <Setter Property="VerticalScrollBarVisibility" Value="Hidden"/>
+                <Setter Property="Opacity" Value="0.7"/>
+              </Trigger>
+            </ScrollViewer.Triggers>
+            <ScrollViewer.Resources>
+              <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
+                <TranslateTransform X="0" />
+              </ResourceWrapper>
+            </ScrollViewer.Resources>
+            <Label Wrap="True" Color="White" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                   Content="Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text">
+            </Label>
+          </ScrollViewer>
+          <Label Grid.Column="3" Grid.RowSpan="2"  Wrap="True" Color="White" FontSize="{ThemeResource SmallFontSize}" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                 Content="Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text Text" ScrollDelay="{Binding Path=ScrollDelay}" ScrollSpeed="{Binding Path=ScrollSpeed}"
+                 IsVisible="{Binding Path=UseAutoScroll}" Scroll="Auto" Height="100" Width="200" Opacity="0.7" Focusable="True" Margin="50,0,10,0">
+          </Label>
         </Grid>
 
         <!-- OK & Cancel button -->
-        <Grid Height="10"/>
+        <Grid Height="30"/>
         <Grid HorizontalAlignment="Stretch">
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="*" />
