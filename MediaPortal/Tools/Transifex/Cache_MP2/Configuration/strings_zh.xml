@@ -12,4 +12,6 @@
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
   <string name="Configuration.ErrorNumericUpperLimit">在 \'{1}\' 和 \'{2}\' 之间选一个值</string>
   <!--0 = current value, 1 = lower limit, 2 = upper limit-->
+  <string name="RestrictionGroup.Settings">设置：访问配置</string>
+  <string name="RestrictionGroup.Settings.MediaSources">设置：- 媒体源管理</string>
 </resources>

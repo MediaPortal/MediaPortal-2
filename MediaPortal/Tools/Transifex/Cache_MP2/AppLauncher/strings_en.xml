@@ -30,7 +30,7 @@
   <string name="AppLauncher.Settings.Menu">Application menus</string>
   <string name="AppLauncher.Settings.Menu.ClearMapping">Clear mapping</string>
   <string name="AppLauncher.Settings.Test">Test Application</string>
-  <string name="AppLauncher.Settings.Add.Helptext">Added a new Application</string>
+  <string name="AppLauncher.Settings.Add.Helptext">Add a new Application</string>
   <string name="AppLauncher.Settings.Edit.Helptext">Edit an existing Application</string>
   <string name="AppLauncher.Settings.Delete.Helptext">Remove an existing Application</string>
   <string name="AppLauncher.Settings.Menu.Helptext">Link an Application to a menu entry</string>

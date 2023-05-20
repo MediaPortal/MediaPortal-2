@@ -80,6 +80,11 @@ file_filter=Cache_MP2\InputDeviceManager\strings_<lang>.xml
 source_file=Cache_MP2\InputDeviceManager\strings_en.xml
 source_lang=en
 type=ANDROID
+[o:mediaportal:p:MP2:r:InputDevices]
+file_filter=Cache_MP2\InputDevices\strings_<lang>.xml
+source_file=Cache_MP2\InputDevices\strings_en.xml
+source_lang=en
+type=ANDROID
 [o:mediaportal:p:MP2:r:IsoResourceProvider]
 file_filter=Cache_MP2\IsoResourceProvider\strings_<lang>.xml
 source_file=Cache_MP2\IsoResourceProvider\strings_en.xml
@@ -103,6 +108,11 @@ type=ANDROID
 [o:mediaportal:p:MP2:r:MediaServerClient]
 file_filter=Cache_MP2\MediaServerClient\strings_<lang>.xml
 source_file=Cache_MP2\MediaServerClient\strings_en.xml
+source_lang=en
+type=ANDROID
+[o:mediaportal:p:MP2:r:MP2BootstrapperApp]
+file_filter=Cache_MP2\MP2BootstrapperApp\strings_<lang>.xml
+source_file=Cache_MP2\MP2BootstrapperApp\strings_en.xml
 source_lang=en
 type=ANDROID
 [o:mediaportal:p:MP2:r:Nereus]
@@ -180,6 +190,11 @@ file_filter=Cache_MP2\SlimTvNativeProvider\strings_<lang>.xml
 source_file=Cache_MP2\SlimTvNativeProvider\strings_en.xml
 source_lang=en
 type=ANDROID
+[o:mediaportal:p:MP2:r:SlimTvTvMosaicProvider]
+file_filter=Cache_MP2\SlimTvTvMosaicProvider\strings_<lang>.xml
+source_file=Cache_MP2\SlimTvTvMosaicProvider\strings_en.xml
+source_lang=en
+type=ANDROID
 [o:mediaportal:p:MP2:r:SystemStateMenu]
 file_filter=Cache_MP2\SystemStateMenu\strings_<lang>.xml
 source_file=Cache_MP2\SystemStateMenu\strings_en.xml
@@ -193,6 +208,11 @@ type=ANDROID
 [o:mediaportal:p:MP2:r:TranscodingServiceClient]
 file_filter=Cache_MP2\TranscodingServiceClient\strings_<lang>.xml
 source_file=Cache_MP2\TranscodingServiceClient\strings_en.xml
+source_lang=en
+type=ANDROID
+[o:mediaportal:p:MP2:r:TvMosaicMetadataExtractor]
+file_filter=Cache_MP2\TvMosaicMetadataExtractor\strings_<lang>.xml
+source_file=Cache_MP2\TvMosaicMetadataExtractor\strings_en.xml
 source_lang=en
 type=ANDROID
 [o:mediaportal:p:MP2:r:UIPluginTemplate]

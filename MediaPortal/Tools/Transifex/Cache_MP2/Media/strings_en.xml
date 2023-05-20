@@ -245,7 +245,7 @@
 
   <!-- General strings used in views  -->
   <string name="Media.ViewInvalid">This view could not be built</string>
-  <string name="Media.ViewEmpty">&lt;No items to display&gt;</string>
+  <string name="Media.ViewEmpty">No items to display</string>
   <string name="Media.NoItems">No items</string>
   <!-- Shown in the header of an items list -->
   <string name="Media.OneItem">One item</string>
@@ -549,6 +549,8 @@
   <string name="Settings.Media.Certification.Series.Help">Select the series certification system country to use when displaying series certifications</string>
 
   <!-- Secondary filters -->
+  <string name="Filter.RemoteNumericAlphabet0"></string>
+  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.RemoteNumericAlphabet2">abc</string>
   <string name="Filter.RemoteNumericAlphabet3">def</string>
   <string name="Filter.RemoteNumericAlphabet4">ghi</string>

@@ -7,8 +7,13 @@
   <string name="Settings.Players.BassPlayer.Setup.DirectSound">Direct Sound</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI">WASAPI</string>
   <string name="Settings.Players.BassPlayer.Setup.WASAPI.Exclusive">独占模式</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup">歌曲转换模式</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Help">更改曲目时设置暂停/交叉淡入淡出时间</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.NormalMode">正常</string>
   <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.GaplessMode">无缝</string>
+  <string name="Settings.Players.BassPlayer.SongTransitionMode.Setup.CrossFading">交叉淡入淡出</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Setup">播放缓冲区</string>
+  <string name="Settings.Players.BassPlayer.PlaybackBuffer.Help">缓冲时间 (毫秒) [0-300]</string>
   <string name="Settings.Players.Rendering.WasapiBufferSize">WASAPI</string>
   <string name="Settings.Players.Rendering">渲染</string>
   <string name="Settings.Players.Rendering.CrossFading.CrossFadeDuration">淡入淡出时间</string>

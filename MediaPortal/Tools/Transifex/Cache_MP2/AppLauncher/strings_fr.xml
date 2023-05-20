@@ -15,6 +15,7 @@
   <string name="AppLauncher.Settings.Add.Username">Nom de l\'utilisateur</string>
   <string name="AppLauncher.Settings.Add.Password">Mot de passe</string>
   <string name="AppLauncher.Settings.Add.Icon">Chemin de l\'icon</string>
+  <string name="AppLauncher.Settings.Add.Screenmode">Mode d\'écran</string>
   <string name="AppLauncher.Settings.Add.Search">Recherche</string>
   <string name="AppLauncher.Settings.Add.Select">Sélectionnez</string>
   <string name="AppLauncher.Settings.Add.Minimum">Minimum</string>
