@@ -12,10 +12,4 @@
 
   <!-- This should NEVER be changed ! -->
   <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
-
-  <?if $(Configuration) ~= "DebugNetCore" OR $(Configuration) ~= "ReleaseNetCore" ?>
-  <?define IsNetCore = "true" ?>
-  <?else?>
-  <?define IsNetCore = "false" ?>
-  <?endif?>
 </Include>

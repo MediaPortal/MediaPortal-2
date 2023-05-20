@@ -1,6 +1,6 @@
 ﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
 
-  <?include $(MP2_Setup.ProjectDir)Includes.wxi?>
+  <?include Includes.wxi?>
 
   <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MediaPortal2)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no" IconSourceFile="Resources\Setup.ico" HelpUrl="http://wiki.team-mediaportal.com/2_MEDIAPORTAL_2" UpdateUrl="http://www.team-mediaportal.com/" AboutUrl="http://www.team-mediaportal.com/about-the-project/behind-the-project">
 

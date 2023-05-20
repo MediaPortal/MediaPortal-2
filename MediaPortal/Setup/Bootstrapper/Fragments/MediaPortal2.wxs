@@ -1,7 +1,7 @@
 ﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Fragment>
 
-    <?include $(MP2_Setup.ProjectDir)Includes.wxi?>
+    <?include ..\Includes.wxi?>
 
     <!-- Installation directory to pass to the package, defaults to 'Program Files (x86)\Team MediaPortal' -->
     <Variable Name="INSTALLDIR" bal:Overridable="yes" Value="[ProgramFilesFolder]$(var.Manufacturer)" Type="formatted" />
@@ -26,7 +26,7 @@
     <util:RegistrySearch Id="CreateDesktopShortcutsRegistry" After="CreateDesktopShortcutsRegistryExists" Condition="CreateDesktopShortcutsRegistryExists" Root="HKLM" Key="$(var.RegKeyRoot)" Value="DESKTOPSHORTCUTS" Variable="CREATEDESKTOPSHORTCUTS" Bitness="always32" />
 
     <PackageGroup Id="MediaPortal2">
-      <MsiPackage Id="MediaPortal2" SourceFile="$(MP2_Setup.TargetPath)" EnableFeatureSelection="yes" Compressed="yes" Vital="yes" Visible="no">
+      <MsiPackage Id="MediaPortal2" SourceFile="$(MainPackageTargetPath)" EnableFeatureSelection="yes" Compressed="yes" Vital="yes" Visible="no">
         <MsiProperty Name="INSTALLDIR" Value="[INSTALLDIR]" />
         <MsiProperty Name="CREATESTARTMENUSHORTCUTS" Value="[CREATESTARTMENUSHORTCUTS]" />
         <MsiProperty Name="CREATEDESKTOPSHORTCUTS" Value="[CREATEDESKTOPSHORTCUTS]" />

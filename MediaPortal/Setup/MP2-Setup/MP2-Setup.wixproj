@@ -1,25 +1,23 @@
 ﻿<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
-    <Configurations>Debug;Release;DebugNetCore;ReleaseNetCore</Configurations>
+    <!--
+    Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
+    are multi-targeted and wix needs to know which target's output to include in the installer.
+    The custom property $(ReferencedTargetFramework) is used to specify which target to use and additionally
+    used to simulate appending the TFM to the output paths
+    -->
+    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net48</ReferencedTargetFramework>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)\$(Platform)\$(Configuration)\$(ReferencedTargetFramework)</IntermediateOutputPath>
+    <OutputPath>bin\$(Platform)\$(Configuration)\$(ReferencedTargetFramework)</OutputPath>
+    <Platforms>x86</Platforms>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration.StartsWith(`Debug`))' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DefineConstants>Debug;</DefineConstants>
     <SuppressValidation>False</SuppressValidation>
     <SuppressIces>ICE60;ICE80</SuppressIces>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration.StartsWith(`Release`))' ">
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
     <SuppressIces>ICE60;ICE80</SuppressIces>
-  </PropertyGroup>
-  <!--
-    Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
-    are multi-targeted and wix needs to know which target's output to include in the installer.
-    The custom property $(ReferencedTargetFramework) is used to specify which target to use.
-    -->
-  <PropertyGroup Condition=" '$(Configuration.EndsWith(`NetCore`))' == 'true' ">
-    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net6.0-windows</ReferencedTargetFramework>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration.EndsWith(`NetCore`))' != 'true' ">
-    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net48</ReferencedTargetFramework>
   </PropertyGroup>
   <ItemGroup>
     <None Include="MP2-Setup-Logging.bat" />
@@ -41,16 +39,16 @@
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.Client\MediaPortal.Client.csproj">
-      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
+      <SetTargetFramework>TargetFramework=$(ReferencedTargetFramework)</SetTargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.Server\MediaPortal.Server.csproj">
-      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
+      <SetTargetFramework>TargetFramework=$(ReferencedTargetFramework)</SetTargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\..\Source\Main\MediaPortal.ServiceMonitor\MediaPortal.ServiceMonitor.csproj">
-      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
+      <SetTargetFramework>TargetFramework=$(ReferencedTargetFramework)</SetTargetFramework>
     </ProjectReference>
     <ProjectReference Include="..\..\Tools\LogCollector\MediaPortal.LogCollector.csproj">
-      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
+      <SetTargetFramework>TargetFramework=$(ReferencedTargetFramework)</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

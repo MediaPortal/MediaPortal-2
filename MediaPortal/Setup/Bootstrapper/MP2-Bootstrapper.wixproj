@@ -1,23 +1,28 @@
 ﻿<Project Sdk="WixToolset.Sdk/4.0.0">
   <PropertyGroup>
-    <OutputName>MP2-Setup</OutputName>
-    <OutputType>Bundle</OutputType>
-    <Configurations>Debug;Release;DebugNetCore;ReleaseNetCore</Configurations>
-    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\en-us\</OutputPath>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration.StartsWith(`Debug`))' ">
-    <DefineConstants>Debug</DefineConstants>
-  </PropertyGroup>
-  <!--
+    <!--
     Wix projects don't have a TargetFramework nor a concept of multi-targeting, but the project references
     are multi-targeted and wix needs to know which target's output to include in the installer.
-    The custom property $(ReferencedTargetFramework) is used to specify which target to use.
+    The custom property $(ReferencedTargetFramework) is used to specify which target to use and additionally
+    used to simulate appending the TFM to the output paths
     -->
-  <PropertyGroup Condition=" '$(Configuration.EndsWith(`NetCore`))' == 'true' ">
-    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net6.0-windows</ReferencedTargetFramework>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration.EndsWith(`NetCore`))' != 'true' ">
     <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net48</ReferencedTargetFramework>
+    <IntermediateOutputPath>$(BaseIntermediateOutputPath)\$(Platform)\$(Configuration)\$(ReferencedTargetFramework)</IntermediateOutputPath>
+    <OutputPath>bin\$(Platform)\$(Configuration)\$(ReferencedTargetFramework)</OutputPath>
+    <OutputName>MP2-Setup</OutputName>
+    <OutputType>Bundle</OutputType>
+    <OutputPath>..\..\Bin\MP2-Setup\$(Configuration)\$(ReferencedTargetFramework)\en-us\</OutputPath>
+    <Platforms>x86</Platforms>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DefineConstants>Debug</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(IsNetCore)' == '' ">
+    <IsNetCore Condition=" '$(ReferencedTargetFramework.TrimEnd(`0123456789`))' == 'net' ">false</IsNetCore>
+    <IsNetCore Condition=" '$(ReferencedTargetFramework.TrimEnd(`0123456789`))' != 'net' ">true</IsNetCore>
+  </PropertyGroup>
+  <PropertyGroup>
+    <DefineConstants>$(DefineConstants);IsNetCore=$(IsNetCore)</DefineConstants>
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="WixToolset.NetFx.wixext" Version="4.0.0" />
@@ -30,17 +35,18 @@
     <Folder Include="Theme" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="..\MP2-Setup\Includes.wxi" Link="Includes.wxi" />
     <Content Include="fragments\netcore\NetCore6_Platform.wxi" />
+    <Content Include="Includes.wxi" />
     <Content Include="Resources\Setup.ico" />
     <Content Include="Theme\CustomTheme.xml" />
     <None Include="build.targets" />
     <None Include="MP2-Setup-Logging.bat" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\MP2-Setup\MP2-Setup.wixproj" />
+    <ProjectReference Include="..\MP2-Setup\MP2-Setup.wixproj" Condition=" '$(IsNetCore)' != 'true' " />
+    <ProjectReference Include="..\MP2-Setup\MP2-Setup-NetCore.wixproj" Condition=" '$(IsNetCore)' == 'true' " />
     <ProjectReference Include="..\MP2BootstrapperApp\MP2BootstrapperApp.csproj">
-      <TargetFrameworks>$(ReferencedTargetFramework)</TargetFrameworks>
+      <SetTargetFramework>TargetFramework=$(ReferencedTargetFramework)</SetTargetFramework>
     </ProjectReference>
   </ItemGroup>
   <Import Project="build.targets" />
