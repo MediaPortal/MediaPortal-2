@@ -19,6 +19,10 @@ install:
     
     echo username = api>>%USERPROFILE%\.transifexrc
     
+    echo rest_hostname = https://rest.api.transifex.com>>%USERPROFILE%\.transifexrc
+    
+    echo token = %TX_TOKEN%>>%USERPROFILE%\.transifexrc
+    
 build_script:
 - cmd: >-
     cd %APPVEYOR_BUILD_FOLDER%\MediaPortal\build\
