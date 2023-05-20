@@ -9,6 +9,7 @@
     <UseWindowsForms>true</UseWindowsForms>
     <LargeAddressAware>true</LargeAddressAware>
     <Platforms>AnyCPU;x64</Platforms>
+    <RuntimeIdentifiers>win7-x86;win7-x64</RuntimeIdentifiers>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
     <Prefer32Bit>true</Prefer32Bit>
