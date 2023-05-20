@@ -77,7 +77,7 @@
     <ProjectsToBuild Include="$(ProjectRoot)\Source\MP2-Client.sln" Condition="$(BuildClient) == 'true'" AdditionalProperties="Platform=x64" />
     <ProjectsToBuild Include="$(ProjectRoot)\..\OnlineVideos\OnlineVideos.MediaPortal2.sln" Condition="$(BuildOnlineVideos) == 'true'" AdditionalProperties="Platform=x64" />
     <!-- Setup needs to be built as last -->
-    <ProjectsToBuild Include="$(ProjectRoot)\Setup\MP2-Setup.sln" Condition="$(BuildSetup) == 'true'" />
+    <ProjectsToBuild Include="$(ProjectRoot)\Setup\MP2-Setup.sln" Condition="$(BuildSetup) == 'true'" AdditionalProperties="Platform=x86" />
   </ItemGroup>
 
 
