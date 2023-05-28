@@ -80,16 +80,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       // Date formats are exclusive
       if (format.HasFlag(TvDateFormat.DifferentDay) && GetDay(dateTime) != Today || format.HasFlag(TvDateFormat.Day))
       {
-        result += dateTime.ToString("d", cultureInfo);
+        result += dateTime.ToString("m", cultureInfo);
       }
 
       // Time format
-      if (format.HasFlag(TvDateFormat.Time))
+      /*if (format.HasFlag(TvDateFormat.Time))
       {
         if (!string.IsNullOrEmpty(result))
           result += " ";
         result += dateTime.ToString("t", cultureInfo);
-      }
+      }*/
       return result;
     }
   }
