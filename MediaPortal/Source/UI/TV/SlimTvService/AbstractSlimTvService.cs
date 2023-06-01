@@ -63,11 +63,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected const int MAX_WAIT_MS = 10000;
     protected const int MAX_INIT_MS = 20000;
     public const string LOCAL_USERNAME = "Local";
-#if NET5_0_OR_GREATER
     public const string TVDB_NAME = "MP2TVE_4";
-#else
-    public const string TVDB_NAME = "MP2TVE";
-#endif
     protected DbProviderFactory _dbProviderFactory;
     protected string _cloneConnection;
     protected string _providerName;
