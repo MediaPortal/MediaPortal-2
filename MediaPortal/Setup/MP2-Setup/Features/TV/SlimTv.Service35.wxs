@@ -10,7 +10,7 @@
     <DirectoryRef Id="MP2.StartMenu">
       <Component Id="SetupTV35.StartMenu.Shortcut" Guid="AE904E73-A984-49CB-98C8-1DFF5F9E76DE" Condition="STARTMENUSHORTCUTS = 1">
         
-        <Shortcut Id="SetupTV35.StartMenu.Shortcut" Name="MediaPortal 2 TV Configuration" Target="[SERVER_PLUGINS_FOLDER]\SlimTv.Service35\SetupTv\SetupTV.exe" Icon="SetupTV35" WorkingDirectory="INSTALLDIR_SERVER" />
+        <Shortcut Id="SetupTV35.StartMenu.Shortcut" Name="MediaPortal 2 TV Configuration" Target="[SERVER_PLUGINS_FOLDER]\SlimTv.Service35\SetupTV.exe" Icon="SetupTV35" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp
@@ -21,7 +21,7 @@
     <StandardDirectory Id="DesktopFolder">
       <Component Id="SetupTV35.Desktop.Shortcut" Guid="D63564A4-7C9F-411F-979E-ED7E3B4E484F" Condition="DESKTOPSHORTCUTS = 1">
         
-        <Shortcut Id="SetupTV35.Desktop.Shortcut" Name="MediaPortal 2 TV Configuration" Target="[SERVER_PLUGINS_FOLDER]\SlimTv.Service35\SetupTv\SetupTV.exe" Icon="SetupTV35" WorkingDirectory="INSTALLDIR_SERVER" />
+        <Shortcut Id="SetupTV35.Desktop.Shortcut" Name="MediaPortal 2 TV Configuration" Target="[SERVER_PLUGINS_FOLDER]\SlimTv.Service35\SetupTV.exe" Icon="SetupTV35" />
         <!--
         Fix ICE 38 by adding a dummy registry key that is the key for this shortcut.
         http://msdn.microsoft.com/library/en-us/msi/setup/ice38.asp

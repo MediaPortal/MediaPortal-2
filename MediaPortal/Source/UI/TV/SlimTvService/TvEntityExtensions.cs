@@ -149,13 +149,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
         return null;
       Program program = new Program
       {
-#if NET5_0_OR_GREATER
         ChannelId = tvProgram.ChannelId,
         ProgramId = tvProgram.ProgramId,
-#else
-        ChannelId = tvProgram.IdChannel,
-        ProgramId = tvProgram.IdProgram,
-#endif
         Title = tvProgram.Title,
         Description = tvProgram.Description,
         Genre = tvProgram.ProgramCategory?.Category,
@@ -193,11 +188,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       return tvChannel == null ? null : new Channel
       {
-#if NET5_0_OR_GREATER
         ChannelId = tvChannel.ChannelId,
-#else
-        ChannelId = tvChannel.IdChannel,
-#endif
         ChannelNumber = tvChannel.ChannelNumber,
         Name = tvChannel.DisplayName,
         MediaType = (MediaType)tvChannel.MediaType,
@@ -216,11 +207,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       return new ChannelGroup
       {
-#if NET5_0_OR_GREATER
         ChannelGroupId = radioGroup.ChannelGroupId,
-#else
-        ChannelGroupId = radioGroup.IdGroup,
-#endif
         Name = radioGroup.GroupName, 
         MediaType = radioGroup.MediaType == 0 ? MediaType.TV : MediaType.Radio, 
         SortOrder = radioGroup.SortOrder 
@@ -231,15 +218,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
     {
       return new Schedule
       {
-#if NET5_0_OR_GREATER
         ChannelId = schedule.ChannelId,
         ScheduleId = schedule.ScheduleId,
         ParentScheduleId = schedule.ParentScheduleId,
-#else
-        ChannelId = schedule.IdChannel,
-        ScheduleId = schedule.IdSchedule,
-        ParentScheduleId = schedule.IdParentSchedule,
-#endif
         Name = schedule.ProgramName,
         KeepDate = schedule.KeepDate,
         KeepMethod = (KeepMethodType)schedule.KeepMethod,

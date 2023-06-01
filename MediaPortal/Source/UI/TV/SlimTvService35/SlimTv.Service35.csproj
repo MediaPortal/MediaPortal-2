@@ -61,22 +61,12 @@
     <ProjectReference Include="..\SlimTvInterfaces\SlimTv.Interfaces.csproj" />
     <Content Include="SetupTV.ico" />
   </ItemGroup>
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
+  <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Core">
-      <Version>6.0.0.3</Version>
+      <Version>6.0.1</Version>
       <GeneratePathProperty>True</GeneratePathProperty>
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
-    <PackageReference Include="MediaPortal.TvEngine.Core">
-      <Version>1.0.5</Version>
-    </PackageReference>
-    <PackageReference Include="MediaPortal.TvEngine.SetupTv">
-      <Version>1.0.5</Version>
-    </PackageReference>
-  </ItemGroup>
-  <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Interfaces">
       <Version>1.0.6</Version>
     </PackageReference>
