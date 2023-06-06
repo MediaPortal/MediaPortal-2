@@ -12,11 +12,11 @@
     </Grid.RowDefinitions>
 
     <Grid.ColumnDefinitions>
-      <ColumnDefinition Width="420"/>
+      <ColumnDefinition Width="Auto"/>
       <ColumnDefinition Width="*"/> 
     </Grid.ColumnDefinitions>
 
-   <StackPanel Orientation="Vertical" Grid.RowSpan="2">
+   <StackPanel Orientation="Vertical" Grid.RowSpan="2" MinWidth="420">
       <!-- Common control for program duration formatting -->
       <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}" />
       <Label x:Name="GenreLabel" Content="{Binding Path=CurrentProgram.Genre}" Color="{ThemeResource TextColor}" Opacity="0.6" 
