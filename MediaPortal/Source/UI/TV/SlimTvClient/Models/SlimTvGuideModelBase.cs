@@ -50,6 +50,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected AbstractProperty _groupNameProperty = null;
     protected AbstractProperty _currentProgramProperty = null;
 
+    protected AbstractProperty _groupHasFocusProperty = new WProperty(typeof(bool), false);
+    protected AbstractProperty _channelHasFocusProperty = new WProperty(typeof(bool), false);
+    protected AbstractProperty _programHasFocusProperty = new WProperty(typeof(bool), false);
+    protected AbstractProperty _scrollHourHasFocusProperty = new WProperty(typeof(bool), false);
+    protected AbstractProperty _scrollDayHasFocusProperty = new WProperty(typeof(bool), false);
+
     protected ListItem _selectedItem;
 
     #endregion
@@ -93,6 +99,77 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public ListItem SelectedItem
     {
       get { return _selectedItem; }
+    }
+
+    public AbstractProperty GroupHasFocusProperty
+    {
+      get { return _groupHasFocusProperty; }
+    }
+
+    public AbstractProperty ChannelHasFocusProperty
+    {
+      get { return _channelHasFocusProperty; }
+    }
+
+    public AbstractProperty ProgramHasFocusProperty
+    {
+      get { return _programHasFocusProperty; }
+    }
+
+    public AbstractProperty ScrollHourHasFocusProperty
+    {
+      get { return _scrollHourHasFocusProperty; }
+    }
+
+    public AbstractProperty ScrollDayHasFocusProperty
+    {
+      get { return _scrollDayHasFocusProperty; }
+    }
+
+    /// <summary>
+    /// Exposes focus on group to skin
+    /// </summary>
+    public bool GroupHasFocus
+    {
+      get { return (bool)_groupHasFocusProperty.GetValue(); }
+      set { _groupHasFocusProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes focus on channels to skin
+    /// </summary>
+    public bool ChannelHasFocus
+    {
+      get { return (bool)_channelHasFocusProperty.GetValue(); }
+      set { _channelHasFocusProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes focus on programs to skin
+    /// </summary>
+    public bool ProgramHasFocus
+    {
+      get { return (bool)_programHasFocusProperty.GetValue(); }
+      set { _programHasFocusProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes focus on scroll increment to skin
+    /// </summary>
+    public bool ScrollDayHasFocus
+    {
+      get { return (bool)_scrollDayHasFocusProperty.GetValue(); }
+      set { _scrollDayHasFocusProperty.SetValue(value); }
+    }
+
+    /// <summary>
+    /// Exposes focus on scroll day to skin
+    /// </summary>
+
+    public bool ScrollHourHasFocus
+    {
+      get { return (bool)_scrollHourHasFocusProperty.GetValue(); }
+      set { _scrollHourHasFocusProperty.SetValue(value); }
     }
 
     // this overload is used by MultiChannelGuide in got focus trigger
@@ -250,5 +327,57 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     #endregion
 
     #endregion
+
+
+    public void SetGroupFocus()
+    {
+      GroupHasFocus = true;
+    }
+
+    public void UnsetGroupFocus()
+    {
+      GroupHasFocus = false;
+    }
+
+    public void SetChannelFocus()
+    {
+      ChannelHasFocus = true;
+    }
+
+    public void UnsetChannelFocus()
+    {
+      ChannelHasFocus = false;
+    }
+
+    public void SetProgramFocus()
+    {
+      ProgramHasFocus = true;
+    }
+
+    public void UnsetProgramFocus()
+    {
+      ProgramHasFocus = false;
+    }
+
+    public void SetScrollHourFocus()
+    {
+      ScrollHourHasFocus = true;
+    }
+
+    public void UnsetScrollHourFocus()
+    {
+      ScrollHourHasFocus = false;
+    }
+
+    public void SetScrollDayFocus()
+    {
+      ScrollDayHasFocus = true;
+    }
+
+    public void UnsetScrollDayFocus()
+    {
+      ScrollDayHasFocus = false;
+    }
+
   }
 }
