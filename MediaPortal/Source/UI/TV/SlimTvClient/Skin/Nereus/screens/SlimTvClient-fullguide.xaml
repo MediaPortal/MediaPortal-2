@@ -181,8 +181,16 @@
                FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=ChannelHasFocus,Mode=TwoWay}"/>
 
         <Label Grid.Row="2" Grid.ColumnSpan="4" Margin="40,20,0,0" Color="{ThemeResource TextColor}" 
-               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="Scroll in the program timeline with 1 hour increments"
-               FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=ScrollHourHasFocus,Mode=TwoWay}"/>
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+               FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=ScrollHourHasFocus,Mode=TwoWay}">
+          <Label.Content>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0}+({1}/2)+{2}">
+              <Binding Source="Scroll in the program timeline with "/>
+              <Binding Source="{StaticResource SlimTvSettings}" Path="VisibleHours"/>
+              <Binding Source=" hour increments"/>
+            </MultiBinding>
+          </Label.Content>
+        </Label>
 
         <Label Grid.Row="2" Grid.ColumnSpan="4" Margin="40,20,0,0" Color="{ThemeResource TextColor}" 
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="Scroll in the program timeline with 1 day increments"
