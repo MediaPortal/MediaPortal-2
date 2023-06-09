@@ -84,12 +84,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       }
 
       // Time format
-      /*if (format.HasFlag(TvDateFormat.Time))
+      if (format.HasFlag(TvDateFormat.Time))
       {
         if (!string.IsNullOrEmpty(result))
           result += " ";
         result += dateTime.ToString("t", cultureInfo);
-      }*/
+      }
       return result;
     }
   }
