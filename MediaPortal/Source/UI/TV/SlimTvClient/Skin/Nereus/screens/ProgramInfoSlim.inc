@@ -4,7 +4,7 @@
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     x:Name="ProgramInfoPanel" Height="170" Margin="40,0,40,0"
     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-    DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
+    >
   
     <Grid.RowDefinitions>
       <RowDefinition Height="Auto"/>

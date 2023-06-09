@@ -32,7 +32,7 @@
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,-220"
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,0,0,-230"
             DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
 
         <Grid.ColumnDefinitions>
@@ -45,7 +45,7 @@
         <Grid.RowDefinitions>
           <RowDefinition Height="Auto"/>
           <RowDefinition Height="*"/>
-          <RowDefinition Height="200"/>
+          <RowDefinition Height="220"/>
         </Grid.RowDefinitions>
 
         <Image Source="TopGlow.png" Grid.ColumnSpan="4" Stretch="Fill" VerticalAlignment="Top" HorizontalAlignment="Stretch" 
@@ -168,7 +168,7 @@
         </tv:EpgGrid>
 
         <Grid Grid.Row="2" Grid.ColumnSpan="4" x:Name="ProgramInfoPanel" Margin="0,20,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-              IsVisible="{Binding Path=ProgramHasFocus,Mode=TwoWay}">
+              IsVisible="{Binding Path=ProgramHasFocus,Mode=TwoWay}" DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
           <Include Source="screens\ProgramInfoSlim.inc"></Include>
         </Grid>
 

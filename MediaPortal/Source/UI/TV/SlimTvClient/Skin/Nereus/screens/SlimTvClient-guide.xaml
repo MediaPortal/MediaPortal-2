@@ -39,15 +39,19 @@
         <Image Source="BottomGlow.png" Grid.ColumnSpan="3" Grid.Row="1" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
                Height="20" Margin="0,0,-30,-20"/>
 
-        <Label x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="20,5,10,5" FontFamily="Noto-Bold"
-               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" Grid.ColumnSpan="2">
-          <Label.Resources>
-            <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-          </Label.Resources>
-        </Label>
+        <StackPanel Grid.ColumnSpan="2" Margin="20,0,5,0" Orientation="Horizontal">
+          <Image Source="HomeContentIcons\duration.png" Height="28" Width="28" Stretch="Uniform" Margin="0,0,5,-5"
+                 VerticalAlignment="Center" HorizontalAlignment="Left"/>
+          <Label HorizontalAlignment="Left" x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" FontFamily="Noto-Bold"
+                 Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" Margin="0,0,0,-4">
+            <Label.Resources>
+              <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+            </Label.Resources>
+          </Label>
+        </StackPanel>
 
         <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
-                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,22">
+                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,24">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  Opacity="0.5" Content="{Binding GroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
             <Label.LayoutTransform>
@@ -59,15 +63,41 @@
               </DataTrigger>
             </Label.Triggers>
           </Label>
+          <Button.Triggers>
+            <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+              <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=SetGroupFocus}"/>
+            </EventTrigger>
+            <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+              <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=UnsetGroupFocus}"/>
+            </EventTrigger>
+          </Button.Triggers>
         </Button>
 
         <StackPanel x:Name="Channels" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" Orientation="Horizontal" Margin="150,10,0,0">
           <Button x:Name="PrevChannelButton" Style="{StaticResource SubMenuRightButtonStyle}" 
-                  Command="{Command PrevChannel}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1"/>
+                  Command="{Command PrevChannel}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1">
+            <Button.Triggers>
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=SetScrollChannelFocus}"/>
+              </EventTrigger>
+              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=UnsetScrollChannelFocus}"/>
+              </EventTrigger>
+            </Button.Triggers>
+          </Button>
           <Label Grid.Column="0" Content="{Binding ChannelName}"
                  Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="10,0,10,0"/>
           <Button x:Name="NextChannelButton" Style="{StaticResource SubMenuLeftButtonStyle}" 
-                  Command="{Command NextChannel}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1"/>
+                  Command="{Command NextChannel}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1">
+            <Button.Triggers>
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=SetScrollChannelFocus}"/>
+              </EventTrigger>
+              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=UnsetScrollChannelFocus}"/>
+              </EventTrigger>
+            </Button.Triggers>
+          </Button>
         </StackPanel>
 
         <ListView Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" 
@@ -79,55 +109,20 @@
             <CommandBridge x:Key="Menu_Command" Command="{Binding Path=Command,Mode=OneTime}"/>
           </ListView.Resources>
         </ListView>
-
-        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="Description_details" 
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="420"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-          <StackPanel Orientation="Vertical" Grid.RowSpan="2">
-            <!-- Common control for program duration formatting -->
-            <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}" />
-            <Label x:Name="GenreLabel" Content="{Binding Path=CurrentProgram.Genre}" Color="{ThemeResource TextColor}" Opacity="0.6" TextTrimming="CharacterEllipsis"
-                   IsVisible="{Binding Path=CurrentProgram.Genre,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,0,10,0"/>
-            <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
-                   HorizontalAlignment="Left" Opacity="0.6" IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}"/>
-            <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
-                   Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
-              <Image.Source>
-                <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
-                                    fanart:FanArtName="{Binding ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-              </Image.Source>
-            </Image>
-          </StackPanel>
-          
-          <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch">
-            <Grid.ColumnDefinitions>
-              <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
-            </Grid.ColumnDefinitions>
-            <Label x:Name="Program" Grid.Column="0" FontFamily="Noto-Bold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
-                   Content="{Binding Path=CurrentProgram.Title}"
-                   Color="{ThemeResource TextColor}"/>
-            <Label Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" Opacity="0.6"
-                   IsVisible="{Binding Path=CurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
-              <Label.Content>
-                <Binding Path="SelectedCurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
-              </Label.Content>
-            </Label>
-          </Grid>
-
-          <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
-                 Wrap="True" Scroll="Auto" Opacity="0.6" Content="{Binding Path=CurrentProgram.Description}"
-                 ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
-                 ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
-                 Color="{ThemeResource TextColor}" Margin="0,0,0,5" />
+         
+        <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" x:Name="Description_details" Margin="-40,20,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+              IsVisible="{Binding Path=ProgramHasFocus,Mode=TwoWay}" DataContext="{Binding Source={StaticResource SlimTvSingleChannelGuide}}">
+          <Include Source="screens\ProgramInfoSlim.inc"></Include>
         </Grid>
+
+        <Label Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,20,0,0" Content="Select to switch between the channel groups" Color="{ThemeResource TextColor}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+               FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=GroupHasFocus,Mode=TwoWay}"/>
+
+        <Label Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" Margin="0,20,0,0" Content="Select to scroll through the channels of the current channel group" Color="{ThemeResource TextColor}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+               FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=ScrollChannelHasFocus,Mode=TwoWay}"/>
+
         <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />
         <KeyBinding Key="Info" Command="{Command Path=RecordMenu}" />
 
