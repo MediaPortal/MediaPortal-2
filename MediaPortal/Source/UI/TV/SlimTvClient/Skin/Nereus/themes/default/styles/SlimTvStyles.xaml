@@ -913,6 +913,14 @@
                 </DataTrigger>
               </Label.Triggers>
             </Label>
+            <Button.Triggers>
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetGroupFocus}"/>
+              </EventTrigger>
+              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetGroupFocus}"/>
+              </EventTrigger>
+            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -921,6 +929,14 @@
       <Setter.Value>
         <ControlTemplate>
           <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Binding Command}">
+            <Button.Triggers>
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetChannelFocus}"/>
+              </EventTrigger>
+              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetChannelFocus}"/>
+              </EventTrigger>
+            </Button.Triggers>
             <Grid x:Name="ChannelHeader" Margin="2">
               <Grid.ColumnDefinitions>
                 <!-- Channel Logo -->
@@ -1020,6 +1036,12 @@
                   </TriggerCommand>
                 </Trigger.EnterActions>
               </Trigger>
+              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetProgramFocus}"/>
+                </EventTrigger>
+              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetProgramFocus}"/>
+              </EventTrigger>
             </Button.Triggers>
 
             <Grid>

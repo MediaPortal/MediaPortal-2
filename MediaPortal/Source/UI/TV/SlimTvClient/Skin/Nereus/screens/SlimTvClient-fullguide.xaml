@@ -54,15 +54,17 @@
         <Image Source="BottomGlow.png" Grid.ColumnSpan="4" Grid.Row="1" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
                Height="20" Margin="0,0,0,-20"/>
 
-        <Label Grid.ColumnSpan="2" Content="{Binding Path=GuideStartTime, Converter={StaticResource SlimTvDateFormatConverter}}" HorizontalAlignment="Left"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="20,0,10,0"/>
+        <StackPanel Grid.ColumnSpan="3" Margin="20,0,5,0" Orientation="Horizontal">
+          <Image Source="HomeContentIcons\duration.png" Height="28" Width="28" Stretch="Uniform" Margin="0,0,5,-5"
+                 VerticalAlignment="Center" HorizontalAlignment="Left"/>
+          <Label HorizontalAlignment="Left" x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" FontFamily="Noto-Bold"
+                 Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" Margin="0,0,0,-4">
+            <Label.Resources>
+              <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+            </Label.Resources>
+          </Label>          
+        </StackPanel>
 
-        <Label Grid.Column="3" Grid.ColumnSpan="2" HorizontalAlignment="Right" x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="20,2,20,0" FontFamily="Noto-Bold"
-               Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}">
-          <Label.Resources>
-            <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-          </Label.Resources>
-        </Label>
 
         <Grid x:Name="EpgTimeGrid" Grid.Column="2" Grid.ColumnSpan="2" 
               Grid.Row="0" HorizontalAlignment="Stretch" Margin="0,10,0,0">
@@ -78,9 +80,27 @@
 
           <StackPanel x:Name="TimeControls" Margin="-35,0,0,0" VerticalAlignment="Center" Orientation="Horizontal">
             <Button x:Name="ScrollDoubleBackwardButton" Style="{StaticResource ScrollDoubleLeftButtonStyle}" 
-                    Command="{Command ScrollBackward}" Height="30" VerticalAlignment="Center" Margin="0,-1,2,1"/>
+                    Command="{Command ScrollBackward}" Height="30" VerticalAlignment="Center" Margin="0,-1,2,1">
+              <Button.Triggers>
+                <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetScrollDayFocus}"/>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetScrollDayFocus}"/>
+                </EventTrigger>
+              </Button.Triggers>
+            </Button>
             <Button x:Name="ScrollBackwardButton" Style="{StaticResource SubMenuRightButtonStyle}" 
-                    Command="{Command ScrollBackwardHalfScreen}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1"/>
+                    Command="{Command ScrollBackwardHalfScreen}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1">
+              <Button.Triggers>
+                <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetScrollHourFocus}"/>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetScrollHourFocus}"/>
+                </EventTrigger>
+              </Button.Triggers>
+            </Button>
             <Label Grid.Column="0" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="10,0,10,0">
               <Label.Content>
                 <MultiBinding Converter="{StaticResource SlimTvGuideTimeFormatConverter}" ConverterParameter="0">
@@ -90,9 +110,27 @@
               </Label.Content>
             </Label>
             <Button x:Name="ScrollForwardButton" Style="{StaticResource SubMenuLeftButtonStyle}" 
-                    Command="{Command ScrollForwardHalfScreen}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1"/>
+                    Command="{Command ScrollForwardHalfScreen}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1">
+              <Button.Triggers>
+                <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetScrollHourFocus}"/>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetScrollHourFocus}"/>
+                </EventTrigger>
+              </Button.Triggers>
+            </Button>
             <Button x:Name="ScrollDoubleForwardButton" Style="{StaticResource ScrollDoubleRightButtonStyle}" 
-                    Command="{Command ScrollForward}" Height="30" VerticalAlignment="Center" Margin="2,-1,0,1"/>
+                    Command="{Command ScrollForward}" Height="30" VerticalAlignment="Center" Margin="2,-1,0,1">
+              <Button.Triggers>
+                <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
+                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetScrollDayFocus}"/>
+                </EventTrigger>
+                <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
+                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetScrollDayFocus}"/>
+                </EventTrigger>
+              </Button.Triggers>
+            </Button>
           </StackPanel>
 
           <Label Grid.Column="1" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"
@@ -127,20 +165,28 @@
         <tv:EpgGrid x:Name="EpgGrid" Style="{ThemeResource EpgGridStyle}" Grid.Column="0" Grid.Row="1" Grid.ColumnSpan="4" Margin="0,5,0,20"
                     HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HeaderWidth="{StaticResource DynamicMultiGuideHeaderWidth}"
                     LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
-          <tv:EpgGrid.Triggers>
-            <MultiTrigger>
-              <MultiTrigger.Conditions>
-                <Condition Property="IsMouseOver" Value="False"/>
-                <Condition Property="IsKeyboardFocusWithin" Value="False"/>
-              </MultiTrigger.Conditions>
-              <Setter TargetName="ProgramInfoPanel" Property="IsVisible" Value="False"/>
-            </MultiTrigger>
-          </tv:EpgGrid.Triggers>
         </tv:EpgGrid>
 
-        <Grid Grid.Row="2" Grid.ColumnSpan="4" x:Name="ProgramInfoPanel" Margin="0,20,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Grid Grid.Row="2" Grid.ColumnSpan="4" x:Name="ProgramInfoPanel" Margin="0,20,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+              IsVisible="{Binding Path=ProgramHasFocus,Mode=TwoWay}">
           <Include Source="screens\ProgramInfoSlim.inc"></Include>
         </Grid>
+
+        <Label Grid.Row="2" Grid.ColumnSpan="4" Margin="40,20,0,0" Content="Select to switch between the channel groups" Color="{ThemeResource TextColor}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+               FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=GroupHasFocus,Mode=TwoWay}"/>
+
+        <Label Grid.Row="2" Grid.ColumnSpan="4" Margin="40,20,0,0" Color="{ThemeResource TextColor}" 
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="Select channel to open the program guide only for it"
+               FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=ChannelHasFocus,Mode=TwoWay}"/>
+
+        <Label Grid.Row="2" Grid.ColumnSpan="4" Margin="40,20,0,0" Color="{ThemeResource TextColor}" 
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="Scroll in the program timeline with 1 hour increments"
+               FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=ScrollHourHasFocus,Mode=TwoWay}"/>
+
+        <Label Grid.Row="2" Grid.ColumnSpan="4" Margin="40,20,0,0" Color="{ThemeResource TextColor}" 
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Content="Scroll in the program timeline with 1 day increments"
+               FontSize="{ThemeResource SmallFontSize}" IsVisible="{Binding Path=ScrollDayHasFocus,Mode=TwoWay}"/>
 
         <!-- All KeyBindings are included from shared resource -->
         <Include Source="screens\TvGuideKeybindings.inc"/>
