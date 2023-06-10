@@ -553,10 +553,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       UpdateProgramStatus(null);
       ChannelName = "";
       ChannelNumber = 0;
-      UpdateChannels();
-      _ = UpdatePrograms();
       // Notify listeners about group change
       SlimTvClientMessaging.SendSlimTvClientMessage(SlimTvClientMessaging.MessageType.GroupChanged);
+    }
+
+    protected override void OnChannelsChanged(object sender, EventArgs e)
+    {
+      base.OnChannelsChanged(sender, e);
+      UpdateChannels();
+      _ = UpdatePrograms();
     }
 
     /// <summary>

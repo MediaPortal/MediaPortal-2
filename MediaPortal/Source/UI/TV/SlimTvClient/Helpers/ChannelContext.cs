@@ -49,6 +49,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     protected bool _isChannelGroupsInitialized = false;
     protected NavigationList<IChannelGroup> _channelGroups;
 
+    protected readonly object _channelSyncObj = new object(); 
+
     #region Static instance
 
     /// <summary>
@@ -178,29 +180,43 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     private async void ReloadChannels(int oldindex, int newindex)
     {
       var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-      if (tvHandler != null)
+      if (tvHandler == null)
+        return;
+
+      IChannelGroup currentGroup;
+      lock (_channelSyncObj)
+        currentGroup = _channelGroups.Current;
+
+      var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(currentGroup);
+      if (!result.Success)
+        return;
+
+      IList<IChannel> channels = result.Result;
+
+      // Check user zapping setting for channel index vs. number preferance
+      SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      if (settings.ZapByChannelIndex)
       {
-        var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(_channelGroups.Current);
-        if (!result.Success)
+        for (int i = 0; i < channels.Count; i++)
+          channels[i].ChannelNumber = i + 1;
+      }
+
+      int oldChannelIndex = -1;
+      bool channelIndexChanged = false;
+      lock (_channelSyncObj)
+      {
+        if (_channelGroups.Current != currentGroup)
           return;
-
-        IList<IChannel> channels = result.Result;
-
         Channels.ClearAndReset();
         Channels.AddRange(channels);
-        Channels.FireListChanged();
-        // Check user zapping setting for channel index vs. number preferance
-        SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
-        if (settings.ZapByChannelIndex)
-        {
-          for (int i = 0; i < Channels.Count; i++)
-            Channels[i].ChannelNumber = i + 1;
-        }
         // Check if the current channel is part of new group and select it
         int selectedChannelId = tvHandler.ChannelAndGroupInfo.SelectedChannelId;
         if (tvHandler.ChannelAndGroupInfo != null && selectedChannelId != 0)
-          Channels.MoveTo(channel => channel.ChannelId == selectedChannelId);
+          channelIndexChanged = Channels.MoveTo(channel => channel.ChannelId == selectedChannelId, false, out oldChannelIndex);
       }
+      Channels.FireListChanged();
+      if (channelIndexChanged)
+        Channels.FireCurrentChanged(oldChannelIndex);
     }
 
     public void Dispose()
@@ -219,76 +235,117 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public CurrentChangedEvent OnCurrentChanged;
     public EventHandler OnListChanged;
 
+    private readonly object _syncObj = new object();
     private int _current;
 
-    public void ClearAndReset()
+    public void ClearAndReset(IEnumerable<T> newItems = null)
     {
-      Clear();
-      _current = 0;
+      lock (_syncObj)
+      {
+        Clear();
+        _current = 0;
+        if (newItems != null)
+          AddRange(newItems);
+      }
     }
 
     public T Current
     {
-      get { return Count > 0 && _current < Count ? this[_current] : default(T); }
+      get
+      {
+        lock (_syncObj)
+          return Count > 0 && _current < Count ? this[_current] : default(T);
+      }
     }
 
     public int CurrentIndex
     {
-      get { return Count > 0 ? _current : -1; }
+      get
+      {
+        lock (_syncObj)
+          return Count > 0 ? _current : -1;
+      }
       set
       {
-        if (Count == 0 || value < 0 || value >= Count)
-          return;
-        int oldIndex = CurrentIndex;
-        _current = value;
+        int oldIndex;
+        lock (_syncObj)
+        {
+          if (Count == 0 || value < 0 || value >= Count)
+            return;
+          oldIndex = CurrentIndex;
+          _current = value;
+        }
         FireCurrentChanged(oldIndex);
       }
     }
 
     public void MoveNext()
     {
-      if (Count == 0)
-        return;
-      int oldIndex = CurrentIndex;
-      _current++;
-      if (_current >= Count)
-        _current = 0;
+      int oldIndex;
+      lock (_syncObj)
+      {
+        if (Count == 0)
+          return;
+        oldIndex = CurrentIndex;
+        _current++;
+        if (_current >= Count)
+          _current = 0;
+      }
       FireCurrentChanged(oldIndex);
     }
 
     public void MovePrevious()
     {
-      if (Count == 0)
-        return;
-      int oldIndex = CurrentIndex;
-      _current--;
-      if (_current < 0)
-        _current = Count - 1;
+      int oldIndex;
+      lock (_syncObj)
+      {
+        if (Count == 0)
+          return;
+        oldIndex = CurrentIndex;
+        _current--;
+        if (_current < 0)
+          _current = Count - 1;
+      }
       FireCurrentChanged(oldIndex);
     }
 
     public void SetIndex(int index)
     {
-      if (Count == 0 || index < 0 || index >= Count)
-        return;
-      int oldIndex = CurrentIndex;
-      _current = index;
+      int oldIndex;
+      lock (_syncObj)
+      {
+        if (Count == 0 || index < 0 || index >= Count)
+          return;
+        oldIndex = CurrentIndex;
+        _current = index;
+      }
       FireCurrentChanged(oldIndex);
     }
 
     public bool MoveTo(Predicate<T> condition)
     {
-      int oldIndex = CurrentIndex;
-      for (int index = 0; index < Count; index++)
+      return MoveTo(condition, true, out _);
+    }
+
+    public bool MoveTo(Predicate<T> condition, bool fireChange, out int oldIndex)
+    {
+      bool isCurrentChanged = false;
+      lock (_syncObj)
       {
-        T item = this[index];
-        if (!condition.Invoke(item))
-          continue;
-        _current = index;
-        FireCurrentChanged(oldIndex);
-        return true;
+        oldIndex = CurrentIndex;
+        for (int index = 0; index < Count; index++)
+        {
+          T item = this[index];
+          if (!condition.Invoke(item))
+            continue;
+          _current = index;
+          isCurrentChanged = true;
+          break;
+        }
       }
-      return false;
+      if (isCurrentChanged && fireChange)
+        FireCurrentChanged(oldIndex);
+      return isCurrentChanged;
     }
 
     public void FireCurrentChanged(int oldIndex)
