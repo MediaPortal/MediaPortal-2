@@ -17,6 +17,7 @@
   <Model x:Key="SlimTvExtSchedule" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
   <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
   <Model x:Key="VideoPlayerModel" Id="4E2301B4-3C17-4a1d-8DE5-2CEA169A0256"/>
+  <Model x:Key="ToolTipModel" Id="CA1BA301-6DA4-41C5-997A-0D4C8A8E66D9"/>
   <tv:SlimTvDateFormatConverter x:Key="SlimTvDateFormatConverter"/>
   <tv:ElapsedDurationConverter x:Key="ElapsedDurationConverter"/>
   <tv:RemainingDurationConverter x:Key="RemainingDurationConverter"/>
@@ -903,6 +904,16 @@
       <Setter.Value>
         <ControlTemplate>
           <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" VerticalAlignment="Stretch">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=SetText, Parameters=[SlimTvClient.ChannelGroupButton.Help]}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=ClearText}"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
             <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                    Opacity="0.5" Content="{Binding GroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
               <Label.LayoutTransform>
@@ -914,14 +925,6 @@
                 </DataTrigger>
               </Label.Triggers>
             </Label>
-            <Button.Triggers>
-              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetGroupFocus}"/>
-              </EventTrigger>
-              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetGroupFocus}"/>
-              </EventTrigger>
-            </Button.Triggers>
           </Button>
         </ControlTemplate>
       </Setter.Value>
@@ -931,12 +934,14 @@
         <ControlTemplate>
           <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Binding Command}">
             <Button.Triggers>
-              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetChannelFocus}"/>
-              </EventTrigger>
-              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetChannelFocus}"/>
-              </EventTrigger>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=SetText, Parameters=[SlimTvClient.ChannelButton.Help]}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=ClearText}"/>
+                </Trigger.ExitActions>
+              </Trigger>
             </Button.Triggers>
             <Grid x:Name="ChannelHeader" Margin="2">
               <Grid.ColumnDefinitions>
@@ -1037,12 +1042,6 @@
                   </TriggerCommand>
                 </Trigger.EnterActions>
               </Trigger>
-              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-                  <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SetProgramFocus}"/>
-                </EventTrigger>
-              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=UnsetProgramFocus}"/>
-              </EventTrigger>
             </Button.Triggers>
 
             <Grid>
@@ -1256,16 +1255,7 @@
         <ControlTemplate TargetType="{x:Type ListViewItem}">
           <Button Margin="50,0,20,0" Style="{ThemeResource TVButtonWideStyle}"
                   Command="{DynamicResource ResourceKey=Menu_Command}"
-                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
-            <Button.Triggers>
-              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=SetProgramFocus}"/>
-              </EventTrigger>
-              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=UnsetProgramFocus}"/>
-              </EventTrigger>
-            </Button.Triggers>
-          </Button>
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}"/>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
