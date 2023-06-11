@@ -22,6 +22,8 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Localization;
 using System;
 
 namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
@@ -48,7 +50,9 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
       {
         try
         {
-          result = string.Format(culture, expression, val);
+          // If expression is a formattable string id in the form [Section.Name] then this will format
+          // the localized string, else it will format the expression directly
+          result = ServiceRegistration.Get<ILocalization>().ToString(expression, val);
         }
         catch (Exception)
         {
