@@ -130,7 +130,7 @@ namespace MediaPortal.Common.Services.Localization
         return true;
       try
       {
-        translation = string.Format(translation, parameters);
+        translation = string.Format(_currentCulture, translation, parameters);
       }
       catch (FormatException e)
       {
@@ -147,6 +147,17 @@ namespace MediaPortal.Common.Services.Localization
       string translation;
       if (StringId.ExtractSectionAndName(label, out section, out name) && TryTranslate(section, name, out translation, parameters))
         return translation;
+
+      // As per the ILocalization documentation, this method should try and format the label itself if no translation was found
+      if (parameters != null && parameters.Length > 0)
+        try
+        {
+          return string.Format(_currentCulture, label, parameters);
+        }
+        catch (FormatException e)
+        {
+          ServiceRegistration.Get<ILogger>().Error("StringManager: Error formatting string '{0}'", e, label);
+        }
       return label;
     }
 
