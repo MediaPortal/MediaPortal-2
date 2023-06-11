@@ -54,6 +54,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected ITvHandler _tvHandler;
     protected ItemsList _channelGroupList = new ItemsList();
+    protected ItemsList _singlechannelList = new ItemsList();
     protected IPluginItemStateTracker _slimTvExtensionsPluginItemStateTracker;
     protected Dictionary<Guid, TvExtension> _programExtensions;
 
@@ -92,6 +93,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public ItemsList ChannelGroupList
     {
       get { return _channelGroupList; }
+    }
+
+    /// <summary>
+    /// Exposes the list of channels in current group.
+    /// </summary>
+    public ItemsList SingleChannelList
+    {
+      get { return _singlechannelList; }
     }
 
     /// <summary>
@@ -146,6 +155,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
       ChannelGroupList.FireChange();
       ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseGroup");
+    }
+
+    public void SelectChannel()
+    {
+      SingleChannelList.Clear();
+      for (int index = 0; index < ChannelContext.Instance.Channels.Count; index++)
+      {
+        var channel = ChannelContext.Instance.Channels[index];
+        int channelIndex = index;
+        ListItem channelItem = new ListItem(Consts.KEY_NAME, channel.Name)
+        {
+          Command = new MethodDelegateCommand(() => ChannelContext.Instance.Channels.SetIndex(channelIndex)),
+          Selected = channelIndex == ChannelContext.Instance.Channels.CurrentIndex
+        };
+        SingleChannelList.Add(channelItem);
+      }
+      SingleChannelList.FireChange();
+      ServiceRegistration.Get<IScreenManager>().ShowDialog("DialogChooseChannel");
     }
 
     /// <summary>

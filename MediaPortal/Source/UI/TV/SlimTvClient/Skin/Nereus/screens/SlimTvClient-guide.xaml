@@ -39,7 +39,7 @@
         <Image Source="BottomGlow.png" Grid.ColumnSpan="3" Grid.Row="1" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
                Height="20" Margin="0,0,-30,-20"/>
 
-        <StackPanel Grid.ColumnSpan="2" Margin="20,0,5,0" Orientation="Horizontal">
+        <StackPanel Grid.ColumnSpan="2" Margin="20,7,5,5" Orientation="Horizontal">
           <Image Source="HomeContentIcons\duration.png" Height="28" Width="28" Stretch="Uniform" Margin="0,0,5,-5"
                  VerticalAlignment="Center" HorizontalAlignment="Left"/>
           <Label HorizontalAlignment="Left" x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" FontFamily="Noto-Bold"
@@ -50,10 +50,10 @@
           </Label>
         </StackPanel>
 
-        <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
-                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,24">
-          <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                 Opacity="0.5" Content="{Binding GroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
+        <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectChannel}" 
+                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,22">
+          <Label x:Name="ChannelNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
+                 Opacity="0.5" Content="{Binding ChannelName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
             <Label.LayoutTransform>
               <RotateTransform CenterX="0.5" CenterY="0.5" Angle="-90" />
             </Label.LayoutTransform>
@@ -73,7 +73,7 @@
           </Button.Triggers>
         </Button>
 
-        <StackPanel x:Name="Channels" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" Orientation="Horizontal" Margin="150,10,0,0">
+        <!--StackPanel x:Name="Channels" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" Orientation="Horizontal" Margin="150,10,0,0">
           <Button x:Name="PrevChannelButton" Style="{StaticResource SubMenuRightButtonStyle}" 
                   Command="{Command PrevChannel}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1">
             <Button.Triggers>
@@ -98,9 +98,9 @@
               </EventTrigger>
             </Button.Triggers>
           </Button>
-        </StackPanel>
+        </StackPanel-->
 
-        <ListView Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" 
+        <ListView Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" x:Name="GuideList"
                   Margin="20,5,-10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource SingleChannelWithLogoAndProgramListViewStyle}"
                   ItemsSource="{Binding Path=ProgramsList}"

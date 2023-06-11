@@ -71,6 +71,7 @@
     <Page Remove="Skin\BlueVision\themes\Win10\styles\SlimTvColors.xaml" />
     <Page Remove="Skin\BlueVision\themes\Win10\styles\SlimTvConsts.xaml" />
     <Page Remove="Skin\BlueVision\themes\Win10\styles\SlimTvStyles.xaml" />
+    <Page Remove="Skin\default\screens\DialogChooseChannel.xaml" />
     <Page Remove="Skin\default\screens\DialogChooseGroup.xaml" />
     <Page Remove="Skin\default\screens\DialogClientModel.xaml" />
     <Page Remove="Skin\default\screens\DialogExtSchedule.xaml" />
@@ -191,6 +192,9 @@
     <Content Include="Skin\BlueVision\themes\Win10\styles\SlimTvColors.xaml" />
     <Content Include="Skin\BlueVision\themes\Win10\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\BlueVision\themes\Win10\styles\SlimTvStyles.xaml" />
+    <Content Include="Skin\default\screens\DialogChooseChannel.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <Content Include="Skin\default\screens\DialogChooseGroup.xaml" />
     <Content Include="Skin\default\screens\DialogClientModel.xaml" />
     <Content Include="Skin\default\screens\DialogExtSchedule.xaml" />
