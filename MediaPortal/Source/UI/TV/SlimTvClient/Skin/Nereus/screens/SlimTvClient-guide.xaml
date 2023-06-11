@@ -73,33 +73,6 @@
           </Button.Triggers>
         </Button>
 
-        <!--StackPanel x:Name="Channels" Grid.Column="1" Grid.ColumnSpan="2" VerticalAlignment="Center" Orientation="Horizontal" Margin="150,10,0,0">
-          <Button x:Name="PrevChannelButton" Style="{StaticResource SubMenuRightButtonStyle}" 
-                  Command="{Command PrevChannel}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1">
-            <Button.Triggers>
-              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=SetScrollChannelFocus}"/>
-              </EventTrigger>
-              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=UnsetScrollChannelFocus}"/>
-              </EventTrigger>
-            </Button.Triggers>
-          </Button>
-          <Label Grid.Column="0" Content="{Binding ChannelName}"
-                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="10,0,10,0"/>
-          <Button x:Name="NextChannelButton" Style="{StaticResource SubMenuLeftButtonStyle}" 
-                  Command="{Command NextChannel}" Height="30" VerticalAlignment="Center" Margin="0,-1,0,1">
-            <Button.Triggers>
-              <EventTrigger RoutedEvent="FrameworkElement.GotFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=SetScrollChannelFocus}"/>
-              </EventTrigger>
-              <EventTrigger RoutedEvent="FrameworkElement.LostFocus">
-                <TriggerCommand Command="{Command Source={StaticResource SlimTvSingleChannelGuide}, Path=UnsetScrollChannelFocus}"/>
-              </EventTrigger>
-            </Button.Triggers>
-          </Button>
-        </StackPanel-->
-
         <ListView Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" x:Name="GuideList"
                   Margin="20,5,-10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource SingleChannelWithLogoAndProgramListViewStyle}"

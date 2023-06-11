@@ -1326,58 +1326,11 @@
               Background="{ThemeResource BaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
       <Border x:Name="Item2" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
-      <!--Border x:Name="Item3" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="{ThemeResource ProgramBaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/-->
 
       <Border x:Name="Item1_overlay" Grid.Row="0" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
       <Border x:Name="Item2_overlay" Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/>
-      <!--Border x:Name="Item3_overlay" Grid.Row="0" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Transparent" BorderThickness="0" Margin="0,-5,4,-5"/-->
-
-      <Grid>
-        <!--Grid.Width>
-          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}({0} ? 90 : 0) + ({1} ? 160 : 0) + ({2} ? 200 : 0)">
-            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
-            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
-            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
-          </MultiBinding>
-        </Grid.Width>
-        <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="Auto"/>
-          <ColumnDefinition Width="*"/>
-        </Grid.ColumnDefinitions>
-
-        <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Program.ChannelNumber}" VerticalAlignment="Center" FontFamily="Noto-Bold" Opacity="0.4"
-               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="5,-2,0,-2" MinWidth="50">
-          <Label.IsVisible>
-            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers" />
-          </Label.IsVisible>
-        </Label>
-
-        <Image x:Name="ChannelLogo" Grid.Column="1" Width="{ThemeResource ChannelLogoWidth}" Stretch="Uniform" Margin="5,-1,0,-1" VerticalAlignment="Center">
-          <Image.Source>
-            <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding Program.ChannelLogoType}" fanart:FanArtType="Banner" fanart:FanArtName="{Binding Program.ChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-          </Image.Source>
-          <Image.IsVisible>
-            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
-          </Image.IsVisible>
-        </Image>
-
-        <Label x:Name="NameLabel" Grid.Column="2" Margin="5,1,5,3" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}"
-               VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None">
-          <Label.IsVisible>
-            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
-          </Label.IsVisible>
-          <Label.Triggers>
-            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-              <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
-            </DataTrigger>
-          </Label.Triggers>
-        </Label-->
-      </Grid>
 
       <Grid Grid.Column="1" Grid.Row="0" Margin="5,0,5,0">
         <Grid.ColumnDefinitions>
@@ -1417,14 +1370,14 @@
       </ProgressBar>
 
       <!-- Shows the progress of current time in relation to the current playing program -->
-      <Grid Grid.Column="0" Grid.Row="0" Margin="5,0,5,0">
+      <Grid Grid.Column="0" Grid.Row="0" Margin="10,0,10,0">
         <Grid.ColumnDefinitions>
-          <ColumnDefinition Width="200"/>
+          <ColumnDefinition Width="350"/>
         </Grid.ColumnDefinitions>
-        <Label x:Name="ProgramLabel" Margin="5,4,0,4" VerticalAlignment="Center" HorizontalAlignment="Center"
+        <Label x:Name="ProgramLabel" Margin="0,4,0,4" VerticalAlignment="Center" HorizontalAlignment="Center"
                Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=!HasFocus}"/>
-        <Label x:Name="ProgramLabelFocus" Margin="5,4,0,4" VerticalAlignment="Center" ScrollDelay="0" Scroll="Auto" FontFamily="Noto-Bold" 
+        <Label x:Name="ProgramLabelFocus" Margin="0,4,0,4" VerticalAlignment="Center" ScrollDelay="0" Scroll="Auto" FontFamily="Noto-Bold" 
                Content="{Binding [StartTime]}" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"  HorizontalAlignment="Center"
                IsVisible="{Binding RelativeSource={RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}},Path=HasFocus}"/>
       </Grid>
