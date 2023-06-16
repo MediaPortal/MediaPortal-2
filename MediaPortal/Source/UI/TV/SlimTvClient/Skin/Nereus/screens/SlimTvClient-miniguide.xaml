@@ -40,12 +40,16 @@
           <RowDefinition Height="230"/>
         </Grid.RowDefinitions>
 
-        <Label x:Name="Time" Grid.ColumnSpan="2" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="40,32,10,10"
-               FontFamily="Noto-Bold" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" >
-          <Label.Resources>
-            <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-          </Label.Resources>
-        </Label>
+        <StackPanel Grid.ColumnSpan="2" Margin="40,32,10,10" Orientation="Horizontal">
+          <Image Source="HomeContentIcons\duration.png" Height="28" Width="28" Stretch="Uniform" Margin="0,0,5,-5"
+                 VerticalAlignment="Center" HorizontalAlignment="Left"/>
+          <Label HorizontalAlignment="Left" x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" FontFamily="Noto-Bold"
+                 Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" Margin="0,0,0,-4">
+            <Label.Resources>
+              <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+            </Label.Resources>
+          </Label>
+        </StackPanel>
 
         <Grid Grid.Column="1">
           <Grid.Width>
@@ -63,7 +67,7 @@
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="-5,30,10,5"/>
 
         <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
-                VerticalAlignment="Stretch" Grid.Row="1" Margin="25,0,5,25">
+                VerticalAlignment="Stretch" Grid.Row="1" Margin="25,0,5,22">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  Opacity="0.5" Content="{Binding CurrentGroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
             <Label.LayoutTransform>

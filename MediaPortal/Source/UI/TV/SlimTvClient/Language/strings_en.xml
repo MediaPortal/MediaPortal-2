@@ -27,7 +27,7 @@
   <string name="SlimTvClient.ChooseChannelGroup">Choose channel group...</string>
   <string name="SlimTvClient.ChannelGroupButton">Channel group</string>
   <string name="SlimTvClient.ChannelGroupButton.Help">Select to switch between the channel groups</string>
-  <string name="SlimTvClient.ChannelButton.Help">Select channel to open the program guide only for it</string>
+  <string name="SlimTvClient.ChannelButton.Help">Select to open the single channel program guide</string>
   <string name="SlimTvClient.SingleChannelButton.Help">Select to switch between the channels</string>
   <string name="SlimTvClient.ScrollHour.Help">Scroll in the program timeline with {0} hour increments</string>
   <string name="SlimTvClient.ScrollDay.Help">Scroll in the program timeline with 1 day increments</string>
