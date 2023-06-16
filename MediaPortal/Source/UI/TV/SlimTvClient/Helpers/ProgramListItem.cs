@@ -123,6 +123,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       DateTime now = DateTime.Now;
       IsRunning = Program.StartTime <= now && Program.EndTime > now;
       Progress = (now - Program.StartTime).TotalSeconds / (Program.EndTime - Program.StartTime).TotalSeconds * 100;
+      if (Program.StartTime.Hour == Program.EndTime.Hour && Program.StartTime.Minute == Program.EndTime.Minute)
+        Progress = 0;
     }
   }
 
