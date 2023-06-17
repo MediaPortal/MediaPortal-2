@@ -18,7 +18,8 @@
 
    <StackPanel Orientation="Vertical" Grid.RowSpan="2" MinWidth="420">
       <!-- Common control for program duration formatting -->
-      <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}" />
+      <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=CurrentProgram}"
+               IsVisible="{Binding !NoProgramData}"/>
       <Label x:Name="GenreLabel" Content="{Binding Path=CurrentProgram.Genre}" Color="{ThemeResource TextColor}" Opacity="0.6" 
              IsVisible="{Binding Path=CurrentProgram.Genre,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,0,10,0"/>
       <Label x:Name="Channel" Scroll="Auto" Content="{Binding ChannelName}" Color="{ThemeResource TextColor}"
