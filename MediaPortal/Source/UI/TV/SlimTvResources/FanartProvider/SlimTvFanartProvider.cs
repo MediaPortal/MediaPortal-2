@@ -45,7 +45,6 @@ using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
-using System.Runtime.Caching;
 using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
@@ -60,7 +59,6 @@ namespace MediaPortal.Plugins.SlimTv.SlimTvResources.FanartProvider
 
     private readonly string _designsFolder;
     private readonly LogoRepository _repo;
-    private readonly MemoryCache _failureCache = new MemoryCache("MissingLogoNames");
 
     public SlimTvFanartProvider()
     {
