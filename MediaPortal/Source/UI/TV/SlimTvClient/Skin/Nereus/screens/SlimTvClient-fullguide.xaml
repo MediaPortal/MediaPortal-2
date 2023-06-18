@@ -227,7 +227,7 @@
               <Setter Property="IsVisible" Value="False"/>
             </DataTrigger>
           </Grid.Triggers>
-          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Path=CurrentProgram}">
             <Grid.Triggers>
               <MultiTrigger>
                 <MultiTrigger.Conditions>

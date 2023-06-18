@@ -99,7 +99,18 @@
               <Setter Property="IsVisible" Value="False"/>
             </DataTrigger>
           </Grid.Triggers>
-          <Include Source="screens\ProgramInfoSlim.inc"></Include>
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Path=CurrentProgram}">
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Binding="{Binding ElementName=GuideList, Path=IsMouseOver}" Value="False"/>
+                  <Condition Binding="{Binding ElementName=GuideList, Path=IsKeyboardFocusWithin}" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="IsVisible" Value="False"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+            <Include Source="screens\ProgramInfoSlim.inc"></Include>
+          </Grid>
         </Grid>
 
         <KeyBinding Key="Record" Command="{Command Path=RecordMenu}" />

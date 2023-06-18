@@ -63,7 +63,7 @@
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="-5,5,10,5"/>
 
         <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
-                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,22">
+                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,25">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  Opacity="0.5" Content="{Binding CurrentGroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
             <Label.LayoutTransform>
@@ -78,7 +78,7 @@
           <Button.Triggers>
             <Trigger Property="HasFocus" Value="True">
               <Trigger.EnterActions>
-                <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=SetText, Parameters=[SlimTvClient.SingleChannelButton.Help]}"/>
+                <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=SetText, Parameters=[SlimTvClient.ChannelGroupButton.Help]}"/>
               </Trigger.EnterActions>
               <Trigger.ExitActions>
                 <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=ClearText}"/>
@@ -134,15 +134,6 @@
 
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="Description_details" 
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
-          <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-          </Grid.RowDefinitions>
-          <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="*"/>
-          </Grid.ColumnDefinitions>
-
           <Grid.Triggers>
             <!-- Hide the program info if there's a help text visible -->
             <DataTrigger Binding="{Binding ElementName=HelpTextLabel, Path=Visibility}" Value="Visible">
@@ -150,46 +141,62 @@
             </DataTrigger>
           </Grid.Triggers>
 
-          <StackPanel Orientation="Vertical" Grid.RowSpan="2" MinWidth="420">
-            <!-- Common control for program duration formatting -->
-            <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=SelectedCurrentProgram}" />
-            <Label x:Name="GenreLabel" Content="{Binding Path=SelectedCurrentProgram.Genre}" Color="{ThemeResource TextColor}" Opacity="0.6" TextTrimming="CharacterEllipsis"
-                   IsVisible="{Binding Path=SelectedCurrentProgram.Genre,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,0,10,0"/>
-            <Label x:Name="Channel" Scroll="Auto" Content="{Binding SelectedChannelName}" Color="{ThemeResource TextColor}"
-                   HorizontalAlignment="Left" Opacity="0.6" IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}"/>
-            <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
-                   Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
-              <Image.Source>
-                <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding SelectedChannelLogoType}" fanart:FanArtType="Banner"
-                                    fanart:FanArtName="{Binding SelectedChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
-              </Image.Source>
-            </Image>
-          </StackPanel>
-
-          <Grid Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch">
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
             <Grid.ColumnDefinitions>
               <ColumnDefinition Width="Auto"/>
-              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
-            <Label x:Name="Program" Grid.Column="0" FontFamily="Noto-Bold" TextTrimming="WordEllipsis" HorizontalAlignment="Stretch"
-                   Content="{Binding Path=SelectedCurrentProgram.Title}"
-                   Color="{ThemeResource TextColor}"/>
-            <Label Grid.Column="1" Margin="5,0,0,0" HorizontalAlignment="Stretch" Color="{ThemeResource TextColor}" Opacity="0.6"
-                   IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
-              <Label.Content>
-                <Binding Path="SelectedCurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
-              </Label.Content>
-            </Label>
-          </Grid>
 
-          <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Binding="{Binding ElementName=ProgramsListView, Path=IsMouseOver}" Value="False"/>
+                  <Condition Binding="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="IsVisible" Value="False"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+
+            <StackPanel Orientation="Vertical" Grid.RowSpan="2" MinWidth="420">
+              <!-- Common control for program duration formatting -->
+              <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=SelectedCurrentProgram}" IsVisible="{Binding !NoProgramData}"/>
+              <Label x:Name="GenreLabel" Content="{Binding Path=SelectedCurrentProgram.Genre}" Color="{ThemeResource TextColor}" Opacity="0.6" TextTrimming="CharacterEllipsis"
+                     IsVisible="{Binding Path=SelectedCurrentProgram.Genre,Converter={StaticResource ReferenceToBoolConverter}}" Margin="0,0,10,0"/>
+              <Label x:Name="Channel" Scroll="Auto" Content="{Binding SelectedChannelName}" Color="{ThemeResource TextColor}"
+                     HorizontalAlignment="Left" Opacity="0.6" IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}"/>
+              <Image x:Name="ChannelLogo" Width="{ThemeResource ChannelLogoLarge}" Margin="0,10,0,0"
+                     Stretch="Uniform" HorizontalAlignment="Left" VerticalAlignment="Top" >
+                <Image.Source>
+                  <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding SelectedChannelLogoType}" fanart:FanArtType="Banner"
+                                            fanart:FanArtName="{Binding SelectedChannelName}" fanart:MaxWidth="0" fanart:MaxHeight="0"/>
+                </Image.Source>
+              </Image>
+            </StackPanel>
+
+            <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="1" HorizontalAlignment="Stretch">
+              <Label x:Name="Program" Scroll="Auto" FontFamily="Noto-Bold" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                     Content="{Binding SelectedCurrentProgram.Title}" Color="{ThemeResource TextColor}"/>
+              <Label x:Name="SeriesLabel" Color="{ThemeResource TextColor}" Margin="5,0,0,0" Opacity="0.6"
+                     IsVisible="{Binding Path=SelectedCurrentProgram.Series, Converter={StaticResource EmptyStringToFalseConverter}}">
+                <Label.Content>
+                  <Binding Path="SelectedCurrentProgram.Series" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{} ({0})"/>
+                </Label.Content>
+              </Label>
+            </StackPanel>
+
+            <Label Grid.Row="1" Grid.Column="1" x:Name="Description" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                  Wrap="True" Scroll="Auto" Opacity="0.6"
                  ScrollSpeed="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollSpeed}"
                  ScrollDelay="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].AutoScrollDelay}"
                  Content="{Binding Path=SelectedCurrentProgram.Description}"
                  Color="{ThemeResource TextColor}" Margin="0,0,20,5" />
+          </Grid>
         </Grid>
-        
+
       </Grid>  
     </ControlTemplate>             
   </Include.Resources>
