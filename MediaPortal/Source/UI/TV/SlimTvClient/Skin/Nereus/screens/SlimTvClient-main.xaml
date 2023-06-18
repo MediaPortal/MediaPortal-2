@@ -10,6 +10,7 @@
 
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvClient" Id="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>
+    <Model x:Key="ToolTipModel" Id="CA1BA301-6DA4-41C5-997A-0D4C8A8E66D9"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
@@ -35,12 +36,16 @@
         <Image Source="BottomGlow.png" Grid.ColumnSpan="4" Grid.Row="1" Stretch="Fill" VerticalAlignment="Bottom" HorizontalAlignment="Stretch" 
                Height="20" Margin="0,0,-30,-20"/>
 
-        <Label x:Name="Time" Grid.ColumnSpan="2" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" Margin="20,5,10,5"
-               FontFamily="Noto-Bold" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" >
-          <Label.Resources>
-            <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
-          </Label.Resources>
-        </Label>
+        <StackPanel Grid.ColumnSpan="2" Margin="20,5,10,5" Orientation="Horizontal" VerticalAlignment="Center">
+          <Image Source="HomeContentIcons\duration.png" Height="28" Width="28" Stretch="Uniform" Margin="0,0,5,-5"
+                 VerticalAlignment="Center" HorizontalAlignment="Left"/>
+          <Label HorizontalAlignment="Left" x:Name="Time" FontSize="{ThemeResource SmallFontSize}" VerticalAlignment="Center" FontFamily="Noto-Bold"
+                 Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" Color="{ThemeResource TextColor}" Margin="0,0,0,-4">
+            <Label.Resources>
+              <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+            </Label.Resources>
+          </Label>
+        </StackPanel>
 
         <Grid Grid.Column="1">
           <Grid.Width>
@@ -70,13 +75,23 @@
               </DataTrigger>
             </Label.Triggers>
           </Label>
+          <Button.Triggers>
+            <Trigger Property="HasFocus" Value="True">
+              <Trigger.EnterActions>
+                <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=SetText, Parameters=[SlimTvClient.SingleChannelButton.Help]}"/>
+              </Trigger.EnterActions>
+              <Trigger.ExitActions>
+                <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=ClearText}"/>
+              </Trigger.ExitActions>
+            </Trigger>
+          </Button.Triggers>
         </Button>
 
-        <ListView  x:Name="ProgramsListView" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" 
-                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,5,-10,0"
-                   Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
-                   ItemsSource="{Binding Path=CurrentGroupChannels}" RestoreFocus="True"
-                   SelectionChanged="{CommandStencil UpdateProgram}">
+        <ListView x:Name="ProgramsListView" Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="3" 
+                  HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="20,5,-10,0"
+                  Style="{ThemeResource ChannelWithLogoAndProgramListViewStyle}"
+                  ItemsSource="{Binding Path=CurrentGroupChannels}" RestoreFocus="True"
+                  SelectionChanged="{CommandStencil UpdateProgram}">
           <ListView.Resources>
             <ResourceWrapper x:Key="VerticalScrollbarRenderTransform">
               <TranslateTransform X="15" />
@@ -97,8 +112,25 @@
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
           </Grid.RowDefinitions>
-          <Control Template="{ThemeResource PiPControlTemplate}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+          <Button x:Name="EnablePiPButton" Style="{StaticResource PiPButtonStyle}" VerticalAlignment="Center" HorizontalAlignment="Right"
+                  IsVisible="{Binding PiPAvailable}" Command="{Command TogglePiP}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Trigger.EnterActions>
+                  <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=SetText, Parameters=[SlimTvClient.PiP.Help]}"/>
+                </Trigger.EnterActions>
+                <Trigger.ExitActions>
+                  <TriggerCommand Command="{Command Source={StaticResource ToolTipModel}, Path=ClearText}"/>
+                </Trigger.ExitActions>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
         </Grid>
+
+        <Label x:Name="HelpTextLabel" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,30,30,0" 
+               Content="{Binding Source={StaticResource ToolTipModel}, Path=Text}" Color="{ThemeResource TextColor}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
+               IsVisible="{Binding Source={StaticResource ToolTipModel}, Path=Text, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="Description_details" 
               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
@@ -107,11 +139,18 @@
             <RowDefinition Height="*"/>
           </Grid.RowDefinitions>
           <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="420"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Vertical" Grid.RowSpan="2">
+          <Grid.Triggers>
+            <!-- Hide the program info if there's a help text visible -->
+            <DataTrigger Binding="{Binding ElementName=HelpTextLabel, Path=Visibility}" Value="Visible">
+              <Setter Property="IsVisible" Value="False"/>
+            </DataTrigger>
+          </Grid.Triggers>
+
+          <StackPanel Orientation="Vertical" Grid.RowSpan="2" MinWidth="420">
             <!-- Common control for program duration formatting -->
             <Control Style="{StaticResource ProgramDurationControlStyle}" DataContext="{Binding Path=SelectedCurrentProgram}" />
             <Label x:Name="GenreLabel" Content="{Binding Path=SelectedCurrentProgram.Genre}" Color="{ThemeResource TextColor}" Opacity="0.6" TextTrimming="CharacterEllipsis"
