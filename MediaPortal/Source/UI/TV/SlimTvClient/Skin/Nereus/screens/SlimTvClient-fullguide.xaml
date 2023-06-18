@@ -227,7 +227,18 @@
               <Setter Property="IsVisible" Value="False"/>
             </DataTrigger>
           </Grid.Triggers>
-          <Include Source="screens\ProgramInfoSlim.inc"></Include>
+          <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <Grid.Triggers>
+              <MultiTrigger>
+                <MultiTrigger.Conditions>
+                  <Condition Binding="{Binding ElementName=EpgGrid, Path=IsMouseOver}" Value="False"/>
+                  <Condition Binding="{Binding ElementName=EpgGrid, Path=IsKeyboardFocusWithin}" Value="False"/>
+                </MultiTrigger.Conditions>
+                <Setter Property="IsVisible" Value="False"/>
+              </MultiTrigger>
+            </Grid.Triggers>
+            <Include Source="screens\ProgramInfoSlim.inc"></Include>
+          </Grid>
         </Grid>
 
         <!-- All KeyBindings are included from shared resource -->
