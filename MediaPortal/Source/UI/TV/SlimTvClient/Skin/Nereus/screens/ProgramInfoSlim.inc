@@ -2,7 +2,7 @@
 <Grid xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
-    x:Name="ProgramInfoPanel" Height="170" Margin="40,0,40,0"
+    x:Name="ProgramInfoPanel" Height="170" Margin="0,0,40,0"
     HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
     >
   

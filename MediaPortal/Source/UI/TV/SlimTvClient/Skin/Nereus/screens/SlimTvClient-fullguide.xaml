@@ -219,7 +219,7 @@
                FontSize="{ThemeResource SmallFontSize}"
                IsVisible="{Binding Source={StaticResource ToolTipModel}, Path=Text, Converter={StaticResource ReferenceToBoolConverter}}" />
 
-        <Grid Grid.Row="2" Grid.ColumnSpan="4" x:Name="ProgramInfoPanel" Margin="0,20,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
+        <Grid Grid.Row="2" Grid.ColumnSpan="4" x:Name="ProgramInfoPanel" Margin="40,20,0,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
               DataContext="{Binding Source={StaticResource SlimTvMultiChannelGuide}}">
           <Grid.Triggers>
             <!-- Hide the program info if there's a help text visible -->

@@ -63,7 +63,7 @@
                Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" Margin="-5,5,10,5"/>
 
         <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Command Source={StaticResource SlimTvMultiChannelGuide}, Path=SelectGroup}" 
-                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,25">
+                VerticalAlignment="Stretch" Grid.Row="1" Margin="0,5,0,26">
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
                  Opacity="0.5" Content="{Binding CurrentGroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
             <Label.LayoutTransform>
@@ -127,13 +127,13 @@
           </Button>
         </Grid>
 
-        <Label x:Name="HelpTextLabel" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="0,30,30,0" 
+        <Label x:Name="HelpTextLabel" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="-20,20,30,0" 
                Content="{Binding Source={StaticResource ToolTipModel}, Path=Text}" Color="{ThemeResource TextColor}"
                HorizontalAlignment="Stretch" VerticalAlignment="Stretch" FontSize="{ThemeResource SmallFontSize}"
                IsVisible="{Binding Source={StaticResource ToolTipModel}, Path=Text, Converter={StaticResource ReferenceToBoolConverter}}"/>
 
         <Grid Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" x:Name="Description_details" 
-              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,30,30,0">
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="-20,20,30,0">
           <Grid.Triggers>
             <!-- Hide the program info if there's a help text visible -->
             <DataTrigger Binding="{Binding ElementName=HelpTextLabel, Path=Visibility}" Value="Visible">
