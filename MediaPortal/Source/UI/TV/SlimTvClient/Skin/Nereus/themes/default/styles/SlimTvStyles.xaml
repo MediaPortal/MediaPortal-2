@@ -933,7 +933,7 @@
     <Setter Property="HeaderTemplate">
       <Setter.Value>
         <ControlTemplate>
-          <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Binding Command}">
+          <Button Style="{ThemeResource BaseGuideButtonStyle}" Command="{Binding Command}" Content="{Binding}">
             <Button.Triggers>
               <Trigger Property="HasFocus" Value="True">
                 <Trigger.EnterActions>
@@ -944,75 +944,79 @@
                 </Trigger.ExitActions>
               </Trigger>
             </Button.Triggers>
-            <Grid x:Name="ChannelHeader" Margin="2">
-              <Grid.ColumnDefinitions>
-                <!-- Channel Logo -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Channel Number -->
-                <ColumnDefinition Width="Auto"/>
-                <!-- Channel Name -->
-                <ColumnDefinition Width="*"/>
-              </Grid.ColumnDefinitions>
-              <Grid.RowDefinitions>
-                <RowDefinition Height="*"/>
-              </Grid.RowDefinitions>
-              <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="Noto-Bold" Opacity="0.4"
-                     Color="{ThemeResource TextColor}" Margin="5,-2,0,-2" MinWidth="50">
-                <Label.FontSize>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
-                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
-                  </MultiBinding>
-                </Label.FontSize>
-                <Label.IsVisible>
-                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers"/>
-                </Label.IsVisible>
-              </Label>
-              <Image x:Name="ChannelLogoImage" Grid.Column="1" Stretch="Uniform" Margin="5,-1,0,-1" Width="{ThemeResource ChannelLogoWidth}" HorizontalAlignment="Center"
-                     Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
-                <Image.Source>
-                  <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
-                                            fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0" />
-                </Image.Source>
-                <Image.IsVisible>
-                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
-                </Image.IsVisible>
-              </Image>
-              <!--Label Grid.Column="1" x:Name="FallbackNameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
-                     Color="{ThemeResource TextColor}">
-                <Label.IsVisible>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
-                    <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
-                    <Binding ElementName="ChannelLogoImage" Path="!HasImage"/>
-                  </MultiBinding>
-                </Label.IsVisible>
-                <Label.FontSize>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
-                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
-                  </MultiBinding>
-                </Label.FontSize>
-                <Label.Triggers>
-                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-                    <Setter TargetName="FallbackNameLabel" Property="Scroll" Value="Auto"/>
-                  </DataTrigger>
-                </Label.Triggers>
-              </Label-->
-              <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
-                     Color="{ThemeResource TextColor}">
-                <Label.IsVisible>
-                  <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames"/>
-                </Label.IsVisible>
-                <Label.FontSize>
-                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
-                    <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
-                  </MultiBinding>
-                </Label.FontSize>
-                <Label.Triggers>
-                  <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
-                    <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
-                  </DataTrigger>
-                </Label.Triggers>
-              </Label>
-            </Grid>
+            <Button.ContentTemplate>
+              <DataTemplate>
+                <Grid x:Name="ChannelHeader" Margin="2">
+                  <Grid.ColumnDefinitions>
+                    <!-- Channel Logo -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Channel Number -->
+                    <ColumnDefinition Width="Auto"/>
+                    <!-- Channel Name -->
+                    <ColumnDefinition Width="*"/>
+                  </Grid.ColumnDefinitions>
+                  <Grid.RowDefinitions>
+                    <RowDefinition Height="*"/>
+                  </Grid.RowDefinitions>
+                  <Label x:Name="ChannelNumber" Grid.Column="0" Content="{Binding Channel.ChannelNumber}" VerticalAlignment="Center" FontFamily="Noto-Bold" Opacity="0.4"
+                         Color="{ThemeResource TextColor}" Margin="5,-2,0,-2" MinWidth="50">
+                    <Label.FontSize>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                        <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                      </MultiBinding>
+                    </Label.FontSize>
+                    <Label.IsVisible>
+                      <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNumbers"/>
+                    </Label.IsVisible>
+                  </Label>
+                  <Image x:Name="ChannelLogoImage" Grid.Column="1" Stretch="Uniform" Margin="5,-1,0,-1" Width="{ThemeResource ChannelLogoWidth}" HorizontalAlignment="Center"
+                         Height="{Binding ElementName=ChannelHeader,Path=ActualHeight}">
+                    <Image.Source>
+                      <fanart:FanArtImageSource fanart:FanArtMediaType="{Binding ChannelLogoType}" fanart:FanArtType="Banner"
+                                                fanart:FanArtName="{Binding ChannelLogoPath}" fanart:MaxWidth="0" fanart:MaxHeight="0" />
+                    </Image.Source>
+                    <Image.IsVisible>
+                      <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
+                    </Image.IsVisible>
+                  </Image>
+                  <Label Grid.Column="1" x:Name="FallbackNameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
+                         Color="{ThemeResource TextColor}">
+                    <Label.IsVisible>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+                        <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
+                        <Binding ElementName="ChannelLogoImage" Path="!HasImage"/>
+                      </MultiBinding>
+                    </Label.IsVisible>
+                    <Label.FontSize>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                        <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                      </MultiBinding>
+                    </Label.FontSize>
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                        <Setter TargetName="FallbackNameLabel" Property="Scroll" Value="Auto"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>
+                  <!--<Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
+                         Color="{ThemeResource TextColor}">
+                    <Label.IsVisible>
+                      <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames"/>
+                    </Label.IsVisible>
+                    <Label.FontSize>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
+                        <Binding Source="{StaticResource SlimTvSettings}" Path="NumberOfRows"/>
+                      </MultiBinding>
+                    </Label.FontSize>
+                    <Label.Triggers>
+                      <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+                        <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
+                      </DataTrigger>
+                    </Label.Triggers>
+                  </Label>-->
+                </Grid>
+              </DataTemplate>
+            </Button.ContentTemplate>
           </Button>
         </ControlTemplate>
       </Setter.Value>
