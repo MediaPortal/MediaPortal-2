@@ -998,7 +998,7 @@
                       </DataTrigger>
                     </Label.Triggers>
                   </Label>
-                  <!--<Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
+                  <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
                          Color="{ThemeResource TextColor}">
                     <Label.IsVisible>
                       <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames"/>
@@ -1013,7 +1013,7 @@
                         <Setter TargetName="NameLabel" Property="Scroll" Value="Auto"/>
                       </DataTrigger>
                     </Label.Triggers>
-                  </Label>-->
+                  </Label>
                 </Grid>
               </DataTemplate>
             </Button.ContentTemplate>
