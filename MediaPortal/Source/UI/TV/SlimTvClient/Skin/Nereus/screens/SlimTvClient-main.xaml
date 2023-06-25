@@ -141,6 +141,16 @@
             </DataTrigger>
           </Grid.Triggers>
 
+          <!-- Invisible dummy label to know, if one list item is focused, list index != 0 -->
+          <Label x:Name="ListIndex" IsVisible="False">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding ElementName="ProgramsListView" Path="CurrentItem"/>
+                <Binding ElementName="ProgramsListView" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
+
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
             <Grid.RowDefinitions>
               <RowDefinition Height="Auto"/>
@@ -151,15 +161,9 @@
               <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
 
-            <Grid.Triggers>
-              <MultiTrigger>
-                <MultiTrigger.Conditions>
-                  <Condition Binding="{Binding ElementName=ProgramsListView, Path=IsMouseOver}" Value="False"/>
-                  <Condition Binding="{Binding ElementName=ProgramsListView, Path=IsKeyboardFocusWithin}" Value="False"/>
-                </MultiTrigger.Conditions>
-                <Setter Property="IsVisible" Value="False"/>
-              </MultiTrigger>
-            </Grid.Triggers>
+            <Grid.IsVisible>
+              <Binding ElementName="ListIndex" Path="Content" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{} {0} != 0"/>
+            </Grid.IsVisible>
 
             <StackPanel Orientation="Vertical" Grid.RowSpan="2" MinWidth="420">
               <!-- Common control for program duration formatting -->

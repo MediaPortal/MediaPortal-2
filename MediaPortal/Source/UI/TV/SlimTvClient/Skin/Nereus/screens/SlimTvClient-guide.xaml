@@ -99,16 +99,19 @@
               <Setter Property="IsVisible" Value="False"/>
             </DataTrigger>
           </Grid.Triggers>
+          <!-- Invisible dummy label to know, if one list item is focused, list index != 0 -->
+          <Label x:Name="ListIndex" IsVisible="False">
+            <Label.Content>
+              <MultiBinding Converter="{StaticResource GetIndexMultiConverter}" ConverterParameter="1">
+                <Binding ElementName="GuideList" Path="CurrentItem"/>
+                <Binding ElementName="GuideList" Path="ItemsSource"/>
+              </MultiBinding>
+            </Label.Content>
+          </Label>
           <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch" DataContext="{Binding Path=CurrentProgram}">
-            <Grid.Triggers>
-              <MultiTrigger>
-                <MultiTrigger.Conditions>
-                  <Condition Binding="{Binding ElementName=GuideList, Path=IsMouseOver}" Value="False"/>
-                  <Condition Binding="{Binding ElementName=GuideList, Path=IsKeyboardFocusWithin}" Value="False"/>
-                </MultiTrigger.Conditions>
-                <Setter Property="IsVisible" Value="False"/>
-              </MultiTrigger>
-            </Grid.Triggers>
+            <Grid.IsVisible>
+              <Binding ElementName="ListIndex" Path="Content" Converter="{StaticResource ExpressionValueConverter}" ConverterParameter="{} {0} != 0"/>
+            </Grid.IsVisible>
             <Include Source="screens\ProgramInfoSlim.inc"></Include>
           </Grid>
         </Grid>
