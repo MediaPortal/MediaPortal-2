@@ -1436,6 +1436,22 @@
             </DataTrigger>
           </Label.Triggers>
         </Label>
+
+        <Label x:Name="ChannelLogoFallbackLabel" Grid.Column="1" Margin="3,1,5,3" Content="{Binding Channel.Name}" Color="{ThemeResource TextColor}"
+               VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None" Width="140">
+          <Label.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
+              <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
+              <Binding ElementName="ChannelLogo" Path="!HasImage" />
+            </MultiBinding>
+          </Label.IsVisible>
+          <Label.Triggers>
+            <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+              <Setter TargetName="ChannelLogoFallbackLabel" Property="Scroll" Value="Auto"/>
+            </DataTrigger>
+          </Label.Triggers>
+        </Label>
+
       </Grid>
 
       <Grid Grid.Column="1" Grid.Row="0" Margin="5,0,5,0">
