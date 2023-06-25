@@ -1527,7 +1527,7 @@
   <DataTemplate x:Key="SearchProgramDataTemplate" DataType="{x:Type collections:ListItem}">
     <Grid x:Name="ItemControl" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="50">
       <Grid.ColumnDefinitions>
-        <ColumnDefinition Width="135"/>
+        <ColumnDefinition Width="145"/>
         <ColumnDefinition Width="*"/>
         <ColumnDefinition Width="400"/>
       </Grid.ColumnDefinitions>
@@ -1536,18 +1536,11 @@
       </Grid.RowDefinitions>
 
       <Border x:Name="Shadow1" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Black" Opacity="0.4" BorderThickness="0" Margin="0,-5,2,-7"/>
+              Background="Black" BorderThickness="0" Margin="-5,-10,-5,-10"/>
       <Border x:Name="Shadow2" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Black" Opacity="0.4" BorderThickness="0" Margin="0,-5,2,-7"/>
+              Background="Black" BorderThickness="0" Margin="0,-10,-5,-10"/>
       <Border x:Name="Shadow3" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Black" Opacity="0.4" BorderThickness="0" Margin="0,-5,2,-7"/>
-
-      <Border x:Name="Shadow11" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Black" Opacity="0.3" BorderThickness="0" Margin="0,-5,1,-8"/>
-      <Border x:Name="Shadow22" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Black" Opacity="0.3" BorderThickness="0" Margin="0,-5,1,-8"/>
-      <Border x:Name="Shadow33" Grid.Column="2" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-              Background="Black" Opacity="0.3" BorderThickness="0" Margin="0,-5,1,-8"/>
+              Background="Black" BorderThickness="0" Margin="0,-10,0,-10"/>
 
       <Border x:Name="Item1" Grid.Column="0" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
               Background="{ThemeResource BaseFill}" BorderThickness="0" Margin="0,-5,4,-5"/>
@@ -1571,7 +1564,13 @@
       </Image>
       <Label x:Name="ChannelName" Content="{Binding Program.ChannelName}" Color="{ThemeResource TextColor}" ScrollDelay="0" 
              Scroll="None" IsVisible="{Binding ElementName=ChannelLogo, Path=!HasImage}"
-             FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"/>
+             FontSize="{ThemeResource SmallFontSize}" Margin="5,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="ChannelName" Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
+      </Label>
 
       <Grid Grid.Column="1">
         <Grid.ColumnDefinitions>
