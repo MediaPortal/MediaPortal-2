@@ -101,7 +101,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       _selectedItem = selectedItem;
       if (selectedItem != null)
       {
-        IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
+        IProgram program = (IProgram)selectedItem.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM];
         UpdateProgramStatus(program);
       }
     }

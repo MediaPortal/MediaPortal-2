@@ -156,7 +156,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       ProgramListItem item = SlimTvExtScheduleModel.CurrentItem as ProgramListItem;
       if (item != null)
-        ShowProgramActions(item.AdditionalProperties["PROGRAM"] as IProgram);
+        ShowProgramActions(item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] as IProgram);
     }
 
     public void RecordSingleProgram(IProgram program)
@@ -352,7 +352,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               RecordSeries(currentProgram);
           })
         };
-        item.AdditionalProperties["PROGRAM"] = currentProgram;
+        item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] = currentProgram;
         item.Selected = _lastProgramId == program.ProgramId; // Restore focus
 
         _programsList.Add(item);

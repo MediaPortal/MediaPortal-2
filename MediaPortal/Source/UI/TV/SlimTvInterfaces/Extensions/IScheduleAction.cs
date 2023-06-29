@@ -22,31 +22,29 @@
 
 #endregion
 
-using System;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
-namespace MediaPortal.Plugins.SlimTv.Client.Models
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Extensions
 {
+  public delegate bool ScheduleActionDelegate(ISchedule schedule, MediaMode mediaMode);
+
   /// <summary>
-  /// <see cref="SlimTvProgramSearchModel"/> holds all data for extended scheduling options.
+  /// Extension interface to add actions for <see cref="IProgram"/>s. Plugins can implement this interface and register the class in
+  /// <c>plugin.xml</c> <see cref="SlimTvExtensionBuilder.SLIMTVEXTENSIONPATH"/> path.
   /// </summary>
-  public class SlimTvRadioProgramSearchModel : SlimTvProgramSearchModelBase
+  public interface IScheduleAction
   {
-    public const string MODEL_ID_STR = "FA188F55-D725-4361-9FD5-568DB2BE71B3";
-    public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
+    /// <summary>
+    /// Checks if this action is available for the given <paramref name="schedule"/>.
+    /// </summary>
+    /// <param name="schedule">Schedule</param>
+    /// <param name="mediaMode">Media mode</param>
+    /// <returns><c>true</c> if available</returns>
+    bool IsAvailable(ISchedule schedule, MediaMode mediaMode);
 
-    public SlimTvRadioProgramSearchModel()
-    {
-      _mediaMode = MediaMode.Radio;
-    }
-
-    #region IWorkflowModel implementation
-
-    public override Guid ModelId
-    {
-      get { return MODEL_ID; }
-    }
-
-    #endregion
+    /// <summary>
+    /// Gets the action to be executed for the selected schedule (<seealso cref="ScheduleActionDelegate"/>).
+    /// </summary>
+    ScheduleActionDelegate ScheduleAction { get; }
   }
 }

@@ -419,7 +419,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
       // Prepare the MP2 integration
       PrepareMediaSources();
 
-      //InitRecordingFoldersAsync().Wait();
       InitProgramCacheAsync().Wait();
 
       ServiceRegistration.Get<ILogger>().Info("SlimTvService: Initialized");
@@ -706,7 +705,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     protected Task UpdateProgramCacheAsync(IDictionary<int, RecordingStatus> recordingStatuses)
     {
-      _checkCacheUpToDate = true;
       _programsStatuses = recordingStatuses;
       return Task.CompletedTask;
     }
@@ -763,6 +761,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
           var storedConflicts = await ReplaceConflictsAsync(conflicts);
           if (storedConflicts > 0)
             Logger.Info($"SlimTvService: Updated conflicts. Stored {storedConflicts} conflicts");
+
+          _checkCacheUpToDate = true;
         }
 
         if (checkFull || checkBeforeRecord)
@@ -1061,9 +1061,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return await GetProviderChannelGroupsAsync();
     }
 
+    protected abstract Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync();
+
+    public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync()
+    {
+      await _initComplete.Task;
+
+      return await GetProviderChannelsAsync();
+    }
+
     protected abstract Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync(IChannelGroup group);
 
-    public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
+    public async Task<AsyncResult<IList<IChannel>>> GetChannelsByGroupAsync(IChannelGroup group)
     {
       await _initComplete.Task;
 
@@ -1477,8 +1486,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         StartFromTime = scheduleRule.StartFromTime,
         StartToTime = scheduleRule.StartToTime,
-        StartOnOrAfterDay = scheduleRule.StartOnOrAfterDay,
-        StartOnOrBeforeDay = scheduleRule.StartOnOrBeforeDay,
+        Days = new List<DayOfWeek>(),
 
         Priority = scheduleRule.Priority,
 
@@ -1491,6 +1499,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       };
       foreach(var target in scheduleRule.Targets)
         rule.Targets.Add(target);
+      foreach (var day in scheduleRule.Days)
+        rule.Days.Add(day);
 
       using (await _scheduleRuleAccess.WriterLockAsync())
       {
@@ -1505,7 +1515,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return new AsyncResult<IScheduleRule>(true, rule);
     }
 
-    public async Task<AsyncResult<IScheduleRule>> CreateScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay,
+    public async Task<AsyncResult<IScheduleRule>> CreateScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, IList<DayOfWeek> days,
       RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
     {
       await _initComplete.Task;
@@ -1531,8 +1541,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         StartFromTime = from,
         StartToTime = to,
-        StartOnOrAfterDay = afterDay,
-        StartOnOrBeforeDay = beforeDay,
+        Days = new List<DayOfWeek>(),
 
         Priority = (PriorityType)priority,
 
@@ -1545,6 +1554,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       };
       foreach (var target in targets)
         rule.Targets.Add(target);
+      foreach (var day in days)
+        rule.Days.Add(day);
 
       var result = await CreateProviderScheduleRuleAsync(rule);
       if (result.Success)
@@ -1552,7 +1563,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return result;
     }
 
-    public async Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+    public async Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, IList<DayOfWeek> days, 
       string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType, EpisodeManagementScheme episodeManagementScheme, 
       RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
     {
@@ -1579,8 +1590,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         StartFromTime = from,
         StartToTime = to,
-        StartOnOrAfterDay = afterDay,
-        StartOnOrBeforeDay = beforeDay,
+        Days = new List<DayOfWeek>(),
 
         Priority = (PriorityType)priority,
 
@@ -1593,6 +1603,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       };
       foreach (var target in targets)
         rule.Targets.Add(target);
+      foreach (var day in days)
+        rule.Days.Add(day);
 
       var result = await CreateProviderScheduleRuleAsync(rule);
       if (result.Success)
@@ -1627,8 +1639,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         StartFromTime = scheduleRule.StartFromTime,
         StartToTime = scheduleRule.StartToTime,
-        StartOnOrAfterDay = scheduleRule.StartOnOrAfterDay,
-        StartOnOrBeforeDay = scheduleRule.StartOnOrBeforeDay,
+        Days = new List<DayOfWeek>(),
 
         Priority = scheduleRule.Priority,
 
@@ -1641,6 +1652,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
       };
       foreach (var target in scheduleRule.Targets)
         rule.Targets.Add(target);
+      foreach (var day in scheduleRule.Days)
+        rule.Days.Add(day);
 
       using (await _scheduleRuleAccess.WriterLockAsync())
       {
@@ -1655,7 +1668,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return true;
     }
 
-    public async Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+    public async Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, IList<DayOfWeek> days, 
       bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType, EpisodeManagementScheme? episodeManagementScheme, 
       RuleRecordingType? recordingType, int? preRecordInterval, int? postRecordInterval, int? priority, KeepMethodType? keepMethod, DateTime? keepDate)
     {
@@ -1683,8 +1696,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         StartFromTime = from ?? scheduleRule.StartFromTime,
         StartToTime = to ?? scheduleRule.StartToTime,
-        StartOnOrAfterDay = afterDay ?? scheduleRule.StartOnOrAfterDay,
-        StartOnOrBeforeDay = beforeDay ?? scheduleRule.StartOnOrBeforeDay,
+        Days = new List<DayOfWeek>(),
 
         Priority = (PriorityType)(priority ?? (int)scheduleRule.Priority),
 
@@ -1701,7 +1713,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
         foreach (var target in scheduleRule.Targets)
           rule.Targets.Add(target);
       }
-      
+      if (days != null && days.Any())
+      {
+        rule.Days.Clear();
+        foreach (var day in scheduleRule.Days)
+          rule.Days.Add(day);
+      }
       var result = await EditProviderScheduleRuleAsync(rule);
       if (result)
         _checkCacheUpToDate = false;
@@ -2242,8 +2259,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
       if (rule.RecordingType == RuleRecordingType.AllOnSameDay || rule.RecordingType == RuleRecordingType.AllOnSameChannelAndDay)
       {
-        var validDays = GetValidDayOfWeeks(rule.StartOnOrAfterDay, rule.StartOnOrBeforeDay);
-        if (!validDays.Contains(schedule.StartTime.DayOfWeek))
+        if (!rule.Days.Contains(schedule.StartTime.DayOfWeek))
           return false;
       }
 
@@ -2263,10 +2279,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
         scheduleRule.Rule.ChannelId = scheduleRule.Schedule.ChannelId;
         changedRule = true;
       }
-      if ((scheduleRule.Rule.RecordingType == RuleRecordingType.AllOnSameDay || scheduleRule.Rule.RecordingType == RuleRecordingType.AllOnSameChannelAndDay) && !scheduleRule.Rule.StartOnOrAfterDay.HasValue)
+      if ((scheduleRule.Rule.RecordingType == RuleRecordingType.AllOnSameDay || scheduleRule.Rule.RecordingType == RuleRecordingType.AllOnSameChannelAndDay) && !scheduleRule.Rule.Days.Any())
       {
-        scheduleRule.Rule.StartOnOrAfterDay = scheduleRule.Schedule.StartTime.DayOfWeek;
-        scheduleRule.Rule.StartOnOrBeforeDay = scheduleRule.Schedule.StartTime.DayOfWeek;
+        scheduleRule.Rule.Days.Add(scheduleRule.Schedule.StartTime.DayOfWeek);
         changedRule = true;
       }
 
@@ -2801,7 +2816,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
         foreach (var group in groupResult.Result)
         {
-          var channelResult = await GetChannelsAsync(group);
+          var channelResult = await GetChannelsByGroupAsync(group);
           if (channelResult.Success)
             cache.Groups[group.ChannelGroupId] = channelResult.Result;
           else
@@ -2967,6 +2982,24 @@ namespace MediaPortal.Plugins.SlimTv.Service
       {
         Series = seriesInfo,
         Name = programSeries.EpisodeTitle,
+        SeasonNumber = seasonNo ?? -1,
+        EpisodeNumber = episodeNo ?? -1
+      };
+    }
+
+    protected EpisodeInfo GetCachedEpisodeInfoFromName(string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, CollectionCache cache)
+    {
+      var seriesInfo = GetCachedSeriesInfo(seriesName, cache);
+      var seasonNo = ParseSeasonNumber(seasonNumber);
+      var episodeNo = ParseEpisodeNumber(episodeNumber);
+      //bool episodeNumberFound = seasonNo.HasValue && episodeNo.HasValue;
+      //if (!episodeNumberFound)
+      //  return null;
+
+      return new EpisodeInfo
+      {
+        Series = seriesInfo,
+        Name = episodeTitle,
         SeasonNumber = seasonNo ?? -1,
         EpisodeNumber = episodeNo ?? -1
       };
@@ -3220,10 +3253,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (schedule == null)
         return true;
 
-      if (schedule.StartOnOrAfterDay.HasValue || schedule.StartOnOrBeforeDay.HasValue)
+      if (schedule.Days.Any())
       {
-        var validDays = GetValidDayOfWeeks(schedule.StartOnOrAfterDay, schedule.StartOnOrBeforeDay);
-        if (!validDays.Contains(program.StartTime.DayOfWeek))
+        if (!schedule.Days.Contains(program.StartTime.DayOfWeek))
           return false;
       }
 
@@ -3241,10 +3273,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
         if (string.IsNullOrWhiteSpace(target.SearchText))
           return false;
 
-        if (target.SearchTarget == RuleSearchTarget.Titel || target.SearchTarget == RuleSearchTarget.Description || target.SearchTarget == RuleSearchTarget.Genre)
+        if (target.SearchTarget == RuleSearchTarget.Title || target.SearchTarget == RuleSearchTarget.Description || target.SearchTarget == RuleSearchTarget.Genre)
         {
           string data = "";
-          if (target.SearchTarget == RuleSearchTarget.Titel)
+          if (target.SearchTarget == RuleSearchTarget.Title)
             data = program.Title;
           else if (target.SearchTarget == RuleSearchTarget.Description)
             data = program.Description;
@@ -3285,55 +3317,72 @@ namespace MediaPortal.Plugins.SlimTv.Service
           if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.TitleContainsSeasonEpisodeRegEx || schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.DescriptionContainsSeasonEpisodeRegex || 
               schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.EpisodeTitleContainsSeasonEpisodeRegEx)
           {
-            string data = "";
-            if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.TitleContainsSeasonEpisodeRegEx)
-              data = series.Title;
-            else if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.DescriptionContainsSeasonEpisodeRegex)
-              data = series.Description;
-            else if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.EpisodeTitleContainsSeasonEpisodeRegEx)
-              data = series.EpisodeTitle;
-
-            if (!string.IsNullOrWhiteSpace(schedule.EpisodeInfoFallback) && !string.IsNullOrWhiteSpace(data))
+            if (string.IsNullOrWhiteSpace(series.SeasonNumber) || string.IsNullOrWhiteSpace(series.EpisodeNumber))
             {
-              var regex = new Regex(schedule.EpisodeInfoFallback, RegexOptions.IgnoreCase);
-              var match = regex.Match(data);
-              if (match.Success)
+              string data = "";
+              if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.TitleContainsSeasonEpisodeRegEx)
+                data = series.Title;
+              else if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.DescriptionContainsSeasonEpisodeRegex)
+                data = series.Description;
+              else if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.EpisodeTitleContainsSeasonEpisodeRegEx)
+                data = series.EpisodeTitle;
+
+              if (!string.IsNullOrWhiteSpace(schedule.EpisodeInfoFallback) && !string.IsNullOrWhiteSpace(data))
               {
-                foreach (string group in regex.GetGroupNames())
+                var regex = new Regex(schedule.EpisodeInfoFallback, RegexOptions.IgnoreCase);
+                var match = regex.Match(data);
+                if (match.Success)
                 {
-                  // Save so we can use it later when checking assignments
-                  if (string.Equals(group, "SeasonNo", StringComparison.InvariantCultureIgnoreCase) && int.TryParse(match.Groups[group].Value, out int prgSeasonNo))
-                    series.SeasonNumber = prgSeasonNo.ToString();
-                  if (string.Equals(group, "EpisodeNo", StringComparison.InvariantCultureIgnoreCase) && int.TryParse(match.Groups[group].Value, out int prgEpisodeNo))
-                    series.EpisodeNumber = prgEpisodeNo.ToString();
+                  foreach (string group in regex.GetGroupNames())
+                  {
+                    // Save so we can use it later when checking assignments
+                    if (string.Equals(group, "SeasonNo", StringComparison.InvariantCultureIgnoreCase) && int.TryParse(match.Groups[group].Value, out int prgSeasonNo))
+                      series.SeasonNumber = prgSeasonNo.ToString();
+                    if (string.Equals(group, "EpisodeNo", StringComparison.InvariantCultureIgnoreCase) && int.TryParse(match.Groups[group].Value, out int prgEpisodeNo))
+                      series.EpisodeNumber = prgEpisodeNo.ToString();
+                  }
                 }
               }
             }
+            else
+            {
+              Logger.Debug($"SlimTvService: Skipping series fallback handling for {series.Title} ({series.StartTime}-{series.EndTime}) as it already contains series information");
+            }
+          }
+
+          string correctSeriesName = null;
+          var seriesInfo = GetCachedEpisodeInfoFromProgram(series, cache);
+          if (seriesInfo == null)
+          {
+            seriesInfo = GetCachedEpisodeInfoFromName(schedule.SeriesName, series.SeasonNumber, series.EpisodeNumber, series.EpisodeTitle, cache);
+            if (seriesInfo != null)
+              correctSeriesName = schedule.SeriesName;
+          }
+          if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.TitleContainsSeasonEpisodeRegEx || schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.TitleIsEpisodeName)
+          {
+            correctSeriesName = schedule.SeriesName;
           }
           if (seasonNo.HasValue && episodeNo.HasValue)
           {
-            var info = GetCachedEpisodeInfoFromProgram(series, cache);
-            if (info != null)
+            if (seriesInfo != null)
             {
-              if (info.SeasonNumber == seasonNo && info.EpisodeNumber == episodeNo)
+              if (seriesInfo.SeasonNumber == seasonNo && seriesInfo.EpisodeNumber == episodeNo)
                 seriesMatch = true;
             }
           }
           else if (seasonNo.HasValue)
           {
-            var info = GetCachedEpisodeInfoFromProgram(series, cache);
-            if (info != null)
+            if (seriesInfo != null)
             {
-              if (info.SeasonNumber == seasonNo)
+              if (seriesInfo.SeasonNumber == seasonNo)
                 seriesMatch = true;
             }
           }
           else if (episodeNo.HasValue)
           {
-            var info = GetCachedEpisodeInfoFromProgram(series, cache);
-            if (info != null)
+            if (seriesInfo != null)
             {
-              if (info.EpisodeNumber == episodeNo)
+              if (seriesInfo.EpisodeNumber == episodeNo)
                 seriesMatch = true;
             }
           }
@@ -3342,6 +3391,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.TitleIsEpisodeName)
           {
             // Save so we can use it later when checking assignments
+            correctSeriesName = schedule.SeriesName;
             series.EpisodeTitle = series.Title?.Trim();
           }
           else if (schedule.EpisodeInfoFallbackType == RuleEpisodeInfoFallback.DescriptionIsEpisodeName)
@@ -3374,6 +3424,10 @@ namespace MediaPortal.Plugins.SlimTv.Service
               }
             }
           }
+
+          if (!string.IsNullOrWhiteSpace(correctSeriesName))
+            series.Title = correctSeriesName; // Save so we can use it later when checking assignments
+
           if (!string.IsNullOrWhiteSpace(schedule.EpisodeTitle))
           {
             if (schedule.EpisodeTitle.Equals(series.EpisodeTitle, StringComparison.InvariantCultureIgnoreCase))
@@ -3428,21 +3482,6 @@ namespace MediaPortal.Plugins.SlimTv.Service
     protected bool IsWeekend(DayOfWeek dayOfWeek)
     {
       return dayOfWeek == DayOfWeek.Saturday || dayOfWeek == DayOfWeek.Sunday;
-    }
-
-    protected IList<DayOfWeek> GetValidDayOfWeeks(DayOfWeek? firstDayOfWeek, DayOfWeek? lastDayOfWeek)
-    {
-      var first = firstDayOfWeek ?? DayOfWeek.Monday;
-      var last = lastDayOfWeek ?? DayOfWeek.Sunday;
-
-      List<DayOfWeek> days = new List<DayOfWeek>();
-      days.Add(first);
-      while (first != last)
-      {
-        first = (DayOfWeek)(((int)first + 1) % 7);
-        days.Add(first);
-      }
-      return days;
     }
 
     protected string GetRecordingFolderFromTags(string defaultRecordingPath, string format, Dictionary<string, string> tags)

@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
   /// <summary>
   /// Model that allows the configuration and creation of a manual schedule.
   /// </summary>
-  public abstract class SlimTvManualScheduleModelBase : SlimTvModelBase
+  public abstract class SlimTvScheduleRuleModelBase : SlimTvModelBase
   {
     #region Protected fields
     
@@ -586,14 +586,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       workflowManager.NavigatePush(stateId, context);
     }
 
-    protected static void Show(ISchedule schedule, Guid stateId)
+    protected static void Show(IScheduleRule scheduleRule, Guid stateId)
     {
       NavigationContextConfig context = null;
-      if (schedule != null)
+      if (scheduleRule != null)
       {
         context = new NavigationContextConfig();
         context.AdditionalContextVariables = new Dictionary<string, object>();
-        context.AdditionalContextVariables[SlimTvClientModel.KEY_SCHEDULE] = schedule;
+        context.AdditionalContextVariables[SlimTvClientModel.KEY_SCHEDULE_RULE] = scheduleRule;
       }
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
       workflowManager.NavigatePush(stateId, context);

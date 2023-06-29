@@ -381,7 +381,13 @@ namespace Tests.Server.TvServer
       return Task.FromResult(new AsyncResult<IList<IChannelGroup>>(groups.Any(), groups.Select(g => (IChannelGroup)g).ToList()));
     }
 
-    protected override Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync(IChannelGroup @group)
+    protected override Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync()
+    {
+      var channels = Channels.ToList();
+      return Task.FromResult(new AsyncResult<IList<IChannel>>(channels.Any(), channels.Select(g => (IChannel)g).ToList()));
+    }
+
+    protected override Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync(IChannelGroup group)
     {
       var channels = Channels.Where(c => c.GroupNames.Contains(@group.Name)).ToList();
       return Task.FromResult(new AsyncResult<IList<IChannel>>(channels.Any(), channels.Select(g => (IChannel)g).ToList()));

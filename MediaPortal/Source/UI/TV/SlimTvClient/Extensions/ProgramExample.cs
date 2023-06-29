@@ -32,12 +32,12 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
   /// </summary>
   class ProgramExample: IProgramAction
   {
-    public bool DoSomethingWithProgram(IProgram program)
+    public bool DoSomethingWithProgram(IProgram program, MediaMode mediaMode)
     {
       return true;
     }
 
-    public bool IsAvailable (IProgram program)
+    public bool IsAvailable (IProgram program, MediaMode mediaMode)
     {
       return true;
     }

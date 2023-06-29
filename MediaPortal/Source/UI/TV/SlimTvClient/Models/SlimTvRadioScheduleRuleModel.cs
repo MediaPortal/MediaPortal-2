@@ -22,25 +22,57 @@
 
 #endregion
 
-using System;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using System;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
   /// <summary>
-  /// <see cref="SlimTvProgramSearchModel"/> holds all data for extended scheduling options.
+  /// Model that allows the configuration and creation of a schedule rule.
   /// </summary>
-  public class SlimTvRadioProgramSearchModel : SlimTvProgramSearchModelBase
+  public class SlimTvRadioScheduleRuleModel : SlimTvScheduleRuleModelBase
   {
-    public const string MODEL_ID_STR = "FA188F55-D725-4361-9FD5-568DB2BE71B3";
+    #region Constants
+
+    public const string MODEL_ID_STR = "A651943F-1B40-46FB-988C-20FB618B6A7B";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
-    public SlimTvRadioProgramSearchModel()
+    public const string STATE_MANUAL_SCHEDULE_RULE_STR = "0CC2B3ED-625D-4278-A99B-2A88CAF8DCFF";
+    public static readonly Guid STATE_MANUAL_SCHEDULE_RULE = new Guid(STATE_MANUAL_SCHEDULE_RULE_STR);
+
+    #endregion
+
+    public SlimTvRadioScheduleRuleModel()
     {
       _mediaMode = MediaMode.Radio;
     }
 
-    #region IWorkflowModel implementation
+    #region GUI properties/methods
+
+    public async Task CreateSchedule()
+    {
+      await CreateSchedule(STATE_MANUAL_SCHEDULE_RULE);
+    }
+
+    public static void Show()
+    {
+      Show(STATE_MANUAL_SCHEDULE_RULE);
+    }
+
+    public static void Show(IProgram program)
+    {
+      Show(program, STATE_MANUAL_SCHEDULE_RULE);
+    }
+
+    public static void Show(IScheduleRule scheduleRule)
+    {
+      Show(scheduleRule, STATE_MANUAL_SCHEDULE_RULE);
+    }
+
+    #endregion
+
+    #region IWorkflow
 
     public override Guid ModelId
     {

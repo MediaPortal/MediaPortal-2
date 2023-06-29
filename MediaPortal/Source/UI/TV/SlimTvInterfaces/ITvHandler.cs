@@ -59,6 +59,11 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     IScheduleControlAsync ScheduleControl { get; }
 
     /// <summary>
+    /// Exposes the IScheduleRuleControlAsync interface of active TvProvider.
+    /// </summary>
+    IScheduleRuleControlAsync ScheduleRuleControl { get; }
+
+    /// <summary>
     /// Uses the <see cref="TimeshiftControl"/> to start timeshifting and the playback of
     /// the created MediaItem.
     /// </summary>

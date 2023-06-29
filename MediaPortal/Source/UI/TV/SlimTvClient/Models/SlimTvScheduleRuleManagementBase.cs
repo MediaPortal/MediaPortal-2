@@ -29,7 +29,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
-  public abstract class SlimTvScheduleManagementBase : SlimTvModelBase
+  public abstract class SlimTvScheduleRuleManagementBase : SlimTvModelBase
   {
     #region Fields
 

@@ -47,7 +47,7 @@ namespace MediaPortal.Extensions.MediaServer.Objects.MediaLibrary
       {
         IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
         IChannelGroup group = new ChannelGroup() { ChannelGroupId = GroupId };
-        var res = channelAndGroupInfo.GetChannelsAsync(group).Result;
+        var res = channelAndGroupInfo.GetChannelsByGroupAsync(group).Result;
         if (res.Success)
         {
           return res.Result.OrderBy(c => c.Name).ToList();

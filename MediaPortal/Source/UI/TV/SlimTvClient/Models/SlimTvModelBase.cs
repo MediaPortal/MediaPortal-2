@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected ITvHandler _tvHandler;
     protected ItemsList _channelGroupList = new ItemsList();
     protected IPluginItemStateTracker _slimTvExtensionsPluginItemStateTracker;
-    protected Dictionary<Guid, TvExtension> _programExtensions;
+    protected Dictionary<Guid, TvExtension> _extensions;
 
     protected IList<IProgram> _programs;
     protected bool _isInitialized;
@@ -64,17 +64,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected readonly ItemsList _dialogActionsList = new ItemsList();
     protected MediaMode _mediaMode = MediaMode.All;
 
-    public enum MediaMode
-    {
-      All,
-      Tv,
-      Radio
-    }
-
     public struct TvExtension
     {
       public string Caption;
-      public IProgramAction Extension;
+      public object Extension;
     }
 
     #endregion
@@ -392,28 +385,58 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         }
       }
 
-      if (_programExtensions == null)
+      if (_extensions == null)
         BuildExtensions();
 
       ILocalization loc = ServiceRegistration.Get<ILocalization>();
-      foreach (KeyValuePair<Guid, TvExtension> programExtension in _programExtensions)
+      foreach (KeyValuePair<Guid, TvExtension> ext in _extensions)
       {
-        TvExtension extension = programExtension.Value;
+        TvExtension extension = ext.Value;
+        if (!(extension.Extension is IProgramAction action))
+          continue;
+
         // First check if this extension applies for the selected program
-        if (!extension.Extension.IsAvailable(program))
+        if (!action.IsAvailable(program, _mediaMode))
           continue;
 
         items.Add(
             new ListItem(Consts.KEY_NAME, loc.ToString(extension.Caption))
             {
-              Command = new MethodDelegateCommand(() => extension.Extension.ProgramAction(program))
+              Command = new MethodDelegateCommand(() => action.ProgramAction(program, _mediaMode))
+            });
+      }
+    }
+
+    /// <summary>
+    /// Add schedule options
+    /// </summary>
+    protected void AddScheduleOptions(ItemsList items, ISchedule schedule)
+    {
+      if (_extensions == null)
+        BuildExtensions();
+
+      ILocalization loc = ServiceRegistration.Get<ILocalization>();
+      foreach (KeyValuePair<Guid, TvExtension> ext in _extensions)
+      {
+        TvExtension extension = ext.Value;
+        if (!(extension.Extension is IScheduleAction action))
+          continue;
+
+        // First check if this extension applies for the selected program
+        if (!action.IsAvailable(schedule, _mediaMode))
+          continue;
+
+        items.Add(
+            new ListItem(Consts.KEY_NAME, loc.ToString(extension.Caption))
+            {
+              Command = new MethodDelegateCommand(() => action.ScheduleAction(schedule, _mediaMode))
             });
       }
     }
 
     protected void BuildExtensions()
     {
-      _programExtensions = new Dictionary<Guid, TvExtension>();
+      _extensions = new Dictionary<Guid, TvExtension>();
       _slimTvExtensionsPluginItemStateTracker = new FixedItemStateTracker("SlimTvHandler - Extension registration");
 
       IPluginManager pluginManager = ServiceRegistration.Get<IPluginManager>();
@@ -430,10 +453,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             Type extensionClass = slimTvProgramExtension.ExtensionClass;
             if (extensionClass == null)
               throw new PluginInvalidStateException("Could not find class type for extension {0}", slimTvProgramExtension.Caption);
-            IProgramAction action = Activator.CreateInstance(extensionClass) as IProgramAction;
+            object action = Activator.CreateInstance(extensionClass);
             if (action == null)
-              throw new PluginInvalidStateException("Could not create IProgramAction instance of class {0}", extensionClass);
-            _programExtensions[slimTvProgramExtension.Id] = new TvExtension { Caption = slimTvProgramExtension.Caption, Extension = action };
+              throw new PluginInvalidStateException("Could not create action instance of class {0}", extensionClass);
+            _extensions[slimTvProgramExtension.Id] = new TvExtension { Caption = slimTvProgramExtension.Caption, Extension = action };
           }
         } catch (PluginInvalidStateException e)
         {
@@ -583,6 +606,28 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     }
 
     #endregion
+
+    protected bool IsManualRecording(string title)
+    {
+      if (title == null)
+        return false;
+
+      return title.Equals(UPnP.Consts.MANUAL_RECORDING_TITLE, StringComparison.InvariantCultureIgnoreCase) ||
+             title.StartsWith(UPnP.Consts.MANUAL_RECORDING_TITLE_PREFIX, StringComparison.InvariantCultureIgnoreCase);
+    }
+
+    protected string GetManualRecordingTitle(string title)
+    {
+      if (IsManualRecording(title))
+        return title.Replace(UPnP.Consts.MANUAL_RECORDING_TITLE_PREFIX, "");
+
+      return title;
+    }
+
+    protected string SetManualRecordingTitle(string title)
+    {
+      return $"{UPnP.Consts.MANUAL_RECORDING_TITLE_PREFIX}{title}";
+    }
 
     #endregion
 

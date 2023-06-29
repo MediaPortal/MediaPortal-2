@@ -51,6 +51,10 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       UPnPExtendedDataTypes.AddDataType(UPnPDtSchedule.Instance);
       UPnPExtendedDataTypes.AddDataType(UPnPDtScheduleList.Instance);
       UPnPExtendedDataTypes.AddDataType(UPnPDtLiveTvMediaItem.Instance);
+      UPnPExtendedDataTypes.AddDataType(UPnPDtConflictList.Instance);
+      UPnPExtendedDataTypes.AddDataType(UPnPDtScheduleRule.Instance);
+      UPnPExtendedDataTypes.AddDataType(UPnPDtScheduleRuleList.Instance);
+      UPnPExtendedDataTypes.AddDataType(UPnPDtScheduleRuleTargetList.Instance);
     }
 
     public NativeTvProxyRegistration()

@@ -53,7 +53,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
         Command = new AsyncMethodDelegateCommand(() => SlimTvModelBase.TuneChannel(channel)),
       };
       item.SetLabel("ChannelName", channel.Name);
-      item.AdditionalProperties["PROGRAM"] = program;
+      item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] = program;
       return item;
     }
 

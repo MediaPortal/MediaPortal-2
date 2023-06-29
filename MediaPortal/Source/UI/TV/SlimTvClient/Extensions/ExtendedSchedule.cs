@@ -35,13 +35,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
   /// </summary>
   class ExtendedSchedule: IProgramAction
   {
-    public bool ShowExtendedRecordingScreen(IProgram program)
+    public bool ShowExtendedRecordingScreen(IProgram program, MediaMode mediaMode)
     {
       SlimTvExtScheduleModel.Show(program);
       return true;
     }
 
-    public bool IsAvailable (IProgram program)
+    public bool IsAvailable(IProgram program, MediaMode mediaMode)
     {
       // Don't put up extended schedule action if extended schedule is already the current model.
       var wf = ServiceRegistration.Get<IWorkflowManager>();

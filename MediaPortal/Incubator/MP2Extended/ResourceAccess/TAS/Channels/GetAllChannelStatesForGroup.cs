@@ -55,7 +55,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
       List<WebChannelState> output = new List<WebChannelState>();
       IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
       IChannelGroup channelGroup = new ChannelGroup { ChannelGroupId = int.Parse(groupId) };
-      var channels = await channelAndGroupInfo.GetChannelsAsync(channelGroup);
+      var channels = await channelAndGroupInfo.GetChannelsByGroupAsync(channelGroup);
       if (!channels.Success)
         throw new BadRequestException(string.Format("GetAllChannelStatesForGroup: Couldn't get channels for group: {0}", groupId));
 

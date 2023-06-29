@@ -88,7 +88,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       foreach (var group in channelGroups)
       {
         // get channel for group
-        var channels = await ChannelAndGroupInfo.GetChannelsAsync(group);
+        var channels = await ChannelAndGroupInfo.GetChannelsByGroupAsync(group);
         if (channels.Success)
           groupChannels.AddRange(channels.Result);
       }

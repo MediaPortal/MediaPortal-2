@@ -40,6 +40,7 @@ namespace MediaPortal.Plugins.SlimTv.UPnP
     public const string ACTION_GET_CHANNELGROUPS = "GetChannelGroups";
     public const string ACTION_GET_CHANNEL = "GetChannel";
     public const string ACTION_GET_CHANNELS = "GetChannels";
+    public const string ACTION_GET_CHANNELS_BY_GROUP = "GetChannelsByGroup";
     public const string ACTION_GET_PROGRAM = "GetProgram";
     public const string ACTION_GET_PROGRAMS = "GetPrograms";
     public const string ACTION_GET_PROGRAMS_BY_TITLE = "GetProgramsByTitle";

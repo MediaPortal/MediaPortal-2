@@ -69,6 +69,7 @@
     <Compile Include="..\..\..\Core\MediaPortal.Common\VersionInfo\VersionInfo.cs">
       <Link>Properties\VersionInfo.cs</Link>
     </Compile>
+    <Compile Include="Extensions\IScheduleAction.cs" />
     <Compile Include="Extensions\IProgramAction.cs" />
     <Compile Include="Extensions\SlimTvExtensionBuilder.cs" />
     <Compile Include="IConflictInfo.cs" />
@@ -91,6 +92,7 @@
     <Compile Include="Items\IUser.cs" />
     <Compile Include="Items\IVirtualCard.cs" />
     <Compile Include="Items\KeepMethodType.cs" />
+    <Compile Include="Items\MediaMode.cs" />
     <Compile Include="Items\PriorityType.cs" />
     <Compile Include="Items\TvServerState.cs" />
     <Compile Include="ITimeshiftControl.cs" />

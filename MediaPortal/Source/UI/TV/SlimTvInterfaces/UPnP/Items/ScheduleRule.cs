@@ -25,6 +25,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Xml;
 using System.Xml.Serialization;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
@@ -36,6 +37,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     private static XmlSerializer _xmlSerializer;
 
     private IList<IScheduleRuleTarget> _targets = new List<IScheduleRuleTarget>();
+    private IList<DayOfWeek> _days = new List<DayOfWeek>();
 
     #region IScheduleRule Member
 
@@ -60,8 +62,12 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
     public RuleEpisodeInfoFallback EpisodeInfoFallbackType { get; set; }
     public DateTime? StartFromTime { get; set; }
     public DateTime? StartToTime { get; set; }
-    public DayOfWeek? StartOnOrAfterDay { get; set; }
-    public DayOfWeek? StartOnOrBeforeDay { get; set; }
+    [XmlIgnore]
+    public IList<DayOfWeek> Days
+    {
+      get => _days;
+      set => _days = value;
+    }
     public PriorityType Priority { get; set; }
     public RuleRecordingType RecordingType { get; set; }
     public TimeSpan PreRecordInterval { get; set; }
@@ -92,6 +98,20 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items
         _targets.Clear();
         foreach (var target in value)
           _targets.Add(target);
+      }
+    }
+
+    public List<DayOfWeek> XML_Days
+    {
+      get
+      {
+        return _days.ToList();
+      }
+      set
+      {
+        _days.Clear();
+        foreach (var day in value)
+          _days.Add(day);
       }
     }
 

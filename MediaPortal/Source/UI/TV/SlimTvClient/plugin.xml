@@ -103,6 +103,18 @@
       DisplayLabel="[SlimTvClient.ScheduleManagement]"
       WorkflowModel="8886D686-5559-486B-9110-A499F2E81FFE"/>   <!-- Workflow model = SlimTvRadioScheduleManagement Model -->
 
+    <WorkflowState Id="27418A61-2921-424A-AECD-44647BECC344"
+      Name="SlimTvClientScheduleRuleList"
+      MainScreen="SlimTvClient-ruleschedulelist"
+      DisplayLabel="[SlimTvClient.ScheduleRuleManagement]"
+      WorkflowModel="1FC02B14-AD70-4547-A0BC-07D842B02B34"/>   <!-- Workflow model = SlimTvScheduleRuleManagement Model -->
+
+    <WorkflowState Id="B815C310-1FCC-4E7A-A1C1-60BB0C6B6E75"
+      Name="SlimTvClientScheduleRuleListRadio"
+      MainScreen="SlimTvClient-ruleschedulelist-radio"
+      DisplayLabel="[SlimTvClient.ScheduleRuleManagement]"
+      WorkflowModel="5DEBD20F-57EA-40B1-8490-130D21D86229"/>   <!-- Workflow model = SlimTvRadioScheduleRuleManagement Model -->
+
     <WorkflowState Id="9D5B01A7-035F-46CF-8246-3C158C6CA960"
       Name="RecordingsNavigation-Root"
       DisplayLabel="[SlimTvClient.Recordings.Tv]"
@@ -125,6 +137,18 @@
       DialogScreen="SlimTvClient-manualschedule-radio"
       WorkflowModel="005C8C85-C0A6-48A8-83AC-E826AF2DF99D"/>  <!-- Workflow model = SlimTvRadioManualSchedule Model -->
 
+    <DialogState Id="FEB92DFE-3D76-41A1-AE89-4B692AE95D3F"
+      Name="ManualScheduleRule"
+      DisplayLabel="[SlimTvClient.ManualSchedule]"
+      DialogScreen="SlimTvClient-ruleschedule"
+      WorkflowModel="CDA8DC76-94DB-4823-9199-C07FA1AF75F5"/>  <!-- Workflow model = SlimTvManualSchedule Model -->
+
+    <DialogState Id="0CC2B3ED-625D-4278-A99B-2A88CAF8DCFF"
+      Name="ManualScheduleRuleRadio"
+      DisplayLabel="[SlimTvClient.ManualSchedule]"
+      DialogScreen="SlimTvClient-ruleschedule-radio"
+      WorkflowModel="A651943F-1B40-46FB-988C-20FB618B6A7B"/>  <!-- Workflow model = SlimTvRadioManualSchedule Model -->
+
   </Register>
 
   <!-- Language resources -->
@@ -145,6 +169,7 @@
   <Register Location="/SlimTv/Extensions">
     <SlimTvExtensionBuilder Id="{197B0299-B411-4FC7-BA96-765371C77B3B}" Caption="[SlimTvClient.ExtendedSchedule]" ClassName="MediaPortal.Plugins.SlimTv.Client.Extensions.ExtendedSchedule"/>
     <SlimTvExtensionBuilder Id="{EB212395-2D24-4ECC-A1AB-F30784E1579F}" Caption="[SlimTvClient.CreateManualSchedule]" ClassName="MediaPortal.Plugins.SlimTv.Client.Extensions.ManualSchedule"/>
+    <SlimTvExtensionBuilder Id="{6DFBFBA7-4663-440D-99C5-4BFDEF04AC0B}" Caption="[SlimTvClient.EditSchedule]" ClassName="MediaPortal.Plugins.SlimTv.Client.Extensions.EditSchedule"/>
     <!--
     Morpheus_xx:
     This is an example for adding more actions for programs in TV Guide. Uncomment this item to see the "Example" action added.
@@ -188,6 +213,12 @@
     <Model Id="FA188F55-D725-4361-9FD5-568DB2BE71B3" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioProgramSearchModel"/>
     <Model Id="8886D686-5559-486B-9110-A499F2E81FFE" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioScheduleManagement"/>
     <Model Id="005C8C85-C0A6-48A8-83AC-E826AF2DF99D" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioManualScheduleModel"/>
+
+    <Model Id="1FC02B14-AD70-4547-A0BC-07D842B02B34" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvScheduleRuleManagement"/>
+    <Model Id="CDA8DC76-94DB-4823-9199-C07FA1AF75F5" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvScheduleRuleModel"/>
+
+    <Model Id="5DEBD20F-57EA-40B1-8490-130D21D86229" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioScheduleRuleManagement"/>
+    <Model Id="A651943F-1B40-46FB-988C-20FB618B6A7B" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.SlimTvRadioScheduleRuleModel"/>
 
     <Model Id="117A9807-8B10-47F1-8780-C748DBCF45BA" Name="RecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RecordingsAction"/>
     <Model Id="FE2DFB99-0979-476C-A4E9-867B64267D7E" Name="RadioRecordingsContributorModel" ClassName="MediaPortal.Plugins.SlimTv.Client.Models.RadioRecordingsAction"/>

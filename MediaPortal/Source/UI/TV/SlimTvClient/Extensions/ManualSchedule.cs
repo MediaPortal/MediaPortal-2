@@ -34,13 +34,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Extensions
   /// </summary>
   class ManualSchedule : IProgramAction
   {
-    public bool ShowManualScheduleDialog(IProgram program)
+    public bool ShowManualScheduleDialog(IProgram program, MediaMode mediaMode)
     {
-      SlimTvManualScheduleModel.Show(program);
+      if (mediaMode == MediaMode.Radio)
+        SlimTvRadioManualScheduleModel.Show(program);
+      else
+        SlimTvManualScheduleModel.Show(program);
       return true;
     }
 
-    public bool IsAvailable(IProgram program )
+    public bool IsAvailable(IProgram program, MediaMode mediaMode)
     {
       IProgramRecordingStatus s = program as IProgramRecordingStatus;
       return s == null || s.RecordingStatus != RecordingStatus.Recording;

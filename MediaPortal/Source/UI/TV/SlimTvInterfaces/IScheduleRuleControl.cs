@@ -41,11 +41,10 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="channel">Channel to record from.</param>
     /// <param name="from">Recording time from.</param>
     /// <param name="to">Recording time to.</param>
-    /// <param name="afterDay">Record on or after this day of the week.</param>
-    /// <param name="beforeDay">Record on or before this day of the week.</param>
+    /// <param name="days">Record on these days of the week. Empty or null means all days of the week.</param>
     /// <param name="recordingType">Schedule recording type.</param>
-    /// <param name="preRecordInterval">Prerecording interval</param>
-    /// <param name="postRecordInterval">Postrecording interval</param>
+    /// <param name="preRecordInterval">Pre-recording interval</param>
+    /// <param name="postRecordInterval">Post-recording interval</param>
     /// <param name="priority">Schedule priority</param>
     /// <param name="keepMethod">How to keep the recording.</param>
     /// <param name="keepDate">The end date for keeping the recording if needed.</param>
@@ -53,7 +52,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if successful.
     /// <see cref="AsyncResult{T}.Result"/> Returns the schedule rule instance.
     /// </returns>
-    Task<AsyncResult<IScheduleRule>> CreateScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay,
+    Task<AsyncResult<IScheduleRule>> CreateScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, IList<DayOfWeek> days,
       RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate);
 
     /// <summary>
@@ -65,8 +64,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="channel">Channel to record from.</param>
     /// <param name="from">Recording time from.</param>
     /// <param name="to">Recording time to.</param>
-    /// <param name="afterDay">Record on or after this day of the week.</param>
-    /// <param name="beforeDay">Record on or before this day of the week.</param>
+    /// <param name="days">Record on these days of the week. Empty or null means all days of the week.</param>
     /// <param name="seriesName">The name of the series.</param>
     /// <param name="seasonNumber">The season number to match if needed.</param>
     /// <param name="episodeNumber">The episode number to match if needed.</param>
@@ -75,8 +73,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="episodeInfoFallbackType">The type of fallback to use for finding series information if not available in the default properties of a program </param>
     /// <param name="episodeManagementScheme">The scheme to use for managing episodes for this rule</param>
     /// <param name="recordingType">Schedule recording type.</param>
-    /// <param name="preRecordInterval">Prerecording interval</param>
-    /// <param name="postRecordInterval">Postrecording interval</param>
+    /// <param name="preRecordInterval">Pre-recording interval</param>
+    /// <param name="postRecordInterval">Post-recording interval</param>
     /// <param name="priority">Schedule priority</param>
     /// <param name="keepMethod">How to keep the recording.</param>
     /// <param name="keepDate">The end date for keeping the recording if needed.</param>
@@ -84,7 +82,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if successful.
     /// <see cref="AsyncResult{T}.Result"/> Returns the schedule rule instance.
     /// </returns>
-    Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay,
+    Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, IList<DayOfWeek> days,
       string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType, EpisodeManagementScheme episodeManagementScheme,
       RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate);
 
@@ -98,9 +96,8 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="channel">Channel to record from.</param>
     /// <param name="from">Recording time from.</param>
     /// <param name="to">Recording time to.</param>
-    /// <param name="afterDay">Record on or after this day of the week.</param>
+    /// <param name="days">Record on these days of the week. Empty or null means all days of the week.</param>
     /// <param name="isSeries">Is it a series rule.</param>
-    /// <param name="beforeDay">Record on or before this day of the week.</param>
     /// <param name="seriesName">The name of the series.</param>
     /// <param name="seasonNumber">The season number to match if needed.</param>
     /// <param name="episodeNumber">The episode number to match if needed.</param>
@@ -109,13 +106,13 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <param name="episodeInfoFallbackType">The type of fallback to use for finding series information if not available in the default properties of a program </param>
     /// <param name="episodeManagementScheme">The scheme to use for managing episodes for this rule</param>
     /// <param name="recordingType">Schedule recording type.</param>
-    /// <param name="preRecordInterval">Prerecording interval</param>
-    /// <param name="postRecordInterval">Postrecording interval</param>
+    /// <param name="preRecordInterval">Pre-recording interval</param>
+    /// <param name="postRecordInterval">Post-recording interval</param>
     /// <param name="priority">Schedule priority</param>
     /// <param name="keepMethod">How to keep the recording.</param>
     /// <param name="keepDate">The end date for keeping the recording if needed.</param>
     /// <returns></returns>
-    Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay,
+    Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, IList<DayOfWeek> days,
       bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType, EpisodeManagementScheme? episodeManagementScheme,
       RuleRecordingType? recordingType, int? preRecordInterval, int? postRecordInterval, int? priority, KeepMethodType? keepMethod, DateTime? keepDate);
 

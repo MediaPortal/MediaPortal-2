@@ -45,6 +45,15 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     Task<AsyncResult<IList<IChannelGroup>>> GetChannelGroupsAsync();
 
     /// <summary>
+    /// Gets the list of channels.
+    /// </summary>
+    /// <returns>
+    /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one program could be found.
+    /// <see cref="AsyncResult{T}.Result"/> List of channels.
+    /// </returns>
+    Task<AsyncResult<IList<IChannel>>> GetChannelsAsync();
+
+    /// <summary>
     /// Gets the list of channels in a channel group.
     /// </summary>
     /// <param name="group">Channel group.</param>
@@ -52,7 +61,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     /// <see cref="AsyncResult{T}.Success"/> <c>true</c> if at least one program could be found.
     /// <see cref="AsyncResult{T}.Result"/> List of channels.
     /// </returns>
-    Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group);
+    Task<AsyncResult<IList<IChannel>>> GetChannelsByGroupAsync(IChannelGroup group);
 
     /// <summary>
     /// Gets the channel by given <paramref name="channelId"/>.

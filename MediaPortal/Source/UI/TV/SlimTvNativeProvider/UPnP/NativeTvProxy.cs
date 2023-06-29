@@ -510,12 +510,36 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       return new AsyncResult<IChannel>(false, null);
     }
 
-    public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
+    public async Task<AsyncResult<IList<IChannel>>> GetChannelsByGroupAsync(IChannelGroup group)
+    {
+      try
+      {
+        CpAction action = GetAction(Consts.ACTION_GET_CHANNELS_BY_GROUP);
+        IList<object> inParameters = new List<object> { group.ChannelGroupId };
+        IList<object> outParameters = await action.InvokeAsync(inParameters);
+        bool success = (bool)outParameters[0];
+        IList<Channel> channelList = (IList<Channel>)outParameters[1];
+        if (success)
+        {
+          var channels = channelList.Cast<IChannel>().ToList();
+          foreach (var channel in channels)
+            _channelCache[channel.ChannelId] = channel;
+          return new AsyncResult<IList<IChannel>>(true, channels);
+        }
+      }
+      catch (Exception ex)
+      {
+        NotifyException(ex);
+      }
+      return new AsyncResult<IList<IChannel>>(false, null);
+    }
+
+    public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync()
     {
       try
       {
         CpAction action = GetAction(Consts.ACTION_GET_CHANNELS);
-        IList<object> inParameters = new List<object> { group.ChannelGroupId };
+        IList<object> inParameters = new List<object>();
         IList<object> outParameters = await action.InvokeAsync(inParameters);
         bool success = (bool)outParameters[0];
         IList<Channel> channelList = (IList<Channel>)outParameters[1];
@@ -850,7 +874,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public async Task<AsyncResult<IScheduleRule>> CreateScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+    public async Task<AsyncResult<IScheduleRule>> CreateScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, IList<DayOfWeek> daysOfWeek, 
       RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
     {
       try
@@ -864,8 +888,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
           channel?.ChannelId ?? 0,
           from ?? DateTime.MinValue,
           to ?? DateTime.MinValue,
-          (int?)afterDay ?? -1,
-          (int?)beforeDay ?? -1,
+          daysOfWeek ?? new List<DayOfWeek>(),
           (int)recordingType,
           preRecordInterval,
           postRecordInterval,
@@ -885,7 +908,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public async Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+    public async Task<AsyncResult<IScheduleRule>> CreateSeriesScheduleRuleAsync(string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, IList<DayOfWeek> daysOfWeek, 
       string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback episodeInfoFallbackType, EpisodeManagementScheme episodeManagementScheme,
       RuleRecordingType recordingType, int preRecordInterval, int postRecordInterval, int priority, KeepMethodType keepMethod, DateTime? keepDate)
     {
@@ -900,8 +923,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
           channel?.ChannelId ?? 0,
           from ?? DateTime.MinValue,
           to ?? DateTime.MinValue,
-          (int?)afterDay ?? -1,
-          (int?)beforeDay ?? -1,
+          daysOfWeek ?? new List<DayOfWeek>(),
           seriesName,
           seasonNumber,
           episodeNumber,
@@ -928,7 +950,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
-    public async Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, DayOfWeek? afterDay, DayOfWeek? beforeDay, 
+    public async Task<bool> EditScheduleRuleAsync(IScheduleRule scheduleRule, string title, IList<IScheduleRuleTarget> targets, IChannelGroup channelGroup, IChannel channel, DateTime? from, DateTime? to, IList<DayOfWeek> daysOfWeek, 
       bool? isSeries, string seriesName, string seasonNumber, string episodeNumber, string episodeTitle, string episodeInfoFallback, RuleEpisodeInfoFallback? episodeInfoFallbackType, EpisodeManagementScheme? episodeManagementScheme,
       RuleRecordingType? recordingType, int? preRecordInterval, int? postRecordInterval, int? priority, KeepMethodType? keepMethod, DateTime? keepDate)
     {
@@ -944,8 +966,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
           channel?.ChannelId ?? 0,
           from ?? DateTime.MinValue,
           to ?? DateTime.MinValue,
-          (int?)afterDay ?? -1,
-          (int?)beforeDay ?? -1,
+          daysOfWeek ?? new List<DayOfWeek>(),
           isSeries.HasValue ? isSeries.Value ? 1 : 0 : -1,
           seriesName,
           seasonNumber,

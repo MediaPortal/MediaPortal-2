@@ -311,7 +311,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
         };
-      item.AdditionalProperties["PROGRAM"] = currentProgram;
+      item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] = currentProgram;
       return item;
     }
 
@@ -334,7 +334,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       {
         Command = new MethodDelegateCommand(() => ShowProgramActions(placeholderProgram))
       };
-      item.AdditionalProperties["PROGRAM"] = placeholderProgram;
+      item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] = placeholderProgram;
 
       return item;
     }
@@ -342,7 +342,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void RecordPressed()
     {
       if (_selectedItem != null)
-        base.ShowProgramActions(_selectedItem.AdditionalProperties["PROGRAM"] as IProgram);
+        base.ShowProgramActions(_selectedItem.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] as IProgram);
     }
 
     /// <summary>
@@ -353,7 +353,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       if (selectedItem != null)
       {
-        IProgram program = (IProgram)selectedItem.AdditionalProperties["PROGRAM"];
+        IProgram program = (IProgram)selectedItem.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM];
         base.ShowProgramActions(program);
       }
     }

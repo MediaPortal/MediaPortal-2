@@ -1,0 +1,361 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+    >
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[SlimTvClient.NewSchedule]"/>
+
+    <!-- SlimTvScheduleRule model -->
+    <Model x:Key="SlimTvScheduleRuleModel" Id="CDA8DC76-94DB-4823-9199-C07FA1AF75F5"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+            DataContext="{Binding Source={StaticResource SlimTvScheduleRuleModel}}">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="500"/>
+          <ColumnDefinition Width="Auto"/>
+          <!--Optional separator-->
+          <ColumnDefinition Width="Auto"/>
+          <!--Series features-->
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto"/>
+          <!--General-->
+          <RowDefinition Height="2"/>
+          <RowDefinition Height="Auto"/>
+          <!--Channel-->
+          <RowDefinition Height="2"/>
+          <RowDefinition Height="Auto"/>
+          <!--Time-->
+          <RowDefinition Height="2"/>
+          <RowDefinition Height="Auto"/>
+          <!--PrePostTime-->
+          <RowDefinition Height="2"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="2"/>
+          <RowDefinition Height="Auto"/>
+          <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!--###################### SEPARATORS #######################-->
+        <Grid Grid.Row="1" Background="Grey" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Grid Grid.Row="3" Background="Grey" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Grid Grid.Row="5" Background="Grey" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Grid Grid.Row="7" Background="Grey" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Grid Grid.Row="9" Background="Grey" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+        <Grid Grid.Column="1" Grid.RowSpan="12" Background="Grey" Width="2"
+              HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
+
+        <!--###################### GENERAL #######################-->
+        <Grid x:Name="GeneralGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Label Grid.Row="0" Content="Title" Margin="0,0,10,5" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+          <Label Grid.Row="1" Content="Targets" Margin="0,5,10,10" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+
+          <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Path=Title, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+          <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding Path=Targets, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+          <!--Schedule active-->
+          <StackPanel Grid.Column="2" Orientation="Horizontal" Margin="10,0,0,0">
+            <CheckBox x:Name="ScheduleActive" IsChecked="{Binding Path=ScheduleActive,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Schedule active" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <!--Schedule type select-->
+          <StackPanel Orientation="Vertical" Grid.Row="1" Grid.Column="2" Margin="40,5,0,0" >
+            <Label Content="[SlimTvClient.ScheduleType]" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+            <Button x:Name="ChooseRecordingTypeButton" HorizontalAlignment="Stretch" Style="{ThemeResource ButtonWideStyle}"
+                    Content="{Binding RecordingTypeName}" Command="{Command ShowRecordingTypeDialog}"/>
+          </StackPanel>
+
+        </Grid>
+
+        <!--###################### CHANNEL #######################-->
+        <Grid x:Name="ChannelGrid" Grid.Row="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <StackPanel Grid.Column="0" Orientation="Horizontal" Margin="0,0,0,10">
+            <CheckBox x:Name="SelectGroup" IsChecked="{Binding Path=SelectGroup,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="[SlimTvClient.ChannelGroupLabel]" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10,0,0,10">
+            <CheckBox x:Name="SelectChannel" IsChecked="{Binding Path=SelectChannel,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="[SlimTvClient.ChannelLabel]" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <Button Grid.Column="0" Grid.Row="1" x:Name="ChooseChannelGroupButton" Style="{ThemeResource ButtonWideStyle}" Margin="0,0,10,0"
+                  Content="{Binding Source={Binding ChannelGroup}, Path=Name}" HorizontalAlignment="Stretch"
+                  IsVisible="{Binding ElementName=SelectGroup, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Command="{Command ShowChannelGroupDialog}" SetFocusPrio="DefaultLow"/>
+          <Button Grid.Column="1" Grid.Row="1" x:Name="ChooseChannelButton" Style="{ThemeResource ButtonWideStyle}" Margin="10,0,0,0"
+                  Content="{Binding Source={Binding Channel}, Path=Name}" HorizontalAlignment="Stretch"
+                  IsVisible="{Binding ElementName=SelectChannel, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Command="{Command ShowChannelDialog}"/>
+
+        </Grid>
+
+        <!--###################### TIME #######################-->
+        <Grid x:Name="TimeGrid" Grid.Row="4" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <StackPanel Orientation="Horizontal" Margin="0,0,0,10">
+            <CheckBox x:Name="StartDay" IsChecked="{Binding Path=StartDay,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Program must start equal or after to this day of week" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center" Wrap="=True"/>
+          </StackPanel>
+          <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="0,0,0,10">
+            <CheckBox x:Name="EndDay" IsChecked="{Binding Path=EndDay,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Program must start before or equal to this day of week" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center" Wrap="=True"/>
+          </StackPanel>
+
+          <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,10">
+            <CheckBox x:Name="StartDay" IsChecked="{Binding Path=StartDay,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Program must start after or equal to this time " Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center" Wrap="=True"/>
+          </StackPanel>
+          <StackPanel Grid.Row="2" Grid.Column="1" Orientation="Horizontal" Margin="0,10,0,10">
+            <CheckBox x:Name="EndDay" IsChecked="{Binding Path=EndDay,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Program must start before or equal to this time" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center" Wrap="=True"/>
+          </StackPanel>
+
+          <Button Grid.Column="0" Grid.Row="1" x:Name="StartDayButton" Style="{ThemeResource ButtonWideStyle}" Margin="0,0,10,0"
+                  Content="Monday" HorizontalAlignment="Stretch"
+                  IsVisible="{Binding ElementName=StartDay, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Command="{Command ShowDayDialog}" SetFocusPrio="DefaultLow"/>
+          <Button Grid.Column="1" Grid.Row="1" x:Name="EndDayButton" Style="{ThemeResource ButtonWideStyle}" Margin="10,0,0,0"
+                  Content="Friday" HorizontalAlignment="Stretch"
+                  IsVisible="{Binding ElementName=EndDay, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Command="{Command ShowDayDialog}"/>
+
+          <!--Start time-->
+          <Grid Grid.Column="0" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="10"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Button Grid.Column="2" Grid.Row="0" Width="54" Height="34" HorizontalAlignment="Center" Margin="10,0,-10,2"
+                    Style="{ThemeResource ChapterUpButtonStyle}" Command="{Command Path=AddStartTime, Parameters=60}"/>
+            <Label Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
+                   Content="{Binding Path=StartTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=HH}"/>
+            <Button Grid.Column="2" Grid.Row="2" Width="54" Height="34" HorizontalAlignment="Center" Margin="10,2,-10,0"
+                    Style="{ThemeResource ChapterDownButtonStyle}" Command="{Command Path=AddStartTime, Parameters=-60}"/>
+
+            <Label Grid.Column="3" Grid.Row="1" Color="{ThemeResource TextColor}"
+                   Content="{Binding Path=TimeSeparator, Mode=OneTime}"/>
+
+            <Button Grid.Column="4" Grid.Row="0" Width="54" Height="34" HorizontalAlignment="Center" Margin="10,0,-10,2"
+                    Style="{ThemeResource ChapterUpButtonStyle}" Command="{Command Path=AddStartTime, Parameters=1}"/>
+            <Label Grid.Column="4" Grid.Row="1" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
+                   Content="{Binding Path=StartTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=mm}"/>
+            <Button Grid.Column="4" Grid.Row="2" Width="54" Height="34" HorizontalAlignment="Center" Margin="10,2,-10,0"
+                    Style="{ThemeResource ChapterDownButtonStyle}" Command="{Command Path=AddStartTime, Parameters=-1}"/>
+          </Grid>
+
+          <!--End time-->
+          <Grid Grid.Column="1" Grid.Row="3">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="10"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <Button Grid.Column="2" Grid.Row="0" Width="54" Height="34" HorizontalAlignment="Center" Margin="10,0,-10,2"
+                    Style="{ThemeResource ChapterUpButtonStyle}" Command="{Command Path=AddEndTime, Parameters=60}"/>
+            <Label Grid.Column="2" Grid.Row="1" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
+                   Content="{Binding Path=EndTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=HH}"/>
+            <Button Grid.Column="2" Grid.Row="2" Width="54" Height="34" HorizontalAlignment="Center" Margin="10,2,-10,0"
+                    Style="{ThemeResource ChapterDownButtonStyle}" Command="{Command Path=AddEndTime, Parameters=-60}"/>
+
+            <Label Grid.Column="3" Grid.Row="1" Color="{ThemeResource TextColor}"
+                   Content="{Binding Path=TimeSeparator, Mode=OneTime}"/>
+
+            <Button Grid.Column="4" Grid.Row="0" Width="54" Height="34" HorizontalAlignment="Center" Margin="10,0,-10,2"
+                    Style="{ThemeResource ChapterUpButtonStyle}" Command="{Command Path=AddEndTime, Parameters=1}"/>
+            <Label Grid.Column="4" Grid.Row="1" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
+                   Content="{Binding Path=EndTime, Converter={StaticResource DateFormatConverter}, ConverterParameter=mm}"/>
+            <Button Grid.Column="4" Grid.Row="2" Width="54" Height="34" HorizontalAlignment="Center" Margin="10,2,-10,0"
+                    Style="{ThemeResource ChapterDownButtonStyle}" Command="{Command Path=AddEndTime, Parameters=-1}"/>
+          </Grid>
+        </Grid>
+
+        <!--###################### PRE-POST RECORDING TIME #######################-->
+        <Grid Grid.Row="6" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Label Margin="0,0,0,10" Content="Pre- and post recording time" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center" Wrap="True"/>
+
+        </Grid>
+
+        <!--###################### PRIORITY - KEEP #######################-->
+        <Grid Grid.Row="8" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Label Grid.Column="0" Margin="0,0,0,10" Content="Priority" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          <Label Grid.Column="1" Margin="0,0,0,10" Content="Keep until" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          <Label Grid.Row="1" Grid.Column="0" Margin="0,0,0,10" Content="Normal" Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
+          <Label Grid.Row="1" Grid.Column="1" Margin="0,0,0,10" Content="Manually deleted" Color="{ThemeResource TextColor}" VerticalAlignment="Center"/>
+
+        </Grid>
+
+        <!--###################### SERIES FEATURES ENABLE #######################-->
+        <StackPanel Grid.Row="10" Orientation="Horizontal" Margin="10,0,0,10">
+          <CheckBox x:Name="SeriesFeatures" IsChecked="{Binding Path=SeriesFeatures,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+          <Label Content="Enable series features" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+        </StackPanel>
+
+        <Grid Grid.Column="2" Grid.RowSpan="12" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="10" Width="150"
+              IsVisible="{Binding ElementName=SeriesFeatures, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+          </Grid.RowDefinitions>
+
+          <Label Grid.Row="0" Grid.ColumnSpan="2" Content="SeriesName" Margin="0,0,10,5" Color="{ThemeResource TextColor}" Opacity="0.6"/>
+          <TextBox Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Path=SeriesName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+          <StackPanel Grid.Row="2" Orientation="Horizontal" Margin="0,10,0,10">
+            <CheckBox x:Name="SeasonNumberSelect" IsChecked="{Binding Path=SeasonNumberSelect,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Season number" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          </StackPanel>
+          <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding Path=SeasonNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+          <StackPanel Grid.Row="3" Orientation="Horizontal" Margin="0,10,0,10">
+            <CheckBox x:Name="EpisodeNumberSelect" IsChecked="{Binding Path=EpisodeNumberSelect,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Episode number" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          </StackPanel>
+          <TextBox Grid.Row="3" Grid.Column="1" Text="{Binding Path=EpisodeNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+
+          <StackPanel Grid.Row="4" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,10,0,5">
+            <CheckBox x:Name="EpisodeTitleSelect" IsChecked="{Binding Path=EpisodeTitleSelect,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Episode title" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          </StackPanel>
+          <TextBox Grid.Row="5" Grid.ColumnSpan="2" Text="{Binding Path=SeriesName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="30,0,0,10"/>
+
+          <StackPanel Grid.Row="6" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,10,0,5">
+            <CheckBox x:Name="EpisodeSearchSchemeSelect" IsChecked="{Binding Path=EpisodeSearchSchemeSelect,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Episode search scheme" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          </StackPanel>
+          <Button Grid.Row="7" Grid.ColumnSpan="2" x:Name="EndDayButton" Style="{ThemeResource ButtonWideStyle}"
+                  Content="All" HorizontalAlignment="Stretch" Margin="30,0,0,10"
+                  IsVisible="{Binding ElementName=EpisodeSearchSchemeSelect, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                  Command="{Command ShowSearchSchemeDialog}"/>
+
+          <StackPanel Grid.Row="8" Orientation="Horizontal" Margin="0,10,0,10">
+            <CheckBox x:Name="AdvancedSelect" IsChecked="{Binding Path=AdvancedSelect,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+            <Label Content="Advanced" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+          </StackPanel>
+
+          <Grid Grid.ColumnSpan="2" Grid.RowSpan="12" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                IsVisible="{Binding ElementName=AdvancedSelect, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+              <RowDefinition Height="Auto"/>
+            </Grid.RowDefinitions>
+
+            <StackPanel Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,10,0,5">
+              <CheckBox x:Name="EpisodeSearchFallbackSelect" IsChecked="{Binding Path=EpisodeSearchFallbackSelect,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+              <Label Content="Episode search fallback" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+            </StackPanel>
+            <TextBox Grid.Row="1" Grid.ColumnSpan="2" Text="{Binding Path=EpisodeSearchFallback, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Margin="30,0,0,10"/>
+
+            <StackPanel Grid.Row="2" Grid.ColumnSpan="2" Orientation="Horizontal" Margin="0,10,0,5">
+              <CheckBox x:Name="EpisodeSearchFallbackTypeSelect" IsChecked="{Binding Path=EpisodeSearchFallbackTypeSelect,Mode=TwoWay}" VerticalAlignment="Center" Content="{Binding}" />
+              <Label Content="Episode search fallback type" Color="{ThemeResource TextColor}" Opacity="0.6" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Button Grid.Row="3" Grid.ColumnSpan="2" x:Name="EpisodeSearchFallbackTypeButton" Style="{ThemeResource ButtonWideStyle}"
+                    Content="???" HorizontalAlignment="Stretch" Margin="30,0,0,10"
+                    IsVisible="{Binding ElementName=EpisodeSearchFallbackTypeSelect, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                    Command="{Command ShowSearchSchemeDialog}"/>
+
+          </Grid>
+
+        </Grid>
+
+        <Button x:Name="OkButton" Grid.Row="12" Margin="0,20,0,10" HorizontalAlignment="Center" Style="{ThemeResource WizardButtonStyle}"
+                Content="[System.Ok]" IsEnabled="{Binding IsScheduleValid}" Command="{Command CreateSchedule}"/>
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

@@ -68,7 +68,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public const string KEY_CHANNEL_ID = "ChannelId";
     public const string KEY_GROUP_ID = "GroupId";
     public const string KEY_SCHEDULE = "Schedule";
+    public const string KEY_SCHEDULE_RULE = "ScheduleRule";
     public const string KEY_MODE = "Mode";
+
+    public const string KEY_PROP_SCHEDULE = "SCHEDULE";
+    public const string KEY_PROP_RULE = "RULE";
+    public const string KEY_PROP_PROGRAM = "PROGRAM";
+    public const string KEY_PROP_CHANNEL = "CHANNEL";
 
     #region Constants
 
@@ -436,8 +442,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           lock (channelItem.Programs.SyncRoot)
             if (channelItem.Programs.Count == 2)
             {
-              currentProgram = channelItem.Programs[0].AdditionalProperties["PROGRAM"] as IProgram;
-              nextProgram = channelItem.Programs[1].AdditionalProperties["PROGRAM"] as IProgram;
+              currentProgram = channelItem.Programs[0].AdditionalProperties[KEY_PROP_PROGRAM] as IProgram;
+              nextProgram = channelItem.Programs[1].AdditionalProperties[KEY_PROP_PROGRAM] as IProgram;
             }
           SelectedChannelName = channelItem.Channel.Name;
           SelectedChannelNumber = channelItem.Channel.ChannelNumber;
@@ -662,8 +668,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       lock (item.Programs.SyncRoot)
         if (item.Programs.Count == 2)
         {
-          program = item.Programs[0].AdditionalProperties["PROGRAM"] as IProgram;
-          channel = item.AdditionalProperties["CHANNEL"] as IChannel;
+          program = item.Programs[0].AdditionalProperties[KEY_PROP_PROGRAM] as IProgram;
+          channel = item.AdditionalProperties[KEY_PROP_CHANNEL] as IChannel;
         }
       if (program != null && channel != null && await InitActionsList(program, channel))
       {
@@ -1084,7 +1090,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
             Command = new AsyncMethodDelegateCommand(() => Tune(currentChannel)),
             Selected = isCurrentSelected
           };
-          item.AdditionalProperties["CHANNEL"] = channel;
+          item.AdditionalProperties[KEY_PROP_CHANNEL] = channel;
 
           _channelList.Add(item);
         }
@@ -1146,7 +1152,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (item == null)
         return;
       item.Program.SetProgram(program ?? GetNoProgram(channel.ChannelId, previousProgram), channel);
-      item.AdditionalProperties["PROGRAM"] = program;
+      item.AdditionalProperties[KEY_PROP_PROGRAM] = program;
       item.Update();
     }
 

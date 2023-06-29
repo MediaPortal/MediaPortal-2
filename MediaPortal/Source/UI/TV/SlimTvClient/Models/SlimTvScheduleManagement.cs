@@ -23,10 +23,11 @@
 #endregion
 
 using System;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
-  public class SlimTvScheduleManagement : SlimTvScheduleManagementBase
+  public class SlimTvScheduleManagement : SlimTvScheduleManagementModelBase
   {
     public const string MODEL_ID_STR = "7610403A-4488-47A4-8C27-FD1FE833E52B";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);

@@ -645,6 +645,18 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<IChannel>(success, channel));
     }
 
+    protected override Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync()
+    {
+      var channels = TvDatabase.Channel.ListAll()
+        .Where(c => c != null)
+        .Where(c => c.VisibleInGuide)
+        .Select(c => (IChannel)ConvertToChannel(c))
+        .Where(c => c != null)
+        .ToList();
+
+      return Task.FromResult(new AsyncResult<IList<IChannel>>(channels.Any(), channels));
+    }
+
     protected override Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync(IChannelGroup group)
     {
       List<IChannel> channels;
@@ -668,7 +680,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
           .Where(c => c != null)
           .ToList();
       }
-      return Task.FromResult(new AsyncResult<IList<IChannel>>(true, channels));
+      return Task.FromResult(new AsyncResult<IList<IChannel>>(channels.Any(), channels));
     }
 
     private List<TvDatabase.Channel> GetChannelsInGroup(int groupId)

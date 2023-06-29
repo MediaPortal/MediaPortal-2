@@ -133,6 +133,7 @@
     <Compile Include="Controls\SlimTvDurationConverter.cs" />
     <Compile Include="Controls\SlimTvDateFormatConverter.cs" />
     <Compile Include="Controls\SlimTvGuideTimeFormatConverter.cs" />
+    <Compile Include="Extensions\EditSchedule.cs" />
     <Compile Include="Extensions\ManualSchedule.cs" />
     <Compile Include="Extensions\ExtendedSchedule.cs" />
     <Compile Include="Extensions\ProgramExample.cs" />
@@ -186,6 +187,12 @@
     <Compile Include="Models\ScreenData\AbstractChannelFilterScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsSimpleSearchScreenData.cs" />
     <Compile Include="Models\ScreenData\RecordingsShowItemsScreenData.cs" />
+    <Compile Include="Models\SlimTvRadioScheduleRuleManagement.cs" />
+    <Compile Include="Models\SlimTvScheduleRuleManagement.cs" />
+    <Compile Include="Models\SlimTvScheduleRuleManagementBase.cs" />
+    <Compile Include="Models\SlimTvScheduleRuleModelBase.cs" />
+    <Compile Include="Models\SlimTvRadioScheduleRuleModel.cs" />
+    <Compile Include="Models\SlimTvScheduleRuleModel.cs" />
     <Compile Include="Models\SlimTvRadioManualScheduleModel.cs" />
     <Compile Include="Models\SlimTvManualScheduleModelBase.cs" />
     <Compile Include="Models\SlimTvRadioProgramSearchModel.cs" />
@@ -195,6 +202,8 @@
     <Compile Include="Models\SlimTvRadioClientModel.cs" />
     <Compile Include="Models\SlimTvRadioSingleChannelGuideModel.cs" />
     <Compile Include="Models\SlimTvRadioScheduleManagement.cs" />
+    <Compile Include="Models\SlimTvScheduleRuleManagementModelBase.cs" />
+    <Compile Include="Models\SlimTvScheduleManagementModelBase.cs" />
     <Compile Include="Models\SlimTvScheduleManagementBase.cs" />
     <Compile Include="Models\SlimTvSingleChannelGuideModel.cs" />
     <Compile Include="Models\SlimTvClientModel.cs" />
@@ -899,6 +908,26 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Skin\BlueVision\themes\Titanium Extended\screens\SlimTvClient-schedulelist-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-ruleschedule.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-ruleschedulelist-radio.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-ruleschedulelist.xaml">
+      <SubType>Designer</SubType>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Skin\default\screens\SlimTvClient-ruleschedule-radio.xaml">
       <SubType>Designer</SubType>
     </Content>
   </ItemGroup>

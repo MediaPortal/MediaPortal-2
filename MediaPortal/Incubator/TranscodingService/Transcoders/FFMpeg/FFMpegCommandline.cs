@@ -56,6 +56,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
     private string _transcoderCachePath;
     private int _hlsSegmentTimeInSeconds;
     private string _hlsSegmentFileTemplate;
+    private bool _hlsUseGeneratedFile;
     private readonly Dictionary<string, string> _filerPathEncoding = new Dictionary<string, string>()
     {
       {@"\", @"\\"},
@@ -122,13 +123,14 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
     };
 
 
-    internal FFMpegCommandline(int maxThreads, int commandTimeout, string cachePath, int hlsSegmentDuration, string hlsSegmentTemplate)
+    internal FFMpegCommandline(int maxThreads, int commandTimeout, string cachePath, int hlsSegmentDuration, string hlsSegmentTemplate, bool hlsUseGeneratedFile = false)
     {
       _transcoderMaximumThreads = maxThreads;
       _transcoderTimeout = commandTimeout;
       _transcoderCachePath = cachePath;
       _hlsSegmentTimeInSeconds = hlsSegmentDuration;
       _hlsSegmentFileTemplate = hlsSegmentTemplate;
+      _hlsUseGeneratedFile = hlsUseGeneratedFile;
     }
 
     internal void GetVideoDimensions(VideoTranscoding video, out Size newSize, out Size newContentSize, out float newPixelAspectRatio, out bool pixelARChanged, out bool videoARChanged, out bool videoHeightChanged)
@@ -254,8 +256,12 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
           //Because segment durations are not always exactly the size specified this can cause stuttering
           if (video.TargetIsLive == false)
           {
-            outputFileName = BaseMediaConverter.PLAYLIST_TEMP_FILE_NAME;
-            data.SegmentPlaylistData = await PlaylistManifest.CreateVideoPlaylistAsync(video, startSegment).ConfigureAwait(false);
+            if (_hlsUseGeneratedFile)
+            {
+              outputFileName = BaseMediaConverter.PLAYLIST_TEMP_FILE_NAME;
+              data.SegmentPlaylistData = await PlaylistManifest.CreateVideoPlaylistAsync(video, startSegment).ConfigureAwait(false);
+            }
+
             if (video.TargetSubtitleSupport == SubtitleSupport.Embedded && sub != null)
               data.SegmentSubsPlaylistData = await PlaylistManifest.CreateSubsPlaylistAsync(video, startSegment).ConfigureAwait(false);
           }

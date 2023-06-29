@@ -37,10 +37,18 @@
       TargetState="88842E97-2EF9-4658-AD35-8D74E3C689A4"
       DisplayTitle="[SlimTvClient.Schedules.Tv]"/>
 
+    <PushNavigationTransition Id="21617309-B9F4-47BB-B757-0357E83CF99A"
+      Name="SlimTvClient->ScheduleRules"
+      DisplayCategory="A-1SlimTvClientScheduleRules"
+      SortOrder="cb"
+      SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
+      TargetState="27418A61-2921-424A-AECD-44647BECC344"
+      DisplayTitle="[SlimTvClient.ScheduleRules.Tv]"/>
+
     <PushNavigationTransition Id="6CC60A38-08E3-4B7E-BEDD-964E5C1175E5"
       Name="SlimTvClient->ProgramSearch"
       DisplayCategory="A-2SlimTvClientProgramSearch"
-      SortOrder="cb"
+      SortOrder="cc"
       SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
       TargetState="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
       DisplayTitle="[SlimTvClient.ProgramSearch.Tv]"/>
@@ -85,10 +93,18 @@
       TargetState="9C095D73-D65D-42E6-9997-EF328C33F7F8"
       DisplayTitle="[SlimTvClient.Schedules.Radio]"/>
 
+    <PushNavigationTransition Id="492E6F6F-FD64-4A4B-A1B3-A96157ED8175"
+      Name="SlimTvClientRadio->ScheduleRulesRadio"
+      DisplayCategory="A-1SlimTvClientScheduleRulesRadio"
+      SortOrder="cb"
+      SourceStates="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+      TargetState="B815C310-1FCC-4E7A-A1C1-60BB0C6B6E75"
+      DisplayTitle="[SlimTvClient.ScheduleRules.Radio]"/>
+
     <PushNavigationTransition Id="AF2869CF-E9DE-41AC-8390-D12B311B5A42"
       Name="SlimTvClientRadio->ProgramSearchRadio"
       DisplayCategory="A-2SlimTvClientProgramSearchRadio"
-      SortOrder="cb"
+      SortOrder="cc"
       SourceStates="55F6CC8D-1D98-426F-8733-E6DF2861F706"
       TargetState="F6B76F5F-1E37-4C4D-BB32-79AFB7A67951"
       DisplayTitle="[SlimTvClient.ProgramSearch.Radio]"/>

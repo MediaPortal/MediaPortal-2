@@ -174,7 +174,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                      });
       AddAction(getChannel);
 
-      DvAction getChannels = new DvAction(Consts.ACTION_GET_CHANNELS, OnGetChannels,
+      DvAction getChannelsByGroup = new DvAction(Consts.ACTION_GET_CHANNELS_BY_GROUP, OnGetChannelsByGroup,
                                    new[]
                                      {
                                        new DvArgument("ChannelGroupId", A_ARG_TYPE_ChannelGroupId, ArgumentDirection.In)
@@ -184,6 +184,15 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
                                        new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
                                        new DvArgument("Channels", A_ARG_TYPE_Channels, ArgumentDirection.Out, false)
                                      });
+      AddAction(getChannelsByGroup);
+
+      DvAction getChannels = new DvAction(Consts.ACTION_GET_CHANNELS, OnGetChannels,
+                                    new DvArgument[0],
+                                    new[]
+                                    {
+                                      new DvArgument("Result", A_ARG_TYPE_Bool, ArgumentDirection.Out, true),
+                                      new DvArgument("Channels", A_ARG_TYPE_Channels, ArgumentDirection.Out, false)
+                                    });
       AddAction(getChannels);
 
       #endregion
@@ -708,9 +717,21 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       if (channelAndGroupInfo == null)
         return new UPnPError(500, "IChannelAndGroupInfo service not available");
 
+      AsyncResult<IList<IChannel>> result = channelAndGroupInfo.GetChannelsAsync().Result;
+      outParams = new List<object> { result.Success, result.Result };
+      return null;
+    }
+
+    private UPnPError OnGetChannelsByGroup(DvAction action, IList<object> inParams, out IList<object> outParams, CallContext context)
+    {
+      outParams = new List<object>();
+      IChannelAndGroupInfoAsync channelAndGroupInfo = ServiceRegistration.Get<ITvProvider>() as IChannelAndGroupInfoAsync;
+      if (channelAndGroupInfo == null)
+        return new UPnPError(500, "IChannelAndGroupInfo service not available");
+
       int channelGroupId = (int)inParams[0];
 
-      AsyncResult<IList<IChannel>> result = channelAndGroupInfo.GetChannelsAsync(new ChannelGroup { ChannelGroupId = channelGroupId }).Result;
+      AsyncResult<IList<IChannel>> result = channelAndGroupInfo.GetChannelsByGroupAsync(new ChannelGroup { ChannelGroupId = channelGroupId }).Result;
       outParams = new List<object> { result.Success, result.Result };
       return null;
     }
@@ -1136,16 +1157,14 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DateTime? endTime = (DateTime)inParams[5];
       if (endTime == DateTime.MinValue)
         endTime = null;
-      int afterDayInt = (int)inParams[6];
-      DayOfWeek? afterDay = afterDayInt == -1 ? null : (DayOfWeek?)afterDayInt;
-      int beforeDayInt = (int)inParams[7];
-      DayOfWeek? beforeDay = beforeDayInt == -1 ? null : (DayOfWeek?)beforeDayInt;
-      RuleRecordingType recordingType = (RuleRecordingType)inParams[8];
-      int preRecordInterval = (int)inParams[9];
-      int postRecordInterval = (int)inParams[10];
-      int priority = (int)inParams[11];
-      KeepMethodType keepMethod = (KeepMethodType)inParams[12];
-      DateTime? keepDate = (DateTime)inParams[13];
+      IList<DayOfWeek> scheduleDaysOfWeekList = (List<DayOfWeek>)inParams[6];
+      var daysOfWeek = scheduleDaysOfWeekList.Cast<DayOfWeek>().ToList();
+      RuleRecordingType recordingType = (RuleRecordingType)inParams[7];
+      int preRecordInterval = (int)inParams[8];
+      int postRecordInterval = (int)inParams[9];
+      int priority = (int)inParams[10];
+      KeepMethodType keepMethod = (KeepMethodType)inParams[11];
+      DateTime? keepDate = (DateTime)inParams[12];
       if (keepDate == DateTime.MinValue)
         keepDate = null;
       IScheduleRule rule = null;
@@ -1165,7 +1184,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
           channel = result.Result;
       }
 
-      var ruleResult = scheduleControl.CreateScheduleRuleAsync(title, targets, channelGroup, channel, startTime, endTime, afterDay, beforeDay, recordingType, preRecordInterval, postRecordInterval, 
+      var ruleResult = scheduleControl.CreateScheduleRuleAsync(title, targets, channelGroup, channel, startTime, endTime, daysOfWeek, recordingType, preRecordInterval, postRecordInterval, 
         priority, keepMethod, keepDate).Result;
       if (ruleResult.Success)
         rule = ruleResult.Result;
@@ -1193,23 +1212,21 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DateTime? endTime = (DateTime)inParams[5];
       if (endTime == DateTime.MinValue)
         endTime = null;
-      int afterDayInt = (int)inParams[6];
-      DayOfWeek? afterDay = afterDayInt == -1 ? null : (DayOfWeek?)afterDayInt;
-      int beforeDayInt = (int)inParams[7];
-      DayOfWeek? beforeDay = beforeDayInt == -1 ? null : (DayOfWeek?)beforeDayInt;
-      string seriesName = (string)inParams[8];
-      string seasonNumber = (string)inParams[9];
-      string episodeNumber = (string)inParams[10];
-      string episodeTitle = (string)inParams[11];
-      string episodeInfoFallback = (string)inParams[12];
-      RuleEpisodeInfoFallback episodeInfoFallbackType = (RuleEpisodeInfoFallback)inParams[13];
-      EpisodeManagementScheme episodeManagementScheme = (EpisodeManagementScheme)inParams[14];
-      RuleRecordingType recordingType = (RuleRecordingType)inParams[15];
-      int preRecordInterval = (int)inParams[16];
-      int postRecordInterval = (int)inParams[17];
-      int priority = (int)inParams[18];
-      KeepMethodType keepMethod = (KeepMethodType)inParams[19];
-      DateTime? keepDate = (DateTime)inParams[20];
+      IList<DayOfWeek> scheduleDaysOfWeekList = (List<DayOfWeek>)inParams[6];
+      var daysOfWeek = scheduleDaysOfWeekList.Cast<DayOfWeek>().ToList();
+      string seriesName = (string)inParams[7];
+      string seasonNumber = (string)inParams[8];
+      string episodeNumber = (string)inParams[9];
+      string episodeTitle = (string)inParams[10];
+      string episodeInfoFallback = (string)inParams[11];
+      RuleEpisodeInfoFallback episodeInfoFallbackType = (RuleEpisodeInfoFallback)inParams[12];
+      EpisodeManagementScheme episodeManagementScheme = (EpisodeManagementScheme)inParams[13];
+      RuleRecordingType recordingType = (RuleRecordingType)inParams[14];
+      int preRecordInterval = (int)inParams[15];
+      int postRecordInterval = (int)inParams[16];
+      int priority = (int)inParams[17];
+      KeepMethodType keepMethod = (KeepMethodType)inParams[18];
+      DateTime? keepDate = (DateTime)inParams[19];
       if (keepDate == DateTime.MinValue)
         keepDate = null;
       IScheduleRule rule = null;
@@ -1229,7 +1246,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
           channel = result.Result;
       }
 
-      var ruleResult = scheduleControl.CreateSeriesScheduleRuleAsync(title, targets, channelGroup, channel, startTime, endTime, afterDay, beforeDay, seriesName, seasonNumber, episodeNumber, episodeTitle, 
+      var ruleResult = scheduleControl.CreateSeriesScheduleRuleAsync(title, targets, channelGroup, channel, startTime, endTime, daysOfWeek, seriesName, seasonNumber, episodeNumber, episodeTitle, 
         episodeInfoFallback, episodeInfoFallbackType, episodeManagementScheme, recordingType, preRecordInterval, postRecordInterval, priority, keepMethod, keepDate).Result;
       if (ruleResult.Success)
         rule = ruleResult.Result;
@@ -1258,26 +1275,24 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
       DateTime? endTime = (DateTime)inParams[6];
       if (endTime == DateTime.MinValue)
         endTime = null;
-      int afterDayInt = (int)inParams[7];
-      DayOfWeek? afterDay = afterDayInt == -1 ? null : (DayOfWeek?)afterDayInt;
-      int beforeDayInt = (int)inParams[8];
-      DayOfWeek? beforeDay = beforeDayInt == -1 ? null : (DayOfWeek?)beforeDayInt;
-      int isSeriesInt = (int)inParams[9];
+      IList<DayOfWeek> scheduleDaysOfWeekList = (List<DayOfWeek>)inParams[7];
+      var daysOfWeek = scheduleDaysOfWeekList.Cast<DayOfWeek>().ToList();
+      int isSeriesInt = (int)inParams[8];
       bool? isSeries = isSeriesInt >= 0 ? isSeriesInt == 1 : (bool?)null; 
-      string seriesName = (string)inParams[10];
-      string seasonNumber = (string)inParams[11];
-      string episodeNumber = (string)inParams[12];
-      string episodeTitle = (string)inParams[13];
-      string episodeInfoFallback = (string)inParams[14];
-      RuleEpisodeInfoFallback episodeInfoFallbackType = (RuleEpisodeInfoFallback)inParams[15];
-      int episodeManagementSchemeInt = (int)inParams[16];
+      string seriesName = (string)inParams[9];
+      string seasonNumber = (string)inParams[10];
+      string episodeNumber = (string)inParams[11];
+      string episodeTitle = (string)inParams[12];
+      string episodeInfoFallback = (string)inParams[13];
+      RuleEpisodeInfoFallback episodeInfoFallbackType = (RuleEpisodeInfoFallback)inParams[14];
+      int episodeManagementSchemeInt = (int)inParams[15];
       EpisodeManagementScheme? episodeManagementScheme = episodeManagementSchemeInt >= 0 ? (EpisodeManagementScheme)episodeManagementSchemeInt : (EpisodeManagementScheme?)null;
-      RuleRecordingType recordingType = (RuleRecordingType)inParams[17];
-      int preRecordInterval = (int)inParams[18];
-      int postRecordInterval = (int)inParams[19];
-      int priority = (int)inParams[20];
-      KeepMethodType keepMethod = (KeepMethodType)inParams[21];
-      DateTime? keepDate = (DateTime)inParams[22];
+      RuleRecordingType recordingType = (RuleRecordingType)inParams[16];
+      int preRecordInterval = (int)inParams[17];
+      int postRecordInterval = (int)inParams[18];
+      int priority = (int)inParams[19];
+      KeepMethodType keepMethod = (KeepMethodType)inParams[20];
+      DateTime? keepDate = (DateTime)inParams[21];
       if (keepDate == DateTime.MinValue)
         keepDate = null;
 
@@ -1296,7 +1311,7 @@ namespace MediaPortal.Plugins.SlimTv.Service.UPnP
           channel = result.Result;
       }
 
-      var ruleResult = scheduleControl.EditScheduleRuleAsync(rule, title, targets, channelGroup, channel, startTime, endTime, afterDay, beforeDay, isSeries, seriesName, seasonNumber, episodeNumber, episodeTitle, 
+      var ruleResult = scheduleControl.EditScheduleRuleAsync(rule, title, targets, channelGroup, channel, startTime, endTime, daysOfWeek, isSeries, seriesName, seasonNumber, episodeNumber, episodeTitle, 
         episodeInfoFallback, episodeInfoFallbackType, episodeManagementScheme, recordingType, preRecordInterval, postRecordInterval, priority, keepMethod, keepDate).Result;
 
       outParams = new List<object> { ruleResult };

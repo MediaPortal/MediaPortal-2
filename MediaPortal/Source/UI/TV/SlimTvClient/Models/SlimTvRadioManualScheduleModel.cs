@@ -57,12 +57,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public static void Show()
     {
-      Show(null, STATE_MANUAL_SCHEDULE);
+      Show(STATE_MANUAL_SCHEDULE);
     }
 
     public static void Show(IProgram program)
     {
       Show(program, STATE_MANUAL_SCHEDULE);
+    }
+
+    public static void Show(ISchedule schedule)
+    {
+      Show(schedule, STATE_MANUAL_SCHEDULE);
     }
 
     #endregion

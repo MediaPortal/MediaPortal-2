@@ -428,6 +428,17 @@ namespace MediaPortal.Plugins.SlimTv.Service
       return Task.FromResult(new AsyncResult<IChannel>(channel != null, channel));
     }
 
+    protected override Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync()
+    {
+      IChannelService channelService = GlobalServiceProvider.Instance.Get<IChannelService>();
+      var channels = channelService.ListAllChannels(ChannelIncludeRelationEnum.None)
+        .Where(channel => channel.VisibleInGuide)
+        .OrderBy(channel => channel.SortOrder)
+        .Select(channel => (IChannel)ConvertToChannel(channel))
+        .ToList();
+      return Task.FromResult(new AsyncResult<IList<IChannel>>(channels.Any(), channels));
+    }
+
     protected override Task<AsyncResult<IList<IChannel>>> GetProviderChannelsAsync(IChannelGroup group)
     {
       IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
@@ -436,7 +447,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
         .OrderBy(groupMap => groupMap.SortOrder)
         .Select(groupMap => (IChannel)ConvertToChannel(groupMap.Channel))
         .ToList();
-      return Task.FromResult(new AsyncResult<IList<IChannel>>(true, channels));
+      return Task.FromResult(new AsyncResult<IList<IChannel>>(channels.Any(), channels));
     }
 
     protected override Task<AsyncResult<IList<IRecording>>> GetProviderRecordingsAsync(string name)

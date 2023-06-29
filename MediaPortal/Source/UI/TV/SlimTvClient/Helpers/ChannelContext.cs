@@ -293,7 +293,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
           selectedChannelId = tvHandler.ChannelAndGroupInfo?.SelectedChannelId;
 
         IList<IChannel> channels = null;
-        var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(groupList.Current);
+        var result = await tvHandler.ChannelAndGroupInfo.GetChannelsByGroupAsync(groupList.Current);
         if (!result.Success)
           return;
 

@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 
   public enum RuleSearchTarget
   {
-    Titel,
+    Title,
     Description,
     Genre,
     StarRating
@@ -95,8 +95,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 
     DateTime? StartFromTime { get; set; }
     DateTime? StartToTime { get; set; }
-    DayOfWeek? StartOnOrAfterDay { get; set; }
-    DayOfWeek? StartOnOrBeforeDay { get; set; }
+    IList<DayOfWeek> Days { get; set; }
 
     PriorityType Priority { get; set; }
 

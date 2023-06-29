@@ -203,7 +203,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         item.Command.Execute();
         return;
       }
-      IProgram program = item.AdditionalProperties["PROGRAM"] as IProgram;
+      IProgram program = item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] as IProgram;
       if (program == null || _tvHandler.ScheduleControl == null)
         return;
       var result = _tvHandler.ScheduleControl.GetRecordingStatusAsync(program).Result;
@@ -222,8 +222,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       NavigationContextConfig navigationContextConfig = new NavigationContextConfig();
       navigationContextConfig.AdditionalContextVariables = new Dictionary<string, object>();
-      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_SCHEDULE] = schedule;
-      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_MODE] = true;
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModelBase.KEY_SCHEDULE] = schedule;
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModelBase.KEY_MODE] = true;
       Show(navigationContextConfig);
     }
 
@@ -231,8 +231,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       NavigationContextConfig navigationContextConfig = new NavigationContextConfig();
       navigationContextConfig.AdditionalContextVariables = new Dictionary<string, object>();
-      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_PROGRAM] = program;
-      navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_MODE] = false;
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModelBase.KEY_PROGRAM] = program;
+      navigationContextConfig.AdditionalContextVariables[SlimTvClientModelBase.KEY_MODE] = false;
       Show(navigationContextConfig);
     }
 
@@ -441,7 +441,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         {
           Command = new AsyncMethodDelegateCommand(() => CreateOrDeleteSchedule(currentProgram))
         };
-        item.AdditionalProperties["PROGRAM"] = currentProgram;
+        item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] = currentProgram;
         item.Selected = _lastProgramId == program.ProgramId; // Restore focus
         if (channel != null)
         {

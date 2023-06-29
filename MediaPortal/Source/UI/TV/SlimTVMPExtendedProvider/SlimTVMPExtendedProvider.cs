@@ -459,7 +459,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       }
     }
 
-    public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
+    public async Task<AsyncResult<IList<IChannel>>> GetChannelsByGroupAsync(IChannelGroup group)
     {
       var channels = new List<IChannel>();
       ChannelGroup indexGroup = group as ChannelGroup;
@@ -619,7 +619,7 @@ namespace MediaPortal.Plugins.SlimTv.Providers
       try
       {
         IList<IChannel> channels;
-        var result = await GetChannelsAsync(indexGroup);
+        var result = await GetChannelsByGroupAsync(indexGroup);
         if (!result.Success)
           return new AsyncResult<IDictionary<int, IProgram[]>>(false, null);
 

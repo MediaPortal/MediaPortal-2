@@ -156,7 +156,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       ProgramListItem item = SlimTvExtScheduleModel.CurrentItem as ProgramListItem;
       if (item == null)
         return;
-      ShowProgramActions(item.AdditionalProperties["PROGRAM"] as IProgram);
+      ShowProgramActions(item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] as IProgram);
     }
 
     protected override void Update()
@@ -199,7 +199,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
           {
             Command = new MethodDelegateCommand(() => ShowProgramActions(currentProgram))
           };
-          item.AdditionalProperties["PROGRAM"] = currentProgram;
+          item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM] = currentProgram;
 
           _programsList.Add(item);
         }

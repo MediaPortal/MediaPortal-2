@@ -26,7 +26,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces.Extensions
 {
-  public delegate bool ProgramActionDelegate(IProgram program);
+  public delegate bool ProgramActionDelegate(IProgram program, MediaMode mediaMode);
 
   /// <summary>
   /// Extension interface to add actions for <see cref="IProgram"/>s. Plugins can implement this interface and register the class in
@@ -38,8 +38,9 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.Extensions
     /// Checks if this action is available for the given <paramref name="program"/>.
     /// </summary>
     /// <param name="program">Program</param>
+    /// <param name="mediaMode">Media mode</param>
     /// <returns><c>true</c> if available</returns>
-    bool IsAvailable(IProgram program);
+    bool IsAvailable(IProgram program, MediaMode mediaMode);
 
     /// <summary>
     /// Gets the action to be executed for the selected program (<seealso cref="ProgramActionDelegate"/>).

@@ -22,31 +22,12 @@
 
 #endregion
 
-using System;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-
-namespace MediaPortal.Plugins.SlimTv.Client.Models
+namespace MediaPortal.Plugins.SlimTv.Interfaces.Items
 {
-  /// <summary>
-  /// <see cref="SlimTvProgramSearchModel"/> holds all data for extended scheduling options.
-  /// </summary>
-  public class SlimTvRadioProgramSearchModel : SlimTvProgramSearchModelBase
+  public enum MediaMode
   {
-    public const string MODEL_ID_STR = "FA188F55-D725-4361-9FD5-568DB2BE71B3";
-    public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
-
-    public SlimTvRadioProgramSearchModel()
-    {
-      _mediaMode = MediaMode.Radio;
-    }
-
-    #region IWorkflowModel implementation
-
-    public override Guid ModelId
-    {
-      get { return MODEL_ID; }
-    }
-
-    #endregion
+    All,
+    Tv,
+    Radio
   }
 }

@@ -1381,7 +1381,7 @@ namespace Tests.WifiRemote
       };
       var mockChannelAndGroupInfo = new Mock<IChannelAndGroupInfoAsync>();
       mockChannelAndGroupInfo.Setup(x => x.GetChannelGroupsAsync()).Returns(Task.FromResult(new AsyncResult<IList<IChannelGroup>>(true, groups)));
-      mockChannelAndGroupInfo.Setup(x => x.GetChannelsAsync(It.IsAny<IChannelGroup>())).Returns(Task.FromResult(new AsyncResult<IList<IChannel>>(true, channels)));
+      mockChannelAndGroupInfo.Setup(x => x.GetChannelsByGroupAsync(It.IsAny<IChannelGroup>())).Returns(Task.FromResult(new AsyncResult<IList<IChannel>>(true, channels)));
       mockChannelAndGroupInfo.Setup(x => x.GetChannelAsync(It.IsAny<int>())).Returns(Task.FromResult(new AsyncResult<IChannel>(true, channels.First())));
       var mockProgramInfo = new Mock<IProgramInfoAsync>();
       mockProgramInfo.Setup(x => x.GetProgramsGroupAsync(It.IsAny<IChannelGroup>(), It.IsAny<DateTime>(), It.IsAny<DateTime>())).Returns(Task.FromResult(new AsyncResult<IList<IProgram>>(true, programs)));

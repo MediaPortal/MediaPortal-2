@@ -75,11 +75,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       }
     }
 
-    //public ITimeshiftControl TimeshiftControl
-    //{
-    //  get { return _tvProvider as ITimeshiftControl; }
-    //}
-
     public ITimeshiftControlAsync TimeshiftControl
     {
       get { return _tvProvider as ITimeshiftControlAsync; }
@@ -90,11 +85,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       get { return _tvProvider as IChannelAndGroupInfoAsync; }
     }
 
-    //public IProgramInfo ProgramInfo
-    //{
-    //  get { return _tvProvider as IProgramInfo; }
-    //}
-
     public IProgramInfoAsync ProgramInfo
     {
       get { return _tvProvider as IProgramInfoAsync; }
@@ -103,6 +93,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     public IScheduleControlAsync ScheduleControl
     {
       get { return _tvProvider as IScheduleControlAsync; }
+    }
+
+    public IScheduleRuleControlAsync ScheduleRuleControl
+    {
+      get { return _tvProvider as IScheduleRuleControlAsync; }
     }
 
     //public IProgram CurrentProgram

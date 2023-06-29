@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces.UPnP.DataTypes
 {
   public class UPnPDtScheduleRuleTargetList : UPnPExtendedDataType
   {
-    public static UPnPDtScheduleRuleList Instance = new UPnPDtScheduleRuleList();
+    public static UPnPDtScheduleRuleTargetList Instance = new UPnPDtScheduleRuleTargetList();
 
     public const string DATATYPE_NAME = "UPnPDtScheduleRuleTargetList";
 

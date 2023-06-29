@@ -37,6 +37,7 @@
   <string name="SlimTvClient.DeleteSchedule">Delete schedule</string>
   <string name="SlimTvClient.CreateSchedule">Schedule recording</string>
   <string name="SlimTvClient.CreateManualSchedule">Schedule recording manually</string>
+  <string name="SlimTvClient.EditSchedule">Edit schedule</string>
   <string name="SlimTvClient.DeleteRecording.Confirmation">Are you sure that you want to cancel and delete the recording? This cannot be undone.</string>
   <string name="SlimTvClient.DeleteAllRecordings.Text">Delete these recordings from storage</string>
   <string name="SlimTvClient.DeleteAllRecordings.Confirmation">Are you sure that you want to delete {0} recordings? This cannot be undone.</string>
@@ -74,6 +75,12 @@
   <string name="SlimTvClient.ScheduleRecordingType_WorkingDays">Working days at this time</string>
   <string name="SlimTvClient.ScheduleRecordingType_WeeklyEveryTimeOnThisChannel">Weekly every time on this channel</string>
 
+  <string name="SlimTvClient.PriorityType_Highest">Highest</string>
+  <string name="SlimTvClient.PriorityType_High">High</string>
+  <string name="SlimTvClient.PriorityType_Normal">Normal</string>
+  <string name="SlimTvClient.PriorityType_Low">Low</string>
+  <string name="SlimTvClient.PriorityType_Lowest">Lowest</string>
+
   <string name="SlimTvClient.ShowAllRecordingsItemsMenuItem">Name</string>
   <string name="SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel">Name</string>
 
@@ -81,6 +88,7 @@
   <string name="SlimTvClient.ScheduleDetails">Schedule details</string>
   <string name="SlimTvClient.ScheduleName">Schedule name</string>
   <string name="SlimTvClient.ScheduleType">Schedule type</string>
+  <string name="SlimTvClient.Priority">Priority</string>
   <string name="SlimTvClient.Schedules.Tv">TV Schedules</string>
   <string name="SlimTvClient.Schedules.Tv.Help">See which TV schedules for recording you have set up. You may also delete schedules here.</string>
   <string name="SlimTvClient.Schedules.Radio">Radio Schedules</string>
@@ -89,6 +97,17 @@
   <string name="SlimTvClient.ScheduleManagement">Manage schedules</string>
   <string name="SlimTvClient.ScheduleModeSeries">Manage series schedules</string>
   <string name="SlimTvClient.NewSchedule">New manual schedule</string>
+  <string name="SlimTvClient.Schedule.Conflicts">Conflicts</string>
+  <string name="SlimTvClient.Schedule.Programs">Programs</string>
+
+  <string name="SlimTvClient.ScheduleRuleManagement">Manage schedule rules</string>
+  <string name="SlimTvClient.ScheduleRules.Tv">TV Schedule Rules</string>
+  <string name="SlimTvClient.ScheduleRules.Tv.Help">See which TV schedule rules for recording you have set up. You may also delete schedule rules here.</string>
+  <string name="SlimTvClient.ScheduleRules.Radio">Radio Schedule Rules</string>
+  <string name="SlimTvClient.ScheduleRules.Radio.Help">See which radio schedule rules for recording you have set up. You may also delete schedule rules here.</string>
+  <string name="SlimTvClient.NewScheduleRule">New schedule rule</string>
+  <string name="SlimTvClient.ScheduleRule.Conflicts">Conflicts</string>
+  <string name="SlimTvClient.ScheduleRule.Programs">Programs</string>
 
   <string name="SlimTvClient.ErrorNoTvProvider">No TV provider available (yet)</string>
 

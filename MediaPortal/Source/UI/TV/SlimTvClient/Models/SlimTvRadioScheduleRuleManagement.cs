@@ -27,26 +27,19 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
-  /// <summary>
-  /// <see cref="SlimTvProgramSearchModel"/> holds all data for extended scheduling options.
-  /// </summary>
-  public class SlimTvRadioProgramSearchModel : SlimTvProgramSearchModelBase
+  public class SlimTvRadioScheduleRuleManagement : SlimTvScheduleRuleManagementModelBase
   {
-    public const string MODEL_ID_STR = "FA188F55-D725-4361-9FD5-568DB2BE71B3";
+    public const string MODEL_ID_STR = "5DEBD20F-57EA-40B1-8490-130D21D86229";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
-    public SlimTvRadioProgramSearchModel()
+    public SlimTvRadioScheduleRuleManagement()
     {
       _mediaMode = MediaMode.Radio;
     }
-
-    #region IWorkflowModel implementation
 
     public override Guid ModelId
     {
       get { return MODEL_ID; }
     }
-
-    #endregion
   }
 }

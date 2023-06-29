@@ -547,7 +547,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
         var removeList = GetRowItems(rowIndex).Where(el =>
         {
           ProgramListItem p = (ProgramListItem)el.Context;
-          return p.Program.EndTime <= start || p.Program.StartTime >= end || channel.Channel.ChannelId != ((IProgram)p.AdditionalProperties["PROGRAM"]).ChannelId
+          return p.Program.EndTime <= start || p.Program.StartTime >= end || channel.Channel.ChannelId != ((IProgram)p.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_PROGRAM]).ChannelId
             || p is PlaceholderListItem;
         }).ToList();
         removeList.ForEach(Children.Remove);

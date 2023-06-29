@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {

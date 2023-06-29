@@ -9,18 +9,18 @@
   <Include.Resources>
 
     <!-- Header -->
-    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Schedules.Tv]"/>
+    <ResourceWrapper x:Key="Header_Text" Resource="[SlimTvClient.Schedules.Radio]"/>
 
-    <!-- SlimTvScheduleManagement model -->
-    <Model x:Key="SlimTvScheduleManagement" Id="7610403A-4488-47A4-8C27-FD1FE833E52B"/>
+    <!-- SlimTvScheduleRuleManagement model -->
+    <Model x:Key="SlimTvScheduleRuleManagement" Id="5DEBD20F-57EA-40B1-8490-130D21D86229"/>
 
-    <!-- SlimTvManualSchedule model -->
-    <Model x:Key="SlimTvManualSchedule" Id="B2428C91-6B70-42E1-9519-1D5AA9D558A3"/>
+    <!-- SlimTvScheduleRule model -->
+    <Model x:Key="SlimTvScheduleRule" Id="CDA8DC76-94DB-4823-9199-C07FA1AF75F5"/>
 
     <!-- Contents -->
     <ControlTemplate x:Key="Client_Template">
       <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" 
-              DataContext="{Binding Source={StaticResource SlimTvScheduleManagement}}">
+              DataContext="{Binding Source={StaticResource SlimTvScheduleRuleManagement}}">
 
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="{ThemeResource SingleGuideProgramWidth}"/>
@@ -52,15 +52,7 @@
         <Button x:Name="NewScheduleButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}" Margin="10"
                 HorizontalAlignment="Right" VerticalAlignment="Center"
                 Content="[SlimTvClient.NewSchedule]"
-                Command="{Command Source={StaticResource SlimTvManualSchedule}, Path=Show}" />
-        <Button x:Name="ScheduleConflictsButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}" Margin="10"
-                HorizontalAlignment="Center" VerticalAlignment="Center"
-                Content="[SlimTvClient.Schedule.Conflicts]"
-                Command="{Command Source={StaticResource SlimTvManualSchedule}, Path=Show}" />
-        <Button x:Name="ScheduleProgramsButton" Grid.Column="1" Grid.Row="0" Style="{ThemeResource ButtonWideStyle}" Margin="10"
-                HorizontalAlignment="Left" VerticalAlignment="Center"
-                Content="[SlimTvClient.Schedule.Programs]"
-                Command="{Command Source={StaticResource SlimTvManualSchedule}, Path=Show}" />
+                Command="{Command Source={StaticResource SlimTvScheduleRule}, Path=Show}" />
 
         <GroupBox Grid.Column="1" Grid.Row="1" Header="[SlimTvClient.ScheduleDetails]" Style="{ThemeResource ContentGroupBoxStyle}">
           <Grid>

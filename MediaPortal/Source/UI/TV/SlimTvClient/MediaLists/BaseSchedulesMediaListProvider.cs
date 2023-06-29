@@ -35,6 +35,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common.General;
+using MediaPortal.Plugins.SlimTv.Client.Models;
 using MediaPortal.Utilities;
 using MediaPortal.UI.ContentLists;
 
@@ -72,7 +73,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       item.SetLabel("StartTime", start.FormatProgramStartTime());
       item.SetLabel("EndTime", end.FormatProgramEndTime());
       item.SetLabel("ScheduleType", string.Format("[SlimTvClient.ScheduleRecordingType_{0}]", schedule.RecordingType));
-      item.AdditionalProperties["SCHEDULE"] = schedule;
+      item.AdditionalProperties[SlimTvClientModelBase.KEY_PROP_SCHEDULE] = schedule;
       return item;
     }
 

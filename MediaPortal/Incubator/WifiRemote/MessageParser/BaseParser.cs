@@ -184,7 +184,7 @@ namespace MediaPortal.Plugins.WifiRemote.MessageParser
         return new List<IChannel>();
       }
 
-      var channels = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(channelGroup);
+      var channels = await tvHandler.ChannelAndGroupInfo.GetChannelsByGroupAsync(channelGroup);
       if (!channels.Success)
       {
         Logger.Error($"WifiRemote: List Channels: Error getting channels");
