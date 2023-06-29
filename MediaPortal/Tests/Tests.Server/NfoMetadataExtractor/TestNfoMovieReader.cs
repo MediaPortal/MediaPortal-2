@@ -247,6 +247,7 @@ namespace Tests.Server.NfoMetadataExtractor
         Rating = 5,
         Ratings = new Dictionary<string, decimal> { { "tmdb", 2 }, { "imdb", 3 } },
         Votes = 10,
+        RatingVotes = new Dictionary<string, int> { { "tmdb", 2 }, { "imdb", 8 } },
         Thumb = new byte[] { 0x01, 0x02, 0x03 }
       };
     }

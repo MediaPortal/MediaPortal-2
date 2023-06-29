@@ -82,7 +82,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       return updateReason.HasFlag(UpdateReason.Forced);
     }
 
-    protected abstract Task<MediaItemQuery> CreateQueryAsync(int maxItems);
+    protected abstract Task<MediaItemQuery> CreateQueryAsync();
 
     public UserProfile CurrentUserProfile
     {
@@ -114,7 +114,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
       if (contentDirectory == null)
         return false;
 
-      MediaItemQuery query = await CreateQueryAsync(maxItems);
+      MediaItemQuery query = await CreateQueryAsync();
       if (query == null)
         return false;
       query.Limit = (uint)maxItems;

@@ -38,7 +38,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     protected Guid[] _changeAspectIds;
 
-    protected override async Task<MediaItemQuery> CreateQueryAsync(int maxItems)
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       IFilter filter = userProfile.HasValue ? await AppendUserFilterAsync(new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
@@ -89,13 +89,13 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected Guid _linkedRole;
     protected IEnumerable<Guid> _necessaryLinkedMias;
 
-    protected override async Task<MediaItemQuery> CreateQueryAsync(int maxItems)
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       IFilter linkedFilter = userProfile.HasValue ? new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)) :
         null;
       IFilter filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(linkedFilter, _necessaryLinkedMias), maxItems),
+        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(linkedFilter, _necessaryLinkedMias)),
         new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE))) :
         new RelationalFilter(MediaAspect.ATTR_PLAYCOUNT, RelationalOperator.GT, 0);
 

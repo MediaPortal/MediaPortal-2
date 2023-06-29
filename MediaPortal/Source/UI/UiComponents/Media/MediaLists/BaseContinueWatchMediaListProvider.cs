@@ -38,7 +38,7 @@ namespace MediaPortal.UiComponents.Media.MediaLists
   {
     protected Guid[] _changeAspectIds;
 
-    protected override async Task<MediaItemQuery> CreateQueryAsync(int maxItems)
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
       IFilter filter = userProfile.HasValue ? await AppendUserFilterAsync(BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
@@ -92,15 +92,15 @@ namespace MediaPortal.UiComponents.Media.MediaLists
     protected Guid _linkedRole;
     protected IEnumerable<Guid> _necessaryLinkedMias;
 
-    protected override async Task<MediaItemQuery> CreateQueryAsync(int maxItems)
+    protected override async Task<MediaItemQuery> CreateQueryAsync()
     {
       Guid? userProfile = CurrentUserProfile?.ProfileId;
-      IFilter linkedFilter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or, 
-        new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE), 
+      IFilter linkedFilter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.Or,
+        new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE),
         new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100))) :
         null;
       IFilter filter = userProfile.HasValue ? BooleanCombinationFilter.CombineFilters(BooleanOperator.And,
-        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(linkedFilter, _necessaryLinkedMias), maxItems),
+        new FilteredRelationshipFilter(_role, _linkedRole, await AppendUserFilterAsync(linkedFilter, _necessaryLinkedMias)),
         new NotFilter(new EmptyUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_DATE)),
         new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.LT, UserDataKeysKnown.GetSortablePlayPercentageString(100)),
         new RelationalUserDataFilter(userProfile.Value, UserDataKeysKnown.KEY_PLAY_PERCENTAGE, RelationalOperator.GT, UserDataKeysKnown.GetSortablePlayPercentageString(0))) :

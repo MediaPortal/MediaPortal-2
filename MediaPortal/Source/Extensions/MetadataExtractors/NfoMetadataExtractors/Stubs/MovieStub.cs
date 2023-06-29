@@ -247,6 +247,12 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors.Stubs
     public Dictionary<string, decimal> Ratings { get; set; }
 
     /// <summary>
+    /// Votes of this movie on specific websites
+    /// </summary>
+    /// <example>KeyValuePair("IMDB", 101)</example>
+    public Dictionary<string, int> RatingVotes { get; set; }
+
+    /// <summary>
     /// General rating of this movie
     /// </summary>
     /// <example>8.7</example>

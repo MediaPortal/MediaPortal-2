@@ -33,20 +33,11 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
   public class FilteredRelationshipFilter : AbstractRelationshipFilter
   {
     protected IFilter _filter;
-    protected int _limit;
 
-    public FilteredRelationshipFilter(Guid role, Guid linkedRole, IFilter filter, int limit = 0) :
+    public FilteredRelationshipFilter(Guid role, Guid linkedRole, IFilter filter) :
       base(role, linkedRole)
     {
       _filter = filter;
-      _limit = limit;
-    }
-
-    [XmlIgnore]
-    public int Limit
-    {
-      get { return _limit; }
-      set { _limit = value; }
     }
 
     [XmlIgnore]
@@ -64,16 +55,6 @@ namespace MediaPortal.Common.MediaManagement.MLQueries
     #region Additional members for the XML serialization
 
     internal FilteredRelationshipFilter() { }
-
-    /// <summary>
-    /// For internal use of the XML serialization system only.
-    /// </summary>
-    [XmlElement("Limit", IsNullable = false)]
-    public int XML_Limit
-    {
-      get { return _limit; }
-      set { _limit = value; }
-    }
 
     /// <summary>
     /// For internal use of the XML serialization system only.
