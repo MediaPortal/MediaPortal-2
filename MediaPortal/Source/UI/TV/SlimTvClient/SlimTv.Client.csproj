@@ -77,6 +77,7 @@
     <Page Remove="Skin\default\screens\DialogExtSchedule.xaml" />
     <Page Remove="Skin\default\screens\DialogManualSchedule.xaml" />
     <Page Remove="Skin\default\screens\DialogScheduleManagement.xaml" />
+    <Page Remove="Skin\default\screens\RecordingsByMediaType.xaml" />
     <Page Remove="Skin\default\screens\RecordingsShowItems.xaml" />
     <Page Remove="Skin\default\screens\SlimTvClient-extschedule.xaml" />
     <Page Remove="Skin\default\screens\SlimTvClient-manualschedule.xaml" />
@@ -200,6 +201,9 @@
     <Content Include="Skin\default\screens\DialogExtSchedule.xaml" />
     <Content Include="Skin\default\screens\DialogManualSchedule.xaml" />
     <Content Include="Skin\default\screens\DialogScheduleManagement.xaml" />
+    <Content Include="Skin\default\screens\RecordingsByMediaType.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <Content Include="Skin\default\screens\RecordingsShowItems.xaml" />
     <Content Include="Skin\default\screens\SlimTvClient-extschedule.xaml" />
     <Content Include="Skin\default\screens\SlimTvClient-manualschedule.xaml" />

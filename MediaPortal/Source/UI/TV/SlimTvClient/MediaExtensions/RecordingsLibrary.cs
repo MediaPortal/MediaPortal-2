@@ -22,14 +22,10 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
@@ -41,6 +37,9 @@ using MediaPortal.UiComponents.Media.Models;
 using MediaPortal.UiComponents.Media.Models.NavigationModel;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 using MediaPortal.UiComponents.Media.Models.Sorting;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
 {
@@ -74,6 +73,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
         {
           _defaultScreen,
           new RecordingsFilterByChannelScreenData(),
+          new RecordingsFilterByMediaTypeScreenData(),
           //new VideosFilterByActorScreenData(),
           //new VideosFilterByDirectorScreenData(),
           //new VideosFilterByWriterScreenData(),

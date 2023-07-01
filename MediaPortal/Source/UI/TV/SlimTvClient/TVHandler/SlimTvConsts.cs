@@ -76,12 +76,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
     public const string KEY_ENDTIME = "EndTime";
 
     public const string SCREEN_RECORDINGS_FILTER_BY_CHANNEL = "RecordingsByChannel";
+    public const string SCREEN_RECORDINGS_FILTER_BY_MEDIA_TYPE = "RecordingsByMediaType";
     public const string SCREEN_RECORDINGS_SHOW_ITEMS = "RecordingsShowItems";
 
     public const string RES_FILTER_BY_CHANNEL_MENU_ITEM = "[SlimTvClient.ChannelMenuItemLabel]";
+    public const string RES_FILTER_BY_MEDIA_TYPE_MENU_ITEM = "[SlimTvClient.MediaTypeMenuItemLabel]";
     public const string RES_SHOW_ALL_RECORDINGS_ITEMS_MENU_ITEM = "[SlimTvClient.ShowAllRecordingsItemsMenuItem]";
 
     public const string RES_FILTER_CHANNEL_NAVBAR_DISPLAY_LABEL = "[SlimTvClient.ChannelNavBarItemLabel]";
+    public const string RES_FILTER_MEDIA_TYPE_NAVBAR_DISPLAY_LABEL = "[SlimTvClient.MediaTypeNavBarItemLabel]";
     public const string RES_FILTER_RECORDINGS_ITEMS_NAVBAR_DISPLAY_LABEL = "[SlimTvClient.FilterRecordingsItemsNavbarDisplayLabel]";
 
     public const string RES_RECORDINGS_VIEW_NAME = "[SlimTvClient.RecordingsRootViewName]";

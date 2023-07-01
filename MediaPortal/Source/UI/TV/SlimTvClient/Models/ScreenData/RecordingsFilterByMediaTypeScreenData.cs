@@ -23,25 +23,24 @@
 #endregion
 
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
-using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData;
+using MediaPortal.Plugins.SlimTv.Client.Models.ScreenData.FilterCriteria;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
-using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
-using MediaPortal.UiComponents.Media.FilterCriteria;
 using MediaPortal.UiComponents.Media.Models.ScreenData;
 
-namespace MediaPortal.Plugins.SlimTv.Client.MediaExtensions
+namespace MediaPortal.Plugins.SlimTv.Client.Models.ScreenData
 {
-  public class RecordingsFilterByChannelScreenData : AbstractChannelFilterScreenData
+  /// <summary>
+  /// Screen that allows filtering recordings by TV or radio.
+  /// </summary>
+  public class RecordingsFilterByMediaTypeScreenData : AbstractFiltersScreenData<MediaTypeFilterItem>
   {
-    public RecordingsFilterByChannelScreenData() :
-        base(SlimTvConsts.SCREEN_RECORDINGS_FILTER_BY_CHANNEL,SlimTvConsts.RES_FILTER_BY_CHANNEL_MENU_ITEM,
-        SlimTvConsts.RES_FILTER_CHANNEL_NAVBAR_DISPLAY_LABEL, new SimpleMLFilterCriterion(RecordingAspect.ATTR_CHANNEL))
-    {
-    }
+    public RecordingsFilterByMediaTypeScreenData()
+      : base(SlimTvConsts.SCREEN_RECORDINGS_FILTER_BY_MEDIA_TYPE, SlimTvConsts.RES_FILTER_BY_MEDIA_TYPE_MENU_ITEM, SlimTvConsts.RES_FILTER_MEDIA_TYPE_NAVBAR_DISPLAY_LABEL, new FilterByMediaTypeCriterion())
+    { }
 
-    public override AbstractFiltersScreenData<ChannelFilterItem> Derive()
+    public override AbstractFiltersScreenData<MediaTypeFilterItem> Derive()
     {
-      return new RecordingsFilterByChannelScreenData();
+      return new RecordingsFilterByMediaTypeScreenData();
     }
   }
 }
