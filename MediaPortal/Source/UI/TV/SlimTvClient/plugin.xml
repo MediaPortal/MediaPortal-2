@@ -84,6 +84,24 @@
       DialogScreen="SlimTvClient-manualschedule"
       WorkflowModel="B2428C91-6B70-42E1-9519-1D5AA9D558A3"/>  <!-- Workflow model = SlimTvManualSchedule Model -->
 
+    <WorkflowState Id="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+      Name="SlimTvClientMainRadio"
+      MainScreen="SlimTvClient-main"
+      DisplayLabel="[SlimTvClient.Radio]"
+      WorkflowModel="8BEC1372-1C76-484c-8A69-C7F3103708EC"/>  <!-- Workflow model = SlimTvClient Model -->
+
+    <WorkflowState Id="7365DA33-4687-43F4-9652-F6652468D4B8"
+      Name="SlimTvClientSingleChannelGuideRadio"
+      MainScreen="SlimTvClient-guide"
+      DisplayLabel="[SlimTvClient.SingleChannelGuide]"
+      WorkflowModel="74F50A53-BEF7-415c-A240-2EC718DA8C0F"/>  <!-- Workflow model = SlimTvSingleChannelGuide Model -->
+
+    <WorkflowState Id="64AEE61A-7E45-450D-AA65-F4C109E3A7B3"
+      Name="SlimTvClientMultiChannelGuideRadio"
+      MainScreen="SlimTvClient-fullguide"
+      DisplayLabel="[SlimTvClient.TvGuide]"
+      WorkflowModel="5054408D-C2A9-451f-A702-E84AFCD29C10"/>  <!-- Workflow model = SlimTvMultiChannelGuide Model -->
+
   </Register>
 
   <!-- Language resources -->

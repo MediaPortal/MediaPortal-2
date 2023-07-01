@@ -23,6 +23,7 @@
 #endregion
 
 using System;
+using System.Collections.Generic;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 
 namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
@@ -44,6 +45,30 @@ namespace MediaPortal.Plugins.SlimTv.Client.TvHandler
       VideoStreamAspect.ASPECT_ID,    // Needed for calculating play percentage
       VideoAspect.Metadata.AspectId,  // Needed for playing TV recording
       AudioAspect.Metadata.AspectId   // Needed for playing Radio recording
+    };
+
+    public static Guid WF_TV_MAIN_STATE = new Guid("C7646667-5E63-48c7-A490-A58AC9518CFA");
+    public static Guid WF_TV_SINGLE_CHANNEL_GUIDE_STATE = new Guid("A40F05BB-022E-4247-8BEE-16EB3E0B39C5");
+    public static Guid WF_TV_MULTI_CHANNEL_GUIDE_STATE = new Guid("7323BEB9-F7B0-48c8-80FF-8B59A4DB5385");
+
+    public static Guid WF_RADIO_MAIN_STATE = new Guid("55F6CC8D-1D98-426F-8733-E6DF2861F706");
+    public static Guid WF_RADIO_SINGLE_CHANNEL_GUIDE_STATE = new Guid("7365DA33-4687-43F4-9652-F6652468D4B8");
+    public static Guid WF_RADIO_MULTI_CHANNEL_GUIDE_STATE = new Guid("64AEE61A-7E45-450D-AA65-F4C109E3A7B3");
+
+    public static Guid WF_SCHEDULES_STATE = new Guid("88842E97-2EF9-4658-AD35-8D74E3C689A4");
+
+    public static HashSet<Guid> TV_WF_STATES = new HashSet<Guid>
+    {
+      WF_TV_MAIN_STATE,
+      WF_TV_SINGLE_CHANNEL_GUIDE_STATE,
+      WF_TV_MULTI_CHANNEL_GUIDE_STATE,
+    };
+
+    public static HashSet<Guid> RADIO_WF_STATES = new HashSet<Guid>
+    {
+      WF_RADIO_MAIN_STATE,
+      WF_RADIO_SINGLE_CHANNEL_GUIDE_STATE,
+      WF_RADIO_MULTI_CHANNEL_GUIDE_STATE,
     };
 
     public const string KEY_CHANNEL = "Channel";

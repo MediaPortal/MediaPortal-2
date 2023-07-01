@@ -44,7 +44,8 @@ namespace MediaPortal.Plugins.SlimTv.Client
       RecordingsLibrary.RegisterOnMediaLibrary();
 
       // Dummy call to static instance which creates required message handlers
-      var channels = ChannelContext.Instance.Channels;
+      _ = ChannelContext.Tv.Channels;
+      _ = ChannelContext.Radio.Channels;
     }
 
     public bool RequestEnd()

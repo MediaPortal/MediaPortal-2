@@ -31,7 +31,7 @@
       Name="SlimTvClient->Schedules"
       DisplayCategory="A-1SlimTvClientSchedules"
       SortOrder="c"
-      SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
+      SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA,55F6CC8D-1D98-426F-8733-E6DF2861F706"
       TargetState="88842E97-2EF9-4658-AD35-8D74E3C689A4"
       DisplayTitle="[SlimTvClient.Schedules]"/>
 
@@ -39,7 +39,7 @@
       Name="SlimTvClient->ProgramSearch"
       DisplayCategory="A-2SlimTvClientProgramSearch"
       SortOrder="c"
-      SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
+      SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA,55F6CC8D-1D98-426F-8733-E6DF2861F706"
       TargetState="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
       DisplayTitle="[SlimTvClient.ProgramSearch]"/>
 
@@ -51,11 +51,30 @@
       ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"/>    <!-- Recordings action -->
 
     <WorkflowContributorAction Id="786E1F62-58B8-4FE2-8C6E-111B2E0F167D"
-        Name="*->DeleteAllRecordings"
-        DisplayCategory="a-Recordings"
-        SortOrder="h"
-        SourceStates="*"
-        ContributorModelId="3E826CA9-5C0B-4B16-9025-FA8273A5B7E4"/>
+      Name="*->DeleteAllRecordings"
+      DisplayCategory="a-Recordings"
+      SortOrder="h"
+      SourceStates="*"
+      ContributorModelId="3E826CA9-5C0B-4B16-9025-FA8273A5B7E4"/>
+
+    <!-- Radio only navigation -->
+    <PushNavigationTransition Id="E3BBC989-99DB-40E9-A15F-CCB50B17A4C8"
+      Name="Home->SlimTvClientRadio"
+      DisplayCategory="A-SlimTvClient"
+      SortOrder="b"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+      DisplayTitle="[SlimTvClient.Radio]"
+      HelpText="[SlimTvClient.Radio.Help]"/>
+
+    <PushNavigationTransition Id="0040F059-DCFB-4148-BAD6-CCB8FCE9C72F"
+      Name="SlimTvClientRadio->Guide"
+      DisplayCategory="A-1SlimTvClientMultiChannelGuideRadio"
+      SortOrder="b"
+      SourceStates="55F6CC8D-1D98-426F-8733-E6DF2861F706"
+      TargetState="64AEE61A-7E45-450D-AA65-F4C109E3A7B3"
+      DisplayTitle="[SlimTvClient.TVGuide]"/>
+    
     <!-- AddToPlaylist action -->
   </MenuActions>
 </Workflow>

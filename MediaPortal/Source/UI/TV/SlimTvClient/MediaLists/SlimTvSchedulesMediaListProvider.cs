@@ -25,17 +25,17 @@
 using MediaPortal.Common;
 using MediaPortal.Common.Commands;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
+using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
+using MediaPortal.UI.ContentLists;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Workflow;
-using MediaPortal.UiComponents.Media.MediaLists;
+using MediaPortal.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.Utilities;
-using MediaPortal.UI.ContentLists;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -108,9 +108,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 
     public static void ShowSchedules()
     {
-      Guid WF_STATE_ID_SCHEDULE_LIST = new Guid("88842E97-2EF9-4658-AD35-8D74E3C689A4");
       IWorkflowManager workflowManager = ServiceRegistration.Get<IWorkflowManager>();
-      workflowManager.NavigatePush(WF_STATE_ID_SCHEDULE_LIST);
+      workflowManager.NavigatePush(SlimTvConsts.WF_SCHEDULES_STATE);
     }
 
     public override async Task<bool> UpdateItemsAsync(int maxItems, UpdateReason updateReason, ICollection<object> updatedObjects)

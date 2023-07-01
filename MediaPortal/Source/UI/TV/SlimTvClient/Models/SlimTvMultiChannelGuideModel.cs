@@ -34,6 +34,7 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Messaging;
 using MediaPortal.Plugins.SlimTv.Client.Settings;
+using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
@@ -64,7 +65,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected DateTime _bufferStartTime;
     protected DateTime _bufferEndTime;
-    protected int _bufferGroupIndex;
+    protected int? _bufferGroupId;
 
     public DateTime GuideEndTime
     {
@@ -265,7 +266,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       //base.UpdateChannels();
       _channelList.Clear();
-      foreach (IChannel channel in ChannelContext.Instance.Channels)
+      foreach (IChannel channel in ChannelContext.Channels)
       {
         IChannel localChannel = channel;
         var channelProgramsItem = new ChannelProgramListItem(channel, new ItemsList())
@@ -290,7 +291,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       navigationContextConfig.AdditionalContextVariables = new Dictionary<string, object>();
       navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_CHANNEL_ID] = channelId;
       navigationContextConfig.AdditionalContextVariables[SlimTvClientModel.KEY_GROUP_ID] = groupId;
-      Guid stateId = new Guid("A40F05BB-022E-4247-8BEE-16EB3E0B39C5");
+      Guid stateId = _mediaType == MediaType.TV ? SlimTvConsts.WF_TV_SINGLE_CHANNEL_GUIDE_STATE : SlimTvConsts.WF_RADIO_SINGLE_CHANNEL_GUIDE_STATE;
       if (workflowManager.IsAnyStateContainedInNavigationStack(new Guid[] { stateId }))
         workflowManager.NavigatePopToState(stateId, false);
       else
@@ -413,13 +414,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected async Task UpdateProgramsForGroup()
     {
       if (
-        _bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex || /* Group changed */
+        _bufferGroupId != ChannelContext.ChannelGroups.Current?.ChannelGroupId || /* Group changed */
         _bufferStartTime == DateTime.MinValue || _bufferEndTime == DateTime.MinValue || /* Buffer not set */
         GuideStartTime < _bufferStartTime || GuideStartTime > _bufferEndTime || /* Cache is out of request range */
         GuideEndTime < _bufferStartTime || GuideEndTime > _bufferEndTime
         )
       {
-        _bufferGroupIndex = ChannelContext.Instance.ChannelGroups.CurrentIndex;
+        _bufferGroupId = ChannelContext.ChannelGroups.Current?.ChannelGroupId;
         _bufferStartTime = GuideStartTime.AddHours(-_bufferHours);
         _bufferEndTime = GuideEndTime.AddHours(_bufferHours);
         IChannelGroup group = CurrentChannelGroup;
@@ -587,7 +588,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       // Only recreate content if group was changed in mean time
-      if (timeChanged || _bufferGroupIndex != ChannelContext.Instance.ChannelGroups.CurrentIndex)
+      if (timeChanged || _bufferGroupId != ChannelContext.ChannelGroups.Current?.ChannelGroupId)
       {
         UpdateChannels();
         _ = UpdatePrograms();

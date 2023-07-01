@@ -39,7 +39,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Settings.Configuration
       SlimTvClientSettings settings = SettingsManager.Load<SlimTvClientSettings>();
       settings.HideAllChannelsGroup = Yes;
       SettingsManager.Save(settings);
-      _ = ChannelContext.Instance.InitChannelGroups();
+      _ = ChannelContext.Tv.InitChannelGroups();
+      _ = ChannelContext.Radio.InitChannelGroups();
     }
   }
 }

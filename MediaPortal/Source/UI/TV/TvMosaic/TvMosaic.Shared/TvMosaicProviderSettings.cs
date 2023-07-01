@@ -54,9 +54,15 @@ namespace TvMosaic.Shared
     public string Password { get; set; }
 
     /// <summary>
-    /// Holds the last selected channel group ID.
+    /// Holds the last selected Tv channel group ID.
     /// </summary>
     [Setting(SettingScope.Global)]
     public int LastChannelGroupId { get; set; }
+
+    /// <summary>
+    /// Holds the last selected radio channel group ID.
+    /// </summary>
+    [Setting(SettingScope.Global)]
+    public int LastRadioChannelGroupId { get; set; }
   }
 }

@@ -42,29 +42,33 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
   /// </summary>
   public class ChannelContext : IDisposable
   {
-    protected static readonly object _syncObj = new object();
+    protected static Lazy<ChannelContext> _tvContext = new Lazy<ChannelContext>(() => new ChannelContext(MediaType.TV), true);
+    protected static Lazy<ChannelContext> _radioContext = new Lazy<ChannelContext>(() => new ChannelContext(MediaType.Radio), true);
     protected static ChannelContext _channelContext;
 
     private UserMessageHandler _userMessageHandler;
     protected bool _isChannelGroupsInitialized = false;
     protected NavigationList<IChannelGroup> _channelGroups;
 
+    protected MediaType _mediaType;
     protected readonly object _channelSyncObj = new object(); 
 
     #region Static instance
 
     /// <summary>
-    /// Gets the current <see cref="ChannelContext"/> from the <see cref="ServiceRegistration"/>. This allows all models to access one common group and channel lists.
+    /// Gets the current Tv <see cref="ChannelContext"/> from the <see cref="ServiceRegistration"/>. This allows all models to access one common group and channel lists.
     /// </summary>
-    public static ChannelContext Instance
+    public static ChannelContext Tv
     {
-      get
-      {
-        lock (_syncObj)
-        {
-          return _channelContext ?? (_channelContext = new ChannelContext());
-        }
-      }
+      get { return _tvContext.Value; }
+    }
+
+    /// <summary>
+    /// Gets the current radio <see cref="ChannelContext"/> from the <see cref="ServiceRegistration"/>. This allows all models to access one common group and channel lists.
+    /// </summary>
+    public static ChannelContext Radio
+    {
+      get { return _radioContext.Value; }
     }
 
     #endregion
@@ -81,8 +85,9 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     public NavigationList<IChannel> Channels { get; internal set; }
 
-    public ChannelContext()
+    public ChannelContext(MediaType mediaType)
     {
+      _mediaType = mediaType;
       Channels = new NavigationList<IChannel>();
       _channelGroups = new NavigationList<IChannelGroup>();
       _channelGroups.OnCurrentChanged += ReloadChannels;
@@ -105,7 +110,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
         if (!_isChannelGroupsInitialized)
           return;
 
-        var channelGroups = result.Result;
+        var channelGroups = result.Result.Where(g => g.MediaType == _mediaType).ToList();
 
         RegisterRestrictions(channelGroups);
 

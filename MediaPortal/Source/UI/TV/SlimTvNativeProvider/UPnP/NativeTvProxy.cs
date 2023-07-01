@@ -564,6 +564,36 @@ namespace MediaPortal.Plugins.SlimTv.Providers.UPnP
       }
     }
 
+    public int SelectedRadioChannelId
+    {
+      get
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        return settings.LastRadioChannelId;
+      }
+      set
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        settings.LastRadioChannelId = value;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
+    }
+
+    public int SelectedRadioChannelGroupId
+    {
+      get
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        return settings.LastRadioChannelGroupId;
+      }
+      set
+      {
+        NativeProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<NativeProviderSettings>();
+        settings.LastRadioChannelGroupId = value;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
+    }
+
     //public bool CreateSchedule(IProgram program, ScheduleRecordingType recordingType, out ISchedule schedule)
     public async Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
     {

@@ -22,11 +22,10 @@
 
 #endregion
 
+using MediaPortal.Common.Async;
+using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using MediaPortal.Common.Async;
-using MediaPortal.Common.Services.ServerCommunication;
-using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 
 namespace MediaPortal.Plugins.SlimTv.Interfaces
 {
@@ -65,13 +64,23 @@ namespace MediaPortal.Plugins.SlimTv.Interfaces
     Task<AsyncResult<IChannel>> GetChannelAsync(int channelId);
 
     /// <summary>
-    /// Gets or Sets the ID of the current selected channel.
+    /// Gets or Sets the ID of the current selected Tv channel.
     /// </summary>
     int SelectedChannelId { get; set; }
 
     /// <summary>
-    /// Gets or Sets the ID of the current selected channel group.
+    /// Gets or Sets the ID of the current selected Tv channel group.
     /// </summary>
     int SelectedChannelGroupId { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the ID of the current selected radio channel.
+    /// </summary>
+    int SelectedRadioChannelId { get; set; }
+
+    /// <summary>
+    /// Gets or Sets the ID of the current selected radio channel group.
+    /// </summary>
+    int SelectedRadioChannelGroupId { get; set; }
   }
 }

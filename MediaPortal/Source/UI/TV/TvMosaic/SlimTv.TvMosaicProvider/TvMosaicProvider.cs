@@ -242,6 +242,23 @@ namespace SlimTv.TvMosaicProvider
       }
     }
 
+    public int SelectedRadioChannelId { get; set; } = 0;
+
+    public int SelectedRadioChannelGroupId
+    {
+      get
+      {
+        TvMosaicProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TvMosaicProviderSettings>();
+        return settings.LastRadioChannelGroupId;
+      }
+      set
+      {
+        TvMosaicProviderSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<TvMosaicProviderSettings>();
+        settings.LastRadioChannelGroupId = value;
+        ServiceRegistration.Get<ISettingsManager>().Save(settings);
+      }
+    }
+
     #endregion
 
     #region IProgramInfoAsync

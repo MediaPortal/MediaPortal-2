@@ -147,7 +147,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       //Add any remaining channels
       if (fillList && userChannels.Count < maxItems)
       {
-        foreach (int channelId in ChannelContext.Instance.Channels.Where(c => c.MediaType == _mediaType).Select(c => c.ChannelId).Except(channelList.Select(c => c.Item1)))
+        ChannelContext channelContext = _mediaType == MediaType.TV ? ChannelContext.Tv : ChannelContext.Radio;
+        foreach (int channelId in channelContext.Channels.Where(c => c.MediaType == _mediaType).Select(c => c.ChannelId).Except(channelList.Select(c => c.Item1)))
         {
           var result = await channelAndGroupInfo.GetChannelAsync(channelId);
           if (result.Success)

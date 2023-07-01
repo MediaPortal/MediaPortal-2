@@ -29,15 +29,27 @@ namespace MediaPortal.Plugins.SlimTv.Providers.Settings
   public class NativeProviderSettings
   {
     /// <summary>
-    /// Holds the last selected channel group ID.
+    /// Holds the last selected channel Tv group ID.
     /// </summary>
     [Setting(SettingScope.User)]
     public int LastChannelGroupId { get; set; }
 
     /// <summary>
-    /// Holds the last selected channel ID.
+    /// Holds the last selected Tv channel ID.
     /// </summary>
     [Setting(SettingScope.User)]
     public int LastChannelId { get; set; }
+
+    /// <summary>
+    /// Holds the last selected radio channel group ID.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public int LastRadioChannelGroupId { get; set; }
+
+    /// <summary>
+    /// Holds the last selected radio channel ID.
+    /// </summary>
+    [Setting(SettingScope.User)]
+    public int LastRadioChannelId { get; set; }
   }
 }

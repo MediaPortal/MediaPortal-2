@@ -461,10 +461,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Controls
     /// </summary>
     private void SetInitialViewOffset()
     {
+      var model = SlimTvMultiChannelGuideModel;
       int currentChannelIndex = 0;
       foreach (var channelsProgram in ChannelsPrograms.OfType<ChannelProgramListItem>())
       {
-        if (ChannelContext.IsSameChannel(channelsProgram.Channel, ChannelContext.Instance.Channels.Current))
+        if (ChannelContext.IsSameChannel(channelsProgram.Channel, model.CurrentChannel))
         {
           if (currentChannelIndex >= _numberOfRows)
             _channelViewOffset = currentChannelIndex - _numberOfRows + 1;

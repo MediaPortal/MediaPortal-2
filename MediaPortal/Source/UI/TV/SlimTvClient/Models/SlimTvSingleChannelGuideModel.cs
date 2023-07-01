@@ -253,13 +253,24 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
       base.EnterModelContext(oldContext, newContext);
+      SetGroupAndChannel(newContext);
+    }
+
+    public override void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+      base.ChangeModelContext(oldContext, newContext, push);
+      SetGroupAndChannel(newContext);
+    }
+
+    protected void SetGroupAndChannel(NavigationContext newContext)
+    {
       object groupIdObject;
       object channelIdObject;
       if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_GROUP_ID, out groupIdObject) &&
           newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_CHANNEL_ID, out channelIdObject))
       {
-        ChannelContext.Instance.ChannelGroups.MoveTo(group => group.ChannelGroupId == (int)groupIdObject);
-        ChannelContext.Instance.Channels.MoveTo(channel => channel.ChannelId == (int)channelIdObject);
+        ChannelContext.ChannelGroups.MoveTo(group => group.ChannelGroupId == (int)groupIdObject);
+        ChannelContext.Channels.MoveTo(channel => channel.ChannelId == (int)channelIdObject);
 
         UpdatePrograms();
       }

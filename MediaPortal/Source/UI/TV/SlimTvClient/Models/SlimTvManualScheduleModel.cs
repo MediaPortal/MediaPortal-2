@@ -134,7 +134,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void InitChannelGroups()
     {
-      var channelGroups = ChannelContext.Instance.ChannelGroups;
+      var channelGroups = ChannelContext.ChannelGroups;
       if (channelGroups == null)
       {
         _channelGroups = new List<IChannelGroup>();
@@ -143,7 +143,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       }
 
       _channelGroups = new List<IChannelGroup>(channelGroups);
-      var currentGroup = ChannelContext.Instance.ChannelGroups.Current;
+      var currentGroup = ChannelContext.ChannelGroups.Current;
       if (currentGroup != null)
         ChannelGroup = _channelGroups.FirstOrDefault(g => g.ChannelGroupId == currentGroup.ChannelGroupId);
       else
