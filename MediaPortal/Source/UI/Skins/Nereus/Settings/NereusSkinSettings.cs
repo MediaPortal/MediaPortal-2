@@ -160,6 +160,8 @@ namespace MediaPortal.UiComponents.Nereus.Settings
       new Guid("55556593-9fe9-436c-a3b6-a971e10c9d44"),
       // TV
       new Guid("b4a9199f-6dd4-4bda-a077-de9c081f7703"),
+      // Radio
+      new Guid("e3bbc989-99db-40e9-a15f-ccb50b17a4c8"),
       // News
       new Guid("bb49a591-7705-408f-8177-45d633fdfad0"),
       // Weather

@@ -128,6 +128,7 @@ namespace MediaPortal.UiComponents.Nereus.Models
       _homeContent.Add(new Guid("55556593-9fe9-436c-a3b6-a971e10c9d44"), new ImageHomeContent());
       _homeContent.Add(new Guid("A4DF2DF6-8D66-479a-9930-D7106525EB07"), new VideoHomeContent());
       _homeContent.Add(new Guid("b4a9199f-6dd4-4bda-a077-de9c081f7703"), new TVHomeContent());
+      _homeContent.Add(new Guid("e3bbc989-99db-40e9-a15f-ccb50b17a4c8"), new RadioHomeContent());
       _homeContent.Add(new Guid("bb49a591-7705-408f-8177-45d633fdfad0"), new NewsHomeContent());
       _homeContent.Add(new Guid("e34fdb62-1f3e-4aa9-8a61-d143e0af77b5"), new WeatherHomeContent());
       _homeContent.Add(new Guid("873eb147-c998-4632-8f86-d5e24062be2e"), new LauncherHomeContent());

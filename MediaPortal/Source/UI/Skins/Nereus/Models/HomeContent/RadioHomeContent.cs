@@ -32,22 +32,22 @@ using System.Collections.Generic;
 
 namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
 {
-  public class TVHomeContent : AbstractHomeContent
+  public class RadioHomeContent : AbstractHomeContent
   {
-    public TVHomeContent()
+    public RadioHomeContent()
     {
-      _availableMediaLists.Add(new LastPlayTVList());
-      _availableMediaLists.Add(new FavoriteTVList());
-      _availableMediaLists.Add(new CurrentTVList());
+      _availableMediaLists.Add(new LastPlayRadioList());
+      _availableMediaLists.Add(new FavoriteRadioList());
+      _availableMediaLists.Add(new CurrentRadioList());
       _availableMediaLists.Add(new CurrentSchedulesList());
 
       _shortcutLists.Add(new MediaShortcutListWrapper(new List<ListItem>
       {
-        new LiveTVShortcut(),
-        new EPGShortcut(),
-        new SchedulesShortcut(),
-        new RecordingsShortcut(),
-        new TVSearchShortcut()
+        new LiveRadioShortcut(),
+        new RadioEPGShortcut(),
+        new RadioSchedulesShortcut(),
+        new RadioRecordingsShortcut(),
+        new RadioSearchShortcut()
       }));
     }
 
@@ -57,57 +57,57 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
     }
   }
 
-  public class LastPlayTVList : MediaListItemsListWrapper
+  public class LastPlayRadioList : MediaListItemsListWrapper
   {
-    public LastPlayTVList()
-      : base("LastPlayTV", "[Nereus.Home.LatestPlayed]")
+    public LastPlayRadioList()
+      : base("LastPlayRadio", "[Nereus.Home.LatestPlayed]")
     { }
   }
 
-  public class FavoriteTVList : MediaListItemsListWrapper
+  public class FavoriteRadioList : MediaListItemsListWrapper
   {
-    public FavoriteTVList()
-      : base("FavoriteTV", "[Nereus.Home.Favorites]")
+    public FavoriteRadioList()
+      : base("FavoriteRadio", "[Nereus.Home.Favorites]")
     { }
   }
 
-  public class CurrentTVList : MediaListItemsListWrapper
+  public class CurrentRadioList : MediaListItemsListWrapper
   {
-    public CurrentTVList()
-      : base("CurrentTVPrograms", "[Nereus.Home.CurrentPrograms]")
+    public CurrentRadioList()
+      : base("CurrentRadioPrograms", "[Nereus.Home.CurrentPrograms]")
     { }
   }
 
-  public class CurrentSchedulesList : MediaListItemsListWrapper
+  public class CurrentRadioSchedulesList : MediaListItemsListWrapper
   {
-    public CurrentSchedulesList()
+    public CurrentRadioSchedulesList()
       : base("CurrentSchedules", "[Nereus.Home.CurrentSchedules]")
     { }
   }
 
-  public class LiveTVShortcut : WorkflowNavigationShortcutItem
+  public class LiveRadioShortcut : WorkflowNavigationShortcutItem
   {
-    public LiveTVShortcut() : base(new Guid("C7646667-5E63-48c7-A490-A58AC9518CFA")) { }
+    public LiveRadioShortcut() : base(new Guid("55F6CC8D-1D98-426F-8733-E6DF2861F706")) { }
   }
 
-  public class EPGShortcut : WorkflowNavigationShortcutItem
+  public class RadioEPGShortcut : WorkflowNavigationShortcutItem
   {
-    public EPGShortcut() : base(new Guid("7323BEB9-F7B0-48c8-80FF-8B59A4DB5385")) { }
+    public RadioEPGShortcut() : base(new Guid("64AEE61A-7E45-450D-AA65-F4C109E3A7B3")) { }
   }
 
-  public class SchedulesShortcut : WorkflowNavigationShortcutItem
+  public class RadioSchedulesShortcut : WorkflowNavigationShortcutItem
   {
-    public SchedulesShortcut() : base(new Guid("88842E97-2EF9-4658-AD35-8D74E3C689A4")) { }
+    public RadioSchedulesShortcut() : base(new Guid("88842E97-2EF9-4658-AD35-8D74E3C689A4")) { }
   }
 
-  public class RecordingsShortcut : WorkflowNavigationShortcutItem
+  public class RadioRecordingsShortcut : WorkflowNavigationShortcutItem
   {
-    public RecordingsShortcut() : base(new Guid("9D5B01A7-035F-46CF-8246-3C158C6CA960")) { }
+    public RadioRecordingsShortcut() : base(new Guid("9D5B01A7-035F-46CF-8246-3C158C6CA960")) { }
   }
 
-  public class TVSearchShortcut : SearchShortcutItem
+  public class RadioSearchShortcut : SearchShortcutItem
   {
-    public TVSearchShortcut()
+    public RadioSearchShortcut()
     {
       Command = new MethodDelegateCommand(() =>
       {
