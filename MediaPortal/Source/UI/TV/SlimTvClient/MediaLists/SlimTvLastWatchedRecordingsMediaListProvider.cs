@@ -26,10 +26,10 @@ using MediaPortal.Common.Commands;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
+using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using MediaPortal.UiComponents.Media.MediaLists;
 using MediaPortal.UiComponents.Media.Models;
-using System;
-using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
+using System.Linq;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -41,6 +41,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
       _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
       _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+    }
+  }
+
+  public class SlimTvLastWatchedTVRecordingsMediaListProvider : SlimTvLastWatchedRecordingsMediaListProvider
+  {
+    public SlimTvLastWatchedTVRecordingsMediaListProvider()
+    {
+      _necessaryMias = _necessaryMias.Union(new[] { VideoAspect.ASPECT_ID });
+    }
+  }
+
+  public class SlimTvLastWatchedRadioRecordingsMediaListProvider : SlimTvLastWatchedRecordingsMediaListProvider
+  {
+    public SlimTvLastWatchedRadioRecordingsMediaListProvider()
+    {
+      _necessaryMias = _necessaryMias.Union(new[] { AudioAspect.ASPECT_ID });
     }
   }
 }

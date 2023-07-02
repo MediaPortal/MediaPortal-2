@@ -28,7 +28,7 @@ using MediaPortal.Plugins.SlimTv.Client.Models.Navigation;
 using MediaPortal.Plugins.SlimTv.Client.TvHandler;
 using MediaPortal.UiComponents.Media.MediaLists;
 using MediaPortal.UiComponents.Media.Models;
-using System;
+using System.Linq;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
@@ -39,6 +39,22 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       _necessaryMias = SlimTvConsts.NECESSARY_RECORDING_MIAS;
       _optionalMias = SlimTvConsts.OPTIONAL_RECORDING_MIAS;
       _playableConverterAction = mi => new RecordingItem(mi) { Command = new MethodDelegateCommand(() => PlayItemsModel.CheckQueryPlayAction(mi)) };
+    }
+  }
+
+  public class SlimTvLatestTVRecordingsMediaListProvider : SlimTvLatestRecordingsMediaListProvider
+  {
+    public SlimTvLatestTVRecordingsMediaListProvider()
+    {
+      _necessaryMias = _necessaryMias.Union(new[] { VideoAspect.ASPECT_ID });
+    }
+  }
+
+  public class SlimTvLatestRadioRecordingsMediaListProvider : SlimTvLatestRecordingsMediaListProvider
+  {
+    public SlimTvLatestRadioRecordingsMediaListProvider()
+    {
+      _necessaryMias = _necessaryMias.Union(new[] { AudioAspect.ASPECT_ID });
     }
   }
 }

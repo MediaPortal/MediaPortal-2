@@ -26,15 +26,14 @@ using MediaPortal.Common.Commands;
 using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
 using MediaPortal.Plugins.SlimTv.Client.Models;
+using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.ContentLists;
 using MediaPortal.UI.Presentation.DataObjects;
-using MediaPortal.UiComponents.Media.MediaLists;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using MediaPortal.Plugins.SlimTv.Interfaces;
 
 namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
 {
