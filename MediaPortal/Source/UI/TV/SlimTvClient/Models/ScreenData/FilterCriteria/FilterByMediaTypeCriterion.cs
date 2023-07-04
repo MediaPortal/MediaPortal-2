@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models.ScreenData.FilterCriteria
         // of necessary MIAs but there isn't a way to modify the list of necessary MIAs for a set of media navigation screens when applying a filter criterion.
         // Instead this criterion simply tests for whether an attribute that should always be set if the aspect is present is empty and assumes that if it is
         // then the entire aspect is not present. 
-        new FilterValue("[SlimTvClient.Main]", new EmptyFilter(AudioAspect.ATTR_DURATION), null, this),
+        new FilterValue("[SlimTvClient.Tv]", new EmptyFilter(AudioAspect.ATTR_DURATION), null, this),
         new FilterValue("[SlimTvClient.Radio]", new EmptyFilter(VideoStreamAspect.ATTR_DURATION), null, this)
       });
     }

@@ -7,8 +7,8 @@
       SortOrder="a"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="C7646667-5E63-48c7-A490-A58AC9518CFA"
-      DisplayTitle="[SlimTvClient.Main]"
-      HelpText="[SlimTvClient.Main.Help]"/>
+      DisplayTitle="[SlimTvClient.Tv]"
+      HelpText="[SlimTvClient.Tv.Help]"/>
 
     <!-- Morpheus_xx, 2014-01-11: single channel guide can be accessed from multi channel guide (channel row header). Removed to reduce menu items.
     <PushNavigationTransition Id="480CA8AE-FF20-4be0-80E3-9896D7996140"
@@ -25,7 +25,7 @@
       SortOrder="b"
       SourceStates="C7646667-5E63-48c7-A490-A58AC9518CFA"
       TargetState="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
-      DisplayTitle="[SlimTvClient.TvGuide]"/>
+      DisplayTitle="[SlimTvClient.Guide.Tv]"/>
 
     <PushNavigationTransition Id="DE81847F-5736-4331-970C-B4F65B57B2F1"
       Name="SlimTvClient->Schedules"
@@ -73,7 +73,7 @@
       SortOrder="b"
       SourceStates="55F6CC8D-1D98-426F-8733-E6DF2861F706"
       TargetState="64AEE61A-7E45-450D-AA65-F4C109E3A7B3"
-      DisplayTitle="[SlimTvClient.TVGuide]"/>
+      DisplayTitle="[SlimTvClient.Guide.Radio]"/>
     
     <!-- AddToPlaylist action -->
   </MenuActions>

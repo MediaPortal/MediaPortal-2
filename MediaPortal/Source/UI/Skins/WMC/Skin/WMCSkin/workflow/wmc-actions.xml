@@ -9,8 +9,17 @@
       SortOrder="b"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="7323BEB9-F7B0-48c8-80FF-8B59A4DB5385"
-      DisplayTitle="[SlimTvClient.TvGuide]"
-      HelpText="[SlimTvClient.TvGuide.Help]"/>
+      DisplayTitle="[SlimTvClient.Guide.Tv]"
+      HelpText="[SlimTvClient.Guide.Tv.Help]"/>
+
+    <PushNavigationTransition Id="B6B524F6-390C-4E7D-B4D2-D4838A55EDE0"
+      Name="SlimTvClientRadio->Guide"
+      DisplayCategory="A-1SlimTvClientMultiChannelGuideRadio"
+      SortOrder="b"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="64AEE61A-7E45-450D-AA65-F4C109E3A7B3"
+      DisplayTitle="[SlimTvClient.Guide.Radio]"
+      HelpText="[SlimTvClient.Guide.Radio.Help]"/>
 
     <PushNavigationTransition Id="87355E05-A15B-452A-85B8-98D4FC80034E"
       Name="SlimTvClient->Schedules"
