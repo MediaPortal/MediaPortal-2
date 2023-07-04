@@ -162,14 +162,14 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public void SelectChannel()
     {
       SingleChannelList.Clear();
-      for (int index = 0; index < ChannelContext.Instance.Channels.Count; index++)
+      for (int index = 0; index < ChannelContext.Channels.Count; index++)
       {
-        var channel = ChannelContext.Instance.Channels[index];
+        var channel = ChannelContext.Channels[index];
         int channelIndex = index;
         ListItem channelItem = new ListItem(Consts.KEY_NAME, channel.Name)
         {
-          Command = new MethodDelegateCommand(() => ChannelContext.Instance.Channels.SetIndex(channelIndex)),
-          Selected = channelIndex == ChannelContext.Instance.Channels.CurrentIndex
+          Command = new MethodDelegateCommand(() => ChannelContext.Channels.SetIndex(channelIndex)),
+          Selected = channelIndex == ChannelContext.Channels.CurrentIndex
         };
         SingleChannelList.Add(channelItem);
       }
