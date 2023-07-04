@@ -163,7 +163,7 @@ namespace SlimTv.TvMosaicProvider
             TvMosaicId = channel.Id,
             Name = channel.Name,
             ChannelId = mappedId,
-            MediaType = MediaType.TV,
+            MediaType = channel.ChannelType == 1 ? MediaType.Radio : MediaType.TV,
             ChannelNumber = channel.Number
           };
           _mpChannels.Add(mpChannel);
@@ -176,14 +176,15 @@ namespace SlimTv.TvMosaicProvider
         _channelGroups.Clear();
         foreach (var favorite in favorites.Result)
         {
+          IEnumerable<IChannel> groupChannels = _mpChannels.OfType<TvMosaicChannel>().Where(c => favorite.Channels.Contains(c.TvMosaicId));
           var groupId = favorite.Id.ToString();
           IChannelGroup group = new ChannelGroup
           {
             Name = favorite.Name,
-            ChannelGroupId = GetId(groupId)
+            ChannelGroupId = GetId(groupId),
+            MediaType = groupChannels.All(c => c.MediaType == MediaType.Radio) ? MediaType.Radio : MediaType.TV,
           };
 
-          IEnumerable<IChannel> groupChannels = _mpChannels.OfType<TvMosaicChannel>().Where(c => favorite.Channels.Contains(c.TvMosaicId));
           _channelGroups.Add(group);
           _channelGroupMap[group.ChannelGroupId] = new List<IChannel>(groupChannels);
         }
