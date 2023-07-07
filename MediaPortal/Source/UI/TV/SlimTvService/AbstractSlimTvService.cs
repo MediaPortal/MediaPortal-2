@@ -655,6 +655,12 @@ namespace MediaPortal.Plugins.SlimTv.Service
     // This property applies only to client side management and is not used in server!
     public int SelectedChannelGroupId { get; set; }
 
+    // This property applies only to client side management and is not used in server!
+    public int SelectedRadioChannelId { get; set; }
+
+    // This property applies only to client side management and is not used in server!
+    public int SelectedRadioChannelGroupId { get; set; }
+
     public abstract Task<AsyncResult<IList<ISchedule>>> GetSchedulesAsync();
 
     public abstract Task<AsyncResult<ISchedule>> IsCurrentlyRecordingAsync(string fileName);
