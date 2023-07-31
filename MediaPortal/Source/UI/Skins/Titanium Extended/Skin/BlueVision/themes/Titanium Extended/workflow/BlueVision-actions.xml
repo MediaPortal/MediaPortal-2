@@ -12,15 +12,6 @@
       DisplayTitle="[SlimTvClient.Guide.Tv]"
       HelpText="[SlimTvClient.Guide.Tv.Help]"/>
 
-    <PushNavigationTransition Id="B6B524F6-390C-4E7D-B4D2-D4838A55EDE0"
-      Name="SlimTvClientRadio->Guide"
-      DisplayCategory="A-1SlimTvClientMultiChannelGuideRadio"
-      SortOrder="b"
-      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
-      TargetState="64AEE61A-7E45-450D-AA65-F4C109E3A7B3"
-      DisplayTitle="[SlimTvClient.Guide.Radio]"
-      HelpText="[SlimTvClient.Guide.Radio.Help]"/>
-
     <PushNavigationTransition Id="87355E05-A15B-452A-85B8-98D4FC80034E"
       Name="SlimTvClient->Schedules"
       DisplayCategory="A-1SlimTvClientSchedules"
@@ -36,8 +27,8 @@
       SortOrder="c"
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       TargetState="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
-      DisplayTitle="[SlimTvClient.ProgramSearch]"
-      HelpText="[SlimTvClient.ProgramSearch.Help]"/>
+      DisplayTitle="[SlimTvClient.ProgramSearch.Tv]"
+      HelpText="[SlimTvClient.ProgramSearch.Tv.Help]"/>
 
     <WorkflowContributorAction Id="7F52D0A1-B7F8-46A1-A56B-1110BBFB7D51"
       Name="SlimTvClient->Recordings"
@@ -46,6 +37,24 @@
       SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
       ContributorModelId="117A9807-8B10-47F1-8780-C748DBCF45BA"
       HelpText="[SlimTvClient.Recordings.Help]"/>  <!-- Recordings action -->
+
+    <PushNavigationTransition Id="B6B524F6-390C-4E7D-B4D2-D4838A55EDE0"
+      Name="SlimTvClientRadio->Guide"
+      DisplayCategory="A-1SlimTvClientMultiChannelGuideRadio"
+      SortOrder="b"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="64AEE61A-7E45-450D-AA65-F4C109E3A7B3"
+      DisplayTitle="[SlimTvClient.Guide.Radio]"
+      HelpText="[SlimTvClient.Guide.Radio.Help]"/>
+    
+    <PushNavigationTransition Id="3840F898-CE0D-4A57-88E3-57D71AEB8115"
+      Name="SlimTvClientRadio->ProgramSearchRadio"
+      DisplayCategory="A-2SlimTvClientProgramSearchRadio"
+      SortOrder="c"
+      SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+      TargetState="F6B76F5F-1E37-4C4D-BB32-79AFB7A67951"
+      DisplayTitle="[SlimTvClient.ProgramSearch.Radio]"
+      HelpText="[SlimTvClient.ProgramSearch.Radio.Help]"/>
 
   </MenuActions>
 </Workflow>

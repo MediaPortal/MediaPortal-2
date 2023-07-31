@@ -206,6 +206,17 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       SetChannel();
     }
 
+
+    /// <summary>
+    /// Navigates to the tv or radio search workflow state depending on
+    /// whether the current workflow state is a tv or radio state.
+    /// </summary>
+    public void NavigateToProgramSearch()
+    {
+      var wf = ServiceRegistration.Get<IWorkflowManager>();
+      wf.NavigatePushAsync(_mediaType == MediaType.TV ? SlimTvConsts.WF_TV_PROGRAM_SEARCH_STATE : SlimTvConsts.WF_RADIO_PROGRAM_SEARCH_STATE);
+    }
+
     /// <summary>
     /// Sets the current channel based on <see cref="ChannelContext"/>
     /// </summary>

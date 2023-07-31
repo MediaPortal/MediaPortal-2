@@ -50,8 +50,10 @@
 
   <string name="SlimTvClient.UseContainsQuery">Use "contains"</string>
   <string name="SlimTvClient.UseStartsWithQuery">Use "starts with"</string>
-  <string name="SlimTvClient.ProgramSearch">Search programs</string>
-  <string name="SlimTvClient.ProgramSearch.Help">Search for program titles in the EPG and find your desired shows</string>
+  <string name="SlimTvClient.ProgramSearch.Tv">Search TV programs</string>
+  <string name="SlimTvClient.ProgramSearch.Tv.Help">Search for TV program titles in the EPG and find your desired shows</string>
+  <string name="SlimTvClient.ProgramSearch.Radio">Search radio programs</string>
+  <string name="SlimTvClient.ProgramSearch.Radio.Help">Search for radio program titles in the EPG and find your desired shows</string>
 
   <!-- Extended recording features -->
   <string name="SlimTvClient.RecordActions">Recording actions</string>

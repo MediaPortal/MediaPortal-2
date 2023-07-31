@@ -64,7 +64,7 @@
     <WorkflowState Id="CB5D4851-27D2-4222-B6A0-703EDC2071B5"
       Name="SlimTvClientProgramSearch"
       MainScreen="SlimTvClient-programsearch"
-      DisplayLabel="[SlimTvClient.ProgramSearch]"
+      DisplayLabel="[SlimTvClient.ProgramSearch.Tv]"
       WorkflowModel="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>   <!-- Workflow model = SlimTvProgramSearch Model -->
 
     <WorkflowState Id="88842E97-2EF9-4658-AD35-8D74E3C689A4"
@@ -101,6 +101,12 @@
       MainScreen="SlimTvClient-fullguide"
       DisplayLabel="[SlimTvClient.Guide.Radio]"
       WorkflowModel="5054408D-C2A9-451f-A702-E84AFCD29C10"/>  <!-- Workflow model = SlimTvMultiChannelGuide Model -->
+
+    <WorkflowState Id="F6B76F5F-1E37-4C4D-BB32-79AFB7A67951"
+      Name="SlimTvClientProgramSearchRadio"
+      MainScreen="SlimTvClient-programsearch"
+      DisplayLabel="[SlimTvClient.ProgramSearch.Radio]"
+      WorkflowModel="71F1D594-21BF-4639-9F8A-3CE8D8170333"/>  <!-- Workflow model = SlimTvProgramSearch Model -->
 
   </Register>
 

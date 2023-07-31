@@ -27,6 +27,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using MediaPortal.Common;
+using MediaPortal.Common.Async;
 using MediaPortal.Common.Commands;
 using MediaPortal.Common.General;
 using MediaPortal.Plugins.SlimTv.Client.Helpers;
@@ -37,6 +38,7 @@ using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UiComponents.Media.General;
+using MediaPortal.Utilities;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Models
 {
@@ -48,8 +50,25 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public const string MODEL_ID_STR = "71F1D594-21BF-4639-9F8A-3CE8D8170333";
     public static readonly Guid MODEL_ID = new Guid(MODEL_ID_STR);
 
+    #region Protected classes
+
+    /// <summary>
+    /// Used to save and restore the current state of the <see cref="SlimTvProgramSearchModel"/>
+    /// for a given workflow state.
+    /// </summary>
+    protected class ProgramSearchMemento
+    {
+      public string ProgramSearchText { get; set; }
+      public bool UseContainsQuery { get; set; }
+      public int LastProgramId { get; set; }
+    }
+
+    #endregion
+
     #region Fields
 
+    protected IDictionary<Guid, ProgramSearchMemento> _stateMementos = new Dictionary<Guid, ProgramSearchMemento>();
+    protected bool _isRestoring;
     protected int _lastProgramId;
     protected AbstractProperty _channelNameProperty = null;
     protected AbstractProperty _channelNumberProperty = null;
@@ -207,7 +226,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     private void ProgramSearchTextChanged(AbstractProperty property, object oldvalue)
     {
-      _ = UpdatePrograms();
+      if (!_isRestoring)
+        _ = UpdatePrograms();
     }
 
     private void InitSeriesTypeList(IProgram program)
@@ -305,8 +325,15 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         SetEmptyPrograms();
         return;
       }
-      _programs = result.Result;
-      FillProgramsList();
+
+      Dictionary<int, IChannel> programChannels = new Dictionary<int, IChannel>();
+      AsyncResult<IChannel> channelResult;
+      foreach (IProgram program in result.Result)
+        if (!programChannels.ContainsKey(program.ChannelId) && (channelResult = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId)).Result != null)
+          programChannels.Add(program.ChannelId, channelResult.Result);
+
+      _programs = result.Result.Where(p => !programChannels.TryGetValue(p.ChannelId, out IChannel c) || c.MediaType == _mediaType).ToList();
+      FillProgramsList(_programs, programChannels);
     }
 
     private string GetSearchTerm()
@@ -322,39 +349,41 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void SetEmptyPrograms()
     {
       _programs = new List<IProgram>();
-      FillProgramsList();
+      FillProgramsList(_programs, null);
     }
 
-    private void FillProgramsList()
+    private void FillProgramsList(IEnumerable<IProgram> programs, IDictionary<int, IChannel> programChannels)
     {
-      _programsList.Clear();
-
-      foreach (IProgram program in _programs)
+      lock (_programsList.SyncRoot)
       {
-        // Use local variable, otherwise delegate argument is not fixed
-        ProgramProperties programProperties = new ProgramProperties();
-        IProgram currentProgram = program;
-        programProperties.SetProgram(currentProgram);
-
-        ProgramListItem item = new ProgramListItem(programProperties)
-        {
-          Command = new MethodDelegateCommand(() =>
-          {
-            var isSingle = programProperties.IsScheduled;
-            var isSeries = programProperties.IsSeriesScheduled;
-            if (isSingle || isSeries)
-              CancelSchedule(currentProgram);
-            else
-              RecordSeries(currentProgram);
-          })
-        };
-        item.AdditionalProperties["PROGRAM"] = currentProgram;
-        item.Selected = _lastProgramId == program.ProgramId; // Restore focus
-
-        _programsList.Add(item);
+        _programsList.Clear();
+        foreach (var program in programs)
+          _programsList.Add(CreateProgramListItem(program, programChannels?.TryGetValue(program.ChannelId, out IChannel c) == true ? c : null));
       }
 
       _programsList.FireChange();
+    }
+
+    protected ProgramListItem CreateProgramListItem(IProgram program, IChannel channel)
+    {
+      ProgramProperties programProperties = new ProgramProperties();
+      programProperties.SetProgram(program, channel);
+
+      ProgramListItem item = new ProgramListItem(programProperties)
+      {
+        Command = new MethodDelegateCommand(() =>
+        {
+          var isSingle = programProperties.IsScheduled;
+          var isSeries = programProperties.IsSeriesScheduled;
+          if (isSingle || isSeries)
+            CancelSchedule(program);
+          else
+            RecordSeries(program);
+        })
+      };
+      item.AdditionalProperties["PROGRAM"] = program;
+      item.Selected = _lastProgramId == program.ProgramId; // Restore focus
+      return item;
     }
 
     protected override async Task<RecordingStatus?> CreateOrDeleteSchedule(IProgram program, ScheduleRecordingType recordingType = ScheduleRecordingType.Once)
@@ -377,6 +406,49 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         SlimTvClientMessaging.SendSlimTvProgramChangedMessage(program);
     }
 
+    /// <summary>
+    /// Saves the current state of the model so it can be restored when returning
+    /// to a <see cref="NavigationContext"/> with the same <see cref="WorkflowState.StateId"/>.
+    /// </summary>
+    /// <param name="context">The context containing the workflow state to save.</param>
+    protected void SaveCurrentState(NavigationContext context)
+    {
+      _stateMementos[context.WorkflowState.StateId] = new ProgramSearchMemento
+      {
+        ProgramSearchText = ProgramSearchText,
+        UseContainsQuery = UseContainsQuery,
+        LastProgramId = _lastProgramId,
+      };
+    }
+
+    /// <summary>
+    /// Restores the model state based on the <see cref="WorkflowState.StateId"/> of a <see cref="NavigationContext"/>.
+    /// </summary>
+    /// <param name="context">The context containing the workflow state to restore.</param>
+    protected void RestoreLastState(NavigationContext context)
+    {
+      // prevent change handlers from firing
+      _isRestoring = true;
+      if(_stateMementos.TryGetValue(context.WorkflowState.StateId, out var state))
+      {
+        ProgramSearchText = state.ProgramSearchText;
+        UseContainsQuery = state.UseContainsQuery;
+        _lastProgramId = state.LastProgramId;
+      }
+      else
+      {
+        ProgramSearchText = null;
+        UseContainsQuery = false;
+        _lastProgramId = -1;
+      }
+
+      // allow change handlers to fire
+      _isRestoring = false;
+      // always assume the model has changed as the workflow state may have changed between tv or radio search
+      // so the same search term may return different results.
+      _ = UpdatePrograms();
+    }
+
     #endregion
 
     #region IWorkflowModel implementation
@@ -384,6 +456,25 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public override Guid ModelId
     {
       get { return MODEL_ID; }
+    }
+
+    public override void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      base.EnterModelContext(oldContext, newContext);
+      RestoreLastState(newContext);
+    }
+
+    public override void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)
+    {
+      SaveCurrentState(oldContext);
+      base.ChangeModelContext(oldContext, newContext, push);
+      RestoreLastState(newContext);
+    }
+
+    public override void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
+    {
+      SaveCurrentState(oldContext);
+      base.ExitModelContext(oldContext, newContext);
     }
 
     #endregion

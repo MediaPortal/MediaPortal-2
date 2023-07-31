@@ -112,7 +112,7 @@ namespace MediaPortal.UiComponents.Nereus.Models.HomeContent
       Command = new MethodDelegateCommand(() =>
       {
         var wm = ServiceRegistration.Get<IWorkflowManager>();
-        wm.NavigatePush(new Guid("CB5D4851-27D2-4222-B6A0-703EDC2071B5"));
+        wm.NavigatePush(new Guid("F6B76F5F-1E37-4C4D-BB32-79AFB7A67951"));
       });
     }
   }
