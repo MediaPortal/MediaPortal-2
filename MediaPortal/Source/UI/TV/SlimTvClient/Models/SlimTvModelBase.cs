@@ -143,15 +143,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     /// </summary>
     public void SelectGroup()
     {
+      var channelGroups = ChannelContext.ChannelGroups.GetItemsWithCurrent(out int currentIndex);
       ChannelGroupList.Clear();
-      for (int index = 0; index < ChannelContext.ChannelGroups.Count; index++)
+      for (int index = 0; index < channelGroups.Count; index++)
       {
-        var channelGroup = ChannelContext.ChannelGroups[index];
+        var channelGroup = channelGroups[index];
         int groupIndex = index;
         ListItem channel = new ListItem(Consts.KEY_NAME, channelGroup.Name)
         {
-          Command = new MethodDelegateCommand(() => ChannelContext.ChannelGroups.SetIndex(groupIndex)),
-          Selected = groupIndex == ChannelContext.ChannelGroups.CurrentIndex
+          Command = new MethodDelegateCommand(() => ChannelContext.ChannelGroups.CurrentIndex = groupIndex),
+          Selected = groupIndex == currentIndex
         };
         ChannelGroupList.Add(channel);
       }
@@ -161,15 +162,16 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public void SelectChannel()
     {
+      var channels = ChannelContext.Channels.GetItemsWithCurrent(out int currentIndex);
       SingleChannelList.Clear();
-      for (int index = 0; index < ChannelContext.Channels.Count; index++)
+      for (int index = 0; index < channels.Count; index++)
       {
-        var channel = ChannelContext.Channels[index];
+        var channel = channels[index];
         int channelIndex = index;
         ListItem channelItem = new ListItem(Consts.KEY_NAME, channel.Name)
         {
-          Command = new MethodDelegateCommand(() => ChannelContext.Channels.SetIndex(channelIndex)),
-          Selected = channelIndex == ChannelContext.Channels.CurrentIndex
+          Command = new MethodDelegateCommand(() => ChannelContext.Channels.CurrentIndex = channelIndex),
+          Selected = channelIndex == currentIndex
         };
         SingleChannelList.Add(channelItem);
       }
@@ -299,10 +301,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void FillChannelGroupList()
     {
+      var channelGroups = ChannelContext.ChannelGroups.GetItemsWithCurrent(out int currentIndex);
       _channelGroupList.Clear();
-      for (int idx = 0; idx < ChannelContext.ChannelGroups.Count; idx++)
+      for (int idx = 0; idx < channelGroups.Count; idx++)
       {
-        IChannelGroup group = ChannelContext.ChannelGroups[idx];
+        IChannelGroup group = channelGroups[idx];
         ListItem channelGroupItem = new ListItem(Consts.KEY_NAME, group.Name)
         {
           Command = new MethodDelegateCommand(() =>
@@ -312,7 +315,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
               //SetGroup();
             }
           }),
-          Selected = group == ChannelContext.ChannelGroups.Current
+          Selected = idx == currentIndex
         };
         _channelGroupList.Add(channelGroupItem);
       }

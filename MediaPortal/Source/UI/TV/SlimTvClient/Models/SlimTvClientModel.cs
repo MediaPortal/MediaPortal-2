@@ -495,9 +495,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public async Task<bool> TuneByIndex(int channelIndex)
     {
-      if (channelIndex >= ChannelContext.Channels.Count)
+      IChannel channel = ChannelContext.Channels[channelIndex];
+      if (channel == null)
         return false;
-      await Tune(ChannelContext.Channels[channelIndex]);
+      await Tune(channel);
       return true;
     }
 
@@ -745,10 +746,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void ZapTimerElapsed(object sender, EventArgs e)
     {
       CloseOSD();
-      if (!ChannelContext.IsSameChannel(ChannelContext.Channels[_zapChannelIndex], _lastTunedChannel))
+      IChannel channel = ChannelContext.Channels[_zapChannelIndex];
+      if (channel != null && !ChannelContext.IsSameChannel(channel, _lastTunedChannel))
       {
-        ChannelContext.Channels.SetIndex(_zapChannelIndex);
-        _ = Tune(ChannelContext.Channels[_zapChannelIndex]);
+        ChannelContext.Channels.CurrentIndex = _zapChannelIndex;
+        _ = Tune(channel);
       }
       // When not zapped the previous channel information is restored during the next Update() call
     }
