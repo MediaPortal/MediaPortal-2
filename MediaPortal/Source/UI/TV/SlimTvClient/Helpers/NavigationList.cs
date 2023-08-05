@@ -25,6 +25,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 {
@@ -103,15 +104,34 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     /// </summary>
     /// <param name="items">The items to navigate.</param>
     /// <param name="currentIndex">The initial value of <see cref="CurrentIndex"/>.</param>
-    /// <param name="fireChanged">Whether to fire the <see cref="OnListChanged"/> and <see cref="OnCurrentChanged"/> events.</param>
-    public void SetItems(IEnumerable<T> items, int currentIndex, bool fireChanged = true)
+    /// <returns><c>true</c> if the items were changed; else <c>false</c>.</returns>
+    public bool SetItems(IEnumerable<T> items, int currentIndex)
     {
       Navigation navigation = new Navigation(items);
+      bool hasChanged = navigation.Items.Count > 0 || _navigation.Items.Count > 0;
       if (IsValidIndex(currentIndex, navigation.Items.Count))
         navigation.CurrentIndex = currentIndex;
       _navigation = navigation;
-      if (fireChanged)
-        FireListChanged();
+      return hasChanged;
+    }
+
+    /// <summary>
+    /// Sets the items to navigate, replacing the existing items.
+    /// </summary>
+    /// <param name="items">The items to navigate.</param>
+    /// <param name="predicate">The predicate to use to set the intital value of <see cref="CurrentIndex"/>.</param>
+    /// <returns><c>true</c> if the items were changed; else <c>false</c>.</returns>
+    public bool SetItems(IEnumerable<T> items, Predicate<T> predicate)
+    {
+      return SetItems(items, IndexOf(items, predicate));
+    }
+
+    /// <summary>
+    /// Clears the items to navigate.
+    /// </summary>
+    public void ClearItems()
+    {
+      SetItems(null, -1);
     }
 
     /// <summary>
@@ -160,17 +180,13 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     public bool MoveTo(Predicate<T> predicate)
     {
       Navigation current = _navigation;
-      for (int index = 0; index < current.Items.Count; index++)
-      {
-        T item = current.Items[index];
-        if (!predicate.Invoke(item))
-          continue;
-        int oldIndex = current.CurrentIndex;
-        current.CurrentIndex = index;
-        FireCurrentChanged(oldIndex);
-        return true;
-      }
-      return false;
+      int index = IndexOf(current.Items, predicate);
+      if(index < 0)
+        return false;
+      int oldIndex = current.CurrentIndex;
+      current.CurrentIndex = index;
+      FireCurrentChanged(oldIndex);
+      return true;
     }
 
     /// <summary>
@@ -198,6 +214,21 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     protected bool IsValidIndex(int index, int count)
     {
       return index >= 0 && index < count;
+    }
+
+    protected int IndexOf(IEnumerable<T> items, Predicate<T> predicate)
+    {
+      if (items == null || predicate == null)
+        return -1;
+
+      int index = 0;
+      foreach (var item in items)
+        if (predicate(item))
+          return index;
+        else
+          index++;
+
+      return -1;
     }
 
     #region IReadonlyList<T>

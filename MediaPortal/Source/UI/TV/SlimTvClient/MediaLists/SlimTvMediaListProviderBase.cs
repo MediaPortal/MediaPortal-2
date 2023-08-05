@@ -147,8 +147,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.MediaLists
       //Add any remaining channels
       if (fillList && userChannels.Count < maxItems)
       {
-        ChannelContext channelContext = _mediaType == MediaType.TV ? ChannelContext.Tv : ChannelContext.Radio;
-        foreach (IChannel channel in channelContext.Channels.Where(c => c.MediaType == _mediaType && !channelList.Contains(c.ChannelId)))
+        ChannelNavigation channelNavigation = _mediaType == MediaType.TV ? ChannelContext.Instance.Tv : ChannelContext.Instance.Radio;
+        foreach (IChannel channel in channelNavigation.Channels.Where(c => c.MediaType == _mediaType && !channelList.Contains(c.ChannelId)))
         {
           userChannels.Add(channel);
           if (userChannels.Count >= maxItems)

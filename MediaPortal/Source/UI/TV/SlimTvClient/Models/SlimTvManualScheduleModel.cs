@@ -134,7 +134,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     protected void InitChannelGroups()
     {
-      var channelGroups = ChannelContext.ChannelGroups.GetItemsWithCurrent(out int currentGroupIndex);
+      var channelGroups = ChannelContext.Instance.All.ChannelGroups.GetItemsWithCurrent(out int currentGroupIndex);
       if (channelGroups == null || channelGroups.Count == 0)
       {
         _channelGroups = new List<IChannelGroup>();

@@ -495,7 +495,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public async Task<bool> TuneByIndex(int channelIndex)
     {
-      IChannel channel = ChannelContext.Channels[channelIndex];
+      IChannel channel = ChannelNavigation.Channels[channelIndex];
       if (channel == null)
         return false;
       await Tune(channel);
@@ -504,7 +504,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
 
     public async Task<bool> TuneByChannelNumber(int channelNumber)
     {
-      IChannel channel = ChannelContext.Channels.FirstOrDefault(c => c.ChannelNumber == channelNumber);
+      IChannel channel = ChannelNavigation.Channels.FirstOrDefault(c => c.ChannelNumber == channelNumber);
       if (channel == null)
         return false;
       return await Tune(channel);
@@ -526,8 +526,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       SlotPlayer?.Pause();
 
       // Set the current index of the tuned channel
-      if (ChannelContext.Channels.MoveTo(c => ChannelContext.IsSameChannel(c, channel)))
-        _zapChannelIndex = ChannelContext.Channels.CurrentIndex; // Needs to be the same to start zapping from current offset
+      if (ChannelNavigation.Channels.MoveTo(c => ChannelContext.IsSameChannel(c, channel)))
+        _zapChannelIndex = ChannelNavigation.Channels.CurrentIndex; // Needs to be the same to start zapping from current offset
       else
         _zapChannelIndex = 0;
 
@@ -563,7 +563,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       GetCurrentChannelGroup();
       GetCurrentChannel();
-      IChannel current = ChannelContext.Channels.Current;
+      IChannel current = ChannelNavigation.Channels.Current;
       if (current != null)
         await Tune(current);
     }
@@ -577,7 +577,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     protected override void SetChannel()
     {
       base.SetChannel();
-      _zapChannelIndex = ChannelContext.Channels.CurrentIndex; // Use field, as parameter might be changed by base method
+      _zapChannelIndex = ChannelNavigation.Channels.CurrentIndex; // Use field, as parameter might be changed by base method
     }
 
     private void BeginZap()
@@ -598,7 +598,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     public async Task ZapNextChannel()
     {
       _zapChannelIndex++;
-      if (_zapChannelIndex >= ChannelContext.Channels.Count)
+      if (_zapChannelIndex >= ChannelNavigation.Channels.Count)
         _zapChannelIndex = 0;
 
       await ReSetSkipTimer();
@@ -611,7 +611,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       _zapChannelIndex--;
       if (_zapChannelIndex < 0)
-        _zapChannelIndex = ChannelContext.Channels.Count - 1;
+        _zapChannelIndex = ChannelNavigation.Channels.Count - 1;
 
       await ReSetSkipTimer();
     }
@@ -731,7 +731,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private async Task ReSetSkipTimer()
     {
       ShowOSD();
-      await UpdateRunningChannelPrograms(ChannelContext.Channels[_zapChannelIndex]);
+      await UpdateRunningChannelPrograms(ChannelNavigation.Channels[_zapChannelIndex]);
 
       if (_zapTimer == null)
       {
@@ -746,10 +746,10 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     private void ZapTimerElapsed(object sender, EventArgs e)
     {
       CloseOSD();
-      IChannel channel = ChannelContext.Channels[_zapChannelIndex];
+      IChannel channel = ChannelNavigation.Channels[_zapChannelIndex];
       if (channel != null && !ChannelContext.IsSameChannel(channel, _lastTunedChannel))
       {
-        ChannelContext.Channels.CurrentIndex = _zapChannelIndex;
+        ChannelNavigation.Channels.CurrentIndex = _zapChannelIndex;
         _ = Tune(channel);
       }
       // When not zapped the previous channel information is restored during the next Update() call
@@ -952,7 +952,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       // Update current programs for all channels of current group (visible inside MiniGuide).
       await UpdateAllCurrentPrograms();
 
-      _zapChannelIndex = ChannelContext.Channels.CurrentIndex;
+      _zapChannelIndex = ChannelNavigation.Channels.CurrentIndex;
 
       if (_tvHandler.NumberOfActiveSlots < 1)
       {
@@ -1056,7 +1056,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       lock (_channelList.SyncRoot)
       {
         _channelList.Clear();
-        foreach (IChannel channel in ChannelContext.Channels)
+        foreach (IChannel channel in ChannelNavigation.Channels)
         {
           // Use local variable, otherwise delegate argument is not fixed
           IChannel currentChannel = channel;
@@ -1074,7 +1074,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
         }
       }
       // Adjust channel list position
-      ChannelContext.Channels.MoveTo(c => ChannelContext.IsSameChannel(c, _lastTunedChannel));
+      ChannelNavigation.Channels.MoveTo(c => ChannelContext.IsSameChannel(c, _lastTunedChannel));
 
       // If the current watched channel is not part of the channel group, set the "selected" property to first list item to make sure focus will be set to the list view
       if (!isOneSelected && _channelList.Count > 0)

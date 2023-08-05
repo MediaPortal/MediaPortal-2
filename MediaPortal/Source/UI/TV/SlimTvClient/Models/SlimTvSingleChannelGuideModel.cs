@@ -269,8 +269,8 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_GROUP_ID, out groupIdObject) &&
           newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_CHANNEL_ID, out channelIdObject))
       {
-        ChannelContext.ChannelGroups.MoveTo(group => group.ChannelGroupId == (int)groupIdObject);
-        ChannelContext.Channels.MoveTo(channel => channel.ChannelId == (int)channelIdObject);
+        ChannelNavigation.ChannelGroups.MoveTo(group => group.ChannelGroupId == (int)groupIdObject);
+        ChannelNavigation.Channels.MoveTo(channel => channel.ChannelId == (int)channelIdObject);
 
         UpdatePrograms();
       }

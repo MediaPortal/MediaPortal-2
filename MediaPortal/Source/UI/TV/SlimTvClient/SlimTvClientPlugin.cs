@@ -43,9 +43,8 @@ namespace MediaPortal.Plugins.SlimTv.Client
       // Register recording section in MediaLibrary
       RecordingsLibrary.RegisterOnMediaLibrary();
 
-      // Dummy call to static instance which creates required message handlers
-      _ = ChannelContext.Tv.Channels;
-      _ = ChannelContext.Radio.Channels;
+      // Creates required message handlers and preloads channel groups
+      _ = ChannelContext.Instance.InitChannelGroups(false);
     }
 
     public bool RequestEnd()

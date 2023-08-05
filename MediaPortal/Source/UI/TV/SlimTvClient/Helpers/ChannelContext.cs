@@ -32,6 +32,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.UI.Services.UserManagement;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -42,82 +43,71 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
   /// </summary>
   public class ChannelContext : IDisposable
   {
-    protected static Lazy<ChannelContext> _tvContext = new Lazy<ChannelContext>(() => new ChannelContext(MediaType.TV), true);
-    protected static Lazy<ChannelContext> _radioContext = new Lazy<ChannelContext>(() => new ChannelContext(MediaType.Radio), true);
-    protected static ChannelContext _channelContext;
+    protected static Lazy<ChannelContext> _instance = new Lazy<ChannelContext>(true);
+
+    protected IReadOnlyList<IChannelGroup> _groups;
+    protected ChannelNavigation _tvNavigation;
+    protected ChannelNavigation _radioNavigation;
 
     private UserMessageHandler _userMessageHandler;
-    protected bool _isChannelGroupsInitialized = false;
-    protected NavigationList<IChannelGroup> _channelGroups;
 
-    protected MediaType _mediaType;
-    protected readonly object _channelSyncObj = new object(); 
+    protected readonly object _syncObj = new object();
 
     #region Static instance
 
-    /// <summary>
-    /// Gets the current Tv <see cref="ChannelContext"/> from the <see cref="ServiceRegistration"/>. This allows all models to access one common group and channel lists.
-    /// </summary>
-    public static ChannelContext Tv
+    public static ChannelContext Instance
     {
-      get { return _tvContext.Value; }
-    }
-
-    /// <summary>
-    /// Gets the current radio <see cref="ChannelContext"/> from the <see cref="ServiceRegistration"/>. This allows all models to access one common group and channel lists.
-    /// </summary>
-    public static ChannelContext Radio
-    {
-      get { return _radioContext.Value; }
+      get { return _instance.Value; } 
     }
 
     #endregion
 
-    public NavigationList<IChannelGroup> ChannelGroups
+    public ChannelContext()
     {
-      get
-      {
-        if (!_isChannelGroupsInitialized)
-          InitChannelGroups().Wait();
-        return _channelGroups;
-      }
-    }
+      _groups = new List<IChannelGroup>().AsReadOnly();
+      _tvNavigation = new ChannelNavigation(MediaType.TV);
+      _tvNavigation.ChannelGroups.OnCurrentChanged += async (o, n) => await UpdateChannels(_tvNavigation); 
+      _radioNavigation = new ChannelNavigation(MediaType.Radio);
+      _radioNavigation.ChannelGroups.OnCurrentChanged += async (o, n) => await UpdateChannels(_radioNavigation);
 
-    public NavigationList<IChannel> Channels { get; internal set; }
-
-    public ChannelContext(MediaType mediaType)
-    {
-      _mediaType = mediaType;
-      Channels = new NavigationList<IChannel>();
-      _channelGroups = new NavigationList<IChannelGroup>();
-      _channelGroups.OnCurrentChanged += ReloadChannels;
       _userMessageHandler = new UserMessageHandler();
       _userMessageHandler.RequestRestrictions += OnRegisterRestrictions;
       _userMessageHandler.UserChanged += OnUserChanged;
-      InitChannelGroups().Wait();
     }
 
-    public async Task InitChannelGroups()
+    /// <summary>
+    /// Gets all channel groups.
+    /// </summary>
+    public IReadOnlyList<IChannelGroup> ChannelGroups
     {
-      var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-      if (tvHandler != null && tvHandler.ChannelAndGroupInfo != null)
+      get
       {
-        var result = await tvHandler.ChannelAndGroupInfo.GetChannelGroupsAsync();
+        InitChannelGroups(false).Wait();
+        return _groups;
+      }
+    }
 
-        //Reset initialized statue on failure so we can retry later 
-        _isChannelGroupsInitialized = result.Success && result.Result != null && result.Result.Count > 0;
-        if (!_isChannelGroupsInitialized)
-        {
-          _channelGroups.SetItems(null, -1);
-          return;
-        }
+    /// <summary>
+    /// Gets the current Tv <see cref="ChannelNavigation"/>. This allows all models to access one common group and channel lists.
+    /// </summary>
+    public ChannelNavigation Tv
+    {
+      get
+      {
+        InitChannelGroups(false).Wait();
+        return _tvNavigation;
+      }
+    }
 
-        var channelGroups = result.Result.Where(g => g.MediaType == _mediaType).ToList();
-        RegisterRestrictions(channelGroups);
-        channelGroups = FilterGroups(channelGroups);
-        int selectedGroupId = _mediaType == MediaType.TV ? tvHandler.ChannelAndGroupInfo.SelectedChannelGroupId : tvHandler.ChannelAndGroupInfo.SelectedRadioChannelGroupId;
-        int selectedIndex = channelGroups.FindIndex(g => g.ChannelGroupId == selectedGroupId);
-        _channelGroups.SetItems(channelGroups, selectedIndex);
+    /// <summary>
+    /// Gets the current radio <see cref="ChannelNavigation"/>. This allows all models to access one common group and channel lists.
+    /// </summary>
+    public ChannelNavigation Radio
+    {
+      get
+      {
+        InitChannelGroups(false).Wait();
+        return _radioNavigation;
       }
     }
 
@@ -131,11 +121,85 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       return false;
     }
 
+    public async Task InitChannelGroups(bool force)
+    {
+      if (!force && _groups.Count > 0)
+        return;
+
+      var groupInfo = ServiceRegistration.Get<ITvHandler>(false)?.ChannelAndGroupInfo;
+      IList<IChannelGroup> channelGroups = await GetChannelGroups(groupInfo) ?? new List<IChannelGroup>()
+        ;
+      bool tvChanged;
+      bool radioChanged;
+      lock (_syncObj)
+      {
+        _groups = new ReadOnlyCollection<IChannelGroup>(channelGroups);
+        tvChanged = _tvNavigation.ChannelGroups.SetItems(channelGroups.Where(g => g.MediaType != MediaType.Radio), g => g.ChannelGroupId == groupInfo?.SelectedChannelGroupId);
+        radioChanged = _radioNavigation.ChannelGroups.SetItems(channelGroups.Where(g => g.MediaType == MediaType.Radio), g => g.ChannelGroupId == groupInfo?.SelectedRadioChannelGroupId);
+      }
+      if (tvChanged)
+        _tvNavigation.ChannelGroups.FireListChanged();
+      if (radioChanged)
+        _radioNavigation.ChannelGroups.FireListChanged();
+    }
+
+    protected async Task UpdateChannels(ChannelNavigation channelNavigation)
+    {
+      var channelInfo = ServiceRegistration.Get<ITvHandler>(false)?.ChannelAndGroupInfo;
+      IChannelGroup group = channelNavigation.ChannelGroups.Current;
+
+      IList<IChannel> channels = await GetChannels(channelInfo, group) ?? new List<IChannel>();
+
+      bool channelsChanged;
+      lock(_syncObj)
+      {
+        if (group != channelNavigation.ChannelGroups.Current)
+          return;
+        int? currentChannel = channelNavigation.MediaType == MediaType.Radio ? channelInfo?.SelectedRadioChannelId : channelInfo?.SelectedChannelId;
+        channelsChanged = channelNavigation.Channels.SetItems(channels, c => c.ChannelId == currentChannel);
+      }
+      if(channelsChanged)
+        channelNavigation.Channels.FireListChanged();
+    }
+    
+    private static async Task<IList<IChannelGroup>> GetChannelGroups(IChannelAndGroupInfoAsync groupInfo)
+    {
+      if (groupInfo == null)
+        return null;
+
+      var groupResult = await groupInfo.GetChannelGroupsAsync();
+      if (!groupResult.Success || groupResult.Result == null || groupResult.Result.Count == 0)
+        return null;
+      IList<IChannelGroup> groups = new List<IChannelGroup>(groupResult.Result);
+      RegisterRestrictions(groups);
+      return FilterGroups(groups);
+    }
+
+    private static async Task<IList<IChannel>> GetChannels(IChannelAndGroupInfoAsync channelInfo, IChannelGroup channelGroup)
+    {
+      if (channelInfo == null || channelGroup == null)
+        return null;
+
+      var channelResult = await channelInfo.GetChannelsAsync(channelGroup);
+      if (!channelResult.Success || channelResult.Result == null || channelResult.Result.Count == 0)
+        return null;
+
+      IList<IChannel> channels = new List<IChannel>(channelResult.Result);
+      // Check user zapping setting for channel index vs. number preferance
+      SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
+      if (settings.ZapByChannelIndex)
+      {
+        for (int i = 0; i < channels.Count; i++)
+          channels[i].ChannelNumber = i + 1;
+      }
+      return channels;
+    }
+
     /// <summary>
     /// Registers known channel groups so it can be used to restrict users.
     /// </summary>
     /// <param name="channelGroups"></param>
-    private void RegisterRestrictions(IList<IChannelGroup> channelGroups)
+    private static void RegisterRestrictions(IList<IChannelGroup> channelGroups)
     {
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
       foreach (IUserRestriction channelGroup in channelGroups.OfType<IUserRestriction>())
@@ -147,7 +211,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
     /// </summary>
     /// <param name="channelGroups">Groups</param>
     /// <returns>Filtered groups</returns>
-    private static List<IChannelGroup> FilterGroups(IList<IChannelGroup> channelGroups)
+    private static IList<IChannelGroup> FilterGroups(IList<IChannelGroup> channelGroups)
     {
       List<IChannelGroup> filteredGroups = new List<IChannelGroup>();
       IUserManagement userManagement = ServiceRegistration.Get<IUserManagement>();
@@ -164,67 +228,46 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
 
     private void OnUserChanged(object sender, EventArgs e)
     {
-      InitChannelGroups().Wait();
+      InitChannelGroups(true).Wait();
     }
 
     private void OnRegisterRestrictions(object sender, EventArgs e)
     {
-      InitChannelGroups().Wait();
-    }
-
-    /// <summary>
-    /// Reload all channels if channel group is changed.
-    /// </summary>
-    /// <param name="oldindex">Index of previous selected entry</param>
-    /// <param name="newindex">Index of current selected entry</param>
-    private async void ReloadChannels(int oldindex, int newindex)
-    {
-      var tvHandler = ServiceRegistration.Get<ITvHandler>(false);
-      if (tvHandler == null || tvHandler.ChannelAndGroupInfo == null)
-        return;
-
-      IChannelGroup currentGroup;
-      lock (_channelSyncObj)
-      {
-        // Checked again before updating the channels list to ensure the
-        // selected group hasn't been changed by another thread
-        currentGroup = _channelGroups.Current;
-        // Set the channels to empty whilst the new channels are loaded
-        Channels.SetItems(null, -1, false);
-      }
-      Channels.FireListChanged();
-
-      var result = await tvHandler.ChannelAndGroupInfo.GetChannelsAsync(currentGroup);
-      if (!result.Success)
-        return;
-
-      List<IChannel> channels = result.Result.ToList();
-
-      // Check user zapping setting for channel index vs. number preferance
-      SlimTvClientSettings settings = ServiceRegistration.Get<ISettingsManager>().Load<SlimTvClientSettings>();
-      if (settings.ZapByChannelIndex)
-      {
-        for (int i = 0; i < channels.Count; i++)
-          channels[i].ChannelNumber = i + 1;
-      }
-
-      // Check if the current channel is part of new group and select it
-      int selectedChannelId = _mediaType == MediaType.TV ? tvHandler.ChannelAndGroupInfo.SelectedChannelId : tvHandler.ChannelAndGroupInfo.SelectedRadioChannelId;
-      int selectedIndex = channels.FindIndex(c => c.ChannelId == selectedChannelId);
-      lock (_channelSyncObj)
-      {
-        // If another thread has changed the current group in the meantime
-        // don't update the channels as they are not valid for the new group
-        if (_channelGroups.Current != currentGroup)
-          return;
-        Channels.SetItems(channels, selectedIndex, false);
-      }
-      Channels.FireListChanged();
+      InitChannelGroups(true).Wait();
     }
 
     public void Dispose()
     {
       _userMessageHandler?.Dispose();
+    }
+  }
+
+  public class ChannelNavigation
+  {
+    protected NavigationList<IChannelGroup> _channelGroups;
+    protected NavigationList<IChannel> _channels;
+    protected MediaType _mediaType;
+
+    public ChannelNavigation(MediaType mediaType)
+    {
+      _mediaType = mediaType;
+      _channelGroups = new NavigationList<IChannelGroup>();
+      _channels = new NavigationList<IChannel>();
+    }
+
+    public MediaType MediaType
+    {
+      get { return _mediaType; }
+    }
+
+    public NavigationList<IChannelGroup> ChannelGroups
+    {
+      get { return _channelGroups; }
+    }
+
+    public NavigationList<IChannel> Channels
+    {
+      get { return _channels; }
     }
   }
 }
