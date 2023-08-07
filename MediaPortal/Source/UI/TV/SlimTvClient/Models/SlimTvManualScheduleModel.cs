@@ -124,31 +124,45 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
     }
 
-    protected void UpdateFromProgram(IProgram program)
+    protected async Task UpdateFromProgram(IProgram program)
     {
-      Channel = _channels?.FirstOrDefault(c => c.ChannelId == program.ChannelId);
+      // Get the channel directly as it might not be contained in the current group
+      var channelResult = await _tvHandler.ChannelAndGroupInfo.GetChannelAsync(program.ChannelId);
+      IChannel channel = channelResult.Success ? channelResult.Result : null;
+
+      // Set the group to the current TV or radio group if they contain the program's channel,
+      // which is almost always the case when updating from a program, else the first
+      // channel group will be selected
+      ChannelGroup = GetBestChannelGroup(program.ChannelId);
+
+      // Must be set after ChannelGroup as setting ChannelGroup updates the selected Channel
+      Channel = channel;
       RecordingType = ScheduleRecordingType.Once;
       StartTime = program.StartTime;
       EndTime = program.EndTime;
     }
 
+    protected IChannelGroup GetBestChannelGroup(int channelId)
+    {
+      // Prefer the current tv or radio group if it contains the channel
+      if (ChannelContext.Instance.Tv.Channels.Any(c => c.ChannelId == channelId))
+        return ChannelContext.Instance.Tv.ChannelGroups.Current;
+      else if (ChannelContext.Instance.Radio.Channels.Any(c => c.ChannelId == channelId))
+        return ChannelContext.Instance.Radio.ChannelGroups.Current;
+      else // else just select the first group
+        return _channelGroups.FirstOrDefault();
+    }
+
     protected void InitChannelGroups()
     {
-      var channelGroups = ChannelContext.Instance.All.ChannelGroups.GetItemsWithCurrent(out int currentGroupIndex);
-      if (channelGroups == null || channelGroups.Count == 0)
-      {
-        _channelGroups = new List<IChannelGroup>();
-        ChannelGroup = null;
-        return;
-      }
-
-      _channelGroups = new List<IChannelGroup>(channelGroups);
-      ChannelGroup = channelGroups[currentGroupIndex];
+      _channelGroups = ChannelContext.Instance.ChannelGroups.ToList();
+      ChannelGroup = _channelGroups.FirstOrDefault();
     }
 
     protected async Task InitChannels(IChannelGroup channelGroup)
     {
       _channels = new List<IChannel>();
+      IChannel channel = Channel;
       Channel = null;
 
       if (channelGroup == null)
@@ -158,7 +172,6 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
       if (result.Success)
         _channels = result.Result;
 
-      IChannel channel = Channel;
       if (channel != null)
         channel = _channels?.FirstOrDefault(c => c.ChannelId == channel.ChannelId);
       if (channel == null)
@@ -533,7 +546,7 @@ namespace MediaPortal.Plugins.SlimTv.Client.Models
     {
       object programObject;
       if (newContext.ContextVariables.TryGetValue(SlimTvClientModel.KEY_PROGRAM, out programObject) && programObject != null)
-        UpdateFromProgram((IProgram)programObject);
+        UpdateFromProgram((IProgram)programObject).Wait();
       else
         Reset();
     }
