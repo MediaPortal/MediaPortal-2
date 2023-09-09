@@ -168,7 +168,11 @@ namespace MediaPortal.Plugins.SlimTv.Client.Helpers
       if (current.Items.Count == 0)
         return;
       int oldIndex = current.CurrentIndex;
-      current.CurrentIndex = (oldIndex + direction) % current.Items.Count;
+      int newIndex = (oldIndex + direction) % current.Items.Count;
+      // if oldIndex + direction is negative, then mod of the count will be negative
+      // and represents the distance from the end of the list, so add it to the count
+      // to get the new index
+      current.CurrentIndex = newIndex < 0 ? current.Items.Count + newIndex : newIndex;
       FireCurrentChanged(oldIndex);
     }
 
