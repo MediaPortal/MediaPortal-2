@@ -80,7 +80,7 @@
             </Trigger>
           </Button.Triggers>
           <Label x:Name="GroupNameLabel" Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" VerticalContentAlignment="Center" HorizontalContentAlignment="Center"
-                 Opacity="0.5" Content="{Binding CurrentGroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0">
+                 Opacity="0.5" Content="{Binding CurrentGroupName}" VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,8,0" Scroll="Auto" ScrollDelay="0">
             <Label.LayoutTransform>
               <RotateTransform CenterX="0.5" CenterY="0.5" Angle="-90" />
             </Label.LayoutTransform>

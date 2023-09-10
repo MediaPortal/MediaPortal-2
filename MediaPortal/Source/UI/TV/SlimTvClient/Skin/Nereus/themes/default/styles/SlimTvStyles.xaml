@@ -982,10 +982,9 @@
                   <Label Grid.Column="1" x:Name="FallbackNameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
                          Color="{ThemeResource TextColor}">
                     <Label.IsVisible>
-                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1} &amp;&amp; {2}">
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
                         <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
                         <Binding ElementName="ChannelLogoImage" Path="!HasImage"/>
-                        <Binding Source="{StaticResource SlimTvSettings}" Path="!ShowChannelNames"/>
                       </MultiBinding>
                     </Label.IsVisible>
                     <Label.FontSize>
@@ -1002,7 +1001,12 @@
                   <Label Grid.Column="2" x:Name="NameLabel" Content="{Binding [Name]}" VerticalAlignment="Center" Margin="5,0,0,0" ScrollDelay="0"
                          Color="{ThemeResource TextColor}">
                     <Label.IsVisible>
-                      <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames"/>
+                      <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {3} || ({0} &amp;&amp; {1} &amp;&amp; {2})">
+                        <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames"/>
+                        <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
+                        <Binding ElementName="ChannelLogoImage" Path="HasImage"/>
+                        <Binding Source="{StaticResource SlimTvSettings}" Path="!ShowChannelLogos"/>
+                      </MultiBinding>
                     </Label.IsVisible>
                     <Label.FontSize>
                       <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}(-{0}*2.33) + 54.33">
@@ -1429,7 +1433,12 @@
         <Label x:Name="NameLabel" Grid.Column="2" Margin="3,1,5,3" Content="{Binding Channel.Name}" Color="{ThemeResource TextColor}" Width="240"
                VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None">
           <Label.IsVisible>
-            <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames" />
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {3} || ({0} &amp;&amp; {1} &amp;&amp; {2})">
+              <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelNames"/>
+              <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos"/>
+              <Binding ElementName="ChannelLogo" Path="HasImage"/>
+              <Binding Source="{StaticResource SlimTvSettings}" Path="!ShowChannelLogos"/>
+            </MultiBinding>
           </Label.IsVisible>
           <Label.Triggers>
             <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
@@ -1439,7 +1448,14 @@
         </Label>
 
         <Label x:Name="ChannelLogoFallbackLabel" Grid.Column="1" Margin="3,1,5,3" Content="{Binding Channel.Name}" Color="{ThemeResource TextColor}"
-               VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None" Width="140">
+               VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Scroll="None">
+          <Label.Width>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding Source="{StaticResource SlimTvSettings}" Path="!ShowChannelNames"/>
+              <Binding Source="140"/>
+              <Binding Source="400"/>
+            </MultiBinding>
+          </Label.Width>
           <Label.IsVisible>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &amp;&amp; {1}">
               <Binding Source="{StaticResource SlimTvSettings}" Path="ShowChannelLogos" />
