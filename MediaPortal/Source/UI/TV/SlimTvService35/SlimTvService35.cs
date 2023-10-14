@@ -271,10 +271,7 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public override Task<AsyncResult<IList<IProgram>>> GetProgramsGroupAsync(IChannelGroup channelGroup, DateTime from, DateTime to)
     {
       IProgramService programService = GlobalServiceProvider.Instance.Get<IProgramService>();
-      IChannelGroupService channelGroupService = GlobalServiceProvider.Instance.Get<IChannelGroupService>();
-
-      var channels = channelGroupService.GetChannelGroup(channelGroup.ChannelGroupId).GroupMaps.Select(groupMap => groupMap.Channel);
-      IDictionary<int, IList<Program>> programEntities = programService.GetProgramsForAllChannels(from, to, channels);
+      IDictionary<int, IList<Program>> programEntities = programService.GetProgramsForChannelGroup(from, to, channelGroup.ChannelGroupId);
 
       var programs = programEntities.Values.SelectMany(x => x).Select(p => GetProgram(p)).Distinct(ProgramComparer.Instance).ToList();
       var success = programs.Count > 0;
