@@ -573,9 +573,11 @@ namespace UPnP.Infrastructure.Dv.GENA
     /// <returns><c>true</c>, if the subscription was successfully unsubscribed, else <c>false</c>.</returns>
     public bool Unsubscribe(EndpointConfiguration config, string sid)
     {
+      EventSubscription subscription;
+      bool disposeSubscription = false;
       lock (_serverData.SyncObj)
       {
-        EventSubscription subscription = FindEventSubscription(config, sid);
+        subscription = FindEventSubscription(config, sid);
         if (subscription == null)
           return false;
         if (subscription.EventingState.EventKey == 0)
@@ -584,10 +586,13 @@ namespace UPnP.Infrastructure.Dv.GENA
         else
         {
           config.EventSubscriptions.Remove(subscription);
-          subscription.Dispose();
+          disposeSubscription = true;
         }
-        return true;
       }
+      // Outside lock
+      if (disposeSubscription)
+        subscription.Dispose();
+      return true;
     }
 
     protected void SendMulticastEventNotification(DvService service, IEnumerable<DvStateVariable> variables)

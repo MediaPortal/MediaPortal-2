@@ -147,14 +147,16 @@ namespace UPnP.Infrastructure.Dv.GENA
 
     public void Dispose()
     {
+      List<AsyncRequestState> pendingRequests;
       lock (_serverData.SyncObj)
       {
         _disposed = true;
-        _cancellationTokenSource.Cancel();
-        foreach (AsyncRequestState state in new List<AsyncRequestState>(_pendingRequests))
-          state.RequestTask?.Wait();
-        _cancellationTokenSource.Dispose();
+        pendingRequests = new List<AsyncRequestState>(_pendingRequests);
       }
+      _cancellationTokenSource.Cancel();
+      foreach (AsyncRequestState state in new List<AsyncRequestState>(_pendingRequests))
+        state.RequestTask?.Wait();
+      _cancellationTokenSource.Dispose();
     }
 
     private void OnNotificationTimerElapsed(object state)
@@ -292,23 +294,26 @@ namespace UPnP.Infrastructure.Dv.GENA
     {
       if (!variable.SendEvents)
         return;
+      bool expired;
       lock (_serverData.SyncObj)
       {
         // Only send event if:
         // - Subscription is not expired
         // - Initial event was already sent
-        if (DateTime.Now > Expiration)
+        expired = DateTime.Now > Expiration;
+        if (!expired)
         {
-          Dispose();
-          return;
+          if (_eventingState.EventKey == 0)
+            // Avoid sending "normal" change events before the initial event was sent
+            return;
+          _eventingState.ModerateChangeEvent(variable);
         }
-        if (_eventingState.EventKey == 0)
-          // Avoid sending "normal" change events before the initial event was sent
-          return;
-        _eventingState.ModerateChangeEvent(variable);
       }
       // Outside the lock
-      ScheduleEvents();
+      if (expired)
+        Dispose();
+      else
+        ScheduleEvents();
     }
 
     /// <summary>
