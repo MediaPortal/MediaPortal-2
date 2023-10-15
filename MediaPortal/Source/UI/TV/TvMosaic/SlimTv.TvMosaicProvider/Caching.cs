@@ -126,12 +126,13 @@ namespace SlimTv.TvMosaicProvider
       _entries.Clear();
       _cacheStart = DateTime.Now.AddHours(-4);
       _cacheEnd = DateTime.Now.AddHours(+24);
+      var channels = await _provider.GetChannelsAsync().ConfigureAwait(false);
+      if (!channels.Success)
+        return;
       var programs = await _provider.GetAllPrograms(_cacheStart, _cacheEnd).ConfigureAwait(false);
-      foreach (IGrouping<int, IProgram> grouping in programs.Result.GroupBy(p => p.ChannelId))
-      {
-        var channel = await _provider.GetChannelAsync(grouping.Key).ConfigureAwait(false);
-        _entries[channel.Result] = grouping.ToList();
-      }
+      var programMap = programs.Result.GroupBy(p => p.ChannelId).ToDictionary(p => p.Key, p => p.ToList());
+      foreach (var channel in channels.Result)
+        _entries[channel] = programMap.TryGetValue(channel.ChannelId, out var channelPrograms) ? channelPrograms : new List<IProgram>();
     }
 
     public override async Task<IList<IProgram>> GetAsync(IChannel key)

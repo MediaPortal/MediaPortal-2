@@ -150,8 +150,15 @@ namespace SlimTv.TvMosaicProvider
       }
 
       DVBLinkResponse<Channels> channels = await _dvbLink.GetChannels(new ChannelsRequest()).ConfigureAwait(false);
+      DVBLinkResponse<Favorites> favorites = channels.Status == StatusCode.STATUS_OK ? await _dvbLink.GetFavorites(new FavoritesRequest()).ConfigureAwait(false) : null;
+
       lock (_syncObj)
       {
+        // Another thread may have loaded the channels whilst
+        // this thread was waiting for the responses above
+        if (_channelGroupMap.Any() || _mpChannels.Any())
+          return true;
+
         if (channels.Status != StatusCode.STATUS_OK)
           return false;
 
@@ -168,11 +175,7 @@ namespace SlimTv.TvMosaicProvider
           };
           _mpChannels.Add(mpChannel);
         }
-      }
 
-      var favorites = await _dvbLink.GetFavorites(new FavoritesRequest()).ConfigureAwait(false);
-      lock (_syncObj)
-      {
         _channelGroups.Clear();
         foreach (var favorite in favorites.Result)
         {
@@ -204,6 +207,13 @@ namespace SlimTv.TvMosaicProvider
         groups = _channelGroups.ToList();
 
       return new AsyncResult<IList<IChannelGroup>>(groups.Count > 0, groups);
+    }
+
+    public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync()
+    {
+      if (await LoadChannels().ConfigureAwait(false))
+        return new AsyncResult<IList<IChannel>>(true, _mpChannels);
+      return new AsyncResult<IList<IChannel>>(false, null);
     }
 
     public async Task<AsyncResult<IList<IChannel>>> GetChannelsAsync(IChannelGroup group)
