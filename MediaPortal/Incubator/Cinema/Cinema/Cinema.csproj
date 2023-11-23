@@ -1,0 +1,73 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Cinema</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(TargetFramework)'=='net48'">
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <AppendRuntimeIdentifierToOutputPath>false</AppendRuntimeIdentifierToOutputPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YoutubeExplode" Version="6.2.6" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Cinema.OnlineLibraries\Cinema.OnlineLibraries.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Bass.Net">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\BassLibraries\Bass.Net.dll</HintPath>
+    </Reference>
+    <Reference Include="BassLibraries">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\BassLibraries\BassLibraries.dll</HintPath>
+    </Reference>
+    <Reference Include="BassPlayer">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\BassPlayer\BassPlayer.dll</HintPath>
+    </Reference>
+    <Reference Include="FanArtService.Client">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\FanArtService.Client\FanArtService.Client.dll</HintPath>
+    </Reference>
+    <Reference Include="Media">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\Media\Media.dll</HintPath>
+    </Reference>
+    <Reference Include="MediaPortal.Common">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\MediaPortal.Common.dll</HintPath>
+    </Reference>
+    <Reference Include="MediaPortal.UI">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\MediaPortal.UI.dll</HintPath>
+    </Reference>
+    <Reference Include="MediaPortal.Utilities">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\MediaPortal.Utilities.dll</HintPath>
+    </Reference>
+    <Reference Include="SkinEngine">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\SkinEngine\SkinEngine.dll</HintPath>
+    </Reference>
+    <Reference Include="DirectShowWrapper">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\VideoPlayers\DirectShowWrapper.dll</HintPath>
+    </Reference>
+    <Reference Include="VideoPlayers">
+      <HintPath>C:\Program Files (x86)\Team MediaPortal\MP2-Client\Plugins\VideoPlayers\VideoPlayers.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="plugin.xml">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Skin\default\screens\DlgSelectTrailer.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </None>
+  </ItemGroup>
+
+  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
+    <Exec Command="SET OUT=$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)&#xD;&#xA;mkdir %25OUT%25&#xD;&#xA;mkdir %25OUT%25\Skin&#xD;&#xA;mkdir %25OUT%25\Language&#xD;&#xA;mkdir %25OUT%25\Data&#xD;&#xA;xcopy /Y $(TargetDir)Cinema.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)Cinema.OnlineLibraries.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)HtmlAgilityPack.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)Microsoft.Bcl.AsyncInterfaces.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)Newtonsoft.Json.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)System.Buffers.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)System.Memory.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)System.Numerics.Vectors.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)System.Runtime.CompilerServices.Unsafe.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)System.Text.Encodings.Web.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)System.Text.Json.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)System.Threading.Tasks.Extensions.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)YoutubeExplode.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)plugin.xml %25OUT%25&#xD;&#xA;robocopy $(ProjectDir)Data %25OUT%25\Data /MIR&#xD;&#xA;robocopy $(ProjectDir)Skin %25OUT%25\Skin /MIR&#xD;&#xA;robocopy $(ProjectDir)Language %25OUT%25\Language /MIR" />
+  </Target>
+
+</Project>

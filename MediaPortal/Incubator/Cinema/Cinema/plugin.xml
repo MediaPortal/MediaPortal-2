@@ -1,0 +1,149 @@
+﻿<Plugin
+  DescriptorVersion="1.0"
+  Name="Cinema"
+  PluginId="{6C74404D-5D4E-4774-A368-01911886B7EC}"
+  Author="BigGranu"
+  Copyright="GPL"
+  AutoActivate="true"
+  Description="Cinemaprogramm, Trailer, Infos">
+  
+  <Version
+    PluginVersion="1.4"
+    ReleaseDate="2015-10-10 01:00:00 GMT+01:00"
+    CurrentAPI="1"/>
+
+  <Runtime>
+    <Assembly FileName="Cinema.dll"/>
+    <PluginStateTracker ClassName="Cinema.Models.CinemaHome"/>
+  </Runtime>
+
+	<DependsOn>
+    <CoreDependency Name="MediaPortal.Common" CompatibleAPI="2" />
+    <CoreDependency Name="MediaPortal.UI" CompatibleAPI="2" />
+    <PluginReference PluginId="{D87D92F0-5E71-470a-A2A4-430F90A28BF3}" CompatibleAPI="1"/><!-- SkinEngine -->    
+    <PluginReference PluginId="{A965AFE5-44F9-46e0-980E-40BBE17F25CA}" CompatibleAPI="1"/><!-- VideoPlayers -->    
+    <PluginReference PluginId="{15FB35F7-8C85-4404-BC67-BFF28446158A}" CompatibleAPI="2"/><!-- Media -->     
+    <PluginReference PluginId="{1AFF4467-64B0-4ca1-AF28-9AEDF3525BCE}" CompatibleAPI="1"/><!-- ConfigurationManager -->  
+    <PluginReference PluginId="{B765A4B6-F455-4941-BDAE-2CE45208BFEB}" CompatibleAPI="1"/><!-- Configuration plugin -->    
+  </DependsOn>
+
+  <Register Location="/VideoPlayers/MimeTypeRegistrations">
+    <VideoPlayerMimeTypeMapping Id="Cinema" ClassName="Cinema.Player.CinemaPlayer" MimeType="cinema/stream"/>
+  </Register>
+
+  <Register Location="/Models">
+    <Model Id="78E0D999-D87A-4340-B8D1-9CF97814D2FD" ClassName="Cinema.Models.CinemaHome"/>
+    <Model Id="23A02262-A337-4836-AAF5-E70DAD6AFDCC" ClassName="Cinema.Models.CinemaSettings"/>
+    <Model Id="F58181FD-9E55-4841-871C-8898453740A5" ClassName="Cinema.Models.CinemaComingSoonCinema"/>
+    <Model Id="50AD907D-32F2-4633-B017-E9BFC6B6C960" ClassName="Cinema.Models.CinemaComingSoonBluRay"/>
+    <Model Id="B20F2D04-4E26-45A2-9714-E77E03191754" ClassName="Cinema.Dialoges.DlgUpdate"/>
+    <Model Id="6EF784F0-6B89-42D9-B958-85DE8E5D8940" ClassName="Cinema.Dialoges.DlgSelectQuality"/>
+    <Model Id="A1529F09-767B-4164-B149-46F6D5729126" ClassName="Cinema.Dialoges.DlgSelectContentLanguage"/>
+    <Model Id="7EB0DBD6-4C7B-4FCC-A0CF-06EBE623426F" ClassName="Cinema.Dialoges.DlgSelectCinemaCountry"/>
+    <Model Id="5CE9C2B8-FF38-4FBE-A3F8-66F5B5F3FA13" ClassName="Cinema.Dialoges.DlgSelectCinema"/>
+    <Model Id="20D82FAF-610C-4C40-B6C8-3DEA37C6CB22" ClassName="Cinema.Dialoges.DlgSelectTrailer"/>
+    <Model Id="69863E06-B955-4540-8B54-BA4BD337AD89" ClassName="Cinema.Dialoges.DlgStartUpdateForWeek"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <WorkflowState Id="5074508B-F6EE-4150-8FCD-7D8BD0A183F8"
+                   Name="Home" MainScreen="CinemaHome"
+                   DisplayLabel="[Cinema.Title]"
+                   WorkflowModel="78E0D999-D87A-4340-B8D1-9CF97814D2FD"/>
+
+    <WorkflowState Id="00A57210-DE65-4E22-A477-CD0D5BAEFDF9"
+                   Name="Settings" MainScreen="CinemaSettings"
+                   DisplayLabel="[Cinema.Settings]"
+                   WorkflowModel="23A02262-A337-4836-AAF5-E70DAD6AFDCC"/>
+
+    <WorkflowState Id="BF53FB1C-C846-48F2-BF1B-B848B7144102"
+                   Name="ComingSoonCinema" MainScreen="CinemaComingSoonCinema"
+                   DisplayLabel="[Cinema.Models.CinemaComingSoonCinema]"
+                   WorkflowModel="F58181FD-9E55-4841-871C-8898453740A5"/>
+
+    <WorkflowState Id="64C1F471-8495-46D3-8DEC-2F07DAE5DD7E"
+                   Name="ComingSoonBluRay" MainScreen="CinemaComingSoonBluRay"
+                   DisplayLabel="[Cinema.Models.CinemaComingSoonBluRay]"
+                   WorkflowModel="50AD907D-32F2-4633-B017-E9BFC6B6C960"/>
+
+    <DialogState Id="48FE28A6-868D-4531-BF2F-1E746769B177"
+                 Name="LoadUpdate"
+                 DialogScreen="DlgUpdate"
+                 DisplayLabel="[Cinema.LoadUpdate.Header]"
+                 WorkflowModel="B20F2D04-4E26-45A2-9714-E77E03191754"/>
+
+    <DialogState Id="75691F40-B249-400D-AB62-F0F737CFE0C1"
+                 Name="SelectQuality"
+                 DialogScreen="DlgSelectQuality"
+                 DisplayLabel="[Cinema.SelectQuality.Header]"
+                 WorkflowModel="6EF784F0-6B89-42D9-B958-85DE8E5D8940"/>
+
+    <DialogState Id="6BE954F1-9ED7-4570-B565-1D7F7ADD1FAE"
+                 Name="SelectCinema"
+                 DialogScreen="DlgSelectCinema"
+                 DisplayLabel="[Cinema.SelectCinema]"
+                 WorkflowModel="5CE9C2B8-FF38-4FBE-A3F8-66F5B5F3FA13"/>
+
+    <DialogState Id="EB0A0374-1341-48FF-AE2B-D2C98A92CCD1"
+                 Name="SelectContentLanguage"
+                 DialogScreen="DlgSelectContentLanguage"
+                 DisplayLabel="[Cinema.Dialog.SelectContentLanguage.Header]"
+                 WorkflowModel="A1529F09-767B-4164-B149-46F6D5729126"/>
+
+    <DialogState Id="C3DD373F-D15A-476A-A2D8-286625D7AD82"
+                 Name="SelectCinemaCountry"
+                 DialogScreen="DlgSelectCinemaCountry"
+                 DisplayLabel="[Cinema.Dialog.SelectCinemaCountry.Header]"
+                 WorkflowModel="7EB0DBD6-4C7B-4FCC-A0CF-06EBE623426F"/>
+
+    <DialogState Id="829BD48C-9FF0-4A80-94E0-3BD811ABC226"
+                 Name="SelectTrailer"
+                 DialogScreen="DlgSelectTrailer"
+                 DisplayLabel="[Cinema.Movieinfos.Trailer]"
+                 WorkflowModel="20D82FAF-610C-4C40-B6C8-3DEA37C6CB22"/>
+
+    <DialogState Id="C6148983-0E4A-4127-9AE7-92E348C6AB0A"
+                 Name="StartUpdateForWeek"
+                 DialogScreen="DlgStartUpdateForWeek"
+                 DisplayLabel="[Cinema.SelectContentLanguage]"
+                 WorkflowModel="69863E06-B955-4540-8B54-BA4BD337AD89"/>
+  </Register>
+
+  <Register Location="/Resources/Skin">
+    <Resource Id="CinemaSkin" Directory="Skin" Type="Skin"/>
+  </Register>
+  
+  <Register Location="/Resources/Language">
+    <Resource Id="CinemaLanguge" Directory="Language" Type="Language"/>
+  </Register>
+
+   <!--Content of Settings/Plugins section--> 
+  <Register Location="/Configuration/Settings/Plugins">
+    <ConfigSection
+        Id="Cinema"
+        Redundant="true"
+        Text="Cinema"/>
+  </Register>
+
+   <!--Content of Settings/Plugins/Cinema section--> 
+  <Register Location="/Configuration/Settings/Plugins/Cinema">
+    <CustomConfigSetting
+      Id="Cinema_Settings"
+      Text="[Cinema.Settings.ChooseCinema]"
+      ClassName="Cinema.Settings.Configuration.Locations"
+			AdditionalData="WorkflowState=00A57210-DE65-4E22-A477-CD0D5BAEFDF9,ConfAppPanel=..."/>
+
+    <CustomConfigSetting
+      Id="Cinema_ContentLanguage"
+      Text="[Cinema.Dialog.SelectContentLanguage.Header]"
+      ClassName="Cinema.Settings.Configuration.ContentLanguage"
+      AdditionalData="WorkflowState=EB0A0374-1341-48FF-AE2B-D2C98A92CCD1,ConfAppPanel=..."/>
+
+    <CustomConfigSetting
+      Id="Cinema_StartUpdate"
+      Text="Update for testing"
+      ClassName="Cinema.Settings.Configuration.StartUpdate"
+      AdditionalData="WorkflowState=C6148983-0E4A-4127-9AE7-92E348C6AB0A,ConfAppPanel=..."/>
+  </Register>
+  
+</Plugin>

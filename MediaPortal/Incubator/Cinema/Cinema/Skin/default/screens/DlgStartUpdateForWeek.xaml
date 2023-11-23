@@ -1,0 +1,48 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Cinema.Dialog.SelectContentLanguage.Header]"/>
+
+    <Model x:Key="Model" Id="69863E06-B955-4540-8B54-BA4BD337AD89"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="100*" />
+          </Grid.RowDefinitions>
+
+          <StackPanel Orientation="Vertical" Grid.ColumnSpan="2" Grid.Row="0" Margin="5">
+            <Label Content="Nur zum testen. Das verschwindet später irgendwohin. ;-)"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+
+            <Label Content="{Binding Path=Cinema}"
+                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+
+            <Label Content="{Binding Path=Day}"
+                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+
+            <Label Content="{Binding Path=CurrentMovie}"
+                   VerticalAlignment="Center" HorizontalAlignment="Center"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+
+            <Button Content="Start Update"
+                    VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                    Command="{Command StartUpdate}" FontSize="{ThemeResource SmallerFontSize}"/>
+          </StackPanel>
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

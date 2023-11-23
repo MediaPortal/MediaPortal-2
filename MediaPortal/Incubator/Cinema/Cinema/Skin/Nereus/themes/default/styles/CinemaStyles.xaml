@@ -1,0 +1,235 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+  xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+  DependsOnStyleResources="Buttons,Colors,Consts">
+
+  <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+  
+  <DataTemplate x:Key="CinemaSelectItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <CheckBox DockPanel.Dock="Left" IsChecked="{Binding Selected}" />
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Text]}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- ListView style to be used in the content area of the screens -->
+  <Style x:Key="CinemaSelectListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource CinemaSelectItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CinemaMovieGridItemContainerTemplate" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_Grid}" Margin="0,0,0,0"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CinemaMovieListItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_List}" Margin="0,0,0,0"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="CinemaMovieGridDataTemplate">
+    <Grid x:Name="ItemControl">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*"/>
+      </Grid.ColumnDefinitions>
+      <Grid.RowDefinitions>
+        <RowDefinition Height="*"/>
+      </Grid.RowDefinitions>
+
+      <Grid x:Name="PosterGrid" Width="{StaticResource POSTER_GRID_WIDTH}" Height="{StaticResource POSTER_GRID_HEIGHT}">
+        <Image Stretch="Fill" Source="Poster_small.png" Margin="-5"/>
+        <Image x:Name="poster" Stretch="Fill" Margin="3" Source="{Binding [CoverUrl]}"/>
+
+        <!-- Fallback Content, if no poster existing -->
+        <Image Stretch="UniformToFill" Margin="3" Source="media_item_background.jpg" IsVisible="{Binding ElementName=poster, Path=!HasImage}" Opacity="0.7"/>
+        <Image Source="video.png" HorizontalAlignment="Left" VerticalAlignment="Top" Height="70" Width="70" Stretch="Uniform" Margin="-5"
+               IsVisible="{Binding ElementName=poster, Path=!HasImage}">
+          <Image.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.3"/>
+              <Binding Source="0.6"/>
+            </MultiBinding>
+          </Image.Opacity>
+        </Image>
+
+        <Label Margin="15,50,10,10" IsVisible="{Binding ElementName=poster, Path=!HasImage}" FontSize="{ThemeResource SmallFontSize}"
+               Color="{ThemeResource TextColor}" Wrap="True" TextTrimming="CharacterEllipsis"
+               Content="{Binding RelativeSource={RelativeSource TemplatedParent}, Path=[Title]}" VerticalAlignment="Center" HorizontalAlignment="Stretch">
+          <Label.Opacity>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="1.0"/>
+              <Binding Source="0.5"/>
+            </MultiBinding>
+          </Label.Opacity>
+        </Label>
+      </Grid>
+
+    </Grid>
+  </DataTemplate>
+
+  <DataTemplate x:Key="CinemaMovieListDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Top" Content="{Binding [Name]}" FontFamily="Noto-Bold"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource MediaItemUnwatchedColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- ListView style to be used in the content area of the screens -->
+  <Style x:Key="CinemaMovieViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <Grid>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <ScrollViewer CanContentScroll="True" Margin="0,-80,0,0" Style="{ThemeResource VerticalMediaScrollViewerStyle}"
+                          HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+              <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+            </ScrollViewer>
+            <StackPanel Orientation="Vertical" IsVisible="{Binding RelativeSource={RelativeSource TemplatedParent},Path=IsEmpty}"
+                      HorizontalAlignment="Center" VerticalAlignment="Center">
+              <Image Source="empty.png" Height="100" Stretch="Uniform"/>
+              <Label Content="[Media.ViewEmpty]" Color="{ThemeResource HintTextColor}"/>
+            </StackPanel>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <BindingSetter Property="ItemTemplate">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource CinemaMovieListDataTemplate}"/>
+              <Binding Source="{ThemeResource CinemaMovieGridDataTemplate}"/>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+    <BindingSetter Property="ItemContainerStyle">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource CinemaMovieListItemContainerStyle}"/>
+              <Binding Source="{ThemeResource CinemaMovieGridItemContainerTemplate}"/>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+    <BindingSetter Property="ItemsPanel">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
+              <!-- List layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,0,-40"
+                                        LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
+                      <AnimatedStackPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                        </Storyboard>
+                      </AnimatedStackPanel.Resources>
+                      <AnimatedStackPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedStackPanel.Triggers>
+                    </AnimatedStackPanel>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Grid layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="50,-270,0,-305"
+                                       LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
+                      <AnimatedWrapPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400"
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                        </Storyboard>
+                      </AnimatedWrapPanel.Resources>
+                      <AnimatedWrapPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedWrapPanel.Triggers>
+                    </AnimatedWrapPanel>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+  </Style>
+
+</ResourceDictionary>

@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+  <string name="Cinema.Title">Cinema</string>
+  <string name="Cinema.Helptext">Check showtimes of the latest movies in cinemas</string>
+
+  <string name="Cinema.Location.Settings.ScreenTitle">Locations</string>
+  <string name="Cinema.Location.Settings.Helptext">Put the Locations of your Cinemas</string>
+  <string name="Cinema.Location.Settings.Search">Search</string>
+  
+  <string name="Cinema.Settings">Settings</string>
+  <string name="Cinema.Settings.Postalcode">Postal code</string>
+  <string name="Cinema.Settings.ChooseCinema">Choose your Cinemas</string>
+
+  <string name="Cinema.LoadUpdate.Header">Load Informations</string>
+  <string name="Cinema.LoadUpdate.Manually">Manually Update</string>
+  
+  <string name="Cinema.SelectQuality.Header">Select the Quality</string>
+  <string name="Cinema.SelectCinema">Select a Cinema</string>
+
+  <string name="Cinema.Models.CinemaComingSoonCinema">Coming Soon on Cinema</string>
+  <string name="Cinema.Models.CinemaComingSoonBluRay">Coming Soon on BluRay</string>
+
+  <string name="Cinema.Dialog.SelectContentLanguage.Header">Language of the Content</string>
+  <string name="Cinema.Dialog.SelectCinemaCountry.Header">Country of Cinema</string>
+  
+  <string name="Cinema.Movieinfos.Trailer">Trailer</string>
+  <string name="Cinema.Movieinfos.Duration">Duration: </string>
+  <string name="Cinema.Movieinfos.AgeLimit">Age Limit: </string>
+  <string name="Cinema.Movieinfos.Actor">Actor</string>
+  <string name="Cinema.Movieinfos.Year">Year: </string>
+  <string name="Cinema.Movieinfos.Genre">Genre: </string>
+  <string name="Cinema.Movieinfos.Premiere">Premiere: </string>
+
+  <string name="Country.AR">Argentina</string>
+  <string name="Country.AU">Australia</string>
+  <string name="Country.CA">Canada</string>
+  <string name="Country.CL">Chile</string>
+  <string name="Country.DE">Germany</string>
+  <string name="Country.ES">Spain</string>
+  <string name="Country.FR">France</string>
+  <string name="Country.IT">Italy</string>
+  <string name="Country.MX">Mexico</string>
+  <string name="Country.NZ">New Zealand</string>
+  <string name="Country.PT">Portugal</string>
+  <string name="Country.US">United States</string>
+  <string name="Country.UK">United Kingdom</string>
+
+  <string name="Language.de">German</string>
+  <string name="Language.en">English</string>
+  <string name="Language.es">Spanish</string>
+  <string name="Language.fr">French</string>
+  <string name="Language.it">Italian</string>
+  <string name="Language.pt">Portuguese</string>
+</resources>
