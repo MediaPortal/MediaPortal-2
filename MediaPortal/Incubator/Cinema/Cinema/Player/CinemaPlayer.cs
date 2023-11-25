@@ -24,6 +24,9 @@
 
 using System;
 using DirectShow;
+using DirectShow.Helper;
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
 using MediaPortal.UI.Players.Video;
 using MediaPortal.UI.Players.Video.Tools;
 using MediaPortal.UI.Presentation.Players;
@@ -48,7 +51,22 @@ namespace Cinema.Player
         FilterGraphTools.TryRelease(ref sourceFilter);
       }
     }
-    
+
+    protected override void AddSourceFilter()
+    {
+      base.AddSourceFilter();
+      // HD streams tend to come with a separate audio stream, check if that's the case and also add the audio stream to the graph
+      if(_mediaItem is CinemaMediaItem cinemaMediaItem && cinemaMediaItem.AudioUrl != null)
+      {
+        ServiceRegistration.Get<ILogger>().Debug("{0}: Initializing separate audio stream for network media item '{1}'", PlayerTitle, cinemaMediaItem.AudioUrl);
+
+        // try to render the url and let DirectShow choose the source filter
+        int hr = _graphBuilder.RenderFile(cinemaMediaItem.AudioUrl, null);
+        new HRESULT(hr).Throw();
+      }
+
+    }
+
     public Type UIContributorType
     {
       get { return typeof(CinemaUiContributor); }
