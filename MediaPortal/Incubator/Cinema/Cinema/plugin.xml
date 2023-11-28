@@ -56,21 +56,11 @@
                    DisplayLabel="[Cinema.Settings]"
                    WorkflowModel="23A02262-A337-4836-AAF5-E70DAD6AFDCC"/>
 
-    <WorkflowState Id="BF53FB1C-C846-48F2-BF1B-B848B7144102"
-                   Name="ComingSoonCinema" MainScreen="CinemaComingSoonCinema"
-                   DisplayLabel="[Cinema.Models.CinemaComingSoonCinema]"
-                   WorkflowModel="F58181FD-9E55-4841-871C-8898453740A5"/>
-
-    <WorkflowState Id="64C1F471-8495-46D3-8DEC-2F07DAE5DD7E"
-                   Name="ComingSoonBluRay" MainScreen="CinemaComingSoonBluRay"
-                   DisplayLabel="[Cinema.Models.CinemaComingSoonBluRay]"
-                   WorkflowModel="50AD907D-32F2-4633-B017-E9BFC6B6C960"/>
-
     <DialogState Id="48FE28A6-868D-4531-BF2F-1E746769B177"
                  Name="LoadUpdate"
-                 DialogScreen="DlgUpdate"
+                 DialogScreen="DlgStartUpdateForWeek"
                  DisplayLabel="[Cinema.LoadUpdate.Header]"
-                 WorkflowModel="B20F2D04-4E26-45A2-9714-E77E03191754"/>
+                 WorkflowModel="69863E06-B955-4540-8B54-BA4BD337AD89"/>
 
     <DialogState Id="75691F40-B249-400D-AB62-F0F737CFE0C1"
                  Name="SelectQuality"
@@ -105,7 +95,7 @@
     <DialogState Id="C6148983-0E4A-4127-9AE7-92E348C6AB0A"
                  Name="StartUpdateForWeek"
                  DialogScreen="DlgStartUpdateForWeek"
-                 DisplayLabel="[Cinema.SelectContentLanguage]"
+                 DisplayLabel="[Cinema.LoadUpdate.Manually]"
                  WorkflowModel="69863E06-B955-4540-8B54-BA4BD337AD89"/>
   </Register>
 
@@ -141,7 +131,7 @@
 
     <CustomConfigSetting
       Id="Cinema_StartUpdate"
-      Text="Update for testing"
+      Text="[Cinema.LoadUpdate.Manually]"
       ClassName="Cinema.Settings.Configuration.StartUpdate"
       AdditionalData="WorkflowState=C6148983-0E4A-4127-9AE7-92E348C6AB0A,ConfAppPanel=..."/>
   </Register>

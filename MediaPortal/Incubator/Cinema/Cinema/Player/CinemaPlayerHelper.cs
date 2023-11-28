@@ -60,7 +60,8 @@ namespace Cinema.Player
 
       MultipleMediaItemAspect providerResourceAspect = MediaItemAspect.CreateAspect(aspects, ProviderResourceAspect.Metadata);
       SingleMediaItemAspect mediaAspect = MediaItemAspect.GetOrCreateAspect(aspects, MediaAspect.Metadata);
-      SingleMediaItemAspect audioAspect = MediaItemAspect.GetOrCreateAspect(aspects, VideoAspect.Metadata);
+      // VideoAspect is required to ensure the correct player is used
+      SingleMediaItemAspect videoAspect = MediaItemAspect.GetOrCreateAspect(aspects, VideoAspect.Metadata);
       var trailerUrl = TryGetDirectVideoUrl(trailer.Url).Result;
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_TYPE, ProviderResourceAspect.TYPE_PRIMARY);
       providerResourceAspect.SetAttribute(ProviderResourceAspect.ATTR_RESOURCE_ACCESSOR_PATH, RawUrlResourceProvider.ToProviderResourcePath(trailerUrl.videoUrl).Serialize());
@@ -73,6 +74,27 @@ namespace Cinema.Player
       return mediaItem;
     }
 
+    private static async Task<(string videoUrl, string audioUrl)> TryGetDirectVideoUrl(string trailerUrl)
+    {
+      try
+      {
+        if (trailerUrl.StartsWith("https://youtu.be/"))
+        {
+          return await GetYoutubeUrl(trailerUrl);
+        }
+        else
+        {
+          return (trailerUrl, null);
+        }
+      }
+      catch (Exception e)
+      {
+        Console.WriteLine(e);
+      }
+
+      return ("", null);
+    }
+
     /// <summary>
     /// Attempts to get the direct url for the highest quality youtube video. If the url points to a muxed stream of video and audio
     /// then only videoUrl in the returned tuple will be populated and audioUrl will be <c>null</c>; else if the video and audio
@@ -80,7 +102,7 @@ namespace Cinema.Player
     /// </summary>
     /// <param name="trailerUrl">The url to a youtube video.</param>
     /// <returns>A tuple containing links to either the muxed video stream or separate streams for video and audio.</returns>
-    private static async Task<(string videoUrl, string audioUrl)> TryGetDirectVideoUrl(string trailerUrl)
+    private static async Task<(string videoUrl, string audioUrl)> GetYoutubeUrl(string trailerUrl)
     {
       var youtube = new YoutubeClient();
 
@@ -99,12 +121,6 @@ namespace Cinema.Player
       // WebM audio streams don't seem to work so limit the restults to Mp4 streams
       var audioStream = streamManifest.GetAudioOnlyStreams().Where(s => s.Container == Container.Mp4).TryGetWithHighestBitrate();
       return (videoStream.Url, audioStream.Url);
-    }
-
-    private static int Runtime(double bitrate, double size)
-    {
-      double kbs = bitrate / 8;
-      return (int)(size / kbs);
     }
   }
 

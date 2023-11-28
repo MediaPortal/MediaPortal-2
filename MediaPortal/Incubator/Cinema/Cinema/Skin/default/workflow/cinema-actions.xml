@@ -31,13 +31,13 @@
       MethodName="MakeUpdate"/>-->   
     
     <!--ComingSoon Cinema-->
-    <PushNavigationTransition Id="18CCCE93-2C01-4587-80E7-F2329C694B03"
+    <!--<PushNavigationTransition Id="18CCCE93-2C01-4587-80E7-F2329C694B03"
       Name="Cinema->CinemaComingSoonCinema"
       DisplayCategory="z-Cinema"
       SortOrder="a"
       SourceStates="5074508B-F6EE-4150-8FCD-7D8BD0A183F8"
       TargetState="BF53FB1C-C846-48F2-BF1B-B848B7144102"
-      DisplayTitle="[Cinema.Models.CinemaComingSoonCinema]"/>
+      DisplayTitle="[Cinema.Models.CinemaComingSoonCinema]"/>-->
 
     <!--ComingSoon BluRay--><!--
     <PushNavigationTransition Id="E688CF8E-81EB-45D5-BF2D-E6A5A21CD10A"

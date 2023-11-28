@@ -26,10 +26,9 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Timers;
-using System.Xml.Linq;
 using Cinema.Dialoges;
+using Cinema.Helper;
 using Cinema.OnlineLibraries.Data;
-using Cinema.Player;
 using Cinema.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -40,11 +39,9 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Extensions.UserServices.FanArtService.Client.Models;
 using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
-using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
 using MediaPortal.UI.SkinEngine.Controls.ImageSources;
 using MediaPortal.UI.SkinEngine.MpfElements;
-using Trailer = Cinema.Settings.Trailer;
 
 namespace Cinema.Models
 {
@@ -200,7 +197,7 @@ namespace Cinema.Models
     {
       Movies.Clear();
 
-      List<OnlineLibraries.Data.Movie> ml = new List<Movie>();
+      List<Movie> ml = new List<Movie>();
       foreach (var cd in FullMovieList.CinemaMovies)
       {
         if (cd.Cinema.Id == cinema.Id)
@@ -270,55 +267,38 @@ namespace Cinema.Models
       }
     }
 
-    public static void MakeUpdate(bool dialog)
-    {
-      if (dialog)
-        ServiceRegistration.Get<IWorkflowManager>().NavigatePushAsync(new Guid("48FE28A6-868D-4531-BF2F-1E746769B177"));
-
-      DlgUpdate.MakeUpdate(dialog);
-
-      if (dialog)
-        ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
-    }
-
     #endregion
 
     #region private Methods
 
     private static void Init()
     {
-      //CkeckUpdate(true);
-      //todo Muss wieder durch Update ersetzt werden
+      CkeckUpdate();
+
       FullMovieList = ServiceRegistration.Get<ISettingsManager>().Load<Movies>();
       if (FullMovieList != null && FullMovieList.CinemaMovies != null && FullMovieList.CinemaMovies.Count > 0) SelectCinema(FullMovieList.CinemaMovies[0].Cinema.Id);
     }
 
-    private static void CkeckUpdate(bool dialog)
+    private static void CkeckUpdate()
     {
-      //var dt1 = Convert.ToDateTime(SETTINGS_MANAGER.Load<Settings.CinemaSettings>().LastUpdate);
-      //var dt = DateTime.Now - dt1;
-      //// Is it a New Day ?
-      //if (dt > new TimeSpan(1, 0, 0, 0))
-      //{
-      //    MakeUpdate(dialog);
-      //}
-      //else if (SETTINGS_MANAGER.Load<Locations>().Changed)
-      //{
-      //    MakeUpdate(dialog);
-      //}
-      //else
-      //{
-      //    GoogleMovies.GoogleMovies.Data = SETTINGS_MANAGER.Load<Datalist>().CinemaDataList;
-      //}
+      var dt1 = Convert.ToDateTime(ServiceRegistration.Get<ISettingsManager>().Load<Settings.CinemaSettings>().LastUpdate);
+      var dt = DateTime.Now - dt1;
+      // Is it a New Day ?
+      if (dt > new TimeSpan(1, 0, 0, 0))
+      {
+        MakeUpdate();
+      }
+      else if (ServiceRegistration.Get<ISettingsManager>().Load<Locations>().Changed)
+      {
+        MakeUpdate();
+      }
     }
 
-    //private static string ShowtimesByCinemaMovieDay(Settings.Cinema cinema, Movie movie, int day)
-    //{
-    //    //var st = GoogleMovies.GoogleMovies.GetShowTimesByCinemaAndMovieAndDay(cinema, movie, day).Aggregate("", (current, s) => current + (s + " | "));
-    //    //return GoogleMovies.GoogleMovies.GetNewDay(day) + ": " + st;
-
-    //    return "";
-    //}
+    public static void MakeUpdate()
+    {
+      Update.LoadSettings();
+      Update.StartUpdate();
+    }
 
     private void ClearFanart()
     {
@@ -329,7 +309,7 @@ namespace Cinema.Models
     private static void OnTimedEvent(object sender, ElapsedEventArgs e)
     {
       ServiceRegistration.Get<ILogger>().Info("Cinema Timer Thread Check Update");
-      CkeckUpdate(false);
+      CkeckUpdate();
     }
 
     #endregion

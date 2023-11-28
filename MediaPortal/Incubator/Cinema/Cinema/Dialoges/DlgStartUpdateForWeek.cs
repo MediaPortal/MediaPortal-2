@@ -24,175 +24,165 @@
 
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Threading.Tasks;
+using System.Diagnostics;
 using Cinema.Helper;
-using Cinema.Models;
 using Cinema.OnlineLibraries;
 using Cinema.Settings;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
-using MediaPortal.Common.Settings;
-using MediaPortal.UI.Presentation.DataObjects;
 using MediaPortal.UI.Presentation.Models;
 using MediaPortal.UI.Presentation.Screens;
 using MediaPortal.UI.Presentation.Workflow;
-using Locations = Cinema.Settings.Locations;
+//using Locations = Cinema.Settings.Locations;
 
 namespace Cinema.Dialoges
 {
   internal class DlgStartUpdateForWeek : IWorkflowModel
   {
-    private static Cinema.Settings.CinemaSettings _settings = new Cinema.Settings.CinemaSettings();
+    private static CinemaSettings _settings = new CinemaSettings();
     private static Locations _locations;
-    private static Cinema.OnlineLibraries.Eventhandler _handler = Eventhandler.Instance;
+    private static Eventhandler _handler = Eventhandler.Instance;
+
+
 
     private void Init()
     {
-      var settingsManager = ServiceRegistration.Get<ISettingsManager>();
-      _settings = settingsManager.Load<Cinema.Settings.CinemaSettings>();
-      _locations = settingsManager.Load<Locations>();
+      //var settingsManager = ServiceRegistration.Get<ISettingsManager>();
+      //_settings = settingsManager.Load<Cinema.Settings.CinemaSettings>();
+      //_locations = settingsManager.Load<Locations>();
 
       _handler.MessageReceived += HandlerOnMessageReceived;
     }
 
     public async void StartUpdate()
     {
-      List<string> ids = new List<string>();
-      foreach (var cinema in _locations.LocationSetupList)
-      {
-        ids.Add(cinema.Id);
-      }
-      
-      var ret = OnlineLibraries.Read.MoviesForAllDaysAndCinemas(
-        _settings.ContentLanguage,
-        _settings.LocationCountryCode,
-        _settings.LocationPostalCode,
-        _locations.LocationSetupList);
+      Update.LoadSettings();
+      Update.StartUpdate();
 
-      Cinema.Settings.Movies movies = new Movies(ret);
+      //List<string> ids = new List<string>();
+      //foreach (var cinema in _locations.LocationSetupList)
+      //{
+      //  ids.Add(cinema.Id);
+      //}
 
-      ServiceRegistration.Get<ISettingsManager>().Save(movies);
+      //var ret = OnlineLibraries.Read.MoviesForAllDaysAndCinemas(
+      //  _settings.ContentLanguage,
+      //  _settings.LocationCountryCode,
+      //  _settings.LocationPostalCode,
+      //  _locations.LocationSetupList);
 
-      List<Task> allTasks = new List<Task>();
+      //Cinema.Settings.Movies movies = new Movies(ret);
 
-      allTasks.Add(Task.Run(() => LoadImages(ret)));
-      await Task.WhenAll(allTasks);
+      //ServiceRegistration.Get<ISettingsManager>().Save(movies);
 
+      //List<Task> allTasks = new List<Task>();
+
+      //allTasks.Add(Task.Run(() => LoadImages(ret)));
+      //await Task.WhenAll(allTasks);
+
+      //_settings.LastUpdate = DateTime.Now;
+      //ServiceRegistration.Get<ISettingsManager>().Save(_settings);
       ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();
     }
 
     private void HandlerOnMessageReceived(object sender, string message)
     {
+      Debug.WriteLine(message);
+
       if (message.StartsWith("[D]"))
-        Day = message.Replace("[D]", "");
+        DayValue = message.Replace("[D]", "");
 
       if (message.StartsWith("[C]"))
-        Cinema = message.Replace("[C]", "");
+        CinemaValue = message.Replace("[C]", "");
 
       if (message.StartsWith("[M]"))
-        CurrentMovie = message.Replace("[M]", "");
+        CurrentMovieValue = message.Replace("[M]", "");
     }
 
-    private static void LoadImages(List<OnlineLibraries.Data.CinemaMovies> movies)
-    {
-      if (!Directory.Exists(CinemaHome.CachedImagesFolder))
-      {
-        Directory.CreateDirectory(CinemaHome.CachedImagesFolder);
-      }
+    //private static void LoadImages(List<OnlineLibraries.Data.CinemaMovies> movies)
+    //{
+    //  if (!Directory.Exists(CinemaHome.CachedImagesFolder))
+    //  {
+    //    Directory.CreateDirectory(CinemaHome.CachedImagesFolder);
+    //  }
 
-      List<CachedImage> newCachedImages = new List<CachedImage>();
-      List<string> newFiles = new List<string>();
+    //  List<CachedImage> newCachedImages = new List<CachedImage>();
+    //  List<string> newFiles = new List<string>();
 
-      foreach (var movie in movies)
-      {
-        foreach (var m in movie.Movies)
-        {
-          var fa = new CachedImage(m.Fanart, m.TmdbId, "fanart");
-          if (!newFiles.Contains(fa.FullPath))
-          {
-            newFiles.Add(fa.FullPath);
-            newCachedImages.Add(fa);
-          }
+    //  foreach (var movie in movies)
+    //  {
+    //    foreach (var m in movie.Movies)
+    //    {
+    //      var fa = new CachedImage(m.Fanart, m.TmdbId, "fanart");
+    //      if (!newFiles.Contains(fa.FullPath))
+    //      {
+    //        newFiles.Add(fa.FullPath);
+    //        newCachedImages.Add(fa);
+    //      }
 
-          var co = new CachedImage(m.CoverUrl, m.TmdbId, "cover");
-          if (!newFiles.Contains(co.FullPath))
-          {
-            newFiles.Add(co.FullPath);
-            newCachedImages.Add(co);
-          }
-        }
-      }
+    //      var co = new CachedImage(m.CoverUrl, m.TmdbId, "cover");
+    //      if (!newFiles.Contains(co.FullPath))
+    //      {
+    //        newFiles.Add(co.FullPath);
+    //        newCachedImages.Add(co);
+    //      }
+    //    }
+    //  }
 
-      var oldFile = Directory.EnumerateFiles(CinemaHome.CachedImagesFolder);
+    //  var oldFile = Directory.EnumerateFiles(CinemaHome.CachedImagesFolder);
 
-      foreach (var file in oldFile)
-      {
-        if (!newFiles.Contains(file))
-        {
-          File.Delete(file);
-        }
-      }
+    //  foreach (var file in oldFile)
+    //  {
+    //    if (!newFiles.Contains(file))
+    //    {
+    //      File.Delete(file);
+    //    }
+    //  }
 
-      foreach (var cim in newCachedImages)
-      {
-        if (!File.Exists(cim.FullPath))
-        {
-          cim.LoadImageFromWeb();
-        }
-      }
-    }
-
-    public void Select(ListItem item)
-    {
-      //Cinema.Models.CinemaSettings.CountryCode = (string)item.AdditionalProperties[CODE];
-      //ServiceRegistration.Get<IScreenManager>().CloseTopmostDialog();      
-    }
+    //  foreach (var cim in newCachedImages)
+    //  {
+    //    if (!File.Exists(cim.FullPath))
+    //    {
+    //      cim.LoadImageFromWeb();
+    //    }
+    //  }
+    //}
 
     #region Propertys
 
     #region Cinema
     private static readonly AbstractProperty _cinemaProperty = new WProperty(typeof(string), string.Empty);
 
-    public AbstractProperty CinemaProperty
-    {
-      get { return _cinemaProperty; }
-    }
+    public AbstractProperty CinemaProperty => _cinemaProperty;
 
-    public string Cinema
+    public string CinemaValue
     {
-      get { return (string)_cinemaProperty.GetValue(); }
-      set { _cinemaProperty.SetValue(value); }
+      get => (string)_cinemaProperty.GetValue();
+      set => _cinemaProperty.SetValue(value);
     }
     #endregion
 
     #region Day
     private static readonly AbstractProperty _dayProperty = new WProperty(typeof(string), string.Empty);
 
-    public AbstractProperty DayProperty
-    {
-      get { return _dayProperty; }
-    }
+    public AbstractProperty DayProperty => _dayProperty;
 
-    public string Day
+    public string DayValue
     {
-      get { return (string)_dayProperty.GetValue(); }
-      set { _dayProperty.SetValue(value); }
+      get => (string)_dayProperty.GetValue();
+      set => _dayProperty.SetValue(value);
     }
     #endregion
 
     #region CurrentMovie
     private static readonly AbstractProperty _currentMovieProperty = new WProperty(typeof(string), string.Empty);
 
-    public AbstractProperty CurrentMovieProperty
-    {
-      get { return _currentMovieProperty; }
-    }
+    public AbstractProperty CurrentMovieProperty => _currentMovieProperty;
 
-    public string CurrentMovie
+    public string CurrentMovieValue
     {
-      get { return (string)_currentMovieProperty.GetValue(); }
-      set { _currentMovieProperty.SetValue(value); }
+      get => (string)_currentMovieProperty.GetValue();
+      set => _currentMovieProperty.SetValue(value);
     }
     #endregion
 
@@ -206,10 +196,7 @@ namespace Cinema.Dialoges
 
     #region IWorkflowModel implementation
 
-    public Guid ModelId
-    {
-      get { return new Guid(MODEL_ID_STR); }
-    }
+    public Guid ModelId => new Guid(MODEL_ID_STR);
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
@@ -223,10 +210,10 @@ namespace Cinema.Dialoges
 
     public void ExitModelContext(NavigationContext oldContext, NavigationContext newContext)
     {
-      Day = "";
-      Cinema = "";
-      CurrentMovie = "";
-      ServiceRegistration.Get<ISettingsManager>().Save(_settings);
+      DayValue = "";
+      CinemaValue = "";
+      CurrentMovieValue = "";
+      //ServiceRegistration.Get<ISettingsManager>().Save(_settings);
     }
 
     public void ChangeModelContext(NavigationContext oldContext, NavigationContext newContext, bool push)

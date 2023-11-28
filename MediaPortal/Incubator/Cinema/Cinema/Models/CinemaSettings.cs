@@ -98,7 +98,7 @@ namespace Cinema.Models
       Cinemas.Clear();
       AddSelectedCinemasToAllCinemas();
 
-      foreach (var c in Cinema.OnlineLibraries.Imdb.Read.Cinemas(PostalCode, CountryCode).Where(IsCinemaNew))
+      foreach (var c in OnlineLibraries.Imdb.Read.Cinemas(PostalCode, CountryCode).Where(IsCinemaNew))
       {
         _allCinemas.Add(c);
       }

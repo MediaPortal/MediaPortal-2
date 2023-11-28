@@ -24,7 +24,6 @@
 
 using System;
 using System.Collections.Generic;
-using Cinema.Models;
 using Cinema.OnlineLibraries.Data;
 using Cinema.Player;
 using Cinema.Settings;
