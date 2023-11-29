@@ -13,12 +13,6 @@
     </ItemGroup>
 
     <ItemGroup>
-    </ItemGroup>
-
-    <ItemGroup Condition="$(TargetFramework) == 'net48'">
-    </ItemGroup>
-
-    <ItemGroup>
       <LanguageFiles Include="$(ProjectDir)Language\*.*" />
     </ItemGroup>
     
