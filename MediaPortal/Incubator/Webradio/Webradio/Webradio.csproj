@@ -8,14 +8,14 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\MediaPortal-2-Exp-Net6\MediaPortal\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
-    <ProjectReference Include="..\..\MediaPortal-2-Exp-Net6\MediaPortal\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
-    <ProjectReference Include="..\..\MediaPortal-2-Exp-Net6\MediaPortal\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
-    <ProjectReference Include="..\..\MediaPortal-2-Exp-Net6\MediaPortal\Source\Extensions\BassLibraries\BassLibraries.csproj" />
-    <ProjectReference Include="..\..\MediaPortal-2-Exp-Net6\MediaPortal\Source\UI\FanArt\FanArtService.Client\FanArtService.Client.csproj" />
-    <ProjectReference Include="..\..\MediaPortal-2-Exp-Net6\MediaPortal\Source\UI\Players\BassPlayer\BassPlayer.csproj" />
-    <ProjectReference Include="..\..\MediaPortal-2-Exp-Net6\MediaPortal\Source\UI\SkinEngine\SkinEngine.csproj" />
-    <ProjectReference Include="..\..\MediaPortal-2-Exp-Net6\MediaPortal\Source\UI\UiComponents\Media\Media.csproj" />
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <ProjectReference Include="..\..\..\Source\Extensions\BassLibraries\BassLibraries.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\FanArt\FanArtService.Client\FanArtService.Client.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\Players\BassPlayer\BassPlayer.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\UiComponents\Media\Media.csproj" />
     <ProjectReference Include="..\Webradio.OnlineLibraries\Webradio.OnlineLibraries.csproj" />
   </ItemGroup>
 
@@ -25,8 +25,6 @@
     </None>
   </ItemGroup>
 
-  <Target Name="PostBuild" AfterTargets="PostBuildEvent">
-    <Exec Command="SET OUT=$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)&#xD;&#xA;mkdir %25OUT%25&#xD;&#xA;mkdir %25OUT%25\Skin&#xD;&#xA;mkdir %25OUT%25\Language&#xD;&#xA;mkdir %25OUT%25\Data&#xD;&#xA;xcopy /Y $(TargetDir)Webradio.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)Webradio.OnlineLibraries.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)Newtonsoft.Json.dll %25OUT%25&#xD;&#xA;xcopy /Y $(TargetDir)plugin.xml %25OUT%25&#xD;&#xA;robocopy $(ProjectDir)Data %25OUT%25\Data /MIR&#xD;&#xA;robocopy $(ProjectDir)Skin %25OUT%25\Skin /MIR&#xD;&#xA;robocopy $(ProjectDir)Language %25OUT%25\Language /MIR" />
-  </Target>
+  <Import Project="build.targets" />
 
 </Project>
