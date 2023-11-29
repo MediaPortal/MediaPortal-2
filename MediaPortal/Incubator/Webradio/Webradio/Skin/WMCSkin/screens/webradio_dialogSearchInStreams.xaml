@@ -1,0 +1,57 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Webradio.Dialog.Search.Header]" />
+
+    <Model x:Key="Model" Id="7AE86A07-DB55-4AA6-9FBF-B1888A4FF6DA" />
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="33*" />
+            <ColumnDefinition Width="33*" />
+            <ColumnDefinition Width="33*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="33*" />
+            <RowDefinition Height="33*" />
+            <RowDefinition Height="33*" />
+          </Grid.RowDefinitions>
+
+          <!-- Searchtext -->
+          <TextBox Grid.ColumnSpan="3" Grid.Row="0" Margin="10,10,10,10"
+                   Text="{Binding Path=SearchText, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   VerticalAlignment="Stretch" />
+
+          <!--Infolabel-->
+          <Label Grid.ColumnSpan="3" Grid.Row="1" Margin="10,10,10,10"
+                 Content="{Binding Path=InfoLabel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 VerticalAlignment="Stretch" />
+
+          <!--Searchbuttons-->
+          <Button Content="[Webradio.Dialog.Search.Title]" Margin="10,10,15,10" Grid.Row="2" Grid.Column="0"
+                  FontSize="{ThemeResource SmallFontSize}"
+                  VerticalAlignment="Stretch" Command="{Command SearchTitel}"
+                  Style="{ThemeResource ButtonWideStyle_List}" />
+          <Button Content="[Webradio.Dialog.Search.Description]" Margin="15,10,15,10" Grid.Row="2"
+                  Grid.Column="1"
+                  FontSize="{ThemeResource SmallFontSize}"
+                  VerticalAlignment="Stretch" Command="{Command SearchDescription}"
+                  Style="{ThemeResource ButtonWideStyle_List}" />
+          <Button Content="[Webradio.Dialog.Search.All]" Margin="15,10,10,10" Grid.Row="2" Grid.Column="2"
+                  FontSize="{ThemeResource SmallFontSize}"
+                  VerticalAlignment="Stretch" Command="{Command SearchAll}"
+                  Style="{ThemeResource ButtonWideStyle_List}" />
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

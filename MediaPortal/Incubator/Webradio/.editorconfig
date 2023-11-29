@@ -1,0 +1,17 @@
+# EditorConfig is awesome: http://EditorConfig.org
+
+# top-most EditorConfig file
+root = true
+
+# MediaPortal code style
+[*]
+indent_style = space
+indent_size = 2
+end_of_line = crlf
+insert_final_newline = true
+csharp_new_line_before_open_brace = all
+csharp_new_line_before_else = all
+csharp_new_line_before_catch = all
+csharp_new_line_before_finally = all
+csharp_new_line_before_members_in_object_initializers = all
+csharp_new_line_before_members_in_anonymous_types = all

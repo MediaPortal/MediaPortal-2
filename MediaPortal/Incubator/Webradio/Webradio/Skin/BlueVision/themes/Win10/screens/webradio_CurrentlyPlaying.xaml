@@ -1,0 +1,94 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\SimpleShowItems.xaml"
+  xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls">
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]" />
+
+    <Model x:Key="Model" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC" /> <!-- AudioPlayerModel -->
+
+    <ControlTemplate x:Key="Contents_Template">
+      <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
+                                         HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Grid.RowDefinitions>
+              <RowDefinition Height="50" />
+              <RowDefinition Height="50" />
+              <RowDefinition Height="50" />
+              <RowDefinition Height="50" />
+              <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="15*" />
+              <ColumnDefinition Width="35*" />
+              <ColumnDefinition Width="50*" />
+            </Grid.ColumnDefinitions>
+            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
+                   Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}" />
+            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
+                   Content="{Binding Source={StaticResource Model}, Path=PlayerUIContributor.Artist}"
+                   Color="{ThemeResource TextColor}" />
+            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
+                   Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}" />
+            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
+                   Content="{Binding Source={StaticResource Model}, Path=PlayerUIContributor.Title}"
+                   Color="{ThemeResource TextColor}" />
+            <Label x:Name="AlbumLabel" Grid.Row="2" Grid.Column="0"
+                   Content="[Media.AudioAlbumLabel]" Color="{ThemeResource TextColor}" />
+            <Label x:Name="Album" Grid.Row="2" Grid.Column="1"
+                   Content="{Binding Source={StaticResource Model}, Path=PlayerUIContributor.Album}"
+                   Color="{ThemeResource TextColor}" />
+            <Label x:Name="ListenersLabel" Grid.Row="3" Grid.Column="0"
+                   Content="[Webradio.UIContributor.Listeners]" Color="{ThemeResource TextColor}" />
+            <Label x:Name="Listeners" Grid.Row="3" Grid.Column="1" Scroll="Auto"
+                   Content="{Binding Source={StaticResource Model}, Path=PlayerUIContributor.Listeners}"
+                   Color="{ThemeResource TextColor}" />
+
+            <Label x:Name="Bio" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Top"
+                   HorizontalAlignment="Left"
+                   Content="{Binding Source={StaticResource Model}, Path=PlayerUIContributor.ArtistBio}"
+                   FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Wrap="True"
+                   Scroll="Auto" ScrollSpeed="5" Height="350" />
+
+            <!--Logo-->
+            <StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="4">
+              <Canvas Width="{StaticResource MEDIA_THUMB_WIDTH_CP}"
+                      Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}"
+                      Background="#00000000">
+                <Rectangle Width="{StaticResource MEDIA_THUMB_WIDTH_CP}"
+                           Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}" RadiusY="20" RadiusX="20"
+                           Stroke="Black">
+                  <Rectangle.Fill>
+                    <ImageBrush
+                      DataContext="{Binding Source={StaticResource Model}, Path=PlayerUIContributor.CurrentStreamLogo}"
+                      ImageSource="{Binding}" />
+                  </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle Width="{StaticResource MEDIA_THUMB_WIDTH_CP}"
+                           Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}" RadiusY="20" RadiusX="20"
+                           Stroke="Black"
+                           Opacity="0.5">
+                  <Rectangle.Fill>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                      <GradientStop Color="Black" Offset="0" />
+                      <GradientStop Offset="0.073" />
+                      <GradientStop Color="Transparent" Offset="1" />
+                      <GradientStop Color="Transparent" Offset="0.103" />
+                    </LinearGradientBrush>
+                  </Rectangle.Fill>
+                </Rectangle>
+              </Canvas>
+            </StackPanel>
+
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

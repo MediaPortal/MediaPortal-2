@@ -1,0 +1,25 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Webradio.Favorites.Helptext]" />
+
+    <Model x:Key="Model" Id="2C3D2070-E1BB-49AF-B014-41FE8139055B" />
+    <Model x:Key="WebradioFavoritesModel" Id="B8DB0672-483A-4E8B-AAF7-2CBEE3F92524"/>
+    <Model x:Key="WebradioDataModel" Id="BD1BA004-1BC0-49F5-9107-AD8FFD07BAAE"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+
+          <Button Grid.Row="1" Margin="10,0,10,0" Content="{Binding Source={StaticResource WebradioDataModel}, Path=DialogMessage}"
+                  Command="{Command SetFavorite}" Style="{ThemeResource DialogButtonStyle}" />
+
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

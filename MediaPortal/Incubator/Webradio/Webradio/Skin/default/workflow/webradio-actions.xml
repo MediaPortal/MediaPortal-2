@@ -1,0 +1,113 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Workflow DescriptorVersion="1.0">
+  <MenuActions>
+    <!-- Entrys in Homemenu -->
+    <PushNavigationTransition Id="2DED75C0-5EAE-4E69-9913-6B50A9AB2956"
+                              Name="Home->Webradio"
+                              DisplayCategory="z-Webradio"
+                              SortOrder="a"
+                              SourceStates="7F702D9C-F2DD-42da-9ED8-0BA92F07787F"
+                              TargetState="263FADFE-87BE-4563-83F0-E62707891E1B"
+                              DisplayTitle="[Webradio.MenuEntry]" 
+			                        HelpText="[Webradio.Helptext]"/>
+
+    <!-- Entrys in Homescreen  -->
+    <PushNavigationTransition Id="76A060DF-0379-431D-A497-AB49B7C37F4E"
+                              Name="dialogShowFilter"
+                              DisplayCategory="a-Webradio"
+                              DisplayTitle="[Webradio.Home.Menu.ShowFilter]"
+                              SourceStates="263FADFE-87BE-4563-83F0-E62707891E1B"
+                              TargetState="76A060DF-0379-431D-A497-AB49B7C37F4E" />
+
+    <PushNavigationTransition Id="4942D325-08BB-4237-8825-F616AD2ADBF7"
+                              Name="dialogSearch"
+                              DisplayCategory="a-Webradio"
+                              DisplayTitle="[Webradio.Home.Menu.Search]"
+                              SourceStates="263FADFE-87BE-4563-83F0-E62707891E1B"
+                              TargetState="4942D325-08BB-4237-8825-F616AD2ADBF7" />
+
+    <MethodCallAction Id="56694DC2-041E-4D93-AD52-747D3394EB52"
+                      Name="ShowFavotites"
+                      DisplayCategory="a-Webradio"
+                      DisplayTitle="[Webradio.Home.Menu.ShowFavorites]"
+                      SourceStates="263FADFE-87BE-4563-83F0-E62707891E1B"
+                      ModelId="EA3CC191-0BE5-4C8D-889F-E9C4616AB554"
+                      MethodName="ShowFavotites" />
+
+
+    <MethodCallAction Id="BC74D4A5-D533-41B5-9D1F-D1A0918F51B7"
+                      Name="ShowAllStreams"
+                      DisplayCategory="a-Webradio"
+                      DisplayTitle="[Webradio.Home.Menu.ShowAll]"
+                      SourceStates="263FADFE-87BE-4563-83F0-E62707891E1B"
+                      ModelId="EA3CC191-0BE5-4C8D-889F-E9C4616AB554"
+                      MethodName="ShowAllStreams" />
+
+    <!--  Entrys in Settings  -->
+    <PushNavigationTransition Id="AD312631-E1C4-4FBD-BFBB-D3175D03CA66"
+                              Name="WebradioSettings->Filter"
+                              DisplayCategory="a-Webradio"
+                              SortOrder="a"
+                              SourceStates="5F49F6FC-32C4-48F6-85C8-2EF05598310A"
+                              TargetState="F35CFCFE-7E2F-4F1C-BF99-AFAC0181134E"
+                              DisplayTitle="[Webradio.Settings.Menu.Filter]" />
+
+    <PushNavigationTransition Id="2FAFD3A5-4F21-4043-9512-A2562E3AFC4B"
+                              Name="WebradioSettings->Update"
+                              DisplayCategory="a-Webradio"
+                              SortOrder="a"
+                              SourceStates="5F49F6FC-32C4-48F6-85C8-2EF05598310A"
+                              TargetState="209DE0B7-1FCB-42A7-BA3A-CE5FB9F62F60"
+                              DisplayTitle="[Webradio.Settings.Updates]" />
+
+    <!--  Entrys Filters  -->
+    <MethodCallAction Id="A70617D3-7A87-4FB9-BBC9-CA8B4B26BD6A"
+                      Name="AddFilter"
+                      DisplayCategory="a-Webradio"
+                      DisplayTitle="[Webradio.Filter.Add]"
+                      SourceStates="F35CFCFE-7E2F-4F1C-BF99-AFAC0181134E"
+                      ModelId="FF29E03E-F4A9-4E21-A299-349E79010430"
+                      MethodName="Add" />
+
+    <MethodCallAction Id="73595548-1061-4F1A-94F2-447280813FDE"
+                      Name="RenameFilter"
+                      DisplayCategory="a-Webradio"
+                      DisplayTitle="[Webradio.Filter.Clear]"
+                      SourceStates="F35CFCFE-7E2F-4F1C-BF99-AFAC0181134E"
+                      ModelId="FF29E03E-F4A9-4E21-A299-349E79010430"
+                      MethodName="Clear" />
+
+    <MethodCallAction Id="7766CFB8-09D6-4A4F-8C8D-2AC859B6B115"
+                      Name="SaveFilter"
+                      DisplayCategory="a-Webradio"
+                      DisplayTitle="[Webradio.Filter.Save]"
+                      SourceStates="F35CFCFE-7E2F-4F1C-BF99-AFAC0181134E"
+                      ModelId="FF29E03E-F4A9-4E21-A299-349E79010430"
+                      MethodName="Save" />
+
+    <!--  Import Filter Dialog  -->
+    <PushNavigationTransition Id="EB57D60B-0490-46C9-B6D8-0170DA37A926"
+                              Name="dialogImportFilter"
+                              DisplayCategory="a-Webradio"
+                              DisplayTitle="[Webradio.Filter.Import]"
+                              SourceStates="F35CFCFE-7E2F-4F1C-BF99-AFAC0181134E"
+                              TargetState="EB57D60B-0490-46C9-B6D8-0170DA37A926" />
+
+    <!--  Delete Filter Dialog  -->
+    <PushNavigationTransition Id="AAA7C211-93D4-40A8-96B3-2CCE6C7CB0A8"
+                              Name="dialogDeleteFilter"
+                              DisplayCategory="a-Webradio"
+                              DisplayTitle="[Webradio.Filter.Delete]"
+                              SourceStates="F35CFCFE-7E2F-4F1C-BF99-AFAC0181134E"
+                              TargetState="AAA7C211-93D4-40A8-96B3-2CCE6C7CB0A8" />
+
+    <!--  Delete Favorite Dialog  -->
+    <PushNavigationTransition Id="E3ED86D5-D54C-44F4-A4AA-ABEBBC3574F8"
+                              Name="dialogDeleteFavorites"
+                              DisplayCategory="a-Webradio"
+                              DisplayTitle="[Webradio.Favorites.Delete]"
+                              SourceStates="F35CFCFE-7E2F-4F1C-BF99-AFAC0181134E"
+                              TargetState="E3ED86D5-D54C-44F4-A4AA-ABEBBC3574F8" />
+  </MenuActions>
+</Workflow>

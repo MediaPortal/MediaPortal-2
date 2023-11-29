@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Webradio.Dialog.ShowFavorites.Header]" />
+
+    <Model x:Key="Model" Id="9723DCC8-969D-470E-B156-F4E6E639DD18" />
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*" />
+            <!-- <ColumnDefinition Width="10*" />
+            <ColumnDefinition Width="45*" /> -->
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <!-- <RowDefinition Height="10*" /> -->
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="90*" />
+          </Grid.RowDefinitions>
+
+          <ListView x:Name="lvFav" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Style="{ThemeResource WebradioDlgFavoritesListViewStyle}"
+                    ItemsSource="{Binding Path=FavoritItems}" Grid.Column="0" Grid.Row="2">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="SelectFavorite">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}" />
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+
+          <!--           <Label Grid.Column="0" Grid.Row="0" Content="{Binding Path=SelectedStream}"
+                 HorizontalContentAlignment="Center"
+                 Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" /> -->
+
+          <!--           <Label Grid.Column="2" Grid.Row="1" Content="[Webradio.Dialog.ShowFavorites.SetFav]"
+                 HorizontalContentAlignment="Center"
+                 Margin="10,0,10,0" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" /> -->
+
+          <!--           <ListView x:Name="lvFavSelected" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Style="{ThemeResource WebradioFilterListViewStyle}"
+                    ItemsSource="{Binding Path=AllFavoritItems, Mode=TwoWay}" Grid.Column="2" Grid.Row="2">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="SetFavorite">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}" />
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView> -->
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

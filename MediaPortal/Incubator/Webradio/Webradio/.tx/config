@@ -1,0 +1,7 @@
+[main]
+host=https://www.transifex.com
+[MP2_CommunityPlugins.webradio]
+file_filter=Language\strings_<lang>.xml
+source_file=Language\strings_en.xml
+source_lang=en
+type=ANDROID
