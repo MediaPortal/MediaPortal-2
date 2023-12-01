@@ -25,7 +25,6 @@
     </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(PluginDependencies)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
     <Copy SourceFiles="@(DataFiles)" DestinationFolder="$(PluginDestination)Data\" />
     <Copy SourceFiles="@(SkinFiles)" DestinationFiles="@(SkinFiles->'$(PluginDestination)Skin\%(RecursiveDir)%(Filename)%(Extension)')" />

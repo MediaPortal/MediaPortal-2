@@ -4,7 +4,6 @@
     <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
     <OutputType>Library</OutputType>
     <RootNamespace>Webradio</RootNamespace>
-    <UseWindowsForms>true</UseWindowsForms>
   </PropertyGroup>
 
   <ItemGroup>
@@ -17,12 +16,6 @@
     <ProjectReference Include="..\..\..\Source\UI\SkinEngine\SkinEngine.csproj" />
     <ProjectReference Include="..\..\..\Source\UI\UiComponents\Media\Media.csproj" />
     <ProjectReference Include="..\Webradio.OnlineLibraries\Webradio.OnlineLibraries.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <None Update="plugin.xml">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </None>
   </ItemGroup>
 
   <Import Project="build.targets" />
