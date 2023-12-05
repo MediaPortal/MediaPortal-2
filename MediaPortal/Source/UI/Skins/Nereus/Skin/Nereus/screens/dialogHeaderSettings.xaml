@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\master_dialog_bare.xaml"
+    >
+
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Nereus.Configuration.Header]"/>
+
+    <!-- HeaderConfigurationModel -->
+    <Model x:Key="HeaderConfigurationModel" Id="B5FE25BA-BDAC-44ea-BF82-F059C00052DC"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <StackPanel DataContext="{Binding Source={StaticResource HeaderConfigurationModel}}" Margin="10">
+
+        <!--Glow Color Selection-->
+        <Label Content="[Nereus.Configuration.Header.Help]" Color="{ThemeResource TextColor}" Margin="10,0,0,10"/>
+        <Grid Margin="10,0,0,0">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+
+          <CheckBox x:Name="ShowTime" Margin="0,1,0,1" VerticalAlignment="Center"
+                    IsChecked="{Binding Path=ShowTime,Mode=TwoWay}" Content="[Nereus.Configuration.ShowTime]"/>
+          <CheckBox x:Name="ShowDate" Grid.Row="1" Margin="0,1,0,1" VerticalAlignment="Center"
+                    IsChecked="{Binding Path=ShowDate,Mode=TwoWay}" Content="[Nereus.Configuration.ShowDate]"/>
+          <CheckBox x:Name="ShowTemperature" Grid.Row="2" Margin="0,1,0,1" VerticalAlignment="Center"
+                    IsChecked="{Binding Path=ShowTemperature,Mode=TwoWay}" Content="[Nereus.Configuration.ShowTemperature]"/>
+          <CheckBox x:Name="ShowWeatherCondition" Grid.Row="3" Margin="0,1,0,1" VerticalAlignment="Center"
+                    IsChecked="{Binding Path=ShowWeatherCondition,Mode=TwoWay}" Content="[Nereus.Configuration.ShowWeatherCondition]"/>
+        </Grid>
+
+        <!-- Header Preview -->
+        <Grid HorizontalAlignment="Right" VerticalAlignment="Center" Margin="10">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="90"/>
+          </Grid.RowDefinitions>
+
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="85"/>
+            <ColumnDefinition Width="Auto"/>
+          </Grid.ColumnDefinitions>
+
+          <Grid.Resources>
+            <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
+            <Model x:Key="CurrentWeatherModel" Id="FC57FF5C-F72F-47E9-B973-338E31FF7FF1"/>
+          </Grid.Resources>
+
+          <Label Content="{Binding Source={StaticResource TimeModel}, Path=CurrentTime}" FontSize="{ThemeResource DateTimeFontSize}"
+                 Grid.Column="2" Color="{ThemeResource TextColor}" VerticalAlignment="Center" HorizontalAlignment="Right"
+                 IsVisible="{Binding Path=ShowTime}"/>
+          
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Right" VerticalAlignment="Center">
+            <Label x:Name="DateLabel" Content="{Binding Source={StaticResource TimeModel}, Path=CurrentDate}" FontSize="21" FontFamily="Noto-Bold"
+                   Color="{ThemeResource TextColor}" Grid.Column="0" VerticalAlignment="Bottom" HorizontalAlignment="Right" Margin="0,5,0,-5"
+                   IsVisible="{Binding ElementName=ShowDate, Path=IsChecked, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+            <Label x:Name="TemperatureLabel" Content="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.Temperature}"
+                   FontSize="21" FontFamily="Noto-Bold" Color="{ThemeResource TextColor}" Grid.Column="0" Grid.Row="1"
+                   VerticalAlignment="Top" HorizontalAlignment="Right" IsVisible="{Binding Path=ShowTemperature}"/>
+          </StackPanel>
+
+          <Image x:Name="WeatherBigIcon" Stretch="Uniform" Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.BigIconProperty}"
+                 HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Margin="10,0,10,0"
+                 IsVisible="{Binding Path=ShowWeatherCondition}"/>
+        </Grid>
+
+        <!-- OK & Cancel button -->
+        <Grid Height="10"/>
+        <Grid HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <Button Name="ButtonOk" Grid.Column="0" Style="{ThemeResource DialogButtonStyle}" Content="[System.Ok]" HorizontalAlignment="Center">
+            <Button.Command>
+              <CommandList>
+                <Command Path="SaveSettings" />
+                <Command Source="{Service ScreenManager}" Path="CloseTopmostDialog" />
+              </CommandList>
+            </Button.Command>
+          </Button>
+
+          <Button Name="ButtonCancel" Grid.Column="1" SetFocusPrio="Default" Style="{ThemeResource DialogButtonStyle}"
+                  Content="[System.Cancel]" HorizontalAlignment="Center" Command="{Command Source={Service ScreenManager},Path=CloseTopmostDialog}" />
+
+        </Grid>
+      </StackPanel>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>
