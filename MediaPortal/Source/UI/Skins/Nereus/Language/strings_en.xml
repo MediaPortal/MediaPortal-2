@@ -52,6 +52,12 @@
   <string name="Nereus.Configuration.DialogBackgroundOpacity">Select an opacity value between 0.7 and 1.0</string>
   <string name="Nereus.Configuration.UseRoundesCorners">Whether to use rounded dialog corners</string>
   <string name="Nereus.Configuration.Refresh">Refresh view</string>
+  <string name="Nereus.Configuration.Header">Configure header appearance</string>
+  <string name="Nereus.Configuration.Header.Help">Configure the information to be shown in the home screen header</string>
+  <string name="Nereus.Configuration.ShowTime">Show time</string>
+  <string name="Nereus.Configuration.ShowDate">Show date</string>
+  <string name="Nereus.Configuration.ShowTemperature">Show temperature</string>
+  <string name="Nereus.Configuration.ShowWeatherCondition">Show weather condition</string>
 
   <string name="Nereus.Home.LatestAdded">Latest Added</string>
   <string name="Nereus.Home.LatestPlayed">Latest Played</string>

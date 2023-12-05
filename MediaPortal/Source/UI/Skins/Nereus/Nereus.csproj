@@ -449,6 +449,7 @@
     <Content Include="Skin\Nereus\screens\dialogFanartSettings.xaml">
       <Generator>MSBuild:Compile</Generator>
     </Content>
+    <Content Include="Skin\Nereus\screens\dialogHeaderSettings.xaml" />
     <Content Include="Skin\Nereus\screens\MediaInfoVideoDetails.inc" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingAudio.xaml" />
     <Content Include="Skin\Nereus\screens\CurrentlyPlayingVideo.xaml" />
@@ -647,6 +648,7 @@
     <Page Remove="Skin\Nereus\screens\DialogEditMediaListMenu.xaml" />
     <Page Remove="Skin\Nereus\screens\DialogEditMenu.xaml" />
     <Page Remove="Skin\Nereus\screens\dialogFanArtSettings.xaml" />
+    <Page Remove="Skin\Nereus\screens\dialogHeaderSettings.xaml" />
     <Page Remove="Skin\Nereus\screens\dialogSkinColorSettings.xaml" />
     <Page Remove="Skin\Nereus\screens\dialogSystemState.xaml" />
     <Page Remove="Skin\Nereus\screens\dialogSystemStateConfiguration.xaml" />
