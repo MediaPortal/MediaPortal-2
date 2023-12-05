@@ -50,7 +50,7 @@
 
           <Grid.ColumnDefinitions>
             <ColumnDefinition Width="Auto"/>
-            <ColumnDefinition Width="85"/>
+            <ColumnDefinition Width="Auto"/>
             <ColumnDefinition Width="Auto"/>
           </Grid.ColumnDefinitions>
 
@@ -73,7 +73,7 @@
           </StackPanel>
 
           <Image x:Name="WeatherBigIcon" Stretch="Uniform" Source="{Binding Source={StaticResource CurrentWeatherModel}, Path=CurrentLocation.Condition.BigIconProperty}"
-                 HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Margin="10,0,10,0"
+                 HorizontalAlignment="Center" VerticalAlignment="Center" Grid.Column="1" Margin="10,0,10,0" Width="85"
                  IsVisible="{Binding Path=ShowWeatherCondition}"/>
         </Grid>
 
