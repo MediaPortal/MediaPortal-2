@@ -43,7 +43,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           return;
 
         // Impersonation
-        using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(res.CanonicalLocalResourcePath))
+        ServiceRegistration.Get<IImpersonationService>().RunImpersonatedFor(res.CanonicalLocalResourcePath, () =>
         {
           try
           {
@@ -77,7 +77,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg.P
           {
             raf?.Close();
           }
-        }
+        });
       }
     }
 

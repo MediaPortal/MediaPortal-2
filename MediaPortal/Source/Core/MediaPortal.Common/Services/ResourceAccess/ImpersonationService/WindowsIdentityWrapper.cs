@@ -47,7 +47,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
 
     private readonly WindowsIdentity _identity;
     private readonly NetworkCredential _credential;
-    
+
     /// <summary>
     /// Indicates whether or not <see cref="Dispose"/> was called
     /// </summary>
@@ -56,24 +56,24 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// If <see cref="_disposed"/> is <see cref="DISPOSED"/>, <see cref="Dispose"/> was called. However,
     /// this does not mean that the underlying <see cref="_identity"/> has already been disposed. This
     /// is only the case, if additionally <see cref="_usageCount"/> is -1, i.e. the last
-    /// <see cref="WindowsImpersonationContext"/> that has been created by calling <see cref="Impersonate"/>
+    /// <see cref="TokenWrapper"/> that has been created by getting <see cref="TokenWrapper"/>
     /// has also been disposed. The reason therefore is that we need to make sure that <see cref="_identity"/>
-    /// is not disposed before all <see cref="WindowsImpersonationContext"/>s derived from it are disposed.
+    /// is not disposed before all <see cref="TokenWrapper"/>s derived from it are disposed.
     /// This field is used to ensure that calling <see cref="Dispose"/> only has an effect when it was
     /// called for the first time. 
     /// </remarks>
     private int _disposed;
 
     /// <summary>
-    /// Indicates how many <see cref="WindowsImpersonationContext"/> objects derived from <see cref="_identity"/>
+    /// Indicates how many <see cref="TokenWrapper"/> objects derived from <see cref="_identity"/>
     /// are currently in use.
     /// </summary>
     /// <remarks>
     /// If <see cref="Dispose"/> has not yet been called:
-    ///   >  0: indicates the number of active <see cref="WindowsImpersonationContext"/>s
+    ///   >  0: indicates the number of active <see cref="TokenWrapper"/>s
     ///   == 0: indicates that <see cref="_identity"/> is currently not impersonated
     /// If <see cref="Dispose"/> has been called:
-    ///   >=  0: indicates the number of active <see cref="WindowsImpersonationContext"/>s minus one
+    ///   >=  0: indicates the number of active <see cref="TokenWrapper"/>s minus one
     ///   == -1: indicates that <see cref="_identity"/> can actually be disposed.
     /// </remarks>
     private int _usageCount;
@@ -121,7 +121,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// <remarks>
     /// Do not manually close the contained token. It will be closed automatically when disposing this object.
     /// The <see cref="TokenWrapper"/> ensures that this object is not disposed before all <see cref="TokenWrapper"/>s
-    /// and <see cref="WindowsImpersonationContextWrapper"/>s are disposed.
+    /// are disposed.
     /// </remarks>
     internal TokenWrapper TokenWrapper
     {
@@ -133,27 +133,56 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
       }
     }
 
-    #endregion
+    /// <summary>
+    /// Runs the specified action as this impersonated Windows identity.
+    /// </summary>
+    /// <param name="action"><see cref="Action"/> to run.</param>
+    /// <remarks>
+    /// This method can be reliably used with the async/await pattern by passing an async delegate and awaiting the resulting task.
+    /// </remarks>
+    internal void RunImpersonated(Action action)
+    {
+      if (action == null)
+        throw new ArgumentNullException("action");
 
-    #region Internal methods
+      // The TokenWrapper is not used directly, its only used for ref counting usages of
+      // the WindowsIdentity to ensure it isn't disposed whilst we are using it.
+      using (TokenWrapper)
+      {
+        // The identity may have been disposed before we referenced it so check the token is valid.
+        if (TokenWrapper.Token != IntPtr.Zero)
+          WindowsIdentity.RunImpersonated(_identity.AccessToken, action);
+        // Else impersonation is unavailable so just run directly
+        else
+          action();
+      }
+    }
 
     /// <summary>
-    /// Impersonates the underlying <see cref="WindowsIdentity"/>
+    /// Runs the specified function as this impersonated Windows identity.
     /// </summary>
-    /// <returns>
-    /// <see cref="WindowsImpersonationContextWrapper"/> containing the resulting <see cref="WindowsImpersonationContext"/>.
-    /// This object MUST be disposed to avoid resource leaking!
-    /// </returns>
+    /// <typeparam name="T">The type of object the function returns.</typeparam>
+    /// <param name="func">The <see cref="Func{T}"/> to run.</param>
+    /// <returns>The result of the function.</returns>
     /// <remarks>
-    /// A call to this method is only successful, if <see cref="_usageCount"/> >= 0 before calling, i.e. it is not
-    /// successful, if <see cref="Dispose"/> was called and there are no other <see cref="WindowsImpersonationContextWrapper"/>s in use.
+    /// This method can be reliably used with the async/await pattern by passing an async delegate and awaiting the resulting task.
     /// </remarks>
-    internal WindowsImpersonationContextWrapper Impersonate()
+    internal T RunImpersonated<T>(Func<T> func)
     {
-      WindowsImpersonationContext ctx = null;
-      if(Interlocked.Increment(ref _usageCount) > 0)
-        ctx = WindowsIdentity.Impersonate(_identity.Token);
-      return new WindowsImpersonationContextWrapper(ctx, DecrementUsageCount);
+      if (func == null)
+        throw new ArgumentNullException("func");
+
+      // The TokenWrapper is not used directly, its only used for ref counting usages of
+      // the WindowsIdentity to ensure it isn't disposed whilst we are using it.
+      using (TokenWrapper)
+      {
+        // The identity may have been disposed before we referenced it so check the token is valid.
+        if (TokenWrapper.Token != IntPtr.Zero)
+          return WindowsIdentity.RunImpersonated(_identity.AccessToken, func);
+        // Else impersonation is unavailable so just run directly
+        else
+          return func();
+      }
     }
 
     #endregion
@@ -161,8 +190,7 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     #region Private methods
 
     /// <summary>
-    /// Used as <see cref="Action"/> to let <see cref="WindowsImpersonationContextWrapper"/> and
-    /// <see cref="TokenWrapper"/> signal that they were disposed.
+    /// Used as <see cref="Action"/> to let <see cref="TokenWrapper"/> signal that it was disposed.
     /// </summary>
     private void DecrementUsageCount()
     {

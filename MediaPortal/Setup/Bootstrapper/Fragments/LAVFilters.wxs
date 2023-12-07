@@ -1,0 +1,21 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Fragment>
+
+    <!-- 
+         Note: Version variables defined here should follow the naming convention [Package Id]_Version
+         as they will be looked up by the Bootstrapper to determine the currently installed version.
+    -->
+
+    <util:RegistrySearch Id="LAVFilters_Install_Path" Root="HKCR" Key="CLSID\{171252A0-8820-4AFE-9DF8-5C92B2D66B04}\InprocServer32" Variable="LAVFilters_Install_Path" Bitness="always32" />
+    <util:FileSearch Id="LAVFilters_Version" After="LAVFilters_Install_Path" Condition="LAVFilters_Install_Path" Variable="LAVFilters_Version" Path="[LAVFilters_Install_Path]" Result="version" />
+
+    <PackageGroup Id="LAVFilters">
+      <ExePackage Id="LAVFilters" Cache="keep" Permanent="yes" Vital="no" DetectCondition="LAVFilters_Version &gt;= v0.74.1.0" InstallArguments="/VERYSILENT /SP-">
+        <ExePackagePayload Name="LAVFilters.exe" ProductName="LAV Filters" Description="LAV Filters Setup"
+                           DownloadUrl="http://install.team-mediaportal.com/MP2/install/LAVFilters.exe"
+                           Hash="CB827C13081E24A6128270EB7D53444076AE412CE51F6CCC72535F013FDDFEE146880A82A52752B610AA332FA0F00698A243333A56224B819913F9A3DF24CB7A"
+                           Size="12560912" Version="0.74.1" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+</Wix>

@@ -2,6 +2,7 @@
 <resources>
   <string name="Menu.Audio">音频</string>
   <string name="Menu.Image">图片</string>
+  <string name="Menu.MediaHub">媒体中心</string>
   <string name="Menu.TV">电视</string>
   <string name="Menu.News">新闻</string>
   <string name="Menu.Weather">天气</string>

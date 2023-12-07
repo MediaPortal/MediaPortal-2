@@ -38,7 +38,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetRecordingsByRange : BaseRecordingBasic
   {
-    public static Task<IList<WebRecordingBasic>> ProcessAsync(IOwinContext context, int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
+    public static Task<IList<WebRecordingBasic>> ProcessAsync(RequestContext context, int start, int end, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordingsByRange: ITvProvider not found");

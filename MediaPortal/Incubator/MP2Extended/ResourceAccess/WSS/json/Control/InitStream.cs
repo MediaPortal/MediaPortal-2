@@ -22,21 +22,20 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using MediaPortal.Plugins.MP2Extended.Attributes;
-using MediaPortal.Plugins.MP2Extended.Common;
-using MediaPortal.Plugins.MP2Extended.Exceptions;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
-using System.Web;
 using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
+using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
 {
@@ -48,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
   [ApiFunctionParam(Name = "idleTimeout", Type = typeof(int), Nullable = true)]
   internal class InitStream
   {
-    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
+    public static async Task<WebBoolResult> ProcessAsync(RequestContext context, string itemId, string clientDescription, string identifier, WebMediaType type, int? idleTimeout)
     {
       if (itemId == null)
         throw new BadRequestException("InitStream: itemId is null");
@@ -62,7 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Control
         ItemType = type,
         ClientDescription = clientDescription,
         IdleTimeout = idleTimeout ?? -1,
-        ClientIp = context.Request.RemoteIpAddress
+        ClientIp = context.GetRemoteIpAddress()
       };
 
       MediaItem mediaItem = new LiveTvMediaItem(Guid.Empty);

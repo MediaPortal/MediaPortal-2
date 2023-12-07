@@ -1,30 +1,24 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:bal="http://schemas.microsoft.com/wix/BalExtension"
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal">
 
-  <!-- This should NEVER be changed ! This is the product ID of MP2 main package. -->
-  <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
+  <?include Includes.wxi?>
 
-  <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MainPackage)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no">
-    <BootstrapperApplicationRef Id="WixStandardBootstrapperApplication.HyperlinkLicense">
-      <bal:WixStandardBootstrapperApplication LicenseFile="..\..\Source\Base\Client\Docs\MediaPortal License.rtf"
-                                              LogoFile="..\..\Setup\MP2-Setup\Resources\MP2_Icon_48.png"
-                                              ThemeFile="Theme\CustomTheme.xml"
-                                              LocalizationFile="Theme\CustomTheme.wxl"
-                                              SuppressOptionsUI="yes"
-                                              LicenseUrl="http://www.team-mediaportal.com"/>
-    </BootstrapperApplicationRef>
+  <Bundle Name="MediaPortal 2" Version="!(bind.packageVersion.MediaPortal2)" Manufacturer="Team MediaPortal" UpgradeCode="$(var.UpgradeCode)" Compressed="no" IconSourceFile="Resources\Setup.ico" HelpUrl="http://wiki.team-mediaportal.com/2_MEDIAPORTAL_2" UpdateUrl="http://www.team-mediaportal.com/" AboutUrl="http://www.team-mediaportal.com/about-the-project/behind-the-project">
 
+    <?if $(IsNetCore) ~= true ?>
+
+    <BootstrapperApplicationRef Id="BootstrapperNetCore" />
     <Chain>
-
-      <PackageGroupRef Id="NetFx471Web"/>
-      <PackageGroupRef Id="redist"/>
-      <PackageGroupRef Id="dokan"/>
-
-      <RollbackBoundary />
-
-      <MsiPackage Id="MainPackage" SourceFile="..\MP2-Setup\Bin\$(var.Configuration)\en-us\MP2-Setup.msi" DisplayInternalUI="yes" Compressed="yes" Vital="yes" />
+      <PackageGroupRef Id="BootstrapperNetCorePackages" />
     </Chain>
+    
+    <?else?>
+
+    <BootstrapperApplicationRef Id="BootstrapperNetFx" />
+    <Chain>
+      <PackageGroupRef Id="BootstrapperNetFxPackages" />
+    </Chain>
+    
+    <?endif?>
+
   </Bundle>
 </Wix>

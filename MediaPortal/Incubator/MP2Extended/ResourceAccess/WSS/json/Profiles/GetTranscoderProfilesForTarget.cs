@@ -32,7 +32,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
 using MediaPortal.Plugins.MP2Extended.WSS.Profiles;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
 {
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.Profiles
   [ApiFunctionParam(Name = "target", Type = typeof(string), Nullable = false)]
   internal class GetTranscoderProfilesForTarget : BaseTranscoderProfile
   {
-    public static Task<IList<WebTranscoderProfile>> ProcessAsync(IOwinContext context, string target)
+    public static Task<IList<WebTranscoderProfile>> ProcessAsync(RequestContext context, string target)
     {
       TargetComparer targetComparer = new TargetComparer();
       return Task.FromResult<IList<WebTranscoderProfile>>(ProfileManager.Profiles.Where(x => x.Value.Targets.Contains(target, targetComparer) || 

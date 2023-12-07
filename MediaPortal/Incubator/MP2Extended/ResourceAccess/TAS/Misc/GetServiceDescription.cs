@@ -28,14 +28,14 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Misc
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetServiceDescription
   {
-    public static Task<WebTVServiceDescription> ProcessAsync(IOwinContext context)
+    public static Task<WebTVServiceDescription> ProcessAsync(RequestContext context)
     { 
       WebTVServiceDescription webTVServiceDescription = new WebTVServiceDescription
       {

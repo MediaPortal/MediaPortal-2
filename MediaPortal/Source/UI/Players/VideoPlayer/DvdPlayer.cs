@@ -168,19 +168,19 @@ namespace MediaPortal.UI.Players.Video
 
       if (!IsLocalFilesystemResource)
         throw new IllegalCallException("The DVDPlayer can only play local file system resources");
-      using (((ILocalFsResourceAccessor)_resourceAccessor).EnsureLocalFileSystemAccess())
+      ((ILocalFsResourceAccessor)_resourceAccessor).RunWithLocalFileSystemAccess(() =>
       {
         string path = ((ILocalFsResourceAccessor)_resourceAccessor).LocalFileSystemPath;
 
         // check if path is a drive root (like D:), otherwise append VIDEO_TS 
         // MediaItem always contains the parent folder. Add the required VIDEO_TS subfolder.
-        if (!String.IsNullOrEmpty(path) && !path.EndsWith(Path.VolumeSeparatorChar.ToString()))
+        if (!string.IsNullOrEmpty(path) && !path.EndsWith(Path.VolumeSeparatorChar.ToString()))
           path = Path.Combine(path, "VIDEO_TS");
 
         int hr = _dvdCtrl.SetDVDDirectory(path);
         if (hr != 0)
           throw new Exception("Failed to set DVD directory!");
-      }
+      });
       _dvdCtrl.SetOption(DvdOptionFlag.HMSFTimeCodeEvents, true); // use new HMSF timecode format
       _dvdCtrl.SetOption(DvdOptionFlag.ResetOnStop, false);
 

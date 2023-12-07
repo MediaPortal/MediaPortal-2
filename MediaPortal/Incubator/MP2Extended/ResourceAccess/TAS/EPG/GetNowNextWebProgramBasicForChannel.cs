@@ -32,7 +32,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
 {
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.EPG
   [ApiFunctionParam(Name = "channelId", Type = typeof(int), Nullable = false)]
   internal class GetNowNextWebProgramBasicForChannel : BaseProgramBasic
   {
-    public static async Task<IList<WebProgramBasic>> ProcessAsync(IOwinContext context, string channelId)
+    public static async Task<IList<WebProgramBasic>> ProcessAsync(RequestContext context, string channelId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetNowNextWebProgramBasicForChannel: ITvProvider not found");

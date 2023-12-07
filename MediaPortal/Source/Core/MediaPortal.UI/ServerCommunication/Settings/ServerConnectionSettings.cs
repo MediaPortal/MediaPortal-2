@@ -36,6 +36,7 @@ namespace MediaPortal.UI.ServerCommunication.Settings
     protected string _homeServerSystemId = null;
     protected string _lastHomeServerName;
     protected SystemName _lastHomeServerSystem;
+    protected bool _autoAttachToAvailableServer = true;
     protected Dictionary<Guid, RelocationMode> _cachedSharesUpdates = new Dictionary<Guid, RelocationMode>();
 
     /// <summary>
@@ -67,6 +68,16 @@ namespace MediaPortal.UI.ServerCommunication.Settings
     {
       get { return _lastHomeServerSystem; }
       set { _lastHomeServerSystem = value; }
+    }
+
+    /// <summary>
+    /// Whether to auto attach to an available server if no home server is currently configured.
+    /// </summary>
+    [Setting(SettingScope.Global, true)]
+    public bool AutoAttachToAvailableServer
+    {
+      get { return _homeServerSystemId == null && _autoAttachToAvailableServer; }
+      set { _autoAttachToAvailableServer = value; }
     }
 
     /// <summary>

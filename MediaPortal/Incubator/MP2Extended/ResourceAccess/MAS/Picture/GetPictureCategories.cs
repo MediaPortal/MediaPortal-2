@@ -34,16 +34,16 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MP2Extended.Extensions;
 using Newtonsoft.Json;
-using Microsoft.Owin;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture.BaseClasses;
 using System.Linq;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Picture
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetPictureCategories : BasePictureBasic
   {
-    public static Task<IList<WebCategory>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebCategory>> ProcessAsync(RequestContext context)
     {
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds);
       if (items.Count == 0)

@@ -103,7 +103,9 @@
   <string name="Settings.Appearance">外观</string>
   <string name="Settings.Appearance.Skin">皮肤</string>
   <string name="Settings.Appearance.Skin.Formats.DateFormat">数据格式</string>
+  <string name="Settings.Appearance.Skin.Formats.DateFormat.Help">皮肤中使用的日期格式。使用“d”表示“2017 年 1 月 14 日”或“D”表示“2017 年 1 月 14 日，星期六”。</string>
   <string name="Settings.Appearance.Skin.Formats.TimeFormat">时间格式</string>
+  <string name="Settings.Appearance.Skin.Formats.TimeFormat.Help">皮肤中使用的时间格式。使用“t”表示“11:50”或“T”表示“11:50:37”。</string>
   <string name="Settings.General">常规</string>
   <string name="Settings.General.System">系统</string>
   <string name="Settings.General.System.Autostart">自动启动</string>
@@ -139,12 +141,16 @@
   <!--Shares configuration workflow-->
   <string name="SharesConfig.SharesOverviewWorkflowNavigationContextDisplayLabel">媒体源配置</string>
   <string name="SharesConfig.SharesRemoveWorkflowNavigationContextDisplayLabel">移除媒体来源</string>
+  <string name="SharesConfig.ShareInfoWorkflowNavigationContextDisplayLabel">媒体源信息</string>
   <string name="SharesConfig.SharesEditChooseResourceProviderWorkflowNavigationContextDisplayLabel">选择资源提供者</string>
   <string name="SharesConfig.SharesEditEditPathWorkflowNavigationContextDisplayLabel">编辑路径</string>
   <string name="SharesConfig.SharesEditChoosePathWorkflowNavigationContextDisplayLabel">选择路径</string>
   <string name="SharesConfig.SharesEditEditNameWorkflowNavigationContextDisplayLabel">编辑名称</string>
   <string name="SharesConfig.SharesEditChooseCategoriesWorkflowNavigationContextDisplayLabel">选择类别</string>
+  <string name="SharesConfig.CannotAddSharesTitle">无法添加媒体源</string>
+  <string name="SharesConfig.CannotAddShareLocalHomeServerNotConnected">主服务器位于同一台计算机上，因此所有媒体源都必须在服务器上注册。但是服务器暂时没有连接。 请启动主服务器并重试。</string>
   <string name="SharesConfig.SharesConfiguration.Title">媒体源配置</string>
+  <string name="SharesConfig.NoSharesAvailable">没有可用的媒体源</string>
   <string name="SharesConfig.ShareInformationHeader">媒体来源信息</string>
   <string name="SharesConfig.ShareNameInfo">名称：</string>
   <string name="SharesConfig.ShareResourceProviderInfo">基础资源提供者：</string>

@@ -22,18 +22,18 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
 using MP2Extended.Extensions;
-using Microsoft.Owin;
+using System;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetMediaItem
   {
-    public static Task<WebMediaItem> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebMediaItem> ProcessAsync(RequestContext context, string id)
     {
       if (id == null)
         throw new BadRequestException("GetMediaItem: id is null");

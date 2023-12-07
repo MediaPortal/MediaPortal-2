@@ -1,11 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
-                xmlns="http://schemas.microsoft.com/wix/2006/wi"
-                xmlns:wix="http://schemas.microsoft.com/wix/2006/wi"
+                xmlns="http://wixtoolset.org/schemas/v4/wxs"
+                xmlns:wix="http://wixtoolset.org/schemas/v4/wxs"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:key name="MP2-Server.exe"
            match="//wix:Component[wix:File/@Source = '$(var.MediaPortal.Server.TargetDir)\MP2-Server.exe']"
+           use="@Id"/>
+
+  <!-- Get the TvServer plugin directories so they can be excluded, they are included in their own features. -->
+  <xsl:key name="SlimTv.Service3"
+           match="//wix:Directory[@Name = 'SlimTv.Service3']//wix:Component"
+           use="@Id"/>
+  <xsl:key name="SlimTv.Service35"
+           match="//wix:Directory[@Name = 'SlimTv.Service35']//wix:Component"
            use="@Id"/>
 
   <!-- Copy all nodes from source to target and apply templates. -->
@@ -29,6 +37,12 @@
   -->
   <xsl:template match="wix:Component[@Id = key('MP2-Server.exe', @Id)/@Id]"/>
   <xsl:template match="wix:ComponentRef[@Id = key('MP2-Server.exe', @Id)/@Id]"/>
+
+  <!-- Exclude Tv server plugin directories and components, they are included in their own features. -->
+  <xsl:template match="wix:Directory[@Name = 'SlimTv.Service3']"/>
+  <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.Service3', @Id)/@Id]"/>
+  <xsl:template match="wix:Directory[@Name = 'SlimTv.Service35']"/>
+  <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.Service35', @Id)/@Id]"/>
 
   <!-- Explicitly set DirectoryID to allow referencing to it. -->
   <xsl:template match="wix:DirectoryRef[@Id = 'INSTALLDIR_SERVER']/wix:Directory[@Name = 'Plugins']">

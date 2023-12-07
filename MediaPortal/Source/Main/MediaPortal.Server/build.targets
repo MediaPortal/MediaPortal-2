@@ -1,9 +1,8 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project>
 
-  <Target Name="AfterBuild">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
     <PropertyGroup>
-      <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\</AppDestination>
+      <AppDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(OutDir)</AppDestination>
     </PropertyGroup>
 
     <ItemGroup>

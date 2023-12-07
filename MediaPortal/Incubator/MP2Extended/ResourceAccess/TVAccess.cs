@@ -35,7 +35,7 @@ using MediaPortal.Plugins.MP2Extended.TAS;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
@@ -50,7 +50,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     }
     private static readonly ConcurrentDictionary<string, ChannelInfo> CLIENT_CHANNELS = new ConcurrentDictionary<string, ChannelInfo>();
 
-    internal static async Task<IList<IChannelGroup>> GetGroupsAsync(IOwinContext context)
+    internal static async Task<IList<IChannelGroup>> GetGroupsAsync(RequestContext context)
     {
       Guid? user = ResourceAccessUtils.GetUser(context);
       List<IChannelGroup> groups = new List<IChannelGroup>();
@@ -61,7 +61,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return groups;
     }
 
-    internal static async Task<IChannelGroup> GetGroupAsync(IOwinContext context, int id)
+    internal static async Task<IChannelGroup> GetGroupAsync(RequestContext context, int id)
     {
       List<IChannelGroup> groups = new List<IChannelGroup>();
       var channelGroups = await GetGroupsAsync(context);
@@ -76,7 +76,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return null;
     }
 
-    internal static async Task<IList<IChannel>> GetGroupChannelsAsync(IOwinContext context, int? id = null)
+    internal static async Task<IList<IChannel>> GetGroupChannelsAsync(RequestContext context, int? id = null)
     {
       List<IChannelGroup> channelGroups = new List<IChannelGroup>();
       if (id == null)
@@ -95,14 +95,14 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return groupChannels;
     }
 
-    internal static Task<IProgram> GetProgramAsync(IOwinContext context, int id)
+    internal static Task<IProgram> GetProgramAsync(RequestContext context, int id)
     {
       if (ProgramInfo.GetProgram(id, out IProgram prog))
         return Task.FromResult(prog);
       return Task.FromResult<IProgram>(null);
     }
 
-    internal static async Task<RecordingStatus> GetProgramRecordingStatusAsync(IOwinContext context, int id)
+    internal static async Task<RecordingStatus> GetProgramRecordingStatusAsync(RequestContext context, int id)
     {
       if (ProgramInfo.GetProgram(id, out IProgram prog))
       {
@@ -113,7 +113,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return RecordingStatus.None;
     }
 
-    internal static async Task<bool> EditScheduleAsync(IOwinContext context, int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
+    internal static async Task<bool> EditScheduleAsync(RequestContext context, int scheduleId, int? channelId = null, string title = null, DateTime? startTime = null, DateTime? endTime = null, WebScheduleType? scheduleType = null, int? preRecordInterval = null, int? postRecordInterval = null, string directory = null, int? priority = null)
     {
       IChannel channel = null;
       if (channelId.HasValue)
@@ -133,7 +133,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
         priority);
     }
 
-    internal static async Task<bool> CreateScheduleAsync(IOwinContext context, int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority)
+    internal static async Task<bool> CreateScheduleAsync(RequestContext context, int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType, int preRecordInterval, int postRecordInterval, string directory, int priority)
     {
       var channel = await GetChannelAsync(channelId);
       if (channel != null)
@@ -144,7 +144,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return false;
     }
 
-    internal static async Task<bool> CreateScheduleAsync(IOwinContext context, int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
+    internal static async Task<bool> CreateScheduleAsync(RequestContext context, int channelId, string title, DateTime startTime, DateTime endTime, WebScheduleType scheduleType)
     {
       var channel = await GetChannelAsync(channelId);
       if (channel != null)
@@ -155,7 +155,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return false;
     }
 
-    internal static async Task<bool> UnCancelScheduleAsync(IOwinContext context, int id)
+    internal static async Task<bool> UnCancelScheduleAsync(RequestContext context, int id)
     {
       IProgram program = await GetProgramAsync(context, id);
       if (program != null)
@@ -163,7 +163,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return false;
     }
 
-    internal static async Task<bool> CancelScheduleAsync(IOwinContext context, int id)
+    internal static async Task<bool> CancelScheduleAsync(RequestContext context, int id)
     {
       IProgram program = await GetProgramAsync(context, id);
       if (program != null)
@@ -171,7 +171,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return false;
     }
 
-    internal static async Task<bool> DeleteScheduleAsync(IOwinContext context, int id)
+    internal static async Task<bool> DeleteScheduleAsync(RequestContext context, int id)
     {
       var schedules = await GetSchedulesAsync(context);
       if (schedules != null)
@@ -179,7 +179,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return false;
     }
 
-    internal static async Task<ISchedule> GetScheduleAsync(IOwinContext context, int id)
+    internal static async Task<ISchedule> GetScheduleAsync(RequestContext context, int id)
     {
       var schedules = await ScheduleControl.GetSchedulesAsync();
       if (schedules.Success)
@@ -187,7 +187,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return null;
     }
 
-    internal static async Task<IList<ISchedule>> GetSchedulesAsync(IOwinContext context)
+    internal static async Task<IList<ISchedule>> GetSchedulesAsync(RequestContext context)
     {
       var schedules = await ScheduleControl.GetSchedulesAsync();
       if (schedules.Success)
@@ -195,7 +195,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return null;
     }
 
-    internal static async Task<IProgram[]> GetChannelNowNextProgramAsync(IOwinContext context, int id)
+    internal static async Task<IProgram[]> GetChannelNowNextProgramAsync(RequestContext context, int id)
     {
       var channel = await GetChannelAsync(id);
       if (channel == null)
@@ -208,7 +208,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return null;
     }
 
-    internal static async Task<IList<IProgram>> GetChannelProgramsAsync(IOwinContext context, int id, DateTime start, DateTime end)
+    internal static async Task<IList<IProgram>> GetChannelProgramsAsync(RequestContext context, int id, DateTime start, DateTime end)
     {
       List<IProgram> channelPrograms = new List<IProgram>();
       var channel = await GetChannelAsync(id);
@@ -222,7 +222,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return channelPrograms;
     }
 
-    internal static async Task<IList<IProgram>> GetGroupProgramsAsync(IOwinContext context, DateTime start, DateTime end, int? id = null)
+    internal static async Task<IList<IProgram>> GetGroupProgramsAsync(RequestContext context, DateTime start, DateTime end, int? id = null)
     {
       List<IProgram> groupPrograms = new List<IProgram>();
       var channels = await GetGroupChannelsAsync(context, id);
@@ -235,7 +235,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return groupPrograms;
     }
 
-    internal static async Task<MediaItem> StartTimeshiftAsync(IOwinContext context, int id, string userName)
+    internal static async Task<MediaItem> StartTimeshiftAsync(RequestContext context, int id, string userName)
     {
       var channel = await GetChannelAsync(id);
       if (channel == null)
@@ -280,7 +280,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return item.Result;
     }
 
-    internal static async Task<bool> StopTimeshiftAsync(IOwinContext context, int id, string userName)
+    internal static async Task<bool> StopTimeshiftAsync(RequestContext context, int id, string userName)
     {
       if (!CLIENT_CHANNELS.TryRemove(userName, out ChannelInfo channel))
         return false;
@@ -295,21 +295,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return true;
     }
 
-    internal static Task<IList<ICard>> GetTunerCardsAsync(IOwinContext context)
+    internal static Task<IList<ICard>> GetTunerCardsAsync(RequestContext context)
     {
       if (TunerInfo.GetCards(out List<ICard> cards))
         return Task.FromResult<IList<ICard>>(cards);
       return Task.FromResult<IList<ICard>>(new List<ICard>());
     }
 
-    internal static Task<IList<IVirtualCard>> GetVirtualCardsAsync(IOwinContext context)
+    internal static Task<IList<IVirtualCard>> GetVirtualCardsAsync(RequestContext context)
     {
       if (TunerInfo.GetActiveVirtualCards(out List<IVirtualCard> cards))
         return Task.FromResult<IList<IVirtualCard>>(cards);
       return Task.FromResult<IList<IVirtualCard>>(new List<IVirtualCard>());
     }
 
-    internal static async Task<bool> GetProgramIsScheduledOnChannel(IOwinContext context, int channelId, int programId)
+    internal static async Task<bool> GetProgramIsScheduledOnChannel(RequestContext context, int channelId, int programId)
     {
       if (ProgramInfo.GetProgram(programId, out IProgram prog))
       {

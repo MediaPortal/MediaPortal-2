@@ -247,7 +247,7 @@ namespace MediaPortal.Utilities.SystemAPI
       public bool bInheritHandle;
       public SecurityAttributes()
       {
-        nLength = (uint) Marshal.SizeOf(typeof(SecurityAttributes));
+        nLength = (uint)Marshal.SizeOf(typeof(SecurityAttributes));
         lpSecurityDescriptor = IntPtr.Zero;
       }
     }
@@ -442,7 +442,7 @@ namespace MediaPortal.Utilities.SystemAPI
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     public static extern IntPtr CreateWindowEx(uint dwExStyle, string className, string windowName, uint dwStyle, int x, int y,
                                                 int width, int height, IntPtr hWndParent, IntPtr hMenu, IntPtr hInstance, IntPtr lpParam);
-    
+
     [DllImport("user32.dll", CharSet = CharSet.Auto)]
     public static extern bool DestroyWindow(IntPtr hWnd);
 
@@ -573,6 +573,25 @@ namespace MediaPortal.Utilities.SystemAPI
       string platformDir = IntPtr.Size > 4 ? "x64" : "x86";
       string executingPath = Assembly.GetCallingAssembly().Location;
       string absolutePlatformDir = Path.Combine(Path.GetDirectoryName(executingPath), platformDir);
+      SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_USER_DIRS | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
+      selectedPath = absolutePlatformDir;
+      return AddDllDirectory(absolutePlatformDir);
+    }
+
+    /// <summary>
+    /// Helper method to set the native Dll search path to a subfolder relative to calling assembly.
+    /// <example>
+    /// e_sqlite3.dll with following subfolders for platform specific binaries:
+    ///   \runtimes\win-x86\native\
+    ///   \runtimes\win-x64\native\
+    /// </example>
+    /// </summary>
+    /// <returns><c>true</c> if path could be set successfully.</returns>
+    public static bool SetRuntimeIdentifierSearchDirectories(out string selectedPath)
+    {
+      string platformDir = IntPtr.Size > 4 ? "win-x64" : "win-x86";
+      string executingPath = Assembly.GetCallingAssembly().Location;
+      string absolutePlatformDir = Path.Combine(Path.GetDirectoryName(executingPath), "runtimes", platformDir, "native");
       SetDefaultDllDirectories(LOAD_LIBRARY_SEARCH_USER_DIRS | LOAD_LIBRARY_SEARCH_DEFAULT_DIRS);
       selectedPath = absolutePlatformDir;
       return AddDllDirectory(absolutePlatformDir);

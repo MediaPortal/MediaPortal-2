@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    Source="screens\SimpleShowItems.xaml"
+
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:imagesources="clr-namespace:MediaPortal.UI.SkinEngine.Controls.ImageSources;assembly=SkinEngine"
+
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls">
+
+  <Include.Resources>
+
+    <ResourceWrapper x:Key="Header_Text" Resource="[Media.AudioCurrentlyPlayingHeader]"/>
+    <Model x:Key="WebradioDataModel" Id="BD1BA004-1BC0-49F5-9107-AD8FFD07BAAE"/>
+    
+    <ControlTemplate x:Key="Contents_Template">
+      <mp_special_controls:PlayerControl Margin="20" PlayerContext="CurrentPlayer"
+          HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <mp_special_controls:PlayerControl.TemplateControl>
+          <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+
+            <Grid.Resources>
+              <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+              <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+              <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+              <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+              <Model x:Key="WebradioFavoritesModel" Id="B8DB0672-483A-4E8B-AAF7-2CBEE3F92524"/>
+              <Model x:Key="WebradioDataModel" Id="BD1BA004-1BC0-49F5-9107-AD8FFD07BAAE"/>
+            </Grid.Resources>
+
+            <Grid.Background>
+              <VisualBrush x:Name="FanartVisualBrush">
+                <VisualBrush.Visual>
+                  <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                    <Grid.RowDefinitions>
+                      <RowDefinition Height="*"/>
+                    </Grid.RowDefinitions>
+                    <Grid.ColumnDefinitions>
+                      <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
+                    <Image x:Name="FanArtImageBackground" Stretch="UniformToFill"
+                           IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}">
+                      <Image.Source>
+                        <imagesources:ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                                                         Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+                      </Image.Source>
+                    </Image>
+                    <Image  Stretch="UniformToFill" Source="webradiobackground.jpg" IsVisible="{Binding ElementName=FanArtImageBackground, Path=HasImage}"/>
+                  </Grid>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Grid.Background>
+
+
+            <Grid.RowDefinitions>
+              <RowDefinition Height="50"/>
+              <RowDefinition Height="50"/>
+              <RowDefinition Height="50"/>
+              <RowDefinition Height="50"/>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="15*"/>
+              <ColumnDefinition Width="35*"/>
+              <ColumnDefinition Width="50*"/>
+            </Grid.ColumnDefinitions>
+
+            <Label x:Name="ArtistsLabel" Grid.Row="0" Grid.Column="0"
+                Content="[Media.AudioArtistsLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Artists" Grid.Row="0" Grid.Column="1"
+                Content="{Binding Source={StaticResource WebradioDataModel}, Path=TrackArtist}" Color="{ThemeResource TextColor}"/>
+
+            <Label x:Name="TitleLabel" Grid.Row="1" Grid.Column="0"
+                Content="[Media.AudioTitleLabel]" Color="{ThemeResource TextColor}"/>
+            <Label x:Name="Title" Grid.Row="1" Grid.Column="1" Scroll="Auto"
+                Content="{Binding Source={StaticResource WebradioDataModel}, Path=TrackName}" Color="{ThemeResource TextColor}"/>
+
+            <Label x:Name="Album" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2"
+                Content="{Binding Source={StaticResource WebradioDataModel}, Path=StationName}" Color="{ThemeResource TextColor}"/>
+
+            <Label x:Name="Bio" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" VerticalAlignment="Top" HorizontalAlignment="Left"
+                Content="{Binding Source={StaticResource WebradioDataModel}, Path=ArtistBiography}" FontSize="{ThemeResource SmallerFontSize}" Color="{ThemeResource TextColor}" Wrap="True" Scroll="Auto" ScrollSpeed="5" Height="350"/>
+
+            <!--Logo-->
+            <StackPanel Grid.Row="0" Grid.Column="2" Grid.RowSpan="4">
+              <Canvas Width="{StaticResource MEDIA_THUMB_WIDTH_CP}" Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}" Background="#00000000">
+                <Rectangle Width="{StaticResource MEDIA_THUMB_WIDTH_CP}" Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}" RadiusY="20" RadiusX="20" Stroke="Black">
+                  <Rectangle.Fill>
+                    <ImageBrush DataContext="{Binding Source={StaticResource WebradioDataModel}, Path=CurrentStreamLogo}" ImageSource="{Binding}"/>
+                  </Rectangle.Fill>
+                </Rectangle>
+                <Rectangle Width="{StaticResource MEDIA_THUMB_WIDTH_CP}" Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}" RadiusY="20" RadiusX="20" Stroke="Black" Opacity="0.5">
+                  <Rectangle.Fill>
+                    <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                      <GradientStop Color="Black" Offset="0"/>
+                      <GradientStop Offset="0.073"/>
+                      <GradientStop Color="Transparent" Offset="1"/>
+                      <GradientStop Color="Transparent" Offset="0.103"/>
+                    </LinearGradientBrush>
+                  </Rectangle.Fill>
+                </Rectangle>
+              </Canvas>
+            </StackPanel>
+
+          </Grid>
+        </mp_special_controls:PlayerControl.TemplateControl>
+      </mp_special_controls:PlayerControl>
+    </ControlTemplate>
+
+  </Include.Resources>
+</Include>

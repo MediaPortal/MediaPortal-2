@@ -22,18 +22,18 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.UPnPRenderer.MediaItems;
+using Microsoft.Win32;
+using MimeMapping;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Runtime.InteropServices;
-using System.Web;
 using System.Xml;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.UPnPRenderer.MediaItems;
-using Microsoft.Win32;
 
 namespace MediaPortal.UPnPRenderer.UPnP
 {
@@ -114,7 +114,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
 
             TraceLogger.WriteLine("Bufer: " + BitConverter.ToString(buffer));
             TraceLogger.WriteLine(response.ContentType);
-            TraceLogger.WriteLine("Sytem Mimemapping" + MimeMapping.GetMimeMapping(url));
+            TraceLogger.WriteLine("Sytem Mimemapping" + MimeUtility.GetMimeMapping(url));
 
             try
             {
@@ -135,7 +135,7 @@ namespace MediaPortal.UPnPRenderer.UPnP
                 if (mime == "application/octet-stream")
                 {
                   TraceLogger.WriteLine("response.ContentType couldn't find mime type");
-                  mime = MimeMapping.GetMimeMapping(url);
+                  mime = MimeUtility.GetMimeMapping(url);
                   TraceLogger.WriteLine("MimeType from GetMimeMapping: " + mime);
 
                   if (mime == "application/octet-stream")

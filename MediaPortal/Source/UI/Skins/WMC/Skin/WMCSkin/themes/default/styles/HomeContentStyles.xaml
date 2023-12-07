@@ -18,6 +18,7 @@
   <Model x:Key="MediaListModel" Id="6121E6CC-EB66-4ABC-8AA0-D952B64C0414"/>
   <Model x:Key="HomeMenuModel" Id="2EAA2DAB-241F-432F-A487-CDD35CCD4309"/>
   <Model x:Key="HomeContentModel" Id="24BB1BBE-A3B3-474A-8D55-C37EBE182F6C"/>
+  <Model x:Key="TimeModel" Id="E821B1C8-0666-4339-8027-AA45A4F6F107"/>
 
   <!--++++++++++++++++++++++++++++++++++-->
   <!--++++ HOME CONTENT ITEM STYLES ++++-->

@@ -22,22 +22,19 @@
 
 #endregion
 
-using System;
-using System.IO;
-using System.Linq;
-using System.Net;
-using System.Reflection;
-using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http.Controllers;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using MediaPortal.Utilities.SystemAPI;
-using Microsoft.Owin;
+using System;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
 {
@@ -55,12 +52,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General
       _appDataPath = ServiceRegistration.Get<IPathManager>().GetPath(@"<DATA>\Web\");
     }
 
-    public static async Task<bool> ProcessAsync(IOwinContext context, string path)
+    public static async Task<bool> ProcessAsync(RequestContext context, string path)
     {
       if (path == null)
       {
-        if (context.Request.Uri.Segments.Length >= 3)
-          path = string.Join("", context.Request.Uri.Segments.Skip(2));
+        Uri uri = context.Request.GetUri();
+        if (uri.Segments.Length >= 3)
+          path = string.Join("", uri.Segments.Skip(2));
       }
 
       if (path == null)

@@ -22,15 +22,15 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClasses;
-using Microsoft.Owin;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetFileSystemDriveBasicById : BaseDriveBasic
   {
-    public static Task<WebDriveBasic> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebDriveBasic> ProcessAsync(RequestContext context, string id)
     {
       List<WebDriveBasic> driveList = DriveBasic();
 

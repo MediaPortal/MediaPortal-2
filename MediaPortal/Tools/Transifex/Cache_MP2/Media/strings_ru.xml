@@ -436,8 +436,6 @@
   <string name="Settings.Media.ShowVirtual.Series">Показать все известные сезоны и серии</string>
   <string name="Settings.Media.Certification.None">Original (as imported)</string>
   <!--Secondary filters-->
-  <string name="Filter.RemoteNumericAlphabet0"></string>
-  <string name="Filter.RemoteNumericAlphabet1"></string>
   <string name="Filter.Filtered">Отфильтровано</string>
   <string name="Filter.StartsWith">Начинается с: {0}</string>
   <string name="RestrictionGroup.Media.DeleteMediaItem">Медиа: Удалить элементы из хранилища</string>

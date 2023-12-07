@@ -23,7 +23,6 @@
 #endregion
 
 using CommandLine;
-using CommandLine.Text;
 
 namespace MediaPortal.LogCollector
 {
@@ -34,11 +33,5 @@ namespace MediaPortal.LogCollector
 
     [Option('o', "output", Required = false, HelpText = "Overrides the default output directory (default: Desktop\\MediaPortal2-Logs).")]
     public string OutputDirectory { get; set; }
-
-    [HelpOption]
-    public string GetUsage()
-    {
-      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-    }
   }
 }

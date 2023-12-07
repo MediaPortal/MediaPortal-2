@@ -1,0 +1,209 @@
+﻿<Window x:Class="MP2BootstrapperApp.Views.InstallWizardView"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:view="clr-namespace:MP2BootstrapperApp.Views"
+        xmlns:viewModels="clr-namespace:MP2BootstrapperApp.ViewModels"
+        xmlns:extensions="clr-namespace:MP2BootstrapperApp.Extensions"
+        xmlns:me="clr-namespace:MP2BootstrapperApp.MarkupExtensions"
+        mc:Ignorable="d"
+        Title="MediaPortal 2 Setup" Height="680" Width="1150" ResizeMode="NoResize" WindowStyle="None"
+        WindowStartupLocation="CenterScreen" UseLayoutRounding="False" AllowsTransparency="True"
+        MouseDown="Window_MouseDown" >
+
+  <Window.Effect>
+    <DropShadowEffect ShadowDepth="3" BlurRadius="25"/>
+  </Window.Effect>
+  <Window.Foreground>
+    <SolidColorBrush Color="Black"/>
+  </Window.Foreground>
+  <Window.Background>
+    <SolidColorBrush Color="#FF0E0E0E"/>
+  </Window.Background>
+  <Window.Resources>
+    <ResourceDictionary>
+
+      <ResourceDictionary.MergedDictionaries>
+        <ResourceDictionary Source="../Styles/ButtonStyles.xaml" />
+      </ResourceDictionary.MergedDictionaries>
+
+      <!-- Our style for the ToggleButton -->
+      <Style x:Key="ToggleButtonWindowClose" TargetType="{x:Type ToggleButton}">
+        <!-- Here you can set the initial properties for the control -->
+        <Setter Property="Background" Value="Transparent" />
+        <Setter Property="SnapsToDevicePixels" Value="True" />
+
+        <!-- Template needs to completely re-writing the standard control -->
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type ToggleButton}">
+              <Grid>
+                <!-- Then responsible for the content. In our case it did not really need, because it is set Path -->
+                <ContentPresenter x:Name="MyContentPresenter" Content="{TemplateBinding Content}" HorizontalAlignment="Center" VerticalAlignment="Center" />
+                <!-- Our Path. Shows a cross -->
+                <Path x:Name="CloseWindow" SnapsToDevicePixels="True" ToolTip="Close window" Width="12" Height="12" Margin="0,0,10,0" HorizontalAlignment="Right" VerticalAlignment="Center" Stretch="Fill" Fill="#FF919191" Data="F1 M 26.9166,22.1667L 37.9999,33.25L 49.0832,22.1668L 53.8332,26.9168L 42.7499,38L 53.8332,49.0834L 49.0833,53.8334L 37.9999,42.75L 26.9166,53.8334L 22.1666,49.0833L 33.25,38L 22.1667,26.9167L 26.9166,22.1667 Z " />
+              </Grid>
+              <!-- Trigger fires on the property -->
+              <ControlTemplate.Triggers>
+                <!-- Here change the color when the mouse cursor -->
+                <Trigger Property="IsMouseOver" Value="True">
+                  <Setter TargetName="CloseWindow" Property="Fill" Value="#C10000" />
+                </Trigger>
+
+                <!-- Use ToggleButton, because it has a property IsChecked, accessible through the style -->
+                <Trigger Property="IsChecked" Value="True">
+
+                </Trigger>
+              </ControlTemplate.Triggers>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+
+      <Style x:Key="HeaderContentStyle" TargetType="ContentControl">
+        <Style.Resources>
+          <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+              <ResourceDictionary Source="../Styles/HeaderDataTemplates.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+          </ResourceDictionary>
+        </Style.Resources>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type ContentControl}">
+              <ContentPresenter/>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+
+      <Style x:Key="PageContentStyle" TargetType="ContentControl">
+        <Style.Resources>
+          <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+              <ResourceDictionary Source="../Styles/PageDataTemplates.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+          </ResourceDictionary>
+        </Style.Resources>
+        <Setter Property="Template">
+          <Setter.Value>
+            <ControlTemplate TargetType="{x:Type ContentControl}">
+              <Grid>
+                <Rectangle Fill="{TemplateBinding Background}"/>
+                <ContentPresenter/>
+              </Grid>
+            </ControlTemplate>
+          </Setter.Value>
+        </Setter>
+      </Style>
+
+      <VisualBrush x:Key="Background">
+        <VisualBrush.Visual>
+          <Grid>
+            <Image Source="..\resources\background.jpg" Stretch="Fill">
+              <Image.Effect>
+                <BlurEffect Radius="5"/>
+              </Image.Effect>
+            </Image>
+          </Grid>
+        </VisualBrush.Visual>
+      </VisualBrush>
+
+      <VisualBrush x:Key="Banner">
+        <VisualBrush.Visual>
+          <Grid>
+            <Image Source="..\resources\banner.png" Stretch="Fill">
+            </Image>
+          </Grid>
+        </VisualBrush.Visual>
+      </VisualBrush>
+
+    </ResourceDictionary>
+  </Window.Resources>
+  <Grid Background="{StaticResource Background}">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="138"/>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="Auto"/>
+    </Grid.RowDefinitions>
+
+    <Grid Grid.Row="0" Grid.Column="0" Opacity="1" Height="138">
+      <Grid.Effect>
+        <DropShadowEffect Color="#FF060606" Opacity="0.45"/>
+      </Grid.Effect>
+      <Grid.Background>
+        <SolidColorBrush Color="#FF151515" Opacity="1"/>
+      </Grid.Background>
+
+      <ToggleButton HorizontalAlignment="Right" VerticalAlignment="Top" Height="30" Width="30" Margin="0,20,20,0" Name="CloseButton"
+                    Style="{StaticResource ToggleButtonWindowClose}" BorderBrush="White" Foreground="White" Visibility="Hidden" />
+      <Rectangle Fill="{StaticResource Banner}" HorizontalAlignment="Left" Height="130" VerticalAlignment="Top" Width="805" Margin="59,10,0,0"/>
+    </Grid>
+
+    <ContentControl Grid.Row="0" Style="{StaticResource HeaderContentStyle}" HorizontalAlignment="Right" VerticalAlignment="Bottom" Margin="0,0,20,15"
+                    Content="{Binding CurrentPage}"/>
+
+    <ContentControl Grid.Column="0" Grid.Row="1" Style="{StaticResource PageContentStyle}" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+                    Margin="40,30" FontSize="26" Foreground="White"
+                    Content="{Binding CurrentPage}"/>
+
+    <Grid Grid.Column="0" Grid.Row="2" Height="45" Background="#66FFFFFF">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="*" />
+        <ColumnDefinition Width="*" />
+      </Grid.ColumnDefinitions>
+
+      <Button Grid.Row="0" Grid.Column="0" x:Name="Abort" IsEnabled="True" Command="{Binding Path=CancelCommand}" Content="{me:Localize StringIdBinding={Binding Path=CurrentPage.ButtonCancelContent}}"
+              HorizontalAlignment="Left" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="50,0,0,0"/>
+      <Button Grid.Row="0" Grid.Column="1" x:Name="Back" IsEnabled="True" Command="{Binding Path=BackCommand}" Content="{me:Localize StringIdBinding={Binding Path=CurrentPage.ButtonBackContent}}"
+              HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="0,0,0,0"/>
+      <Button Grid.Row="0" Grid.Column="2" x:Name="Next" IsEnabled="True" Command="{Binding Path=NextCommand}" Content="{me:Localize StringIdBinding={Binding Path=CurrentPage.ButtonNextContent}}"
+              HorizontalAlignment="Right" HorizontalContentAlignment="Center" VerticalAlignment="Center" FontSize="22" Margin="0,0,50,0"/>
+    </Grid>
+
+    <ProgressBar Grid.Column="0" Grid.Row="3" HorizontalAlignment="Left" Height="5"  VerticalAlignment="Bottom" 
+                 Width="1150" Foreground="#E8641B" Minimum="0" Value="{Binding Path=Progress}" BorderThickness="0"/>
+    <Grid Grid.Column="0" Grid.Row="4">
+      <Grid.ColumnDefinitions>
+        <ColumnDefinition Width="26*"/>
+        <ColumnDefinition Width="35*"/>
+        <ColumnDefinition Width="939*"/>
+      </Grid.ColumnDefinitions>
+      <Rectangle HorizontalAlignment="Left" Height="131" Stroke="Black" VerticalAlignment="Top" Width="1130" StrokeThickness="0" Grid.ColumnSpan="3">
+        <Rectangle.Fill>
+          <SolidColorBrush Color="#FF151515" Opacity="0.8" />
+        </Rectangle.Fill>
+        <Rectangle.Effect>
+          <DropShadowEffect Opacity="0.5" Direction="180" BlurRadius="9" />
+        </Rectangle.Effect>
+      </Rectangle>
+
+      <TextBlock TextAlignment="Center" HorizontalAlignment="Center" Height="111" TextWrapping="Wrap"
+                       VerticalAlignment="Bottom" Width="1001" Foreground="#FF919191" FontStretch="SemiCondensed"
+                       FontSize="14" Grid.ColumnSpan="3" Margin="0,0,-1,0">
+        <Run Text="MediaPortal is a free open source mediacenter software" /><LineBreak /><LineBreak />
+        <Run Text="You may use, distribute and copy MediaPortal under the terms of" />
+        <Run FontFamily="Arial" Text=" " />
+        <Run Text="GNU General Public License version 3, which is displayed below." /><LineBreak />
+        <Span TextDecorations="Underline">
+          <Span.Foreground>
+            <SolidColorBrush Color="#FF006493" />
+          </Span.Foreground>
+          <extensions:ExternalHyperlink NavigateUri="http://www.gnu.de/documents/gpl-3.0.en.html">GNU GENERAL PUBLIC LICENSE</extensions:ExternalHyperlink>
+        </Span>
+        <LineBreak />
+        <Span>
+          <Run Text="Version 3, 29 June 2007" />
+        </Span>
+      </TextBlock>
+    </Grid>
+  </Grid>
+</Window>
+

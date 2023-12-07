@@ -33,14 +33,14 @@ using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
   // TODO: This one doesn't to work in the MIA rework yet
   internal class GetMusicAlbumsBasic : BaseMusicAlbumBasic
   {
-    public static Task<IList<WebMusicAlbumBasic>> ProcessAsync(IOwinContext context, string filter, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebMusicAlbumBasic>> ProcessAsync(RequestContext context, string filter, WebSortField? sort, WebSortOrder? order)
     {
       IList<MediaItem> items = MediaLibraryAccess.GetMediaItemsByAspect(context, BasicNecessaryMIATypeIds, BasicOptionalMIATypeIds, null);
       if (items.Count == 0)

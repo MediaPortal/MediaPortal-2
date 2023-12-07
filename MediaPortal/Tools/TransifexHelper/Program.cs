@@ -48,6 +48,7 @@ namespace TransifexHelper
         set { _name = value.Replace(".", ""); } // Cleanup invalid characters from resource names (no dots)
       }
 
+      public string OrganizationSlug { get; set; } = "mediaportal";
       public string ProjectSlug { get; set; }
       public string LanguageDirectory { get; set; }
 
@@ -63,7 +64,7 @@ namespace TransifexHelper
 
       public string GetProjectAndResourceCombined()
       {
-        return ProjectSlug + "." + Name;
+        return $"o:{OrganizationSlug}:p:{ProjectSlug}:r:{Name}";
       }
     }
 

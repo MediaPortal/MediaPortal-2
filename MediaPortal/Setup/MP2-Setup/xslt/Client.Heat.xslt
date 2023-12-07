@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <xsl:stylesheet version="1.0"
-                xmlns="http://schemas.microsoft.com/wix/2006/wi"
-                xmlns:wix="http://schemas.microsoft.com/wix/2006/wi"
+                xmlns="http://wixtoolset.org/schemas/v4/wxs"
+                xmlns:wix="http://wixtoolset.org/schemas/v4/wxs"
                 xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 
   <xsl:key name="MP2-Client.exe"
@@ -10,6 +10,17 @@
 
   <xsl:key name="MP2-Client_x64.exe"
            match="//wix:Component[wix:File/@Source = '$(var.MediaPortal.Client.TargetDir)\MP2-Client (x64).exe']"
+           use="@Id"/>
+
+  <!-- Get the Tv client and provider plugin directories so they can be excluded, they are included in their own features. -->
+  <xsl:key name="SlimTv.Client"
+           match="//wix:Directory[@Name = 'SlimTv.Client']//wix:Component"
+           use="@Id"/>
+  <xsl:key name="SlimTv.NativeProvider"
+           match="//wix:Directory[@Name = 'SlimTv.NativeProvider']//wix:Component"
+           use="@Id"/>
+  <xsl:key name="SlimTv.TvMosaicProvider"
+           match="//wix:Directory[@Name = 'SlimTv.TvMosaicProvider']//wix:Component"
            use="@Id"/>
 
   <!-- Copy all nodes from source to target and apply templates. -->
@@ -70,4 +81,13 @@
     <ComponentRef Id="ClientLauncher.exe" />
     <ComponentRef Id="ClientLauncher.Registry.AutoStart" />
   </xsl:template>
+
+  <!-- Exclude Tv server plugin directories and components, they are included in their own features. -->
+  <xsl:template match="wix:Directory[@Name = 'SlimTv.Client']"/>
+  <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.Client', @Id)/@Id]"/>
+  <xsl:template match="wix:Directory[@Name = 'SlimTv.NativeProvider']"/>
+  <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.NativeProvider', @Id)/@Id]"/>
+  <xsl:template match="wix:Directory[@Name = 'SlimTv.TvMosaicProvider']"/>
+  <xsl:template match="wix:ComponentRef[@Id = key('SlimTv.TvMosaicProvider', @Id)/@Id]"/>
+  
 </xsl:stylesheet>

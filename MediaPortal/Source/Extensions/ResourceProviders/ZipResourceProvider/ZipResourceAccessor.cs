@@ -347,11 +347,18 @@ namespace MediaPortal.Extensions.ResourceProviders.ZipResourceProvider
       }
     }
 
-    public IDisposable EnsureLocalFileSystemAccess()
+    public void RunWithLocalFileSystemAccess(Action action)
     {
       // Nothing to do here; access to the resource is ensured as of accessing the
       // LocalFileSystemPath property at the latest.
-      return null;
+      action();
+    }
+
+    public T RunWithLocalFileSystemAccess<T>(Func<T> func)
+    {
+      // Nothing to do here; access to the resource is ensured as of accessing the
+      // LocalFileSystemPath property at the latest.
+      return func();
     }
 
     #endregion

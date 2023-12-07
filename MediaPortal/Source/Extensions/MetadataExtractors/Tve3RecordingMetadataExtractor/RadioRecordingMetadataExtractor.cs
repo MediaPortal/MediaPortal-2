@@ -198,8 +198,8 @@ namespace MediaPortal.Extensions.MetadataExtractors
       }
       else
       {
-        using (localFsResourceAccessor.EnsureLocalFileSystemAccess())
-          result.Open(localFsResourceAccessor.LocalFileSystemPath);
+        localFsResourceAccessor.RunWithLocalFileSystemAccess(() =>
+          result.Open(localFsResourceAccessor.LocalFileSystemPath));
       }
       return result;
     }

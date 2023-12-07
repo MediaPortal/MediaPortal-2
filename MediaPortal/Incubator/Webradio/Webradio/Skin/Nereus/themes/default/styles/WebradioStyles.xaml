@@ -1,0 +1,497 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+  xmlns:wrh="clr-namespace:Webradio.Models"
+  xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+  DependsOnStyleResources="Buttons,Colors,Consts">
+
+  <!-- ################################################################# -->
+  <!-- ###################   WEB RADIO OSD   ########################### -->
+  <!-- ################################################################# -->
+
+  <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+  <Model x:Key="WebradioFavoritesModel" Id="B8DB0672-483A-4E8B-AAF7-2CBEE3F92524"/>
+
+  <Style x:Key="OSDWebRadioContainer" TargetType="{x:Type Control}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate>
+          <ControlTemplate.Resources>
+            <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
+          </ControlTemplate.Resources>
+          <Grid HorizontalAlignment="Right" VerticalAlignment="Stretch" IsVisible="{Binding Source={StaticResource AudioPlayerModel},Path=IsOSDVisible}">
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+
+            <Grid x:Name="MainOSDGrid" HorizontalAlignment="Right" VerticalAlignment="Stretch" Margin="0,20,10,0">
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+              </Grid.ColumnDefinitions>
+
+              <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="90"/>
+              </Grid.RowDefinitions>
+
+              <Control x:Name="ControlsPresenter" Grid.Row="1" VerticalAlignment="Top" HorizontalAlignment="Right"
+                       SetFocusPrio="Default" Template="{DynamicResource ResourceKey=OSD_Controls_Template}"/>
+            </Grid>
+          </Grid>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="PrimaryWebRadioOSDStyle" TargetType="{x:Type mp_special_controls:PlayerControl}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type mp_special_controls:PlayerControl}">
+          <ControlTemplate.Resources>
+            <Model x:Key="AudioPlayerModel" Id="D8998340-DA2D-42be-A29B-6D7A72AEA2DC"/>
+          </ControlTemplate.Resources>
+
+          <Control Style="{ThemeResource OSDWebRadioContainer}" Width="{ThemeResource FullScreenContentVideoPrimaryPlayerOSDWidth}"
+                   DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+            <Control.Resources>
+
+              <ControlTemplate x:Key="OSD_Controls_Template">
+                <Grid x:Name="PlayControlsPanel" VerticalAlignment="Bottom" HorizontalAlignment="Stretch">
+                  <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="Auto"/>
+                  </Grid.ColumnDefinitions>
+
+                  <StackPanel x:Name="PlayControlsPanel_Front" Grid.Column="0" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
+                    <Button x:Name="RewindButton" Style="{ThemeResource RewindButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekBackward}"
+                            Command="{Command SeekBackward}"/>
+                    <Button x:Name="PlayPauseButton" Margin="{ThemeResource PlayerControlButtonMargins}" Style="{ThemeResource PlayPauseButtonStyle}"
+                            Command="{Command Play}">
+                      <Button.IsVisible>
+                        <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
+                          <Binding Path="CanPlay"/>
+                          <Binding Path="CanPause"/>
+                        </MultiBinding>
+                      </Button.IsVisible>
+                      <Button.Triggers>
+                        <DataTrigger Binding="{Binding CanPause}" Value="True">
+                          <Setter Property="Command" Value="{Command Pause}"/>
+                        </DataTrigger>
+                      </Button.Triggers>
+                    </Button>
+                    <Button x:Name="StopButton" Style="{ThemeResource StopButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanStop}"
+                            Command="{Command Stop}"/>
+                    <Button x:Name="ForwardButton" Style="{ThemeResource ForwardButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}" IsVisible="{Binding CanSeekForward}"
+                            Command="{Command SeekForward}"/>
+                  </StackPanel>
+
+                  <StackPanel x:Name="PlayControlsPanel_Back" Grid.Column="1" Orientation="Horizontal" VerticalAlignment="Center" HorizontalAlignment="Stretch" Height="90">
+                    <Button x:Name="SelectContextMenuButton" Style="{ThemeResource SelectContextMenuButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={StaticResource VideoPlayerModel},Path=OpenPlayerConfigurationDialog}"/>
+                    <Button x:Name="AudioActiveButton" IsVisible="{Binding IsAudio}" Style="{ThemeResource AudioActiveButtonStyle}" Command="{Command AudioButtonPressed}"/>
+                    <StackPanel Orientation="Vertical" Margin="0,3,1,-3">
+                      <Button x:Name="VolumeUpButton" Style="{ThemeResource VolumeUpButtonStyle}"
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeUp}"/>
+                      <Button x:Name="VolumeDownButton" Style="{ThemeResource VolumeDownButtonStyle}"
+                              Command="{Command Source={StaticResource GeneralPlayerModel},Path=VolumeDown}"/>
+                    </StackPanel>
+                    <Button x:Name="BackButton" Style="{ThemeResource NavigateBackButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePop,Parameters=1}"/>
+                    <Button x:Name="CloseButton" Style="{ThemeResource CloseButtonStyle}" Margin="{ThemeResource PlayerControlButtonMargins}"
+                            Command="{Command Source={Service WorkflowManager},Path=NavigatePush,Parameters=BBFA7DB7-5055-48D5-A904-0F0C79849369}"/>
+                  </StackPanel>
+
+                </Grid>
+              </ControlTemplate>
+
+            </Control.Resources>
+          </Control>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="PlayerContext" Value="PrimaryPlayer"/>
+  </Style>
+
+  <!-- ################################################################# -->
+  <!-- ################   WEB RADIO OTHER STYLES   ##################### -->
+  <!-- ################################################################# -->
+
+
+  <!-- A data template which shows an image and the Name of the ListItem -->
+  <DataTemplate x:Key="WebradioFilterItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <CheckBox DockPanel.Dock="Left" IsChecked="{Binding Selected}" />
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <DataTemplate x:Key="WebradioDlgFavoritesDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Label x:Name="ItemLabelLeft" DockPanel.Dock="Center" Content="{Binding [Name]}"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
+      <Label x:Name="ItemLabelRight" DockPanel.Dock="Center" Content="{Binding [Count]}"
+             HorizontalAlignment="Right" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- ListView style to be used in the content area of the screens -->
+  <Style x:Key="WebradioFilterListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource WebradioFilterItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="WebradioDlgFavoritesListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource WebradioDlgFavoritesDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <!-- ################################################################# -->
+  <!-- ################   WEB RADIO VIEW STYLES   ###################### -->
+  <!-- ################################################################# -->
+
+  <Style x:Key="WebRadioListItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_List}" Margin="0,0,0,0"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  ContextMenuCommand="{DynamicResource ResourceKey=Context_Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="WebRadioGridItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_Grid}" Margin="0,0,0,0"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  ContextMenuCommand="{DynamicResource ResourceKey=Context_Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}"/>
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+                <Setter Property="StackPanel.ZIndex" Value="100.0"/>
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <DataTemplate x:Key="WebRadioListItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Grid DockPanel.Dock="Right" Margin="0,0,14,0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="34"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="35"/>
+        </Grid.ColumnDefinitions>
+        <Image Stretch="Uniform" Height="34" Grid.Column="1">
+          <Image.Source>
+            <Binding Path="[CountryCode]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
+          </Image.Source>
+        </Image>
+        <Image Stretch="Uniform" Height="27" Width="27" HorizontalAlignment="Left" VerticalAlignment="Top" Source="HomeContentIcons\star.png"
+               Margin="0,4,10,0">
+          <Image.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;">
+              <Binding Path="[IsFavorite]"/>
+            </MultiBinding>
+          </Image.IsVisible>
+        </Image>
+      </Grid>
+
+      <StackPanel DockPanel.Dock="Left" VerticalAlignment="Center" Margin="10,0,0,0">
+        <Canvas Height="34" Width="34" Background="#00000000">
+          <Rectangle Height="34" Width="34" RadiusY="5" RadiusX="5" Stroke="Transparent">
+            <Rectangle.Fill>
+              <ImageBrush ImageSource="{Binding Path=DefaultImage}" />
+            </Rectangle.Fill>
+          </Rectangle>
+          <Rectangle Height="34" Width="34" RadiusY="5" RadiusX="5" Stroke="Transparent">
+            <Rectangle.Fill>
+              <ImageBrush ImageSource="{Binding [ImageSrc]}"/>
+            </Rectangle.Fill>
+          </Rectangle>
+        </Canvas>
+      </StackPanel>
+
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Name]}" Margin="10,0,10,0"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontFamily="SegoeUIBold"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <DataTemplate x:Key="WebRadioGridItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False" Margin="2"
+               Width="{StaticResource THUMBNAIL_GRID_WIDTH}" Height="{StaticResource THUMBNAIL_GRID_HEIGHT}">
+
+      <Image DockPanel.Dock="Center" Source="Thumbnail_medium.png" Stretch="Fill" Margin="-6"/>
+      <Rectangle DockPanel.Dock="Center" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+        <Rectangle.Fill>
+          <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+            <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+            <Binding Source="{ThemeResource NereusColorLight}"/>
+            <Binding Source="{ThemeResource NereusColorMedium}"/>
+          </MultiBinding>
+        </Rectangle.Fill>
+      </Rectangle>
+
+      <Grid DockPanel.Dock="Top" Margin="10,10,10,0">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="34"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="*"/>
+          <ColumnDefinition Width="Auto"/>
+          <ColumnDefinition Width="Auto"/>
+        </Grid.ColumnDefinitions>
+        <Image Stretch="Uniform" Height="34" HorizontalAlignment="Right" Grid.Column="2">
+          <Image.Source>
+            <Binding Path="[CountryCode]" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}Medialogos\flags\{0}.png"/>
+          </Image.Source>
+        </Image>
+        <Image Stretch="Uniform" Height="27" Width="27" HorizontalAlignment="Left" VerticalAlignment="Top" Source="HomeContentIcons\star.png"
+               Grid.Column="1" Margin="0,4,10,0">
+          <Image.IsVisible>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == &quot;True&quot;">
+              <Binding Path="[IsFavorite]"/>
+            </MultiBinding>
+          </Image.IsVisible>
+        </Image>
+      </Grid>
+
+      <Grid DockPanel.Dock="Left" Height="100" Width="100" Margin="10,-30,0,0">
+        <Rectangle Height="100" Width="100" StrokeThickness="0" RadiusX="15" RadiusY="15"
+                   VerticalAlignment="Center" HorizontalAlignment="Center" >
+          <Rectangle.Fill>
+            <ImageBrush ImageSource="{Binding [ImageSrc]}" />
+          </Rectangle.Fill>
+        </Rectangle>
+        <!-- Necessary hack retouching dirty image borders due to missing crop parameter in MPF -->
+        <Rectangle Height="98" Width="98" StrokeThickness="2" RadiusX="15" RadiusY="15"
+                   VerticalAlignment="Center" HorizontalAlignment="Center">
+          <Rectangle.Stroke>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+              <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+              <Binding Source="{ThemeResource NereusColorLight}"/>
+              <Binding Source="{ThemeResource NereusColorMedium}"/>
+            </MultiBinding>
+          </Rectangle.Stroke>
+        </Rectangle>
+      </Grid>
+
+      <Label x:Name="ItemLabel" DockPanel.Dock="Right" Content="{Binding [Name]}" Margin="10,0,10,0" Wrap="True"
+             HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="{ThemeResource SmallerFontSize}"
+             Color="{ThemeResource MediaItemUnwatchedColor}" HorizontalContentAlignment="Center"/>
+
+    </DockPanel>
+  </DataTemplate>
+
+  <Style x:Key="WebRadioListViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0" Style="{ThemeResource VerticalMediaScrollViewerStyle}"
+               HorizontalAlignment="Stretch" VerticalAlignment="Stretch" HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled" >
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <BindingSetter Property="ItemTemplate">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource WebRadioListItemDataTemplate}"/>
+              <Binding Source="{ThemeResource WebRadioGridItemDataTemplate}"/>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+    <BindingSetter Property="ItemContainerStyle">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
+              <Binding Source="{ThemeResource WebRadioListItemContainerStyle}"/>
+              <Binding Source="{ThemeResource WebRadioGridItemContainerStyle}"/>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+    <BindingSetter Property="ItemsPanel">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} == {LayoutType}.{ListLayout} ? {1} : {2}">
+              <Binding Source="{StaticResource GenericViewModeModel}" Path="LayoutType"/>
+              <!-- List layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True" ScrollMargin="130,130" Margin="0,-10,0,-40"
+                                        LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
+                      <AnimatedStackPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.300"
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="ListItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                        </Storyboard>
+                      </AnimatedStackPanel.Resources>
+                      <AnimatedStackPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedStackPanel.Triggers>
+                    </AnimatedStackPanel>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+              <!-- Grid layout -->
+              <Binding>
+                <Binding.Source>
+                  <ItemsPanelTemplate>
+                    <AnimatedWrapPanel x:Name="GridItemsHost" IsItemsHost="True" Orientation="Horizontal" ScrollMargin="400,400" Margin="50,-270,0,-305"
+                                       LoopScroll="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableLoopScrolling}">
+                      <AnimatedWrapPanel.Resources>
+                        <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                          <DoubleAnimation BeginTime="00:00:00" From="0" To="1" Duration="00:00:00.400"
+                                           FillBehavior="HoldEnd" Storyboard.TargetName="GridItemsHost" Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                        </Storyboard>
+                      </AnimatedWrapPanel.Resources>
+                      <AnimatedWrapPanel.Triggers>
+                        <EventTrigger RoutedEvent="AnimatedWrapPanel.Scroll">
+                          <EventTrigger.Actions>
+                            <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}"/>
+                          </EventTrigger.Actions>
+                        </EventTrigger>
+                      </AnimatedWrapPanel.Triggers>
+                    </AnimatedWrapPanel>
+                  </ItemsPanelTemplate>
+                </Binding.Source>
+              </Binding>
+            </MultiBinding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+  </Style>
+
+  <Style x:Key="FavoriteButtonStyle" TargetType="{x:Type Button}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type Button}">
+          <DockPanel>
+            <Canvas x:Name="star" DockPanel.Dock="Left" VerticalAlignment="Center">
+              <Path Height="30" Width="30" Stretch="Fill" Data="F1M15.5,1.001C15.5,1.001 20.279,9.8 20.279,9.8 20.279,9.8 29.998,11.695 29.998,11.695 29.998,11.695 23.232,19.029 23.232,19.029 23.232,19.029 24.46,28.999 24.46,28.999 24.46,28.999 15.5,24.732 15.5,24.732 15.5,24.732 6.539,28.999 6.539,28.999 6.539,28.999 7.768,19.029 7.768,19.029 7.768,19.029 1.002,11.695 1.002,11.695 1.002,11.695 10.721,9.8 10.721,9.8 10.721,9.8 15.5,1.001 15.5,1.001">
+                <Path.Opacity>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                    <Binding Source="1"/>
+                    <Binding Source="0.5"/>
+                  </MultiBinding>
+                </Path.Opacity>
+                <Path.Fill>
+                  <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                    <Binding Path="IsFavorite"/>
+                    <Binding Source="{ThemeResource NereusColorLight}"/>
+                    <Binding Source="White"/>
+                  </MultiBinding>
+                </Path.Fill>
+              </Path>
+            </Canvas>
+            <Label DockPanel.Dock="Left" Margin="10,0,0,0" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                   Content="[Webradio.Favorites.ScreenTitle]">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+            <Label DockPanel.Dock="Left" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                   Content=": ">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+            <Label DockPanel.Dock="Left" Margin="10,0,0,0" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                   Content="[Webradio.Favorites.Add]" IsVisible="{Binding Path=!IsFavorite}">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+            <Label DockPanel.Dock="Left" Margin="10,0,0,0" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
+                   Content="[Webradio.Favorites.Delete]" IsVisible="{Binding Path=IsFavorite}">
+              <Label.Opacity>
+                <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
+                  <Binding RelativeSource="{RelativeSource Mode=FindAncestor,AncestorType={x:Type Button}}" Path="HasFocus"/>
+                  <Binding Source="1"/>
+                  <Binding Source="0.5"/>
+                </MultiBinding>
+              </Label.Opacity>
+            </Label>
+          </DockPanel>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+</ResourceDictionary>

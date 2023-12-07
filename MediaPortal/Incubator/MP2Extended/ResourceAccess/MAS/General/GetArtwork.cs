@@ -30,16 +30,16 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using System;
 using MediaPortal.Plugins.MP2Extended.MAS.General;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   internal class GetArtwork
   {
     [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebDriveBasic>), Summary = "")]
-    public static Task<IList<WebArtwork>> ProcessAsync(IOwinContext context, WebMediaType type, string id)
+    public static Task<IList<WebArtwork>> ProcessAsync(RequestContext context, WebMediaType type, string id)
     {
       var output = ResourceAccessUtils.GetWebArtwork(type, Guid.Parse(id));
 

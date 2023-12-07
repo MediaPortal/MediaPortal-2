@@ -35,7 +35,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetRecordingById : BaseRecordingBasic
   {
-    public static Task<WebRecordingBasic> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebRecordingBasic> ProcessAsync(RequestContext context, string id)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordingById: ITvProvider not found");

@@ -393,17 +393,20 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
     {
       collectionName = null;
 
+      // Cannot reference the out variable in the lambda, so this
+      // variable is nneded to hold the collection name
+      string collectionNameLocal = null;
       // File based access
       try
       {
-        using (lfsra.EnsureLocalFileSystemAccess())
+        bool result = lfsra.RunWithLocalFileSystemAccess(() =>
         {
           string collectionMediaItemDirectoryPath;
           if (Directory.GetParent(lfsra.LocalFileSystemPath) != null && Directory.GetParent(Directory.GetParent(lfsra.LocalFileSystemPath).FullName) != null)
           {
             DirectoryInfo dir = Directory.GetParent(Directory.GetParent(lfsra.LocalFileSystemPath).FullName);
             collectionMediaItemDirectoryPath = dir.FullName;
-            collectionName = dir.Name;
+            collectionNameLocal = dir.Name;
           }
           else
             return false;
@@ -423,7 +426,11 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor
           if (Directory.Exists(fanArtFolder))
             if (GetPotentialFanArtFiles(fanArtFolder).Count() > 0)
               return true;
-        }
+          return false;
+        });
+
+        collectionName = collectionNameLocal;
+        return result;
       }
       catch
       {

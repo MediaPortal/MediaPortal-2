@@ -148,8 +148,8 @@ namespace MediaPortal.Plugins.AppLauncher.General
     {
       try
       {
-        var objDesCrypto = new TripleDESCryptoServiceProvider();
-        var objHashMd5 = new MD5CryptoServiceProvider();
+        var objDesCrypto = TripleDES.Create();
+        var objHashMd5 = MD5.Create();
         var strTempKey = strKey;
         var byteHash = objHashMd5.ComputeHash(Encoding.Default.GetBytes(strTempKey));
 
@@ -176,8 +176,8 @@ namespace MediaPortal.Plugins.AppLauncher.General
     {
       try
       {
-        var objDesCrypto = new TripleDESCryptoServiceProvider();
-        var objHashMd5 = new MD5CryptoServiceProvider();
+        var objDesCrypto = TripleDES.Create();
+        var objHashMd5 = MD5.Create();
         var strTempKey = strKey;
         var byteHash = objHashMd5.ComputeHash(Encoding.Default.GetBytes(strTempKey));
 

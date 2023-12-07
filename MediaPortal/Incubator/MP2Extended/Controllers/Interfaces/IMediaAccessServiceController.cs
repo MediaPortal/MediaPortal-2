@@ -22,12 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.IO;
-using System.ServiceModel;
-using System.ServiceModel.Web;
-using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
@@ -39,6 +33,9 @@ using MediaPortal.Plugins.MP2Extended.MAS.Picture;
 using MediaPortal.Plugins.MP2Extended.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
+using System.Collections.Generic;
+using System.IO;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.Controllers.Interfaces
 {

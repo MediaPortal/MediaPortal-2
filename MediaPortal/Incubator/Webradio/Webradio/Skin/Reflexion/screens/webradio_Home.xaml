@@ -1,0 +1,143 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_menu.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Webradio.Home.ScreenTitle]" />
+
+    <Model x:Key="Model" Id="EA3CC191-0BE5-4C8D-889F-E9C4616AB554" />
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="60*" />
+            <RowDefinition Height="20*" />
+            <RowDefinition Height="10*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="25*" />
+            <ColumnDefinition Width="15*" />
+            <ColumnDefinition Width="60*" />
+          </Grid.ColumnDefinitions>
+
+          <StackPanel Grid.Row="0" Grid.ColumnSpan="2" Margin="10,10,10,10">
+            <Label DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                   Content="{Binding [Name]}" HorizontalAlignment="Stretch"
+                   HorizontalContentAlignment="Center"
+                   VerticalAlignment="Center" Color="{ThemeResource TextColor}" />
+          </StackPanel>
+
+          <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="1" Margin="5,5,5,5">
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left" Content="[Webradio.Home.Genres]"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource EmphasisTextColor}" />
+
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left"
+                   DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                   Content="{Binding [Genres]}" FontSize="{ThemeResource SmallerFontSize}"
+                   Color="{ThemeResource TextColor}" />
+
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left" Content="[Webradio.Home.Bitrate]"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource EmphasisTextColor}" />
+
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left"
+                   DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                   Content="{Binding [Bitrate]}" FontSize="{ThemeResource SmallerFontSize}"
+                   Color="{ThemeResource TextColor}" />
+
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left" Content="[Webradio.Home.Country]"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource EmphasisTextColor}" />
+
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left"
+                   DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                   Content="{Binding [Country]}" FontSize="{ThemeResource SmallerFontSize}"
+                   Color="{ThemeResource TextColor}" />
+
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left" Content="[Webradio.Home.City]"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource EmphasisTextColor}" />
+
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left"
+                   DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                   Content="{Binding [City]}" FontSize="{ThemeResource SmallerFontSize}"
+                   Color="{ThemeResource TextColor}" />
+
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left" Content="[Webradio.Home.Language]"
+                   FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource EmphasisTextColor}" />
+
+            <Label VerticalAlignment="Center" HorizontalAlignment="Left"
+                   DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                   Content="{Binding [Language]}" FontSize="{ThemeResource SmallerFontSize}"
+                   Color="{ThemeResource TextColor}" />
+          </StackPanel>
+
+          <!--Logo-->
+          <StackPanel Grid.Row="1" Grid.Column="1">
+            <Canvas Width="{StaticResource MEDIA_THUMB_WIDTH_CP}"
+                    Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}"
+                    Background="#00000000">
+              <Rectangle Height="100" Width="100" RadiusY="20" RadiusX="20" Stroke="Black">
+                <Rectangle.Fill>
+                  <ImageBrush ImageSource="{Binding Path=DefaultImage}" />
+                </Rectangle.Fill>
+              </Rectangle>
+              <Rectangle Width="{StaticResource MEDIA_THUMB_WIDTH_CP}"
+                         Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}"
+                         RadiusY="20" RadiusX="20" Stroke="Black">
+                <Rectangle.Fill>
+                  <ImageBrush DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                              ImageSource="{Binding [ImageSrc]}" />
+                </Rectangle.Fill>
+              </Rectangle>
+              <Rectangle Width="{StaticResource MEDIA_THUMB_WIDTH_CP}"
+                         Height="{StaticResource MEDIA_THUMB_HEIGHT_CP}"
+                         RadiusY="20" RadiusX="20" Stroke="Black" Opacity="0.5">
+                <Rectangle.Fill>
+                  <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                    <GradientStop Color="Black" Offset="0" />
+                    <GradientStop Offset="0.073" />
+                    <GradientStop Color="Transparent" Offset="1" />
+                    <GradientStop Color="Transparent" Offset="0.103" />
+                  </LinearGradientBrush>
+                </Rectangle.Fill>
+              </Rectangle>
+            </Canvas>
+          </StackPanel>
+
+          <Label Grid.ColumnSpan="2" Grid.Row="2" Margin="5,5,5,5"
+                 DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                 Content="{Binding [Description]}" FontSize="{ThemeResource SmallerFontSize}"
+                 Color="{ThemeResource TextColor}"
+                 Wrap="True" Scroll="Auto" ScrollSpeed="5" HorizontalAlignment="Stretch"
+                 VerticalAlignment="Stretch" />
+
+          <Label Grid.Column="0" Grid.Row="3" VerticalAlignment="Center" HorizontalAlignment="Left"
+                 DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                 Content="{Binding [Indx]}" FontSize="{ThemeResource SmallerFontSize}"
+                 Color="{ThemeResource TextColor}" />
+
+          <ListView x:Name="lvStreams" Grid.Column="2" Grid.RowSpan="4" Margin="10"
+                    HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch" Style="{ThemeResource ContentsMenuListViewStyle}"
+                    ItemsSource="{Binding Path=AllRadioStreams}">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="SelectStream">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}" />
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

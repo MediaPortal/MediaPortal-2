@@ -35,8 +35,8 @@ using MediaPortal.Common.FanArt;
 using System.Net.Http;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using System.IO;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -49,7 +49,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   internal class ExtractImageResized : BaseGetArtwork
   {
     // We just return a Thumbnail from MP
-    public static async Task ProcessAsync(IOwinContext context, WebMediaType type, string itemId, int maxWidth, int maxHeight, string borders = null)
+    public static async Task ProcessAsync(RequestContext context, WebMediaType type, string itemId, int maxWidth, int maxHeight, string borders = null)
     {
       // set borders to transparent
       borders = "transparent";

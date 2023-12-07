@@ -1,13 +1,45 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resources>
+  <string name="AppLauncher.Title">启动器</string>
+  <string name="AppLauncher.Helptext">链接外部应用程序并从 MediaPortal 2 中启动它们</string>
   <string name="AppLauncher.Stop">停止</string>
+  <string name="AppLauncher.Pause">暂停</string>
+  <string name="AppLauncher.SwitchPlaying">更改播放状态</string>
   <string name="AppLauncher.Settings.Title">设置</string>
+  <string name="AppLauncher.Settings.Helptext">选择您的外部应用程序</string>
+  <string name="AppLauncher.Settings.Add">添加应用程序</string>
+  <string name="AppLauncher.Settings.Add.Shortname">简称</string>
+  <string name="AppLauncher.Settings.Add.Path">应用程序路径</string>
   <string name="AppLauncher.Settings.Add.Description">介绍</string>
   <string name="AppLauncher.Settings.Add.Username">用户名</string>
   <string name="AppLauncher.Settings.Add.Password">密码</string>
+  <string name="AppLauncher.Settings.Add.Icon">图标路径</string>
+  <string name="AppLauncher.Settings.Add.Screenmode">屏幕模式</string>
   <string name="AppLauncher.Settings.Add.Search">搜索</string>
   <string name="AppLauncher.Settings.Add.Select">选择</string>
   <string name="AppLauncher.Settings.Add.Normal">正常</string>
+  <string name="AppLauncher.Settings.Add.SearchIcon">搜索图标</string>
+  <string name="AppLauncher.Settings.Add.SearchApp">搜索应用程序</string>
+  <string name="AppLauncher.Settings.Add.AsAdmin">以管理员身份运行</string>
+  <string name="AppLauncher.Settings.Edit">编辑应用程序</string>
+  <string name="AppLauncher.Settings.Delete">删除应用程序</string>
+  <string name="AppLauncher.Settings.Menu">应用程序菜单</string>
+  <string name="AppLauncher.Settings.Menu.ClearMapping">清除映射</string>
+  <string name="AppLauncher.Settings.Test">测试应用程序</string>
+  <string name="AppLauncher.Settings.Add.Helptext">添加了一个新的应用程序</string>
+  <string name="AppLauncher.Settings.Edit.Helptext">编辑现有应用程序</string>
+  <string name="AppLauncher.Settings.Delete.Helptext">删除现有应用程序</string>
+  <string name="AppLauncher.Settings.Menu.Helptext">将应用程序链接到菜单项</string>
+  <string name="AppLauncher.Settings.RemoveGroup.Helptext">删除现有组</string>
+
+  <string name="AppLauncher.Group">组</string>
+  <string name="AppLauncher.Ungrouped">未分组</string>
+  <string name="AppLauncher.SelectGroup">选择一个组</string>
+  <string name="AppLauncher.SelectApp">选择一个应用程序</string>
+  <string name="AppLauncher.RemoveGroup">删除组</string>
   <string name="AppLauncher.Delete">删除</string>
+  <string name="AppLauncher.MenuEntry">启动程序</string>
+  <string name="AppLauncher.MenuEntry.Help">启动链接的应用程序</string>
+  <string name="AppLauncher.Menu">菜单</string>
   <string name="AppLauncher.Menu.Clear">晴朗</string>
 </resources>

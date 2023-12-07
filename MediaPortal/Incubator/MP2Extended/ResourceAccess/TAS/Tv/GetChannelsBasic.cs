@@ -35,7 +35,7 @@ using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetChannelsBasic : BaseChannelBasic
   {
-    public static async Task<IList<WebChannelBasic>> ProcessAsync(IOwinContext context, WebSortField? sort, WebSortOrder? order, string groupId = null)
+    public static async Task<IList<WebChannelBasic>> ProcessAsync(RequestContext context, WebSortField? sort, WebSortOrder? order, string groupId = null)
     {
       List<WebChannelBasic> output = new List<WebChannelBasic>();
 

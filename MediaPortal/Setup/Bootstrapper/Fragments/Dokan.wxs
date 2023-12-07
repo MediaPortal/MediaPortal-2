@@ -1,29 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
   <Fragment>
 
-    <util:FileSearch Id="Dokan_1000_Version"
-           Variable="Dokan_1000_Version" Path="[SystemFolder]DOKAN1.DLL"
-           Result="version"/>
+    <!-- 
+         Note: Version variables defined here should follow the naming convention [Package Id]_Version
+         as they will be looked up by the Bootstrapper to determine the currently installed version.
+    -->
+
+    <util:FileSearch Id="Dokan_1000_Version" Variable="dokan_Version" Path="[SystemFolder]DOKAN1.DLL" Result="version" />
     <PackageGroup Id="dokan">
-      <ExePackage Id="dokan" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
-                  Name="DokanSetup-1.0.5.1000.exe"
-                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/DokanSetup-1.0.5.1000.exe"
-                  InstallCommand="/q"
-                  InstallCondition="(NOT Dokan_1000_Version >= v1.0.0.0) OR NOT Dokan_1000_Version">
-        <RemotePayload
-                  CertificatePublicKey="70E450EF45A7F579112248987E26294ACCDC3D2F"
-                  CertificateThumbprint="0AC18DDF5466B05A1A00D9D346259C94A5488A9F"
-                  Description="Dokan Library 1.0.5.1000 Bundle"
-                  Hash="216577D09658F2F70CD7B9EFCC77D082F16B71CA"
-                  ProductName="Dokan Library 1.0.5.1000 Bundle"
-                  Size="6835728"
-                  Version="1.0.5.1000" />
+      <ExePackage Id="dokan" Cache="keep" PerMachine="yes" Permanent="yes" Vital="yes" DetectCondition="dokan_Version &gt;= v1.0.0.0" InstallArguments="/q">
+        <ExePackagePayload Name="DokanSetup-1.0.5.1000.exe" ProductName="Dokan Library 1.0.5.1000 Bundle" Description="Dokan Library 1.0.5.1000 Bundle"
+                           DownloadUrl="http://install.team-mediaportal.com/MP2/install/DokanSetup-1.0.5.1000.exe"
+                           Hash="0046D13842ECB36DC0E8E83BADA3922CC91BBF5CE1A3C7683505F37A2AC846A0FEC36ED3B88A52131D745FEE84ADAC937E19C03B5DAC9EE347C90F9922F376A7"
+                           Size="6835728" Version="1.0.5.1000" />
       </ExePackage>
     </PackageGroup>
-
   </Fragment>
-
 </Wix>

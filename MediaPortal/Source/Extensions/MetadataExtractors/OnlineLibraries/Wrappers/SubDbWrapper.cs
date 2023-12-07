@@ -64,14 +64,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       var mediaFile = subtitleSearch.MediaFiles.First();
       using (IResourceAccessor mediaItemAccessor = mediaFile.CreateAccessor())
       using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-      using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-      {
-        using (var stream = await rah.LocalFsResourceAccessor.OpenReadAsync())
+        await rah.LocalFsResourceAccessor.RunWithLocalFileSystemAccess(async () =>
         {
-          if (stream != null)
-            results = await _subDbHandler.SearchSubtitlesAsync(stream);
-        }
-      }
+          using (var stream = await rah.LocalFsResourceAccessor.OpenReadAsync())
+          {
+            if (stream != null)
+              results = await _subDbHandler.SearchSubtitlesAsync(stream);
+          }
+        });
 
       if (!results.Any())
         return new List<SubtitleInfo>();
@@ -102,14 +102,14 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       var mediaFile = subtitleSearch.MediaFiles.First();
       using (IResourceAccessor mediaItemAccessor = mediaFile.CreateAccessor())
       using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-      using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-      {
-        using (var stream = await rah.LocalFsResourceAccessor.OpenReadAsync())
+        await rah.LocalFsResourceAccessor.RunWithLocalFileSystemAccess(async () =>
         {
-          if (stream != null)
-            results = await _subDbHandler.SearchSubtitlesAsync(stream);
-        }
-      }
+          using (var stream = await rah.LocalFsResourceAccessor.OpenReadAsync())
+          {
+            if (stream != null)
+              results = await _subDbHandler.SearchSubtitlesAsync(stream);
+          }
+        });
 
       if (!results.Any())
         return new List<SubtitleInfo>();

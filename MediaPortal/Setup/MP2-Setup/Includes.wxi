@@ -1,6 +1,15 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<Include xmlns="http://wixtoolset.org/schemas/v4/wxs">
 
-<Include>
-  <?define RegKeyRoot="Software\Team MediaPortal\MediaPortal 2" ?>
+  <!--
+  This file provides common information about company and version number and other install related properties for WiX (Windows Installer Toolkit) projects.
+  It should be referenced in any MP2 wix related project (as link).
+  -->  
+  <?define Version="!(bind.FileVersion.Client.exe)" ?>
+  <?define Manufacturer = "Team MediaPortal" ?>
+  <?define Product = "MediaPortal 2" ?>
+  <?define RegKeyRoot="Software\$(var.Manufacturer)\$(var.Product)" ?>
   <?define RegKeyInstall="$(var.RegKeyRoot)\Install" ?>
+
+  <!-- This should NEVER be changed ! -->
+  <?define UpgradeCode = "9743129C-FED3-404A-A66E-3C1557BE0178" ?>
 </Include>

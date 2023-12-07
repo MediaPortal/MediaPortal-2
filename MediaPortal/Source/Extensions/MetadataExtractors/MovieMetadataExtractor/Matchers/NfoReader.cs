@@ -142,9 +142,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         ILocalFsResourceAccessor lfsra = metaFileAccessor as ILocalFsResourceAccessor;
         if (lfsra == null || !lfsra.Exists)
           return false;
-        string content;
-        using (lfsra.EnsureLocalFileSystemAccess())
-          content = File.ReadAllText(lfsra.LocalFileSystemPath);
+        string content = lfsra.RunWithLocalFileSystemAccess(() => File.ReadAllText(lfsra.LocalFileSystemPath));
         return ImdbIdMatcher.TryMatchImdbId(content, out imdbId);
       }
     }

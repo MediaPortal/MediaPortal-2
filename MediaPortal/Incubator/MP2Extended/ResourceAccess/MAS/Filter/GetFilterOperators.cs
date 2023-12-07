@@ -30,14 +30,14 @@ using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Filters;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Filter
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetFilterOperators
   {
-    public static Task<IList<WebFilterOperator>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebFilterOperator>> ProcessAsync(RequestContext context)
     {
       return Task.FromResult<IList<WebFilterOperator>>(Operator.GetAll().Select(x => new WebFilterOperator()
       {

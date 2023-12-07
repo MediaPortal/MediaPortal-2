@@ -30,9 +30,9 @@ using MediaPortal.Plugins.MP2Extended.Extensions;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using MediaPortal.Plugins.MP2Extended.MAS.Playlist;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetPlaylistItemsByRange : BaseMusicTrackBasic
   {
-    public static async Task<IList<WebPlaylistItem>> ProcessAsync(IOwinContext context, string playlistId, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
+    public static async Task<IList<WebPlaylistItem>> ProcessAsync(RequestContext context, string playlistId, int start, int end, string filter, WebSortField? sort, WebSortOrder? order)
     {
       var output = await GetPlaylistItems.ProcessAsync(context, playlistId, filter, sort, order);
 

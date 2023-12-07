@@ -87,8 +87,7 @@ namespace MediaPortal.UI.Players.BassPlayer.PlayerComponents
           ILocalFsResourceAccessor lfra = _accessor as ILocalFsResourceAccessor;
           if (lfra == null)
             return null;
-          using (lfra.EnsureLocalFileSystemAccess())
-            result = BassFsCDTrackInputSource.Create(lfra.LocalFileSystemPath);
+          result = lfra.RunWithLocalFileSystemAccess(() => BassFsCDTrackInputSource.Create(lfra.LocalFileSystemPath));
         }
         else
         {

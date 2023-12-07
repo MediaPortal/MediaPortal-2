@@ -27,6 +27,7 @@ using System.ServiceProcess;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using CommandLine;
 using MediaPortal.Backend;
 using MediaPortal.Common.Exceptions;
 using MediaPortal.Common.MediaManagement;
@@ -65,9 +66,10 @@ namespace MediaPortal.Server
     public static void Main(params string[] args)
     {
       // Parse command line options
-      var mpOptions = new CommandLineOptions();
-      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
-      parser.ParseArgumentsStrict(args, mpOptions, () => Environment.Exit(1));
+      CommandLineOptions mpOptions = new CommandLineOptions();
+      Parser.Default.ParseArguments<CommandLineOptions>(args)
+        .WithParsed(parsed => mpOptions = parsed)
+        .WithNotParsed(err => Environment.Exit(1));
 
       if (mpOptions.RunAsConsoleApp)
       {

@@ -33,7 +33,7 @@ using MP2Extended.Extensions;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -42,7 +42,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "id", Type = typeof(Guid), Nullable = false)]
   internal class GetTVSeasonCountForTVShow
   {
-    public static Task<WebIntResult> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebIntResult> ProcessAsync(RequestContext context, string id)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

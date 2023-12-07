@@ -22,9 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
 using MediaPortal.Common.General;
@@ -32,8 +29,10 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 using static MediaPortal.Common.MediaManagement.MediaItemAspectMetadata;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
@@ -42,12 +41,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
   {
     #region MediaItem By Id
 
-    internal static MediaItem GetMediaItemById(IOwinContext context, string id, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
+    internal static MediaItem GetMediaItemById(RequestContext context, string id, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
     {
       return GetMediaItemById(context, Guid.Parse(id), necessaryMIATypes, optionalMIATypes);
     }
 
-    internal static MediaItem GetMediaItemById(IOwinContext context, Guid id, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
+    internal static MediaItem GetMediaItemById(RequestContext context, Guid id, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
     {
       IList<MediaItem> items = GetMediaItemsById(context, id, necessaryMIATypes, optionalMIATypes, 1);
       if (items.Count != 0)
@@ -55,12 +54,12 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return null;
     }
 
-    internal static IList<MediaItem> GetMediaItemsById(IOwinContext context, string id, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, uint? limit = null)
+    internal static IList<MediaItem> GetMediaItemsById(RequestContext context, string id, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, uint? limit = null)
     {
       return GetMediaItemsById(context, Guid.Parse(id), necessaryMIATypes, optionalMIATypes, limit);
     }
 
-    internal static IList<MediaItem> GetMediaItemsById(IOwinContext context, Guid id, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, uint? limit = null)
+    internal static IList<MediaItem> GetMediaItemsById(RequestContext context, Guid id, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, uint? limit = null)
     {
       IFilter searchFilter = new MediaItemIdFilter(id);
       return Search(context, necessaryMIATypes, optionalMIATypes, searchFilter, limit);
@@ -77,7 +76,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
     /// <param name="necessaryMIATypes">Must contain MediaAspect</param>
     /// <param name="optionalMIATypes"></param>
     /// <returns></returns>
-    internal static MediaItem GetMediaItemByName(IOwinContext context, string name, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
+    internal static MediaItem GetMediaItemByName(RequestContext context, string name, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
     {
       if (necessaryMIATypes == null)
         necessaryMIATypes = new HashSet<Guid> { MediaAspect.ASPECT_ID };
@@ -88,7 +87,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return null;
     }
 
-    internal static IList<MediaItem> GetMediaItemsByName(IOwinContext context, string name, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, uint? limit = null)
+    internal static IList<MediaItem> GetMediaItemsByName(RequestContext context, string name, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, uint? limit = null)
     {
       if (necessaryMIATypes == null)
         necessaryMIATypes = new HashSet<Guid> { MediaAspect.ASPECT_ID };
@@ -96,13 +95,13 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return GetMediaItemsByString(context, name, necessaryMIATypes, optionalMIATypes, MediaAspect.ATTR_TITLE, limit);
     }
 
-    internal static IList<MediaItem> GetMediaItemsByString(IOwinContext context, string name, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, AttributeSpecification attributeSpecification, uint? limit = null)
+    internal static IList<MediaItem> GetMediaItemsByString(RequestContext context, string name, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, AttributeSpecification attributeSpecification, uint? limit = null)
     {
       IFilter searchFilter = new RelationalFilter(attributeSpecification, RelationalOperator.EQ, name);
       return Search(context, necessaryMIATypes, optionalMIATypes, searchFilter, limit);
     }
 
-    internal static IList<MediaItem> GetMediaItemsByInt(IOwinContext context, int number, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, AttributeSpecification attributeSpecification, uint? limit = null)
+    internal static IList<MediaItem> GetMediaItemsByInt(RequestContext context, int number, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, AttributeSpecification attributeSpecification, uint? limit = null)
     {
       IFilter searchFilter = new RelationalFilter(attributeSpecification, RelationalOperator.EQ, number);
       return Search(context, necessaryMIATypes, optionalMIATypes, searchFilter, limit);
@@ -112,7 +111,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     #region MediaItem By Aspect
 
-    internal static IList<MediaItem> GetMediaItemsByAspect(IOwinContext context, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, uint? limit = null)
+    internal static IList<MediaItem> GetMediaItemsByAspect(RequestContext context, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, uint? limit = null)
     {
       return Search(context, necessaryMIATypes, optionalMIATypes, null, limit);
     }
@@ -121,7 +120,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     #region MediaItem By Time
 
-    internal static IList<MediaItem> GetMediaItemsByRecordingTime(IOwinContext context, DateTime start, DateTime end, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
+    internal static IList<MediaItem> GetMediaItemsByRecordingTime(RequestContext context, DateTime start, DateTime end, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
     {
       IFilter searchFilter = new BetweenFilter(MediaAspect.ATTR_RECORDINGTIME, start, end);
       return Search(context, necessaryMIATypes, optionalMIATypes, searchFilter);
@@ -131,7 +130,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     #region MediaItem By Group
 
-    internal static IList<MediaItem> GetMediaItemsByGroup(IOwinContext context, Guid itemRole, Guid groupRole, Guid groupId, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
+    internal static IList<MediaItem> GetMediaItemsByGroup(RequestContext context, Guid itemRole, Guid groupRole, Guid groupId, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes)
     {
       IFilter filter = new RelationshipFilter(itemRole, groupRole, groupId);
       return Search(context, necessaryMIATypes, optionalMIATypes, filter);
@@ -141,21 +140,21 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 
     #region Queries
 
-    internal static int CountMediaItems(IOwinContext context, ISet<Guid> necessaryMIATypes, IFilter filter = null)
+    internal static int CountMediaItems(RequestContext context, ISet<Guid> necessaryMIATypes, IFilter filter = null)
     {
       Guid? user = ResourceAccessUtils.GetUser(context);
       IFilter searchFilter = ResourceAccessUtils.AppendUserFilter(user, filter, necessaryMIATypes);
       return MediaLibrary.CountMediaItems(necessaryMIATypes, searchFilter, false, false);
     }
 
-    internal static HomogenousMap GetGroups(IOwinContext context, ISet<Guid> necessaryMIATypes, AttributeSpecification attribute, IFilter filter = null)
+    internal static HomogenousMap GetGroups(RequestContext context, ISet<Guid> necessaryMIATypes, AttributeSpecification attribute, IFilter filter = null)
     {
       Guid? user = ResourceAccessUtils.GetUser(context);
       IFilter searchFilter = ResourceAccessUtils.AppendUserFilter(user, filter, necessaryMIATypes);
       return MediaLibrary.GetValueGroups(attribute, filter, ProjectionFunction.None, necessaryMIATypes, searchFilter, true, false);
     }
 
-    internal static IList<MediaItem> Search(IOwinContext context, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, IFilter filter, uint? limit = null)
+    internal static IList<MediaItem> Search(RequestContext context, ISet<Guid> necessaryMIATypes, ISet<Guid> optionalMIATypes, IFilter filter, uint? limit = null)
     {
       Guid? user = ResourceAccessUtils.GetUser(context);
       IFilter searchFilter = ResourceAccessUtils.AppendUserFilter(user, filter, necessaryMIATypes);
@@ -163,7 +162,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       return MediaLibrary.Search(searchQuery, false, user, false);
     }
 
-    internal static bool Delete(IOwinContext context, MediaItem item)
+    internal static bool Delete(RequestContext context, MediaItem item)
     {
       Guid? user = ResourceAccessUtils.GetUser(context);
       IList<MultipleMediaItemAspect> providerResourceAspects;

@@ -22,20 +22,23 @@
 
 #endregion
 
+using MediaPortal.Utilities.Exceptions;
+using MediaPortal.Utilities.Network;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using System.Net.Cache;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Text;
-using MediaPortal.Utilities.Exceptions;
-using MediaPortal.Utilities.Network;
+using System.Threading.Tasks;
 using UPnP.Infrastructure.Common;
 using UPnP.Infrastructure.CP.Description;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.CP.GENA;
 using UPnP.Infrastructure.CP.SOAP;
 using UPnP.Infrastructure.CP.SSDP;
+using UPnP.Infrastructure.Http;
 using UPnP.Infrastructure.Utils;
 
 namespace UPnP.Infrastructure.CP
@@ -77,7 +80,7 @@ namespace UPnP.Infrastructure.CP
       protected object _clientState;
       protected CpAction _action;
 
-      public ActionCallState(CpAction action, object clientState, HttpWebRequest request) :
+      public ActionCallState(CpAction action, object clientState, HttpRequestMessage request) :
           base(request)
       {
         _action = action;
@@ -93,24 +96,6 @@ namespace UPnP.Infrastructure.CP
       {
         get { return _clientState; }
       }
-
-      public void SetRequestMessage(string message)
-      {
-        try
-        {
-          using (Stream s = _httpWebRequest.GetRequestStream())
-          using (StreamWriter sw = new StreamWriter(s, UPnPConsts.UTF8_NO_BOM))
-          {
-            sw.Write(message);
-            sw.Close();
-          }
-        }
-        catch (Exception e)
-        {
-          _httpWebRequest.Abort();
-          throw new UPnPRemoteException(new UPnPError(501, "Error writing action call document: " + e.Message));
-        }
-      }
     }
 
     protected CPData _cpData;
@@ -121,6 +106,7 @@ namespace UPnP.Infrastructure.CP
     protected GENAClientController _genaClientController;
     protected ICollection<AsyncWebRequestState> _pendingCalls = new List<AsyncWebRequestState>();
     protected bool _useHttpKeepAlive;
+    protected LocalEndPointHttpClient _httpClient;
 
     /// <summary>
     /// Creates a new <see cref="DeviceConnection"/> to the UPnP device contained in the given
@@ -140,6 +126,7 @@ namespace UPnP.Infrastructure.CP
       _rootDescriptor = rootDescriptor;
       _deviceUUID = deviceUuid;
       _useHttpKeepAlive = useHttpKeepAlive;
+      _httpClient = CreateActionCallClient();
       _genaClientController = new GENAClientController(_cpData, this, rootDescriptor.SSDPRootEntry.PreferredLink.Endpoint, rootDescriptor.SSDPRootEntry.UPnPVersion);
       BuildDeviceProxy(rootDescriptor, deviceUuid, dataTypeResolver);
       _genaClientController.Start();
@@ -150,9 +137,9 @@ namespace UPnP.Infrastructure.CP
       using (_cpData.Lock.EnterWrite())
       {
         DoDisconnect(false);
-        foreach (AsyncWebRequestState state in new List<AsyncWebRequestState>(_pendingCalls))
-          state.Request.Abort();
         _pendingCalls.Clear();
+        _httpClient.CancelPendingRequests();
+        _httpClient.Dispose();
       }
     }
 
@@ -204,73 +191,68 @@ namespace UPnP.Infrastructure.CP
       ServiceDescriptor sd = GetServiceDescriptor(service);
       string message = SOAPHandler.EncodeCall(action, inParams, _rootDescriptor.SSDPRootEntry.UPnPVersion);
 
-      HttpWebRequest request = CreateActionCallRequest(sd, action);
+      HttpRequestMessage request = CreateActionCallRequest(sd, action);
+      request.Content = new StringContent(message, UPnPConsts.UTF8_NO_BOM, "text/xml");
+
       ActionCallState state = new ActionCallState(action, clientState, request);
-      state.SetRequestMessage(message);
       using (_cpData.Lock.EnterWrite())
         _pendingCalls.Add(state);
 
-      IAsyncResult result = state.Request.BeginGetResponse(OnCallResponseReceived, state);
-      NetworkHelper.AddTimeout(request, result, PENDING_ACTION_CALL_TIMEOUT * 1000);
+      _httpClient.SendAsync(request).ContinueWith(response => OnCallResponseReceived(response, state));
     }
 
-    private void OnCallResponseReceived(IAsyncResult ar)
+    private void OnCallResponseReceived(Task<HttpResponseMessage> responseTask, ActionCallState state)
     {
-      ActionCallState state = (ActionCallState) ar.AsyncState;
       using (_cpData.Lock.EnterWrite())
         _pendingCalls.Remove(state);
 
-      HttpWebResponse response = null;
+      HttpResponseMessage response = null;
       Stream body = null;
       try
       {
+        // GetAwaiter().GetResult() unwraps any aggregate exceptions to make exception handling easier
+        response = responseTask.GetAwaiter().GetResult();
+        body = response.Content.ReadAsStream();
+        string mediaType;
         Encoding contentEncoding;
-        try
+        if (!EncodingUtils.TryParseContentTypeEncoding(response.Content.Headers.ContentType.ToString(), Encoding.UTF8, out mediaType, out contentEncoding) ||
+            mediaType != "text/xml")
         {
-          response = (HttpWebResponse) state.Request.EndGetResponse(ar);
-          body = CompressionHelper.Decompress(response);
-          string mediaType;
-          if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
-              mediaType != "text/xml")
-          {
-            SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
-            return;
-          }
-        }
-        catch (WebException e)
-        {
-          response = (HttpWebResponse) e.Response;
-          if (response == null)
-            SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error when invoking action '{0}': {1}", state.Action.Name, e.Message));
-          else if (response.StatusCode == HttpStatusCode.InternalServerError)
-          {
-            string mediaType;
-            if (!EncodingUtils.TryParseContentTypeEncoding(response.ContentType, Encoding.UTF8, out mediaType, out contentEncoding) ||
-                mediaType != "text/xml")
-            {
-              SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
-              return;
-            }
-            using (Stream s = CompressionHelper.Decompress(response))
-            using (TextReader reader = new StreamReader(s, contentEncoding))
-              SOAPHandler.HandleErrorResult(reader, state.Action, state.ClientState);
-          }
-          else
-            SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error {0} when invoking action '{1}'", response.StatusCode, state.Action.Name));
+          SOAPHandler.ActionFailed(state.Action, state.ClientState, "Invalid content type");
           return;
         }
-        UPnPVersion uPnPVersion;
-        using (_cpData.Lock.EnterRead())
-          uPnPVersion = _rootDescriptor.SSDPRootEntry.UPnPVersion;
+        if (response.IsSuccessStatusCode)
+        {
+          UPnPVersion uPnPVersion;
+          using (_cpData.Lock.EnterRead())
+            uPnPVersion = _rootDescriptor.SSDPRootEntry.UPnPVersion;
 
-        SOAPHandler.HandleResult(body, contentEncoding, state.Action, state.ClientState, uPnPVersion);
+          SOAPHandler.HandleResult(body, contentEncoding, state.Action, state.ClientState, uPnPVersion);
+        }
+        else if (response.StatusCode == HttpStatusCode.InternalServerError)
+        {
+          using (TextReader reader = new StreamReader(body, contentEncoding))
+            SOAPHandler.HandleErrorResult(reader, state.Action, state.ClientState);
+        }
+        else
+        {
+          SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error {0} when invoking action '{1}'", response.StatusCode, state.Action.Name));
+        }
+      }
+      catch (HttpRequestException e)
+      {
+        SOAPHandler.ActionFailed(state.Action, state.ClientState, string.Format("Network error when invoking action '{0}': {1}", state.Action.Name, e.Message));
+      }
+      catch (TaskCanceledException)
+      {
+        // DeviceConnection is probably disposing, ignore 
       }
       finally
       {
         if (body != null)
           body.Dispose();
         if (response != null)
-          response.Close();
+          response.Dispose();
       }
     }
 
@@ -296,21 +278,30 @@ namespace UPnP.Infrastructure.CP
       _genaClientController.UnsubscribeEvents(subscription);
     }
 
-    protected HttpWebRequest CreateActionCallRequest(ServiceDescriptor sd, CpAction action)
+    protected LocalEndPointHttpClient CreateActionCallClient()
+    {
+      LocalEndPointHttpClient client = LocalEndPointHttpClient.Create(new LocalEndPointHttpClientOptions
+      {
+        AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate
+      });
+      client.Timeout = TimeSpan.FromSeconds(PENDING_ACTION_CALL_TIMEOUT);
+      client.DefaultRequestHeaders.CacheControl = new CacheControlHeaderValue() { NoCache = true, NoStore = true };
+      client.DefaultRequestHeaders.ExpectContinue = false;
+      client.DefaultRequestHeaders.ConnectionClose = !_useHttpKeepAlive;
+      client.DefaultRequestHeaders.UserAgent.TryParseAdd(UPnPConfiguration.UPnPMachineInfoHeader);
+      return client;
+    }
+
+    protected HttpRequestMessage CreateActionCallRequest(ServiceDescriptor sd, CpAction action)
     {
       LinkData preferredLink = sd.RootDescriptor.SSDPRootEntry.PreferredLink;
-      HttpWebRequest request = (HttpWebRequest) WebRequest.Create(new Uri(
+      HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Post, new Uri(
           new Uri(preferredLink.DescriptionLocation), sd.ControlURL));
-      NetworkUtils.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
-      request.Method = "POST";
-      request.KeepAlive = _useHttpKeepAlive;
-      request.CachePolicy = new RequestCachePolicy(RequestCacheLevel.NoCacheNoStore);
-      request.ServicePoint.Expect100Continue = false;
-      request.AllowAutoRedirect = true;
-      request.UserAgent = UPnPConfiguration.UPnPMachineInfoHeader;
-      request.ContentType = "text/xml; charset=\"utf-8\"";
+      if (NetworkUtils.LimitIPEndpoints)
+        LocalEndPointHttpClient.SetLocalEndpoint(request, preferredLink.Endpoint.EndPointIPAddress);
+      //request.Headers.ContentType = "text/xml; charset=\"utf-8\"";
       request.Headers.Add("SOAPACTION", '"' + action.Action_URN + '"');
-      request.Headers.Add("Accept-Encoding", CompressionHelper.GetAcceptedEncodings());
+
       return request;
     }
 

@@ -92,7 +92,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
       int matchPct = 0;
 
       var match = _regexTitleYear.Match(CleanMovieTitle(subtitleSearch.Name));
-      if (match.Success && (match.Groups["title"].Value.Equals(subtitleSearch.MediaTitle, StringComparison.InvariantCultureIgnoreCase) || 
+      if (match.Success && (match.Groups["title"].Value.Equals(subtitleSearch.MediaTitle, StringComparison.InvariantCultureIgnoreCase) ||
         match.Groups["title"].Value.StartsWith(subtitleSearch.MediaTitle, StringComparison.InvariantCultureIgnoreCase)))
       {
         if (subtitleSearch.Year.HasValue && int.TryParse(match.Groups["year"].Value, out int subYear) && subYear == subtitleSearch.Year.Value)
@@ -413,7 +413,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         subFileNames = subtitle.Name.Split(';');
 
       IDictionary<BaseSubtitleMatch<TId>, byte[]> subtitles = new Dictionary<BaseSubtitleMatch<TId>, byte[]>();
-      for(int i = 0; i < subIds.Length; i++)
+      for (int i = 0; i < subIds.Length; i++)
       {
         var clone = subtitle.Clone();
         clone.SubtitleId = subIds[i];
@@ -466,15 +466,15 @@ namespace MediaPortal.Extensions.OnlineLibraries.Wrappers
         var resLoc = new ResourceLocator(mediaFile.NativeSystemId, subtitlePath);
         using (IResourceAccessor mediaItemAccessor = resLoc.CreateAccessor())
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-        using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-        {
-          using (var stream = rah.LocalFsResourceAccessor.CreateOpenWrite(sub, overwriteExisting))
+          await rah.LocalFsResourceAccessor.RunWithLocalFileSystemAccess(async () =>
           {
-            var bytes = downloads[subtitleMatch];
-            if (stream != null)
-              await stream.WriteAsync(bytes, 0, bytes.Length);
-          }
-        }
+            using (var stream = rah.LocalFsResourceAccessor.CreateOpenWrite(sub, overwriteExisting))
+            {
+              var bytes = downloads[subtitleMatch];
+              if (stream != null)
+                await stream.WriteAsync(bytes, 0, bytes.Length);
+            }
+          });
       }
       return true;
     }

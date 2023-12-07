@@ -25,7 +25,11 @@
 using System.Globalization;
 using System.Net;
 using System.Xml;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
 using Microsoft.Owin;
+#endif
 
 namespace UPnP.Infrastructure.Dv.DeviceTree
 {
@@ -81,8 +85,11 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// <param name="pos">The current description XML position.</param>
   /// <param name="config">The endpoint configuration which requested the description.</param>
   /// <param name="culture">The culture of the client which requested the description.</param>
+#if NET5_0_OR_GREATER
+  public delegate void GenerateDescriptionDlgt(HttpRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture);
+#else
   public delegate void GenerateDescriptionDlgt(IOwinRequest request, XmlWriter writer, DvDevice device, GenerationPosition pos, EndpointConfiguration config, CultureInfo culture);
-
+#endif
   /// <summary>
   /// Delegate which can return a URL which is available over the specified <paramref name="endPointIPAddress"/>.
   /// The URL may be localized for the given <paramref name="culture"/>.
@@ -104,5 +111,9 @@ namespace UPnP.Infrastructure.Dv.DeviceTree
   /// <param name="request">The request for the device information.</param>
   /// <param name="deviceInfo">The device information that will be sent if not overridden.</param>
   /// <param name="overrideDeviceInfo">The overriden device information to send.</param>
+#if NET5_0_OR_GREATER
+  public delegate void GetDeviceInfoForEndpointDlgt(HttpRequest request, ILocalizedDeviceInformation deviceInfo, ref ILocalizedDeviceInformation overrideDeviceInfo);
+#else
   public delegate void GetDeviceInfoForEndpointDlgt(IOwinRequest request, ILocalizedDeviceInformation deviceInfo, ref ILocalizedDeviceInformation overrideDeviceInfo);
+#endif
 }

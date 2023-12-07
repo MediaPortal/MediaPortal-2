@@ -31,7 +31,7 @@ using MediaPortal.Plugins.MP2Extended.MAS.TvShow;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow.BaseClasses;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
 {
@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.TvShow
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetTVEpisodeDetailedById : BaseEpisodeDetailed
   {
-    public static Task<WebTVEpisodeDetailed> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebTVEpisodeDetailed> ProcessAsync(RequestContext context, string id)
     {
       MediaItem item = MediaLibraryAccess.GetMediaItemById(context, Guid.Parse(id), DetailedNecessaryMIATypeIds, DetailedOptionalMIATypeIds);
       if (item == null)

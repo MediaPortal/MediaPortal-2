@@ -22,36 +22,57 @@
 
 #endregion
 
-using System;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
-using Microsoft.Owin;
-using System.Threading.Tasks;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.General;
+using System;
 using System.IO;
+using System.Threading.Tasks;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
 {
+#if NET5_0_OR_GREATER
+  public class WebResourceAccessModule : IDisposable
+  {
+    protected RequestDelegate Next { get; }
+
+    public WebResourceAccessModule(RequestDelegate next)
+    {
+      Next = next;
+    }
+#else
   public class WebResourceAccessModule : OwinMiddleware, IDisposable
   {
+    public WebResourceAccessModule(OwinMiddleware next) : base(next)
+    {
+    }
+#endif
+
     public const string DEFAULT_PAGE = "Default.html";
     public const string LOGIN_PAGE = "Login.html";
     public const string RESOURCE_ACCESS_PATH = "/MPExtended";
 
-    public WebResourceAccessModule(OwinMiddleware next) : base(next)
-    {
-    }
-
     /// <summary>
     /// Method that process the url
     /// </summary>
+#if NET5_0_OR_GREATER
+    public async Task Invoke(HttpContext context)
+#else
     public override async Task Invoke(IOwinContext context)
+#endif
     {
       string path = null;
-      var uri = context.Request.Uri.ToString();
+      var uri = context.Request.GetUri().ToString();
       if (uri.EndsWith($"{RESOURCE_ACCESS_PATH}/", StringComparison.InvariantCultureIgnoreCase))
       {
-        if (context.Authentication.User?.Identity?.IsAuthenticated ?? false)
+        if (context?.ToRequestContext().User?.Identity?.IsAuthenticated ?? false)
           path = DEFAULT_PAGE;
         else
           path = LOGIN_PAGE;
@@ -67,7 +88,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess
       }
 
       Logger.Debug("MP2Extended: Received request for {0}", context.Request.Path);
-      await GetHtmlResource.ProcessAsync(context, path);
+      await GetHtmlResource.ProcessAsync(context.ToRequestContext(), path);
     }
 
     public void Dispose()

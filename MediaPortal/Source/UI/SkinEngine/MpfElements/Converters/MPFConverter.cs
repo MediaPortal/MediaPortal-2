@@ -31,7 +31,7 @@ namespace MediaPortal.UI.SkinEngine.MpfElements.Converters
   /// <summary>
   /// <see cref="MPFConverter{T}"/> provides the MPF specific default converter. It provides a "bridge" between WPF and MPF based classes and interfaces.
   /// </summary>
-  public class MPFConverter<T> : TypeConverter
+  public class MPFConverter<T> : TypeConverter, IMPFConverter
   {
     public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
     {

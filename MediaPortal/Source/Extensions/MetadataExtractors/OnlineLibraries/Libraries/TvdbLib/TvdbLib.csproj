@@ -6,7 +6,7 @@
     <ProductVersion>9.0.21022</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{23C34CF0-4E66-4F02-9EDC-83F292C6005C}</ProjectGuid>
-    <OutputType>Library</OutputType>
+        <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>TvdbLib</RootNamespace>
     <AssemblyName>TvdbLib</AssemblyName>

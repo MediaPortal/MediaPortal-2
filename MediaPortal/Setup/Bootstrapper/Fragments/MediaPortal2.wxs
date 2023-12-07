@@ -1,0 +1,36 @@
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
+  <Fragment>
+
+    <?include ..\Includes.wxi?>
+
+    <!-- Installation directory to pass to the package, defaults to 'Program Files (x86)\Team MediaPortal' -->
+    <Variable Name="INSTALLDIR" bal:Overridable="yes" Value="[ProgramFilesFolder]$(var.Manufacturer)" Type="formatted" />
+
+    <!-- Shortcut installation options to pass to the package, defaults to empty which allows the package to determine the appropriate value -->
+    <Variable Name="CREATESTARTMENUSHORTCUTS" Type="formatted" Value="" bal:Overridable="yes" />
+    <Variable Name="CREATEDESKTOPSHORTCUTS" Type="formatted" Value="" bal:Overridable="yes" />
+
+    <!-- Search for a previous install directory -->
+    <util:RegistrySearch Id="PreviousInstallDirectorySearch" Root="HKLM" Key="$(var.RegKeyRoot)" Value="INSTALLDIR" Variable="PreviousInstallDirectory" Bitness="always32" />
+
+    <!-- If a previous install directory exists in the registry, check that the directory still exists,
+         if so use it as the current install directory, if not keep the default install directory-->
+    <util:DirectorySearch Path="[PreviousInstallDirectory]" Variable="INSTALLDIR" After="PreviousInstallDirectorySearch" Condition="PreviousInstallDirectory" />
+
+    <!-- Search for the previous value of create start menu shortcuts, update the CREATESTARTMENUSHORTCUTS variable only if it exists -->
+    <util:RegistrySearch Id="CreateStartMenuShortcutsRegistryExists" Root="HKLM" Key="$(var.RegKeyRoot)" Value="STARTMENUSHORTCUTS" Variable="CreateStartMenuShortcutsRegistryExists" Result="exists" Bitness="always32" />
+    <util:RegistrySearch Id="CreateStartMenuShortcutsRegistry" After="CreateStartMenuShortcutsRegistryExists" Condition="CreateStartMenuShortcutsRegistryExists" Root="HKLM" Key="$(var.RegKeyRoot)" Value="STARTMENUSHORTCUTS" Variable="CREATESTARTMENUSHORTCUTS" Bitness="always32" />
+
+    <!-- Search for the previous value of create desktop shortcuts, update the CREATEDESKTOPSHORTCUTS variable only if it exists -->
+    <util:RegistrySearch Id="CreateDesktopShortcutsRegistryExists" Root="HKLM" Key="$(var.RegKeyRoot)" Value="DESKTOPSHORTCUTS" Variable="CreateDesktopShortcutsRegistryExists" Result="exists" Bitness="always32" />
+    <util:RegistrySearch Id="CreateDesktopShortcutsRegistry" After="CreateDesktopShortcutsRegistryExists" Condition="CreateDesktopShortcutsRegistryExists" Root="HKLM" Key="$(var.RegKeyRoot)" Value="DESKTOPSHORTCUTS" Variable="CREATEDESKTOPSHORTCUTS" Bitness="always32" />
+
+    <PackageGroup Id="MediaPortal2">
+      <MsiPackage Id="MediaPortal2" SourceFile="$(MainPackageTargetPath)" EnableFeatureSelection="yes" Compressed="yes" Vital="yes" Visible="no">
+        <MsiProperty Name="INSTALLDIR" Value="[INSTALLDIR]" />
+        <MsiProperty Name="CREATESTARTMENUSHORTCUTS" Value="[CREATESTARTMENUSHORTCUTS]" />
+        <MsiProperty Name="CREATEDESKTOPSHORTCUTS" Value="[CREATEDESKTOPSHORTCUTS]" />
+      </MsiPackage>
+    </PackageGroup>
+  </Fragment>
+</Wix>

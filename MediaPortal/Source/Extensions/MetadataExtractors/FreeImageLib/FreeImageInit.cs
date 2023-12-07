@@ -1,10 +1,5 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using FreeImageAPI;
-using MediaPortal.Utilities.SystemAPI;
+﻿using MediaPortal.Utilities.SystemAPI;
+using System;
 
 namespace FreeImageLib
 {
@@ -23,7 +18,8 @@ namespace FreeImageLib
     /// <returns></returns>
     public static bool IsAvailable()
     {
-      return FreeImage.IsAvailable();
+      // No longer available in netstandard library, but call is needed to set platform path
+      return true;
     }
   }
 }

@@ -219,8 +219,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       }
       else
       {
-        using (localFsResourceAccessor.EnsureLocalFileSystemAccess())
-          result.Open(localFsResourceAccessor.LocalFileSystemPath);
+        localFsResourceAccessor.RunWithLocalFileSystemAccess(() =>
+          result.Open(localFsResourceAccessor.LocalFileSystemPath));
       }
 
       return result;
@@ -688,7 +688,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         Stopwatch sw = new Stopwatch();
         sw.Start();
 
-        using (lfsra.EnsureLocalFileSystemAccess())
+        lfsra.RunWithLocalFileSystemAccess(() =>
         {
           TagLib.File mp4File = TagLib.File.Create(lfsra.LocalFileSystemPath);
           if (ReferenceEquals(mp4File, null) || ReferenceEquals(mp4File.Tag, null))
@@ -718,7 +718,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
 
           sw.Stop();
           ServiceRegistration.Get<ILogger>().Debug("VideoMetadataExtractor: Completed reading {1}mp4 tags from resource '{0}' (Time: {2} ms)", lfsra.CanonicalLocalResourcePath, assignedValue ? "and assigning " : "", sw.ElapsedMilliseconds);
-        }
+        });
       }
       catch (Exception e)
       {

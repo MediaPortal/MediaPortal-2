@@ -34,7 +34,7 @@ using MediaPortal.Plugins.MP2Extended.Extensions;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.Utils;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
@@ -44,7 +44,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "order", Type = typeof(WebSortOrder), Nullable = true)]
   internal class GetFileSystemFiles : BaseFileBasic
   {
-    public static Task<IList<WebFileBasic>> ProcessAsync(IOwinContext context, string id, WebSortField? sort, WebSortOrder? order)
+    public static Task<IList<WebFileBasic>> ProcessAsync(RequestContext context, string id, WebSortField? sort, WebSortOrder? order)
     {
       List<WebFileBasic> output = new List<WebFileBasic>();
       string path = Base64.Decode(id);

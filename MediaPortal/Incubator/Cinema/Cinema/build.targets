@@ -1,0 +1,45 @@
+<Project>
+
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
+
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(TargetDir)Cinema.OnlineLibraries.dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PluginDependencies Include="$(TargetDir)YoutubeExplode.dll" />
+      <PluginDependencies Include="$(TargetDir)AngleSharp.dll" />
+      <PluginDependencies Include="$(TargetDir)HtmlAgilityPack.dll" />
+    </ItemGroup>
+
+    <ItemGroup Condition="$(TargetFramework) == 'net48'">
+      <PluginDependencies Include="$(TargetDir)Microsoft.Bcl.AsyncInterfaces.dll" />
+      <PluginDependencies Include="$(TargetDir)System.Memory.dll" />
+      <PluginDependencies Include="$(TargetDir)System.Text.Json.dll" />
+      <PluginDependencies Include="$(TargetDir)System.Threading.Tasks.Extensions.dll" />
+      <PluginDependencies Include="$(TargetDir)System.Runtime.CompilerServices.Unsafe.dll" />
+      <PluginDependencies Include="$(TargetDir)System.Buffers.dll" />
+      <PluginDependencies Include="$(TargetDir)System.Numerics.Vectors.dll" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+    </ItemGroup>
+    
+    <ItemGroup>
+      <SkinFiles Include="$(ProjectDir)Skin\**\*.*" />
+    </ItemGroup>
+
+    <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(PluginDependencies)" DestinationFolder="$(PluginDestination)" />
+    <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
+    <Copy SourceFiles="@(SkinFiles)" DestinationFiles="@(SkinFiles->'$(PluginDestination)Skin\%(RecursiveDir)%(Filename)%(Extension)')" />
+  </Target>
+
+</Project>

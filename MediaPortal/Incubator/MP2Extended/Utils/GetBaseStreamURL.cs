@@ -26,7 +26,7 @@ using MediaPortal.Common;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess.Settings;
 using MediaPortal.Common.Settings;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using System.Net;
 using System.Net.Sockets;
 using System.Web;
@@ -35,7 +35,7 @@ namespace MediaPortal.Plugins.MP2Extended.Utils
 {
   internal static class GetBaseStreamUrl
   {
-    public static string GetBaseStreamURL(IOwinContext context)
+    public static string GetBaseStreamURL(RequestContext context)
     {
       var rs = ServiceRegistration.Get<IResourceServer>();
       return rs.GetServiceUrl(GetLocalIp());

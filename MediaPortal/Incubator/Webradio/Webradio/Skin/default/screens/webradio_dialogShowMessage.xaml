@@ -1,0 +1,23 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_dialog_bare.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Webradio.Dialog.ShowMessage.Title]" />
+
+    <Model x:Key="WebradioDataModel" Id="BD1BA004-1BC0-49F5-9107-AD8FFD07BAAE"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource WebradioDataModel}}">
+          <Label Content="{Binding Path=DialogMessage}" HorizontalContentAlignment="Center"
+                 Margin="10" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

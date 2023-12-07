@@ -1,0 +1,11 @@
+﻿<Project Sdk="WixToolset.Sdk/4.0.0">
+  <!--
+    This project exists to build a .net core version of the setup. It merely imports the main setup project and 
+    overrides the target framework to use when importing the MP2 projects and decide what setup features are available.
+    This project should not contain any project resources directly.
+    -->
+  <PropertyGroup>
+    <ReferencedTargetFramework Condition="$(ReferencedTargetFramework) == ''">net6.0-windows</ReferencedTargetFramework>
+  </PropertyGroup>
+  <Import Project="MP2-Setup.wixproj" />
+</Project>

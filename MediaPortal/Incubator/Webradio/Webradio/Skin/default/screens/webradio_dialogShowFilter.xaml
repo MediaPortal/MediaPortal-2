@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Webradio.Dialog.ShowFilter.Header]" />
+
+    <Model x:Key="Model" Id="63F1DA3E-E87F-4478-83E7-C13966447869" />
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="50*" />
+            <ColumnDefinition Width="50*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="60*" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="10*" />
+          </Grid.RowDefinitions>
+          <ListView x:Name="lv" Grid.ColumnSpan="2" Margin="10,5,10,5" HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch" Style="{ThemeResource ContentsMenuListViewStyle}"
+                    ItemsSource="{Binding Path=FilterItems}">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="Selected">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}" />
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+
+          <Label Grid.ColumnSpan="2" Content="[Webradio.Dialog.ShowFilter.Quickfilter]"
+                 HorizontalContentAlignment="Center"
+                 Margin="10,0,10,0" Grid.Row="1" VerticalAlignment="Center" HorizontalAlignment="Stretch"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}" />
+
+          <Button Content="[Webradio.Dialog.ShowFilter.ShowFilter]" Margin="10,5,10,5" Grid.Row="2"
+                  Grid.ColumnSpan="2"
+                  VerticalAlignment="Stretch" HorizontalContentAlignment="Center"
+                  Command="{Command ShowFilter}" />
+          <Button Content="[Webradio.Dialog.ShowFilter.Country]" Margin="10,5,5,5" Grid.Row="3"
+                  Grid.Column="0"
+                  VerticalAlignment="Stretch" VerticalContentAlignment="Center"
+                  Command="{Command QuickCountry}" />
+          <Button Content="[Webradio.Dialog.ShowFilter.City]" Margin="5,5,10,5" Grid.Row="3" Grid.Column="1"
+                  VerticalAlignment="Stretch"
+                  Command="{Command QuickCity}" />
+          <Button Content="[Webradio.Dialog.ShowFilter.Genre]" Margin="10,5,5,5" Grid.Row="4" Grid.Column="0"
+                  VerticalAlignment="Stretch"
+                  Command="{Command QuickGenre}" />
+          <Button Content="[Webradio.Dialog.ShowFilter.StreamUrls[0].Bitrate]" Margin="5,5,10,5" Grid.Row="4"
+                  Grid.Column="1"
+                  VerticalAlignment="Stretch"
+                  Command="{Command QuickBitrate}" />
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

@@ -24,6 +24,7 @@
 
 using System;
 using System.IO;
+using System.Linq;
 using System.Reflection;
 using System.Windows.Forms;
 using System.Xml;
@@ -45,7 +46,10 @@ namespace MediaPortal.Common.Services.Logging
     public Log4NetLogger(string logPath)
     {
       XmlDocument xmlDoc = new XmlDocument();
-      using (Stream stream = new FileStream(Application.ExecutablePath + ".config", FileMode.Open, FileAccess.Read))
+      // Fallback "app.dll.config" for .NET 5
+      var configs = new[] { Application.ExecutablePath + ".config", Path.ChangeExtension( Application.ExecutablePath, ".dll") + ".config" };
+      var config = configs.FirstOrDefault(c => File.Exists(c));
+      using (Stream stream = new FileStream(config, FileMode.Open, FileAccess.Read))
         xmlDoc.Load(stream);
       XmlNodeList nodeList = xmlDoc.SelectNodes("configuration/log4net/appender/file");
       foreach (XmlNode node in nodeList)

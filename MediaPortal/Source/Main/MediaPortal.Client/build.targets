@@ -1,43 +1,33 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project>
 
-  <Target Name="AfterBuild">
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
     <PropertyGroup>
-      <ExeDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\</ExeDestination>
+      <ExeDestination>$(SolutionDir)..\Bin\$(SolutionName)\bin\$(ConfigurationName)\$(TargetFramework)\</ExeDestination>
     </PropertyGroup>
 
     <ItemGroup>
       <References Include="$(ProjectDir)MP2 Client Splashscreen.jpg" />
     </ItemGroup>
 
-    <!--Points to MP2-Client.exe(.config) -->
-    <ItemGroup Condition="'$(PlatformName)' == 'x64'">
-      <Executable Include="$(TargetPath)" />
-      <ExecutableConfig Include="$(TargetPath).config" />
-    </ItemGroup>
-
-    <ItemGroup Condition="'$(PlatformName)' == 'x86'">
-      <TargetFiles Include="$(TargetPath)" />
-      <TargetFiles Include="$(TargetPath).config" />
-    </ItemGroup>
-
     <ItemGroup>
       <BaseFiles Include="$(SolutionDir)Base\Client\**\*.*" />
     </ItemGroup>
 
-    <ItemGroup>
+    <!--
+    Points to .net framework 64-bit MP2-Client.exe(.config).
+    AnyCPU builds directly to ExeDestination so doesn't need to be copied here.
+    .net core builds are also built as x64, but ignore for now and only copy framework builds
+    -->
+    <ItemGroup Condition="'$(PlatformName)' == 'x64' And '$(TargetFrameworkIdentifier)' == '.NETFramework'">
+      <Executable Include="$(TargetPath)" />
+      <ExecutableConfig Include="$(TargetPath).config" />
       <TargetFiles Include="$(TargetDir)*.dll" />
-    </ItemGroup>
-
-    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-      <PluginFiles Include="$(TargetDir)*.pdb" />
-      <PluginFiles Include="$(TargetDir)*.xml" />
     </ItemGroup>
 
     <!-- Manual copy process to different target file name for x64 executable -->
     <Copy SourceFiles="@(Executable)" DestinationFiles="$(ExeDestination)\MP2-Client (x64).exe"/>
     <Copy SourceFiles="@(ExecutableConfig)" DestinationFiles="$(ExeDestination)\MP2-Client (x64).exe.config"/>
-
+    
     <Copy SourceFiles="@(References)" DestinationFolder="$(ExeDestination)" />
     <Copy SourceFiles="@(TargetFiles)" DestinationFolder="$(ExeDestination)" />
     <Copy SourceFiles="@(BaseFiles)" DestinationFiles="@(BaseFiles->'$(ExeDestination)%(RecursiveDir)%(Filename)%(Extension)')" />

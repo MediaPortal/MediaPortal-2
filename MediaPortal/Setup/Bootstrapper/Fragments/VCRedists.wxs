@@ -1,131 +1,86 @@
-<?xml version="1.0" encoding="UTF-8"?>
-
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi"
-     xmlns:util="http://schemas.microsoft.com/wix/UtilExtension">
+﻿<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs" xmlns:util="http://wixtoolset.org/schemas/v4/wxs/util">
 
   <Fragment>
+
+    <!-- 
+         Note: Version variables defined here should follow the naming convention [Package Id]_Version
+         as they will be looked up by the Bootstrapper to determine the currently installed version.
+    -->
+
     <!--<util:FileSearch Id="MFC90_Version_x86"
                Variable="MFC90_Version_x86" Path="[SystemFolder]mfc90.dll"
                Result="version"/>-->
 
     <!-- We use a different way here, as the VC9 libraries are NOT installed under Systen32, but under WinSxS-->
-    <util:RegistrySearch Id="MFC90_Version_x86_Check" Root="HKLM"
-      Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9A25302D-30C0-39D9-BD6F-21E6EC160475}"
-      Value="DisplayVersion"
-      Win64="no" Variable="MFC90_Version_x86" />
+    <util:RegistrySearch Id="MFC90_Version_x86_Check" Root="HKLM" Key="SOFTWARE\Microsoft\Windows\CurrentVersion\Uninstall\{9A25302D-30C0-39D9-BD6F-21E6EC160475}" Value="DisplayVersion" Variable="VC2008SP1_x86_Version" Bitness="always32" />
 
     <PackageGroup Id="redist_vc90">
-      <ExePackage Id="VC2008SP1_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
-                  Name="vcredist90_x86.exe"
-                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist90_x86.exe"
-                  InstallCommand="/q /norestart"
-                  InstallCondition="NOT MFC90_Version_x86">
-        <RemotePayload Description="Microsoft Visual C++ 2008 Redistributable Setup" ProductName="Microsoft Visual C++ 2008 Redistributable" Size="4216840 " Version="9.0.30729.17" Hash="6939100e397cef26ec22e95e53fcd9fc979b7bc9"/>
+      <ExePackage Id="VC2008SP1_x86" Cache="keep" PerMachine="yes" Permanent="yes" Vital="yes" DetectCondition="VC2008SP1_x86_Version" InstallArguments="/q /norestart">
+        <ExePackagePayload Name="vcredist90_x86.exe" ProductName="Microsoft Visual C++ 2008 Redistributable" Description="Microsoft Visual C++ 2008 Redistributable Setup"
+                           DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist90_x86.exe"
+                           Hash="4875134C664503242EC60717232F2917EDCA20286FC4B675223EDBBE5DC0239EBFAF8F67EDD76FEDCAA2BE5419490DC6F47930CA260E6C9988CCF242416C204B"
+                           Size="4216840" Version="9.0.30729.17" />
       </ExePackage>
     </PackageGroup>
   </Fragment>
 
   <Fragment>
-    <util:FileSearch Id="MFC100_Version_x86"
-               Variable="MFC100_Version_x86" Path="[SystemFolder]mfc100.dll"
-               Result="version"/>
+    <util:FileSearch Id="MFC100_Version_x86" Variable="VC2010_x86_Version" Path="[SystemFolder]mfc100.dll" Result="version" />
 
     <PackageGroup Id="redist_vc100">
-      <ExePackage Id="VC2010_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
-                  Name="vcredist100_x86.exe"
-                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist100_x86.exe"
-                  InstallCommand="/q /norestart"
-                  InstallCondition="(NOT MFC100_Version_x86 >= v10.0.30319.1) OR NOT MFC100_Version_x86">
-        <RemotePayload Description="Microsoft Visual C++ 2010 x86 Redistributable Setup" ProductName="Microsoft Visual C++ 2010 x86 Redistributable" Size="5073240" Version="10.0.30319.1" Hash="372d9c1670343d3fb252209ba210d4dc4d67d358"/>
+      <ExePackage Id="VC2010_x86" Cache="keep" PerMachine="yes" Permanent="yes" Vital="yes" DetectCondition="VC2010_x86_Version &gt;= v10.0.30319.1" InstallArguments="/q /norestart">
+        <ExePackagePayload Name="vcredist100_x86.exe" ProductName="Microsoft Visual C++ 2010  x86 Redistributable" Description="Microsoft Visual C++ 2010 x86 Redistributable Setup"
+                           DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist100_x86.exe"
+                           Hash="CDD218D211A687DDE519719553748F3FB36D4AC618670986A6DADB4C45B34A9C6262BA7BAB243A242F91D867B041721F22330170A74D4D0B2C354AEC999DBFF8"
+                           Size="5073240" Version="10.0.30319.01" />
       </ExePackage>
     </PackageGroup>
   </Fragment>
 
   <Fragment>
-    <util:FileSearch Id="MFC120_Version_x86"
-                 Variable="MFC120_Version_x86" Path="[SystemFolder]mfc120.dll"
-                 Result="version"/>
+    <util:FileSearch Id="MFC120_Version_x86" Variable="VC2013_x86_Version" Path="[SystemFolder]mfc120.dll" Result="version" />
 
     <PackageGroup Id="redist_vc120">
-      <ExePackage Id="VC2013_x86" Cache="yes" PerMachine="yes" Permanent="yes" Vital="yes" Compressed="no"
-                  Name="vcredist120_x86.exe"
-                  DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist120_x86.exe"
-                  InstallCommand="/passive /norestart"
-                  InstallCondition="(NOT MFC120_Version_x86 >= v12.0.21005.1) OR NOT MFC120_Version_x86"
-                  Protocol="burn">
-        <RemotePayload Description="Microsoft Visual C++ 2013 Redistributable (x86) - 12.0.3050" ProductName="Microsoft Visual C++ 2013 Redistributable (x86) - 12.0.30501" Size="6503984" Version="12.0.30501.1" Hash="df7f0a73bfa077e483e51bfb97f5e2eceedfb6a3"/>
+      <ExePackage Id="VC2013_x86" Cache="keep" PerMachine="yes" Permanent="yes" Vital="yes" DetectCondition="VC2013_x86_Version &gt;= v12.0.21005.1" Protocol="burn" InstallArguments="/passive /norestart">
+        <ExePackagePayload Name="vcredist120_x86.exe" ProductName="Microsoft Visual C++ 2013 Redistributable (x86) - 12.0.30501" Description="Microsoft Visual C++ 2013 Redistributable (x86) - 12.0.30501"
+                           DownloadUrl="http://install.team-mediaportal.com/MP2/install/vcredist120_x86.exe"
+                           Hash="729251371ED208898430040FE48CABD286A5671BD7F472A30E9021B68F73B2D49D85A0879920232426B139520F7E21321BA92646985216BF2F733C64E014A71D"
+                           Size="6503984" Version="12.0.30501.0" />
       </ExePackage>
     </PackageGroup>
   </Fragment>
-  
+
   <Fragment>
-    <util:ProductSearch Id="VCRedist2015_2019x86"
-                        Result="version"
-                        Variable="VCRedist2015_2019x86"
-                        UpgradeCode="65E5BD06-6392-3027-8C26-853107D3CF1A"
-                        Condition="VersionNT" />
-      <PackageGroup Id="redist_vc140_x86">
-        <ExePackage Id="VC2019_x86" 
-                    Cache="yes" 
-                    PerMachine="yes" 
-                    Permanent="yes" 
-                    Vital="yes" 
-                    Compressed="no"
-                    Name="vc_redist_2019_x86.exe"
-                    DownloadUrl="http://install.team-mediaportal.com/MP2/install/vc_redist_2019_x86.exe"
-                    InstallCommand="/passive /norestart"
-                    InstallCondition="VersionNT"
-                    DetectCondition="VCRedist2015_2019x86 >= v14.22.27821"
-                    Protocol="burn">
-        <RemotePayload CertificatePublicKey="6608A9DBA86701156A4C17CE63BA99BE8B932F8D" 
-                       CertificateThumbprint="62009AAABDAE749FD47D19150958329BF6FF4B34" 
-                       Description="Microsoft Visual C++ 2015-2019 Redistributable (x86) - 14.22.27821" 
-                       Hash="13439C916FAAF5E08CAFCE790381578685B0A552" 
-                       ProductName="Microsoft Visual C++ 2015-2019 Redistributable (x86) - 14.22.27821" 
-                       Size="14381032" 
-                       Version="14.22.27821.0" />
-        </ExePackage>
-      </PackageGroup>
+    <util:ProductSearch Id="VCRedist2015_2019x86" Result="version" Variable="VC2019_x86_Version" UpgradeCode="65E5BD06-6392-3027-8C26-853107D3CF1A" Condition="VersionNT" />
+    <PackageGroup Id="redist_vc140_x86">
+      <ExePackage Id="VC2019_x86" Cache="keep" PerMachine="yes" Permanent="yes" Vital="yes" InstallCondition="VersionNT" DetectCondition="VC2019_x86_Version &gt;= v14.22.27821" Protocol="burn" InstallArguments="/passive /norestart">
+        <ExePackagePayload Name="vc_redist_2019_x86.exe" ProductName="Microsoft Visual C++ 2015-2019 Redistributable (x86) - 14.22.27821" Description="Microsoft Visual C++ 2015-2019 Redistributable (x86) - 14.22.27821"
+                           DownloadUrl="http://install.team-mediaportal.com/MP2/install/vc_redist_2019_x86.exe"
+                           Hash="9E023DD1258B20D3DD29EB3858282D5E99F86DC980BECB044A867A0AA8C5210EEBB426B3F7D574C3E10B58A72436C7E360C644A64F5653F19AD28B9C96ECD183"
+                           Size="14381032" Version="14.22.27821.0" />
+      </ExePackage>
+    </PackageGroup>
   </Fragment>
-  
+
   <Fragment>
-    <util:ProductSearch Id="VCRedist2015_2019x64"
-                        Result="version"
-                        Variable="VCRedist2015_2019x64"
-                        UpgradeCode="36F68A90-239C-34DF-B58C-64B30153CE35"
-                        Condition="VersionNT64" />
-      <PackageGroup Id="redist_vc140_x64">
-        <ExePackage Id="VC2019_x64" 
-                    Cache="yes" 
-                    PerMachine="yes" 
-                    Permanent="yes"
-                    Vital="yes" 
-                    Compressed="no"
-                    Name="vc_redist_2019_x64.exe"
-                    DownloadUrl="http://install.team-mediaportal.com/MP2/install/vc_redist_2019_x64.exe"
-                    InstallCommand="/passive /norestart"
-                    InstallCondition="VersionNT64"
-                    DetectCondition="VCRedist2015_2019x64 >= v14.22.27821"
-                    Protocol="burn">
-        <RemotePayload 
-                    CertificatePublicKey="6608A9DBA86701156A4C17CE63BA99BE8B932F8D" 
-                    CertificateThumbprint="62009AAABDAE749FD47D19150958329BF6FF4B34" 
-                    Description="Microsoft Visual C++ 2015-2019 Redistributable (x64) - 14.22.27821" 
-                    Hash="BE4F7AD520349D9D0683AB9DD171B3A1E4DB426B" 
-                    ProductName="Microsoft Visual C++ 2015-2019 Redistributable (x64) - 14.22.27821" 
-                    Size="15080792" 
-                    Version="14.22.27821.0" />
-        </ExePackage>
-      </PackageGroup>
+    <util:ProductSearch Id="VCRedist2015_2019x64" Result="version" Variable="VC2019_x64_Version" UpgradeCode="36F68A90-239C-34DF-B58C-64B30153CE35" Condition="VersionNT64" />
+    <PackageGroup Id="redist_vc140_x64">
+      <ExePackage Id="VC2019_x64" Cache="keep" PerMachine="yes" Permanent="yes" Vital="yes" InstallCondition="VersionNT64" DetectCondition="VC2019_x64_Version &gt;= v14.22.27821" Protocol="burn" InstallArguments="/passive /norestart">
+        <ExePackagePayload Name="vc_redist_2019_x64.exe" ProductName="Microsoft Visual C++ 2015-2019 Redistributable (x64) - 14.22.27821" Description="Microsoft Visual C++ 2015-2019 Redistributable (x64) - 14.22.27821"
+                           DownloadUrl="http://install.team-mediaportal.com/MP2/install/vc_redist_2019_x64.exe"
+                           Hash="50AFF48C02BED02BF60555D22FCB919D65F3AABE18327CFED89E012A9DAD2FCF8C3D3E2EF6821B90C22BF961E8AF4E8E63ABE9B7D4F98E5AF56FB5C88A8DAB6B"
+                           Size="15080792" Version="14.22.27821.0" />
+      </ExePackage>
+    </PackageGroup>
   </Fragment>
 
   <Fragment>
     <PackageGroup Id="redist">
-      <PackageGroupRef Id="redist_vc90"/>
-      <PackageGroupRef Id="redist_vc100"/>
-      <PackageGroupRef Id="redist_vc120"/>
-      <PackageGroupRef Id="redist_vc140_x86"/>
-      <PackageGroupRef Id="redist_vc140_x64"/>
+      <PackageGroupRef Id="redist_vc90" />
+      <PackageGroupRef Id="redist_vc100" />
+      <PackageGroupRef Id="redist_vc120" />
+      <PackageGroupRef Id="redist_vc140_x86" />
+      <PackageGroupRef Id="redist_vc140_x64" />
     </PackageGroup>
   </Fragment>
 

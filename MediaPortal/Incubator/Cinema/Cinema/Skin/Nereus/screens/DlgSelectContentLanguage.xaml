@@ -1,0 +1,41 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Cinema.Dialog.SelectContentLanguage.Header]"/>
+
+    <Model x:Key="Model" Id="A1529F09-767B-4164-B149-46F6D5729126"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="100*" />
+          </Grid.RowDefinitions>
+
+          <!--List of Languages-->
+          <ListView x:Name="Qualitys" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource MenuListViewStyle}"
+            ItemsSource="{Binding Path=items, Mode=TwoWay}" Grid.Column="2" Grid.Row="1" Grid.RowSpan="2">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="Select">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}"/>
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

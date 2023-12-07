@@ -33,7 +33,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.Utils;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetFileSystemFoldersCount : BaseFolderBasic
   {
-    public static Task<WebIntResult> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebIntResult> ProcessAsync(RequestContext context, string id)
     {
       string path = Base64.Decode(id);
 

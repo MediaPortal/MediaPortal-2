@@ -1,0 +1,116 @@
+﻿<UserControl x:Class="MP2BootstrapperApp.Views.InstallationInProgressPageView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:MP2BootstrapperApp.Views"
+             xmlns:conv="clr-namespace:MP2BootstrapperApp" Margin="10,20,10,0"
+             mc:Ignorable="d" 
+             d:DesignHeight="450" d:DesignWidth="800">
+  
+  <Grid HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <Grid.ColumnDefinitions>
+      <ColumnDefinition Width="*"/>
+      <ColumnDefinition Width="*"/>
+    </Grid.ColumnDefinitions>
+    <Grid.RowDefinitions>
+      <RowDefinition Height="*"/>
+      <RowDefinition Height="Auto"/>
+      <RowDefinition Height="*"/>
+    </Grid.RowDefinitions>
+
+    <Grid.Resources>
+      <Storyboard x:Key="AnimateTarget" RepeatBehavior="Forever">
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:0" Duration="0:0:5" Storyboard.TargetName="img1" Storyboard.TargetProperty="Opacity">
+          <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:5" Duration="0:0:5" Storyboard.TargetName="img2" Storyboard.TargetProperty="Opacity">
+          <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:10" Duration="0:0:5" Storyboard.TargetName="img3" Storyboard.TargetProperty="Opacity">
+          <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:15" Duration="0:0:5" Storyboard.TargetName="img4" Storyboard.TargetProperty="Opacity">
+          <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:20" Duration="0:0:5" Storyboard.TargetName="img5" Storyboard.TargetProperty="Opacity">
+          <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
+        </DoubleAnimationUsingKeyFrames>
+        <DoubleAnimationUsingKeyFrames BeginTime="0:0:25" Duration="0:0:5" Storyboard.TargetName="img6" Storyboard.TargetProperty="Opacity">
+          <EasingDoubleKeyFrame KeyTime="0:0:0" Value="0" />
+          <EasingDoubleKeyFrame KeyTime="0:0:2" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:3" Value="1" />
+          <EasingDoubleKeyFrame KeyTime="0:0:5" Value="0" />
+        </DoubleAnimationUsingKeyFrames>
+      </Storyboard>
+    </Grid.Resources>
+
+    <Grid.Triggers>
+      <EventTrigger RoutedEvent="Window.Loaded">
+        <BeginStoryboard Storyboard="{StaticResource AnimateTarget}"/>
+      </EventTrigger>
+    </Grid.Triggers>
+
+    <StackPanel Orientation="Vertical" VerticalAlignment="Center" Grid.Row="1" Margin="0,-20,0,40">
+      <TextBlock x:Name="PackageStatus" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center"
+                 Foreground="White" FontStretch="SemiCondensed" FontSize="22">
+        <Run Text="{Binding Path=CurrentPackage.DisplayName}"/>
+      </TextBlock>
+
+      <ProgressBar Margin="0,10,0,10" Height="10" Width="{Binding ElementName=PackageStatus, Path=ActualWidth}" 
+                 HorizontalAlignment="Center" IsIndeterminate="True" Background="#80FFFFFF" Foreground="#E8641B"/>
+
+      <TextBlock x:Name="ProgressStatus" TextAlignment="Center" HorizontalAlignment="Center" VerticalAlignment="Center" TextWrapping="Wrap" Opacity="0.6"
+                 Foreground="White" FontStretch="SemiCondensed" FontSize="18" Margin="0,20,0,0">
+        <Run Text="{Binding Path=CurrentAction}"/>
+      </TextBlock>
+    </StackPanel>
+
+    <Image x:Name="img1" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\Previews\1.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img2" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\Previews\2.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img3" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\Previews\3.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img4" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\Previews\4.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img5" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\Previews\5.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+    <Image x:Name="img6" Width="360" Stretch="Uniform" Grid.Column="1" Grid.RowSpan="3" Source="..\resources\Previews\6.jpg" Margin="0,0,0,20" Opacity="0" VerticalAlignment="Center">
+      <Image.Effect>
+        <DropShadowEffect Opacity="0.7"/>
+      </Image.Effect>
+    </Image>
+
+  </Grid>
+</UserControl>

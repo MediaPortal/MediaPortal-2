@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{E1D617B6-75E2-4CB4-BC20-D983BB4F05C0}</ProjectGuid>
-    <OutputType>Library</OutputType>
+        <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UiComponents.Trakt</RootNamespace>
     <AssemblyName>Trakt</AssemblyName>

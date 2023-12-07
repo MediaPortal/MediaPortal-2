@@ -178,8 +178,8 @@ namespace MediaPortal.Extensions.MetadataExtractors.AudioMetadataExtractor
         //File based access
         using (IResourceAccessor mediaItemAccessor = mediaItemLocator.CreateAccessor())
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-        using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-          await ExtractTagFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
+          await rah.LocalFsResourceAccessor.RunWithLocalFileSystemAccess(() =>
+            ExtractTagFanArt(rah.LocalFsResourceAccessor, mediaItemId, title)).ConfigureAwait(false);
       }
       catch (Exception ex)
       {

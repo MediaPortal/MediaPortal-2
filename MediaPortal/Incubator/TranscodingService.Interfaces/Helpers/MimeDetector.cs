@@ -34,7 +34,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
     public static string GetFileMime(ILocalFsResourceAccessor lfsra, string defaultMime = null)
     {
       // Impersonation
-      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(lfsra.CanonicalLocalResourcePath))
+      return ServiceRegistration.Get<IImpersonationService>().RunImpersonatedFor(lfsra.CanonicalLocalResourcePath, () =>
       {
         FileStream raf = null;
         try
@@ -50,7 +50,7 @@ namespace MediaPortal.Extensions.TranscodingService.Interfaces.Helpers
         {
           if (raf != null) raf.Close();
         }
-      }
+      });
     }
 
     public static string GetUrlMime(string url, string defaultMime = null)

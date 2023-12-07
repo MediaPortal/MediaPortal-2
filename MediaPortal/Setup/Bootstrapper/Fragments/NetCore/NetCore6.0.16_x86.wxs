@@ -1,0 +1,135 @@
+<!-- Copyright (c) .NET Foundation and contributors. All rights reserved. Licensed under the Microsoft Reciprocal License. See LICENSE.TXT file in the project root for full license information. -->
+
+<!--
+This file was adapted from the original here https://github.com/wixtoolset/wix/blob/d180bc6df297422f189ffd08a0dd558bfbeba1ca/src/test/burn/TestData/TestBA/TestBAWixlib_x64/NetCore6.0.9_x64.wxs.
+
+Changes:
+- Changed platform to x86
+- Updated .NET version to 6.0.16 including associated download links and hashes
+- Added additional *AsAdditionalPrereq package groups that set the bal:PrereqPackage attribute on the exe package so more than one package can be used as a bootstrapper prereq simultaneously.
+  
+This file generates package groups in the form:
+- [Runtime][Version]Redist_[Platform], e.g. DesktopNetCoreRuntime6016Redist_x86, for use as a standard package
+- [Runtime][Version]Redist_[Platform]AsPreReq, e.g. DesktopNetCoreRuntime6016Redist_x86AsPrereq, for use as a primary bootstrapper prerequisite package that includes the prerequisite license url
+- [Runtime][Version]Redist_[Platform]AsAdditionalPreReq, e.g. DesktopNetCoreRuntime6016Redist_x86AsAdditionalPrereq, for use as additional bundle prerequisites for use alongside the primary prerequisite package 
+
+When used as MBA prerequisites a single "primary" prerequisite package is required to be referenced using the [Package]AsPrereq group (defined by NetCore6_Platform.wxi) as this also includes the license url,
+then additional prerequisites should be referenced using the [Package]AsAdditionalPrereq groups defined here.
+
+If the .NET version is to be updated in future then it is necessary to update the version related defines below, the RedistLinks, and generate new hashes for the ExePackagePayloads.
+-->
+
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs"
+     xmlns:bal="http://wixtoolset.org/schemas/v4/wxs/bal"
+     xmlns:netfx="http://wixtoolset.org/schemas/v4/wxs/netfx">
+
+  <?define NetCorePlatform = x86?>
+  <?define NetCoreIdVersion = 6016?>
+  <?define NetCoreVersion = 6.0.16?>
+  <?define NetCoreSdkFeatureBandVersion = 60400?>
+  <?define NetCoreSdkIdVersion = 60408?>
+  <?define NetCoreSdkVersion = 6.0.408?>
+  <?include NetCore6_Platform.wxi?>
+
+  <?define AspNetCoreRedistLink = https://download.visualstudio.microsoft.com/download/pr/a4f38d1f-1d4d-41f0-8937-fcdd3fc692a2/64133ed947181f97400234cdd7e76c4f/aspnetcore-runtime-6.0.16-win-x86.exe?>
+  <?define DesktopNetCoreRedistLink = https://download.visualstudio.microsoft.com/download/pr/ea0e40d2-e326-453b-8cac-2719cbbefeca/b26458b139a500d3067ec25987030497/windowsdesktop-runtime-6.0.16-win-x86.exe?>
+  <?define DotNetCoreRedistLink = https://download.visualstudio.microsoft.com/download/pr/78caa28b-2982-43ed-8b9c-20e3369f0795/c771e9fd12a67068436115cf295740f7/dotnet-runtime-6.0.16-win-x86.exe?>
+  <?define DotNetCoreSdkRedistLink = https://download.visualstudio.microsoft.com/download/pr/43e1af49-c5e0-4df8-b4c1-aab805e823bc/9b215244f10ee4606e28fcdb0f63ebd1/dotnet-sdk-6.0.408-win-x86.exe?>
+
+  <Fragment>
+    <netfx:DotNetCoreSearch Id="$(var.AspNetCoreId)" RuntimeType="aspnet" Platform="$(var.NetCorePlatform)" MajorVersion="6" Variable="$(var.AspNetCoreId)" />
+
+    <WixVariable Id="AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)DetectCondition" Value="$(var.AspNetCoreId)" Overridable="yes" />
+    <WixVariable Id="AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)InstallCondition" Value="" Overridable="yes" />
+    <WixVariable Id="AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)PackageDirectory" Value="redist\" Overridable="yes" />
+    <WixVariable Id="AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)RepairArguments" Value="" Overridable="yes" />
+  </Fragment>
+
+  <!-- ASP.NET Core package without the bal:PrereqPackage attribute -->
+  <Fragment>
+    <netfx:DotNetCoreSearchRef Id="$(var.AspNetCoreId)" />
+
+    <PackageGroup Id="$(var.AspNetCoreRedistId)">
+      <ExePackage InstallArguments="$(var.AspNetCoreRedistInstallArguments)" PerMachine="yes" DetectCondition="!(wix.AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)DetectCondition)" InstallCondition="!(wix.AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)InstallCondition)" Id="$(var.AspNetCoreRedistId)" Vital="yes" Permanent="yes" Protocol="burn" LogPathVariable="$(var.AspNetCoreRedistLog)" Cache="remove">
+        <ExePackagePayload Name="!(wix.AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)PackageDirectory)aspnetcore-runtime-$(var.NetCoreVersion)-win-$(var.NetCorePlatform).exe" DownloadUrl="$(var.AspNetCoreRedistLink)" ProductName="Microsoft ASP.NET Core 6.0.16 - Shared Framework (x86)" Description="Microsoft ASP.NET Core 6.0.16 - Shared Framework (x86)" Hash="61797D278391C02F559C72E959FF6B0A6EFE77E6AF31F3F6E2FACAA6BDEDA7CBD8F36FF892DB766FF0D202FA28BC9B99D6C10C3E1B2969EC0B57ACBDC91B54BD" Size="8207296" Version="6.0.16.23174" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+
+  <!-- ASP.NET Core package with the bal:PrereqPackage attribute -->
+  <Fragment>
+    <netfx:DotNetCoreSearchRef Id="$(var.AspNetCoreId)" />
+
+    <PackageGroup Id="$(var.AspNetCoreRedistId)AsAdditionalPrereq">
+      <ExePackage bal:PrereqPackage="yes" InstallArguments="$(var.AspNetCoreRedistInstallArguments)" PerMachine="yes" DetectCondition="!(wix.AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)DetectCondition)" InstallCondition="!(wix.AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)InstallCondition)" Id="$(var.AspNetCoreRedistId)AsAdditionalPrereq" Vital="yes" Permanent="yes" Protocol="burn" LogPathVariable="$(var.AspNetCoreRedistLog)" Cache="remove">
+        <ExePackagePayload Name="!(wix.AspNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)PackageDirectory)aspnetcore-runtime-$(var.NetCoreVersion)-win-$(var.NetCorePlatform).exe" DownloadUrl="$(var.AspNetCoreRedistLink)" ProductName="Microsoft ASP.NET Core 6.0.16 - Shared Framework (x86)" Description="Microsoft ASP.NET Core 6.0.16 - Shared Framework (x86)" Hash="61797D278391C02F559C72E959FF6B0A6EFE77E6AF31F3F6E2FACAA6BDEDA7CBD8F36FF892DB766FF0D202FA28BC9B99D6C10C3E1B2969EC0B57ACBDC91B54BD" Size="8207296" Version="6.0.16.23174" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+
+  <Fragment>
+    <netfx:DotNetCoreSearch Id="$(var.DesktopNetCoreId)" RuntimeType="desktop" Platform="$(var.NetCorePlatform)" MajorVersion="6" Variable="$(var.DesktopNetCoreId)" />
+
+    <WixVariable Id="DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)DetectCondition" Value="$(var.DesktopNetCoreId)" Overridable="yes" />
+    <WixVariable Id="DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)InstallCondition" Value="" Overridable="yes" />
+    <WixVariable Id="DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)PackageDirectory" Value="redist\" Overridable="yes" />
+    <WixVariable Id="DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)RepairArguments" Value="" Overridable="yes" />
+  </Fragment>
+
+  <!-- Desktop runtime package without the bal:PrereqPackage attribute -->
+  <Fragment>
+    <netfx:DotNetCoreSearchRef Id="$(var.DesktopNetCoreId)" />
+
+    <PackageGroup Id="$(var.DesktopNetCoreRedistId)">
+      <ExePackage InstallArguments="$(var.DesktopNetCoreRedistInstallArguments)" PerMachine="yes" DetectCondition="!(wix.DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)DetectCondition)" InstallCondition="!(wix.DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)InstallCondition)" Id="$(var.DesktopNetCoreRedistId)" Vital="yes" Permanent="yes" Protocol="burn" LogPathVariable="$(var.DesktopNetCoreRedistLog)" Cache="remove">
+        <ExePackagePayload Name="!(wix.DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)PackageDirectory)windowsdesktop-runtime-$(var.NetCoreVersion)-win-$(var.NetCorePlatform).exe" DownloadUrl="$(var.DesktopNetCoreRedistLink)" ProductName="Microsoft Windows Desktop Runtime - 6.0.16 (x86)" Description="Microsoft Windows Desktop Runtime - 6.0.16 (x86)" Hash="C412BC0EF80A05FA3EC9211405C5D6127ED535FEC4407826A62B9FDFB17479888AE701D8265714463FA0EFB4D7FC6825AC10BCAEFAD9DFB902F0054751D7A59B" Size="52291224" Version="6.0.16.32327" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+
+  <!-- Desktop runtime package with the bal:PrereqPackage attribute -->
+  <Fragment>
+    <netfx:DotNetCoreSearchRef Id="$(var.DesktopNetCoreId)" />
+
+    <PackageGroup Id="$(var.DesktopNetCoreRedistId)AsAdditionalPrereq">
+      <ExePackage bal:PrereqPackage="yes" InstallArguments="$(var.DesktopNetCoreRedistInstallArguments)" PerMachine="yes" DetectCondition="!(wix.DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)DetectCondition)" InstallCondition="!(wix.DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)InstallCondition)" Id="$(var.DesktopNetCoreRedistId)AsAdditionalPrereq" Vital="yes" Permanent="yes" Protocol="burn" LogPathVariable="$(var.DesktopNetCoreRedistLog)" Cache="remove">
+        <ExePackagePayload Name="!(wix.DesktopNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)PackageDirectory)windowsdesktop-runtime-$(var.NetCoreVersion)-win-$(var.NetCorePlatform).exe" DownloadUrl="$(var.DesktopNetCoreRedistLink)" ProductName="Microsoft Windows Desktop Runtime - 6.0.16 (x86)" Description="Microsoft Windows Desktop Runtime - 6.0.16 (x86)" Hash="C412BC0EF80A05FA3EC9211405C5D6127ED535FEC4407826A62B9FDFB17479888AE701D8265714463FA0EFB4D7FC6825AC10BCAEFAD9DFB902F0054751D7A59B" Size="52291224" Version="6.0.16.32327" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+
+  <Fragment>
+    <netfx:DotNetCoreSearch Id="$(var.DotNetCoreId)" RuntimeType="core" Platform="$(var.NetCorePlatform)" MajorVersion="6" Variable="$(var.DotNetCoreId)" />
+
+    <WixVariable Id="DotNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)DetectCondition" Value="$(var.DotNetCoreId)" Overridable="yes" />
+    <WixVariable Id="DotNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)InstallCondition" Value="" Overridable="yes" />
+    <WixVariable Id="DotNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)PackageDirectory" Value="redist\" Overridable="yes" />
+    <WixVariable Id="DotNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)RepairArguments" Value="" Overridable="yes" />
+
+    <PackageGroup Id="$(var.DotNetCoreRedistId)">
+      <ExePackage InstallArguments="$(var.DotNetCoreRedistInstallArguments)" PerMachine="yes" DetectCondition="!(wix.DotNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)DetectCondition)" InstallCondition="!(wix.DotNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)InstallCondition)" Id="$(var.DotNetCoreRedistId)" Vital="yes" Permanent="yes" Protocol="burn" LogPathVariable="$(var.DotNetCoreRedistLog)" Cache="remove">
+        <ExePackagePayload Name="!(wix.DotNetCoreRuntime$(var.NetCoreIdVersion)Redist$(var.NetCorePlatform)PackageDirectory)dotnet-runtime-$(var.NetCoreVersion)-win-$(var.NetCorePlatform).exe" DownloadUrl="$(var.DotNetCoreRedistLink)" ProductName="Microsoft .NET Runtime - 6.0.16 (x86)" Description="Microsoft .NET Runtime - 6.0.16 (x86)" Hash="3330999941183E8BEC4327F216FE5F6CF7F1F897E0EF039E3D1403A3681FFA7C4F20D06457D7F60073855A7D1C8CE054B0FE75811AD3E64A37AD42B8A821B25E" Size="25622416" Version="6.0.16.32323" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+
+  <Fragment>
+    <netfx:DotNetCoreSdkSearch Id="$(var.DotNetCoreSdkId)" Platform="$(var.NetCorePlatform)" MajorVersion="6" Variable="$(var.DotNetCoreSdkId)" />
+    <netfx:DotNetCoreSdkFeatureBandSearch Id="$(var.DotNetCoreSdkFeatureBandId)" Platform="$(var.NetCorePlatform)" Version="6.0.400" Variable="$(var.DotNetCoreSdkFeatureBandId)" />
+  </Fragment>
+
+  <Fragment>
+    <netfx:DotNetCoreSdkFeatureBandSearchRef Id="$(var.DotNetCoreSdkFeatureBandId)" />
+
+    <WixVariable Id="DotNetCoreSdk$(var.NetCoreSdkIdVersion)Redist$(var.NetCorePlatform)DetectCondition" Value="$(var.DotNetCoreSdkFeatureBandId) &gt;= v$(var.NetCoreSdkVersion)" Overridable="yes" />
+    <WixVariable Id="DotNetCoreSdk$(var.NetCoreSdkIdVersion)Redist$(var.NetCorePlatform)InstallCondition" Value="" Overridable="yes" />
+    <WixVariable Id="DotNetCoreSdk$(var.NetCoreSdkIdVersion)Redist$(var.NetCorePlatform)PackageDirectory" Value="redist\" Overridable="yes" />
+    <WixVariable Id="DotNetCoreSdk$(var.NetCoreSdkIdVersion)Redist$(var.NetCorePlatform)RepairArguments" Value="" Overridable="yes" />
+
+    <PackageGroup Id="$(var.DotNetCoreSdkRedistId)">
+      <ExePackage CacheId="$(var.DotNetCoreSdkRedistId)_2485A7AFA98E178CB8F30C9838346B514AEA4769" InstallArguments="$(var.DotNetCoreSdkRedistInstallArguments)" PerMachine="yes" DetectCondition="!(wix.DotNetCoreSdk$(var.NetCoreSdkIdVersion)Redist$(var.NetCorePlatform)DetectCondition)" InstallCondition="!(wix.DotNetCoreSdk$(var.NetCoreSdkIdVersion)Redist$(var.NetCorePlatform)InstallCondition)" Id="$(var.DotNetCoreSdkRedistId)" Vital="yes" Permanent="yes" Protocol="burn" LogPathVariable="$(var.DotNetCoreSdkRedistLog)" Cache="remove">
+        <ExePackagePayload Name="!(wix.DotNetCoreSdk$(var.NetCoreSdkIdVersion)Redist$(var.NetCorePlatform)PackageDirectory)dotnet-sdk-$(var.NetCoreSdkVersion)-win-$(var.NetCorePlatform).exe" DownloadUrl="$(var.DotNetCoreSdkRedistLink)" ProductName="Microsoft .NET SDK 6.0.408 (x86)" Description="Microsoft .NET SDK 6.0.408 (x86)" Hash="969242CAF98D06EE9820FAD81A382C63D517C38C9686A34FD58217B4A77689A68AE558A8AF328F103831A3BFB1D8EE3266057F95994D4558390922504F40DC43" Size="195395704" Version="6.4.823.17710" />
+      </ExePackage>
+    </PackageGroup>
+  </Fragment>
+</Wix>

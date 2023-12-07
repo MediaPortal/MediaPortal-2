@@ -31,7 +31,7 @@ using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
 {
@@ -39,7 +39,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Tv
   [ApiFunctionParam(Name = "channelId", Type = typeof(string), Nullable = false)]
   internal class GetChannelBasicById : BaseChannelBasic
   {
-    public static async Task<WebChannelBasic> ProcessAsync(IOwinContext context, string channelId)
+    public static async Task<WebChannelBasic> ProcessAsync(RequestContext context, string channelId)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetChannelBasicById: ITvProvider not found");

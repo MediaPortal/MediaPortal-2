@@ -51,7 +51,7 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Client.ImageSourcePr
       return string.Empty;
     }
 
-    bool IFanartImageSourceProvider.TryCreateFanartImageSource(ListItem listItem, out FanArtImageSource fanartImageSource)
+    public bool TryCreateFanartImageSource(ListItem listItem, out FanArtImageSource fanartImageSource)
     {
       string fanArtName = GetFanArtName(listItem);
 

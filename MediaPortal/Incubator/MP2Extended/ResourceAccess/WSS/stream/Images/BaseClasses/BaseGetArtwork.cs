@@ -42,8 +42,8 @@ using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using System.Net.Http;
 using System.Net;
 using System.Net.Http.Headers;
-using Microsoft.Owin;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses
 {
@@ -90,7 +90,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseC
         fanArtMediaType = FanArtMediaTypes.Undefined;
     }
 
-    internal static IList<FanArtImage> GetFanArtImages(IOwinContext context, string id, bool isTvRadio, bool isRecording, string fanartType, string fanArtMediaType)
+    internal static IList<FanArtImage> GetFanArtImages(RequestContext context, string id, bool isTvRadio, bool isRecording, string fanartType, string fanArtMediaType)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

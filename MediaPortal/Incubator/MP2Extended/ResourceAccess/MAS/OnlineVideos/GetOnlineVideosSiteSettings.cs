@@ -30,7 +30,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.OnlineVideos;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
 {
@@ -38,7 +38,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.OnlineVideos
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetOnlineVideosSiteSettings
   {
-    public static Task<IList<WebOnlineVideosSiteSetting>> ProcessAsync(IOwinContext context, string id)
+    public static Task<IList<WebOnlineVideosSiteSetting>> ProcessAsync(RequestContext context, string id)
     {
       if (id == null)
         throw new BadRequestException("GetOnlineVideosSiteSettings: id is null");

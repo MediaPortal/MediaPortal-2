@@ -54,9 +54,10 @@ namespace MediaPortal.Plugins.WifiRemote.Messages
       _nowPlayingUpdateThreadRunning = false;
       _nowPlayingWasSend = false;
       _nowPlayingUpdateThreadSleep?.Set();
-      if (_nowPlayingUpdateThread?.Join(UPDATE_INTERVAL) ?? false)
-        _nowPlayingUpdateThread?.Abort();
+      var thread = _nowPlayingUpdateThread;
       _nowPlayingUpdateThread = null;
+      if (thread != null && !thread.Join(UPDATE_INTERVAL))
+        try { thread.Abort(); } catch { }
     }
 
     private static void DoNowPlayingUpdate()

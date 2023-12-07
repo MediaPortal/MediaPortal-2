@@ -22,15 +22,38 @@
 
 #endregion
 
+using UPnP.Infrastructure.Http;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
 using Microsoft.Owin;
-using UPnP.Infrastructure.Utils;
+#endif
 
 namespace UPnP.Infrastructure.Dv
 {
   public class CallContext
   {
-    protected IOwinContext _httpContext;
     protected EndpointConfiguration _endpoint;
+#if NET5_0_OR_GREATER
+    protected HttpContext _httpContext;
+
+    public CallContext(HttpRequest request, HttpContext httpContext, EndpointConfiguration endpoint)
+    {
+      _httpContext = httpContext;
+      _endpoint = endpoint;
+    }
+
+    public HttpRequest Request
+    {
+      get { return _httpContext?.Request; }
+    }
+
+    public HttpContext HttpContext
+    {
+      get { return _httpContext; }
+    }
+#else
+    protected IOwinContext _httpContext;
 
     public CallContext(IOwinRequest request, IOwinContext httpContext, EndpointConfiguration endpoint)
     {
@@ -47,6 +70,7 @@ namespace UPnP.Infrastructure.Dv
     {
       get { return _httpContext; }
     }
+#endif
 
     public EndpointConfiguration Endpoint
     {
@@ -55,7 +79,7 @@ namespace UPnP.Infrastructure.Dv
 
     public string RemoteAddress
     {
-      get { return HttpServerHelper.GetRemoteAddress(Request); }
+      get { return Request?.GetRemoteAddress(); }
     }
   }
 }

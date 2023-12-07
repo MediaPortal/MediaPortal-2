@@ -1,34 +1,34 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project>
 
-  <PropertyGroup>
-    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
-  </PropertyGroup>
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
+
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)DefaultRemoteMap.xml" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
+
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <LanguageFiles Include="$(ProjectDir)Language\*.*" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <SkinFiles Include="$(ProjectDir)Skin\**\*.*" />
+    </ItemGroup>
 
   <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(ProjectDir)DefaultRemoteMap.xml" />
-    <PluginFiles Include="$(ProjectDir)plugin.xml" />
-  </ItemGroup>
-
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <LanguageFiles Include="$(ProjectDir)Language\*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <SkinFiles Include="$(ProjectDir)Skin\**\*.*" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <References Include="$(TargetDir)SharpLibHid.dll" />
+    <References Include="$(TargetDir)SharpLib.Hid.dll" />
     <References Include="$(TargetDir)SharpLibWin32.dll" />
   </ItemGroup>
 
-  <Target Name="AfterBuild">
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(LanguageFiles)" DestinationFolder="$(PluginDestination)Language\" />
     <Copy SourceFiles="@(SkinFiles)"

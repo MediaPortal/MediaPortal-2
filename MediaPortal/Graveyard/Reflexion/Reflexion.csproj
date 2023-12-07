@@ -6,7 +6,7 @@
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>{F5A74068-2365-46C2-87E0-762A70A30D05}</ProjectGuid>
-    <OutputType>Library</OutputType>
+        <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.UiComponents.Reflexion</RootNamespace>
     <AssemblyName>Reflexion</AssemblyName>

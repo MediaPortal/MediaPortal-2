@@ -28,7 +28,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using System.Net.Configuration;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Threading;

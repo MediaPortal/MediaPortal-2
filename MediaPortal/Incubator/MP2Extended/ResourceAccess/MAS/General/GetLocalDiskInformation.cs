@@ -32,14 +32,14 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.TAS.Misc.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.MP2Extended.Utils;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetLocalDiskInformation : BaseCard
   {
-    public static Task<IList<WebDiskSpaceInformation>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebDiskSpaceInformation>> ProcessAsync(RequestContext context)
     {
       return Task.FromResult<IList<WebDiskSpaceInformation>>(DriveInfo.GetDrives().Select(x => DiskSpaceInformation.GetSpaceInformation(x.Name)).ToList());
     }

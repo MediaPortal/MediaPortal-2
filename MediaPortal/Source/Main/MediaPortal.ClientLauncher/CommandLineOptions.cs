@@ -23,7 +23,6 @@
 #endregion
 
 using CommandLine;
-using CommandLine.Text;
 
 namespace MediaPortal.Client.Launcher
 {
@@ -32,13 +31,7 @@ namespace MediaPortal.Client.Launcher
     [Option('d', "data", Required = false, HelpText = "Overrides the default application data directory.")]
     public string DataDirectory { get; set; }
 
-    [Option('h', "noicon", Required = false, DefaultValue = false, HelpText = "Hides the icon from system tray.")]
+    [Option('h', "noicon", Required = false, Default = false, HelpText = "Hides the icon from system tray.")]
     public bool NoIcon { get; set; }
-
-    [HelpOption]
-    public string GetUsage()
-    {
-      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-    }
   }
 }

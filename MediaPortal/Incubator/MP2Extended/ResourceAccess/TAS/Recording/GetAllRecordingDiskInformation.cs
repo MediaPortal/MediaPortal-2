@@ -34,14 +34,14 @@ using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.MP2Extended.Utils;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, Summary = "")]
   internal class GetAllRecordingDiskInformation : BaseCard
   {
-    public static async Task<IList<WebDiskSpaceInformation>> ProcessAsync(IOwinContext context)
+    public static async Task<IList<WebDiskSpaceInformation>> ProcessAsync(RequestContext context)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetAllRecordingDiskInformation: ITvProvider not found");

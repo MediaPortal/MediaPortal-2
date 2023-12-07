@@ -1,5 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<!--
+﻿<!--
     Copyright (c) Microsoft Corporation.  All rights reserved.
     
     The use and distribution terms for this software are covered by the
@@ -13,7 +12,7 @@
 <!--
 Adapted by Team-MediaPortal from a WIX dialog
 -->
-<Wix xmlns="http://schemas.microsoft.com/wix/2006/wi">
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
   <Fragment>
     <UI>
       <Dialog Id="MP2_Setup_UI_SelectInstallType" Width="370" Height="270" Title="!(loc.SelectInstallTypeDlg_Title)">
@@ -24,41 +23,40 @@ Adapted by Team-MediaPortal from a WIX dialog
         <Control Id="Title" Type="Text" X="15" Y="6" Width="200" Height="15" Transparent="yes" NoPrefix="yes" Text="{\WixUI_Font_Title}!(loc.SelectInstallTypeDlg_Title)" />
 
         <Control Id="Client_and_Server" Type="PushButton" X="30" Y="60" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_and_Server)">
-          <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
-          <Publish Event="AddLocal" Value="Client">1</Publish>
-          <Publish Event="AddLocal" Value="Server">1</Publish>
-          <Publish Event="AddLocal" Value="ServiceMonitor">1</Publish>
-          <Publish Event="AddLocal" Value="LogCollector">1</Publish>
+          <Publish Property="INSTALLTYPE_CUSTOM" Value="0" />
+          <Publish Event="AddLocal" Value="Client" />
+          <Publish Event="AddLocal" Value="Server" />
+          <Publish Event="AddLocal" Value="ServiceMonitor" />
+          <Publish Event="AddLocal" Value="LogCollector" />
         </Control>
         <Control Id="Client_and_Server_Desc" Type="Text" X="115" Y="58" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Client_and_Server_Desc)" />
 
         <Control Id="Client_only" Type="PushButton" X="30" Y="100" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Client_only)">
-          <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
-          <Publish Event="AddLocal" Value="Client">1</Publish>
-          <Publish Event="Remove" Value="Server">1</Publish>
-          <Publish Event="AddLocal" Value="ServiceMonitor">1</Publish>
-          <Publish Event="AddLocal" Value="LogCollector">1</Publish>
+          <Publish Property="INSTALLTYPE_CUSTOM" Value="0" />
+          <Publish Event="AddLocal" Value="Client" />
+          <Publish Event="Remove" Value="Server" />
+          <Publish Event="AddLocal" Value="ServiceMonitor" />
+          <Publish Event="AddLocal" Value="LogCollector" />
         </Control>
         <Control Id="Client_only_Desc" Type="Text" X="115" Y="98" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Client_only_Desc)" />
 
         <Control Id="Server_only" Type="PushButton" X="30" Y="140" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Server_only)">
-          <Publish Property="INSTALLTYPE_CUSTOM" Value="0">1</Publish>
-          <Publish Event="Remove" Value="Client">1</Publish>
-          <Publish Event="AddLocal" Value="Server">1</Publish>
-          <Publish Event="AddLocal" Value="ServiceMonitor">1</Publish>
-          <Publish Event="AddLocal" Value="LogCollector">1</Publish>
+          <Publish Property="INSTALLTYPE_CUSTOM" Value="0" />
+          <Publish Event="Remove" Value="Client" />
+          <Publish Event="AddLocal" Value="Server" />
+          <Publish Event="AddLocal" Value="ServiceMonitor" />
+          <Publish Event="AddLocal" Value="LogCollector" />
         </Control>
-        <Control Id="Server_only_Desc"  Type="Text" X="115" Y="138" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Server_only_Desc)" />
+        <Control Id="Server_only_Desc" Type="Text" X="115" Y="138" Width="230" Height="35" Text="!(loc.SelectInstallTypeDlg_Server_only_Desc)" />
 
         <Control Id="Custom" Type="PushButton" X="30" Y="190" Width="75" Height="17" Text="!(loc.SelectInstallTypeDlg_Custom)">
-          <Publish Property="INSTALLTYPE_CUSTOM" Value="1">1</Publish>
-          <Publish Event="AddLocal" Value="ALL">1</Publish>
+          <Publish Property="INSTALLTYPE_CUSTOM" Value="1" />
         </Control>
         <Control Id="Custom_Desc" Type="Text" X="115" Y="188" Width="220" Height="35" Text="!(loc.SelectInstallTypeDlg_Custom_Desc)" />
 
         <Control Id="Back" Type="PushButton" X="180" Y="243" Width="56" Height="17" Text="!(loc.WixUIBack)" />
         <Control Id="Cancel" Type="PushButton" X="304" Y="243" Width="56" Height="17" Cancel="yes" Text="!(loc.WixUICancel)">
-          <Publish Event="SpawnDialog" Value="CancelDlg">1</Publish>
+          <Publish Event="SpawnDialog" Value="CancelDlg" />
         </Control>
       </Dialog>
     </UI>

@@ -38,7 +38,7 @@ using MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
@@ -48,7 +48,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "filter", Type = typeof(string), Nullable = true)]
   internal class GetRecordings : BaseRecordingBasic
   {
-    public static Task<IList<WebRecordingBasic>> ProcessAsync(IOwinContext context, WebSortField? sort, WebSortOrder? order, string filter = null)
+    public static Task<IList<WebRecordingBasic>> ProcessAsync(RequestContext context, WebSortField? sort, WebSortOrder? order, string filter = null)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("GetRecordings: ITvProvider not found");

@@ -178,8 +178,7 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       }
       else
         // Optimize access to local filesystem resource
-        using (lfra.EnsureLocalFileSystemAccess())
-          handle = Bass.BASS_StreamCreateFile(lfra.LocalFileSystemPath, 0, 0, flags);
+        handle = lfra.RunWithLocalFileSystemAccess(() => Bass.BASS_StreamCreateFile(lfra.LocalFileSystemPath, 0, 0, flags));
 
       if (handle == BassConstants.BassInvalidHandle)
         throw new BassLibraryException("BASS_StreamCreateFile");

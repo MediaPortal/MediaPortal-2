@@ -48,7 +48,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
       // Try to get extended information out of MP4 files)
       if (extensionUpper != ".MP4" || extensionUpper != ".M4V") return false;
 
-      using (folderOrFileLfsra.EnsureLocalFileSystemAccess())
+      return folderOrFileLfsra.RunWithLocalFileSystemAccess(() =>
       {
         TagLib.File mp4File = TagLib.File.Create(folderOrFileLfsra.LocalFileSystemPath);
         if (ReferenceEquals(mp4File, null) || ReferenceEquals(mp4File.Tag, null))
@@ -70,7 +70,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.MovieMetadataExtractor.Match
         mp4File.Dispose();
 
         return true;
-      }
+      });
     }
   }
 }

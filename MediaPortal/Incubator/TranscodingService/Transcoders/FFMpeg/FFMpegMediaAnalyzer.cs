@@ -149,7 +149,6 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
       if (isFileSystem)
       {
         List<LocalFsResourceAccessorHelper> helpers = new List<LocalFsResourceAccessorHelper>();
-        List<IDisposable> accessors = new List<IDisposable>();
         try
         {
           MetadataContainer info = null;
@@ -168,9 +167,7 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
             //Ensure availability
             var rah = new LocalFsResourceAccessorHelper(res);
             helpers.Add(rah);
-            var accessor = rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess();
-            if (accessor != null)
-              accessors.Add(accessor);
+            // No need to use rah.RunWithLocalFileSystemAccess, only string operations are used on LocalFileSystemPath
           }
 
           string fileName;
@@ -239,8 +236,6 @@ namespace MediaPortal.Extensions.TranscodingService.Service.Transcoders.FFMpeg
         }
         finally
         {
-          foreach (var accessor in accessors)
-            accessor?.Dispose();
           foreach (var helper in helpers)
             helper?.Dispose();
         }

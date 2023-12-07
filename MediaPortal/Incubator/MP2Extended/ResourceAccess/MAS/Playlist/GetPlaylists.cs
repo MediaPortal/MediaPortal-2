@@ -31,14 +31,14 @@ using MediaPortal.Common.MediaManagement;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.Playlist;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebPlaylist>), Summary = "")]
   internal class GetPlaylists
   {
-    public static Task<IList<WebPlaylist>> ProcessAsync(IOwinContext context)
+    public static Task<IList<WebPlaylist>> ProcessAsync(RequestContext context)
     {
       ICollection<PlaylistInformationData> playlists = ServiceRegistration.Get<IMediaLibrary>().GetPlaylists();
 

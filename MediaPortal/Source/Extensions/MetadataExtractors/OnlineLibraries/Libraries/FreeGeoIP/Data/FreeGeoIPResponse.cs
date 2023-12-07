@@ -88,14 +88,7 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.FreeGeoIP.Data
 
     public CivicAddress ToCivicAddress()
     {
-      CivicAddress address = new CivicAddress();
-
-      address.CountryRegion = CountryName;
-      address.StateProvince = RegionName;
-      address.City = City;
-      if (ZipCode != null)
-        address.PostalCode = ZipCode.ToString();
-
+      CivicAddress address = new CivicAddress(null, null, null,City, CountryName, null, ZipCode?.ToString(), RegionName);
       return address;
     }
 

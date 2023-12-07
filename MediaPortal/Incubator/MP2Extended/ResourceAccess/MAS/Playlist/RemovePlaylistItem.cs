@@ -30,9 +30,9 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using System;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
 {
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Playlist
   [ApiFunctionParam(Name = "playlistId", Type = typeof(string), Nullable = false)]
   internal class RemovePlaylistItem : BaseMusicTrackBasic
   {
-    public static Task<WebBoolResult> ProcessAsync(IOwinContext context, string playlistId, int position)
+    public static Task<WebBoolResult> ProcessAsync(RequestContext context, string playlistId, int position)
     {
       // get the playlist
       PlaylistRawData playlistRawData = ServiceRegistration.Get<IMediaLibrary>().ExportPlaylist(Guid.Parse(playlistId));

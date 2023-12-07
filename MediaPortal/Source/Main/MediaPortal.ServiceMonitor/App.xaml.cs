@@ -30,6 +30,7 @@ using MediaPortal.Common.PathManager;
 using System.Threading;
 using System.Windows;
 using System.Windows.Threading;
+using CommandLine;
 using MediaPortal.Common;
 using MediaPortal.Common.Localization;
 using MediaPortal.Common.Logging;
@@ -78,9 +79,10 @@ namespace MediaPortal.ServiceMonitor
       Thread.CurrentThread.SetApartmentState(ApartmentState.STA);
 
       // Parse command line options
-      var mpOptions = new CommandLineOptions();
-      var parser = new CommandLine.Parser(with => with.HelpWriter = Console.Out);
-      parser.ParseArgumentsStrict(args.Args, mpOptions, () => Environment.Exit(1));
+      CommandLineOptions mpOptions = new CommandLineOptions();
+      Parser.Default.ParseArguments<CommandLineOptions>(args.Args)
+        .WithParsed(parsed => mpOptions = parsed)
+        .WithNotParsed(err => Environment.Exit(1));
 
       // Check if another instance is already running
       // If new instance was created by UacHelper previous one, assume that previous one is already closed.

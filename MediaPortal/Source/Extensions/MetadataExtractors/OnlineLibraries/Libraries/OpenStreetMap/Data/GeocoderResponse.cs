@@ -68,14 +68,17 @@ namespace MediaPortal.Extensions.OnlineLibraries.Libraries.OpenStreetMap.Data
 
     public CivicAddress ToCivicAddress()
     {
-      CivicAddress result = new CivicAddress();
+      string city = null;
+      string state = null;
+      string country = null;
       if (AddressInfo.ContainsKey(KEY_CITY))
-        result.City = AddressInfo[KEY_CITY];
+        city = AddressInfo[KEY_CITY];
       if (AddressInfo.ContainsKey(KEY_STATE))
-        result.StateProvince = AddressInfo[KEY_STATE];
+        state = AddressInfo[KEY_STATE];
       if (AddressInfo.ContainsKey(KEY_COUNTRY))
-        result.CountryRegion = AddressInfo[KEY_COUNTRY];
+        country = AddressInfo[KEY_COUNTRY];
 
+      CivicAddress result = new CivicAddress(null, null, null, city, country, null, null, state);
       return result;
     }
 

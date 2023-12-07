@@ -239,39 +239,39 @@ namespace Tests.Server.OnlineLibraries
       Environment.Exit(1);
     }
 
-    static void Main(string[] args)
-    {
-      try
-      {
-        if (args.Length >= 1)
-        {
-          if (args[0] == "musicbrainz" && args.Length == 6)
-            TestMusicBrainz(args[1], args[2], args[3], Int32.Parse(args[4]), Int32.Parse(args[5]));
+    //static void Main(string[] args)
+    //{
+    //  try
+    //  {
+    //    if (args.Length >= 1)
+    //    {
+    //      if (args[0] == "musicbrainz" && args.Length == 6)
+    //        TestMusicBrainz(args[1], args[2], args[3], Int32.Parse(args[4]), Int32.Parse(args[5]));
 
-          else if (args[0] == "audiodb" && args.Length == 6)
-            TestAudioDB(args[1], args[2], args[3], Int32.Parse(args[4]), Int32.Parse(args[5]));
+    //      else if (args[0] == "audiodb" && args.Length == 6)
+    //        TestAudioDB(args[1], args[2], args[3], Int32.Parse(args[4]), Int32.Parse(args[5]));
 
-          else if (args[0] == "freedb" && args.Length == 3)
-            TestFreeDB(args[1], args[2]);
+    //      else if (args[0] == "freedb" && args.Length == 3)
+    //        TestFreeDB(args[1], args[2]);
 
-          else if (args[0] == "recording" && args.Length == 2)
-            TestRecording(args[1]);
+    //      else if (args[0] == "recording" && args.Length == 2)
+    //        TestRecording(args[1]);
 
-          else
-            Usage();
-        }
-        else
-        {
-          Usage();
-        }
-      }
-      catch (Exception e)
-      {
-        Console.Error.WriteLine("Error running test:\n{0}", e);
-        Environment.Exit(1);
-      }
+    //      else
+    //        Usage();
+    //    }
+    //    else
+    //    {
+    //      Usage();
+    //    }
+    //  }
+    //  catch (Exception e)
+    //  {
+    //    Console.Error.WriteLine("Error running test:\n{0}", e);
+    //    Environment.Exit(1);
+    //  }
 
-      Environment.Exit(0);
-    }
+    //  Environment.Exit(0);
+    //}
   }
 }

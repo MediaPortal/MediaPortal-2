@@ -148,24 +148,24 @@ namespace MediaPortal.Plugins.SlimTv.Service
       if (tvProgram == null)
         return null;
       Program program = new Program
-        {
-          ChannelId = tvProgram.IdChannel,
-          ProgramId = tvProgram.IdProgram,
-          Title = tvProgram.Title,
-          Description = tvProgram.Description,
-          Genre = tvProgram.ProgramCategory?.Category,
-          StartTime = tvProgram.StartTime,
-          EndTime = tvProgram.EndTime,
-          OriginalAirDate = tvProgram.OriginalAirDate,
-          Classification = tvProgram.Classification,
-          ParentalRating = tvProgram.ParentalRating,
-          StarRating = tvProgram.StarRating,
-          SeasonNumber = tvProgram.SeriesNum,
-          EpisodeNumber = tvProgram.EpisodeNum,
-          EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
-          EpisodePart = tvProgram.EpisodePart,
-          EpisodeTitle = tvProgram.EpisodeName,
-        };
+      {
+        ChannelId = tvProgram.ChannelId,
+        ProgramId = tvProgram.ProgramId,
+        Title = tvProgram.Title,
+        Description = tvProgram.Description,
+        Genre = tvProgram.ProgramCategory?.Category,
+        StartTime = tvProgram.StartTime,
+        EndTime = tvProgram.EndTime,
+        OriginalAirDate = tvProgram.OriginalAirDate,
+        Classification = tvProgram.Classification,
+        ParentalRating = tvProgram.ParentalRating,
+        StarRating = tvProgram.StarRating,
+        SeasonNumber = tvProgram.SeriesNum,
+        EpisodeNumber = tvProgram.EpisodeNum,
+        EpisodeNumberDetailed = tvProgram.EpisodeNum,  // TVE3.5 doesn't have Episode.Number?
+        EpisodePart = tvProgram.EpisodePart,
+        EpisodeTitle = tvProgram.EpisodeName,
+      };
 
       ProgramBLL programLogic = new ProgramBLL(tvProgram);
       program.RecordingStatus = programLogic.IsRecording ? RecordingStatus.Recording : RecordingStatus.None;
@@ -186,9 +186,9 @@ namespace MediaPortal.Plugins.SlimTv.Service
 
     public static IChannel ToChannel(this Mediaportal.TV.Server.TVDatabase.Entities.Channel tvChannel)
     {
-      return new Channel
+      return tvChannel == null ? null : new Channel
       {
-        ChannelId = tvChannel.IdChannel,
+        ChannelId = tvChannel.ChannelId,
         ChannelNumber = tvChannel.ChannelNumber,
         Name = tvChannel.DisplayName,
         MediaType = (MediaType)tvChannel.MediaType,
@@ -199,20 +199,28 @@ namespace MediaPortal.Plugins.SlimTv.Service
         TimesWatched = tvChannel.TimesWatched,
         TotalTimeWatched = tvChannel.TotalTimeWatched,
         VisibleInGuide = tvChannel.VisibleInGuide,
-        GroupNames = tvChannel.GroupMaps.Select(group => group.ChannelGroup.GroupName).ToList()
+        GroupNames = tvChannel.GroupMaps?.Select(group => group.ChannelGroup?.GroupName).ToList()
       };
     }
 
     public static IChannelGroup ToChannelGroup(this Mediaportal.TV.Server.TVDatabase.Entities.ChannelGroup radioGroup)
     {
-      return new ChannelGroup { ChannelGroupId = radioGroup.IdGroup, Name = radioGroup.GroupName, MediaType = radioGroup.MediaType == 0 ? MediaType.TV : MediaType.Radio, SortOrder = radioGroup.SortOrder};
+      return new ChannelGroup
+      {
+        ChannelGroupId = radioGroup.ChannelGroupId,
+        Name = radioGroup.GroupName, 
+        MediaType = radioGroup.MediaType == 0 ? MediaType.TV : MediaType.Radio, 
+        SortOrder = radioGroup.SortOrder 
+      };
     }
 
     public static ISchedule ToSchedule(this Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule)
     {
       return new Schedule
       {
-        ChannelId = schedule.IdChannel,
+        ChannelId = schedule.ChannelId,
+        ScheduleId = schedule.ScheduleId,
+        ParentScheduleId = schedule.ParentScheduleId,
         Name = schedule.ProgramName,
         KeepDate = schedule.KeepDate,
         KeepMethod = (KeepMethodType)schedule.KeepMethod,
@@ -221,65 +229,63 @@ namespace MediaPortal.Plugins.SlimTv.Service
         Priority = (PriorityType)schedule.Priority,
         StartTime = schedule.StartTime,
         EndTime = schedule.EndTime,
-        ScheduleId = schedule.IdSchedule,
-        ParentScheduleId = schedule.IdParentSchedule,
         RecordingType = (ScheduleRecordingType)schedule.ScheduleType
       };
     }
 #endif
 
-    //public static IProgram[] ToPrograms(this NowAndNext nowAndNext)
-    //{
-    //  if (nowAndNext == null)
-    //    return null;
+        //public static IProgram[] ToPrograms(this NowAndNext nowAndNext)
+        //{
+        //  if (nowAndNext == null)
+        //    return null;
 
-    //  IProgram[] programs = new IProgram[2]; // 0: now; 1: next
-    //  programs[0] = new Program
-    //  {
-    //    ChannelId = nowAndNext.IdChannel,
-    //    ProgramId = nowAndNext.IdProgramNow,
-    //    Title = nowAndNext.TitleNow,
-    //    Description = nowAndNext.DescriptionNow,
-    //    StartTime = nowAndNext.StartTimeNow,
-    //    EndTime = nowAndNext.EndTimeNow
-    //  };
-    //  programs[1] = new Program
-    //  {
-    //    ChannelId = nowAndNext.IdChannel,
-    //    ProgramId = nowAndNext.IdProgramNext,
-    //    Title = nowAndNext.TitleNext,
-    //    Description = nowAndNext.DescriptionNext,
-    //    StartTime = nowAndNext.StartTimeNow,
-    //    EndTime = nowAndNext.StartTimeNext
-    //  };
-    //  return programs;
-    //}
+        //  IProgram[] programs = new IProgram[2]; // 0: now; 1: next
+        //  programs[0] = new Program
+        //  {
+        //    ChannelId = nowAndNext.ChannelId,
+        //    ProgramId = nowAndNext.IdProgramNow,
+        //    Title = nowAndNext.TitleNow,
+        //    Description = nowAndNext.DescriptionNow,
+        //    StartTime = nowAndNext.StartTimeNow,
+        //    EndTime = nowAndNext.EndTimeNow
+        //  };
+        //  programs[1] = new Program
+        //  {
+        //    ChannelId = nowAndNext.ChannelId,
+        //    ProgramId = nowAndNext.IdProgramNext,
+        //    Title = nowAndNext.TitleNext,
+        //    Description = nowAndNext.DescriptionNext,
+        //    StartTime = nowAndNext.StartTimeNow,
+        //    EndTime = nowAndNext.StartTimeNext
+        //  };
+        //  return programs;
+        //}
 
-    // Morpheus_xx, 2014-01-03: this helper method could be used to filter programs that are CanceledSchedules, because the actual Program.State does not reflect this situation
-    // Using this extension works, but causes quite a big overhead. TVE35 should handle this situation internally.
-    //public static IEnumerable<Mediaportal.TV.Server.TVDatabase.Entities.Program> ProcessCanceledSchedules(this IEnumerable<Mediaportal.TV.Server.TVDatabase.Entities.Program> programs)
-    //{
-    //  IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
-    //  if (scheduleService == null)
-    //    yield break;
+        // Morpheus_xx, 2014-01-03: this helper method could be used to filter programs that are CanceledSchedules, because the actual Program.State does not reflect this situation
+        // Using this extension works, but causes quite a big overhead. TVE35 should handle this situation internally.
+        //public static IEnumerable<Mediaportal.TV.Server.TVDatabase.Entities.Program> ProcessCanceledSchedules(this IEnumerable<Mediaportal.TV.Server.TVDatabase.Entities.Program> programs)
+        //{
+        //  IScheduleService scheduleService = GlobalServiceProvider.Get<IScheduleService>();
+        //  if (scheduleService == null)
+        //    yield break;
 
-    //  var allSchedules = ScheduleManagement.ListAllSchedules(ScheduleIncludeRelationEnum.CanceledSchedule);
+        //  var allSchedules = ScheduleManagement.ListAllSchedules(ScheduleIncludeRelationEnum.CanceledSchedule);
 
-    //  foreach (Mediaportal.TV.Server.TVDatabase.Entities.Program program in programs)
-    //  {
-    //    ProgramState state = (ProgramState)program.State;
-    //    if (state.HasFlag(ProgramState.RecordSeriesPending))
-    //    {
-    //      foreach (Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule in allSchedules)
-    //      {
-    //        ScheduleBLL scheduleBll = new ScheduleBLL(schedule);
-    //        if (scheduleBll.IsSerieIsCanceled(program.StartTime, program.IdChannel))
-    //          program.State = 0;
-    //      }
-    //    }
-    //    yield return program;
-    //  }
-    //}
+        //  foreach (Mediaportal.TV.Server.TVDatabase.Entities.Program program in programs)
+        //  {
+        //    ProgramState state = (ProgramState)program.State;
+        //    if (state.HasFlag(ProgramState.RecordSeriesPending))
+        //    {
+        //      foreach (Mediaportal.TV.Server.TVDatabase.Entities.Schedule schedule in allSchedules)
+        //      {
+        //        ScheduleBLL scheduleBll = new ScheduleBLL(schedule);
+        //        if (scheduleBll.IsSerieIsCanceled(program.StartTime, program.ChannelId))
+        //          program.State = 0;
+        //      }
+        //    }
+        //    yield return program;
+        //  }
+        //}
 
-  }
+      }
 }

@@ -22,25 +22,22 @@
 
 #endregion
 
+using MediaPortal.Common;
+using MediaPortal.Common.Logging;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
+using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
+using MediaPortal.Plugins.MP2Extended.Attributes;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
+using MediaPortal.Plugins.MP2Extended.Exceptions;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
+using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
-using System.Web;
-using System.Web.Http.Controllers;
-using MediaPortal.Common;
-using MediaPortal.Common.Logging;
-using MediaPortal.Common.ResourceAccess;
-using MediaPortal.Extensions.TranscodingService.Interfaces;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Helpers;
-using MediaPortal.Extensions.TranscodingService.Interfaces.Transcoding;
-using MediaPortal.Plugins.MP2Extended.Attributes;
-using MediaPortal.Plugins.MP2Extended.Exceptions;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using Microsoft.Owin;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
 {
@@ -50,7 +47,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
   [ApiFunctionParam(Name = "hls", Type = typeof(string), Nullable = true)]
   internal class RetrieveStream : BaseSendData
   {
-    public static async Task<bool> ProcessAsync(IOwinContext context, string identifier, string file, string hls)
+    public static async Task<bool> ProcessAsync(RequestContext context, string identifier, string file, string hls)
     {
       Stream resourceStream = null;
       bool onlyHeaders = false;
@@ -221,7 +218,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       if (resourceStream == null)
       {
         context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-        context.Response.ReasonPhrase = "No resource stream found";
+        context.Response.SetReasonPhrase("No resource stream found");
         context.Response.ContentLength = 0;
         context.Response.ContentType = null;
 
@@ -250,7 +247,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       return true;
     }
 
-    private static async Task<bool> SendSegmentAsync(string fileName, IOwinContext context, StreamItem streamItem)
+    private static async Task<bool> SendSegmentAsync(string fileName, RequestContext context, StreamItem streamItem)
     {
       if (!string.IsNullOrEmpty(fileName) && streamItem.StreamContext is TranscodeContext tc)
       {
@@ -284,10 +281,10 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Control
       return false;
     }
 
-    protected static void SetErrorStatus(IOwinContext context, string message)
+    protected static void SetErrorStatus(RequestContext context, string message)
     {
       context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
-      context.Response.ReasonPhrase = message;
+      context.Response.SetReasonPhrase(message);
       context.Response.ContentLength = 0;
       context.Response.ContentType = null;
     }

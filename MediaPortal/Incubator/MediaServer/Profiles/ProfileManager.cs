@@ -22,29 +22,33 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Text.RegularExpressions;
-using System.Linq;
-using System.Net;
-using System.IO;
-using System.Xml;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.PathManager;
+using MediaPortal.Common.Services.Settings;
 using MediaPortal.Common.Settings;
+using MediaPortal.Common.UserProfileDataManagement;
 using MediaPortal.Extensions.MediaServer.DIDL;
 using MediaPortal.Extensions.MediaServer.DLNA;
 using MediaPortal.Extensions.MediaServer.Filters;
-using MediaPortal.Extensions.MediaServer.Protocols;
-using MediaPortal.Utilities.FileSystem;
-using MediaPortal.Common.UserProfileDataManagement;
-using MediaPortal.Common.Services.Settings;
-using Microsoft.Owin;
-using System.Collections.Concurrent;
-using MediaPortal.Extensions.TranscodingService.Interfaces;
-using System.Threading.Tasks;
 using MediaPortal.Extensions.MediaServer.Interfaces.Settings;
+using MediaPortal.Extensions.MediaServer.Protocols;
+using MediaPortal.Extensions.TranscodingService.Interfaces;
+using MediaPortal.Utilities.FileSystem;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Net;
+using System.Text.RegularExpressions;
+using System.Threading.Tasks;
+using System.Xml;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace MediaPortal.Extensions.MediaServer.Profiles
 {
@@ -104,7 +108,11 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
       return IPAddress.Parse(address);
     }
 
+#if NET5_0_OR_GREATER
+    public static async Task<EndPointSettings> DetectProfileAsync(HttpRequest request)
+#else
     public static async Task<EndPointSettings> DetectProfileAsync(IOwinRequest request)
+#endif
     {
       //Lazy load profiles. Needed because of localized strings in profiles
       if(Profiles.Count == 0)
@@ -124,13 +132,14 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
           return idLink.Value;
       }
 
-      if (request?.RemoteIpAddress == null)
+      string remoteIpAddress = request?.GetRemoteAddress();
+      if (remoteIpAddress == null)
       {
         Logger.Error("DetectProfile: Couldn't find remote address!");
         return null;
       }
 
-      IPAddress ip = ResolveIpAddress(request.RemoteIpAddress);
+      IPAddress ip = ResolveIpAddress(remoteIpAddress);
       string clientName = EndPointSettings.GetClientName(ip);
 
       // Check links
@@ -164,7 +173,7 @@ namespace MediaPortal.Extensions.MediaServer.Profiles
 
             foreach (KeyValuePair<string, string> header in detection.HttpHeaders)
             {
-              if (header.Value != null && (request.Headers[header.Key] == null || !Regex.IsMatch(request.Headers[header.Key], header.Value, RegexOptions.IgnoreCase)))
+              if (header.Value != null && (string.IsNullOrEmpty(request.Headers[header.Key]) || !Regex.IsMatch(request.Headers[header.Key], header.Value, RegexOptions.IgnoreCase)))
               {
                 match = false;
                 break;

@@ -31,8 +31,8 @@ using MediaPortal.Plugins.MP2Extended.OnlineVideos;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images.BaseClasses;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using System.IO;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "mediatype", Type = typeof(WebOnlineVideosMediaType), Nullable = false)]
   internal class GetOnlineVideosArtwork : BaseGetArtwork
   {
-    public static async Task ProcessAsync(IOwinContext context, WebOnlineVideosMediaType mediatype, string id)
+    public static async Task ProcessAsync(RequestContext context, WebOnlineVideosMediaType mediatype, string id)
     {
       if (id == null)
         throw new BadRequestException("GetOnlineVideosArtwork: id is null");

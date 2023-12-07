@@ -22,15 +22,21 @@
 
 #endregion
 
+using MediaPortal.Common.Logging;
+using MediaPortal.Utilities.Network;
+using MediaPortal.Utilities.SystemAPI;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Net;
-using MediaPortal.Common.Logging;
-using MediaPortal.Utilities.Network;
+using System.Net.Http;
+using System.Net.Http.Headers;
 using System.Threading;
-using MediaPortal.Utilities.SystemAPI;
-using UPnP.Infrastructure.Utils;
+using System.Threading.Tasks;
+#if NET5_0_OR_GREATER
+#else
+using UPnP.Infrastructure.Http;
+#endif
 
 namespace MediaPortal.Common.Services.ResourceAccess
 {
@@ -54,6 +60,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
     protected readonly IPAddress _localIpAddress;
     protected readonly long _length;
     protected long _position = 0;
+    protected LocalEndPointHttpClient _httpClient;
     private IList<HttpRangeChunk> _chunkCache = new List<HttpRangeChunk>();
 
     #endregion
@@ -84,13 +91,14 @@ namespace MediaPortal.Common.Services.ResourceAccess
       protected readonly long _endIndex; // Exclusive
       protected readonly string _url;
       protected readonly IPAddress _localIpAddress;
+      protected readonly LocalEndPointHttpClient _httpClient;
+      protected readonly CancellationTokenSource _cancellationTokenSource;
 
       // Data for async request control
       protected readonly object _syncObject = new object();
       protected readonly ManualResetEvent _readyEvent = new ManualResetEvent(false);
       protected volatile bool _filled = false;
       protected volatile Exception _exception = null;
-      protected volatile HttpWebRequest _pendingRequest = null;
       protected int _numTries = 0;
 
       protected static string _userAgent;
@@ -100,12 +108,14 @@ namespace MediaPortal.Common.Services.ResourceAccess
         _userAgent = WindowsAPI.GetOsVersionString() + " HTTP/1.1 " + PRODUCT_VERSION;
       }
 
-      public HttpRangeChunk(long start, long end, long wholeStreamLength, string url, IPAddress localIpAddress)
+      public HttpRangeChunk(long start, long end, long wholeStreamLength, string url, IPAddress localIpAddress, LocalEndPointHttpClient httpClient)
       {
         _startIndex = start;
         _endIndex = Math.Min(wholeStreamLength, end);
         _url = url;
         _localIpAddress = localIpAddress;
+        _httpClient = httpClient;
+        _cancellationTokenSource = new CancellationTokenSource();
         Load_Async();
       }
 
@@ -118,10 +128,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
           _cacheStream.Dispose();
           _cacheStream = null;
         }
-        HttpWebRequest request = _pendingRequest;
-        _pendingRequest = null;
-        if (request != null)
-          request.Abort();
+        _cancellationTokenSource.Cancel();
         _filled = false;
         _exception = new ObjectDisposedException("HttpRangeChunk");
         _readyEvent.Set();
@@ -135,72 +142,72 @@ namespace MediaPortal.Common.Services.ResourceAccess
       /// </summary>
       protected void Load_Async()
       {
-        HttpWebRequest request = (HttpWebRequest) WebRequest.Create(_url);
-        NetworkUtils.SetLocalEndpoint(request, _localIpAddress);
-        request.Method = "GET";
-        request.KeepAlive = true;
-        request.AllowAutoRedirect = true;
-        request.UserAgent = _userAgent;
-        request.AddRange(_startIndex, _endIndex - 1);
-
-        IAsyncResult result = request.BeginGetResponse(OnResponseReceived, request);
-        NetworkHelper.AddTimeout(request, result, HTTP_RANGE_REQUEST_TIMEOUT);
-        _pendingRequest = request;
+        HttpRequestMessage request = new HttpRequestMessage(HttpMethod.Get, _url);
+        if (NetworkUtils.LimitIPEndpoints)
+          LocalEndPointHttpClient.SetLocalEndpoint(request, _localIpAddress);
+        request.Headers.UserAgent.TryParseAdd(_userAgent);
+        request.Headers.Range = new RangeHeaderValue(_startIndex, _endIndex - 1);
         _numTries++;
+        _httpClient.SendAsync(request, _cancellationTokenSource.Token).ContinueWith(response => OnResponseReceived(response));
       }
 
-      private void OnResponseReceived(IAsyncResult ar)
+      private void OnResponseReceived(Task<HttpResponseMessage> responseTask)
       {
-        HttpWebResponse response = null;
+        HttpResponseMessage response = null;
         bool finished = false;
-        lock (_syncObject) // Lock to avoid interference with disposal
-          try
-          {
-            try
+        try
+        {
+          // GetAwaiter().GetResult() unwraps any aggregate exceptions to make exception handling easier
+          response = responseTask.GetAwaiter().GetResult();
+          lock (_syncObject) // Lock to avoid interference with disposal
+            if (_cacheStream != null) // If disposed, the stream is null
             {
-              response = (HttpWebResponse) ((HttpWebRequest) ar.AsyncState).EndGetResponse(ar);
-              if (_cacheStream != null) // If disposed, the stream is null
+              using (Stream source = response.Content.ReadAsStream())
               {
-                using (Stream source = response.GetResponseStream())
+                const int MAX_BUF_SIZE = 64535;
+                int numRead = (int)(_endIndex - _startIndex);
+                byte[] buffer = new byte[Math.Min(numRead, MAX_BUF_SIZE)];
+                int readBytes;
+                while (numRead > 0 && (readBytes = source.Read(buffer, 0, Math.Min(buffer.Length, numRead))) > 0)
                 {
-                  const int MAX_BUF_SIZE = 64535;
-                  int numRead = (int) (_endIndex - _startIndex);
-                  byte[] buffer = new byte[Math.Min(numRead, MAX_BUF_SIZE)];
-                  int readBytes;
-                  while (numRead > 0 && (readBytes = source.Read(buffer, 0, Math.Min(buffer.Length, numRead))) > 0)
-                  {
-                    _cacheStream.Write(buffer, 0, readBytes);
-                    numRead -= readBytes;
-                  }
-                  _filled = true;
+                  _cacheStream.Write(buffer, 0, readBytes);
+                  numRead -= readBytes;
                 }
+                _filled = true;
               }
-              finished = true;
             }
-            catch (Exception e)
-            {
-              if (_numTries >= MAX_NUM_TRIES)
-              {
-                ServiceRegistration.Get<ILogger>().Error("HttpRangeChunk: Error receiving data from {0}", e, _url);
-                _exception = e;
-                finished = true;
-              }
-              else if (_cacheStream != null) // If disposed, the stream is null
-                Load_Async();
-              return;
-            }
-          }
-          finally
+          finished = true;
+        }
+        catch (TaskCanceledException)
+        {
+          // This chunk was probably disposed, no need for further processing
+        }
+        catch (Exception e)
+        {
+          if (_numTries >= MAX_NUM_TRIES)
           {
-            if (finished)
-            {
-              _pendingRequest = null;
+            ServiceRegistration.Get<ILogger>().Error("HttpRangeChunk: Error receiving data from {0}", e, _url);
+            _exception = e;
+            finished = true;
+          }
+          else
+          {
+            lock (_syncObject) // Lock to avoid interference with disposal
+              if (_cacheStream != null) // If disposed, the stream is null
+                Load_Async();
+          }
+        }
+        finally
+        {
+          if (finished)
+          {
+            lock (_syncObject) // Lock to avoid interference with disposal
               if (_cacheStream != null) // If disposed, the stream is null
                 _readyEvent.Set();
-            }
-            if (response != null)
-              response.Close();
           }
+          if (response != null)
+            response.Dispose();
+        }
       }
 
       #region Public members
@@ -287,6 +294,8 @@ namespace MediaPortal.Common.Services.ResourceAccess
       _length = streamLength;
       _url = url;
       _localIpAddress = localIpAddress;
+      _httpClient = LocalEndPointHttpClient.Create();
+      _httpClient.Timeout = TimeSpan.FromSeconds(HttpRangeChunk.HTTP_RANGE_REQUEST_TIMEOUT);
     }
 
     protected override void Dispose(bool disposing)
@@ -298,6 +307,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
       {
         foreach (HttpRangeChunk chunk in _chunkCache)
           chunk.Dispose();
+        _httpClient.Dispose();
       }
       _chunkCache = null;
     }
@@ -472,7 +482,7 @@ namespace MediaPortal.Common.Services.ResourceAccess
         _chunkCache[0].Dispose();
         _chunkCache.RemoveAt(0);
       }
-      _chunkCache.Add(chunk = new HttpRangeChunk(start, start + CHUNK_SIZE, Length, _url, _localIpAddress));
+      _chunkCache.Add(chunk = new HttpRangeChunk(start, start + CHUNK_SIZE, Length, _url, _localIpAddress, _httpClient));
     }
 
     protected HttpRangeChunk ProvideReadAhead(long position, int numReadaheadChunks)

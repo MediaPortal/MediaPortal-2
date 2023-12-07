@@ -29,7 +29,7 @@ using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using System.Threading.Tasks;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
 {
@@ -37,7 +37,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Timeshiftings
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class CancelCurrentTimeShifting
   {
-    public static async Task<WebBoolResult> ProcessAsync(IOwinContext context, string userName)
+    public static async Task<WebBoolResult> ProcessAsync(RequestContext context, string userName)
     {
       if (!ServiceRegistration.IsRegistered<ITvProvider>())
         throw new BadRequestException("CancelCurrentTimeShifting: ITvProvider not found");

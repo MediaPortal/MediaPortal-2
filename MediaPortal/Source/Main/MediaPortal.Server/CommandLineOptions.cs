@@ -34,11 +34,5 @@ namespace MediaPortal.Server
 
     [Option('c', "console", Required = false, HelpText = "Run MP2 Server as Console Application.")]
     public bool RunAsConsoleApp { get; set; }
-
-    [HelpOption]
-    public string GetUsage()
-    {
-      return HelpText.AutoBuild(this, current => HelpText.DefaultParsingErrorsHandler(this, current));
-    }
   }
 }

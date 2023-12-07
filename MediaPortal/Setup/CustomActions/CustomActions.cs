@@ -1,7 +1,7 @@
-#region Copyright (C) 2007-2020 Team MediaPortal
+#region Copyright (C) 2007-2021 Team MediaPortal
 
 /*
-    Copyright (C) 2007-2020 Team MediaPortal
+    Copyright (C) 2007-2021 Team MediaPortal
     http://www.team-mediaportal.com
 
     This file is part of MediaPortal 2
@@ -22,11 +22,6 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Globalization;
-using System.IO;
-using System.Text;
 using MediaPortal.Backend.Services.ClientCommunication;
 using MediaPortal.Backend.Services.SystemResolver;
 using MediaPortal.Common;
@@ -47,8 +42,13 @@ using MediaPortal.Common.Settings;
 using MediaPortal.Common.SystemResolver;
 using MediaPortal.UI.ServerCommunication.Settings;
 using MediaPortal.Utilities;
-using Microsoft.Deployment.WindowsInstaller;
 using Microsoft.Win32;
+using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.IO;
+using System.Text;
+using WixToolset.Dtf.WindowsInstaller;
 
 namespace CustomActions
 {

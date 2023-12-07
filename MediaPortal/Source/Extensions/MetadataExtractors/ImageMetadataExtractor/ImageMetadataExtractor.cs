@@ -243,18 +243,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             return true;
 
           using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-          {
-            string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
-            if (localFsResourcePath != null)
+            rah.LocalFsResourceAccessor.RunWithLocalFileSystemAccess(() =>
             {
-              // Thumbnail extraction
-              IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-              ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, MAX_LARGE_THUMBNAIL_SIZE, MAX_LARGE_THUMBNAIL_SIZE, forceQuickMode, out thumbData, out imageType))
-                MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
-            }
-          }
+              string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
+              if (localFsResourcePath != null)
+              {
+                // Thumbnail extraction
+                IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+                ImageType imageType;
+                if (generator.GetThumbnail(localFsResourcePath, MAX_LARGE_THUMBNAIL_SIZE, MAX_LARGE_THUMBNAIL_SIZE, forceQuickMode, out thumbData, out imageType))
+                  MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+              }
+            });
           return true;
         }
         else
@@ -287,23 +287,23 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor
             return updated;
 
           using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-          using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-          {
-            string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
-            if (localFsResourcePath != null)
+            rah.LocalFsResourceAccessor.RunWithLocalFileSystemAccess(() =>
             {
-              // In quick mode only allow thumbs taken from cache.
-              bool cachedOnly = forceQuickMode;
-              // Thumbnail extraction
-              IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
-              ImageType imageType;
-              if (generator.GetThumbnail(localFsResourcePath, MAX_LARGE_THUMBNAIL_SIZE, MAX_LARGE_THUMBNAIL_SIZE, cachedOnly, out thumbData, out imageType))
+              string localFsResourcePath = rah.LocalFsResourceAccessor.LocalFileSystemPath;
+              if (localFsResourcePath != null)
               {
-                MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
-                updated = true;
+                // In quick mode only allow thumbs taken from cache.
+                bool cachedOnly = forceQuickMode;
+                // Thumbnail extraction
+                IThumbnailGenerator generator = ServiceRegistration.Get<IThumbnailGenerator>();
+                ImageType imageType;
+                if (generator.GetThumbnail(localFsResourcePath, MAX_LARGE_THUMBNAIL_SIZE, MAX_LARGE_THUMBNAIL_SIZE, cachedOnly, out thumbData, out imageType))
+                {
+                  MediaItemAspect.SetAttribute(extractedAspectData, ThumbnailLargeAspect.ATTR_THUMBNAIL, thumbData);
+                  updated = true;
+                }
               }
-            }
-          }
+            });
           return updated;
         }
       }

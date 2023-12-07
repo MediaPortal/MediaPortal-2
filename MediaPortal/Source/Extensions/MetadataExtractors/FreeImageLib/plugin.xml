@@ -13,6 +13,6 @@
 
   <Runtime>
     <Assembly FileName="FreeImageLib.dll"/>
-    <Assembly FileName="FreeImageNet.dll"/>
+    <Assembly FileName="FreeImage-dotnet-core.dll"/>
   </Runtime>
 </Plugin>

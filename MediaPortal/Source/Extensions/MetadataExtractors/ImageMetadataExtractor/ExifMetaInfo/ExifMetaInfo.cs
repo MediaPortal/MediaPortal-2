@@ -22,14 +22,13 @@
 
 #endregion
 
+using FreeImageAPI;
+using FreeImageAPI.Metadata;
+using MediaPortal.Common.ResourceAccess;
 using System;
 using System.Drawing;
 using System.IO;
 using System.Linq;
-using FreeImageAPI;
-using FreeImageAPI.Metadata;
-using FreeImageLib;
-using MediaPortal.Common.ResourceAccess;
 
 namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifMetaInfo
 {
@@ -217,10 +216,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.ImageMetadataExtractor.ExifM
       FIBITMAP dib = new FIBITMAP();
       try
       {
-        // Check if FreeImage is available
-        if (!FreeImageInit.IsAvailable())
-          throw new Exception("FreeImage is not available!");
-
         // Load the image from stream, try to read headers only, without decoding
         dib = FreeImage.LoadFromStream(mediaStream, (FREE_IMAGE_LOAD_FLAGS)FIF_LOAD_NOPIXELS);
         if (dib.IsNull)

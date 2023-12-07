@@ -22,6 +22,7 @@
 
 #endregion
 
+using MediaPortal.Utilities.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -32,16 +33,19 @@ using System.Net.NetworkInformation;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
-using MediaPortal.Utilities.Exceptions;
-using Microsoft.Owin;
-using Microsoft.Owin.Hosting;
-using Microsoft.Owin.Hosting.Tracing;
-using Owin;
 using UPnP.Infrastructure.Dv.DeviceTree;
 using UPnP.Infrastructure.Dv.GENA;
 using UPnP.Infrastructure.Dv.SOAP;
 using UPnP.Infrastructure.Dv.SSDP;
+using UPnP.Infrastructure.Http;
 using UPnP.Infrastructure.Utils;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+using Microsoft.Owin.Hosting;
+using Microsoft.Owin.Hosting.Tracing;
+#endif
 
 namespace UPnP.Infrastructure.Dv
 {
@@ -175,15 +179,13 @@ namespace UPnP.Infrastructure.Dv
         //var port = _serverData.HTTP_PORTv4 = NetworkHelper.GetFreePort(_serverData.HTTP_PORTv4);
         var servicePrefix = "/MediaPortal/UPnPServer_" + Guid.NewGuid().GetHashCode().ToString("X");
         _serverData.ServicePrefix = servicePrefix;
-        var startOptions = BuildStartOptions(servicePrefix);
-
         IDisposable server = null;
         try
         {
           try
           {
-            server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
-            UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
+            server = HttpServer.BuildAndStartServer(servicePrefix, HandleHTTPRequest, out var urls);
+            UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener started on addresses {0}", String.Join(", ", urls));
             _serverData.HTTPListeners.Add(server);
           }
           catch (Exception ex)
@@ -191,12 +193,11 @@ namespace UPnP.Infrastructure.Dv
             if (UPnPConfiguration.IP_ADDRESS_BINDINGS?.Count > 0)
               UPnPConfiguration.LOGGER.Warn("UPnP server: Error starting HTTP server with filters. Fallback to no filters", ex);
             else
-              throw ex;
+              throw;
 
             server?.Dispose();
-            startOptions = UPnPServer.BuildStartOptions(servicePrefix, new List<string>(), UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER);
-            server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
-            UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
+            server = HttpServer.BuildAndStartServer(servicePrefix, new List<string>(), DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER, HandleHTTPRequest, out var urls);
+            UPnPConfiguration.LOGGER.Info("UPnP server: HTTP listener started on addresses {0}", String.Join(", ", urls));
             _serverData.HTTPListeners.Add(server);
           }
         }
@@ -224,59 +225,6 @@ namespace UPnP.Infrastructure.Dv
       }
     }
 
-    public static StartOptions BuildStartOptions(string servicePrefix)
-    {
-      return BuildStartOptions(servicePrefix, UPnPConfiguration.IP_ADDRESS_BINDINGS, UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER);
-    }
-
-    public static StartOptions BuildStartOptions(string servicePrefix, List<string> filters, int port)
-    {
-      ICollection<IPAddress> listenAddresses = new HashSet<IPAddress>();
-      if (UPnPConfiguration.USE_IPV4)
-        foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetwork, filters))
-          listenAddresses.Add(address);
-      if (UPnPConfiguration.USE_IPV6)
-        foreach (IPAddress address in NetworkHelper.GetBindableIPAddresses(AddressFamily.InterNetworkV6, filters))
-          listenAddresses.Add(address);
-
-      StartOptions startOptions = new StartOptions();
-      foreach (IPAddress address in listenAddresses)
-      {
-        var bindableAddress = NetworkHelper.TranslateBindableAddress(address);
-        string formattedAddress = $"http://{bindableAddress}:{port}{servicePrefix}";
-        if (address.AddressFamily == AddressFamily.InterNetworkV6)
-        {
-          if (Equals(address, IPAddress.IPv6Any))
-            continue;
-          formattedAddress = $"http://[{bindableAddress}]:{port}{servicePrefix}";
-        }
-        startOptions.Urls.Add(formattedAddress);
-      }
-
-      // If no explicit url bindings defined, use the wildcard binding
-      if (startOptions.Urls.Count == 0)
-      {
-        var formattedAddress = $"http://+:{port}{servicePrefix}";
-        startOptions.Urls.Add(formattedAddress);
-      }
-
-      // Disable built-in owin tracing by using a null traceoutput. It causes crashes by concurrency issues.
-      // See: https://stackoverflow.com/questions/17948363/tracelistener-in-owin-self-hosting
-      startOptions.Settings.Add(
-        typeof(ITraceOutputFactory).FullName,
-        typeof(NullTraceOutputFactory).AssemblyQualifiedName);
-      return startOptions;
-    }
-
-    public class NullTraceOutputFactory : ITraceOutputFactory
-    {
-      public TextWriter Create(string outputFile)
-      {
-        // Beware that there's a multi threaded race condition using StreamWriter.Null, since it's also used by Console.Write* when no console is attached, e.g. from Windows Services.
-        // It's better to use TextWriter.Synchronized(new StreamWriter(Stream.Null)) instead.
-        return TextWriter.Synchronized(new StreamWriter(Stream.Null));
-      }
-    }
     /// <summary>
     /// Has to be called when the server's configuration (i.e. its devices, services, actions or state variables)
     /// was changed.
@@ -338,11 +286,15 @@ namespace UPnP.Infrastructure.Dv
     /// Handles all kinds of HTTP over TCP requests - Description, Control and Event subscriptions.
     /// </summary>
     /// <param name="context">HTTP client context of the current request.</param>
+#if NET5_0_OR_GREATER
+    protected async Task HandleHTTPRequest(HttpContext context)
+#else
     protected async Task HandleHTTPRequest(IOwinContext context)
+#endif
     {
       var request = context.Request;
       var response = context.Response;
-      Uri uri = request.Uri;
+      Uri uri = request.GetUri();
       string hostName = uri.Host;
       string pathAndQuery = uri.LocalPath; // Unfortunately, Uri.PathAndQuery doesn't decode characters like '{' and '}', so we use the Uri.LocalPath property
       try
@@ -357,14 +309,16 @@ namespace UPnP.Infrastructure.Dv
             continue;
 
           // Common check for supported encodings
-          string acceptEncoding = request.Headers.Get("ACCEPT-ENCODING") ?? string.Empty;
+          string acceptEncoding = request.Headers["ACCEPT-ENCODING"];
+          if (acceptEncoding == null)
+            acceptEncoding = string.Empty;
 
           // Handle different HTTP methods here
           if (request.Method == "GET")
           { // GET of descriptions
             if (pathAndQuery.StartsWith(config.DescriptionPathBase))
             {
-              string acceptLanguage = request.Headers.Get("ACCEPT-LANGUAGE");
+              string acceptLanguage = request.Headers["ACCEPT-LANGUAGE"];
               CultureInfo culture = GetFirstCultureOrDefault(acceptLanguage, CultureInfo.InvariantCulture);
 
               string description = null;
@@ -390,8 +344,8 @@ namespace UPnP.Infrastructure.Dv
           { // POST of control messages
             if (config.ControlPathsToServices.TryGetValue(pathAndQuery, out service))
             {
-              string contentType = request.Headers.Get("CONTENT-TYPE");
-              string userAgentStr = request.Headers.Get("USER-AGENT");
+              string contentType = request.Headers["CONTENT-TYPE"];
+              string userAgentStr = request.Headers["USER-AGENT"];
               int minorVersion;
               if (string.IsNullOrEmpty(userAgentStr))
                 minorVersion = 0;
@@ -528,6 +482,6 @@ namespace UPnP.Infrastructure.Dv
         }
     }
 
-    #endregion
+#endregion
   }
 }

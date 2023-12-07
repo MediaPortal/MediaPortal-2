@@ -76,27 +76,6 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     #region Private methods
 
     /// <summary>
-    /// Tries to impersonate a <see cref="WindowsIdentityWrapper"/>
-    /// </summary>
-    /// <param name="idWrapper"><see cref="WindowsIdentityWrapper"/> to impersonate</param>
-    /// <param name="ctxWrapper"><see cref="WindowsImpersonationContextWrapper"/> resulting from the impersonation</param>
-    /// <returns><c>true</c> if impersonation was successful; otherwiese <c>false</c></returns>
-    private bool TryImpersonate(WindowsIdentityWrapper idWrapper, out WindowsImpersonationContextWrapper ctxWrapper)
-    {
-      try
-      {
-        ctxWrapper = idWrapper.Impersonate();
-        return true;
-      }
-      catch (Exception e)
-      {
-        _debugLogger.Error("ImpersonationService: Error when trying to impersonate User '{0}' (Domain '{1}')", e, idWrapper.UserName, idWrapper.Domain);
-        ctxWrapper = null;
-        return false;
-      }
-    }
-
-    /// <summary>
     /// Tries to find the best matching <see cref="WindowsIdentityWrapper"/> for a given <see cref="ResourcePath"/>
     /// </summary>
     /// <param name="path"><see cref="ResourcePath"/> for which a <see cref="WindowsIdentityWrapper"/> is needed</param>
@@ -203,25 +182,39 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     }
 
     /// <summary>
-    /// Finds the best matching registered credential for <paramref name="path"/> and impersonates it
+    /// Runs the specified action with any impersonation necessary to access the specified resource.
     /// </summary>
-    /// <param name="path"><see cref="ResourcePath"/> for which impersonation must be checked</param>
-    /// <returns>
-    /// <see cref="WindowsImpersonationContext"/> that represents the impersonation. The impersonation
-    /// is maintained until this object is disposed. It MUST be disposed when impersonation is no longer
-    /// needed to avoid resource leakage. If <paramref name="path"/> does not require impersonation,
-    /// the current impersonation is not changed.
-    /// </returns>
-    public IDisposable CheckImpersonationFor(ResourcePath path)
+    /// <param name="path"><see cref="ResourcePath"/> which might require impersonation to access.</param>
+    /// <param name="action">The <see cref="Action"/> to run</param>
+    /// <remarks>
+    /// This method can be reliably used with the async/await pattern by passing an async delegate and awaiting the resulting task.
+    /// </remarks>
+    public void RunImpersonatedFor(ResourcePath path, Action action)
     {
       WindowsIdentityWrapper bestMatchingIdentity;
       if (TryGetBestMatchingIdentityForPath(path, out bestMatchingIdentity))
-      {
-        WindowsImpersonationContextWrapper ctxWrapper;
-        if (TryImpersonate(bestMatchingIdentity, out ctxWrapper))
-          return ctxWrapper;
-      }
-      return new WindowsImpersonationContextWrapper(null, null);
+        bestMatchingIdentity.RunImpersonated(action);
+      else
+        action.Invoke();
+    }
+
+    /// <summary>
+    /// Runs the specified function with any impersonation necessary to access the specified resource.
+    /// </summary>
+    /// <typeparam name="T">The type of object returned by the function.</typeparam>
+    /// <param name="path"><see cref="ResourcePath"/> which might require impersonation to access.</param>
+    /// <param name="func">The <see cref="Func{T}"/> to run.</param>
+    /// <returns>The result of the function.</returns>
+    /// <remarks>
+    /// This method can be reliably used with the async/await pattern by passing an async delegate and awaiting the resulting task.
+    /// </remarks>
+    public T RunImpersonatedFor<T>(ResourcePath path, Func<T> func)
+    {
+      WindowsIdentityWrapper bestMatchingIdentity;
+      if (TryGetBestMatchingIdentityForPath(path, out bestMatchingIdentity))
+        return bestMatchingIdentity.RunImpersonated(func);
+      else
+        return func.Invoke();
     }
 
     /// <summary>
@@ -236,10 +229,22 @@ namespace MediaPortal.Common.Services.ResourceAccess.ImpersonationService
     /// <returns>A <see cref="Task"/> representing the result of executing the external program</returns>
     public Task<ProcessExecutionResult> ExecuteWithResourceAccessAsync(ResourcePath path, string executable, string arguments, ProcessPriorityClass priorityClass, int maxWaitMs)
     {
+      return ProcessUtils.ExecuteAsync(executable, arguments, startInfo => CreateProcessWithResourceAccess(path, startInfo), priorityClass, maxWaitMs);
+    }
+
+    /// <summary>
+    /// Creates, but does not start, an implementation of <see cref="IProcess"/> which will execute
+    /// with the best matching credential for <paramref name="path"/>.
+    /// </summary>
+    /// <param name="path"><see cref="ResourcePath"/> to which the external program shall have access</param>
+    /// <param name="startInfo"><see cref="ProcessStartInfo"/> to create the process with</param>
+    /// <returns>Implementation of <see cref="IProcess"/> that can be started and managed by the caller.</returns>
+    public IProcess CreateProcessWithResourceAccess(ResourcePath path, ProcessStartInfo startInfo)
+    {
       WindowsIdentityWrapper bestMatchingIdentity;
       return TryGetBestMatchingIdentityForPath(path, out bestMatchingIdentity) ?
-        AsyncImpersonationProcess.ExecuteAsync(executable, arguments, bestMatchingIdentity, _debugLogger, priorityClass, maxWaitMs) :
-        ProcessUtils.ExecuteAsync(executable, arguments, priorityClass, maxWaitMs);
+        AsyncImpersonationProcess.Create(startInfo, bestMatchingIdentity, _debugLogger) :
+        ProcessUtils.Create(startInfo);
     }
 
     #endregion

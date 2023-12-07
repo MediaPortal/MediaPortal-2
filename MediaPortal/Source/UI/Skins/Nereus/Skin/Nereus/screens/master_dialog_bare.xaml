@@ -104,15 +104,6 @@ Parameters which have to be accessible by a DynamicResource lookup:
                MouseClickedCommand="{CommandStencil Source={StaticResource MenuModel},Path=CloseTopmostDialog}"
                IsActive="{Binding ElementName=ContentPanel, Path=!IsKeyboardFocusWithin}"/>
 
-      <!-- Effect around dialog with white edged glow -->
-        <!--Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="3" BorderBrush="#0AFFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-15"/>
-        <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#0FFFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-12"/>
-        <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#14FFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-10"/>
-        <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#1AFFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-8"/>
-        <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#23FFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-6"/>
-        <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#2EFFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-4"/>
-        <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="2" BorderBrush="#40FFFFFF" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-2"/-->
-
       <!-- Effect around dialog with rounded corners and glow -->
       <Border DockPanel.Dock="Center" Background="Transparent" BorderThickness="3" Opacity="0.04"
               VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="-15">

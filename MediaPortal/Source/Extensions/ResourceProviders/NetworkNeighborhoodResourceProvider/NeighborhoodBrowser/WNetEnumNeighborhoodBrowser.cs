@@ -52,12 +52,11 @@ namespace MediaPortal.Extensions.ResourceProviders.NetworkNeighborhoodResourcePr
 
       // Enumerate all computers in the NetworkNeighborhood for all Domains / Workgroups
       var hosts = new Dictionary<String, Task<IPHostEntry>>();
-      ICollection<String> hostNames;
-      
+
       // The WNetEnum API requires at least to be impersonated as NetworkService; this is the fallback credential used for
       // the root path of NetworkNeighborhoodResourceProvider if no other credentials have been entered.
-      using (ServiceRegistration.Get<IImpersonationService>().CheckImpersonationFor(NetworkNeighborhoodResourceProvider.RootPath))
-        hostNames = NetworkResourcesEnumerator.EnumerateResources(ResourceScope.GlobalNet, ResourceType.Disk, ResourceUsage.All, ResourceDisplayType.Server);
+      ICollection<String> hostNames = ServiceRegistration.Get<IImpersonationService>().RunImpersonatedFor(NetworkNeighborhoodResourceProvider.RootPath, () =>
+        NetworkResourcesEnumerator.EnumerateResources(ResourceScope.GlobalNet, ResourceType.Disk, ResourceUsage.All, ResourceDisplayType.Server));
       
       // The hostNames returned by the NetworkResourceEnumerator are in the form \\COMPUTERNAME
       // We have to remove the leading \\ to be able to pass the hostName to GetHostEntryAsync

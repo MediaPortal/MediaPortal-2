@@ -1,0 +1,33 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Cinema.LoadUpdate.Header]"/>
+
+    <Model x:Key="Model" Id="B20F2D04-4E26-45A2-9714-E77E03191754"/>
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="33*" />
+            <RowDefinition Height="33*" />
+            <RowDefinition Height="33*" />
+          </Grid.RowDefinitions>
+
+          <ProgressBar Grid.Row="0" Height="15" HorizontalAlignment="Stretch" VerticalAlignment="Center" Value="{Binding Path=UpdateProgress}" Margin="10,0,10,10"/>
+
+          <Label Grid.Row="2"  Content="{Binding Path=Info}" VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}" Margin="10,0,10,0" Wrap="true"/>
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

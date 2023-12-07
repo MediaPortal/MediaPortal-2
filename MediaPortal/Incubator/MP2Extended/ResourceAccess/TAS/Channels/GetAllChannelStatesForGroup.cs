@@ -34,7 +34,7 @@ using MediaPortal.Plugins.MP2Extended.TAS.Tv;
 using MediaPortal.Plugins.SlimTv.Interfaces;
 using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
 {
@@ -43,7 +43,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Channels
   [ApiFunctionParam(Name = "userName", Type = typeof(string), Nullable = false)]
   internal class GetAllChannelStatesForGroup
   {
-    public static async Task<IList<WebChannelState>> ProcessAsync(IOwinContext context, string groupId, string userName)
+    public static async Task<IList<WebChannelState>> ProcessAsync(RequestContext context, string groupId, string userName)
     {
 
       if (!ServiceRegistration.IsRegistered<ITvProvider>())

@@ -1,4 +1,5 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <resources>
+  <string name="IsoResourceProvider.Name">ISO 文件</string>
   <string name="IsoResourceProvider.Description">访问ISO镜像的文件和目录</string>
 </resources>

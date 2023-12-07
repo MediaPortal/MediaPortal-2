@@ -424,7 +424,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
         }
         newResourceIndex++;
 
-        using (lfsra.EnsureLocalFileSystemAccess())
+        lfsra.RunWithLocalFileSystemAccess(() =>
         {
           foreach (MultipleMediaItemAspect mmia in providerResourceAspects)
           {
@@ -512,7 +512,7 @@ namespace MediaPortal.Extensions.MetadataExtractors.SubtitleMetadataExtractor
               }
             }
           }
-        }
+        });
       }
       catch (Exception e)
       {

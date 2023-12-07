@@ -68,6 +68,12 @@ namespace MediaPortal.Common.Services.TaskScheduler
     public event TimerExceptionHandler OnTimerException;
 
     /// <summary>
+    /// The <see cref="CancellationTokenSource"/> will be created by <see cref="SecondsToWait"/> and
+    /// can be used to cancel the <see cref="_waitThread"/>.
+    /// </summary>
+    private CancellationTokenSource _waitCancellationTokenSource = null;
+
+    /// <summary>
     /// This <see cref="Thread"/> will be create by <see cref="SecondsToWait"/> and
     /// runs <see cref="WaitThread"/>.
     /// </summary>
@@ -119,11 +125,14 @@ namespace MediaPortal.Common.Services.TaskScheduler
       // Terminate it
       try
       {
-        _waitThread.Abort();
+        _waitCancellationTokenSource.Cancel();
+        _waitThread.Join();
       }
       catch { }
 
       _waitThread = null;
+      _waitCancellationTokenSource.Dispose();
+      _waitCancellationTokenSource = null;
     }
 
     /// <summary>
@@ -148,6 +157,9 @@ namespace MediaPortal.Common.Services.TaskScheduler
         {
           // Calculate
           _interval = DateTime.UtcNow.AddSeconds(value).ToFileTimeUtc();
+
+          // Cancellation token used to cancel the thread
+          _waitCancellationTokenSource = new CancellationTokenSource();
 
           // Create thread
           _waitThread = new Thread(WaitThread) { Priority = ThreadPriority.BelowNormal, Name = "WaitTimer" };
@@ -193,7 +205,8 @@ namespace MediaPortal.Common.Services.TaskScheduler
         Set(ref initializedEvent);
 
         // Wait for the timer to expire
-        WaitOne();
+        WaitAny(new WaitHandle[] { this, _waitCancellationTokenSource.Token.WaitHandle });
+        _waitCancellationTokenSource.Token.ThrowIfCancellationRequested();
 
         // Forward
         var onTimerExpired = OnTimerExpired;
@@ -208,9 +221,9 @@ namespace MediaPortal.Common.Services.TaskScheduler
         if (onTimerException != null)
           onTimerException(this, e);
       }
-      catch (ThreadAbortException)
+      catch (OperationCanceledException)
       {
-        // We expect that the thread gets aborted.
+        // We expect that the cancellation gets requested.
       }
       finally
       {

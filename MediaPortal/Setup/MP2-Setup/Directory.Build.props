@@ -1,0 +1,13 @@
+<Project>
+  <!--
+  The MP2-Setup and MP2-Setup-NetCore projects both build to the same directory. In order to avoid
+  that their build artifacts overwrite each other, notably the project.assets.json that lists the
+  required nuget packages and other dependencies and usually gets placed in obj\, it is necessary
+  to specify a project specific intermediate output path. This must be set before the SDK props for
+  the project are imported, so is set here in Directory.Build.props, which is read first for all
+  projects in this, and sub, directories.
+  -->
+  <PropertyGroup>
+    <BaseIntermediateOutputPath>obj\$(MSBuildProjectName)</BaseIntermediateOutputPath>
+  </PropertyGroup>
+</Project>

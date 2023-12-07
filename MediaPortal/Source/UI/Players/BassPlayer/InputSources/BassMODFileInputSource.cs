@@ -114,15 +114,14 @@ namespace MediaPortal.UI.Players.BassPlayer.InputSources
       if (lfra == null)
       { // Build stream reading procs for the resource's input stream
         Stream inputStream = _accessor.OpenRead();
-        int length = (int) inputStream.Length;
+        int length = (int)inputStream.Length;
         byte[] audioData = new byte[length];
         inputStream.Read(audioData, 0, length);
         handle = Bass.BASS_MusicLoad(audioData, 0, length, flags, 0);
       }
       else
         // Optimize access to local filesystem resource
-        using (lfra.EnsureLocalFileSystemAccess())
-          handle = Bass.BASS_MusicLoad(lfra.LocalFileSystemPath, 0, 0, flags, 0);
+        handle = lfra.RunWithLocalFileSystemAccess(() => Bass.BASS_MusicLoad(lfra.LocalFileSystemPath, 0, 0, flags, 0));
 
       if (handle == BassConstants.BassInvalidHandle)
         throw new BassLibraryException("BASS_MusicLoad");

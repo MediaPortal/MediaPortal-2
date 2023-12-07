@@ -31,7 +31,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.MAS.Music;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music.BaseClasses;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
 {
@@ -40,7 +40,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.Music
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class GetMusicAlbumBasicById : BaseMusicAlbumBasic
   {
-    public static Task<WebMusicAlbumBasic> ProcessAsync(IOwinContext context, string id)
+    public static Task<WebMusicAlbumBasic> ProcessAsync(RequestContext context, string id)
     {
       if (id == null)
         throw new BadRequestException("GetMusicTrackBasicById: id is null");

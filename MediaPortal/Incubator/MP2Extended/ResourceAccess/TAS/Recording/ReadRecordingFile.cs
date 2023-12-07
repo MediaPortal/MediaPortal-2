@@ -34,10 +34,10 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.BaseClasses;
-using Microsoft.Owin;
 using System.IO;
 using MediaPortal.Plugins.SlimTv.Interfaces.Aspects;
 using System.Linq;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
 {
@@ -45,7 +45,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.TAS.Recording
   [ApiFunctionParam(Name = "id", Type = typeof(string), Nullable = false)]
   internal class ReadRecordingFile : BaseSendData
   {
-    public static Task<Stream> ProcessAsync(IOwinContext context, string id)
+    public static Task<Stream> ProcessAsync(RequestContext context, string id)
     {
       ISet<Guid> necessaryMIATypes = new HashSet<Guid>();
       necessaryMIATypes.Add(MediaAspect.ASPECT_ID);

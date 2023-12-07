@@ -51,7 +51,7 @@ namespace MediaPortal.UiComponents.Nereus.Settings
     [Setting(SettingScope.User, false)]
     public bool EnableMenuSelection { get; set; }
 
-    [Setting(SettingScope.User, 1.0)]
+    [Setting(SettingScope.User, 0.85)]
     public double FanartOverlayOpacity { get; set; }
 
     [Setting(SettingScope.User, true)]
@@ -107,6 +107,18 @@ namespace MediaPortal.UiComponents.Nereus.Settings
 
     [Setting(SettingScope.User, true)]
     public bool UseFocusColor { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool ShowTime { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool ShowDate { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool ShowTemperature { get; set; }
+
+    [Setting(SettingScope.User, true)]
+    public bool ShowWeatherCondition{ get; set; }
 
     [Setting(SettingScope.User, 0.85)]
     public double DialogBackgroundOpacity { get; set; }

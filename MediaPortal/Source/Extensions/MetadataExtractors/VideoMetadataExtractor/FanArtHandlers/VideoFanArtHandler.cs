@@ -158,18 +158,18 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
         //File based access
         using (IResourceAccessor mediaItemAccessor = mediaItemLocator.CreateAccessor())
         using (LocalFsResourceAccessorHelper rah = new LocalFsResourceAccessorHelper(mediaItemAccessor))
-        using (rah.LocalFsResourceAccessor.EnsureLocalFileSystemAccess())
-        {
-          if (MKV_EXTENSIONS.Contains(ResourcePathHelper.GetExtension(mediaItemLocator.NativeResourcePath.FileName)))
-            await ExtractMkvFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
-          if (MP4_EXTENSIONS.Contains(ResourcePathHelper.GetExtension(mediaItemLocator.NativeResourcePath.FileName)))
-            await ExtractTagFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
+          await rah.LocalFsResourceAccessor.RunWithLocalFileSystemAccess(async () =>
+          {
+            if (MKV_EXTENSIONS.Contains(ResourcePathHelper.GetExtension(mediaItemLocator.NativeResourcePath.FileName)))
+              await ExtractMkvFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
+            if (MP4_EXTENSIONS.Contains(ResourcePathHelper.GetExtension(mediaItemLocator.NativeResourcePath.FileName)))
+              await ExtractTagFanArt(rah.LocalFsResourceAccessor, mediaItemId, title).ConfigureAwait(false);
 
-          //Don't create thumbs if they already exist or if it is a movie (they use posters)
-          var thumbs = ServiceRegistration.Get<IFanArtCache>().GetFanArtFiles(mediaItemId, FanArtTypes.Thumbnail);
-          if (!thumbs.Any() && !aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID) && !aspects.ContainsKey(MovieAspect.ASPECT_ID))
-            await ExtractThumbnailFanArt(rah.LocalFsResourceAccessor, mediaItemId, title, aspects);
-        }
+            //Don't create thumbs if they already exist or if it is a movie (they use posters)
+            var thumbs = ServiceRegistration.Get<IFanArtCache>().GetFanArtFiles(mediaItemId, FanArtTypes.Thumbnail);
+            if (!thumbs.Any() && !aspects.ContainsKey(ThumbnailLargeAspect.ASPECT_ID) && !aspects.ContainsKey(MovieAspect.ASPECT_ID))
+              await ExtractThumbnailFanArt(rah.LocalFsResourceAccessor, mediaItemId, title, aspects);
+          }).ConfigureAwait(false);
       }
       catch (Exception ex)
       {

@@ -22,19 +22,22 @@
 
 #endregion
 
+using MediaPortal.Utilities.Exceptions;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Web;
-using MediaPortal.Utilities.Exceptions;
-using Microsoft.Owin;
-using Microsoft.Owin.Hosting;
-using Owin;
 using UPnP.Infrastructure.CP.DeviceTree;
 using UPnP.Infrastructure.Dv;
+using UPnP.Infrastructure.Http;
 using UPnP.Infrastructure.Utils;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+#else
+using Microsoft.Owin;
+#endif
 
 namespace UPnP.Infrastructure.CP
 {
@@ -175,15 +178,13 @@ namespace UPnP.Infrastructure.CP
 
         var servicePrefix = "/MediaPortal/UPnPControlPoint_" + Guid.NewGuid().GetHashCode().ToString("X");
         _cpData.ServicePrefix = servicePrefix;
-        var startOptions = UPnPServer.BuildStartOptions(servicePrefix);
-
         IDisposable server = null;
         try
         {
           try
           {
-            server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
-            UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
+            server = HttpServer.BuildAndStartServer(servicePrefix, HandleHTTPRequest, out var urls);
+            UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", urls));
             _httpListeners.Add(server);
           }
           catch (Exception ex)
@@ -191,12 +192,11 @@ namespace UPnP.Infrastructure.CP
             if (UPnPConfiguration.IP_ADDRESS_BINDINGS?.Count > 0)
               UPnPConfiguration.LOGGER.Warn("UPnPControlPoint: Error starting HTTP server with filters. Fallback to no filters", ex);
             else
-              throw ex;
+              throw;
 
             server?.Dispose();
-            startOptions = UPnPServer.BuildStartOptions(servicePrefix, new List<string>(), UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER);
-            server = WebApp.Start(startOptions, builder => { builder.Use((context, func) => HandleHTTPRequest(context)); });
-            UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", startOptions.Urls));
+            server = HttpServer.BuildAndStartServer(servicePrefix, new List<string>(), UPnPServer.DEFAULT_UPNP_AND_SERVICE_PORT_NUMBER, HandleHTTPRequest, out var urls);
+            UPnPConfiguration.LOGGER.Info("UPnPControlPoint: HTTP listener started on addresses {0}", String.Join(", ", urls));
             _httpListeners.Add(server);
           }
         }
@@ -327,11 +327,15 @@ namespace UPnP.Infrastructure.CP
       }
     }
 
+#if NET5_0_OR_GREATER
+    protected Task HandleHTTPRequest(HttpContext context)
+#else
     protected Task HandleHTTPRequest(IOwinContext context)
+#endif
     {
       var request = context.Request;
       var response = context.Response;
-      Uri uri = request.Uri;
+      Uri uri = request.GetUri();
       string hostName = uri.Host;
       string pathAndQuery = HttpUtility.UrlDecode(uri.PathAndQuery);
       try
@@ -366,6 +370,6 @@ namespace UPnP.Infrastructure.CP
       return Task.CompletedTask;
     }
 
-    #endregion
+#endregion
   }
 }

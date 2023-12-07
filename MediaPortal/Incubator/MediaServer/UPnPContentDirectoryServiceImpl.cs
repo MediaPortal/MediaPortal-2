@@ -326,7 +326,7 @@ namespace MediaPortal.Extensions.MediaServer
         int totalMatches = 0;
         int containterUpdateId;
 
-        IPAddress ip = ProfileManager.ResolveIpAddress(context.Request?.RemoteIpAddress);
+        IPAddress ip = ProfileManager.ResolveIpAddress(context.Request.GetRemoteAddress());
         EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
         if (deviceClient?.Profile == null)
         {
@@ -495,7 +495,7 @@ namespace MediaPortal.Extensions.MediaServer
         int numberReturned = 0;
         int totalMatches = 0;
 
-        IPAddress ip = ProfileManager.ResolveIpAddress(context.Request?.RemoteIpAddress);
+        IPAddress ip = ProfileManager.ResolveIpAddress(context.Request.GetRemoteAddress());
         EndPointSettings deviceClient = ProfileManager.DetectProfileAsync(context.Request).Result;
         if (deviceClient?.Profile == null)
         {

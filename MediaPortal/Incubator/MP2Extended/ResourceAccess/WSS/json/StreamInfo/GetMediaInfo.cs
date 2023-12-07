@@ -41,7 +41,7 @@ using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Extensions.TranscodingService.Interfaces.Metadata;
 using System.Threading.Tasks;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.Profiles;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
 {
@@ -52,7 +52,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.StreamInfo
   {
     private const string UNDEFINED = "?";
 
-    public static async Task<WebMediaInfo> ProcessAsync(IOwinContext context, string itemId, WebMediaType type)
+    public static async Task<WebMediaInfo> ProcessAsync(RequestContext context, string itemId, WebMediaType type)
     {
       if (itemId == null)
         throw new BadRequestException("GetMediaInfo: itemId is null");

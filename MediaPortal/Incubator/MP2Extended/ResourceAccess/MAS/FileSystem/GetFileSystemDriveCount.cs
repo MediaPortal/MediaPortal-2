@@ -22,22 +22,22 @@
 
 #endregion
 
-using System.Collections.Generic;
-using System.Threading.Tasks;
 using MediaPortal.Common;
 using MediaPortal.Common.Logging;
 using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem.BaseClasses;
-using Microsoft.Owin;
+using System.Collections.Generic;
+using System.Threading.Tasks;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.FileSystem
 {
   [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(WebIntResult), Summary = "")]
   internal class GetFileSystemDriveCount : BaseDriveBasic
   {
-    public static Task<WebIntResult> ProcessAsync(IOwinContext context)
+    public static Task<WebIntResult> ProcessAsync(RequestContext context)
     {
       List<WebDriveBasic> output = DriveBasic();
 

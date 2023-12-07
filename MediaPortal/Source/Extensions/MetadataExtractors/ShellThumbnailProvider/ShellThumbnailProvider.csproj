@@ -5,7 +5,7 @@
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{927AA852-186A-4880-A7B6-C11C543B97A9}</ProjectGuid>
-    <OutputType>Library</OutputType>
+        <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>MediaPortal.Extensions.MetadataExtractors.ShellThumbnailProvider</RootNamespace>
     <AssemblyName>ShellThumbnailProvider</AssemblyName>

@@ -33,7 +33,7 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Plugins.MP2Extended.WSS.General;
-using Microsoft.Owin;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
 {
@@ -41,7 +41,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.json.General
   [ApiFunctionParam(Name = "itemId", Type = typeof(string), Nullable = false)]
   internal class GetItemSupportStatus
   {
-    public static Task<WebItemSupportStatus> ProcessAsync(IOwinContext context, WebMediaType type, int? provider, string itemId, int? offset)
+    public static Task<WebItemSupportStatus> ProcessAsync(RequestContext context, WebMediaType type, int? provider, string itemId, int? offset)
     {
       if (itemId == null)
         throw new BadRequestException("GetItemSupportStatus: itemId is null");

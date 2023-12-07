@@ -19,17 +19,25 @@ install:
     
     echo username = api>>%USERPROFILE%\.transifexrc
     
+    echo rest_hostname = https://rest.api.transifex.com>>%USERPROFILE%\.transifexrc
+    
+    echo token = %TX_TOKEN%>>%USERPROFILE%\.transifexrc
+    
 build_script:
 - cmd: >-
     cd %APPVEYOR_BUILD_FOLDER%\MediaPortal\build\
     
     @echo | call MSBUILD_Create_Release_Full_Installer.bat
     
-    7z a ..\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip ..\Bin\MP2-Setup\Release\en-us\MP2-Setup.exe ..\Bin\MP2-Setup\Release\en-us\MP2-Setup-Logging.bat
+    7z a ..\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip ..\Bin\MP2-Setup\Release\net48\en-us\MP2-Setup.exe ..\Bin\MP2-Setup\Release\net48\en-us\MP2-Setup-Logging.bat
+    
+    7z a ..\Bin\MediaPortalSetup_Net6_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip ..\Bin\MP2-Setup\Release\net6.0-windows\en-us\MP2-Setup.exe ..\Bin\MP2-Setup\Release\net6.0-windows\en-us\MP2-Setup-Logging.bat
     
 artifacts:
 - path: MediaPortal\Bin\MediaPortalSetup_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip
   name: Installer
+- path: MediaPortal\Bin\MediaPortalSetup_Net6_%APPVEYOR_BUILD_VERSION%.%APPVEYOR_REPO_COMMIT%.zip
+  name: InstallerNet6
 - path: MediaPortal\Build\msbuild.binlog
   name: Build log (binary)
   

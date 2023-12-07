@@ -33,8 +33,8 @@ using MediaPortal.Common.FanArt;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
 using System.Net.Http;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using System.IO;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
 {
@@ -46,7 +46,7 @@ namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.WSS.stream.Images
   [ApiFunctionParam(Name = "offset", Type = typeof(string), Nullable = true)]
   internal class GetArtwork : BaseGetArtwork
   {
-    public static async Task ProcessAsync(IOwinContext context, WebMediaType mediatype, string id, WebFileType artworktype, int offset)
+    public static async Task ProcessAsync(RequestContext context, WebMediaType mediatype, string id, WebFileType artworktype, int offset)
     {
       int offsetInt = 0;
 

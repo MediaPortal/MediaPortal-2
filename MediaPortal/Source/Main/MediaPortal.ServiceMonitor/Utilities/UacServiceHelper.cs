@@ -53,7 +53,15 @@ namespace MediaPortal.ServiceMonitor.Utilities
       ProcessStartInfo proc = new ProcessStartInfo();
       proc.UseShellExecute = true;
       proc.WorkingDirectory = Environment.CurrentDirectory;
+      // Assembly.GetExecutingAssembly().Location returns the path to MP2-ServiceMonitor.dll
+      // and not MP2-ServiceMonitor.exe on dot net core.
+      // Environment.ProcessPath was added to get the path to the actual exe.
+      // Note: The docs say that this can return null, but that can only occur on non-windows platforms.
+#if NET6_0_OR_GREATER
+      proc.FileName = Environment.ProcessPath;
+#else
       proc.FileName = System.Reflection.Assembly.GetExecutingAssembly().Location;
+#endif
       proc.Verb = "runas";
       proc.Arguments = parameters;
 

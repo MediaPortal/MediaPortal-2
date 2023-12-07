@@ -22,12 +22,17 @@
 
 #endregion
 
+using MediaPortal.Extensions.MediaServer.DLNA;
+using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
 using System;
 using System.IO;
 using System.Net;
-using MediaPortal.Extensions.MediaServer.DLNA;
-using MediaPortal.Extensions.MediaServer.Objects.MediaLibrary;
+#if NET5_0_OR_GREATER
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
+#else
 using Microsoft.Owin;
+#endif
 
 namespace MediaPortal.Extensions.MediaServer.Protocols
 {
@@ -35,9 +40,14 @@ namespace MediaPortal.Extensions.MediaServer.Protocols
   {
     private static string ALBUM_ART_TRUE = "?albumArt=true";
 
+#if NET5_0_OR_GREATER
+    public override Stream HandleResourceRequest(HttpContext context, DlnaMediaItem item)
+#else
     public override Stream HandleResourceRequest(IOwinContext context, DlnaMediaItem item)
+#endif
     {
-      if (context.Request.Uri.AbsolutePath.EndsWith(ALBUM_ART_TRUE, StringComparison.InvariantCultureIgnoreCase))
+      Uri uri = context.Request.GetUri();
+      if (uri.AbsolutePath.EndsWith(ALBUM_ART_TRUE, StringComparison.InvariantCultureIgnoreCase))
       {
         // Get album art from FanArt
         MediaLibraryAlbumArt albumArt = new MediaLibraryAlbumArt(item.MediaItemId, item.Client);

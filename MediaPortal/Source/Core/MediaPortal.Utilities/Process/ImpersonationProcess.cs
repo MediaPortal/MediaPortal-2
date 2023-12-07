@@ -27,6 +27,8 @@ using MediaPortal.Utilities.SystemAPI;
 
 namespace MediaPortal.Utilities.Process
 {
+#if NET5_0_OR_GREATER
+#else
   [Obsolete("Use AsyncImpersonationProcess instead.")]
   public class ImpersonationProcess : System.Diagnostics.Process
   {
@@ -275,4 +277,5 @@ namespace MediaPortal.Utilities.Process
       return typeof(System.Diagnostics.Process).InvokeMember(member, BindingFlags.SetField | BindingFlags.NonPublic | BindingFlags.Instance, null, this, args);
     }
   }
+#endif
 }

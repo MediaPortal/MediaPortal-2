@@ -29,18 +29,18 @@ using MediaPortal.Plugins.MP2Extended.Attributes;
 using MediaPortal.Plugins.MP2Extended.Common;
 using MediaPortal.Plugins.MP2Extended.MAS.FileSystem;
 using System.Threading.Tasks;
-using Microsoft.Owin;
 using System;
 using MediaPortal.Plugins.MP2Extended.Exceptions;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement;
+using MediaPortal.Plugins.MP2Extended.Controllers.Contexts;
 
 namespace MediaPortal.Plugins.MP2Extended.ResourceAccess.MAS.General
 {
   internal class GetPathList
   {
     [ApiFunctionDescription(Type = ApiFunctionDescription.FunctionType.Json, ReturnType = typeof(List<WebDriveBasic>), Summary = "")]
-    public static Task<IList<string>> ProcessAsync(IOwinContext context, WebMediaType mediatype, WebFileType filetype, string id)
+    public static Task<IList<string>> ProcessAsync(RequestContext context, WebMediaType mediatype, WebFileType filetype, string id)
     {
       if (id == null)
         throw new BadRequestException("GetPathList: id is null");

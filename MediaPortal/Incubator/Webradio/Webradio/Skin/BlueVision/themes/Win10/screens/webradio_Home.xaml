@@ -1,0 +1,129 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\SimpleShowItems.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Webradio.Home.ScreenTitle]" />
+    <Model x:Key="Model" Id="EA3CC191-0BE5-4C8D-889F-E9C4616AB554" />
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+
+        <Rectangle DockPanel.Dock="Center" Fill="Black" Opacity="0.5" Margin="-87,20,-76,44">
+          <Rectangle.Effect>
+            <ZoomBlurEffect BlurAmount="0.02" CenterX="0.25" CenterY="0.5" />
+          </Rectangle.Effect>
+          <Rectangle.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}"
+                     ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}" />
+          </Rectangle.IsVisible>
+        </Rectangle>
+
+        <Border DockPanel.Dock="Center" Margin="-80,27,-75,50">
+          <Border.Background>
+            <SolidColorBrush Color="{StaticResource GrayBackgroundWithBlurBehind}" />
+          </Border.Background>
+          <Border.IsVisible>
+            <Binding Source="{StaticResource ViewModeModel}" Path="LayoutType"
+                     Converter="{StaticResource ExpressionValueConverter}"
+                     ConverterParameter="{}{0} != {LayoutType}.{CoverLayout}" />
+          </Border.IsVisible>
+        </Border>
+
+        <ListView DockPanel.Dock="Center" x:Name="lvStreams" Margin="-31,35,-60,50"
+                  HorizontalAlignment="Stretch"
+                  VerticalAlignment="Stretch" Style="{ThemeResource WebRadioContainerStyle}"
+                  ItemsSource="{Binding Path=AllRadioStreams}">
+          <ListView.Resources>
+            <!--Main command-->
+            <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectStream" Parameters="{LateBoundValue BindingValue={Binding}}" />
+            <!--Context menu command-->
+            <Command x:Key="Context_Menu_Command" Source="{StaticResource Model}" Path="SetFavoritStatus" Parameters="{LateBoundValue BindingValue={Binding}}" />
+          </ListView.Resources>
+        </ListView>
+
+        <DockPanel DataContext="{Binding Source={StaticResource Model}}" DockPanel.Dock="Bottom"
+                   VerticalAlignment="Bottom" Margin="-80,195,-85,-195">
+
+          <StackPanel DockPanel.Dock="Right" Orientation="Vertical" Margin="0" VerticalAlignment="Stretch"
+                      HorizontalAlignment="Stretch">
+            <Grid>
+              <Grid.RowDefinitions>
+                <RowDefinition Height="210" />
+              </Grid.RowDefinitions>
+              <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="360" />
+                <ColumnDefinition Width="210" />
+              </Grid.ColumnDefinitions>
+
+              <StackPanel Orientation="Vertical" Grid.Column="0" Grid.Row="0" Margin="5,4,20,4">
+                <Label VerticalAlignment="Center" HorizontalAlignment="Right"
+                       DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                       Content="{Binding [Genres]}" Color="{ThemeResource TextColor}" />
+                <Label VerticalAlignment="Center" HorizontalAlignment="Right"
+                       Color="{ThemeResource TextColor}"
+                       DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}">
+                  <Label.Content>
+                    <Binding Path="[Bitrate]" Converter="{StaticResource StringFormatConverter}"
+                             ConverterParameter="{}{0} kBit" />
+                  </Label.Content>
+                </Label>
+                <Label VerticalAlignment="Center" HorizontalAlignment="Right"
+                       DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                       Content="{Binding [Country]}" Color="{ThemeResource TextColor}" />
+                <Label VerticalAlignment="Center" HorizontalAlignment="Right"
+                       DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                       Content="{Binding [City]}" Color="{ThemeResource TextColor}" />
+                <Label VerticalAlignment="Center" HorizontalAlignment="Right"
+                       DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                       Content="{Binding [Language]}" Color="{ThemeResource TextColor}" />
+              </StackPanel>
+
+              <Image Grid.Column="1" Grid.Row="0" Thumbnail="True" Stretch="Fill" Height="185"
+                     Width="185"
+                     Source="{Binding [ImageSrc]}" FallbackSource="{Binding [DefaultIconSrc]}"
+                     DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}">
+                <Image.OpacityMask>
+                  <VisualBrush>
+                    <VisualBrush.Visual>
+                      <Border Name="mask" Background="White" CornerRadius="21"
+                              BorderThickness="0" BorderBrush="Black"
+                              Margin="2" />
+                    </VisualBrush.Visual>
+                  </VisualBrush>
+                </Image.OpacityMask>
+              </Image>
+            </Grid>
+          </StackPanel>
+
+          <StackPanel DockPanel.Dock="Left" Orientation="Vertical" Margin="0,0,20,0"
+                      VerticalAlignment="Stretch"
+                      HorizontalAlignment="Left">
+            <Label DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                   Color="{ThemeResource TextColor}"
+                   FontFamily="DefaultBold"
+                   Content="{Binding [Name]}" Margin="0" Wrap="True" HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch" />
+            <Label DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+                   Color="{ThemeResource TextColor}"
+                   Opacity="0.7"
+                   Content="{Binding [Description]}" Wrap="True" HorizontalAlignment="Stretch"
+                   VerticalAlignment="Stretch"
+                   Scroll="Auto" ScrollSpeed="5" ScrollDelay="5" />
+          </StackPanel>
+        </DockPanel>
+        <Label DockPanel.Dock="Top" VerticalAlignment="Center" HorizontalAlignment="Left"
+               DataContext="{Binding ElementName=lvStreams,Path=CurrentItem}"
+               Content="{Binding [Indx]}" FontSize="{ThemeResource SmallFontSize}"
+               Color="{ThemeResource TextColor}"
+               FontFamily="DefaultBold" Margin="-25,-85,0,0" />
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

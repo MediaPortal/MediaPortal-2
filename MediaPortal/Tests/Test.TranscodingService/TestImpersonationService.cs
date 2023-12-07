@@ -57,5 +57,20 @@ namespace Test.TranscodingService
     {
       
     }
+
+    public void RunImpersonatedFor(ResourcePath path, Action action)
+    {
+      action();
+    }
+
+    public T RunImpersonatedFor<T>(ResourcePath path, Func<T> func)
+    {
+      return func();
+    }
+
+    public IProcess CreateProcessWithResourceAccess(ResourcePath path, ProcessStartInfo startInfo)
+    {
+      return ProcessUtils.Create(startInfo);
+    }
   }
 }

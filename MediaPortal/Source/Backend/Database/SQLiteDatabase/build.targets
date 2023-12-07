@@ -1,35 +1,34 @@
-<?xml version="1.0" encoding="utf-8"?>
-<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+<Project>
 
-  <PropertyGroup>
-    <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
-  </PropertyGroup>
+  <Target Name="CopyToOutput" AfterTargets="Build" Condition="'$(IsCrossTargetingBuild)' != 'true'">
 
-  <ItemGroup>
-    <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
-    <PluginFiles Include="$(ProjectDir)plugin.xml" />
-  </ItemGroup>
+    <PropertyGroup>
+      <PluginDestination>$(SolutionDir)..\Bin\$(SolutionName)\$(OutDir)Plugins\$(ProjectName)\</PluginDestination>
+    </PropertyGroup>
 
-  <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
-    <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
-  </ItemGroup>
+    <ItemGroup>
+      <PluginFiles Include="$(TargetDir)$(ProjectName).dll" />
+      <PluginFiles Include="$(ProjectDir)plugin.xml" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <References Include="$(TargetDir)System.Data.SQLite.dll" />
-    <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />
-  </ItemGroup>
+    <ItemGroup Condition=" '$(Configuration)' == 'Debug'">
+      <PluginFiles Include="$(TargetDir)$(ProjectName).pdb" />
+    </ItemGroup>
 
-  <ItemGroup>
-    <SQLiteInterop64 Include="$(TargetDir)x64\SQLite.Interop.dll" />
-  </ItemGroup>
-  <ItemGroup>
-    <SQLiteInterop86 Include="$(TargetDir)x86\SQLite.Interop.dll" />
-  </ItemGroup>
+    <ItemGroup>
+      <References Include="$(TargetDir)System.Data.SQLite.dll" />
+    </ItemGroup>
 
-  <Target Name="AfterBuild">
-    <!-- The following target is imported by (and defined in) the System.Data.SQLite Core NuGet package.
-         It needs to be called here, because by default it is executed only after the AfterBuild event-->
-    <CallTarget Targets="CopySQLiteInteropFiles" />
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
+      <SQLiteInterop64 Include="$(TargetDir)\runtimes\win-x64\native\SQLite.Interop.dll" />
+      <SQLiteInterop86 Include="$(TargetDir)\runtimes\win-x86\native\SQLite.Interop.dll" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+      <SQLiteInterop64 Include="$(TargetDir)\x64\SQLite.Interop.dll" />
+      <SQLiteInterop86 Include="$(TargetDir)\x86\SQLite.Interop.dll" />
+      <References Include="$(TargetDir)System.Data.SQLite.Linq.dll" />
+    </ItemGroup>
+
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(SQLiteInterop64)" DestinationFolder="$(PluginDestination)x64\" />
