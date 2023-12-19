@@ -159,7 +159,7 @@ namespace Webradio.Models
       FillItemList(Radiostations.Instance.Stations);
     }
 
-    public void ShowFavotites()
+    public void ShowFavorites()
     {
       var favoritList = ServiceRegistration.Get<ISettingsManager>().Load<Favorites>().List ?? new List<string>();
       if (favoritList.Count > 0)

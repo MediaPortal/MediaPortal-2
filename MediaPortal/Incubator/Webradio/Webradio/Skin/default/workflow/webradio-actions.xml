@@ -28,12 +28,12 @@
                               TargetState="4942D325-08BB-4237-8825-F616AD2ADBF7" />
 
     <MethodCallAction Id="56694DC2-041E-4D93-AD52-747D3394EB52"
-                      Name="ShowFavotites"
+                      Name="ShowFavorites"
                       DisplayCategory="a-Webradio"
                       DisplayTitle="[Webradio.Home.Menu.ShowFavorites]"
                       SourceStates="263FADFE-87BE-4563-83F0-E62707891E1B"
                       ModelId="EA3CC191-0BE5-4C8D-889F-E9C4616AB554"
-                      MethodName="ShowFavotites" />
+                      MethodName="ShowFavorites" />
 
 
     <MethodCallAction Id="BC74D4A5-D533-41B5-9D1F-D1A0918F51B7"
