@@ -41,7 +41,7 @@
     <Model Id="59AB04C6-6B8D-41E5-A041-7AFC8DEDEB89" ClassName="Webradio.Dialogues.WebradioDlgDeleteFilter" />
     <Model Id="7AE86A07-DB55-4AA6-9FBF-B1888A4FF6DA" ClassName="Webradio.Dialogues.WebradioDlgSearchInStreams" />
     <Model Id="10D0E2AB-AE84-406F-8AA9-5A3FB2A86360" ClassName="Webradio.Dialogues.WebradioDlgImportFilter" />
-    <Model Id="2C3D2070-E1BB-49AF-B014-41FE8139055B" ClassName="Webradio.Dialogues.WebradioDlgDeleteFavotites" />
+    <Model Id="2C3D2070-E1BB-49AF-B014-41FE8139055B" ClassName="Webradio.Dialogues.WebradioDlgDeleteFavorites" />
 
     <Model Id="55623F9E-60EF-4C28-B835-F8E44D9549E7" Name="WebradioListModel" ClassName="Webradio.Models.WebRadioListModel" />
   </Register>
@@ -103,9 +103,9 @@
                  WorkflowModel="59AB04C6-6B8D-41E5-A041-7AFC8DEDEB89" />
 
     <DialogState Id="E3ED86D5-D54C-44F4-A4AA-ABEBBC3574F8"
-                 Name="DeleteFavotites"
+                 Name="DeleteFavorites"
                  DialogScreen="webradio_dialogDeleteFavorites"
-                 DisplayLabel="[Webradio.Dialog.DeleteFavotites.Header]"
+                 DisplayLabel="[Webradio.Dialog.DeleteFavorites.Header]"
                  WorkflowModel="2C3D2070-E1BB-49AF-B014-41FE8139055B" />
   </Register>
 
