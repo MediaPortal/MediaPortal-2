@@ -34,7 +34,7 @@ using Webradio.Settings;
 
 namespace Webradio.Dialogues
 {
-  internal class WebradioDlgDeleteFavotites : IWorkflowModel
+  internal class WebradioDlgDeleteFavorites : IWorkflowModel
   {
     public void Init()
     {
