@@ -8,6 +8,8 @@
 
     <!-- Header -->
     <ResourceWrapper x:Key="Header_Text" Resource="[SharesConfig.ChooseSystem]"/>
+    <!-- Menu image -->
+    <ResourceWrapper x:Key="Menu_Image_Source" Resource="SettingsMenu\Shares.jpg"/>
 
     <!-- Shares configuration model -->
     <Model x:Key="Model" Id="1768FC91-86B9-4f78-8A4C-E204F0D51502"/>
