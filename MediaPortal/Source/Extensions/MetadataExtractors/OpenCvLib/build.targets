@@ -7,6 +7,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PluginFiles Include="$(TargetDir)OpenCvLib.dll" />
       <PluginFiles Include="$(ProjectDir)plugin.xml" />
     </ItemGroup>
 
@@ -14,10 +15,20 @@
       <References Include="$(TargetDir)OpenCvSharp*.dll" />
       <Dlls Include="$(TargetDir)dll\**\*.*" />
     </ItemGroup>
+    
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' == '.NETFramework'">
+      <x86References Include="$(TargetDir)dll\x86\*.*" />
+      <x64References Include="$(TargetDir)dll\x64\*.*" />
+    </ItemGroup>
+    <ItemGroup Condition="'$(TargetFrameworkIdentifier)' != '.NETFramework'">
+      <x86References Include="$(TargetDir)runtimes\win-x86\native\*.*" />
+      <x64References Include="$(TargetDir)runtimes\win-x64\native\*.*" />
+    </ItemGroup>
 
     <Copy SourceFiles="@(PluginFiles)" DestinationFolder="$(PluginDestination)" />
     <Copy SourceFiles="@(References)" DestinationFolder="$(PluginDestination)" />
-    <Copy SourceFiles="@(Dlls)" DestinationFiles="@(Dlls->'$(PluginDestination)\dll\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(x86References)" DestinationFiles="@(x86References->'$(PluginDestination)\x86\%(RecursiveDir)%(Filename)%(Extension)')" />
+    <Copy SourceFiles="@(x64References)" DestinationFiles="@(x64References->'$(PluginDestination)\x64\%(RecursiveDir)%(Filename)%(Extension)')" />
   </Target>
 
 </Project>

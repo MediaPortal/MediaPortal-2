@@ -30,10 +30,9 @@ using MediaPortal.Common.MediaManagement.Helpers;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Common.Services.ResourceAccess;
 using MediaPortal.Extensions.MetadataExtractors.MatroskaLib;
-using OpenCvSharp;
+using OpenCvLib;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
@@ -75,8 +74,6 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       new Tuple<string, string>("fanart.", FanArtTypes.FanArt),
       new Tuple<string, string>("clearlogo.", FanArtTypes.Logo),
     };
-
-    private const double DEFAULT_OPENCV_THUMBNAIL_OFFSET = 1.0 / 3.0;
 
     #endregion
 
@@ -279,62 +276,15 @@ namespace MediaPortal.Extensions.MetadataExtractors.VideoMetadataExtractor
       IFanArtCache fanArtCache = ServiceRegistration.Get<IFanArtCache>();
       string filename = $"OpenCv.{Path.GetFileNameWithoutExtension(lfsra.LocalFileSystemPath)}";
 
-      // Check for a reasonable time offset
-      int defaultVideoOffset = 720;
-      long videoDuration;
-      double width = 0;
-      double height = 0;
-      double downscale = 7.5; // Reduces the HD video frame size to a quarter size to around 256
-      IList<MultipleMediaItemAspect> videoAspects;
-      if (MediaItemAspect.TryGetAspects(aspects, VideoStreamAspect.Metadata, out videoAspects))
+      // Try and extract a thumbnail 10% into the video with a max width of 256, the default size for a ThumbnailLargeAspect
+      if (!OpenCvWrapper.TryExtractThumbnail(lfsra.LocalFileSystemPath, 0.1, 256, out byte[] thumbnail))
       {
-        if ((videoDuration = videoAspects[0].GetAttributeValue<long>(VideoStreamAspect.ATTR_DURATION)) > 0)
-        {
-          if (defaultVideoOffset > videoDuration * DEFAULT_OPENCV_THUMBNAIL_OFFSET)
-            defaultVideoOffset = Convert.ToInt32(videoDuration * DEFAULT_OPENCV_THUMBNAIL_OFFSET);
-        }
-
-        width = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_WIDTH);
-        height = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_HEIGHT);
-        downscale = width / 256.0; //256 is max size of large thumbnail aspect
+        Logger.Warn("VideoFanArtHandler: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
+        return;
       }
 
-      var sw = Stopwatch.StartNew();
-      using (VideoCapture capture = new VideoCapture())
-      {
-        capture.Open(lfsra.LocalFileSystemPath);
-        int capturePos = defaultVideoOffset * 1000;
-        if (capture.FrameCount > 0 && capture.Fps > 0)
-        {
-          var duration = capture.FrameCount / capture.Fps;
-          if (defaultVideoOffset > duration)
-            capturePos = Convert.ToInt32(duration * DEFAULT_OPENCV_THUMBNAIL_OFFSET * 1000);
-        }
-
-        if (capture.FrameWidth > 0)
-          downscale = capture.FrameWidth / 256.0; //256 is max size of large thumbnail aspect
-
-        capture.PosMsec = capturePos;
-        using (var mat = capture.RetrieveMat())
-        {
-          if (mat.Height > 0 && mat.Width > 0)
-          {
-            width = mat.Width;
-            height = mat.Height;
-            Logger.Debug("VideoFanArtHandler: Scaling thumbnail of size {1}x{2} for resource '{0}'", lfsra.LocalFileSystemPath, width, height);
-            using (var scaledMat = mat.Resize(new OpenCvSharp.Size(width / downscale, height / downscale)))
-            {
-              var binary = scaledMat.ToBytes();
-              await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(binary, p, filename)).ConfigureAwait(false);
-              Logger.Debug("VideoFanArtHandler: Successfully created thumbnail for resource '{0}' ({1} ms)", lfsra.LocalFileSystemPath, sw.ElapsedMilliseconds);
-            }
-          }
-          else
-          {
-            Logger.Warn("VideoFanArtHandler: Failed to create thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
-          }
-        }
-      }
+      await fanArtCache.TrySaveFanArt(mediaItemId, title, FanArtTypes.Thumbnail, p => TrySaveFileImage(thumbnail, p, filename)).ConfigureAwait(false);
+      Logger.Debug("VideoFanArtHandler: Successfully created thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
     }
 
     /// <summary>

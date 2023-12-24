@@ -33,6 +33,7 @@
     <ProjectReference Include="..\MatroskaLib\MatroskaLib.csproj" />
     <ProjectReference Include="..\MediaInfoLib\MediaInfoLib.csproj" />
     <ProjectReference Include="..\OnlineLibraries\OnlineLibraries.csproj" />
+    <ProjectReference Include="..\OpenCvLib\OpenCvLib.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -47,9 +48,6 @@
   <ItemGroup>
     <PackageReference Include="MediaPortal.TagLib">
       <Version>2.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="OpenCvSharp4.Windows">
-      <Version>4.6.0.20220608</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="build.targets" />
