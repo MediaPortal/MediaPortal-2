@@ -138,21 +138,22 @@ namespace MediaPortal.Extensions.MetadataExtractors.NfoMetadataExtractors
             //Actor fanart
             //We only want the series actors because thumb loading is disabled on episode actors for performance reasons, so we might need to
             //load the series nfo multiple time before we have all actors depending on what actors are in the episode
-            foreach (var actor in actors)
-            {
-              if (!IsInCache(actor.Item1))
+            if (actors != null)
+              foreach (var actor in actors)
               {
-                var existingThumbs = fanArtCache.GetFanArtFiles(actor.Item1, FanArtTypes.Thumbnail);
-                var actorStub = mainStub?.Actors?.FirstOrDefault(a => string.Equals(a?.Name, actor.Item2, StringComparison.InvariantCultureIgnoreCase));
-                if (actorStub != null || existingThumbs.Any()) //We have a thumb already or no thumb is available, so no need to check again
-                  AddToCache(actor.Item1);
-
-                if (actorStub?.Thumb != null)
+                if (!IsInCache(actor.Item1))
                 {
-                  await fanArtCache.TrySaveFanArt(actor.Item1, actor.Item2, FanArtTypes.Thumbnail, p => TrySaveFileImage(actorStub.Thumb, p, "Thumb", "Nfo.")).ConfigureAwait(false);
+                  var existingThumbs = fanArtCache.GetFanArtFiles(actor.Item1, FanArtTypes.Thumbnail);
+                  var actorStub = mainStub?.Actors?.FirstOrDefault(a => string.Equals(a?.Name, actor.Item2, StringComparison.InvariantCultureIgnoreCase));
+                  if (actorStub != null || existingThumbs.Any()) //We have a thumb already or no thumb is available, so no need to check again
+                    AddToCache(actor.Item1);
+
+                  if (actorStub?.Thumb != null)
+                  {
+                    await fanArtCache.TrySaveFanArt(actor.Item1, actor.Item2, FanArtTypes.Thumbnail, p => TrySaveFileImage(actorStub.Thumb, p, "Thumb", "Nfo.")).ConfigureAwait(false);
+                  }
                 }
               }
-            }
           }
         }
       }
