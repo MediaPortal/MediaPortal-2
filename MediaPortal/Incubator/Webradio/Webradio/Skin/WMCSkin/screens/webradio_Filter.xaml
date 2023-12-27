@@ -1,0 +1,78 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_menu.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Webradio.Home.ScreenTitle]" />
+
+    <Model x:Key="Model" Id="FF29E03E-F4A9-4E21-A299-349E79010430" />
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="30*" />
+            <ColumnDefinition Width="30*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="100" />
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="*" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+
+          <!-- Actual Filter -->
+          <TextBox Margin="10,0,10,30" VerticalAlignment="Top"
+                   Text="{Binding Path=FilterTitel, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"/>
+          <Image Grid.Column="1" Grid.Row="0" Stretch="Uniform" Margin="0,0,0,30" Height="65"
+                 Source="{Binding Path=SaveImage, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 HorizontalAlignment="Right" />
+
+          <!-- Countrys -->
+          <Label Grid.Column="0" Grid.Row="1" Content="[Webradio.Filter.Country]"
+                 HorizontalContentAlignment="Center"
+                 HorizontalAlignment="Stretch" Margin="5,0,5,0" VerticalAlignment="Center"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+          <ListView x:Name="lvCountrys" Grid.Column="0" Grid.Row="2" Margin="10"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Style="{ThemeResource WebradioFilterListViewStyle}"
+                    ItemsSource="{Binding Path=CountryItems, Mode=TwoWay}">
+            <ListView.Resources>
+              <Command x:Key="Menu_Command" Source="{StaticResource Model}"
+                       Path="ChangeCountry" Parameters="{LateBoundValue BindingValue={Binding}}" />
+            </ListView.Resources>
+          </ListView>
+          <Label Grid.Column="0" Grid.Row="3" Content="{Binding Path=CountryState, Mode=TwoWay}"
+                 HorizontalContentAlignment="Center"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Top" Color="{ThemeResource TextColor}"
+                 FontSize="{ThemeResource SmallerFontSize}" />
+
+          <!-- Genres -->
+          <Label Grid.Column="1" Grid.Row="1" Content="[Webradio.Filter.Genres]"
+                 HorizontalContentAlignment="Center"
+                 HorizontalAlignment="Stretch" Margin="5,0,5,0" VerticalAlignment="Center"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}" />
+          <ListView x:Name="lvGenres" Grid.Column="1" Grid.Row="2" Margin="10"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                    Style="{ThemeResource WebradioFilterListViewStyle}"
+                    ItemsSource="{Binding Path=GenreItems}">
+            <ListView.Resources>
+              <Command x:Key="Menu_Command" Source="{StaticResource Model}"
+                       Path="ChangeGenre" Parameters="{LateBoundValue BindingValue={Binding}}" />
+            </ListView.Resources>
+          </ListView>
+
+          <Label Grid.ColumnSpan="2" Grid.Row="3" Content="{Binding Path=SelectedStreamsCount, Mode=TwoWay}"
+                 Margin="0,0,5,0" HorizontalContentAlignment="Center"
+                 HorizontalAlignment="Stretch" VerticalAlignment="Top" Color="{ThemeResource TextColor}"
+                 FontSize="{ThemeResource SmallerFontSize}" />
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

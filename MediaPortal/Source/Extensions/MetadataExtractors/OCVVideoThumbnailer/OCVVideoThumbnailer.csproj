@@ -22,6 +22,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\..\UI\FanArt\FanArtService.Interfaces\FanArtService.Interfaces.csproj" />
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\OpenCvLib\OpenCvLib.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="plugin.xml">
@@ -30,9 +31,6 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="Microsoft.CSharp" Version="4.7.0" />
-    <PackageReference Include="OpenCvSharp4.Windows">
-      <Version>4.6.0.20220608</Version>
-    </PackageReference>
     <PackageReference Include="System.Data.DataSetExtensions" Version="4.5.0" />
   </ItemGroup>
   <Import Project="build.targets" />

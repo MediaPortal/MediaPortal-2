@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_menu.xaml">
+  <Include.Resources>
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Webradio.Settings.Streamlistupdate]"/>
+
+    <Model x:Key="Model" Id="DC35C7C2-5970-4045-855C-28D66C39EDE2"/>
+    <Model x:Key="WebradioDataModel" Id="BD1BA004-1BC0-49F5-9107-AD8FFD07BAAE"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="-440,0,40,60">
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="420" />
+          <ColumnDefinition Width="Auto" />
+          <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Button x:Name="UpdateButton" Grid.Column="0" Grid.RowSpan="5" Margin="0,0,15,10" FontSize="{ThemeResource SmallFontSize}" SetFocusPrio="Highest"
+                VerticalAlignment="Top" HorizontalContentAlignment="Stretch" Style="{ThemeResource DialogButtonStyle}"
+                Content="[Webradio.Dialog.LoadUpdate.Button]" Command="{Command StartUpdate}"/>
+        
+        <Label Grid.Column="1" Grid.Row="0"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="70,0,0,0"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               Content="[Webradio.Settings.Offline]" />
+        <Label Grid.Column="2" Grid.Row="0"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="50,0,0,0"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               Content="{Binding Source={StaticResource WebradioDataModel}, Path=OfflineVersion}" />
+
+        <Label Grid.Column="1" Grid.Row="1"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="70,0,0,0"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               Content="[Webradio.Settings.Online]" />
+        <Label Grid.Column="2" Grid.Row="1"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="50,0,0,0"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               Content="{Binding Source={StaticResource WebradioDataModel}, Path=OnlineVersion}" />
+
+        <Label Grid.Column="1" Grid.Row="2"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="70,0,0,0"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               Content="[Webradio.Settings.StreamsFound]" />
+        <Label Grid.Column="2" Grid.Row="2"
+               VerticalAlignment="Center" HorizontalAlignment="Left" Margin="50,0,0,0"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"
+               Content="{Binding Source={StaticResource WebradioDataModel}, Path=RadiostationsCount, Mode=TwoWay}" />
+
+        <Grid Grid.Column="1" Grid.Row="3" Grid.ColumnSpan="2" Margin="70,60,15,10" HorizontalAlignment="Stretch">
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition Height="Auto" />
+          </Grid.RowDefinitions>
+          <ProgressBar Value="{Binding Source={StaticResource WebradioDataModel}, Path=UpdateProgress}" Height="40" HorizontalAlignment="Stretch" VerticalAlignment="Center" />
+          <Label HorizontalAlignment="Center" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}">
+            <Label.Content>
+              <Binding Source="{StaticResource WebradioDataModel}" Path="UpdateProgress" Converter="{StaticResource StringFormatConverter}" ConverterParameter="{}{0:F0}%"/>
+            </Label.Content>
+          </Label>
+          <Label Grid.Row="1" Margin="0,10,0,10" FontSize="{ThemeResource SmallFontSize}"
+                 VerticalAlignment="Center" HorizontalAlignment="Center" Color="{ThemeResource TextColor}"
+                 Content="{Binding Source={StaticResource WebradioDataModel}, Path=UpdateInfo}" />
+        </Grid>
+        
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

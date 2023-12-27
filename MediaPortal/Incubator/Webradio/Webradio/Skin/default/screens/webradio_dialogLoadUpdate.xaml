@@ -1,0 +1,42 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Webradio.Dialog.LoadUpdate.Header]" />
+
+    <Model x:Key="Model" Id="028ABECD-9885-48F6-B39F-F252EC0115EF" />
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="100*" />
+          </Grid.ColumnDefinitions>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="33*" />
+            <RowDefinition Height="33*" />
+            <RowDefinition Height="33*" />
+          </Grid.RowDefinitions>
+
+          <ProgressBar Grid.Row="0" Height="15" HorizontalAlignment="Stretch" VerticalAlignment="Center"
+                       Value="{Binding Path=UpdateProgress}" Margin="10,0,10,10" />
+
+          <Button Grid.Row="1" Content="[Webradio.Dialog.LoadUpdate.Button]" VerticalAlignment="Center"
+                  HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" Margin="10,0,10,0"
+                  Command="{Command LoadSenderListe}" />
+
+          <Label Grid.Row="2" Content="{Binding Path=Info}" VerticalAlignment="Center"
+                 HorizontalAlignment="Stretch"
+                 HorizontalContentAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+                 Color="{ThemeResource TextColor}" Margin="10,0,10,0" Wrap="true" />
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

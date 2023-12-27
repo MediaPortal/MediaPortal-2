@@ -1,0 +1,31 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Cinema</RootNamespace>
+    <UseWindowsForms>true</UseWindowsForms>
+  </PropertyGroup>
+  
+  <PropertyGroup>
+    <!--required for assemblies from nuget packages to be copied to output folder, so our build.targets can copy them further -->
+    <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="YoutubeExplode" Version="6.3.8" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\FanArt\FanArtService.Client\FanArtService.Client.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\Players\DirectShowWrapper\DirectShowWrapper.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\Players\VideoPlayer\VideoPlayers.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\Cinema.OnlineLibraries\Cinema.OnlineLibraries.csproj" />
+  </ItemGroup>
+  
+  <Import Project="build.targets" />
+
+</Project>

@@ -15,14 +15,12 @@
     <ProjectReference Include="..\..\..\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
     <ProjectReference Include="..\..\..\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
     <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\MatroskaLib\MatroskaLib.csproj" />
+    <ProjectReference Include="..\..\..\Extensions\MetadataExtractors\OpenCvLib\OpenCvLib.csproj" />
     <ProjectReference Include="..\FanArtService.Interfaces\FanArtService.Interfaces.csproj" />
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.TagLib">
       <Version>2.3.1</Version>
-    </PackageReference>
-    <PackageReference Include="OpenCvSharp4.Windows">
-      <Version>4.6.0.20220608</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="build.targets" />

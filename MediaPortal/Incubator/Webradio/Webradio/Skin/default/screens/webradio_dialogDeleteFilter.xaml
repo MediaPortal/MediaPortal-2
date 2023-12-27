@@ -1,0 +1,44 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Webradio.Dialog.DeleteFilter.Header]" />
+
+    <Model x:Key="Model" Id="59AB04C6-6B8D-41E5-A041-7AFC8DEDEB89" />
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="90*" />
+            <RowDefinition Height="10*" />
+          </Grid.RowDefinitions>
+
+          <ListView x:Name="lvFavorites" Grid.Row="0" HorizontalAlignment="Stretch"
+                    VerticalAlignment="Stretch"
+                    Style="{ThemeResource WebradioFilterListViewStyle}"
+                    ItemsSource="{Binding Path=FilterItems}">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="Select">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}" />
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+
+          <Button Grid.Row="1" Margin="10,0,10,0" Content="[Webradio.Dialog.DeleteFilter.Delete]"
+                  Command="{Command Delete}" />
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

@@ -1,0 +1,23 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net48;net6.0-windows</TargetFrameworks>
+    <OutputType>Library</OutputType>
+    <RootNamespace>Webradio</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.Common\MediaPortal.Common.csproj" />
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.UI\MediaPortal.UI.csproj" />
+    <ProjectReference Include="..\..\..\Source\Core\MediaPortal.Utilities\MediaPortal.Utilities.csproj" />
+    <ProjectReference Include="..\..\..\Source\Extensions\BassLibraries\BassLibraries.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\FanArt\FanArtService.Client\FanArtService.Client.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\Players\BassPlayer\BassPlayer.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\SkinEngine\SkinEngine.csproj" />
+    <ProjectReference Include="..\..\..\Source\UI\UiComponents\Media\Media.csproj" />
+    <ProjectReference Include="..\Webradio.OnlineLibraries\Webradio.OnlineLibraries.csproj" />
+  </ItemGroup>
+
+  <Import Project="build.targets" />
+
+</Project>

@@ -1,0 +1,114 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ResourceDictionary
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  xmlns:collections="clr-namespace:MediaPortal.UI.Presentation.DataObjects;assembly=MediaPortal.UI"
+  xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
+  DependsOnStyleResources="Buttons,Colors,Consts,OtherControlsOverrides">
+
+  <DataTemplate x:Key="CinemaSelectItemDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <CheckBox DockPanel.Dock="Left" IsChecked="{Binding Selected}" />
+      <Label x:Name="ItemLabel" DockPanel.Dock="Center" Content="{Binding [Text]}"
+        HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+        Color="{ThemeResource TextColor}"/>
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- ListView style to be used in the content area of the screens -->
+  <Style x:Key="CinemaSelectListViewStyle" BasedOn="{ThemeResource DefaultListViewStyle}">
+    <Setter Property="ItemTemplate" Value="{ThemeResource CinemaSelectItemDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource DefaultMenuItemContainerStyle}"/>
+    <Setter Property="ItemsPanel">
+      <Setter.Value>
+        <ItemsPanelTemplate>
+          <VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/>
+        </ItemsPanelTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+
+  <Style x:Key="CinemaMovieItemContainerStyle" BasedOn="{ThemeResource DefaultItemContainerStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListViewItem}">
+          <Button Style="{ThemeResource ButtonWideStyle_List}" Margin="0,0,0,0"
+                  Command="{DynamicResource ResourceKey=Menu_Command}"
+                  IsEnabled="{Binding Enabled}" SetFocus="{Binding Path=Selected,Mode=OneTime}">
+            <Button.Triggers>
+              <Trigger Property="HasFocus" Value="True">
+                <Setter TargetName="ItemLabel" Property="Color" Value="{ThemeResource TextColor}" />
+                <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto" />
+                <Setter Property="StackPanel.ZIndex" Value="100.0" />
+              </Trigger>
+            </Button.Triggers>
+          </Button>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+  </Style>
+  
+  <DataTemplate x:Key="CinemaMovieDataTemplate" DataType="{x:Type collections:ListItem}">
+    <DockPanel x:Name="ItemControl" LastChildFill="False">
+      <Label x:Name="ItemLabel" DockPanel.Dock="Left" Content="{Binding [Name]}" Margin="10,1,0,1"
+             HorizontalAlignment="Left" VerticalAlignment="Center" FontSize="{ThemeResource SmallFontSize}"
+             Color="{ThemeResource MediaItemUnwatchedColor}" FontFamily="Noto-Bold" />
+    </DockPanel>
+  </DataTemplate>
+
+  <!-- ListView style to be used in the content area of the screens -->
+  <Style x:Key="CinemaMovieViewStyle" BasedOn="{ThemeResource ContentsMenuListViewStyle}">
+    <Setter Property="Template">
+      <Setter.Value>
+        <ControlTemplate TargetType="{x:Type ListView}">
+          <ScrollViewer CanContentScroll="True" Margin="0"
+                        Style="{ThemeResource VerticalMediaScrollViewerStyle}"
+                        HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Disabled"
+                        HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+            <ItemsPresenter VerticalAlignment="Stretch" HorizontalAlignment="Stretch" />
+          </ScrollViewer>
+        </ControlTemplate>
+      </Setter.Value>
+    </Setter>
+    <Setter Property="ItemTemplate" Value="{ThemeResource CinemaMovieDataTemplate}"/>
+    <Setter Property="DataStringProvider" Value="{ThemeResource ContentsMenuItemDataStringProvider}"/>
+    <Setter Property="ItemContainerStyle" Value="{ThemeResource CinemaMovieItemContainerStyle}"/>
+    <BindingSetter Property="ItemsPanel">
+      <BindingSetter.BindingWrapper>
+        <BindingWrapper>
+          <BindingWrapper.Binding>
+            <Binding>
+              <Binding.Source>
+                <ItemsPanelTemplate>
+                  <!--VirtualizingStackPanel x:Name="ListItemsHost" IsItemsHost="True"/-->
+                  <AnimatedStackPanel x:Name="ListItemsHost" IsItemsHost="True"
+                                      ScrollMargin="130,130"
+                                      Margin="0,-20,0,-60">
+                    <AnimatedStackPanel.Resources>
+                      <Storyboard x:Key="ScrollAnimation" FillBehavior="HoldEnd">
+                        <DoubleAnimation BeginTime="00:00:00" From="0" To="1"
+                                         Duration="00:00:00.300"
+                                         FillBehavior="HoldEnd"
+                                         Storyboard.TargetName="ListItemsHost"
+                                         Storyboard.TargetProperty="ScrollOffsetMultiplier" />
+                      </Storyboard>
+                    </AnimatedStackPanel.Resources>
+                    <AnimatedStackPanel.Triggers>
+                      <EventTrigger RoutedEvent="AnimatedStackPanel.Scroll">
+                        <EventTrigger.Actions>
+                          <BeginStoryboard Storyboard="{ThemeResource ScrollAnimation}" />
+                        </EventTrigger.Actions>
+                      </EventTrigger>
+                    </AnimatedStackPanel.Triggers>
+                  </AnimatedStackPanel>
+                </ItemsPanelTemplate>
+              </Binding.Source>
+            </Binding>
+          </BindingWrapper.Binding>
+        </BindingWrapper>
+      </BindingSetter.BindingWrapper>
+    </BindingSetter>
+  </Style>
+
+</ResourceDictionary>

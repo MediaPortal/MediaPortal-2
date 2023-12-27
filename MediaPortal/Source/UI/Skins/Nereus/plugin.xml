@@ -34,6 +34,7 @@
     <Model Id="AB34B067-DDA7-4D1C-A50E-A7BBFBBD2925" Name="AutoScrollConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.AutoScrollConfigurationModel"/>
     <Model Id="03C73355-E01C-4d30-AE69-14408ADB2174" Name="SkinColorConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.SkinColorConfigurationModel"/>
     <Model Id="5C314F18-6A81-47b7-91DB-02DBCF5176F0" Name="DialogConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.DialogConfigurationModel"/>
+    <Model Id="B5FE25BA-BDAC-44ea-BF82-F059C00052DC" Name="HeaderConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.HeaderConfigurationModel"/>
     <Model Id="543CFC2F-816D-48ae-BEE3-BB3B85876505" Name="FanartConfigurationModel" ClassName="MediaPortal.UiComponents.Nereus.Models.FanartConfigurationModel"/>
   </Register>
 
@@ -62,6 +63,15 @@
                  DialogScreen="dialogDialogSettings"
                  DisplayLabel="[Nereus.Configuration.Dialog]"
                  WorkflowModel="5C314F18-6A81-47b7-91DB-02DBCF5176F0"/>
+  </Register>
+
+  <Register Location="/Workflow/States">
+    <!-- HeaderConfiguration Dialog -->
+    <DialogState Id="8272EC9D-00FD-4d5e-AC6E-CEF94086CA00"
+                 Name="dialogHeaderSettings"
+                 DialogScreen="dialogHeaderSettings"
+                 DisplayLabel="[Nereus.Configuration.Header]"
+                 WorkflowModel="B5FE25BA-BDAC-44ea-BF82-F059C00052DC"/>
   </Register>
 
   <Register Location="/Workflow/States">
@@ -178,6 +188,13 @@
         HelpText="[Nereus.Configuration.Dialog.Help]"
         ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.DialogConfiguration"
         AdditionalData="WorkflowState=C364F2E3-346E-4861-B9EE-CF5A74487244,ConfAppPanel=..."/>
+
+    <CustomConfigSetting
+        Id="NereusHeaderDialog"
+        Text="[Nereus.Configuration.Header]"
+        HelpText="[Nereus.Configuration.Header.Help]"
+        ClassName="MediaPortal.UiComponents.Nereus.Settings.Configuration.HeaderConfiguration"
+        AdditionalData="WorkflowState=8272EC9D-00FD-4d5e-AC6E-CEF94086CA00,ConfAppPanel=..."/>
 
     <CustomConfigSetting
         Id="NereusFanartDialog"

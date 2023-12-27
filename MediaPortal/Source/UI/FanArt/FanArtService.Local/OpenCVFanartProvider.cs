@@ -22,29 +22,25 @@
 
 #endregion
 
-using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
 using MediaPortal.Backend.MediaLibrary;
 using MediaPortal.Common;
+using MediaPortal.Common.FanArt;
 using MediaPortal.Common.Logging;
 using MediaPortal.Common.MediaManagement;
 using MediaPortal.Common.MediaManagement.DefaultItemAspects;
 using MediaPortal.Common.MediaManagement.MLQueries;
 using MediaPortal.Common.ResourceAccess;
 using MediaPortal.Extensions.UserServices.FanArtService.Interfaces;
-using MediaPortal.Common.FanArt;
-using OpenCvSharp;
+using OpenCvLib;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace MediaPortal.Extensions.UserServices.FanArtService.Local
 {
   class OpenCvFanartProvider : IBinaryFanArtProvider
   {
     private static readonly Guid[] NECESSARY_MIAS = { VideoStreamAspect.ASPECT_ID, ProviderResourceAspect.ASPECT_ID };
-    private const double DEFAULT_OPENCV_THUMBNAIL_OFFSET = 1.0 / 3.0;
-    private const double MAX_THUMBNAIL_WIDTH = 512.0;
 
     #region Implementation of IFanArtProvider
 
@@ -81,82 +77,26 @@ namespace MediaPortal.Extensions.UserServices.FanArtService.Local
       if (mediaItem.IsVirtual)
         return false;
       var resourceLocator = mediaItem.GetResourceLocator();
-      string fileSystemPath = string.Empty;
-
-      // File based access
-      try
+      using(var accessor = resourceLocator?.CreateAccessor())
       {
-        using (var accessor = resourceLocator?.CreateAccessor())
+        ILocalFsResourceAccessor lfsra = accessor as ILocalFsResourceAccessor;
+        if (lfsra == null)
+          return false;
+
+        // Try and extract a thumbnail 10% into the video with a max width of 256, the default size for a ThumbnailLargeAspect
+        if (!OpenCvWrapper.TryExtractThumbnail(lfsra.LocalFileSystemPath, 0.1, 256, out byte[] thumbnail))
         {
-          ILocalFsResourceAccessor lfsra = accessor as ILocalFsResourceAccessor;
-          if (lfsra != null)
-          {
-            // Check for a reasonable time offset
-            int defaultVideoOffset = 720;
-            long videoDuration;
-            double width = 0;
-            double height = 0;
-            double downscale = 7.5; // Reduces the HD video frame size to a quarter size to around 256
-            IList<MultipleMediaItemAspect> videoAspects;
-            if (MediaItemAspect.TryGetAspects(mediaItem.Aspects, VideoStreamAspect.Metadata, out videoAspects))
-            {
-              if ((videoDuration = videoAspects[0].GetAttributeValue<long>(VideoStreamAspect.ATTR_DURATION)) > 0)
-              {
-                if (defaultVideoOffset > videoDuration * DEFAULT_OPENCV_THUMBNAIL_OFFSET)
-                  defaultVideoOffset = Convert.ToInt32(videoDuration * DEFAULT_OPENCV_THUMBNAIL_OFFSET);
-              }
-
-              width = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_WIDTH);
-              height = videoAspects[0].GetAttributeValue<int>(VideoStreamAspect.ATTR_HEIGHT);
-              downscale = width / 256.0; //256 is max size of large thumbnail aspect
-            }
-
-            var sw = Stopwatch.StartNew();
-            using (VideoCapture capture = new VideoCapture())
-            {
-              capture.Open(lfsra.LocalFileSystemPath);
-              int capturePos = defaultVideoOffset * 1000;
-              if (capture.FrameCount > 0 && capture.Fps > 0)
-              {
-                var duration = capture.FrameCount / capture.Fps;
-                if (defaultVideoOffset > duration)
-                  capturePos = Convert.ToInt32(duration * DEFAULT_OPENCV_THUMBNAIL_OFFSET * 1000);
-              }
-
-              if (capture.FrameWidth > 0)
-                downscale = capture.FrameWidth / MAX_THUMBNAIL_WIDTH;
-
-              capture.PosMsec = capturePos;
-              using (var mat = capture.RetrieveMat())
-              {
-                if (mat.Height > 0 && mat.Width > 0)
-                {
-                  width = mat.Width;
-                  height = mat.Height;
-                  using (var scaledMat = mat.Resize(new OpenCvSharp.Size(width / downscale, height / downscale)))
-                  {
-                    var binary = scaledMat.ToBytes();
-                    result = new List<FanArtImage> { new FanArtImage(name, binary) };
-                    ServiceRegistration.Get<ILogger>().Debug("OpenCvFanartProvider: Successfully extracted thumbnail for resource '{0}' ({1} ms)", lfsra.LocalFileSystemPath, sw.ElapsedMilliseconds);
-                    return true;
-                  }
-                }
-                else
-                {
-                  ServiceRegistration.Get<ILogger>().Warn("OpenCvFanartProvider: Failed to extract thumbnail for resource '{0}'", lfsra.LocalFileSystemPath);
-                }
-              }
-            }
-          }
+          ServiceRegistration.Get<ILogger>().Warn("OpenCvFanartProvider: Failed to extract thumbnail for resource '{0}')", lfsra.LocalFileSystemPath);
+          return false;
         }
+
+        ServiceRegistration.Get<ILogger>().Debug("OpenCvFanartProvider: Successfully extracted thumbnail for resource '{0}')", lfsra.LocalFileSystemPath);
+        result = new List<FanArtImage> { new FanArtImage(name, thumbnail) };
       }
-      catch (Exception ex)
-      {
-        ServiceRegistration.Get<ILogger>().Warn("OpenCvFanartProvider: Exception while reading thumbnail of type '{0}' from '{1}'", ex, fanArtType, fileSystemPath);
-      }
-      return false;
+
+      return true;
     }
 
-    #endregion
+#endregion
   }
 }

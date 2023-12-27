@@ -1,0 +1,173 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Screen
+    xmlns="www.team-mediaportal.com/2008/mpf/directx"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:mp_special_workflow="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Workflow;assembly=SkinEngine"
+    xmlns:mp_audio_viz="clr-namespace:MediaPortal.UiComponents.Media.Controls;assembly=Media"
+    mp_special_workflow:WorkflowContext.StateSlot="Root"
+    xmlns:imagesources="clr-namespace:MediaPortal.UI.SkinEngine.Controls.ImageSources;assembly=SkinEngine"
+    xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
+    xmlns:aspect="clr-namespace:MediaPortal.Common.MediaManagement.DefaultItemAspects;assembly=MediaPortal.Common"
+    xmlns:media="clr-namespace:MediaPortal.UiComponents.Media.Models.AspectWrappers;assembly=Media"
+    xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls"
+    x:Name="FullscreenContentWebRadioScreen">
+
+  <mp_special_controls:PlayerControl PlayerContext="CurrentPlayer" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+    <mp_special_controls:PlayerControl.TemplateControl>
+      <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}">
+        <Grid.Resources>
+          <Model x:Key="MouseModel" Id="CA6428A7-A6E2-4dd3-9661-F89CEBAF8E62"/>
+          <fanart:FanArtImageSourceConverter x:Key="FanArtImageSourceConverter"/>
+          <Model x:Key="FanArtBackgroundModel" Id="8F42C8E9-E8A3-475C-A50A-99E1E644DC91"/>
+          <Model x:Key="SkinSettingsModel" Id="13961014-16C4-4361-9751-8E2C585EFD44"/>
+          <Model x:Key="WebradioFavoritesModel" Id="B8DB0672-483A-4E8B-AAF7-2CBEE3F92524"/>
+          <Model x:Key="WebradioDataModel" Id="BD1BA004-1BC0-49F5-9107-AD8FFD07BAAE"/>
+        </Grid.Resources>
+
+        <Grid.Background>
+          <VisualBrush x:Name="FanartVisualBrush">
+            <VisualBrush.Visual>
+              <Grid DataContext="{Binding RelativeSource={RelativeSource TemplatedParent}}"
+                    HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+                <Grid.RowDefinitions>
+                  <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+                <Grid.ColumnDefinitions>
+                  <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <Image Stretch="UniformToFill" Source="webradiobackground.jpg"/>
+                <Image x:Name="FanArtImageBackground" Stretch="UniformToFill" 
+                       IsVisible="{Binding Source={StaticResource SkinSettingsModel}, Path=[Nereus].EnableFanart}">
+                  <Image.Source>
+                    <imagesources:ImageSourceWrapper Delay="0.5" DelayInOut="true" Transition="transitions\dissolve" TransitionDuration="0.5"
+                           Source="{Binding Source={StaticResource FanArtBackgroundModel}, Path=ImageSource, Converter={StaticResource FanArtImageSourceConverter}, ConverterParameter=FanArt;1920;1080;False}"/>
+                  </Image.Source>
+                </Image>
+              </Grid>
+            </VisualBrush.Visual>
+          </VisualBrush>
+        </Grid.Background>
+
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="17*"/>
+          <ColumnDefinition Width="35*"/>
+          <ColumnDefinition Width="48*"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+          <RowDefinition Height="140"/>
+          <RowDefinition Height="*"/>
+          <RowDefinition Height="350"/>
+        </Grid.RowDefinitions>
+
+        <Control Grid.RowSpan="3" Grid.ColumnSpan="3">
+          <Control.Background>
+            <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
+              <GradientStop Color="{ThemeResource InfoScreenGradientColor1}" Offset="0"/>
+              <GradientStop Color="{ThemeResource InfoScreenGradientColor1}" Offset="0.6"/>
+              <GradientStop Color="{ThemeResource InfoScreenGradientColor2}" Offset="0.67"/>
+              <GradientStop Color="{ThemeResource InfoScreenGradientColor3}" Offset="1"/>
+            </LinearGradientBrush >
+          </Control.Background>
+        </Control>
+
+        <!--Playerstate overlay-->
+        <Grid Grid.ColumnSpan="3" Grid.RowSpan="3" HorizontalAlignment="Stretch" VerticalAlignment="Stretch">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Image Width="250" Stretch="Uniform" Opacity="0.7" VerticalAlignment="Center" HorizontalAlignment="Center">
+            <Image.Source>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {3} : ({1} ? {4} : ({2} ? {5} : {6}))">
+                <Binding Path="IsSeekingForward"/>
+                <Binding Path="IsSeekingBackward"/>
+                <Binding Path="IsPaused"/>
+                <Binding Source="fastforward.png"/>
+                <Binding Source="fastrewind.png"/>
+                <Binding Source="pause.png"/>
+                <Binding Source=""/>
+              </MultiBinding>
+            </Image.Source>
+          </Image>
+        </Grid>
+
+        <Grid Grid.Row="2" HorizontalAlignment="Left" VerticalAlignment="Bottom" Width="300" Height="300" Margin="40,0,0,20">
+          <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="*"/>
+          </Grid.ColumnDefinitions>
+          <Image Height="300" Width="300" Source="{Binding}" Stretch="Fill"
+                 DataContext="{Binding Source={StaticResource WebradioDataModel}, Path=CurrentStreamLogo}">
+            <Image.OpacityMask>
+              <VisualBrush>
+                <VisualBrush.Visual>
+                  <Border Name="mask" Background="White" CornerRadius="25" BorderThickness="0" BorderBrush="Black" Margin="4"/>
+                </VisualBrush.Visual>
+              </VisualBrush>
+            </Image.OpacityMask>
+          </Image>
+        </Grid>
+
+        <StackPanel Grid.Row="2" Grid.Column="1" Margin="30,30,0,0" DataContext="{Binding Source={StaticResource WebradioDataModel}}">
+          <Label x:Name="StationName" Scroll="Auto" Content="{Binding Path=StationName}"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}" FontFamily="Noto-Bold"/>
+          <Grid>
+            <Image Source="HomeContentIcons\country.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                   IsVisible="{Binding ElementName=Country, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Country" VerticalAlignment="Center" HorizontalAlignment="Left"
+                   Content="{Binding Path=StationCountry}" FontSize="{ThemeResource SmallFontSize}"
+                   Color="{ThemeResource TextColor}" Opacity="0.6" Margin="40,0,0,0"/>
+          </Grid>
+          <Grid>
+            <Image Source="HomeContentIcons\place.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                   IsVisible="{Binding ElementName=City, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="City" VerticalAlignment="Center" HorizontalAlignment="Left"
+                   Content="{Binding Path=StationCity}" FontSize="{ThemeResource SmallFontSize}"
+                   Color="{ThemeResource TextColor}" Opacity="0.6" Margin="40,0,0,0"/>
+          </Grid>
+          <Grid>
+            <Image Source="HomeContentIcons\settings.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                   IsVisible="{Binding ElementName=Settings, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Settings" VerticalAlignment="Center" HorizontalAlignment="Left"
+                   Content="{Binding Path=StreamBitrate}" FontSize="{ThemeResource SmallFontSize}"
+                   Color="{ThemeResource TextColor}" Opacity="0.6" Margin="40,0,0,0"/>
+          </Grid>
+          
+          <DockPanel DataContext="{Binding Source={StaticResource WebradioFavoritesModel}}">
+            <Button FontSize="{ThemeResource SmallFontSize}" Height="40" Width="30"
+                    VerticalAlignment="Stretch" Command="{Command SetFavorite}" Style="{ThemeResource FavoriteButtonStyle}"/>
+          </DockPanel>
+        </StackPanel>
+
+        <StackPanel Grid.Row="2" Grid.Column="2" Margin="10,30,0,0" DataContext="{Binding Source={StaticResource WebradioDataModel}}">
+          <Label x:Name="TrackName" Content="{Binding Path=TrackName}" Scroll="Auto" FontFamily="Noto-Bold"
+                 Color="{ThemeResource TextColor}" FontSize="{ThemeResource NormalFontSize}"/>
+          <Grid>
+            <Image Source="HomeContentIcons\person.png" Height="30" Width="30" Stretch="Uniform" Margin="0,0,5,0"
+                   IsVisible="{Binding ElementName=Person, Path=Content, Converter={StaticResource EmptyStringToFalseConverter}}"
+                   VerticalAlignment="Center" HorizontalAlignment="Left"/>
+            <Label x:Name="Person" VerticalAlignment="Center" HorizontalAlignment="Left"
+                   Content="{Binding Path=TrackArtist}" FontSize="{ThemeResource SmallFontSize}"
+                   Color="{ThemeResource TextColor}" Opacity="0.6" Margin="40,0,0,0"/>
+          </Grid>
+        </StackPanel>
+        
+        <mp_audio_viz:AudioSpectrumAnalyzer Grid.Row="2" Grid.ColumnSpan="3" Height="280"
+                HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="0,-260,0,0"
+                x:Name="SpectrumAnalyzer" Style="{ThemeResource SpectrumAnalyzerStyle}"/>
+
+        <mp_special_controls:PlayerControl x:Name="PrimaryOSD" Grid.Row="2" Grid.Column="2"
+                  Style="{ThemeResource PrimaryWebRadioOSDStyle}" IsVisible="{Binding IsOSDVisible}" 
+                  VerticalAlignment="Bottom" HorizontalAlignment="Right"/>
+        
+      </Grid>
+    </mp_special_controls:PlayerControl.TemplateControl>
+  </mp_special_controls:PlayerControl>
+</Screen>

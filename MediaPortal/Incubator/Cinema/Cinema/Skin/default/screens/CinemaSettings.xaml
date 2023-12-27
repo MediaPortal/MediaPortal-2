@@ -1,0 +1,88 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_menu.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Cinema.Settings]"/>
+
+    <Model x:Key="Model" Id="23A02262-A337-4836-AAF5-E70DAD6AFDCC"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <Grid>
+          <Grid.RowDefinitions>
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="10*" />
+            <RowDefinition Height="80*" />
+          </Grid.RowDefinitions>
+          <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="12*"  />
+            <ColumnDefinition Width="12*"  />
+            <ColumnDefinition Width="12*"  />
+            <ColumnDefinition Width="12*"  />
+            <ColumnDefinition Width="12*"  />
+            <ColumnDefinition Width="12*"  />
+          </Grid.ColumnDefinitions>
+
+          <Label Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="0" Content="[Cinema.Dialog.SelectCinemaCountry.Header]"
+                 VerticalAlignment="Center" HorizontalAlignment="Left"
+                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+
+          <Label Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="0" Content="[Cinema.Settings.Postalcode]"
+                 VerticalAlignment="Center" HorizontalAlignment="Left"
+                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+
+          <Button Grid.Column="0" Grid.Row="1" Margin="15,2,15,2" Content="Button 1"
+                  VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                  Command="{Command GetCountryCodes}" FontSize="{ThemeResource SmallerFontSize}"/>
+          <Label Grid.Column="1" Grid.Row="1" Content="{Binding Path=CountryCode}"
+                 VerticalAlignment="Center" HorizontalAlignment="Left"
+                 FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+
+          <TextBox Grid.Column="2" Grid.Row="1" Margin="15,2,15,2" Height="50"
+                   Text="{Binding Path=PostalCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                   FontSize="{ThemeResource SmallerFontSize}"/>
+
+          <Button Grid.Column="5" Grid.Row="1" Margin="15,2,15,2" Content="[Cinema.Location.Settings.Search]" 
+                  VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center" 
+                  Command="{Command ReadCinemas}" FontSize="{ThemeResource SmallerFontSize}"/>
+
+            <ListView x:Name="Cinemas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource CinemaSelectListViewStyle}"
+                      ItemsSource="{Binding Path=Cinemas, Mode=TwoWay}" Grid.Column="0" Grid.ColumnSpan="6" Grid.Row="2">
+            <ListView.Resources>
+              <CommandList x:Key="Menu_Command">
+                <Command Source="{StaticResource Model}" Path="Select">
+                  <Command.Parameters>
+                    <LateBoundValue BindingValue="{Binding}"/>
+                  </Command.Parameters>
+                </Command>
+              </CommandList>
+            </ListView.Resources>
+          </ListView>
+
+          <!--<Label Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" Content="Contentlanguage" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+          <Label Grid.Column="2" Grid.ColumnSpan="2" Grid.Row="1" Content="Contentlanguage" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+          <Label Grid.Column="4" Grid.ColumnSpan="2" Grid.Row="1" Content="Contentlanguage" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+          <Button Grid.Column="0" Grid.Row="2" Content="language" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          <Label Grid.Column="1" Grid.Row="2" Content="language" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+          <Button Grid.Column="2" Grid.Row="2" Content="country" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+          <Label Grid.Column="3" Grid.Row="2" Content="country" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+          <TextBox Grid.Column="4" Grid.Row="2" HorizontalAlignment="Left" TextWrapping="Wrap" Text="TextBox"/>
+          <Label Grid.Column="5" Grid.Row="2" Content="postal" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+
+          <Button Grid.Column="7" Grid.Row="2" Content="search" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+
+          <ListBox Grid.Column="0" Grid.ColumnSpan="8" Grid.Row="3" d:ItemsSource="{d:SampleData ItemCount=5}"/>-->
+
+        </Grid>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

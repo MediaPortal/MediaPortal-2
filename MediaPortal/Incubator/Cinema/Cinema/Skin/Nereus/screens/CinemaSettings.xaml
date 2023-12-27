@@ -1,0 +1,65 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_menu.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Header_Text" Resource="[Cinema.Settings]"/>
+
+    <Model x:Key="Model" Id="23A02262-A337-4836-AAF5-E70DAD6AFDCC"/>
+
+    <!-- Contents -->
+    <ControlTemplate x:Key="Contents_Template">
+      <Grid DataContext="{Binding Source={StaticResource Model}}" Margin="-440,0,40,60">
+        <Grid.RowDefinitions>
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="Auto" />
+          <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+          <ColumnDefinition Width="420"/>
+          <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+
+        <Button Grid.Column="0" Grid.Row="0" Margin="0,2,15,10" Content="[Cinema.Dialog.SelectCinemaCountry.Header]" Style="{ThemeResource WizardButtonStyle}"
+                VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Command="{Command GetCountryCodes}" FontSize="{ThemeResource SmallFontSize}"/>
+
+        <Label Grid.Column="0" Grid.Row="1" Content="{Binding Path=CountryCode}" Opacity="0.4"
+               VerticalAlignment="Center" HorizontalAlignment="Center" Margin="0,0,0,30"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+
+        <Label Grid.Column="0" Grid.Row="2" Content="[Cinema.Settings.Postalcode]"
+               VerticalAlignment="Center" HorizontalAlignment="Left"
+               FontSize="{ThemeResource SmallFontSize}" Color="{ThemeResource TextColor}"/>
+        
+        <TextBox Grid.Column="0" Grid.Row="3" Margin="0,5,15,5" Height="50"
+                 Text="{Binding Path=PostalCode, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+                 FontSize="{ThemeResource SmallerFontSize}"/>
+
+        <Button Grid.Column="0" Grid.Row="4" Margin="0,40,15,2" Content="[Cinema.Location.Settings.Search]" Style="{ThemeResource WizardButtonStyle}"
+                VerticalAlignment="Center" HorizontalAlignment="Stretch" HorizontalContentAlignment="Center"
+                Command="{Command ReadCinemas}" FontSize="{ThemeResource SmallFontSize}"/>
+
+        <ListView x:Name="Cinemas" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Style="{ThemeResource CinemaSelectListViewStyle}"
+                  ItemsSource="{Binding Path=Cinemas, Mode=TwoWay}" Grid.Column="1" Grid.RowSpan="6" Margin="50,0,0,10">
+          <ListView.Resources>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="Select">
+                <Command.Parameters>
+                  <LateBoundValue BindingValue="{Binding}"/>
+                </Command.Parameters>
+              </Command>
+            </CommandList>
+          </ListView.Resources>
+        </ListView>
+
+      </Grid>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>

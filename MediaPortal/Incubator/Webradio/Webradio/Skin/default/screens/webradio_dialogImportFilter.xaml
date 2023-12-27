@@ -1,0 +1,32 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+
+<Include
+  xmlns="www.team-mediaportal.com/2008/mpf/directx"
+  xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+  Source="screens\master_configuration_dialog_wb.xaml">
+  <Include.Resources>
+
+    <!-- Header -->
+    <ResourceWrapper x:Key="Dialog_Header_Text" Resource="[Webradio.Dialog.ImportFilter.Header]" />
+
+    <Model x:Key="Model" Id="10D0E2AB-AE84-406F-8AA9-5A3FB2A86360" />
+
+    <ControlTemplate x:Key="Contents_Template">
+      <DockPanel DataContext="{Binding Source={StaticResource Model}}">
+        <ListView x:Name="lvFilter" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
+                  Style="{ThemeResource ContentsMenuListViewStyle}"
+                  ItemsSource="{Binding Path=FilterItems}">
+          <ListView.Resources>
+            <CommandList x:Key="Menu_Command">
+              <Command Source="{StaticResource Model}" Path="SelectedFilter">
+                <Command.Parameters>
+                  <LateBoundValue BindingValue="{Binding}" />
+                </Command.Parameters>
+              </Command>
+            </CommandList>
+          </ListView.Resources>
+        </ListView>
+      </DockPanel>
+    </ControlTemplate>
+  </Include.Resources>
+</Include>
