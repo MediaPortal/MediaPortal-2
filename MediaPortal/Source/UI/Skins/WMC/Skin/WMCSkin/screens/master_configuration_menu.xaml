@@ -24,21 +24,21 @@
                   ItemsSource="{Binding Source={StaticResource MenuModel},Path=MenuItems,Mode=OneTime}">
           <ListView.Style>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding Source="{DynamicResource Show_Contents}" />
+              <Binding Source="{DynamicResource Show_Contents}" Path="Resource" />
               <Binding Source="{ThemeResource LeftMenuListViewStyle}" />
               <Binding Source="{ThemeResource SettingsMenuListViewStyle}" />
             </MultiBinding>
           </ListView.Style>
           <ListView.Width>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : ({2}-80)">
-              <Binding Source="{DynamicResource Show_Contents}" />
+              <Binding Source="{DynamicResource Show_Contents}" Path="Resource" />
               <Binding Source="550" />
               <Binding Source="{SkinWidth}" />
             </MultiBinding>
           </ListView.Width>
           <ListView.Margin>
             <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} ? {1} : {2}">
-              <Binding Source="{DynamicResource Show_Contents}" />
+              <Binding Source="{DynamicResource Show_Contents}" Path="Resource" />
               <Binding Source="10,30,0,10" />
               <Binding Source="0,30,0,-180" />
             </MultiBinding>
