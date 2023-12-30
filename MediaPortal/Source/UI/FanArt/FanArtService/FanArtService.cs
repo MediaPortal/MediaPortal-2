@@ -123,7 +123,14 @@ namespace MediaPortal.Extensions.UserServices.FanArtService
 
     public void Dispose()
     {
-      foreach(var disposable in _providerList.OfType<IDisposable>()) 
+      IList<IFanArtProvider> providers;
+      lock(_syncObj)
+      {
+        if (_providerList == null)
+          return;
+        providers = _providerList;
+      }
+      foreach(var disposable in providers.OfType<IDisposable>()) 
         disposable.Dispose();
     }
   }
