@@ -56,7 +56,9 @@ namespace MediaPortal.Common.Runtime
     {
       SystemMessage msg = new SystemMessage(MessageType.SystemStateChanged);
       msg.MessageData[NEW_STATE] = newState;
-      IMessageBroker messageBroker = ServiceRegistration.Get<IMessageBroker>();
+      // The IMessageBroker service can be missing if an exception occurs very early in
+      // startup and triggers a state change message, avoid throwing a new exception
+      IMessageBroker messageBroker = ServiceRegistration.Get<IMessageBroker>(false);
       if (messageBroker != null)
         messageBroker.Send(CHANNEL, msg);
     }
