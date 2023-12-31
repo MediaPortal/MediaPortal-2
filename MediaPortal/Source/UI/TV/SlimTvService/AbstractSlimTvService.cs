@@ -60,8 +60,8 @@ namespace MediaPortal.Plugins.SlimTv.Service
     public static readonly MediaCategory Series = new MediaCategory("Series", null);
     public static readonly MediaCategory Movie = new MediaCategory("Movie", null);
 
-    protected const int MAX_WAIT_MS = 10000;
-    protected const int MAX_INIT_MS = 20000;
+    protected const int MAX_WAIT_MS = 30000;
+    protected const int MAX_INIT_MS = 60000;
     public const string LOCAL_USERNAME = "Local";
     public const string TVDB_NAME = "MP2TVE_4";
     protected DbProviderFactory _dbProviderFactory;
