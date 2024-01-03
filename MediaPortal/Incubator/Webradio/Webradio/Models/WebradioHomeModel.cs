@@ -159,7 +159,7 @@ namespace Webradio.Models
       FillItemList(Radiostations.Instance.Stations);
     }
 
-    public void ShowFavotites()
+    public void ShowFavorites()
     {
       var favoritList = ServiceRegistration.Get<ISettingsManager>().Load<Favorites>().List ?? new List<string>();
       if (favoritList.Count > 0)
@@ -182,7 +182,7 @@ namespace Webradio.Models
       WebRadioPlayerHelper.PlayStream(Radiostations.ById((string)item.AdditionalProperties[STREAM_ID]));
     }
 
-    public void SetFavoritStatus(ListItem item)
+    public void SetFavoriteStatus(ListItem item)
     {
       WebradioDataModel.SelectedStream = Radiostations.ById((string)item.AdditionalProperties[STREAM_ID]);
       ServiceRegistration.Get<IWorkflowManager>().NavigatePushAsync(new Guid("E3ED86D5-D54C-44F4-A4AA-ABEBBC3574F8"));

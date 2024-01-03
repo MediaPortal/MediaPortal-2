@@ -44,7 +44,7 @@
             <!--Main command-->
             <Command x:Key="Menu_Command" Source="{StaticResource Model}" Path="SelectStream" Parameters="{LateBoundValue BindingValue={Binding}}" />
             <!--Context menu command-->
-            <Command x:Key="Context_Menu_Command" Source="{StaticResource Model}" Path="SetFavoritStatus" Parameters="{LateBoundValue BindingValue={Binding}}" />
+            <Command x:Key="Context_Menu_Command" Source="{StaticResource Model}" Path="SetFavoriteStatus" Parameters="{LateBoundValue BindingValue={Binding}}" />
           </ListView.Resources>
         </ListView>
 
