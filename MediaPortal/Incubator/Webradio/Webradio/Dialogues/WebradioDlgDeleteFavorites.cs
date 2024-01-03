@@ -69,7 +69,7 @@ namespace Webradio.Dialogues
 
     public bool CanEnterState(NavigationContext oldContext, NavigationContext newContext)
     {
-      return Filters.Instance.CanEnterState();
+      return true;
     }
 
     public void EnterModelContext(NavigationContext oldContext, NavigationContext newContext)
