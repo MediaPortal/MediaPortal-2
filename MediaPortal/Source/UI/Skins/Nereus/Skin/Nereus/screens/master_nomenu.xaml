@@ -46,7 +46,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_bare_media.xaml"
+    Source="screens\master_bare.xaml"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     >
   <Include.Resources>
@@ -73,7 +73,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </ControlTemplate>
 
     <ControlTemplate x:Key="TopGradient_Template">
-      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,0,0" Panel.ZIndex="1000">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Panel.ZIndex="1000">
         <Border.Background>
           <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
             <GradientStop Color="#E6000000" Offset="0" />
@@ -89,7 +89,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </ControlTemplate>
 
     <ControlTemplate x:Key="BottomGradient_Template">
-      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,0" Height="100" Panel.ZIndex="1000">
+      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Height="100" Panel.ZIndex="1000">
         <Border.Background>
           <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
             <GradientStop Color="#E6000000" Offset="1" />
