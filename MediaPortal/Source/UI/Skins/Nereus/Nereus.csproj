@@ -494,6 +494,9 @@
     <Content Include="Skin\Nereus\screens\SimpleFilterItems.xaml" />
     <Content Include="Skin\Nereus\screens\SimpleSearch.xaml" />
     <Content Include="Skin\Nereus\screens\SimpleShowItems.xaml" />
+    <Content Include="Skin\Nereus\screens\WatchSystemNotifications.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <Content Include="Skin\Nereus\screens\WindowControlButtons.inc">
       <SubType>Designer</SubType>
     </Content>
@@ -676,6 +679,7 @@
     <Page Remove="Skin\Nereus\screens\SimpleFilterItems.xaml" />
     <Page Remove="Skin\Nereus\screens\SimpleSearch.xaml" />
     <Page Remove="Skin\Nereus\screens\SimpleShowItems.xaml" />
+    <Page Remove="Skin\Nereus\screens\WatchSystemNotifications.xaml" />
     <Page Remove="Skin\Nereus\superlayers\BusyCursor.xaml" />
     <Page Remove="Skin\Nereus\superlayers\ScreenSaver.xaml" />
     <Page Remove="Skin\Nereus\superlayers\SkipStepOSD.xaml" />
