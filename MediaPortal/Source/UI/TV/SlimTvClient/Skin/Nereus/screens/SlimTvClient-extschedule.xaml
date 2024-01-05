@@ -2,7 +2,7 @@
 <Include
     xmlns="www.team-mediaportal.com/2008/mpf/directx"
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-    Source="screens\master_mediamenu.xaml"
+    Source="screens\master_nomenu.xaml"
     xmlns:mp_special_controls="clr-namespace:MediaPortal.UI.SkinEngine.SpecialElements.Controls;assembly=SkinEngine"
     xmlns:fanart="clr-namespace:MediaPortal.Extensions.UserServices.FanArtService.Client;assembly=FanArtService.Client"
     >
@@ -14,41 +14,9 @@
     <!-- SlimTvClient model -->
     <Model x:Key="SlimTvExtScheduleGuide" Id="EB9CB370-9CD6-4D72-8354-73E446104438"/>
 
-    <!-- Top and Bottom Fades -->
-    <ControlTemplate x:Key="TopGradient_Template">
-      <Border HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="0" Margin="0,0,0,0" Panel.ZIndex="1000">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-            <GradientStop Color="#E6000000" Offset="0" />
-            <GradientStop Color="#00000000" Offset="1" />
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-    </ControlTemplate>
-
-    <ControlTemplate x:Key="BottomGradient_Template">
-      <Border HorizontalAlignment="Stretch" VerticalAlignment="Bottom" BorderThickness="0" Margin="0,0,0,0" Height="100" Panel.ZIndex="1000">
-        <Border.Background>
-          <LinearGradientBrush StartPoint="0.5,0" EndPoint="0.5,1">
-            <GradientStop Color="#00000000" Offset="0" />
-            <GradientStop Color="#E6000000" Offset="1" />
-          </LinearGradientBrush>
-        </Border.Background>
-      </Border>
-    </ControlTemplate>
-
-    <!-- Background -->
-    <ControlTemplate x:Key="FanArtBackground_Template">
-      <Image Stretch="Fill" Opacity="1">
-        <Image.Source>
-          <Binding Source="Background_GridView.png"/>
-        </Image.Source>
-      </Image>
-    </ControlTemplate>
-
     <!-- Contents -->
     <ControlTemplate x:Key="Contents_Template">
-      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,-90,0,-270"
+      <Grid x:Name="MainGrid" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Margin="0,-180,0,-360"
             DataContext="{Binding Source={StaticResource SlimTvExtScheduleGuide}}">
         <Grid.ColumnDefinitions>
           <ColumnDefinition Width="*"/>
@@ -88,7 +56,7 @@
         </Grid>
 
         <!-- Content -->
-        <ListView x:Name="ExtScheduleList" Margin="20,-20,-15,-20"
+        <ListView x:Name="ExtScheduleList" Margin="20,20,-15,-20"
                   HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource ExtScheduleListViewStyle}"
                   ItemsSource="{Binding Path=ProgramsList}"
@@ -99,7 +67,7 @@
         </ListView>
 
         <!-- Details -->
-        <Grid Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,50,0,80">
+        <Grid Grid.Row="0" Grid.Column="1" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" Margin="70,50,10,130">
           <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -113,8 +81,13 @@
             <ColumnDefinition Width="*"/>
           </Grid.ColumnDefinitions>
 
-          <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0,0,0,100">
-            <Button Style="{ThemeResource ButtonWideStyle}" Margin="10"
+          <StackPanel Orientation="Vertical" HorizontalAlignment="Left" Margin="0,100,0,60">
+            <StackPanel.IsVisible>
+              <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} &gt; 0 ">
+                <Binding ElementName="ExtScheduleList" Path="ItemsCount" />
+              </MultiBinding>
+            </StackPanel.IsVisible>
+            <Button Style="{ThemeResource WizardButtonStyle}" Margin="0,10,10,5" MinWidth="320"
                     Content="[SlimTvClient.DontRecordProgram]" Command="{Command CancelSchedule}">
               <Button.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}{0} || {1}">
@@ -124,7 +97,7 @@
               </Button.IsVisible>
             </Button>
 
-            <Button Style="{ThemeResource ButtonWideStyle}" Margin="0,10,10,5"
+            <Button Style="{ThemeResource WizardButtonStyle}" Margin="0,10,10,5" MinWidth="320"
                     Content="[SlimTvClient.RecordProgram]" Command="{Command RecordSingleProgram}">
               <Button.IsVisible>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
@@ -134,9 +107,8 @@
               </Button.IsVisible>
             </Button>
 
-            <Button Style="{ThemeResource ButtonWideStyle}" Margin="0,5,10,10"
-                    Content="[SlimTvClient.RecordSeries]" 
-                    Command="{Command RecordSeries}">
+            <Button Style="{ThemeResource WizardButtonStyle}" Margin="0,5,10,5" MinWidth="320"
+                    Content="[SlimTvClient.RecordSeries]" Command="{Command RecordSeries}">
               <Button.IsEnabled>
                 <MultiBinding Converter="{StaticResource ExpressionMultiValueConverter}" ConverterParameter="{}!({0} || {1})">
                   <Binding Path="IsSingleRecordingScheduled"/>
@@ -198,7 +170,7 @@
 
         <!-- Actual Item / Total items -->
           <DockPanel Grid.Column="1" VerticalAlignment="Bottom" HorizontalAlignment="Left" IsVisible="{Binding IsItemsValid}">
-            <StackPanel DockPanel.Dock="Right" Margin="65,-80,25,90" Orientation="Horizontal">
+            <StackPanel DockPanel.Dock="Right" Margin="65,-20,25,130" Orientation="Horizontal">
               <Label HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,0,10,0"
                      Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallerFontSize}">
                 <Label.Content>

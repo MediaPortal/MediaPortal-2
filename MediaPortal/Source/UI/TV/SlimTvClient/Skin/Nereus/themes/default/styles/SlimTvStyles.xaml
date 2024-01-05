@@ -1811,7 +1811,7 @@
       <Grid.ColumnDefinitions>
         <ColumnDefinition Width="Auto"/>
         <ColumnDefinition Width="*"/>
-        <ColumnDefinition Width="380"/>
+        <ColumnDefinition Width="420"/>
         <ColumnDefinition Width="75"/>
       </Grid.ColumnDefinitions>
       <Grid.RowDefinitions>
@@ -1867,6 +1867,11 @@
             <Binding Path="[Series]"/>
           </MultiBinding>
         </Label.Content>
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="ItemLabel" Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
       </Label>
       <Label Grid.Column="2" x:Name="ProgramStartEnd" Margin="10,0,10,0" Color="{ThemeResource TextColor}" VerticalAlignment="Center"
              FontSize="{ThemeResource SmallFontSize}" ScrollDelay="0" Opacity="0.6">
@@ -1887,6 +1892,11 @@
             <Binding Path="[EndTime]"/>
           </MultiBinding>
         </Label.Content>
+        <Label.Triggers>
+          <DataTrigger Binding="{Binding RelativeSource={RelativeSource Mode=FindAncestor, AncestorType=Button}, Path=HasFocus}" Value="True">
+            <Setter TargetName="ProgramStartEnd" Property="Scroll" Value="Auto"/>
+          </DataTrigger>
+        </Label.Triggers>
       </Label>
 
     </Grid>
