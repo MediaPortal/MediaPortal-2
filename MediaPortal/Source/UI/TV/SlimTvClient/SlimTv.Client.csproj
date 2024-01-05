@@ -103,6 +103,7 @@
     <Page Remove="Skin\Nereus\screens\SlimTvClient-miniguide.xaml" />
     <Page Remove="Skin\Nereus\screens\SlimTvClient-programsearch.xaml" />
     <Page Remove="Skin\Nereus\screens\SlimTvClient-schedulelist.xaml" />
+    <Page Remove="Skin\Nereus\superlayers\ChannelZapOSD.xaml" />
     <Page Remove="Skin\Nereus\themes\default\styles\SlimTvColors.xaml" />
     <Page Remove="Skin\Nereus\themes\default\styles\SlimTvConsts.xaml" />
     <Page Remove="Skin\Nereus\themes\default\styles\SlimTvStyles.xaml" />
@@ -262,6 +263,9 @@
     <Content Include="Skin\Nereus\screens\SlimTvClient-miniguide.xaml" />
     <Content Include="Skin\Nereus\screens\SlimTvClient-programsearch.xaml" />
     <Content Include="Skin\Nereus\screens\SlimTvClient-schedulelist.xaml" />
+    <Content Include="Skin\Nereus\superlayers\ChannelZapOSD.xaml">
+      <Generator>MSBuild:Compile</Generator>
+    </Content>
     <Content Include="Skin\Nereus\themes\default\styles\SlimTvColors.xaml" />
     <Content Include="Skin\Nereus\themes\default\styles\SlimTvConsts.xaml" />
     <Content Include="Skin\Nereus\themes\default\styles\SlimTvStyles.xaml" />
