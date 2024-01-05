@@ -1093,11 +1093,11 @@
     <Setter Property="TimeIndicatorTemplate">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle x:Name="TimeIndicator" Width="4" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="0,0,10,0">
+          <Rectangle x:Name="TimeIndicator" Width="4" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="11,0,11,0" Fill="White" RadiusX="3" RadiusY="3">
             <Rectangle.Fill>
               <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                <GradientStop Offset="0" Color="#20A0A0A0"/>
-                <GradientStop Offset="1"  Color="#A0F0F0F0"/>
+                <GradientStop Offset="1" Color="#FFFFFFFF"/>
+                <GradientStop Offset="0"  Color="#66FFFFFF"/>
               </LinearGradientBrush >
             </Rectangle.Fill>
           </Rectangle>
