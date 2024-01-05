@@ -80,7 +80,7 @@ Parameters which have to be accessible by a DynamicResource lookup:
     </EventTrigger>
   </Screen.Triggers>
 
-  <Grid x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5" Background="{ThemeResource DialogScreenBackgroundColor}">
+  <Grid x:Name="ScreenAnimationElement" RenderTransformOrigin="0.5,0.5">
     <Grid.ColumnDefinitions>
       <ColumnDefinition Width="*"/>
     </Grid.ColumnDefinitions>
