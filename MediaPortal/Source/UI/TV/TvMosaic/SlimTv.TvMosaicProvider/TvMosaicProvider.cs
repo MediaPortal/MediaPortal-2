@@ -363,27 +363,27 @@ namespace SlimTv.TvMosaicProvider
         epgSearcher.ChannelsIDs = new ChannelIDList(channels.Select(c => GetTvMosaicChannelId(c.ChannelId)).ToList());
 
       // Regular loading without keyword or limits can be fetched from cache
-      if (keyWord == null && maxPrograms == -1 &&
-          (!from.HasValue || from.Value >= _fullDayProgramsCache.CacheStart) &&
-          (!to.HasValue || to.Value <= _fullDayProgramsCache.CacheEnd))
-      {
-        List<IProgram> cachedPrograms = new List<IProgram>();
-        foreach (IChannel channel in channels)
-        {
-          var dayPrograms = await _fullDayProgramsCache.GetAsync(channel);
-          if (dayPrograms == null)
-            continue;
-          IEnumerable<IProgram> filtered = dayPrograms;
-          if (from.HasValue)
-            filtered = filtered.Where(p => p.EndTime >= from.Value || p.StartTime >= from.Value);
-          if (to.HasValue)
-            filtered = filtered.Where(p => p.StartTime <= to.Value);
+      //if (keyWord == null && maxPrograms == -1 &&
+      //    (!from.HasValue || from.Value >= _fullDayProgramsCache.CacheStart) &&
+      //    (!to.HasValue || to.Value <= _fullDayProgramsCache.CacheEnd))
+      //{
+      //  List<IProgram> cachedPrograms = new List<IProgram>();
+      //  foreach (IChannel channel in channels)
+      //  {
+      //    var dayPrograms = await _fullDayProgramsCache.GetAsync(channel);
+      //    if (dayPrograms == null)
+      //      continue;
+      //    IEnumerable<IProgram> filtered = dayPrograms;
+      //    if (from.HasValue)
+      //      filtered = filtered.Where(p => p.EndTime >= from.Value || p.StartTime >= from.Value);
+      //    if (to.HasValue)
+      //      filtered = filtered.Where(p => p.StartTime <= to.Value);
 
-          cachedPrograms.AddRange(filtered);
-        }
-        var result = new AsyncResult<IList<IProgram>>(cachedPrograms.Count > 0, cachedPrograms);
-        return result;
-      }
+      //    cachedPrograms.AddRange(filtered);
+      //  }
+      //  var result = new AsyncResult<IList<IProgram>>(cachedPrograms.Count > 0, cachedPrograms);
+      //  return result;
+      //}
 
       var programs = await _dvbLink.SearchEpg(epgSearcher).ConfigureAwait(false);
       if (programs.Status == StatusCode.STATUS_OK && programs.Result.Any())
