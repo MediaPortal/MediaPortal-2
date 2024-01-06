@@ -34,12 +34,11 @@ using MediaPortal.Plugins.SlimTv.Interfaces.Items;
 using MediaPortal.Plugins.SlimTv.Interfaces.LiveTvMediaItem;
 using MediaPortal.Plugins.SlimTv.Interfaces.ResourceProvider;
 using MediaPortal.Plugins.SlimTv.Interfaces.UPnP.Items;
+using SlimTv.TvMosaicProvider.Utils;
 using System;
-using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
-using System.Runtime.Caching;
 using System.Threading.Tasks;
 using TvMosaic.API;
 using TvMosaic.Shared;
@@ -62,7 +61,9 @@ namespace SlimTv.TvMosaicProvider
     private static readonly string LOCAL_SYSTEM = SystemName.LocalHostName;
     private HttpDataProvider _dvbLink;
     private readonly object _syncObj = new object();
-    private readonly IDictionary<string, int> _idMapping = new ConcurrentDictionary<string, int>();
+
+    private readonly IdMapper<string> _channelAndGroupIdMap = new IdMapper<string>();
+    private readonly IdMapper<(string channel, string program)> _programIdMap = new IdMapper<(string, string)>();
     private readonly IDictionary<int, List<IChannel>> _channelGroupMap = new ConcurrentDictionary<int, List<IChannel>>();
     private readonly IList<IChannelGroup> _channelGroups = new List<IChannelGroup>();
     private readonly IList<IChannel> _mpChannels = new List<IChannel>();
@@ -128,17 +129,14 @@ namespace SlimTv.TvMosaicProvider
 
     #region IChannelAndGroupInfoAsync
 
-    private int GetId(string key)
+    private int GetSlimTvChannelId(string tvMosaicId)
     {
-      if (!_idMapping.ContainsKey(key))
-        return _idMapping[key] = _idMapping.Count + 1;
-      return _idMapping[key];
+      return _channelAndGroupIdMap.GetOrCreateId(tvMosaicId);
     }
 
-    private string GetTvMosaicId(int key)
+    private string GetTvMosaicChannelId(int slimTvId)
     {
-      KeyValuePair<string, int> map = _idMapping.FirstOrDefault(m => m.Value == key);
-      return map.Key;
+      return _channelAndGroupIdMap.GetKey(slimTvId);
     }
 
     private async Task<bool> LoadChannels()
@@ -164,7 +162,7 @@ namespace SlimTv.TvMosaicProvider
 
         foreach (var channel in channels.Result.OrderBy(c => c.Number == 0 ? 100000 : c.Number).ThenBy(c => c.SubNumber).ThenBy(c => c.Name))
         {
-          var mappedId = GetId(channel.Id);
+          var mappedId = GetSlimTvChannelId(channel.Id);
           IChannel mpChannel = new TvMosaicChannel
           {
             TvMosaicId = channel.Id,
@@ -184,7 +182,7 @@ namespace SlimTv.TvMosaicProvider
           IChannelGroup group = new ChannelGroup
           {
             Name = favorite.Name,
-            ChannelGroupId = GetId(groupId),
+            ChannelGroupId = GetSlimTvChannelId(groupId),
             MediaType = groupChannels.All(c => c.MediaType == MediaType.Radio) ? MediaType.Radio : MediaType.TV,
           };
 
@@ -341,7 +339,7 @@ namespace SlimTv.TvMosaicProvider
       {
         StartTime = @from.ToUnixTime(),
         EndTime = to.ToUnixTime(),
-        ChannelsIDs = new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList())
+        ChannelsIDs = new ChannelIDList(channels.Select(c => GetTvMosaicChannelId(c.ChannelId)).ToList())
       };
 
       var programs = await _dvbLink.SearchEpg(epgSearcher).ConfigureAwait(false);
@@ -362,11 +360,11 @@ namespace SlimTv.TvMosaicProvider
         RequestedCount = maxPrograms
       };
       if (channels != null)
-        epgSearcher.ChannelsIDs = new ChannelIDList(channels.Select(c => GetTvMosaicId(c.ChannelId)).ToList());
+        epgSearcher.ChannelsIDs = new ChannelIDList(channels.Select(c => GetTvMosaicChannelId(c.ChannelId)).ToList());
 
       // Regular loading without keyword or limits can be fetched from cache
-      if (keyWord == null && maxPrograms == -1 && 
-          (!from.HasValue || from.Value >= _fullDayProgramsCache.CacheStart) && 
+      if (keyWord == null && maxPrograms == -1 &&
+          (!from.HasValue || from.Value >= _fullDayProgramsCache.CacheStart) &&
           (!to.HasValue || to.Value <= _fullDayProgramsCache.CacheEnd))
       {
         List<IProgram> cachedPrograms = new List<IProgram>();
@@ -414,7 +412,7 @@ namespace SlimTv.TvMosaicProvider
       var endTime = startTime.AddSeconds(manualSchedule.Duration);
       var mpProgram = new MPProgram
       {
-        ChannelId = GetId(manualSchedule.ChannelId),
+        ChannelId = GetSlimTvChannelId(manualSchedule.ChannelId),
         Title = "Manual", // required for SlimTV handling of manual schedules (localized label). // manualSchedule.Title,
         StartTime = startTime,
         EndTime = endTime,
@@ -423,14 +421,14 @@ namespace SlimTv.TvMosaicProvider
       return mpProgram;
     }
 
-    private MPProgram ToProgram(TvMosaic.API.Program tvMosaicProgram, string channelId = "")
+    private MPProgram ToProgram(TvMosaic.API.Program tvMosaicProgram, string channelId)
     {
       var startTime = tvMosaicProgram.StartTime.FromUnixTime();
       var endTime = startTime.AddSeconds(tvMosaicProgram.Duration);
       var mpProgram = new MPProgram
       {
-        ChannelId = GetId(channelId),
-        ProgramId = ToUniqueProgramId(channelId, tvMosaicProgram.Id),
+        ChannelId = GetSlimTvChannelId(channelId),
+        ProgramId = GetSlimTvProgramId(channelId, tvMosaicProgram.Id),
         Title = tvMosaicProgram.Title,
         Description = tvMosaicProgram.ShortDesc,
         StartTime = startTime,
@@ -451,9 +449,14 @@ namespace SlimTv.TvMosaicProvider
       return mpProgram;
     }
 
-    public static int ToUniqueProgramId(string channelId, string programId)
+    public int GetSlimTvProgramId(string tvMosaicChannelId, string tvMosaicProgramId)
     {
-      return int.Parse(programId); // (channelId + programId).GetHashCode();
+      return _programIdMap.GetOrCreateId((tvMosaicChannelId, tvMosaicProgramId));
+    }
+
+    public string GetTvMosaicProgramId(int slimTvId)
+    {
+      return _programIdMap.GetKey(slimTvId).program;
     }
 
     public async Task<AsyncResult<IList<IProgram>>> GetProgramsAsync(string title, DateTime @from, DateTime to)
@@ -590,8 +593,8 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<ISchedule>> CreateScheduleAsync(IProgram program, ScheduleRecordingType recordingType)
     {
-      var channelId = GetTvMosaicId(program.ChannelId);
-      var programId = program.ProgramId.ToString(); // StartTime.ToUnixTime().ToString(); // Translate start time back to timestamp
+      var channelId = GetTvMosaicChannelId(program.ChannelId);
+      var programId =  GetTvMosaicProgramId(program.ProgramId); // StartTime.ToUnixTime().ToString(); // Translate start time back to timestamp
       var byEpg = new ByEpgSchedule(channelId, programId);
       byEpg.IsRepeat = recordingType != ScheduleRecordingType.Once;
       var scheduleRequest = new TvMosaic.API.Schedule(byEpg);
@@ -601,7 +604,7 @@ namespace SlimTv.TvMosaicProvider
         var sResult = await _dvbLink.GetSchedules(new SchedulesRequest()).ConfigureAwait(false);
         if (sResult.Status == StatusCode.STATUS_OK)
         {
-          var createdSchedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && ToUniqueProgramId(s.ByEpg.ChannelId, s.ByEpg.ProgramId) == ToUniqueProgramId(channelId, programId));
+          var createdSchedule = sResult.Result.FirstOrDefault(s => s.ByEpg != null && s.ByEpg.ChannelId == channelId && s.ByEpg.ProgramId == programId);
           if (createdSchedule != null)
           {
             return new AsyncResult<ISchedule>(true, ToSchedule(createdSchedule));
@@ -618,7 +621,7 @@ namespace SlimTv.TvMosaicProvider
         var program = ToProgram(createdSchedule.ByEpg.Program, createdSchedule.ByEpg.ChannelId);
         var mpSchedule = new MPSchedule
         {
-          ChannelId = GetId(createdSchedule.ByEpg.ChannelId),
+          ChannelId = GetSlimTvChannelId(createdSchedule.ByEpg.ChannelId),
           StartTime = program.StartTime,
           EndTime = program.EndTime,
           ScheduleId = Int32.Parse(createdSchedule.ScheduleID),
@@ -635,7 +638,7 @@ namespace SlimTv.TvMosaicProvider
         var program = ToProgram(createdSchedule.Manual);
         var mpSchedule = new MPSchedule
         {
-          ChannelId = GetId(createdSchedule.Manual.ChannelId),
+          ChannelId = GetSlimTvChannelId(createdSchedule.Manual.ChannelId),
           StartTime = program.StartTime,
           EndTime = program.EndTime,
           ScheduleId = Int32.Parse(createdSchedule.ScheduleID),
@@ -650,7 +653,7 @@ namespace SlimTv.TvMosaicProvider
 
     public async Task<AsyncResult<ISchedule>> CreateScheduleByTimeAsync(IChannel channel, DateTime @from, DateTime to, ScheduleRecordingType recordingType)
     {
-      var channelId = GetTvMosaicId(channel.ChannelId);
+      var channelId = GetTvMosaicChannelId(channel.ChannelId);
       int dayMask = 0;
       var startTime = @from.ToUnixTime();
       var manualSchedule = new ManualSchedule(channelId, "Manual", startTime, (int)(to - from).TotalSeconds, dayMask);
@@ -694,7 +697,7 @@ namespace SlimTv.TvMosaicProvider
       {
         foreach (var scheduledProgram in scheduledPrograms.Result)
         {
-          if (scheduledProgram.Program.Id == program.ProgramId.ToString())
+          if (GetSlimTvProgramId(scheduledProgram.ChannelId, scheduledProgram.Program.Id) == program.ProgramId)
           {
             // Only remove single program from schedule
             if (recordingType == ScheduleRecordingType.Once)
@@ -736,7 +739,7 @@ namespace SlimTv.TvMosaicProvider
       {
         foreach (var scheduledProgram in scheduledPrograms.Result)
         {
-          if (scheduledProgram.Program.Id == program.ProgramId.ToString())
+          if (GetSlimTvProgramId(scheduledProgram.ChannelId, scheduledProgram.Program.Id) == program.ProgramId)
           {
             status = RecordingStatus.Scheduled;
           }
@@ -759,7 +762,7 @@ namespace SlimTv.TvMosaicProvider
       {
         foreach (Recording recording in scheduledPrograms.Result.Where(r => r.ScheduleId == schedule.ScheduleId.ToString() && !string.IsNullOrEmpty(r.Program.Id)))
         {
-          MPProgram program = ToProgram(recording.Program);
+          MPProgram program = ToProgram(recording.Program, recording.ChannelId);
           programs.Add(program);
         }
       }
