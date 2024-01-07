@@ -63,7 +63,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Core">
-      <Version>6.0.2</Version>
+      <Version>6.0.3</Version>
       <GeneratePathProperty>True</GeneratePathProperty>
       <IncludeAssets>all</IncludeAssets>
     </PackageReference>
