@@ -76,7 +76,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="MediaPortal.TvEngine.Core3">
-      <Version>3.0.23.102</Version>
+      <Version>3.0.24</Version>
     </PackageReference>
   </ItemGroup>
   <Import Project="build.targets" />
