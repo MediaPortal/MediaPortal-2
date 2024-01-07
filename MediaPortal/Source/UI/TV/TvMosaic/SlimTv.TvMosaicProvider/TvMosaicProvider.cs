@@ -57,6 +57,7 @@ namespace SlimTv.TvMosaicProvider
   {
 
     public const string MIME_TYPE_TVMOSAIC_STREAM = "SlimTV/TvMosaicPlayer";
+    public const string MIME_TYPE_TVMOSAIC_RADIO_STREAM = "SlimTV/TvMosaicRadioPlayer";
 
     private static readonly string LOCAL_SYSTEM = SystemName.LocalHostName;
     private HttpDataProvider _dvbLink;
@@ -586,8 +587,9 @@ namespace SlimTv.TvMosaicProvider
 
     public MediaItem CreateMediaItem(int slotIndex, string streamUrl, IChannel channel)
     {
-      bool isTv = true;
-      LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel, isTv, MIME_TYPE_TVMOSAIC_STREAM);
+      bool isTv = channel.MediaType == MediaType.TV;
+      string mimeType = isTv ? MIME_TYPE_TVMOSAIC_STREAM : MIME_TYPE_TVMOSAIC_RADIO_STREAM;
+      LiveTvMediaItem tvStream = SlimTvMediaItemBuilder.CreateMediaItem(slotIndex, streamUrl, channel, isTv, mimeType);
       return tvStream;
     }
 

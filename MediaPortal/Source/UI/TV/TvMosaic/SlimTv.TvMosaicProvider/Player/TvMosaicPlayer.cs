@@ -70,7 +70,7 @@ namespace SlimTv.TvMosaicProvider.Player
 
     #region IUIContributorPlayer Member
 
-    public Type UIContributorType
+    public virtual Type UIContributorType
     {
       get { return typeof(SlimTvUIContributor); }
     }

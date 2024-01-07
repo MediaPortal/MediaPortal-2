@@ -39,6 +39,7 @@
 
   <Register Location="/VideoPlayers/MimeTypeRegistrations">
     <VideoPlayerMimeTypeMapping Id="{9F6AFDAB-B74A-445E-A6F5-DA8813731925}" ClassName="SlimTv.TvMosaicProvider.Player.TvMosaicPlayer" MimeType="SlimTV/TvMosaicPlayer"/>
+    <VideoPlayerMimeTypeMapping Id="{C61C0952-C01A-4570-91CD-C6EAB42BBD0D}" ClassName="SlimTv.TvMosaicProvider.Player.TvMosaicRadioPlayer" MimeType="SlimTV/TvMosaicRadioPlayer"/>
   </Register>
 
 
