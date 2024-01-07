@@ -49,7 +49,7 @@
               Color="{ThemeResource TextColor}" FontSize="{ThemeResource SmallFontSize}"/>
         </StackPanel>
          
-        <ListView  Grid.Column="0" Grid.Row="1"
+        <ListView  Grid.Column="0" Grid.Row="1" SetFocus="True"
               Margin="10" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SingleProgramGuideListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"

@@ -78,7 +78,7 @@
           </Grid.Triggers>
         </Grid>
          
-        <ListView  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1"
+        <ListView  Grid.Column="0" Grid.ColumnSpan="2" Grid.Row="1" SetFocus="True"
               Margin="0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
               Style="{ThemeResource SingleProgramGuideListViewStyle}"
               ItemsSource="{Binding Path=ProgramsList}"

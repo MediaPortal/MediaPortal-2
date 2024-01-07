@@ -76,7 +76,7 @@
           </Button.Triggers>
         </Button>
 
-        <ListView Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" x:Name="GuideList"
+        <ListView Grid.Column="1" Grid.Row="1" Grid.ColumnSpan="2" x:Name="GuideList" SetFocus="True"
                   Margin="20,5,-10,0" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"
                   Style="{ThemeResource SingleChannelWithLogoAndProgramListViewStyle}"
                   ItemsSource="{Binding Path=ProgramsList}"
