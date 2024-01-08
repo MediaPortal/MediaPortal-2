@@ -1093,14 +1093,22 @@
     <Setter Property="TimeIndicatorTemplate">
       <Setter.Value>
         <ControlTemplate>
-          <Rectangle x:Name="TimeIndicator" Width="4" HorizontalAlignment="Left" VerticalAlignment="Stretch" Margin="11,0,11,0" Fill="White" RadiusX="3" RadiusY="3">
-            <Rectangle.Fill>
-              <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
-                <GradientStop Offset="1" Color="#FFFFFFFF"/>
-                <GradientStop Offset="0"  Color="#66FFFFFF"/>
-              </LinearGradientBrush >
-            </Rectangle.Fill>
-          </Rectangle>
+          <Grid RenderTransformOrigin="0.5,0.5" >
+            <Grid.ColumnDefinitions>
+              <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+              <RowDefinition Height="*"/>
+            </Grid.RowDefinitions>
+            <Rectangle x:Name="TimeIndicator" HorizontalAlignment="Left" VerticalAlignment="Stretch" Fill="White" RadiusX="3" RadiusY="3" Width="8" Margin="0,0,10,0">
+              <Rectangle.Fill>
+                <LinearGradientBrush StartPoint="0,0.5" EndPoint="1,0.5">
+                  <GradientStop Offset="1" Color="#FFFFFFFF"/>
+                  <GradientStop Offset="0"  Color="#66FFFFFF"/>
+                </LinearGradientBrush >
+              </Rectangle.Fill>
+            </Rectangle>
+          </Grid>
         </ControlTemplate>
       </Setter.Value>
     </Setter>
